@@ -1,0 +1,57 @@
+SECURITY UPDATE SUMMARY – 2026-06-19T01:16:53+00:00
+
+--- APT Security Updates ---
+  gtk-update-icon-cache (Critical) -> 4.22.4+ds-0ubuntu0.1 [CVE: CVE-2007-0010,CVE-2007-0010,CVE-2005-3186,]
+  libheif-plugin-aomdec (High) -> 1.21.2-3ubuntu0.1 [CVE: CVE-2026-32738,CVE-2026-32738,CVE-2026-32739,]
+  libheif-plugin-aomenc (High) -> 1.21.2-3ubuntu0.1 [CVE: CVE-2026-32738,CVE-2026-32738,CVE-2026-32739,]
+  libheif1 (High) -> 1.21.2-3ubuntu0.1 [CVE: CVE-2026-32738,CVE-2026-32738,CVE-2026-32739,]
+  libvirt-clients (Critical) -> 12.0.0-1ubuntu5.1 [CVE: CVE-2025-12748,CVE-2025-13193,CVE-2025-12748,]
+  libvirt-common (Critical) -> 12.0.0-1ubuntu5.1 [CVE: CVE-2025-12748,CVE-2025-13193,CVE-2025-12748,]
+  libvirt-daemon-common (Critical) -> 12.0.0-1ubuntu5.1 [CVE: CVE-2025-12748,CVE-2025-13193,CVE-2025-12748,]
+  libvirt-daemon-config-network (Critical) -> 12.0.0-1ubuntu5.1 [CVE: CVE-2025-12748,CVE-2025-13193,CVE-2025-12748,]
+  libvirt-daemon-config-nwfilter (Critical) -> 12.0.0-1ubuntu5.1 [CVE: CVE-2025-12748,CVE-2025-13193,CVE-2025-12748,]
+  libvirt-daemon-driver-interface (Critical) -> 12.0.0-1ubuntu5.1 [CVE: CVE-2025-12748,CVE-2025-13193,CVE-2025-12748,]
+  libvirt-daemon-driver-network (Critical) -> 12.0.0-1ubuntu5.1 [CVE: CVE-2025-12748,CVE-2025-13193,CVE-2025-12748,]
+  libvirt-daemon-driver-nodedev (Critical) -> 12.0.0-1ubuntu5.1 [CVE: CVE-2025-12748,CVE-2025-13193,CVE-2025-12748,]
+  libvirt-daemon-driver-nwfilter (Critical) -> 12.0.0-1ubuntu5.1 [CVE: CVE-2025-12748,CVE-2025-13193,CVE-2025-12748,]
+  libvirt-daemon-driver-qemu (Critical) -> 12.0.0-1ubuntu5.1 [CVE: CVE-2025-12748,CVE-2025-13193,CVE-2025-12748,]
+  libvirt-daemon-driver-secret (Critical) -> 12.0.0-1ubuntu5.1 [CVE: CVE-2025-12748,CVE-2025-13193,CVE-2025-12748,]
+  libvirt-daemon-driver-storage-disk (Critical) -> 12.0.0-1ubuntu5.1 [CVE: CVE-2025-12748,CVE-2025-13193,CVE-2025-12748,]
+  libvirt-daemon-driver-storage-iscsi (Critical) -> 12.0.0-1ubuntu5.1 [CVE: CVE-2025-12748,CVE-2025-13193,CVE-2025-12748,]
+  libvirt-daemon-driver-storage-logical (Critical) -> 12.0.0-1ubuntu5.1 [CVE: CVE-2025-12748,CVE-2025-13193,CVE-2025-12748,]
+  libvirt-daemon-driver-storage-mpath (Critical) -> 12.0.0-1ubuntu5.1 [CVE: CVE-2025-12748,CVE-2025-13193,CVE-2025-12748,]
+  libvirt-daemon-driver-storage-scsi (Critical) -> 12.0.0-1ubuntu5.1 [CVE: CVE-2025-12748,CVE-2025-13193,CVE-2025-12748,]
+  libvirt-daemon-driver-storage (Critical) -> 12.0.0-1ubuntu5.1 [CVE: CVE-2025-12748,CVE-2025-13193,CVE-2025-12748,]
+  libvirt-daemon-lock (Critical) -> 12.0.0-1ubuntu5.1 [CVE: CVE-2025-12748,CVE-2025-13193,CVE-2025-12748,]
+  libvirt-daemon-log (Critical) -> 12.0.0-1ubuntu5.1 [CVE: CVE-2025-12748,CVE-2025-13193,CVE-2025-12748,]
+  libvirt-daemon-plugin-lockd (Critical) -> 12.0.0-1ubuntu5.1 [CVE: CVE-2025-12748,CVE-2025-13193,CVE-2025-12748,]
+  libvirt-daemon-system (Critical) -> 12.0.0-1ubuntu5.1 [CVE: CVE-2025-12748,CVE-2025-13193,CVE-2025-12748,]
+  libvirt-daemon (Critical) -> 12.0.0-1ubuntu5.1 [CVE: CVE-2025-12748,CVE-2025-13193,CVE-2025-12748,]
+  libvirt-l10n (Critical) -> 12.0.0-1ubuntu5.1 [CVE: CVE-2025-12748,CVE-2025-13193,CVE-2025-12748,]
+  libvirt0 (Critical) -> 12.0.0-1ubuntu5.1 [CVE: CVE-2025-12748,CVE-2025-13193,CVE-2025-12748,]
+  python3-distupgrade (Critical) -> 1:26.04.22 [CVE: CVE-2012-0948,CVE-2012-0949,CVE-2011-3152,]
+  qemu-block-extra (Critical) -> 1:10.2.1+ds-1ubuntu3.1 [CVE: CVE-2025-14876,CVE-2026-0665,CVE-2026-0665,]
+  qemu-system-common (Critical) -> 1:10.2.1+ds-1ubuntu3.1 [CVE: CVE-2025-14876,CVE-2026-0665,CVE-2026-0665,]
+  qemu-system-data (Critical) -> 1:10.2.1+ds-1ubuntu3.1 [CVE: CVE-2025-14876,CVE-2026-0665,CVE-2026-0665,]
+  qemu-system-gui (Critical) -> 1:10.2.1+ds-1ubuntu3.1 [CVE: CVE-2025-14876,CVE-2026-0665,CVE-2026-0665,]
+  qemu-system-modules-opengl (Critical) -> 1:10.2.1+ds-1ubuntu3.1 [CVE: CVE-2025-14876,CVE-2026-0665,CVE-2026-0665,]
+  qemu-system-modules-spice (Critical) -> 1:10.2.1+ds-1ubuntu3.1 [CVE: CVE-2025-14876,CVE-2026-0665,CVE-2026-0665,]
+  qemu-system-x86 (Critical) -> 1:10.2.1+ds-1ubuntu3.1 [CVE: CVE-2025-14876,CVE-2026-0665,CVE-2026-0665,]
+  qemu-utils (Critical) -> 1:10.2.1+ds-1ubuntu3.1 [CVE: CVE-2025-14876,CVE-2026-0665,CVE-2026-0665,]
+  ubuntu-helper-virt-hwe (Critical) -> 1:10.2.1+ds-1ubuntu4.2 [CVE: CVE-2025-14876,CVE-2026-0665,CVE-2026-0665,]
+  ubuntu-release-upgrader-core (Critical) -> 1:26.04.22 [CVE: CVE-2012-0948,CVE-2012-0949,CVE-2011-3152,]
+  ubuntu-virt (Critical) -> 1:10.2.1+ds-1ubuntu3.1 [CVE: CVE-2025-14876,CVE-2026-0665,CVE-2026-0665,]
+  update-notifier-common (Critical) -> 3.207.1 [CVE: CVE-2024-3094,]
+  vim-common (Critical) -> 2:9.1.2141-1ubuntu4.5 [CVE: CVE-2026-47162,CVE-2026-47162,CVE-2026-47167,]
+  vim-runtime (Critical) -> 2:9.1.2141-1ubuntu4.5 [CVE: CVE-2026-47162,CVE-2026-47162,CVE-2026-47167,]
+  vim-tiny (Critical) -> 2:9.1.2141-1ubuntu4.5 [CVE: CVE-2026-47162,CVE-2026-47162,CVE-2026-47167,]
+  vim (Critical) -> 2:9.1.2141-1ubuntu4.5 [CVE: CVE-2026-47162,CVE-2026-47162,CVE-2026-47167,]
+  xxd (Critical) -> 2:9.1.2141-1ubuntu4.5 [CVE: CVE-2026-47162,CVE-2026-47162,CVE-2026-47167,]
+
+--- PIP Security Updates ---
+  cryptography (High) -> 49.0.0
+  requests (High) -> 2.34.2
+  urllib3 (High) -> 2.7.0
+
+--- Docker Security Updates ---
+  70a9c11171de -> update available (Medium)

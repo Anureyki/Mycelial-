@@ -1,0 +1,17 @@
+{
+  "timestamp": "2026-06-18T08:20:49.310564",
+  "failure_summary": {
+    "datagatherer": {
+      "total": 10,
+      "failures": 0,
+      "tasks": {}
+    },
+    "boss_agent": {
+      "total": 23,
+      "failures": 0,
+      "tasks": {}
+    }
+  },
+  "recommendations": [],
+  "criticality": "low"
+}

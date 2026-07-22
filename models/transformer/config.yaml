@@ -1,0 +1,26 @@
+# Transformer Model Configuration – General reasoning / RAG
+model:
+  name: "distilbert-base-uncased"   # or "gpt2", "bert-base-uncased"
+  max_seq_len: 128
+  num_labels: 2                     # if classification, else 0 for generation
+
+training:
+  batch_size: 16
+  epochs: 10
+  learning_rate: 2e-5
+  weight_decay: 0.01
+  warmup_steps: 500
+  data_dir: "dataset/finetune_data.csv"   # CSV with 'text' and 'label' (optional)
+
+inference:
+  temperature: 0.7
+  max_new_tokens: 100
+
+rag:
+  enabled: true
+  vector_db: "chroma"
+  collection_name: "mycelial_docs"
+
+logging:
+  log_dir: "logs"
+  checkpoint_dir: "weights"

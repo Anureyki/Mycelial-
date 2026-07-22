@@ -1,0 +1,21 @@
+{
+  "conversations": [],
+  "skills": [],
+  "preferences": {},
+  "agent_memory": {},
+  "project_memory": {},
+  "business_memory": {},
+  "personal_memory": {},
+  "approved_sources": [
+    "docs.python.org",
+    "github.com",
+    "huggingface.co",
+    "ollama.ai",
+    "stackoverflow.com"
+  ],
+  "capability_cache": {},
+  "test": {
+    "hello": "world",
+    "greeting": "Hello Obsidian!"
+  }
+}

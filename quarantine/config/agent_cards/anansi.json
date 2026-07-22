@@ -1,0 +1,22 @@
+{
+  "agent_id": "anansi",
+  "role": "interface",
+  "version": "1.0.0",
+  "capabilities": [
+    "process",
+    "voice"
+  ],
+  "endpoint": "/execute",
+  "port": 8081,
+  "transport": [
+    "http",
+    "mqtt"
+  ],
+  "mqtt_topics": {
+    "publish": "mycelial/agent/anansi/out",
+    "subscribe": "mycelial/agent/anansi/in"
+  },
+  "public_key": "",
+  "owner": "anureyki",
+  "created": "2026-07-17T04:08:55.710345"
+}

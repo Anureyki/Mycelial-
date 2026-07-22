@@ -1,0 +1,24 @@
+# LSTM Model Configuration – Time-series sensor data
+model:
+  name: "SensorLSTM"
+  input_size: 6              # features: temp, humidity, VPD, EC, pH, CO2
+  hidden_size: 64
+  num_layers: 2
+  output_size: 1             # binary classification
+  seq_len: 24                # number of past time steps
+
+training:
+  batch_size: 32
+  epochs: 50
+  learning_rate: 0.001
+  weight_decay: 0.0005
+  early_stopping_patience: 10
+  validation_split: 0.2
+  data_dir: "dataset/sensor_data.csv"   # CSV with columns: temp,humidity,vpd,ec,ph,co2,contamination (target at last step)
+
+inference:
+  confidence_threshold: 0.5
+
+logging:
+  log_dir: "logs"
+  checkpoint_dir: "weights"

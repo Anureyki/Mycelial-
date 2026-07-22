@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Source Monitor</title>
+    <style>
+        body { font-family: monospace; background: #1a1a2e; color: #fff; padding: 20px; }
+        .healthy { color: #00ff88; }
+        .warning { color: #ffaa00; }
+        .error { color: #ff4444; }
+        .card { background: #16213e; padding: 20px; margin: 10px 0; border-radius: 10px; }
+        table { width: 100%; border-collapse: collapse; }
+        th, td { padding: 10px; text-align: left; border-bottom: 1px solid #333; }
+    </style>
+</head>
+<body>
+    <div class="card">
+        <h1>📡 Mycelial Source Monitor</h1>
+        <p>Last updated: <span id="timestamp">Loading...</span></p>
+        <button onclick="refresh()">🔄 Refresh</button>
+        <button onclick="runMonitor()">🔍 Run Full Monitor</button>
+    </div>
+    <div id="sources" class="card">Loading...</div>
+    <script>
+        function refresh() {
+            fetch('/api/sources')
+                .then(r => r.json())
+                .then(data => {
+                    document.getElementById('timestamp').textContent = data.timestamp;
+                    let html = '<table><tr><th>Source</th><th>Status</th><th>URL</th></tr>';
+                    data.sources.forEach(s => {
+                        let cls = s.status === 'healthy' ? 'healthy' : s.status === 'updated' ? 'warning' : 'error';
+                        html += `<tr><td>${s.name}</td><td class="${cls}">${s.status}</td><td>${s.url.substring(0, 50)}...</td></tr>`;
+                    });
+                    html += '</table>';
+                    document.getElementById('sources').innerHTML = html;
+                });
+        }
+        function runMonitor() {
+            fetch('/api/monitor')
+                .then(() => refresh());
+        }
+        refresh();
+        setInterval(refresh, 60000);
+    </script>
+</body>
+</html>

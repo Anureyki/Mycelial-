@@ -1,0 +1,1297 @@
+#!/usr/bin/env python3
+"""
+Boss Agent – Mycelial Neural Network Controller
+Orchestrates tasks, delegates to agents, manages FL, security, and permissions.
+"""
+
+import os, sys, json, subprocess, argparse, re, yaml
+from datetime import datetime
+
+BASE = os.path.expanduser("~/mycelial")
+STATE_FILE = os.path.join(BASE, "state", "boss_agent.json")
+LOG_FILE = os.path.join(BASE, "logs", "audit.log")
+SOURCE_OF_TRUTH = os.path.join(BASE, "README.md")
+
+def log(msg):
+    ts = datetime.now().isoformat()
+    with open(LOG_FILE, "a") as f:
+        f.write(f"{ts} | boss_agent | {msg}\n")
+    print(msg)
+
+def read_state():
+    if os.path.exists(STATE_FILE):
+        try:
+            with open(STATE_FILE, "r") as f:
+                return json.load(f)
+        except json.JSONDecodeError:
+            log("⚠️ Corrupted state file. Resetting.")
+            os.rename(STATE_FILE, STATE_FILE + ".bak")
+            return {"tasks": [], "agents": {}, "pending": [], "autostart": {}}
+    return {"tasks": [], "agents": {}, "pending": [], "autostart": {}}
+
+def write_state(state):
+    with open(STATE_FILE, "w") as f:
+        json.dump(state, f, indent=2)
+
+def read_source_of_truth():
+    if os.path.exists(SOURCE_OF_TRUTH):
+        with open(SOURCE_OF_TRUTH, "r") as f:
+            return f.read()
+    log("⚠️ Source of truth not found.")
+    return ""
+
+def run_hook(hook_path, *args):
+    if not os.path.exists(hook_path):
+        log(f"⚠️ Hook {hook_path} not found.")
+        return False, ""
+    cmd = [hook_path] + list(args)
+    result = subprocess.run(cmd, capture_output=True, text=True)
+    output = result.stdout + result.stderr
+    if result.returncode == 0:
+        log(f"✅ Hook {hook_path} passed.")
+        return True, output
+    else:
+        log(f"❌ Hook {hook_path} failed:\n{output}")
+        return False, output
+
+# ---------- HEALTH CHECK HELPERS (defined BEFORE health_check) ----------
+def check_pihole():
+    log("🛡️ Checking Pi-hole status...")
+    if os.path.exists("/opt/pihole/etc-pihole/gravity.db"):
+        log("✅ Pi-hole gravity database found.")
+    else:
+        log("❌ Pi-hole gravity database not found.")
+
+def check_docker():
+    log("🐳 Checking Docker containers...")
+    result = subprocess.run(["docker", "ps", "--filter", "name=pihole-unbound", "--format", "{{.Names}}"], capture_output=True, text=True)
+    if "pihole-unbound" in result.stdout:
+        log("✅ Pi-hole container is running.")
+    else:
+        log("❌ Pi-hole container is not running.")
+
+def check_agents():
+    log("🤖 Checking agent scripts...")
+    subfolder_map = {
+        "security_agent": "security_agent",
+        "codingagent": "boss_agent",
+        "dgta_agent": "dgta_agent",
+        "boss_agent": "boss_agent",
+        "agriculture_agent": "ag_agent",
+    }
+    for agent in ["codingagent", "security_agent", "dgta_agent", "boss_agent"]:
+        subfolder = subfolder_map.get(agent, "")
+        path = os.path.join(BASE, "agents", subfolder, f"{agent}.py")
+        log(f"{'✅' if os.path.exists(path) else '❌'} {agent}.py {'exists' if os.path.exists(path) else 'missing'}")
+
+def delegate_to_agent(agent_name, args_list=None):
+    alias_map = {"security": "security_agent", "coding": "codingagent", "data": "dgta_agent", "boss": "boss_agent"}
+    subfolder_map = {
+        "security_agent": "security_agent",
+        "codingagent": "boss_agent",
+        "dgta_agent": "dgta_agent",
+        "boss_agent": "boss_agent",
+        "agriculture_agent": "ag_agent",
+    }
+    script_name = alias_map.get(agent_name, agent_name)
+    subfolder = subfolder_map.get(script_name, "")
+    agent_script = os.path.join(BASE, "agents", subfolder, f"{script_name}.py")
+    if not os.path.exists(agent_script):
+        log(f"❌ Agent {script_name}.py not found in {subfolder}.")
+        return False
+    cmd = [agent_script]
+    if args_list:
+        cmd.extend(args_list)
+    log(f"🔧 Executing: {' '.join(cmd)}")
+    result = subprocess.run(cmd, capture_output=True, text=True)
+    if result.stdout:
+        log(result.stdout)
+    if result.stderr:
+        log(f"⚠️ {script_name} stderr: {result.stderr}")
+    return result.returncode == 0
+
+# ---------- PERMISSION SYSTEM ----------
+def show_pending():
+    pending_dir = os.path.join(BASE, "state", "pending_requests")
+    if not os.path.exists(pending_dir):
+        log("✅ No pending requests.")
+        return
+    files = [f for f in os.listdir(pending_dir) if f.endswith('.json')]
+    if not files:
+        log("✅ No pending requests.")
+        return
+    for fname in files:
+        with open(os.path.join(pending_dir, fname), 'r') as f:
+            data = json.load(f)
+        if data.get('status') == 'pending':
+            log(f"📨 {data['request_id']} | {data['requester']} -> {data['target']} : {data['task']}")
+
+def approve_request(req_id):
+    pending_dir = os.path.join(BASE, "state", "pending_requests")
+    req_path = os.path.join(pending_dir, f"{req_id}.json")
+    if not os.path.exists(req_path):
+        log(f"❌ Request {req_id} not found.")
+        return
+    with open(req_path, 'r') as f:
+        data = json.load(f)
+    data['status'] = 'approved'
+    with open(req_path, 'w') as f:
+        json.dump(data, f)
+    log(f"✅ Request {req_id} approved.")
+
+def deny_request(req_id):
+    pending_dir = os.path.join(BASE, "state", "pending_requests")
+    req_path = os.path.join(pending_dir, f"{req_id}.json")
+    if not os.path.exists(req_path):
+        log(f"❌ Request {req_id} not found.")
+        return
+    with open(req_path, 'r') as f:
+        data = json.load(f)
+    data['status'] = 'denied'
+    with open(req_path, 'w') as f:
+        json.dump(data, f)
+    log(f"❌ Request {req_id} denied.")
+
+def process_pending_interactive():
+    pending_dir = os.path.join(BASE, "state", "pending_requests")
+    if not os.path.exists(pending_dir):
+        log("✅ No pending requests.")
+        return
+    files = [f for f in os.listdir(pending_dir) if f.endswith('.json')]
+    if not files:
+        log("✅ No pending requests.")
+        return
+    for fname in files:
+        req_path = os.path.join(pending_dir, fname)
+        with open(req_path, 'r') as f:
+            data = json.load(f)
+        if data.get('status') != 'pending':
+            continue
+        print("\n" + "=" * 50)
+        print(f"📨 Request ID: {data['request_id']}")
+        print(f"   From: {data['requester']}")
+        print(f"   To: {data['target']}")
+        print(f"   Task: {data['task']}")
+        print(f"   Args: {data.get('args', '')}")
+        print("=" * 50)
+        try:
+            answer = input("Approve this request? (y/n): ").strip().lower()
+        except EOFError:
+            log("⚠️ No input – skipping request.")
+            continue
+        if answer == 'y':
+            approve_request(data['request_id'])
+        else:
+            deny_request(data['request_id'])
+
+def delegate_a2a_http(target, task, args=None):
+    registry_file = os.path.join(BASE, "state", "registry.json")
+    if not os.path.exists(registry_file):
+        log("❌ Registry not found.")
+        return False
+    with open(registry_file, 'r') as f:
+        registry = json.load(f)
+    if target not in registry:
+        log(f"❌ Agent {target} not in registry.")
+        return False
+    url = registry[target]["url"] + "/execute"
+    payload = {"jsonrpc": "2.0", "method": "execute", "params": {"task": task, "args": args or []}, "id": "boss_delegate"}
+    try:
+        import requests
+        resp = requests.post(url, json=payload, timeout=30)
+        if resp.status_code == 200:
+            log(f"✅ A2A delegation to {target} succeeded.")
+            return True
+        else:
+            log(f"❌ A2A delegation failed: {resp.status_code}")
+            return False
+    except Exception as e:
+        log(f"❌ A2A request error: {e}")
+        return False
+
+def discover_agents_http():
+    registry_file = os.path.join(BASE, "state", "registry.json")
+    if not os.path.exists(registry_file):
+        log("❌ Registry not found.")
+        return
+    with open(registry_file, 'r') as f:
+        registry = json.load(f)
+    log("🌐 Discovered agents:")
+    for name, info in registry.items():
+        log(f"  {name} at {info['url']} (capabilities: {info.get('capabilities', [])})")
+
+def set_autostart(service, enabled):
+    state = read_state()
+    state.setdefault('autostart', {})[service] = enabled
+    write_state(state)
+    log(f"✅ Autostart for {service} set to {enabled}")
+
+def start_autostart_services():
+    state = read_state()
+    for service, enabled in state.get('autostart', {}).items():
+        if enabled and service == 'fl_server':
+            hook = os.path.join(BASE, "hooks", "fl_orchestrator.sh")
+            if os.path.exists(hook):
+                ok, out = run_hook(hook, "status")
+                if not ok or "not running" in out:
+                    log(f"🚀 Autostart: Starting {service}...")
+                    run_hook(hook, "start")
+                else:
+                    log(f"✅ {service} already running.")
+            else:
+                log(f"⚠️ Hook for {service} not found.")
+
+def health_check():
+    log("🩺 Starting health check...")
+    delegate_to_agent("data", ["--task", "check_updates"])
+    check_pihole()
+    check_docker()
+    check_agents()
+    start_autostart_services()
+    log("✅ Health check complete.")
+
+def fl_start():
+    hook = os.path.join(BASE, "hooks", "fl_orchestrator.sh")
+    if not os.path.exists(hook):
+        log("❌ fl_orchestrator.sh not found.")
+        return
+    run_hook(hook, "start")
+    log("FL server started.")
+    try:
+        answer = input("Do you want to enable autostart for the FL server? (y/n): ").strip().lower()
+        set_autostart('fl_server', answer == 'y')
+    except EOFError:
+        log("No input. Use `--task set_autostart` manually.")
+
+def fl_stop():
+    hook = os.path.join(BASE, "hooks", "fl_orchestrator.sh")
+    if os.path.exists(hook):
+        run_hook(hook, "stop")
+    else:
+        log("❌ fl_orchestrator.sh not found.")
+
+def fl_status():
+    hook = os.path.join(BASE, "hooks", "fl_orchestrator.sh")
+    if os.path.exists(hook):
+        run_hook(hook, "status")
+    else:
+        log("❌ fl_orchestrator.sh not found.")
+
+def fl_train(mode="synth", crop="cannabis"):
+    hook = os.path.join(BASE, "hooks", "fl_train.sh")
+    if os.path.exists(hook):
+        run_hook(hook, mode, crop)
+    else:
+        log("❌ fl_train.sh not found.")
+
+def check_desync():
+    log("🔍 Checking desync between .md and .py...")
+    mismatches = []
+    import re
+    agents_dir = os.path.join(BASE, "agents")
+    for root, dirs, files in os.walk(agents_dir):
+        for md_file in files:
+            if md_file.endswith('.md') and md_file != 'README.md':
+                agent = md_file.replace('.md', '')
+                py_file = os.path.join(root, md_file.replace('.md', '.py'))
+                if not os.path.exists(py_file):
+                    mismatches.append(f"{agent}.py missing in {root}")
+                    continue
+                with open(os.path.join(root, md_file), 'r') as f:
+                    content = f.read()
+                caps = []
+                if content.startswith('---'):
+                    parts = content.split('---', 2)
+                    if len(parts) >= 3:
+                        try:
+                            data = yaml.safe_load(parts[1])
+                            caps = data.get('capabilities', [])
+                        except:
+                            pass
+                with open(py_file, 'r') as f:
+                    py_content = f.read()
+                tasks = re.findall(r'(?:if|elif)\s+task\s*==\s*["\']([^"\']+)["\']', py_content)
+                tasks = list(set(tasks))
+                only_in_md = [c for c in caps if c not in tasks]
+                only_in_py = [t for t in tasks if t not in caps]
+                if only_in_md or only_in_py:
+                    mismatches.append(f"{agent}: MD-only: {only_in_md} | PY-only: {only_in_py}")
+    if mismatches:
+        log("⚠️ Desync found:")
+        for m in mismatches:
+            log(f"  {m}")
+    else:
+        log("✅ All agents are in sync.")
+    return mismatches
+
+def sync_all():
+    log("🔄 Syncing all agents (regenerating .py from .md)...")
+    gen = os.path.join(BASE, "scripts", "generate_agent.py")
+    if not os.path.exists(gen):
+        log("❌ generate_agent.py not found.")
+        return False
+    result = subprocess.run([sys.executable, gen], capture_output=True, text=True)
+    if result.returncode == 0:
+        log("✅ All agents regenerated successfully.")
+        log(result.stdout)
+        return True
+    else:
+        log(f"❌ Regeneration failed: {result.stderr}")
+        return False
+
+def agent_status():
+    log("📋 Agent status report:")
+    agents_dir = os.path.join(BASE, "agents")
+    for root, dirs, files in os.walk(agents_dir):
+        for md_file in files:
+            if md_file.endswith('.md') and md_file != 'README.md':
+                agent = md_file.replace('.md', '')
+                with open(os.path.join(root, md_file), 'r') as f:
+                    content = f.read()
+                caps = []
+                if content.startswith('---'):
+                    parts = content.split('---', 2)
+                    if len(parts) >= 3:
+                        data = yaml.safe_load(parts[1])
+                        caps = data.get('capabilities', [])
+                state_path = os.path.join(BASE, "state", f"{agent}.json")
+                state_info = {}
+                if os.path.exists(state_path):
+                    with open(state_path, 'r') as f:
+                        state_info = json.load(f)
+                last_task = state_info.get('last_task', 'Never')
+                last_run = state_info.get('last_run', 'Never')
+                errors = len(state_info.get('errors', []))
+                log(f"\n🤖 **{agent}**")
+                log(f"   Capabilities: {', '.join(caps) if caps else '(none)'}")
+                log(f"   Last task: {last_task}")
+                log(f"   Last run: {last_run}")
+                log(f"   Errors: {errors}")
+    log("✅ Agent status report complete.")
+
+def security_recommend():
+    log("🔐 Generating security update recommendations...")
+    summary_file = os.path.join(BASE, "state", "updates", "security_summary.txt")
+    if not os.path.exists(summary_file):
+        log("❌ No update summary found. Run check_updates first.")
+        return False
+    with open(summary_file, 'r') as f:
+        content = f.read()
+    recommendations = []
+    for line in content.splitlines():
+        if "Critical" in line or "High" in line:
+            recommendations.append("🚨 " + line.strip())
+        elif "Medium" in line:
+            recommendations.append("⚠️ " + line.strip())
+    if recommendations:
+        log("🔥 Critical/High priority updates:")
+        for rec in recommendations:
+            log(rec)
+        log("💡 Recommendation: Apply critical updates immediately (use 'apt upgrade' or 'pip install --upgrade').")
+    else:
+        log("✅ No urgent security updates found.")
+    return True
+
+# ---------- MAIN DISPATCH ----------
+def main():
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--task", required=True)
+    parser.add_argument("--target", help="Target agent for delegation")
+    parser.add_argument("--content", help="Arguments for target agent")
+    parser.add_argument("--args", nargs="*", help="Extra arguments")
+    args = parser.parse_args()
+
+    log("🧠 Boss Agent started.")
+    # ---------- Global pre-action hook ----------
+    agent_name = os.path.basename(__file__).replace(".py", "")
+    success, output = run_hook(os.path.join(BASE, "hooks", "pre_action.sh"), agent_name)
+    if not success:
+        log("❌ Pre-action hook failed. Aborting.")
+    sys.exit(1)
+    read_source_of_truth()
+    state = read_state()
+    success = False
+
+    task = args.task
+
+    if task == "health_check":
+        health_check(); success = True
+    elif task == "delegate":
+        if not args.target:
+            log("❌ No target agent.")
+            success = False
+        else:
+            agent_args = []
+            if args.content:
+                agent_args.extend(args.content.split())
+            if args.args:
+                agent_args.extend(args.args)
+            success = delegate_a2a_http(args.target, args.content or "unknown", agent_args)
+            if not success:
+                log("⚠️ A2A failed, falling back to subprocess.")
+                success = delegate_to_agent(args.target, agent_args)
+    elif task == "check_updates":
+        success = delegate_to_agent("data", ["--task", "check_updates"])
+    elif task == "set_autostart":
+        if not args.args or len(args.args) < 2:
+            log("❌ Usage: set_autostart <service> <on|off>")
+            success = False
+        else:
+            set_autostart(args.args[0], args.args[1].lower() == 'on')
+            success = True
+    elif task == "fl_status":
+        fl_status(); success = True
+    elif task == "fl_start":
+        fl_start(); success = True
+    elif task == "fl_stop":
+        fl_stop(); success = True
+    elif task == "fl_train":
+    elif task == "fl_orchestrate":
+        mode = args.args[0] if args.args and len(args.args) > 0 else "synth"
+        crop = args.args[1] if args.args and len(args.args) > 1 else "cannabis"
+        success = fl_orchestrate(mode, crop)
+        mode = args.args[0] if args.args else "synth"
+    elif task == "fl_orchestrate":
+        mode = args.args[0] if args.args and len(args.args) > 0 else "synth"
+        crop = args.args[1] if args.args and len(args.args) > 1 else "cannabis"
+        success = fl_orchestrate(mode, crop)
+        crop = args.args[1] if args.args and len(args.args) > 1 else "cannabis"
+    elif task == "fl_orchestrate":
+        mode = args.args[0] if args.args and len(args.args) > 0 else "synth"
+        crop = args.args[1] if args.args and len(args.args) > 1 else "cannabis"
+        success = fl_orchestrate(mode, crop)
+        fl_train(mode, crop); success = True
+    elif task == "fl_orchestrate":
+        mode = args.args[0] if args.args and len(args.args) > 0 else "synth"
+        crop = args.args[1] if args.args and len(args.args) > 1 else "cannabis"
+        success = fl_orchestrate(mode, crop)
+    elif task == "check_desync":
+    elif task == "fl_orchestrate":
+        mode = args.args[0] if args.args and len(args.args) > 0 else "synth"
+        crop = args.args[1] if args.args and len(args.args) > 1 else "cannabis"
+        success = fl_orchestrate(mode, crop)
+        mismatches = check_desync(); success = len(mismatches) == 0
+    elif task == "fl_orchestrate":
+        mode = args.args[0] if args.args and len(args.args) > 0 else "synth"
+        crop = args.args[1] if args.args and len(args.args) > 1 else "cannabis"
+        success = fl_orchestrate(mode, crop)
+    elif task == "sync_all":
+    elif task == "fl_orchestrate":
+        mode = args.args[0] if args.args and len(args.args) > 0 else "synth"
+        crop = args.args[1] if args.args and len(args.args) > 1 else "cannabis"
+        success = fl_orchestrate(mode, crop)
+        success = sync_all()
+    elif task == "fl_orchestrate":
+        mode = args.args[0] if args.args and len(args.args) > 0 else "synth"
+        crop = args.args[1] if args.args and len(args.args) > 1 else "cannabis"
+        success = fl_orchestrate(mode, crop)
+    elif task == "agent_status":
+    elif task == "fl_orchestrate":
+        mode = args.args[0] if args.args and len(args.args) > 0 else "synth"
+        crop = args.args[1] if args.args and len(args.args) > 1 else "cannabis"
+        success = fl_orchestrate(mode, crop)
+        agent_status(); success = True
+    elif task == "fl_orchestrate":
+        mode = args.args[0] if args.args and len(args.args) > 0 else "synth"
+        crop = args.args[1] if args.args and len(args.args) > 1 else "cannabis"
+        success = fl_orchestrate(mode, crop)
+    elif task == "discover":
+    elif task == "fl_orchestrate":
+        mode = args.args[0] if args.args and len(args.args) > 0 else "synth"
+        crop = args.args[1] if args.args and len(args.args) > 1 else "cannabis"
+        success = fl_orchestrate(mode, crop)
+        discover_agents_http(); success = True
+    elif task == "fl_orchestrate":
+        mode = args.args[0] if args.args and len(args.args) > 0 else "synth"
+        crop = args.args[1] if args.args and len(args.args) > 1 else "cannabis"
+        success = fl_orchestrate(mode, crop)
+    elif task == "learn":
+    elif task == "fl_orchestrate":
+        mode = args.args[0] if args.args and len(args.args) > 0 else "synth"
+        crop = args.args[1] if args.args and len(args.args) > 1 else "cannabis"
+        success = fl_orchestrate(mode, crop)
+        learn(); success = True
+    elif task == "fl_orchestrate":
+        mode = args.args[0] if args.args and len(args.args) > 0 else "synth"
+        crop = args.args[1] if args.args and len(args.args) > 1 else "cannabis"
+        success = fl_orchestrate(mode, crop)
+        log("📚 Learning not yet implemented."); success = True
+    elif task == "fl_orchestrate":
+        mode = args.args[0] if args.args and len(args.args) > 0 else "synth"
+        crop = args.args[1] if args.args and len(args.args) > 1 else "cannabis"
+        success = fl_orchestrate(mode, crop)
+    elif task == "security_recommend":
+    elif task == "fl_orchestrate":
+        mode = args.args[0] if args.args and len(args.args) > 0 else "synth"
+        crop = args.args[1] if args.args and len(args.args) > 1 else "cannabis"
+        success = fl_orchestrate(mode, crop)
+        success = security_recommend()
+    elif task == "fl_orchestrate":
+        mode = args.args[0] if args.args and len(args.args) > 0 else "synth"
+        crop = args.args[1] if args.args and len(args.args) > 1 else "cannabis"
+        success = fl_orchestrate(mode, crop)
+    elif task == "show_pending":
+    elif task == "fl_orchestrate":
+        mode = args.args[0] if args.args and len(args.args) > 0 else "synth"
+        crop = args.args[1] if args.args and len(args.args) > 1 else "cannabis"
+        success = fl_orchestrate(mode, crop)
+        show_pending(); success = True
+    elif task == "fl_orchestrate":
+        mode = args.args[0] if args.args and len(args.args) > 0 else "synth"
+        crop = args.args[1] if args.args and len(args.args) > 1 else "cannabis"
+        success = fl_orchestrate(mode, crop)
+    elif task == "approve":
+    elif task == "fl_orchestrate":
+        mode = args.args[0] if args.args and len(args.args) > 0 else "synth"
+        crop = args.args[1] if args.args and len(args.args) > 1 else "cannabis"
+        success = fl_orchestrate(mode, crop)
+        if not args.args or len(args.args) < 1:
+    elif task == "fl_orchestrate":
+        mode = args.args[0] if args.args and len(args.args) > 0 else "synth"
+        crop = args.args[1] if args.args and len(args.args) > 1 else "cannabis"
+        success = fl_orchestrate(mode, crop)
+            log("❌ Usage: approve <request_id>")
+    elif task == "fl_orchestrate":
+        mode = args.args[0] if args.args and len(args.args) > 0 else "synth"
+        crop = args.args[1] if args.args and len(args.args) > 1 else "cannabis"
+        success = fl_orchestrate(mode, crop)
+            success = False
+    elif task == "fl_orchestrate":
+        mode = args.args[0] if args.args and len(args.args) > 0 else "synth"
+        crop = args.args[1] if args.args and len(args.args) > 1 else "cannabis"
+        success = fl_orchestrate(mode, crop)
+        else:
+    elif task == "fl_orchestrate":
+        mode = args.args[0] if args.args and len(args.args) > 0 else "synth"
+        crop = args.args[1] if args.args and len(args.args) > 1 else "cannabis"
+        success = fl_orchestrate(mode, crop)
+            approve_request(args.args[0]); success = True
+    elif task == "fl_orchestrate":
+        mode = args.args[0] if args.args and len(args.args) > 0 else "synth"
+        crop = args.args[1] if args.args and len(args.args) > 1 else "cannabis"
+        success = fl_orchestrate(mode, crop)
+    elif task == "deny":
+    elif task == "fl_orchestrate":
+        mode = args.args[0] if args.args and len(args.args) > 0 else "synth"
+        crop = args.args[1] if args.args and len(args.args) > 1 else "cannabis"
+        success = fl_orchestrate(mode, crop)
+        if not args.args or len(args.args) < 1:
+    elif task == "fl_orchestrate":
+        mode = args.args[0] if args.args and len(args.args) > 0 else "synth"
+        crop = args.args[1] if args.args and len(args.args) > 1 else "cannabis"
+        success = fl_orchestrate(mode, crop)
+            log("❌ Usage: deny <request_id>")
+    elif task == "fl_orchestrate":
+        mode = args.args[0] if args.args and len(args.args) > 0 else "synth"
+        crop = args.args[1] if args.args and len(args.args) > 1 else "cannabis"
+        success = fl_orchestrate(mode, crop)
+            success = False
+    elif task == "fl_orchestrate":
+        mode = args.args[0] if args.args and len(args.args) > 0 else "synth"
+        crop = args.args[1] if args.args and len(args.args) > 1 else "cannabis"
+        success = fl_orchestrate(mode, crop)
+        else:
+    elif task == "fl_orchestrate":
+        mode = args.args[0] if args.args and len(args.args) > 0 else "synth"
+        crop = args.args[1] if args.args and len(args.args) > 1 else "cannabis"
+        success = fl_orchestrate(mode, crop)
+            deny_request(args.args[0]); success = True
+    elif task == "fl_orchestrate":
+        mode = args.args[0] if args.args and len(args.args) > 0 else "synth"
+        crop = args.args[1] if args.args and len(args.args) > 1 else "cannabis"
+        success = fl_orchestrate(mode, crop)
+    elif task == "interactive_pending":
+    elif task == "fl_orchestrate":
+        mode = args.args[0] if args.args and len(args.args) > 0 else "synth"
+        crop = args.args[1] if args.args and len(args.args) > 1 else "cannabis"
+        success = fl_orchestrate(mode, crop)
+        process_pending_interactive(); success = True
+    elif task == "fl_orchestrate":
+        mode = args.args[0] if args.args and len(args.args) > 0 else "synth"
+        crop = args.args[1] if args.args and len(args.args) > 1 else "cannabis"
+        success = fl_orchestrate(mode, crop)
+    else:
+    elif task == "fl_orchestrate":
+        mode = args.args[0] if args.args and len(args.args) > 0 else "synth"
+        crop = args.args[1] if args.args and len(args.args) > 1 else "cannabis"
+        success = fl_orchestrate(mode, crop)
+        log(f"⚠️ Unknown task: {task}")
+    elif task == "fl_orchestrate":
+        mode = args.args[0] if args.args and len(args.args) > 0 else "synth"
+        crop = args.args[1] if args.args and len(args.args) > 1 else "cannabis"
+        success = fl_orchestrate(mode, crop)
+        success = False
+    elif task == "fl_orchestrate":
+        mode = args.args[0] if args.args and len(args.args) > 0 else "synth"
+        crop = args.args[1] if args.args and len(args.args) > 1 else "cannabis"
+        success = fl_orchestrate(mode, crop)
+
+    elif task == "fl_orchestrate":
+        mode = args.args[0] if args.args and len(args.args) > 0 else "synth"
+        crop = args.args[1] if args.args and len(args.args) > 1 else "cannabis"
+        success = fl_orchestrate(mode, crop)
+    state["last_task"] = task
+    elif task == "fl_orchestrate":
+        mode = args.args[0] if args.args and len(args.args) > 0 else "synth"
+        crop = args.args[1] if args.args and len(args.args) > 1 else "cannabis"
+        success = fl_orchestrate(mode, crop)
+    state["last_run"] = datetime.now().isoformat()
+    elif task == "fl_orchestrate":
+        mode = args.args[0] if args.args and len(args.args) > 0 else "synth"
+        crop = args.args[1] if args.args and len(args.args) > 1 else "cannabis"
+        success = fl_orchestrate(mode, crop)
+    write_state(state)
+    elif task == "fl_orchestrate":
+        mode = args.args[0] if args.args and len(args.args) > 0 else "synth"
+        crop = args.args[1] if args.args and len(args.args) > 1 else "cannabis"
+        success = fl_orchestrate(mode, crop)
+    log("🧠 Boss Agent finished.")
+    elif task == "fl_orchestrate":
+        mode = args.args[0] if args.args and len(args.args) > 0 else "synth"
+        crop = args.args[1] if args.args and len(args.args) > 1 else "cannabis"
+        success = fl_orchestrate(mode, crop)
+    sys.exit(0 if success else 1)
+    elif task == "fl_orchestrate":
+        mode = args.args[0] if args.args and len(args.args) > 0 else "synth"
+        crop = args.args[1] if args.args and len(args.args) > 1 else "cannabis"
+        success = fl_orchestrate(mode, crop)
+
+    elif task == "fl_orchestrate":
+        mode = args.args[0] if args.args and len(args.args) > 0 else "synth"
+        crop = args.args[1] if args.args and len(args.args) > 1 else "cannabis"
+        success = fl_orchestrate(mode, crop)
+if __name__ == "__main__":
+    elif task == "fl_orchestrate":
+        mode = args.args[0] if args.args and len(args.args) > 0 else "synth"
+        crop = args.args[1] if args.args and len(args.args) > 1 else "cannabis"
+        success = fl_orchestrate(mode, crop)
+    main()
+    elif task == "fl_orchestrate":
+        mode = args.args[0] if args.args and len(args.args) > 0 else "synth"
+        crop = args.args[1] if args.args and len(args.args) > 1 else "cannabis"
+        success = fl_orchestrate(mode, crop)
+def learn():
+    elif task == "fl_orchestrate":
+        mode = args.args[0] if args.args and len(args.args) > 0 else "synth"
+        crop = args.args[1] if args.args and len(args.args) > 1 else "cannabis"
+        success = fl_orchestrate(mode, crop)
+    """Analyze knowledge outcomes and trigger regeneration if needed."""
+    elif task == "fl_orchestrate":
+        mode = args.args[0] if args.args and len(args.args) > 0 else "synth"
+        crop = args.args[1] if args.args and len(args.args) > 1 else "cannabis"
+        success = fl_orchestrate(mode, crop)
+    log("📊 Learning from outcomes...")
+    elif task == "fl_orchestrate":
+        mode = args.args[0] if args.args and len(args.args) > 0 else "synth"
+        crop = args.args[1] if args.args and len(args.args) > 1 else "cannabis"
+        success = fl_orchestrate(mode, crop)
+    knowledge_dir = os.path.join(BASE, "knowledge")
+    elif task == "fl_orchestrate":
+        mode = args.args[0] if args.args and len(args.args) > 0 else "synth"
+        crop = args.args[1] if args.args and len(args.args) > 1 else "cannabis"
+        success = fl_orchestrate(mode, crop)
+    if not os.path.exists(knowledge_dir):
+    elif task == "fl_orchestrate":
+        mode = args.args[0] if args.args and len(args.args) > 0 else "synth"
+        crop = args.args[1] if args.args and len(args.args) > 1 else "cannabis"
+        success = fl_orchestrate(mode, crop)
+        log("⚠️ No knowledge found.")
+    elif task == "fl_orchestrate":
+        mode = args.args[0] if args.args and len(args.args) > 0 else "synth"
+        crop = args.args[1] if args.args and len(args.args) > 1 else "cannabis"
+        success = fl_orchestrate(mode, crop)
+        return
+    elif task == "fl_orchestrate":
+        mode = args.args[0] if args.args and len(args.args) > 0 else "synth"
+        crop = args.args[1] if args.args and len(args.args) > 1 else "cannabis"
+        success = fl_orchestrate(mode, crop)
+
+    elif task == "fl_orchestrate":
+        mode = args.args[0] if args.args and len(args.args) > 0 else "synth"
+        crop = args.args[1] if args.args and len(args.args) > 1 else "cannabis"
+        success = fl_orchestrate(mode, crop)
+    failures = {}
+    elif task == "fl_orchestrate":
+        mode = args.args[0] if args.args and len(args.args) > 0 else "synth"
+        crop = args.args[1] if args.args and len(args.args) > 1 else "cannabis"
+        success = fl_orchestrate(mode, crop)
+    for fname in os.listdir(knowledge_dir):
+    elif task == "fl_orchestrate":
+        mode = args.args[0] if args.args and len(args.args) > 0 else "synth"
+        crop = args.args[1] if args.args and len(args.args) > 1 else "cannabis"
+        success = fl_orchestrate(mode, crop)
+        if fname.startswith("outcome_"):
+    elif task == "fl_orchestrate":
+        mode = args.args[0] if args.args and len(args.args) > 0 else "synth"
+        crop = args.args[1] if args.args and len(args.args) > 1 else "cannabis"
+        success = fl_orchestrate(mode, crop)
+            with open(os.path.join(knowledge_dir, fname), 'r') as f:
+    elif task == "fl_orchestrate":
+        mode = args.args[0] if args.args and len(args.args) > 0 else "synth"
+        crop = args.args[1] if args.args and len(args.args) > 1 else "cannabis"
+        success = fl_orchestrate(mode, crop)
+                data = json.load(f)
+    elif task == "fl_orchestrate":
+        mode = args.args[0] if args.args and len(args.args) > 0 else "synth"
+        crop = args.args[1] if args.args and len(args.args) > 1 else "cannabis"
+        success = fl_orchestrate(mode, crop)
+            agent = data.get('agent', 'unknown')
+    elif task == "fl_orchestrate":
+        mode = args.args[0] if args.args and len(args.args) > 0 else "synth"
+        crop = args.args[1] if args.args and len(args.args) > 1 else "cannabis"
+        success = fl_orchestrate(mode, crop)
+            if not data.get('success', False):
+    elif task == "fl_orchestrate":
+        mode = args.args[0] if args.args and len(args.args) > 0 else "synth"
+        crop = args.args[1] if args.args and len(args.args) > 1 else "cannabis"
+        success = fl_orchestrate(mode, crop)
+                failures[agent] = failures.get(agent, 0) + 1
+    elif task == "fl_orchestrate":
+        mode = args.args[0] if args.args and len(args.args) > 0 else "synth"
+        crop = args.args[1] if args.args and len(args.args) > 1 else "cannabis"
+        success = fl_orchestrate(mode, crop)
+
+    elif task == "fl_orchestrate":
+        mode = args.args[0] if args.args and len(args.args) > 0 else "synth"
+        crop = args.args[1] if args.args and len(args.args) > 1 else "cannabis"
+        success = fl_orchestrate(mode, crop)
+    if failures:
+    elif task == "fl_orchestrate":
+        mode = args.args[0] if args.args and len(args.args) > 0 else "synth"
+        crop = args.args[1] if args.args and len(args.args) > 1 else "cannabis"
+        success = fl_orchestrate(mode, crop)
+        log(f"⚠️ Failures detected: {failures}")
+    elif task == "fl_orchestrate":
+        mode = args.args[0] if args.args and len(args.args) > 0 else "synth"
+        crop = args.args[1] if args.args and len(args.args) > 1 else "cannabis"
+        success = fl_orchestrate(mode, crop)
+        for agent, count in failures.items():
+    elif task == "fl_orchestrate":
+        mode = args.args[0] if args.args and len(args.args) > 0 else "synth"
+        crop = args.args[1] if args.args and len(args.args) > 1 else "cannabis"
+        success = fl_orchestrate(mode, crop)
+            if count > 3:
+    elif task == "fl_orchestrate":
+        mode = args.args[0] if args.args and len(args.args) > 0 else "synth"
+        crop = args.args[1] if args.args and len(args.args) > 1 else "cannabis"
+        success = fl_orchestrate(mode, crop)
+                log(f"🔄 Triggering regeneration for {agent} (failures: {count})")
+    elif task == "fl_orchestrate":
+        mode = args.args[0] if args.args and len(args.args) > 0 else "synth"
+        crop = args.args[1] if args.args and len(args.args) > 1 else "cannabis"
+        success = fl_orchestrate(mode, crop)
+                # Trigger sync_all (delegate to sync_all task)
+    elif task == "fl_orchestrate":
+        mode = args.args[0] if args.args and len(args.args) > 0 else "synth"
+        crop = args.args[1] if args.args and len(args.args) > 1 else "cannabis"
+        success = fl_orchestrate(mode, crop)
+                subprocess.run([sys.executable, __file__, "--task", "sync_all"])
+    elif task == "fl_orchestrate":
+        mode = args.args[0] if args.args and len(args.args) > 0 else "synth"
+        crop = args.args[1] if args.args and len(args.args) > 1 else "cannabis"
+        success = fl_orchestrate(mode, crop)
+                break
+    elif task == "fl_orchestrate":
+        mode = args.args[0] if args.args and len(args.args) > 0 else "synth"
+        crop = args.args[1] if args.args and len(args.args) > 1 else "cannabis"
+        success = fl_orchestrate(mode, crop)
+    else:
+    elif task == "fl_orchestrate":
+        mode = args.args[0] if args.args and len(args.args) > 0 else "synth"
+        crop = args.args[1] if args.args and len(args.args) > 1 else "cannabis"
+        success = fl_orchestrate(mode, crop)
+        log("✅ No failures detected. System stable.")
+    elif task == "fl_orchestrate":
+        mode = args.args[0] if args.args and len(args.args) > 0 else "synth"
+        crop = args.args[1] if args.args and len(args.args) > 1 else "cannabis"
+        success = fl_orchestrate(mode, crop)
+
+    elif task == "fl_orchestrate":
+        mode = args.args[0] if args.args and len(args.args) > 0 else "synth"
+        crop = args.args[1] if args.args and len(args.args) > 1 else "cannabis"
+        success = fl_orchestrate(mode, crop)
+    # Write a learning summary
+    elif task == "fl_orchestrate":
+        mode = args.args[0] if args.args and len(args.args) > 0 else "synth"
+        crop = args.args[1] if args.args and len(args.args) > 1 else "cannabis"
+        success = fl_orchestrate(mode, crop)
+    summary_path = os.path.join(BASE, "knowledge", f"learn_summary_{datetime.now().strftime('%Y%m%d_%H%M%S')}.json")
+    elif task == "fl_orchestrate":
+        mode = args.args[0] if args.args and len(args.args) > 0 else "synth"
+        crop = args.args[1] if args.args and len(args.args) > 1 else "cannabis"
+        success = fl_orchestrate(mode, crop)
+    with open(summary_path, 'w') as f:
+    elif task == "fl_orchestrate":
+        mode = args.args[0] if args.args and len(args.args) > 0 else "synth"
+        crop = args.args[1] if args.args and len(args.args) > 1 else "cannabis"
+        success = fl_orchestrate(mode, crop)
+        json.dump({"failures": failures, "timestamp": datetime.now().isoformat()}, f)
+    elif task == "fl_orchestrate":
+        mode = args.args[0] if args.args and len(args.args) > 0 else "synth"
+        crop = args.args[1] if args.args and len(args.args) > 1 else "cannabis"
+        success = fl_orchestrate(mode, crop)
+    log(f"📄 Learning summary saved to {summary_path}")
+    elif task == "fl_orchestrate":
+        mode = args.args[0] if args.args and len(args.args) > 0 else "synth"
+        crop = args.args[1] if args.args and len(args.args) > 1 else "cannabis"
+        success = fl_orchestrate(mode, crop)
+
+    elif task == "fl_orchestrate":
+        mode = args.args[0] if args.args and len(args.args) > 0 else "synth"
+        crop = args.args[1] if args.args and len(args.args) > 1 else "cannabis"
+        success = fl_orchestrate(mode, crop)
+def learn():
+    elif task == "fl_orchestrate":
+        mode = args.args[0] if args.args and len(args.args) > 0 else "synth"
+        crop = args.args[1] if args.args and len(args.args) > 1 else "cannabis"
+        success = fl_orchestrate(mode, crop)
+    """Trigger Analyzer Agent, read report, and delegate to Coding Agent if needed."""
+    elif task == "fl_orchestrate":
+        mode = args.args[0] if args.args and len(args.args) > 0 else "synth"
+        crop = args.args[1] if args.args and len(args.args) > 1 else "cannabis"
+        success = fl_orchestrate(mode, crop)
+    log("📊 Boss learning from Analyzer...")
+    elif task == "fl_orchestrate":
+        mode = args.args[0] if args.args and len(args.args) > 0 else "synth"
+        crop = args.args[1] if args.args and len(args.args) > 1 else "cannabis"
+        success = fl_orchestrate(mode, crop)
+    analyzer_script = os.path.join(BASE, "agents", "analyzer_agent", "analyzer_agent.py")
+    elif task == "fl_orchestrate":
+        mode = args.args[0] if args.args and len(args.args) > 0 else "synth"
+        crop = args.args[1] if args.args and len(args.args) > 1 else "cannabis"
+        success = fl_orchestrate(mode, crop)
+    if not os.path.exists(analyzer_script):
+    elif task == "fl_orchestrate":
+        mode = args.args[0] if args.args and len(args.args) > 0 else "synth"
+        crop = args.args[1] if args.args and len(args.args) > 1 else "cannabis"
+        success = fl_orchestrate(mode, crop)
+        log("❌ Analyzer Agent not found.")
+    elif task == "fl_orchestrate":
+        mode = args.args[0] if args.args and len(args.args) > 0 else "synth"
+        crop = args.args[1] if args.args and len(args.args) > 1 else "cannabis"
+        success = fl_orchestrate(mode, crop)
+        return
+    elif task == "fl_orchestrate":
+        mode = args.args[0] if args.args and len(args.args) > 0 else "synth"
+        crop = args.args[1] if args.args and len(args.args) > 1 else "cannabis"
+        success = fl_orchestrate(mode, crop)
+
+    elif task == "fl_orchestrate":
+        mode = args.args[0] if args.args and len(args.args) > 0 else "synth"
+        crop = args.args[1] if args.args and len(args.args) > 1 else "cannabis"
+        success = fl_orchestrate(mode, crop)
+    # Run analyzer and capture output
+    elif task == "fl_orchestrate":
+        mode = args.args[0] if args.args and len(args.args) > 0 else "synth"
+        crop = args.args[1] if args.args and len(args.args) > 1 else "cannabis"
+        success = fl_orchestrate(mode, crop)
+    result = subprocess.run(
+    elif task == "fl_orchestrate":
+        mode = args.args[0] if args.args and len(args.args) > 0 else "synth"
+        crop = args.args[1] if args.args and len(args.args) > 1 else "cannabis"
+        success = fl_orchestrate(mode, crop)
+        [sys.executable, analyzer_script, "--task", "report_to_boss"],
+    elif task == "fl_orchestrate":
+        mode = args.args[0] if args.args and len(args.args) > 0 else "synth"
+        crop = args.args[1] if args.args and len(args.args) > 1 else "cannabis"
+        success = fl_orchestrate(mode, crop)
+        capture_output=True, text=True
+    elif task == "fl_orchestrate":
+        mode = args.args[0] if args.args and len(args.args) > 0 else "synth"
+        crop = args.args[1] if args.args and len(args.args) > 1 else "cannabis"
+        success = fl_orchestrate(mode, crop)
+    )
+    elif task == "fl_orchestrate":
+        mode = args.args[0] if args.args and len(args.args) > 0 else "synth"
+        crop = args.args[1] if args.args and len(args.args) > 1 else "cannabis"
+        success = fl_orchestrate(mode, crop)
+
+    elif task == "fl_orchestrate":
+        mode = args.args[0] if args.args and len(args.args) > 0 else "synth"
+        crop = args.args[1] if args.args and len(args.args) > 1 else "cannabis"
+        success = fl_orchestrate(mode, crop)
+    log(result.stdout)
+    elif task == "fl_orchestrate":
+        mode = args.args[0] if args.args and len(args.args) > 0 else "synth"
+        crop = args.args[1] if args.args and len(args.args) > 1 else "cannabis"
+        success = fl_orchestrate(mode, crop)
+    if result.stderr:
+    elif task == "fl_orchestrate":
+        mode = args.args[0] if args.args and len(args.args) > 0 else "synth"
+        crop = args.args[1] if args.args and len(args.args) > 1 else "cannabis"
+        success = fl_orchestrate(mode, crop)
+        log(f"⚠️ Analyzer stderr: {result.stderr}")
+    elif task == "fl_orchestrate":
+        mode = args.args[0] if args.args and len(args.args) > 0 else "synth"
+        crop = args.args[1] if args.args and len(args.args) > 1 else "cannabis"
+        success = fl_orchestrate(mode, crop)
+
+    elif task == "fl_orchestrate":
+        mode = args.args[0] if args.args and len(args.args) > 0 else "synth"
+        crop = args.args[1] if args.args and len(args.args) > 1 else "cannabis"
+        success = fl_orchestrate(mode, crop)
+    # Find the most recent report file
+    elif task == "fl_orchestrate":
+        mode = args.args[0] if args.args and len(args.args) > 0 else "synth"
+        crop = args.args[1] if args.args and len(args.args) > 1 else "cannabis"
+        success = fl_orchestrate(mode, crop)
+    report_dir = os.path.join(BASE, "reports")
+    elif task == "fl_orchestrate":
+        mode = args.args[0] if args.args and len(args.args) > 0 else "synth"
+        crop = args.args[1] if args.args and len(args.args) > 1 else "cannabis"
+        success = fl_orchestrate(mode, crop)
+    report_files = [f for f in os.listdir(report_dir) if f.startswith("analyzer_report_") and f.endswith(".json")]
+    elif task == "fl_orchestrate":
+        mode = args.args[0] if args.args and len(args.args) > 0 else "synth"
+        crop = args.args[1] if args.args and len(args.args) > 1 else "cannabis"
+        success = fl_orchestrate(mode, crop)
+    if not report_files:
+    elif task == "fl_orchestrate":
+        mode = args.args[0] if args.args and len(args.args) > 0 else "synth"
+        crop = args.args[1] if args.args and len(args.args) > 1 else "cannabis"
+        success = fl_orchestrate(mode, crop)
+        log("❌ No analyzer report found.")
+    elif task == "fl_orchestrate":
+        mode = args.args[0] if args.args and len(args.args) > 0 else "synth"
+        crop = args.args[1] if args.args and len(args.args) > 1 else "cannabis"
+        success = fl_orchestrate(mode, crop)
+        return
+    elif task == "fl_orchestrate":
+        mode = args.args[0] if args.args and len(args.args) > 0 else "synth"
+        crop = args.args[1] if args.args and len(args.args) > 1 else "cannabis"
+        success = fl_orchestrate(mode, crop)
+
+    elif task == "fl_orchestrate":
+        mode = args.args[0] if args.args and len(args.args) > 0 else "synth"
+        crop = args.args[1] if args.args and len(args.args) > 1 else "cannabis"
+        success = fl_orchestrate(mode, crop)
+    latest_report = sorted(report_files)[-1]
+    elif task == "fl_orchestrate":
+        mode = args.args[0] if args.args and len(args.args) > 0 else "synth"
+        crop = args.args[1] if args.args and len(args.args) > 1 else "cannabis"
+        success = fl_orchestrate(mode, crop)
+    report_path = os.path.join(report_dir, latest_report)
+    elif task == "fl_orchestrate":
+        mode = args.args[0] if args.args and len(args.args) > 0 else "synth"
+        crop = args.args[1] if args.args and len(args.args) > 1 else "cannabis"
+        success = fl_orchestrate(mode, crop)
+    with open(report_path, 'r') as f:
+    elif task == "fl_orchestrate":
+        mode = args.args[0] if args.args and len(args.args) > 0 else "synth"
+        crop = args.args[1] if args.args and len(args.args) > 1 else "cannabis"
+        success = fl_orchestrate(mode, crop)
+        report = json.load(f)
+    elif task == "fl_orchestrate":
+        mode = args.args[0] if args.args and len(args.args) > 0 else "synth"
+        crop = args.args[1] if args.args and len(args.args) > 1 else "cannabis"
+        success = fl_orchestrate(mode, crop)
+
+    elif task == "fl_orchestrate":
+        mode = args.args[0] if args.args and len(args.args) > 0 else "synth"
+        crop = args.args[1] if args.args and len(args.args) > 1 else "cannabis"
+        success = fl_orchestrate(mode, crop)
+    recommendations = report.get('recommendations', [])
+    elif task == "fl_orchestrate":
+        mode = args.args[0] if args.args and len(args.args) > 0 else "synth"
+        crop = args.args[1] if args.args and len(args.args) > 1 else "cannabis"
+        success = fl_orchestrate(mode, crop)
+    if not recommendations:
+    elif task == "fl_orchestrate":
+        mode = args.args[0] if args.args and len(args.args) > 0 else "synth"
+        crop = args.args[1] if args.args and len(args.args) > 1 else "cannabis"
+        success = fl_orchestrate(mode, crop)
+        log("✅ No recommendations from Analyzer.")
+    elif task == "fl_orchestrate":
+        mode = args.args[0] if args.args and len(args.args) > 0 else "synth"
+        crop = args.args[1] if args.args and len(args.args) > 1 else "cannabis"
+        success = fl_orchestrate(mode, crop)
+        return
+    elif task == "fl_orchestrate":
+        mode = args.args[0] if args.args and len(args.args) > 0 else "synth"
+        crop = args.args[1] if args.args and len(args.args) > 1 else "cannabis"
+        success = fl_orchestrate(mode, crop)
+
+    elif task == "fl_orchestrate":
+        mode = args.args[0] if args.args and len(args.args) > 0 else "synth"
+        crop = args.args[1] if args.args and len(args.args) > 1 else "cannabis"
+        success = fl_orchestrate(mode, crop)
+    # Process each recommendation
+    elif task == "fl_orchestrate":
+        mode = args.args[0] if args.args and len(args.args) > 0 else "synth"
+        crop = args.args[1] if args.args and len(args.args) > 1 else "cannabis"
+        success = fl_orchestrate(mode, crop)
+    for rec in recommendations:
+    elif task == "fl_orchestrate":
+        mode = args.args[0] if args.args and len(args.args) > 0 else "synth"
+        crop = args.args[1] if args.args and len(args.args) > 1 else "cannabis"
+        success = fl_orchestrate(mode, crop)
+        if rec.get('criticality') == 'high':
+    elif task == "fl_orchestrate":
+        mode = args.args[0] if args.args and len(args.args) > 0 else "synth"
+        crop = args.args[1] if args.args and len(args.args) > 1 else "cannabis"
+        success = fl_orchestrate(mode, crop)
+            log(f"🚨 High-criticality recommendation for {rec['agent']}: {rec['suggestion']}")
+    elif task == "fl_orchestrate":
+        mode = args.args[0] if args.args and len(args.args) > 0 else "synth"
+        crop = args.args[1] if args.args and len(args.args) > 1 else "cannabis"
+        success = fl_orchestrate(mode, crop)
+            # Ask human for approval (optional) – we'll auto-approve for now
+    elif task == "fl_orchestrate":
+        mode = args.args[0] if args.args and len(args.args) > 0 else "synth"
+        crop = args.args[1] if args.args and len(args.args) > 1 else "cannabis"
+        success = fl_orchestrate(mode, crop)
+            # Delegate to Coding Agent
+    elif task == "fl_orchestrate":
+        mode = args.args[0] if args.args and len(args.args) > 0 else "synth"
+        crop = args.args[1] if args.args and len(args.args) > 1 else "cannabis"
+        success = fl_orchestrate(mode, crop)
+            rec_json = json.dumps(rec)
+    elif task == "fl_orchestrate":
+        mode = args.args[0] if args.args and len(args.args) > 0 else "synth"
+        crop = args.args[1] if args.args and len(args.args) > 1 else "cannabis"
+        success = fl_orchestrate(mode, crop)
+            subprocess.run([
+    elif task == "fl_orchestrate":
+        mode = args.args[0] if args.args and len(args.args) > 0 else "synth"
+        crop = args.args[1] if args.args and len(args.args) > 1 else "cannabis"
+        success = fl_orchestrate(mode, crop)
+                sys.executable,
+    elif task == "fl_orchestrate":
+        mode = args.args[0] if args.args and len(args.args) > 0 else "synth"
+        crop = args.args[1] if args.args and len(args.args) > 1 else "cannabis"
+        success = fl_orchestrate(mode, crop)
+                os.path.join(BASE, "agents", "boss_agent", "codingagent.py"),
+    elif task == "fl_orchestrate":
+        mode = args.args[0] if args.args and len(args.args) > 0 else "synth"
+        crop = args.args[1] if args.args and len(args.args) > 1 else "cannabis"
+        success = fl_orchestrate(mode, crop)
+                "--task", "implement_recommendation",
+    elif task == "fl_orchestrate":
+        mode = args.args[0] if args.args and len(args.args) > 0 else "synth"
+        crop = args.args[1] if args.args and len(args.args) > 1 else "cannabis"
+        success = fl_orchestrate(mode, crop)
+                "--args", rec_json
+    elif task == "fl_orchestrate":
+        mode = args.args[0] if args.args and len(args.args) > 0 else "synth"
+        crop = args.args[1] if args.args and len(args.args) > 1 else "cannabis"
+        success = fl_orchestrate(mode, crop)
+            ])
+    elif task == "fl_orchestrate":
+        mode = args.args[0] if args.args and len(args.args) > 0 else "synth"
+        crop = args.args[1] if args.args and len(args.args) > 1 else "cannabis"
+        success = fl_orchestrate(mode, crop)
+            log("✅ Delegated to Coding Agent for implementation.")
+    elif task == "fl_orchestrate":
+        mode = args.args[0] if args.args and len(args.args) > 0 else "synth"
+        crop = args.args[1] if args.args and len(args.args) > 1 else "cannabis"
+        success = fl_orchestrate(mode, crop)
+        else:
+    elif task == "fl_orchestrate":
+        mode = args.args[0] if args.args and len(args.args) > 0 else "synth"
+        crop = args.args[1] if args.args and len(args.args) > 1 else "cannabis"
+        success = fl_orchestrate(mode, crop)
+            log(f"ℹ️ Low/medium recommendation for {rec['agent']}: {rec['suggestion']} (will log only)")
+    elif task == "fl_orchestrate":
+        mode = args.args[0] if args.args and len(args.args) > 0 else "synth"
+        crop = args.args[1] if args.args and len(args.args) > 1 else "cannabis"
+        success = fl_orchestrate(mode, crop)
+
+    elif task == "fl_orchestrate":
+        mode = args.args[0] if args.args and len(args.args) > 0 else "synth"
+        crop = args.args[1] if args.args and len(args.args) > 1 else "cannabis"
+        success = fl_orchestrate(mode, crop)
+    # Save learning summary
+    elif task == "fl_orchestrate":
+        mode = args.args[0] if args.args and len(args.args) > 0 else "synth"
+        crop = args.args[1] if args.args and len(args.args) > 1 else "cannabis"
+        success = fl_orchestrate(mode, crop)
+    summary_path = os.path.join(BASE, "knowledge", f"learn_summary_{datetime.now().strftime('%Y%m%d_%H%M%S')}.json")
+    elif task == "fl_orchestrate":
+        mode = args.args[0] if args.args and len(args.args) > 0 else "synth"
+        crop = args.args[1] if args.args and len(args.args) > 1 else "cannabis"
+        success = fl_orchestrate(mode, crop)
+    with open(summary_path, 'w') as f:
+    elif task == "fl_orchestrate":
+        mode = args.args[0] if args.args and len(args.args) > 0 else "synth"
+        crop = args.args[1] if args.args and len(args.args) > 1 else "cannabis"
+        success = fl_orchestrate(mode, crop)
+        json.dump({
+    elif task == "fl_orchestrate":
+        mode = args.args[0] if args.args and len(args.args) > 0 else "synth"
+        crop = args.args[1] if args.args and len(args.args) > 1 else "cannabis"
+        success = fl_orchestrate(mode, crop)
+            "timestamp": datetime.now().isoformat(),
+    elif task == "fl_orchestrate":
+        mode = args.args[0] if args.args and len(args.args) > 0 else "synth"
+        crop = args.args[1] if args.args and len(args.args) > 1 else "cannabis"
+        success = fl_orchestrate(mode, crop)
+            "recommendations_processed": len(recommendations),
+    elif task == "fl_orchestrate":
+        mode = args.args[0] if args.args and len(args.args) > 0 else "synth"
+        crop = args.args[1] if args.args and len(args.args) > 1 else "cannabis"
+        success = fl_orchestrate(mode, crop)
+            "high_priority_delegated": len([r for r in recommendations if r.get('criticality') == 'high'])
+    elif task == "fl_orchestrate":
+        mode = args.args[0] if args.args and len(args.args) > 0 else "synth"
+        crop = args.args[1] if args.args and len(args.args) > 1 else "cannabis"
+        success = fl_orchestrate(mode, crop)
+        }, f)
+    elif task == "fl_orchestrate":
+        mode = args.args[0] if args.args and len(args.args) > 0 else "synth"
+        crop = args.args[1] if args.args and len(args.args) > 1 else "cannabis"
+        success = fl_orchestrate(mode, crop)
+    log(f"📄 Learning summary saved to {summary_path}")
+    elif task == "fl_orchestrate":
+        mode = args.args[0] if args.args and len(args.args) > 0 else "synth"
+        crop = args.args[1] if args.args and len(args.args) > 1 else "cannabis"
+        success = fl_orchestrate(mode, crop)
+
+    elif task == "fl_orchestrate":
+        mode = args.args[0] if args.args and len(args.args) > 0 else "synth"
+        crop = args.args[1] if args.args and len(args.args) > 1 else "cannabis"
+        success = fl_orchestrate(mode, crop)
+# ---------- FL ORCHESTRATION ----------
+    elif task == "fl_orchestrate":
+        mode = args.args[0] if args.args and len(args.args) > 0 else "synth"
+        crop = args.args[1] if args.args and len(args.args) > 1 else "cannabis"
+        success = fl_orchestrate(mode, crop)
+def fl_orchestrate(mode="synth", crop="cannabis"):
+    elif task == "fl_orchestrate":
+        mode = args.args[0] if args.args and len(args.args) > 0 else "synth"
+        crop = args.args[1] if args.args and len(args.args) > 1 else "cannabis"
+        success = fl_orchestrate(mode, crop)
+    """Full FL orchestration: start server, train, report."""
+    elif task == "fl_orchestrate":
+        mode = args.args[0] if args.args and len(args.args) > 0 else "synth"
+        crop = args.args[1] if args.args and len(args.args) > 1 else "cannabis"
+        success = fl_orchestrate(mode, crop)
+    log("🚀 Starting full FL orchestration...")
+    elif task == "fl_orchestrate":
+        mode = args.args[0] if args.args and len(args.args) > 0 else "synth"
+        crop = args.args[1] if args.args and len(args.args) > 1 else "cannabis"
+        success = fl_orchestrate(mode, crop)
+
+    elif task == "fl_orchestrate":
+        mode = args.args[0] if args.args and len(args.args) > 0 else "synth"
+        crop = args.args[1] if args.args and len(args.args) > 1 else "cannabis"
+        success = fl_orchestrate(mode, crop)
+    # 1. Check if FL server is running
+    elif task == "fl_orchestrate":
+        mode = args.args[0] if args.args and len(args.args) > 0 else "synth"
+        crop = args.args[1] if args.args and len(args.args) > 1 else "cannabis"
+        success = fl_orchestrate(mode, crop)
+    hook = os.path.join(BASE, "hooks", "fl_orchestrator.sh")
+    elif task == "fl_orchestrate":
+        mode = args.args[0] if args.args and len(args.args) > 0 else "synth"
+        crop = args.args[1] if args.args and len(args.args) > 1 else "cannabis"
+        success = fl_orchestrate(mode, crop)
+    ok, out = run_hook(hook, "status")
+    elif task == "fl_orchestrate":
+        mode = args.args[0] if args.args and len(args.args) > 0 else "synth"
+        crop = args.args[1] if args.args and len(args.args) > 1 else "cannabis"
+        success = fl_orchestrate(mode, crop)
+    if "not running" in out or not ok:
+    elif task == "fl_orchestrate":
+        mode = args.args[0] if args.args and len(args.args) > 0 else "synth"
+        crop = args.args[1] if args.args and len(args.args) > 1 else "cannabis"
+        success = fl_orchestrate(mode, crop)
+        log("⚠️ FL server not running. Starting it...")
+    elif task == "fl_orchestrate":
+        mode = args.args[0] if args.args and len(args.args) > 0 else "synth"
+        crop = args.args[1] if args.args and len(args.args) > 1 else "cannabis"
+        success = fl_orchestrate(mode, crop)
+        run_hook(hook, "start")
+    elif task == "fl_orchestrate":
+        mode = args.args[0] if args.args and len(args.args) > 0 else "synth"
+        crop = args.args[1] if args.args and len(args.args) > 1 else "cannabis"
+        success = fl_orchestrate(mode, crop)
+        time.sleep(2)  # give it a moment to start
+    elif task == "fl_orchestrate":
+        mode = args.args[0] if args.args and len(args.args) > 0 else "synth"
+        crop = args.args[1] if args.args and len(args.args) > 1 else "cannabis"
+        success = fl_orchestrate(mode, crop)
+    else:
+    elif task == "fl_orchestrate":
+        mode = args.args[0] if args.args and len(args.args) > 0 else "synth"
+        crop = args.args[1] if args.args and len(args.args) > 1 else "cannabis"
+        success = fl_orchestrate(mode, crop)
+        log("✅ FL server already running.")
+    elif task == "fl_orchestrate":
+        mode = args.args[0] if args.args and len(args.args) > 0 else "synth"
+        crop = args.args[1] if args.args and len(args.args) > 1 else "cannabis"
+        success = fl_orchestrate(mode, crop)
+
+    elif task == "fl_orchestrate":
+        mode = args.args[0] if args.args and len(args.args) > 0 else "synth"
+        crop = args.args[1] if args.args and len(args.args) > 1 else "cannabis"
+        success = fl_orchestrate(mode, crop)
+    # 2. Run training
+    elif task == "fl_orchestrate":
+        mode = args.args[0] if args.args and len(args.args) > 0 else "synth"
+        crop = args.args[1] if args.args and len(args.args) > 1 else "cannabis"
+        success = fl_orchestrate(mode, crop)
+    log(f"📊 Running FL training: mode={mode}, crop={crop}")
+    elif task == "fl_orchestrate":
+        mode = args.args[0] if args.args and len(args.args) > 0 else "synth"
+        crop = args.args[1] if args.args and len(args.args) > 1 else "cannabis"
+        success = fl_orchestrate(mode, crop)
+    train_hook = os.path.join(BASE, "hooks", "fl_train.sh")
+    elif task == "fl_orchestrate":
+        mode = args.args[0] if args.args and len(args.args) > 0 else "synth"
+        crop = args.args[1] if args.args and len(args.args) > 1 else "cannabis"
+        success = fl_orchestrate(mode, crop)
+    ok, out = run_hook(train_hook, mode, crop)
+    elif task == "fl_orchestrate":
+        mode = args.args[0] if args.args and len(args.args) > 0 else "synth"
+        crop = args.args[1] if args.args and len(args.args) > 1 else "cannabis"
+        success = fl_orchestrate(mode, crop)
+    if ok:
+    elif task == "fl_orchestrate":
+        mode = args.args[0] if args.args and len(args.args) > 0 else "synth"
+        crop = args.args[1] if args.args and len(args.args) > 1 else "cannabis"
+        success = fl_orchestrate(mode, crop)
+        log("✅ FL training completed successfully.")
+    elif task == "fl_orchestrate":
+        mode = args.args[0] if args.args and len(args.args) > 0 else "synth"
+        crop = args.args[1] if args.args and len(args.args) > 1 else "cannabis"
+        success = fl_orchestrate(mode, crop)
+    else:
+    elif task == "fl_orchestrate":
+        mode = args.args[0] if args.args and len(args.args) > 0 else "synth"
+        crop = args.args[1] if args.args and len(args.args) > 1 else "cannabis"
+        success = fl_orchestrate(mode, crop)
+        log(f"❌ FL training failed: {out}")
+    elif task == "fl_orchestrate":
+        mode = args.args[0] if args.args and len(args.args) > 0 else "synth"
+        crop = args.args[1] if args.args and len(args.args) > 1 else "cannabis"
+        success = fl_orchestrate(mode, crop)
+
+    elif task == "fl_orchestrate":
+        mode = args.args[0] if args.args and len(args.args) > 0 else "synth"
+        crop = args.args[1] if args.args and len(args.args) > 1 else "cannabis"
+        success = fl_orchestrate(mode, crop)
+    # 3. Log the outcome
+    elif task == "fl_orchestrate":
+        mode = args.args[0] if args.args and len(args.args) > 0 else "synth"
+        crop = args.args[1] if args.args and len(args.args) > 1 else "cannabis"
+        success = fl_orchestrate(mode, crop)
+    with open(os.path.join(BASE, "logs", "fl_orchestrate.log"), "a") as f:
+    elif task == "fl_orchestrate":
+        mode = args.args[0] if args.args and len(args.args) > 0 else "synth"
+        crop = args.args[1] if args.args and len(args.args) > 1 else "cannabis"
+        success = fl_orchestrate(mode, crop)
+        f.write(f"{datetime.now().isoformat()} | mode={mode} crop={crop} | success={ok}\n")
+    elif task == "fl_orchestrate":
+        mode = args.args[0] if args.args and len(args.args) > 0 else "synth"
+        crop = args.args[1] if args.args and len(args.args) > 1 else "cannabis"
+        success = fl_orchestrate(mode, crop)
+    log("🏁 FL orchestration finished.")
+    elif task == "fl_orchestrate":
+        mode = args.args[0] if args.args and len(args.args) > 0 else "synth"
+        crop = args.args[1] if args.args and len(args.args) > 1 else "cannabis"
+        success = fl_orchestrate(mode, crop)
+    return ok
+    elif task == "fl_orchestrate":
+        mode = args.args[0] if args.args and len(args.args) > 0 else "synth"
+        crop = args.args[1] if args.args and len(args.args) > 1 else "cannabis"
+        success = fl_orchestrate(mode, crop)

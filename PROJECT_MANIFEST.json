@@ -1,0 +1,25 @@
+{
+  "version": "1.0",
+  "projects": {
+    "llc_formation": {
+      "status": "complete",
+      "source": "sources/llc_articles.md",
+      "updated": "2026-06-15"
+    },
+    "s_corp_election": {
+      "status": "in_progress",
+      "source": "sources/form_2553.md",
+      "updated": "2026-06-15"
+    },
+    "grow_log_1": {
+      "status": "waiting_for_csv",
+      "source": "sensors/ac_infinity.md",
+      "updated": "2026-06-16"
+    },
+    "ai_certificate": {
+      "status": "in_progress",
+      "source": "sources/ibm_ai_engineering.md",
+      "updated": "2026-06-15"
+    }
+  }
+}

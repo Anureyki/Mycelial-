@@ -1,0 +1,7 @@
+{
+  "agent_id": "hermes",
+  "role": "memory",
+  "port": 8002,
+  "capabilities": ["store_memory", "retrieve_memory", "knowledge_search", "update_memory", "forget_memory", "pin_memory"],
+  "description": "Memory agent (Hermes)"
+}

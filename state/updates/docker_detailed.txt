@@ -1,0 +1,2 @@
+DOCKER_DETAILED|2026-06-19T01:16:53+00:00
+70a9c11171de|update available|Medium|Check Docker Hub for CVE details

@@ -1,0 +1,8 @@
+{
+  "agent_id": "skills",
+  "role": "agent",
+  "port": 9001,
+  "capabilities": [],
+  "description": "Auto-generated from orphan",
+  "created_at": "2026-07-22T08:57:46.850695"
+}

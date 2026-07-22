@@ -1,0 +1,42 @@
+{
+  "retention": {
+    "conversation": {
+      "pin": false,
+      "ttl_days": 30
+    },
+    "legal": {
+      "pin": true,
+      "ttl_days": 0
+    },
+    "contract": {
+      "pin": true,
+      "ttl_days": 0
+    },
+    "model_checkpoint": {
+      "pin": true,
+      "ttl_days": 0
+    },
+    "project_memory": {
+      "pin": false,
+      "ttl_days": 365
+    }
+  },
+  "routing": {
+    "general": "qwen2.5:1.5b",
+    "coding": "deepseek-coder:1.3b",
+    "legal": "qwen2.5:7b"
+  },
+  "training": {
+    "epochs": 10,
+    "batch_size": 32,
+    "learning_rate": 0.001
+  },
+  "evaluation": {
+    "metrics": [
+      "accuracy",
+      "f1",
+      "precision",
+      "recall"
+    ]
+  }
+}

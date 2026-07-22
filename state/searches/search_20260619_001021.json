@@ -1,0 +1,97 @@
+{
+  "github": [
+    {
+      "name": "dnd-aeloria-wiki",
+      "url": "https://github.com/dewwwwwws-stack/dnd-aeloria-wiki",
+      "description": "attachments for obsidian publish wiki"
+    },
+    {
+      "name": "ObsidianVault",
+      "url": "https://github.com/adilalim041/ObsidianVault",
+      "description": null
+    },
+    {
+      "name": "NeverWrite",
+      "url": "https://github.com/jsgrrchg/NeverWrite",
+      "description": "The bastard son between Cursor and Obsidian"
+    },
+    {
+      "name": "00.ObsidianVault",
+      "url": "https://github.com/carpediemdumvivimusvivamus-art/00.ObsidianVault",
+      "description": null
+    },
+    {
+      "name": "obsidian-knowledge-base",
+      "url": "https://github.com/hchbae1001/obsidian-knowledge-base",
+      "description": "knowledge base"
+    },
+    {
+      "name": "News-Grasp",
+      "url": "https://github.com/HIDEPON-UMG/News-Grasp",
+      "description": "Daily web news digest agent driven by Anthropic Routine. Runs at 06:00 JST daily, generates Markdown reports per genre, syncs to Obsidian, mails HTML digest."
+    },
+    {
+      "name": "DeepReader",
+      "url": "https://github.com/wiesewadja/DeepReader",
+      "description": "AI-powered deep reading companion for Obsidian"
+    },
+    {
+      "name": "Notebook",
+      "url": "https://github.com/catr1xLiu/Notebook",
+      "description": "My personal notes using obsidian"
+    },
+    {
+      "name": "obsidian",
+      "url": "https://github.com/matheuspdf/obsidian",
+      "description": null
+    },
+    {
+      "name": "memmaster-obsidian-plugin",
+      "url": "https://github.com/qoonmax/memmaster-obsidian-plugin",
+      "description": null
+    }
+  ],
+  "nvd": [
+    {
+      "id": "CVE-2020-11583",
+      "description": "A GET-based XSS reflected vulnerability in Plesk Obsidian 18.0.17 allows remote unauthenticated users to inject arbitrary JavaScript, HTML, or CSS via a GET parameter."
+    },
+    {
+      "id": "CVE-2021-38148",
+      "description": "Obsidian before 0.12.12 does not require user confirmation for non-http/https URLs."
+    },
+    {
+      "id": "CVE-2021-35976",
+      "description": "The feature to preview a website in Plesk Obsidian 18.0.0 through 18.0.32 on Linux is vulnerable to reflected XSS via the /plesk-site-preview/ PATH, aka PFSI-62467. The attacker could execute JavaScript code in the victim's browser by using the link to preview sites hosted on the server. Authentication is not required to exploit the vulnerability."
+    },
+    {
+      "id": "CVE-2021-42057",
+      "description": "Obsidian Dataview through 0.4.12-hotfix1 allows eval injection. The evalInContext function in executes user input, which allows an attacker to craft malicious Markdown files that will execute arbitrary code once opened. NOTE: 0.4.13 provides a mitigation for some use cases."
+    },
+    {
+      "id": "CVE-2022-36450",
+      "description": "Obsidian 0.14.x and 0.15.x before 0.15.5 allows obsidian://hook-get-address remote code execution because window.open is used without checking the URL."
+    },
+    {
+      "id": "CVE-2022-45130",
+      "description": "Plesk Obsidian allows a CSRF attack, e.g., via the /api/v2/cli/commands REST API to change an Admin password. NOTE: Obsidian is a specific version of the Plesk product: version numbers were used through version 12, and then the convention was changed so that versions are identified by names (\"Obsidian\"), not numbers."
+    },
+    {
+      "id": "CVE-2023-24044",
+      "description": "A Host Header Injection issue on the Login page of Plesk Obsidian through 18.0.49 allows attackers to redirect users to malicious websites via a Host request header. NOTE: the vendor's position is \"the ability to use arbitrary domain names to access the panel is an intended feature.\""
+    },
+    {
+      "id": "CVE-2023-27035",
+      "description": "An issue discovered in Obsidian Canvas 1.1.9 allows remote attackers to send desktop notifications, record user audio and other unspecified impacts via embedded website on the canvas page."
+    },
+    {
+      "id": "CVE-2023-33244",
+      "description": "Obsidian before 1.2.2 allows calls to unintended APIs (for microphone access, camera access, and desktop notification) via an embedded web page."
+    },
+    {
+      "id": "CVE-2023-2110",
+      "description": "Improper path handling in Obsidian desktop before 1.2.8 on Windows, Linux and macOS allows a crafted webpage to access local files and exfiltrate them to remote web servers via \"app://local/<absolute-path>\". This vulnerability can be exploited if a user opens a malicious markdown file in Obsidian, or copies text from a malicious webpage and paste it into Obsidian."
+    }
+  ],
+  "darkweb": []
+}

@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>🍄 Mycelial Dashboard</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <style>
+        body { font-family: sans-serif; background: #0a0a0a; color: #e0e0e0; padding: 20px; }
+        .card { background: #1a1a1a; padding: 20px; border-radius: 12px; margin-bottom: 20px; }
+        h1, h2 { color: #8b5cf6; }
+        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 15px; }
+        .agent { background: #222; padding: 15px; border-radius: 8px; border-left: 4px solid #8b5cf6; }
+        .button { background: #8b5cf6; border: none; color: white; padding: 8px 16px; border-radius: 6px; cursor: pointer; }
+        .button:hover { background: #7c3aed; }
+        .log { background: #111; padding: 10px; border-radius: 6px; font-family: monospace; max-height: 200px; overflow-y: auto; white-space: pre-wrap; }
+        .input-group { display: flex; gap: 10px; margin: 10px 0; }
+        .input-group input { flex: 1; padding: 8px; border-radius: 6px; border: 1px solid #333; background: #222; color: white; }
+        .status-dot { display: inline-block; width: 10px; height: 10px; border-radius: 50%; margin-right: 8px; }
+        .dot-green { background: #22c55e; }
+        .dot-red { background: #ef4444; }
+        .dot-yellow { background: #eab308; }
+        a { color: #8b5cf6; text-decoration: none; }
+        a:hover { text-decoration: underline; }
+    </style>
+</head>
+<body>
+    <h1>🍄 Mycelial Network</h1>
+    <p><a href="/vault">📁 Vault</a> | <a href="/">🏠 Dashboard</a></p>
+
+    <div class="card">
+        <h2>🧠 Agent Status</h2>
+        <div id="agent-status" class="grid">Loading...</div>
+    </div>
+
+    <div class="card">
+        <h2>⚡ Quick Actions</h2>
+        <button class="button" onclick="triggerTask('health_check')">🩺 Health Check</button>
+        <button class="button" onclick="triggerTask('check_updates')">📡 Check Updates</button>
+        <button class="button" onclick="triggerTask('fl_status')">📊 FL Status</button>
+        <button class="button" onclick="triggerTaskWithArgs('fl_orchestrate', ['synth', 'cannabis'])">🚀 FL Train (Synthetic)</button>
+        <button class="button" onclick="triggerTask('agent_status')">📋 Agent Status</button>
+    </div>
+
+    <div class="card">
+        <h2>🔍 Search (DGTA)</h2>
+        <div class="input-group">
+            <input id="search-query" type="text" placeholder="Search GitHub, NVD, web...">
+            <button class="button" onclick="search()">Search</button>
+        </div>
+        <div id="search-result" class="log">Results will appear here...</div>
+    </div>
+
+    <div class="card">
+        <h2>📚 Knowledge / Outcomes</h2>
+        <button class="button" onclick="loadKnowledge()">Refresh</button>
+        <div id="knowledge-list">Click Refresh to load.</div>
+    </div>
+
+    <div class="card">
+        <h2>📋 Log Output</h2>
+        <div id="output" class="log">Ready.</div>
+    </div>
+
+    <script>
+        function updateStatus() {
+            fetch('/api/status')
+                .then(res => res.json())
+                .then(data => {
+                    let html = '';
+                    for (const [agent, info] of Object.entries(data)) {
+                        const dot = info.errors > 0 ? 'dot-red' : 'dot-green';
+                        html += '<div class="agent">';
+                        html += '<strong>' + agent + '</strong><br>';
+                        html += '<span class="status-dot ' + dot + '"></span>';
+                        html += 'Last task: ' + info.last_task + '<br>';
+                        html += 'Errors: ' + info.errors;
+                        html += '</div>';
+                    }
+                    document.getElementById('agent-status').innerHTML = html;
+                });
+        }
+
+        function triggerTask(task) {
+            document.getElementById('output').innerText = '⏳ Running...';
+            fetch('/api/trigger', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({task: task})
+            })
+            .then(res => res.json())
+            .then(data => {
+                document.getElementById('output').innerText = data.output || data.errors || 'Done.';
+            });
+        }
+
+        function triggerTaskWithArgs(task, args) {
+            document.getElementById('output').innerText = '⏳ Running...';
+            fetch('/api/trigger_with_args', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({task: task, args: args})
+            })
+            .then(res => res.json())
+            .then(data => {
+                document.getElementById('output').innerText = data.output || data.errors || 'Done.';
+            });
+        }
+
+        function search() {
+            const query = document.getElementById('search-query').value;
+            if (!query) return;
+            document.getElementById('search-result').innerText = '⏳ Searching...';
+            fetch('/api/search', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({query: query})
+            })
+            .then(res => res.json())
+            .then(data => {
+                document.getElementById('search-result').innerText = data.output || data.errors || 'No results.';
+            });
+        }
+
+        function loadKnowledge() {
+            fetch('/api/knowledge')
+                .then(res => res.json())
+                .then(files => {
+                    let html = '';
+                    for (const f of files) {
+                        html += '<details><summary>' + f.name + '</summary><pre>' + JSON.stringify(f.data, null, 2) + '</pre></details>';
+                    }
+                    document.getElementById('knowledge-list').innerHTML = html || 'No knowledge files.';
+                });
+        }
+
+        updateStatus();
+        setInterval(updateStatus, 30000);
+    </script>
+</body>
+</html>

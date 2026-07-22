@@ -1,0 +1,180 @@
+{
+  "timestamp": "2026-06-19T01:36:39.458911",
+  "sources": [
+    {
+      "name": "Cornell LII (Legal Information Institute)",
+      "url": "https://www.law.cornell.edu",
+      "status": "healthy"
+    },
+    {
+      "name": "Supreme Court of the United States",
+      "url": "https://www.supremecourt.gov",
+      "status": "healthy"
+    },
+    {
+      "name": "Federal Register",
+      "url": "https://www.federalregister.gov",
+      "status": "healthy"
+    },
+    {
+      "name": "Code of Federal Regulations (CFR)",
+      "url": "https://www.ecfr.gov",
+      "status": "healthy"
+    },
+    {
+      "name": "U.S. Congress",
+      "url": "https://www.congress.gov",
+      "status": "unreachable"
+    },
+    {
+      "name": "U.S. Courts",
+      "url": "https://www.uscourts.gov",
+      "status": "healthy"
+    },
+    {
+      "name": "USA.gov",
+      "url": "https://www.usa.gov",
+      "status": "healthy"
+    },
+    {
+      "name": "Data.gov",
+      "url": "https://www.data.gov",
+      "status": "healthy"
+    },
+    {
+      "name": "GPO (Government Publishing Office)",
+      "url": "https://www.gpo.gov",
+      "status": "healthy"
+    },
+    {
+      "name": "GAO (Government Accountability Office)",
+      "url": "https://www.gao.gov",
+      "status": "unreachable"
+    },
+    {
+      "name": "USDA (United States Department of Agriculture)",
+      "url": "https://www.usda.gov",
+      "status": "unreachable"
+    },
+    {
+      "name": "USDA NASS (National Agricultural Statistics Service)",
+      "url": "https://www.nass.usda.gov",
+      "status": "healthy"
+    },
+    {
+      "name": "USDA APHIS (Animal and Plant Health Inspection Service)",
+      "url": "https://www.aphis.usda.gov",
+      "status": "healthy"
+    },
+    {
+      "name": "USDA NRCS (Natural Resources Conservation Service)",
+      "url": "https://www.nrcs.usda.gov",
+      "status": "healthy"
+    },
+    {
+      "name": "USDA AMS (Agricultural Marketing Service)",
+      "url": "https://www.ams.usda.gov",
+      "status": "healthy"
+    },
+    {
+      "name": "USDA ERS (Economic Research Service)",
+      "url": "https://www.ers.usda.gov",
+      "status": "healthy"
+    },
+    {
+      "name": "USDA Agricultural Research Service (ARS)",
+      "url": "https://www.ars.usda.gov",
+      "status": "healthy"
+    },
+    {
+      "name": "DoD (Department of Defense)",
+      "url": "https://www.defense.gov",
+      "status": "unreachable"
+    },
+    {
+      "name": "DoD Directives & Instructions",
+      "url": "https://www.esd.whs.mil/dd",
+      "status": "unreachable"
+    },
+    {
+      "name": "Defense Technical Information Center (DTIC)",
+      "url": "https://www.dtic.mil",
+      "status": "unreachable"
+    },
+    {
+      "name": "National Defense Authorization Act (NDAA)",
+      "url": "https://www.congress.gov/ndaa",
+      "status": "unreachable"
+    },
+    {
+      "name": "U.S. Army",
+      "url": "https://www.army.mil",
+      "status": "healthy"
+    },
+    {
+      "name": "U.S. Navy",
+      "url": "https://www.navy.mil",
+      "status": "unreachable"
+    },
+    {
+      "name": "U.S. Air Force",
+      "url": "https://www.af.mil",
+      "status": "unreachable"
+    },
+    {
+      "name": "U.S. Marine Corps",
+      "url": "https://www.marines.mil",
+      "status": "unreachable"
+    },
+    {
+      "name": "PubMed",
+      "url": "https://pubmed.ncbi.nlm.nih.gov",
+      "status": "healthy"
+    },
+    {
+      "name": "arXiv",
+      "url": "https://arxiv.org",
+      "status": "healthy"
+    },
+    {
+      "name": "Google Scholar",
+      "url": "https://scholar.google.com",
+      "status": "healthy"
+    },
+    {
+      "name": "IEEE Xplore",
+      "url": "https://ieeexplore.ieee.org",
+      "status": "unreachable"
+    },
+    {
+      "name": "Science.gov",
+      "url": "https://www.science.gov",
+      "status": "healthy"
+    },
+    {
+      "name": "NASA",
+      "url": "https://www.nasa.gov",
+      "status": "healthy"
+    },
+    {
+      "name": "RAND Corporation",
+      "url": "https://www.rand.org",
+      "status": "unreachable"
+    },
+    {
+      "name": "Brookings Institution",
+      "url": "https://www.brookings.edu",
+      "status": "healthy"
+    },
+    {
+      "name": "Pew Research Center",
+      "url": "https://www.pewresearch.org",
+      "status": "healthy"
+    },
+    {
+      "name": "National Academies",
+      "url": "https://www.nationalacademies.org",
+      "status": "healthy"
+    }
+  ]
+}

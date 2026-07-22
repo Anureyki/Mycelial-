@@ -1,0 +1,27 @@
+{
+  "agent_id": "hermes",
+  "role": "memory",
+  "version": "1.0.0",
+  "capabilities": [
+    "store_memory",
+    "retrieve_memory",
+    "knowledge_search",
+    "update_memory",
+    "route_model",
+    "find_capability",
+    "is_source_approved"
+  ],
+  "endpoint": "/execute",
+  "port": 8002,
+  "transport": [
+    "http",
+    "mqtt"
+  ],
+  "mqtt_topics": {
+    "publish": "mycelial/agent/hermes/out",
+    "subscribe": "mycelial/agent/hermes/in"
+  },
+  "public_key": "",
+  "owner": "anureyki",
+  "created": "2026-07-17T02:04:21.723749"
+}

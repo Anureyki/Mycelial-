@@ -1,0 +1,56 @@
+{
+  "github": [
+    {
+      "name": "PocOrExp_in_Github",
+      "url": "https://github.com/ycdxsb/PocOrExp_in_Github",
+      "description": "Automatically Collect POC or EXP from GitHub by CVE ID."
+    },
+    {
+      "name": "popper-scope",
+      "url": "https://github.com/aemro-motors/popper-scope",
+      "description": "Popper Probe Repo: Automated Vulnerability Scanner 2026 - Smart GitHub Code Analysis"
+    },
+    {
+      "name": "advisory-database",
+      "url": "https://github.com/github/advisory-database",
+      "description": "Security vulnerability database inclusive of CVEs and GitHub originated security advisories from the world of open source software."
+    },
+    {
+      "name": "SecurityFeed",
+      "url": "https://github.com/securenza/SecurityFeed",
+      "description": "Beautiful (security) news feed aggregator that is built and updated automatically using GitHub actions."
+    },
+    {
+      "name": "cve-remediation-project",
+      "url": "https://github.com/vishal755/cve-remediation-project",
+      "description": "A deliberately vulnerable Notes web app (React + Spring MVC) paired with an autonomous AI agent that scans, plans, patches, and submits GitHub PRs to remediate CVE vulnerabilities."
+    },
+    {
+      "name": "trespass",
+      "url": "https://github.com/carvalhocaio/trespass",
+      "description": "GitHub repository security scanner \u2014 find hardcoded secrets, vulnerable dependencies, SAST issues, and LLM prompt injection vectors in your repos."
+    },
+    {
+      "name": "go-vulncheck-action",
+      "url": "https://github.com/elgohr/go-vulncheck-action",
+      "description": "Easily using govulncheck in GitHub Actions"
+    },
+    {
+      "name": "CVE-Radar",
+      "url": "https://github.com/RaminNietzsche/CVE-Radar",
+      "description": "Multi-source CVE & vulnerability monitoring for your stack \u2014 NVD, OSV, GitHub Advisories, CISA KEV. React + Express, six-language RTL UI, Docker & self-hosted PostgreSQL."
+    },
+    {
+      "name": "elixir-security-advisories",
+      "url": "https://github.com/mirego/elixir-security-advisories",
+      "description": "\ud83d\udee1 Public database of Elixir security advisories pulled from GitHub Advisory Database"
+    },
+    {
+      "name": "dr-economic-intelligence",
+      "url": "https://github.com/ianperaltahirujo/dr-economic-intelligence",
+      "description": "Automated weekly economic vulnerability tracker for the Dominican Republic: ingests BCRD, Superintendencia de Bancos, and FRED data into a 0-100 composite stress score, publishing a dashboard (GitHub Pages) and Excel workbook on a fully autonomous schedule."
+    }
+  ],
+  "nvd": [],
+  "darkweb": []
+}

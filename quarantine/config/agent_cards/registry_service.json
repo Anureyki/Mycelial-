@@ -1,0 +1,29 @@
+{
+  "agent_id": "registry_service",
+  "role": "registry",
+  "version": "1.0.0",
+  "capabilities": [
+    "register",
+    "lookup",
+    "find_capability",
+    "list_agents",
+    "heartbeat",
+    "health",
+    "deregister"
+  ],
+  "endpoint": "/execute",
+  "port": 8004,
+  "transport": [
+    "http",
+    "mqtt"
+  ],
+  "mqtt_topics": {
+    "publish": "mycelial/agent/registry_service/out",
+    "subscribe": "mycelial/agent/registry_service/in"
+  },
+  "public_key": "",
+  "owner": "anureyki",
+  "created": "2026-07-20T19:04:22.289124",
+  "pre_hook": null,
+  "post_hook": null
+}

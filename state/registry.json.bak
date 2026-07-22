@@ -1,0 +1,42 @@
+{
+  "codingagent": {
+    "url": "http://localhost:8001",
+    "capabilities": [
+      "edit_file",
+      "run_command",
+      "crontab_add",
+      "crontab_list",
+      "crontab_remove"
+    ],
+    "last_seen": "2026-06-16T23:07:07.767145"
+  },
+  "datagatherer": {
+    "url": "http://localhost:8003",
+    "capabilities": [
+      "check_updates",
+      "fetch_api",
+      "scrape_web"
+    ],
+    "last_seen": "2026-06-16T23:11:20.251840"
+  }
+}egate",
+      "check_updates",
+      "health_check",
+      "set_autostart",
+      "fl_status",
+      "fl_start",
+      "fl_stop",
+      "fl_train",
+      "sync_all",
+      "check_desync",
+      "agent_status",
+      "discover",
+      "learn",
+      "security_recommend",
+      "show_pending",
+      "approve",
+      "deny"
+    ],
+    "last_seen": "2026-06-16T23:11:20.251840"
+  }
+}
