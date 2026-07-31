@@ -1,47 +1,37 @@
-# Python
+# Virtual environment
+venv/
+env/
+.venv/
+
+# Python cache
 __pycache__/
 *.pyc
 *.pyo
-venv/
-.env
 
 # Logs
 logs/
 *.log
 
-# State / databases
-state/*.db
-state/*.json
-state/registry.json
-state/processes.json
-state/memory.db
-state/audit.db
-state/training_jobs.json
-state/eval_jobs.json
-state/datasets.json
-state/boss_agent.json
-state/codingagent.json
-state/dgta_agent.json
-state/pqa_agent.json
-state/security_agent.json
-state/quantum_agent.json
-state/maintenance_agent.json
+# State (registry, memory DB, pending requests)
+state/
+!state/.gitkeep
 
-# Temporary files
-*.tmp
+# Configuration with secrets (don't commit raw tokens)
+config/mcp.d/sentry.json
+config/mcp.d/git.json
+
+# Data directories
+datasets/
+weights/
+sensor_data/
+
+# Backup and temp files
+*.bak
 *.swp
-*.swo
+*~
+/tmp/
 .DS_Store
 
-# Sensitive configs (if any)
-config/agent_cards/*.json
-config/agent_configs/*.json  # optional – keep if you want to share config templates
-# You may want to keep agent_configs but exclude any with secrets
-
-# IPFS
-.ipfs/
-ipfs.log
-
-# Misc
-*.pid
-nohup.out
+# IDE
+.vscode/
+.idea/

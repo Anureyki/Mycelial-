@@ -2,24 +2,53 @@
 cd ~/mycelial
 source venv/bin/activate
 
-# Start Registry Service
-nohup python3 agents/registry_service.py > logs/registry.log 2>&1 &
+# Ensure logs directory exists
+mkdir -p logs
+
+# ---------- Platform Services ----------
+echo "Starting platform services..."
+
+nohup python3 services/registry/registry_service.py > logs/registry.log 2>&1 &
 echo "Registry Service started (port 8004)"
 
-# Start Hermes
-nohup python3 agents/hermes_interface.py > logs/hermes.log 2>&1 &
-echo "Hermes started (port 8002)"
+nohup python3 services/memory/service.py > logs/memory.log 2>&1 &
+echo "Memory Service started (port 8007)"
 
-# Start CodingAgent
-nohup python3 agents/boss_agent/codingagent.py > logs/coding.log 2>&1 &
-echo "CodingAgent started (port 8001)"
+nohup python3 services/policy/service.py > logs/policy.log 2>&1 &
+echo "Policy Service started (port 8008)"
 
-# Start Boss
-nohup python3 agents/boss_agent/boss_agent.py > logs/boss.log 2>&1 &
-echo "Boss started (port 8000)"
+nohup python3 services/logging_auditing/service.py > logs/logging.log 2>&1 &
+echo "Logging Service started (port 8009)"
 
-# Start Anansi (interface)
-nohup python3 agents/Anansi.py > logs/anansi.log 2>&1 &
-echo "Anansi started (port 8081)"
+nohup python3 services/inference/service.py > logs/inference.log 2>&1 &
+echo "Inference Service started (port 8005)"
 
-echo "All agents started."
+nohup python3 services/model/service.py > logs/model.log 2>&1 &
+echo "Model Service started (port 8006)"
+
+nohup python3 services/training/service.py > logs/training.log 2>&1 &
+echo "Training Service started (port 8010)"
+
+nohup python3 services/evaluation/service.py > logs/evaluation.log 2>&1 &
+echo "Evaluation Service started (port 8011)"
+
+nohup python3 services/data_engineering/service.py > logs/data_engineering.log 2>&1 &
+echo "Data Engineering Service started (port 8012)"
+
+nohup python3 services/agent/service.py > logs/agent_service.log 2>&1 &
+echo "Agent Service started (port 8013)"
+
+nohup python3 services/service_manager/service.py > logs/service_manager.log 2>&1 &
+echo "Service Manager started (port 8014)"
+
+nohup python3 services/tool/service.py > logs/tool.log 2>&1 &
+echo "Tool Service started (port 8015)"
+
+# Wait for services to initialize
+sleep 5
+
+# ---------- Sync and start agents ----------
+echo "Syncing agent configs and starting agents..."
+curl -s -X POST "http://localhost:8013/sync?create_config=true" > /dev/null
+
+echo "All services and agents started."

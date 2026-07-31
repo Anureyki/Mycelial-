@@ -1,8 +1,8 @@
 {
   "agent_id": "legal_agent",
   "role": "agent",
-  "port": 9012,
-  "capabilities": [],
-  "description": "Auto-generated from orphan",
-  "created_at": "2026-07-22T08:57:46.866309"
+  "port": 9011,
+  "capabilities": ["parse_contract", "model_relationship", "extract_parties", "analyze_roles", "query_relationship", "compare_relationships"],
+  "entry_point": "agents.legal_agent.legal_agent:main",
+  "description": "Models legal/financial relationships from contract text (extraction and structuring only - not legal advice)"
 }

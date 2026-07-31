@@ -1,0 +1,10 @@
+{
+  "servers": {
+    "vestige": {
+      "command": "/home/anureyki/.npm-global/bin/vestige-mcp",
+      "args": [],
+      "transport": "stdio",
+      "description": "Cross-session memory server"
+    }
+  }
+}

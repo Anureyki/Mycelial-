@@ -11,26 +11,29 @@ import os
 import sys
 import time
 import json
+import numpy as np
 import requests
 import pyaudio
 import wave
 import threading
-from openwakeword import WakeWordDetection
+from openwakeword.model import Model
 from faster_whisper import WhisperModel
 
 # Configuration
 ANANSI_URL = "http://localhost:8081/execute"
 WAKE_WORD = "hermes"   # or "computer", "boss", etc.
 MODEL_PATH = "/home/anureyki/.cache/openwakeword/"
+THRESHOLD = 0.5
 
 # Initialize wake word detector
+# TODO: hermes.tflite is a placeholder (0 bytes) - no trained model yet, so wake-word
+# detection is stubbed out until a real model is trained/downloaded.
 print("🔊 Loading wake word model...")
-wwd = WakeWordDetection(
-    wakeword=WAKE_WORD,
-    model_path=MODEL_PATH,
-    chunk_size=16000,      # samples per inference
-    threshold=0.5
-)
+try:
+    wwd = Model(wakeword_model_paths=[os.path.join(MODEL_PATH, f"{WAKE_WORD}.tflite")])
+except Exception as e:
+    print(f"⚠️  Wake word model unavailable ({e}); wake-word detection disabled.")
+    wwd = None
 
 # Initialize STT
 print("🎤 Loading Whisper model (tiny.en)...")
@@ -63,10 +66,12 @@ def send_to_anansi(text):
 
 def audio_callback(in_data, frame_count, time_info, status):
     """Process audio chunks for wake word detection."""
+    if wwd is None:
+        return (None, pyaudio.paContinue)
     # Convert bytes to numpy array and detect wake word
-    audio_data = np.frombuffer(in_data, dtype=np.int16).astype(np.float32) / 32768.0
+    audio_data = np.frombuffer(in_data, dtype=np.int16)
     prediction = wwd.predict(audio_data)
-    if prediction > 0.5:
+    if max(prediction.values()) > THRESHOLD:
         print("🔊 Wake word detected! Listening...")
         # Here we would capture a longer audio clip and transcribe
         # For this demo, we'll capture 5 seconds of audio after wake word

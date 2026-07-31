@@ -1,0 +1,8 @@
+{
+  "filesystem": {
+    "command": "npx",
+    "args": ["-y", "@modelcontextprotocol/server-filesystem", "/home/anureyki/mycelial"],
+    "transport": "stdio",
+    "description": "Filesystem operations"
+  }
+}

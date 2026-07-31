@@ -1,0 +1,24 @@
+{
+  "agent_id": "pqa_agent",
+  "role": "public_query",
+  "version": "1.0.0",
+  "capabilities": [
+    "search_web",
+    "search"
+  ],
+  "endpoint": "/execute",
+  "port": 9007,
+  "transport": [
+    "http",
+    "mqtt"
+  ],
+  "mqtt_topics": {
+    "publish": "mycelial/agent/pqa_agent/out",
+    "subscribe": "mycelial/agent/pqa_agent/in"
+  },
+  "public_key": "",
+  "owner": "anureyki",
+  "created": "2026-07-24T06:18:47.108581",
+  "pre_hook": null,
+  "post_hook": null
+}

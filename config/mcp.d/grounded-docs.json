@@ -1,0 +1,7 @@
+{
+  "grounded-docs": {
+    "command": "npx",
+    "args": ["-y", "@arabold/docs-mcp-server"],
+    "transport": "stdio"
+  }
+}

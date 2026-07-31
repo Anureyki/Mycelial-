@@ -1,0 +1,7 @@
+{
+  "searxng": {
+    "command": "python3",
+    "args": ["/home/anureyki/mycelial/services/mcp_servers/searxng_mcp.py"],
+    "transport": "stdio"
+  }
+}

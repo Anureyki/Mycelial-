@@ -1,8 +1,8 @@
 {
   "agent_id": "maintenance_agent",
-  "role": "agent",
-  "port": 9011,
-  "capabilities": [],
-  "description": "Auto-generated from orphan",
-  "created_at": "2026-07-22T08:57:46.864941"
+  "role": "system_health",
+  "port": 8003,
+  "capabilities": ["check_disk", "clean_logs", "check_updates", "apply_updates", "rollback"],
+  "entry_point": "agents.maintenance_agent.maintenance_agent:main",
+  "description": "System Health agent"
 }

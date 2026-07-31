@@ -9,7 +9,10 @@ from flask import Flask, request, jsonify
 
 app = Flask(__name__)
 
-# Model metadata with tags
+# Detect if Claude API key is present
+CLAUDE_AVAILABLE = bool(os.getenv("ANTHROPIC_API_KEY"))
+
+# Model metadata with tags – only models installed on this system
 MODELS = {
     "qwen2.5:1.5b": {
         "name": "qwen2.5:1.5b",
@@ -29,23 +32,51 @@ MODELS = {
         "domain": "code",
         "specialization": "code"
     },
+    "deepseek-coder:6.7b": {
+        "name": "deepseek-coder:6.7b",
+        "active": False,  # too large, not active by default
+        "speed": "slow",
+        "quality": "high",
+        "size": "6.7B",
+        "domain": "code",
+        "specialization": "code"
+    },
     "qwen2.5:7b": {
         "name": "qwen2.5:7b",
-        "active": False,  # not active by default (large)
+        "active": False,  # too large, not active by default
         "speed": "slow",
         "quality": "high",
         "size": "7B",
         "domain": "general",
         "specialization": "general"
     },
-    "llama3.2:3b": {
-        "name": "llama3.2:3b",
-        "active": True,
+    # ---- Claude models (cloud) ----
+    "claude-sonnet-5": {
+        "name": "claude-sonnet-5",
+        "active": CLAUDE_AVAILABLE,
         "speed": "medium",
-        "quality": "high",
-        "size": "3B",
+        "quality": "very_high",
+        "size": "cloud",
         "domain": "general",
-        "specialization": "general"
+        "specialization": "reasoning"
+    },
+    "claude-opus-4-8": {
+        "name": "claude-opus-4-8",
+        "active": CLAUDE_AVAILABLE,
+        "speed": "slow",
+        "quality": "maximum",
+        "size": "cloud",
+        "domain": "general",
+        "specialization": "reasoning"
+    },
+    "claude-fable-5": {
+        "name": "claude-fable-5",
+        "active": CLAUDE_AVAILABLE,
+        "speed": "fast",
+        "quality": "high",
+        "size": "cloud",
+        "domain": "general",
+        "specialization": "reasoning"
     }
 }
 
@@ -64,20 +95,14 @@ def get_active_models():
 
 @app.route("/models/select", methods=["POST"])
 def select_model():
-    """
-    Select a model based on requirements.
-    Requirements: e.g., {"speed": "fast", "quality": "high", "domain": "code"}
-    """
     data = request.json or {}
     requirements = data.get("requirements", {})
-    # If no requirements, return first active model
     if not requirements:
         for name, meta in MODELS.items():
             if meta.get("active", False):
                 return jsonify({"success": True, "model": name})
         return jsonify({"success": False, "error": "No active models"}), 404
 
-    # Score each active model against requirements
     best_model = None
     best_score = -1
     for name, meta in MODELS.items():
@@ -85,11 +110,8 @@ def select_model():
             continue
         score = 0
         for key, value in requirements.items():
-            if key in meta:
-                if meta[key] == value:
-                    score += 1
-                # For numeric/string matching we keep simple equality; could be extended
-        # Weighted: speed and quality are important
+            if key in meta and meta[key] == value:
+                score += 1
         if score > best_score:
             best_score = score
             best_model = name
@@ -97,7 +119,6 @@ def select_model():
     if best_model:
         return jsonify({"success": True, "model": best_model, "score": best_score})
     else:
-        # Fallback to any active model
         for name, meta in MODELS.items():
             if meta.get("active", False):
                 return jsonify({"success": True, "model": name})

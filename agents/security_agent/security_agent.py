@@ -1,32 +1,103 @@
 #!/usr/bin/env python3
-import sys
-import os
-import time
-from datetime import datetime
-
-# Add project root
-project_root = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-sys.path.insert(0, project_root)
-
+# agents/security_agent/security_agent.py
+import os, json, time, secrets
 from core.base_agent import AgentBase
 
-class SecurityAgentAgent(AgentBase):
+BASE = os.path.expanduser("~/mycelial")
+SECRET_FILE = os.path.join(BASE, "config", ".security_bootstrap_secret")
+
+class SecurityAgent(AgentBase):
     def __init__(self):
         super().__init__(
             agent_id="security_agent",
-            port=9003,
-            capabilities=[],
-            role="agent"
+            port=9010,
+            capabilities=["authenticate", "authorize", "audit", "issue_token"],
+            role="security"
         )
-        self.log("security_agent initialized.")
+        self.tokens = {}  # simple in-memory token store (persist later)
+        self.bootstrap_secret = self._load_or_create_bootstrap_secret()
+        self.policies = {
+            "coding_agent": ["run_command", "edit_file", "read_file"],
+            "grow_agent": ["log_reading", "transition_stage"],
+            # ... more policies
+        }
+        self.log("🔐 Security Agent started.")
+
+    def _load_or_create_bootstrap_secret(self):
+        """Only callers who can read this local, 0600 file may mint tokens.
+        Prevents any network caller from self-issuing a token for an
+        arbitrary agent_id and having authorize() approve it."""
+        if os.path.exists(SECRET_FILE):
+            with open(SECRET_FILE, "r") as f:
+                return f.read().strip()
+        secret = secrets.token_urlsafe(32)
+        fd = os.open(SECRET_FILE, os.O_WRONLY | os.O_CREAT | os.O_TRUNC, 0o600)
+        with os.fdopen(fd, "w") as f:
+            f.write(secret)
+        self.log(f"Generated new bootstrap secret at {SECRET_FILE}")
+        return secret
+
+    def _issue_token(self, agent_id, ttl=3600):
+        token = secrets.token_urlsafe(32)
+        expiry = time.time() + ttl
+        self.tokens[token] = {"agent_id": agent_id, "expiry": expiry}
+        return token
+
+    def _validate_token(self, token):
+        if token not in self.tokens:
+            return None
+        if time.time() > self.tokens[token]["expiry"]:
+            del self.tokens[token]
+            return None
+        return self.tokens[token]["agent_id"]
 
     def handle_task(self, task, args, sender):
-        self.log(f"Task {task} from {sender}")
-        # Add your custom logic here
-        return f"Task {task} executed by security_agent"
+        if task == "issue_token":
+            agent_id = args.get("agent_id")
+            bootstrap_secret = args.get("bootstrap_secret")
+            if not agent_id:
+                return {"error": "Missing agent_id"}
+            if bootstrap_secret != self.bootstrap_secret:
+                self.log(f"Rejected issue_token for {agent_id}: bad or missing bootstrap secret")
+                return {"error": "Invalid or missing bootstrap secret"}
+            token = self._issue_token(agent_id)
+            expiry = self.tokens[token]["expiry"]
+            self.store_own_memory(f"token_{token[:8]}", {"agent_id": agent_id, "expiry": expiry})
+            return {"token": token, "expiry": expiry}
+
+        elif task == "authenticate":
+            token = args.get("token")
+            agent_id = self._validate_token(token)
+            if agent_id:
+                return {"authenticated": True, "agent_id": agent_id}
+            return {"authenticated": False, "error": "Invalid or expired token"}
+
+        elif task == "authorize":
+            token = args.get("token")
+            action = args.get("action")
+            agent_id = self._validate_token(token)
+            if not agent_id:
+                return {"authorized": False, "error": "Authentication required"}
+            allowed = self.policies.get(agent_id, [])
+            return {"authorized": action in allowed}
+
+        elif task == "audit":
+            # log an audit event (store in Hermes)
+            entry = {
+                "timestamp": time.time(),
+                "agent": args.get("agent"),
+                "action": args.get("action"),
+                "result": args.get("result"),
+                "details": args.get("details", {})
+            }
+            self.store_own_memory(f"audit_{int(time.time())}", json.dumps(entry))
+            return {"result": "Audit logged"}
+
+        else:
+            return {"error": f"Unknown task: {task}"}
 
 if __name__ == "__main__":
-    agent = SecurityAgentAgent()
+    agent = SecurityAgent()
     while True:
         time.sleep(60)
         agent.heartbeat()

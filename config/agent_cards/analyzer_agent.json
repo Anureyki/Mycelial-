@@ -1,0 +1,25 @@
+{
+  "agent_id": "analyzer_agent",
+  "role": "analytics",
+  "version": "1.0.0",
+  "capabilities": [
+    "analyze_outcomes",
+    "generate_recommendations",
+    "report_to_boss"
+  ],
+  "endpoint": "/execute",
+  "port": 9006,
+  "transport": [
+    "http",
+    "mqtt"
+  ],
+  "mqtt_topics": {
+    "publish": "mycelial/agent/analyzer_agent/out",
+    "subscribe": "mycelial/agent/analyzer_agent/in"
+  },
+  "public_key": "",
+  "owner": "anureyki",
+  "created": "2026-07-27T22:21:48.535695",
+  "pre_hook": null,
+  "post_hook": null
+}

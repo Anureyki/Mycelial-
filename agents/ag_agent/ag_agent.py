@@ -14,7 +14,7 @@ class AgAgentAgent(AgentBase):
     def __init__(self):
         super().__init__(
             agent_id="ag_agent",
-            port=9007,
+            port=9008,
             capabilities=[],
             role="agent"
         )

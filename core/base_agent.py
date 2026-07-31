@@ -2,6 +2,7 @@
 """
 Mycelial Agent Base – with hook support + Registry Service integration + Logging helper
 Now with JSON-RPC compatibility (handles both top-level and nested params).
+Includes Tool Service integration for MCP tools and agent‑specific memory helpers.
 """
 import os, json, uuid, time, requests, paho.mqtt.client as mqtt, subprocess
 from datetime import datetime
@@ -211,9 +212,23 @@ class AgentBase:
     def start_http_server(self):
         self.app = Flask(__name__)
 
+        @self.app.after_request
+        def add_cors_headers(response):
+            response.headers["Access-Control-Allow-Origin"] = "*"
+            response.headers["Access-Control-Allow-Methods"] = "GET, POST, OPTIONS"
+            response.headers["Access-Control-Allow-Headers"] = "Content-Type"
+            return response
+
+        @self.app.route("/execute", methods=["OPTIONS"])
+        def execute_options():
+            return "", 204
+
         @self.app.route("/execute", methods=["POST"])
         def execute():
-            data = request.json
+            data = request.get_json(silent=True)
+            if not data:
+                self.log("Rejected /execute call: missing or invalid JSON body")
+                return jsonify({"error": "Missing or invalid JSON body"}), 400
             # Handle both top-level and nested (JSON-RPC) payloads
             task = data.get("task")
             args = data.get("args", [])
@@ -265,9 +280,17 @@ class AgentBase:
             "id": str(uuid.uuid4())
         }
         try:
-            response = requests.post(url + "/execute", json=payload, timeout=30)
+            # Increased timeout to 120 seconds
+            response = requests.post(url + "/execute", json=payload, timeout=120)
             self.log(f"A2A sent to {target}: {task}")
-            return response.json()
+            try:
+                return response.json()
+            except ValueError:
+                self.log(
+                    f"A2A error: {target} returned non-JSON response "
+                    f"(HTTP {response.status_code}): {response.text[:200]!r}"
+                )
+                return False
         except Exception as e:
             self.log(f"A2A error: {e}")
             return False
@@ -344,3 +367,59 @@ class AgentBase:
             return result.get("agent_id")
         return None
 
+    # ---------- Tool Service Integration ----------
+    def call_tool(self, server_id, tool_name, tool_args=None):
+        """Call an MCP tool via the Tool Service."""
+        if tool_args is None:
+            tool_args = {}
+        payload = {
+            "task": "call_tool",
+            "args": [server_id, tool_name, json.dumps(tool_args)],
+            "sender": self.agent_id
+        }
+        try:
+            # Increased timeout to 120 seconds
+            response = requests.post("http://localhost:8015/execute", json=payload, timeout=120)
+            if response.status_code == 200:
+                return response.json().get("result", {"error": "No result"})
+            else:
+                return {"error": f"Tool Service error: {response.status_code}"}
+        except Exception as e:
+            return {"error": str(e)}
+
+    # ---------- Convenience method for Vestige ----------
+    def vestige_memory(self, action, content=None, memory_id=None, reason=None, confirm=False):
+        """Call Vestige's memory tool with a clean interface."""
+        args = {"action": action}
+        if content:
+            args["content"] = content
+        if memory_id:
+            args["id"] = memory_id
+        if reason:
+            args["reason"] = reason
+        if action in ("purge", "delete"):
+            args["confirm"] = confirm
+        return self.call_tool("vestige", "memory", args)
+
+    # ---------- Agent‑specific Memory Helpers ----------
+    def store_own_memory(self, key, value, pin=False):
+        """Store memory in the agent's own namespace (agent_<agent_id>)."""
+        namespace = f"agent_{self.agent_id}"
+        # Hermes accepts pin as 4th argument (boolean string)
+        pin_str = str(pin).lower()
+        return self.send_a2a("hermes", "store_memory", [namespace, key, value, pin_str])
+
+    def retrieve_own_memory(self, key):
+        """Retrieve memory from the agent's own namespace."""
+        namespace = f"agent_{self.agent_id}"
+        return self.send_a2a("hermes", "retrieve_memory", [namespace, key])
+
+    def search_own_memory(self, query):
+        """Search memory in the agent's own namespace."""
+        namespace = f"agent_{self.agent_id}"
+        return self.send_a2a("hermes", "knowledge_search", [namespace, query])
+
+    def forget_own_memory(self, key):
+        """Delete memory from the agent's own namespace."""
+        namespace = f"agent_{self.agent_id}"
+        return self.send_a2a("hermes", "forget_memory", [namespace, key])

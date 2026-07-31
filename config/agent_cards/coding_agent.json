@@ -1,0 +1,29 @@
+{
+  "agent_id": "coding_agent",
+  "role": "execution",
+  "version": "1.0.0",
+  "capabilities": [
+    "edit_file",
+    "run_command",
+    "crontab_add",
+    "crontab_list",
+    "crontab_remove",
+    "environment_audit",
+    "call_inference"
+  ],
+  "endpoint": "/execute",
+  "port": 8001,
+  "transport": [
+    "http",
+    "mqtt"
+  ],
+  "mqtt_topics": {
+    "publish": "mycelial/agent/coding_agent/out",
+    "subscribe": "mycelial/agent/coding_agent/in"
+  },
+  "public_key": "",
+  "owner": "anureyki",
+  "created": "2026-07-21T20:47:28.375380",
+  "pre_hook": null,
+  "post_hook": null
+}

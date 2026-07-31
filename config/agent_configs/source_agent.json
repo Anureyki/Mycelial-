@@ -1,8 +1,0 @@
-{
-  "agent_id": "source_agent",
-  "role": "agent",
-  "port": 9005,
-  "capabilities": [],
-  "description": "Auto-generated from orphan",
-  "created_at": "2026-07-22T08:57:46.856677"
-}

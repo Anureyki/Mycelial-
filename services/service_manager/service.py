@@ -2,6 +2,7 @@
 """
 Service Manager – Pure HTTP service.
 Owns process execution: start, stop, restart, monitor, crash recovery.
+Now supports entry_point for module-based agent startup.
 """
 import os
 import json
@@ -21,6 +22,9 @@ os.makedirs(os.path.dirname(PROCESS_FILE), exist_ok=True)
 
 processes = {}
 MONITOR_INTERVAL = 30  # seconds
+
+# Core agent IDs (only these should be started)
+CORE_AGENTS = {"boss_agent", "coding_agent", "hermes", "maintenance_agent", "anansi"}
 
 def load_processes():
     global processes
@@ -52,18 +56,27 @@ def log_to_audit(agent_id, event_type, message):
         pass
 
 def start_agent_process(agent_id, config_path):
-    """Start the agent as a background process."""
+    """Start the agent using entry_point (module) if available, else direct script."""
     try:
         with open(config_path, "r") as f:
             config = json.load(f)
+        
         port = config.get("port", 9000)
-        agent_file = os.path.join(BASE, "agents", agent_id, f"{agent_id}.py")
-        if not os.path.exists(agent_file):
-            agent_file = os.path.join(BASE, "agents", f"{agent_id}.py")
-        if not os.path.exists(agent_file):
-            return {"success": False, "error": f"Agent file {agent_file} not found"}
-
-        cmd = f"cd {BASE} && source venv/bin/activate && nohup python3 {agent_file} > logs/{agent_id}.log 2>&1 &"
+        entry_point = config.get("entry_point")
+        
+        if entry_point:
+            # Use module form: python3 -m agents.boss_agent.boss_agent
+            module = entry_point.split(":")[0]
+            cmd = f"cd {BASE} && source venv/bin/activate && nohup python3 -m {module} > logs/{agent_id}.log 2>&1 &"
+        else:
+            # Fallback to direct script (old behavior)
+            agent_file = os.path.join(BASE, "agents", agent_id, f"{agent_id}.py")
+            if not os.path.exists(agent_file):
+                agent_file = os.path.join(BASE, "agents", f"{agent_id}.py")
+            if not os.path.exists(agent_file):
+                return {"success": False, "error": f"Agent file {agent_file} not found"}
+            cmd = f"cd {BASE} && source venv/bin/activate && nohup python3 {agent_file} > logs/{agent_id}.log 2>&1 &"
+        
         subprocess.Popen(cmd, shell=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
 
         processes[agent_id] = {
@@ -133,11 +146,14 @@ def monitor_agents():
                     log_to_audit(agent_id, "RESTART_FAILED", f"Config not found for {agent_id}")
 
 def reconcile_with_configs():
-    """Read configs from CONFIG_DIR and start any agents not running."""
+    """Read configs from CONFIG_DIR and start any core agents not running."""
     for filename in os.listdir(CONFIG_DIR):
         if not filename.endswith(".json"):
             continue
         agent_id = filename.replace(".json", "")
+        # Only start core agents
+        if agent_id not in CORE_AGENTS:
+            continue
         if agent_id not in processes or processes[agent_id].get("status") != "running":
             config_path = os.path.join(CONFIG_DIR, filename)
             start_agent_process(agent_id, config_path)
@@ -188,17 +204,17 @@ def restart_service():
 
 @app.route("/restart_all", methods=["POST"])
 def restart_all():
-    """Stop all agents and restart them from configs."""
+    """Stop all agents and restart them from configs (only core agents)."""
     for agent_id in list(processes.keys()):
-        stop_agent_process(agent_id)
-    # Wait a moment
+        if agent_id in CORE_AGENTS:
+            stop_agent_process(agent_id)
     time.sleep(2)
     reconcile_with_configs()
-    return jsonify({"success": True, "message": "All agents restarted"})
+    return jsonify({"success": True, "message": "All core agents restarted"})
 
 @app.route("/reconcile", methods=["POST"])
 def reconcile():
-    """Start any agents that have configs but are not running."""
+    """Start any core agents that have configs but are not running."""
     reconcile_with_configs()
     return jsonify({"success": True, "message": "Reconciliation complete"})
 

@@ -27,10 +27,11 @@ class HermesInterface(AgentBase):
                 "knowledge_search",
                 "update_memory",
                 "forget_memory",
-                "pin_memory"
+                "pin_memory",
+                "search_docs"          # NEW: librarian skill
             ]
         )
-        self.log("🧠 Hermes (Memory Intelligence) initialized.")
+        self.log("🧠 Hermes (Memory Intelligence + Librarian) initialized.")
 
     def _call_memory_service(self, endpoint, method="GET", data=None):
         url = f"{MEMORY_SERVICE_URL}/{endpoint}"
@@ -72,11 +73,8 @@ class HermesInterface(AgentBase):
             if len(args) < 3:
                 return {"error": "Usage: store_memory <namespace> <key> <value>"}
             namespace, key, value = args[0], args[1], args[2]
-
-            # Ask Policy Service if this should be pinned
             should_pin = self._ask_policy(namespace)
             self.log(f"Policy says pin={should_pin} for namespace {namespace}")
-
             result = self._call_memory_service("store", "POST", {
                 "namespace": namespace,
                 "key": key,
@@ -120,7 +118,6 @@ class HermesInterface(AgentBase):
             return result
 
         elif task == "pin_memory":
-            # Pin an existing entry using the Memory Service's /pin endpoint
             if len(args) < 2:
                 return {"error": "Usage: pin_memory <namespace> <key>"}
             namespace, key = args[0], args[1]
@@ -129,6 +126,36 @@ class HermesInterface(AgentBase):
                 "key": key
             })
             return result
+
+        # ----- NEW: Librarian skill (search documentation) -----
+        elif task == "search_docs":
+            if isinstance(args, dict):
+                library = args.get("library")
+                query = args.get("query", "")
+            else:
+                # support both list and dict
+                if len(args) >= 1:
+                    library = args[0]
+                    query = args[1] if len(args) > 1 else ""
+                else:
+                    library = None
+                    query = ""
+            if not library:
+                return {"error": "Missing 'library' (e.g., python, javascript, go)"}
+            self.log(f"Searching docs for library='{library}', query='{query}'")
+            # Call the grounded-docs MCP server via Tool Service
+            tool_args = {"library": library}
+            if query:
+                tool_args["query"] = query
+            result = self.call_tool("grounded-docs", "search_docs", tool_args)
+            # Store the result in memory (under namespace 'docs')
+            self._call_memory_service("store", "POST", {
+                "namespace": "docs",
+                "key": f"{library}_{query}",
+                "value": json.dumps(result),
+                "pin": False
+            })
+            return {"result": result, "library": library, "query": query}
 
         else:
             return {"error": f"Unknown task: {task}"}

@@ -1,0 +1,8 @@
+{
+  "agent_id": "grow_agent",
+  "role": "gardener",
+  "port": 9009,
+  "capabilities": ["log_reading", "check_stage", "adjust_nutrients", "transition_stage", "log_water_change", "get_status", "set_germination_date", "add_reminder", "list_reminders"],
+  "entry_point": "agents.grow_agent.grow_agent:main",
+  "description": "Tracks grow stages and suggests nutrient adjustments"
+}

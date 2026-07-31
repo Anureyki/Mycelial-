@@ -1,0 +1,32 @@
+{
+  "agent_id": "maintenance_agent",
+  "role": "maintenance",
+  "version": "1.0.0",
+  "capabilities": [
+    "check_disk",
+    "clean_logs",
+    "clean_vm_images",
+    "clean_apt_cache",
+    "clean_snap",
+    "full_cleanup",
+    "proactive_check",
+    "check_updates",
+    "apply_updates",
+    "rollback_update"
+  ],
+  "endpoint": "/execute",
+  "port": 8003,
+  "transport": [
+    "http",
+    "mqtt"
+  ],
+  "mqtt_topics": {
+    "publish": "mycelial/agent/maintenance_agent/out",
+    "subscribe": "mycelial/agent/maintenance_agent/in"
+  },
+  "public_key": "",
+  "owner": "anureyki",
+  "created": "2026-07-22T04:44:53.641258",
+  "pre_hook": null,
+  "post_hook": null
+}

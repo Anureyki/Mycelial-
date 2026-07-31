@@ -2,12 +2,22 @@
 """
 Inference Service – Pure HTTP service, NOT an agent.
 Runs inference using a specified model or the default.
+Supports local Ollama models and cloud models (Claude) via cloud_service.
 """
 import os
 import re
 import subprocess
 import time
 from flask import Flask, request, jsonify
+
+# Import the cloud reasoning provider
+try:
+    from cloud_service import reason as cloud_reason, ANTHROPIC_MODELS
+except ImportError:
+    # Fallback if cloud_service.py is missing
+    ANTHROPIC_MODELS = {}
+    def cloud_reason(prompt, model, max_tokens=1024):
+        return {"error": "Cloud service not available"}
 
 app = Flask(__name__)
 
@@ -27,15 +37,15 @@ def clean_output(text):
             cleaned.append(line)
     return '\n'.join(cleaned).strip()
 
-def run_inference(model, prompt):
-    """Run inference with the given model and return (output, latency, tokens)."""
+def run_ollama_inference(model, prompt):
+    """Run inference with Ollama."""
     start_time = time.time()
     try:
         result = subprocess.run(
             ["ollama", "run", model, prompt],
             capture_output=True, text=True, timeout=TIMEOUT
         )
-        latency = int((time.time() - start_time) * 1000)  # ms
+        latency = int((time.time() - start_time) * 1000)
         if result.returncode != 0:
             return {
                 "success": False,
@@ -44,7 +54,6 @@ def run_inference(model, prompt):
                 "latency_ms": latency
             }
         output = clean_output(result.stdout.strip())
-        # Estimate token count (rough: ~4 chars per token)
         tokens = len(output) // 4
         return {
             "success": True,
@@ -68,6 +77,35 @@ def run_inference(model, prompt):
             "message": str(e),
             "latency_ms": int((time.time() - start_time) * 1000)
         }
+
+def run_claude_inference(model, prompt):
+    """Run inference with Claude (via cloud_service)."""
+    start_time = time.time()
+    result = cloud_reason(prompt=prompt, model=model, max_tokens=1024)
+    latency = int((time.time() - start_time) * 1000)
+    if "error" in result:
+        return {
+            "success": False,
+            "error": "claude_error",
+            "message": result["error"],
+            "latency_ms": latency
+        }
+    tokens = result.get("tokens", {}).get("output", 0)
+    return {
+        "success": True,
+        "model": result["model_used"],
+        "result": result["result"],
+        "latency_ms": latency,
+        "tokens": tokens,
+        "timestamp": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())
+    }
+
+def run_inference(model, prompt):
+    """Route to the appropriate inference backend."""
+    if model in ANTHROPIC_MODELS or model.startswith("claude"):
+        return run_claude_inference(model, prompt)
+    else:
+        return run_ollama_inference(model, prompt)
 
 @app.route("/health", methods=["GET"])
 def health():

@@ -1,8 +1,20 @@
 {
   "agent_id": "boss_agent",
-  "role": "agent",
-  "port": 9002,
-  "capabilities": [],
-  "description": "Auto-generated from orphan",
-  "created_at": "2026-07-22T08:57:46.852258"
+  "role": "orchestrator",
+  "port": 8000,
+  "capabilities": [
+    "health_check",
+    "process_request",
+    "think",
+    "think_and_store",
+    "delegate",
+    "store_memory",
+    "retrieve_memory",
+    "ag_dqn_decision",
+    "ag_dqn_train",
+    "quantum_simulate",
+    "quantum_capabilities",
+    "alert"
+  ],
+  "description": "Orchestrator agent"
 }

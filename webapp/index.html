@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Mycelial</title>
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icons/icon-192.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#0f1410">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header>
+  <h1>Mycelial</h1>
+  <button id="settingsBtn" aria-label="Settings">&#9881;</button>
+</header>
+
+<div id="settingsPanel" class="hidden">
+  <label for="serverUrl">Anansi server URL</label>
+  <input id="serverUrl" type="text" placeholder="http://192.168.1.139:8081">
+  <button id="saveSettings">Save</button>
+</div>
+
+<main id="log" aria-live="polite"></main>
+
+<form id="composer">
+  <textarea id="promptInput" placeholder="Ask Mycelial..." rows="1" autocomplete="off"></textarea>
+  <button id="sendBtn" type="submit">Send</button>
+</form>
+
+<script src="app.js"></script>
+</body>
+</html>

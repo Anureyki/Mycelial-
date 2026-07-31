@@ -1,8 +1,8 @@
 {
   "agent_id": "coding_agent",
-  "role": "agent",
-  "port": 9000,
-  "capabilities": [],
-  "description": "Auto-generated from orphan",
-  "created_at": "2026-07-22T08:57:46.795975"
+  "role": "software_engineering",
+  "port": 8001,
+  "capabilities": ["edit_file", "run_command", "crontab", "reason", "reason_and_act"],
+  "entry_point": "agents.coding_agent.coding_agent:main",
+  "description": "Software Engineering agent"
 }

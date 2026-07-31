@@ -1,0 +1,25 @@
+{
+  "agent_id": "grow_agent",
+  "role": "gardener",
+  "version": "1.0.0",
+  "capabilities": [
+    "log_reading",
+    "check_stage",
+    "adjust_nutrients"
+  ],
+  "endpoint": "/execute",
+  "port": 9009,
+  "transport": [
+    "http",
+    "mqtt"
+  ],
+  "mqtt_topics": {
+    "publish": "mycelial/agent/grow_agent/out",
+    "subscribe": "mycelial/agent/grow_agent/in"
+  },
+  "public_key": "",
+  "owner": "anureyki",
+  "created": "2026-07-28T23:04:50.187235",
+  "pre_hook": null,
+  "post_hook": null
+}

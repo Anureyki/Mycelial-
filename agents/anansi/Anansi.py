@@ -6,7 +6,6 @@ import json
 import uuid
 from datetime import datetime
 
-# Add project root to Python path
 project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, project_root)
 
@@ -24,31 +23,51 @@ class Anansi(AgentBase):
             role="interface"
         )
         self.sessions = {}
-        self.log("🕸️ Anansi interface ready (decoupled from Boss)")
+        self.log("🕸️ Anansi interface ready (uses Registry Service + fallback)")
 
     def find_orchestrator(self):
-        if not os.path.exists(REGISTRY_FILE):
-            self.log("⚠️ Registry not found, using default boss_agent")
-            return "boss_agent"
-        with open(REGISTRY_FILE, "r") as f:
-            registry = json.load(f)
-        for agent_id, info in registry.items():
-            if info.get("role") == "orchestrator":
-                return agent_id
-        if "boss_agent" in registry:
-            return "boss_agent"
-        self.log("❌ No orchestrator found in registry.")
-        return None
+        """Query the Registry Service, fallback to local registry.json."""
+        # Try Registry Service first
+        try:
+            import requests
+            resp = requests.post(
+                "http://localhost:8004/execute",
+                json={"task": "list_agents", "args": [], "sender": "anansi"},
+                timeout=3
+            )
+            if resp.status_code == 200:
+                agents = resp.json().get("result", [])
+                for agent in agents:
+                    if agent.get("role") == "orchestrator":
+                        self.log(f"Found orchestrator (Registry Service): {agent.get('agent_id')}")
+                        return agent.get("agent_id")
+        except Exception as e:
+            self.log(f"Registry Service query failed: {e}")
+
+        # Fallback: read local registry.json
+        if os.path.exists(REGISTRY_FILE):
+            try:
+                with open(REGISTRY_FILE, "r") as f:
+                    registry = json.load(f)
+                for agent_id, info in registry.items():
+                    if info.get("role") == "orchestrator":
+                        self.log(f"Found orchestrator (local registry): {agent_id}")
+                        return agent_id
+            except Exception as e:
+                self.log(f"Failed to read local registry: {e}")
+
+        # Hardcoded fallback
+        self.log("Using default orchestrator: boss_agent")
+        return "boss_agent"
 
     def handle_task(self, task, args, sender):
         self.log(f"Received task: {task}, args: {args}, sender: {sender}")
 
         if task == "process_request" or task == "process":
-            # Build metadata
             if len(args) == 0:
                 return {"error": "Missing prompt"}
 
-            # If first arg is a JSON object with prompt+metadata, parse it
+            # Parse prompt and metadata
             if len(args) == 1 and args[0].startswith('{'):
                 try:
                     payload = json.loads(args[0])
@@ -58,7 +77,6 @@ class Anansi(AgentBase):
                     prompt = args[0]
                     metadata = {}
             else:
-                # Legacy: args[0] is prompt, optionally args[1] is session_id
                 prompt = args[0]
                 metadata = {
                     "session_id": args[1] if len(args) > 1 else str(uuid.uuid4()),
@@ -85,11 +103,7 @@ class Anansi(AgentBase):
 
         self.log(f"Routing to {orchestrator}: {prompt[:50]}...")
         try:
-            # Build structured payload
-            payload = json.dumps({
-                "prompt": prompt,
-                "metadata": metadata
-            })
+            payload = json.dumps({"prompt": prompt, "metadata": metadata})
             response = self.send_a2a(orchestrator, "process_request", [payload])
             return response
         except Exception as e:

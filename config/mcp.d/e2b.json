@@ -1,0 +1,10 @@
+{
+  "e2b": {
+    "command": "npx",
+    "args": ["-y", "@e2b/mcp-server"],
+    "env": {
+      "E2B_API_KEY": "YOUR_E2B_TOKEN"
+    },
+    "transport": "stdio"
+  }
+}

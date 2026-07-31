@@ -1,0 +1,7 @@
+{
+  "secure-execute": {
+    "command": "npx",
+    "args": ["-y", "mcp-server-secure-execute"],
+    "transport": "stdio"
+  }
+}

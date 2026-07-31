@@ -1,0 +1,7 @@
+{
+  "a2asearch": {
+    "command": "npx",
+    "args": ["-y", "a2asearch-mcp"],
+    "transport": "stdio"
+  }
+}

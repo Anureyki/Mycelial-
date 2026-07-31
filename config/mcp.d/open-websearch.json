@@ -1,0 +1,9 @@
+{
+  "open-websearch": {
+    "command": "npx",
+    "args": ["open-websearch@latest", "--stdio"],
+    "env": {
+      "DEFAULT_SEARCH_ENGINE": "duckduckgo"
+    }
+  }
+}
