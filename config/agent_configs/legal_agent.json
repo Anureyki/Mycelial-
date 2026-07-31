@@ -2,7 +2,7 @@
   "agent_id": "legal_agent",
   "role": "agent",
   "port": 9011,
-  "capabilities": ["parse_contract", "model_relationship", "extract_parties", "analyze_roles", "query_relationship", "compare_relationships"],
+  "capabilities": ["parse_contract", "model_relationship", "extract_parties", "analyze_roles", "query_relationship", "compare_relationships", "lookup", "list_relationships", "get_relationship", "find_relationships", "find_relationships_by_project", "refresh_cache", "query_cache", "cache_stats", "cache_manifest"],
   "entry_point": "agents.legal_agent.legal_agent:main",
   "description": "Models legal/financial relationships from contract text (extraction and structuring only - not legal advice)"
 }

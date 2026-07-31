@@ -1,0 +1,4 @@
+[PLACEHOLDER - not real statutory text]
+This file exists only to verify the CAG cache-loading and keyword-search
+pipeline end to end. Replace this folder's contents with real U.S. Code
+text (e.g. Title 26 sections) fetched from an official public-domain source.

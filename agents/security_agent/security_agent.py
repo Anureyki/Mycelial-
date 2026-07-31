@@ -19,6 +19,19 @@ class SecurityAgent(AgentBase):
         self.policies = {
             "coding_agent": ["run_command", "edit_file", "read_file"],
             "grow_agent": ["log_reading", "transition_stage"],
+            # KAG / relationship graph: only Boss and the relationship-modeling
+            # agents may write to the graph. query_graph is read-only (and is
+            # further restricted server-side in core/graph_manager.py to SELECT
+            # statements against a read-only connection regardless of policy),
+            # so it's granted broadly to anything that needs to reason over the
+            # graph. Fine-grained per-project/per-entity visibility is NOT
+            # implemented yet - that needs a project-ownership model this
+            # system doesn't have - so treat this as "can touch the graph at
+            # all", not "can see every relationship in it".
+            "boss_agent": ["update_graph", "query_graph"],
+            "legal_agent": ["update_graph", "query_graph"],
+            "accounting_agent": ["update_graph", "query_graph"],
+            "trust_agent": ["update_graph", "query_graph"],
             # ... more policies
         }
         self.log("🔐 Security Agent started.")

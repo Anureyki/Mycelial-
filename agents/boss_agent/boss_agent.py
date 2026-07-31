@@ -11,6 +11,19 @@ project_root = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(_
 sys.path.insert(0, project_root)
 
 from core.base_agent import AgentBase
+from core.graph_manager import GraphManager
+from core.schemas import RELATIONSHIP_DOMAINS
+
+# Agents that model relationships and are expected to keep the graph in sync.
+RELATIONSHIP_AGENTS = ["legal_agent", "accounting_agent", "trust_agent"]
+
+# Soft ACL for update_graph: the `sender` field is self-reported by the calling
+# agent (AgentBase doesn't cryptographically authenticate A2A callers), so this
+# is a basic guardrail, not a security boundary. Callers that want a real
+# guarantee should get a token from Security Agent's authorize() and pass it -
+# see _authorize_graph_write below.
+GRAPH_WRITE_ALLOWLIST = set(RELATIONSHIP_AGENTS) | {"boss_agent"}
+
 
 class BossAgent(AgentBase):
     def __init__(self):
@@ -20,13 +33,31 @@ class BossAgent(AgentBase):
             capabilities=[
                 "think", "store_memory", "retrieve_memory", "delegate",
                 "process_request", "call_tool", "alert", "check_errors",
-                "process_recommendations"
+                "process_recommendations",
+                "update_graph", "query_graph", "get_entity_relationships",
+                "get_project_relationships", "aggregate_relationship_view",
+                "answer_question", "publish_event",
+                "refresh_cache", "query_cache", "cache_stats", "cache_manifest"
             ],
             role="orchestrator"
         )
-        self.log("👑 Boss orchestrator started with Sentry integration.")
+        self.graph = GraphManager()
+        # CAG: Boss's own project-state cache - static docs / contract templates
+        # useful across projects, independent of any one relationship agent's cache.
+        self.init_cag(cache_ttl=3600, watch_interval=300)
+        self.subscribe_project_events()
+        self.log("👑 Boss orchestrator started with Sentry integration + KAG (graph + cache) layer.")
         self.default_org = os.getenv("SENTRY_ORG", "your-org")
         self.default_project = os.getenv("SENTRY_PROJECT", "your-project")
+
+    def on_project_event(self, project_id, event_type, data, sender):
+        """Boss is the central orchestrator, so it records every project event to
+        the audit trail (useful even for events it published itself, and for
+        graph_update pings from relationship agents)."""
+        self.log_to_audit(
+            f"project_event:{event_type}", f"project={project_id} sender={sender} data={json.dumps(data)[:300]}",
+            level="info", metadata={"namespace": f"project_{project_id}"}
+        )
 
     def _trigger_reconcile(self):
         try:
@@ -95,10 +126,202 @@ class BossAgent(AgentBase):
             return "\n".join([str(item) for item in result[:5]]) + (f"\n... and {len(result)-5} more" if len(result) > 5 else "")
         return str(result)
 
+    # ---------- KAG: graph write authorization ----------
+    def _authorize_graph_write(self, sender, args):
+        """If a token is supplied, verify it with Security Agent's real authorize()
+        flow. Otherwise fall back to the soft sender allowlist (self-reported,
+        not cryptographically verified - see GRAPH_WRITE_ALLOWLIST comment)."""
+        token = args.get("token") if isinstance(args, dict) else None
+        if token:
+            resp = self.send_a2a("security_agent", "authorize", {"token": token, "action": "update_graph"})
+            result = resp.get("result") if isinstance(resp, dict) else None
+            if isinstance(result, dict) and result.get("authorized"):
+                return True, None
+            return False, "Token did not authorize update_graph"
+        if sender in GRAPH_WRITE_ALLOWLIST:
+            return True, None
+        return False, (
+            f"'{sender}' is not authorized to call update_graph. Get a token from "
+            f"security_agent.issue_token and pass it as args.token, or call from an "
+            f"allowlisted agent ({', '.join(sorted(GRAPH_WRITE_ALLOWLIST))})."
+        )
+
+    # ---------- KAG: relationship agent fan-out ----------
+    def _fanout(self, task, payload):
+        """Call `task` with `payload` on every known relationship agent, in parallel-ish
+        (sequential A2A calls, timeouts already bounded by send_a2a). Returns
+        {agent_id: response_or_error}."""
+        results = {}
+        for agent_id in RELATIONSHIP_AGENTS:
+            resp = self.send_a2a(agent_id, task, payload)
+            results[agent_id] = resp if resp else {"error": f"{agent_id} unreachable or errored"}
+        return results
+
+    def _publish_project_event(self, project_id, event_type, data):
+        topic = f"mycelial/project/{project_id}/{event_type}"
+        message = {
+            "sender": self.agent_id,
+            "project_id": project_id,
+            "event_type": event_type,
+            "data": data,
+            "timestamp": datetime.now().isoformat(),
+        }
+        self.mqtt_client.publish(topic, json.dumps(message))
+        self.log(f"Published project event on {topic}")
+        return topic
+
+    def _extract_mentioned_entities(self, prompt):
+        """Cheap entity extraction: does any known graph node's id appear (case-insensitive,
+        whole-word-ish) in the prompt text? No NER model - deliberately simple for Phase 1."""
+        prompt_lower = prompt.lower()
+        try:
+            rows = self.graph.query_graph(
+                "SELECT id, type FROM nodes WHERE type IN ('entity', 'project') LIMIT 500"
+            )
+        except Exception as e:
+            self.log(f"answer_question: graph lookup failed: {e}")
+            return []
+        return [r["id"] for r in rows if r["id"] and r["id"].lower() in prompt_lower]
+
     def handle_task(self, task, args, sender):
         self.log(f"Task: {task} from {sender} with args: {args}")
 
-        if task == "think":
+        if task == "update_graph":
+            authorized, reason = self._authorize_graph_write(sender, args if isinstance(args, dict) else {})
+            if not authorized:
+                self.log_to_audit("update_graph", f"REJECTED from {sender}: {reason}", level="warning")
+                return {"error": reason}
+            action = args.get("action")
+            try:
+                if action == "add_node":
+                    node = self.graph.add_node(args["id"], args["type"], args.get("properties", {}))
+                    result = {"result": "node added", "node": node}
+                elif action == "add_edge":
+                    edge = self.graph.add_edge(
+                        args["from_id"], args["to_id"], args["rel_type"],
+                        args.get("properties", {}), dedupe=args.get("dedupe", True)
+                    )
+                    result = {"result": "edge added", "edge": edge}
+                elif action == "update_node":
+                    node = self.graph.update_node(args["id"], args.get("properties", {}))
+                    result = {"result": "node updated", "node": node}
+                elif action == "ingest_relationship":
+                    rel_id = self.graph.ingest_relationship(args["relationship"], source_agent=sender)
+                    result = {"result": "relationship ingested", "relationship_id": rel_id}
+                else:
+                    return {"error": f"Unknown update_graph action: {action}"}
+            except KeyError as e:
+                return {"error": f"Missing required field: {e}"}
+            self.log_to_audit("update_graph", f"{action} by {sender}", level="info")
+            if isinstance(args, dict) and args.get("project_id"):
+                self._publish_project_event(args["project_id"], "graph_update", {"action": action, "by": sender})
+            return result
+
+        elif task == "query_graph":
+            sql = args.get("sql") or args.get("query")
+            if not sql:
+                return {"error": "Usage: query_graph {sql: '<SELECT ...>', params: [...]}"}
+            try:
+                rows = self.graph.query_graph(sql, args.get("params"))
+                return {"rows": rows, "count": len(rows)}
+            except ValueError as e:
+                return {"error": str(e)}
+
+        elif task == "get_entity_relationships":
+            entity_id = args.get("entity_id")
+            if not entity_id:
+                return {"error": "Missing entity_id"}
+            graph_view = self.graph.get_entity_relationships(entity_id)
+            agent_views = self._fanout("find_relationships", [entity_id])
+            return {"entity_id": entity_id, "graph": graph_view, "agent_relationships": agent_views}
+
+        elif task == "get_project_relationships":
+            project_id = args.get("project_id")
+            if not project_id:
+                return {"error": "Missing project_id"}
+            graph_view = self.graph.get_project_relationships(project_id)
+            agent_views = self._fanout("find_relationships_by_project", [project_id])
+            return {"project_id": project_id, "graph": graph_view, "agent_relationships": agent_views}
+
+        elif task == "aggregate_relationship_view":
+            entity_id = args.get("entity_id")
+            if not entity_id:
+                return {"error": "Missing entity_id"}
+            agent_views = self._fanout("find_relationships", [entity_id])
+            view = {"entity_id": entity_id}
+            for domain, agent_id in (("legal_roles", "legal_agent"),
+                                      ("financial_roles", "accounting_agent"),
+                                      ("trust_roles", "trust_agent")):
+                resp = agent_views.get(agent_id, {})
+                result = resp.get("result") if isinstance(resp, dict) else None
+                view[domain] = result.get("relationships", result) if isinstance(result, dict) else (result or [])
+            graph_view = self.graph.get_entity_relationships(entity_id)
+            view["graph_connections"] = len(graph_view.get("edges", []))
+            view["connected_node_ids"] = [n["id"] for n in graph_view.get("connected_nodes", [])]
+            view["disclaimer"] = (
+                "Aggregated automatically from Legal, Accounting, and Trust Agent records plus "
+                "the local relationship graph, for informational purposes only - not legal, "
+                "tax, or financial advice."
+            )
+            return view
+
+        elif task == "answer_question":
+            prompt = args.get("prompt", "")
+            if not prompt:
+                return {"error": "Missing prompt"}
+            entities = self._extract_mentioned_entities(prompt)
+            graph_facts = [self.graph.get_entity_relationships(e) for e in entities]
+            cache_hits = self.query_cache(prompt, top_k=3) if hasattr(self, "cache") else []
+            context_parts = []
+            if graph_facts:
+                context_parts.append("Known graph relationships:\n" + json.dumps(graph_facts, indent=2)[:3000])
+            if cache_hits:
+                context_parts.append("Cached reference material:\n" + "\n".join(
+                    f"- [{h['id']}] {h['snippet']}" for h in cache_hits
+                ))
+            context = "\n\n".join(context_parts)
+            reasoning_prompt = (
+                (context + "\n\n" if context else "") +
+                f"Question: {prompt}\n\n"
+                "Answer using ONLY the graph relationships and cached material above where "
+                "relevant. If they don't contain enough information, say so plainly rather than "
+                "guessing. This is informational only, not legal, tax, or financial advice."
+            )
+            response = self.send_a2a("coding_agent", "reason", {"prompt": reasoning_prompt})
+            answer = self._format_response("reason", response, "coding_agent")
+            return {
+                "question": prompt,
+                "entities_recognized": entities,
+                "cache_sources": [h["id"] for h in cache_hits],
+                "answer": answer,
+                "disclaimer": "Informational only, not legal, tax, or financial advice.",
+            }
+
+        elif task == "publish_event":
+            project_id = args.get("project_id")
+            event_type = args.get("event_type", "action")
+            data = args.get("data", {})
+            if not project_id:
+                return {"error": "Missing project_id"}
+            topic = self._publish_project_event(project_id, event_type, data)
+            return {"result": "published", "topic": topic}
+
+        elif task == "refresh_cache":
+            return self.refresh_cache()
+
+        elif task == "cache_stats":
+            return self.cache_stats()
+
+        elif task == "cache_manifest":
+            return self.cache_manifest()
+
+        elif task == "query_cache":
+            query = args.get("query")
+            if not query:
+                return {"error": "Usage: query_cache {query: '...', top_k: 5}"}
+            return {"query": query, "results": self.query_cache(query, top_k=args.get("top_k", 5))}
+
+        elif task == "think":
             thought = args.get("thought", "")
             self.store_own_memory("last_thought", thought)
             self.log_to_audit("THOUGHT", f"Thought: {thought}", level="info")

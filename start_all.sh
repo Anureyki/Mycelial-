@@ -87,13 +87,37 @@ if [ -f "agents/grow_agent/grow_agent.py" ]; then
     echo "  ✅ Grow Agent (port 9009)"
 fi
 
+# Optional: Legal Agent (if it exists)
+if [ -f "agents/legal_agent/legal_agent.py" ]; then
+    python3 -m agents.legal_agent.legal_agent &
+    echo "  ✅ Legal Agent (port 9011)"
+fi
+
+# Optional: Accounting Agent (if it exists)
+if [ -f "agents/accounting_agent/accounting_agent.py" ]; then
+    python3 -m agents.accounting_agent.accounting_agent &
+    echo "  ✅ Accounting Agent (port 9012)"
+fi
+
+# Optional: Trust Agent (if it exists)
+if [ -f "agents/trust_agent/trust_agent.py" ]; then
+    python3 -m agents.trust_agent.trust_agent &
+    echo "  ✅ Trust Agent (port 9013)"
+fi
+
+# Optional: Security Agent (if it exists) - needed for update_graph token auth
+if [ -f "agents/security_agent/security_agent.py" ]; then
+    python3 -m agents.security_agent.security_agent &
+    echo "  ✅ Security Agent (port 9010)"
+fi
+
 # ----------------------------------------------------------------------
 # 3. Health Check Summary
 # ----------------------------------------------------------------------
 sleep 3
 echo ""
 echo "📋 Health check summary:"
-for port in 8004 8007 8008 8009 8005 8006 8010 8011 8012 8014 8015 8000 8001 8002 8003 8081 9006 9009; do
+for port in 8004 8007 8008 8009 8005 8006 8010 8011 8012 8014 8015 8000 8001 8002 8003 8081 9006 9009 9010 9011 9012 9013; do
     if curl -s -o /dev/null -w "%{http_code}" http://localhost:$port/health | grep -q 200; then
         echo "  ✅ Port $port is healthy"
     else

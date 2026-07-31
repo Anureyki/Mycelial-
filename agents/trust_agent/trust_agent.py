@@ -21,80 +21,53 @@ DEFAULT_MODEL = "qwen2.5:1.5b"
 
 DISCLAIMER = (
     "This output is generated automatically for informational purposes only. "
-    "It is an extraction/structuring of the provided text, not legal advice, "
-    "and should be reviewed by a qualified professional before being relied upon."
+    "It is an extraction/structuring of the provided text, not legal or fiduciary "
+    "advice, and should be reviewed by a qualified professional before being relied upon."
 )
 
-RELATIONSHIP_FIELDS = [
-    "entity_a", "entity_b", "contract_type", "asset", "asset_owner", "custodian",
-    "obligations", "rights", "beneficiary", "service_provider", "fee_recipient",
-    "governing_law", "applicable_statutes"
+TRUST_FIELDS = [
+    "trust_type", "settlor", "trustee", "beneficiary", "trust_property",
+    "duties", "powers", "obligations", "rights", "governing_law",
+    "termination_conditions"
 ]
 
 STATUTE_CITATION_RE = re.compile(r"\b\d+\s*U\.?S\.?C\.?\s*§*\s*\d+[a-zA-Z0-9\-]*", re.IGNORECASE)
 
 
-class LegalAgent(AgentBase):
+class TrustAgent(AgentBase):
     def __init__(self):
         super().__init__(
-            agent_id="legal_agent",
-            port=9011,
+            agent_id="trust_agent",
+            port=9013,
             capabilities=[
-                "parse_contract", "model_relationship", "extract_parties", "analyze_roles",
-                "query_relationship", "compare_relationships", "lookup",
+                "parse_trust_document", "model_trust_relationship", "lookup",
                 "list_relationships", "get_relationship", "find_relationships",
-                "find_relationships_by_project",
+                "find_relationships_by_project", "compare_relationships",
                 "refresh_cache", "query_cache", "cache_stats", "cache_manifest"
             ],
             role="agent"
         )
-        # CAG: source docs live in knowledge_base/legal_agent/{statutes,irs_publications,
-        # dictionary,contract_templates}/. Poll every 5 min for changed/added files; a
-        # cron-driven refresh_cache task call works too (see hooks/ for the pattern).
+        # CAG: source docs live in knowledge_base/trust_agent/{statutes,trust_templates,
+        # dictionary}/. Same poll-based refresh pattern as Legal/Accounting Agents.
         self.init_cag(cache_ttl=86400, watch_interval=300)
         self.subscribe_project_events()
-        self.log("Legal Agent initialized (extraction/structuring only - no legal advice).")
+        self.log("Trust Agent initialized (extraction/structuring only - no legal or fiduciary advice).")
 
     def on_project_event(self, project_id, event_type, data, sender):
-        """Example event-driven reaction: when a project moves to the 'negotiation'
-        stage, Legal Agent notes that contract terms should be reviewed. This is
-        illustrative logging, not an autonomous drafting pipeline - see the demo
-        workflow in scripts/demo_workflow.py."""
+        """Example event-driven reaction: when a project moves to the 'signature'
+        stage, Trust Agent notes that trustee signature/authority should be
+        confirmed. Illustrative logging, not an autonomous signing pipeline - see
+        scripts/demo_workflow.py."""
         stage = data.get("data", {}).get("stage") if isinstance(data, dict) else None
-        if event_type == "stage" and stage == "negotiation":
+        if event_type == "stage" and stage == "signature":
             self.log_to_audit(
                 "project_event_reaction",
-                f"project={project_id}: negotiation stage reached - contract terms review needed",
+                f"project={project_id}: signature stage reached - trustee authority confirmation needed",
                 level="info", metadata={"namespace": f"project_{project_id}"}
             )
-            self.log(f"Reacting to project {project_id} entering negotiation: flagging for contract review")
+            self.log(f"Reacting to project {project_id} entering signature: flagging for trustee authority check")
         else:
             self.log(f"Project event {project_id}/{event_type} from {sender} (no reaction configured)")
-
-    # ---------- CAG-backed lookups ----------
-    def _extract_citations(self, text):
-        return list({m.group(0).strip() for m in STATUTE_CITATION_RE.finditer(text)})
-
-    def _cache_context_for(self, text, top_k=3):
-        """Cache-first context gathering: pull relevant statute/definition snippets
-        for the given text, to ground the extraction prompt. Never calls inference."""
-        hits = self.query_cache(text[:1000], top_k=top_k)
-        for citation in self._extract_citations(text):
-            hits.extend(self.query_cache(citation, top_k=1))
-        # de-dupe by doc id, keep highest score
-        best = {}
-        for h in hits:
-            if h["id"] not in best or h["score"] > best[h["id"]]["score"]:
-                best[h["id"]] = h
-        return sorted(best.values(), key=lambda h: h["score"], reverse=True)[:top_k]
-
-    def _format_context_block(self, hits):
-        if not hits:
-            return ""
-        lines = ["Relevant cached reference material (from the local knowledge base - use only if applicable, do not assume it is exhaustive):"]
-        for h in hits:
-            lines.append(f"- [{h['category'] or 'general'}/{h['id']}] {h['snippet']}")
-        return "\n".join(lines) + "\n\n"
 
     # ---------- Model / Inference helpers ----------
     def _get_model_for_task(self, requirements="reasoning"):
@@ -109,8 +82,6 @@ class LegalAgent(AgentBase):
             return DEFAULT_MODEL
 
     def _call_inference(self, prompt, model_name=None, timeout=60):
-        """Call the Inference Service, falling back to an alternate model
-        via the Model Service if the primary call is slow or unavailable."""
         if model_name is None:
             model_name = self._get_model_for_task("reasoning")
         try:
@@ -129,7 +100,6 @@ class LegalAgent(AgentBase):
         except Exception as e:
             self.log(f"Inference Service call failed ({e}); trying fallback model.")
 
-        # Small fallback: ask the Model Service for a lighter/alternate model and retry once
         fallback_model = self._get_model_for_task("lightweight")
         if fallback_model and fallback_model != model_name:
             try:
@@ -150,7 +120,6 @@ class LegalAgent(AgentBase):
 
     # ---------- JSON extraction helpers ----------
     def _safe_parse_json(self, raw):
-        """Return (parsed_dict_or_None, parse_error_bool)."""
         if not raw or not raw.strip():
             return None, True
         text = re.sub(r'^```(?:json)?\s*|\s*```$', '', raw.strip(), flags=re.IGNORECASE | re.MULTILINE).strip()
@@ -166,47 +135,63 @@ class LegalAgent(AgentBase):
                 pass
         return None, True
 
-    def _extract_relationship(self, contract_text, model=None):
-        """Cache-Augmented Generation: pull relevant statute/definition context from the
-        local knowledge base first, then ask the Inference Service to extract structured
-        fields from contract text, grounded in that context where applicable."""
-        cache_hits = self._cache_context_for(contract_text)
+    # ---------- CAG-backed lookups ----------
+    def _extract_citations(self, text):
+        return list({m.group(0).strip() for m in STATUTE_CITATION_RE.finditer(text)})
+
+    def _cache_context_for(self, text, top_k=3):
+        hits = self.query_cache(text[:1000], top_k=top_k)
+        for citation in self._extract_citations(text):
+            hits.extend(self.query_cache(citation, top_k=1))
+        best = {}
+        for h in hits:
+            if h["id"] not in best or h["score"] > best[h["id"]]["score"]:
+                best[h["id"]] = h
+        return sorted(best.values(), key=lambda h: h["score"], reverse=True)[:top_k]
+
+    def _format_context_block(self, hits):
+        if not hits:
+            return ""
+        lines = ["Relevant cached reference material (from the local knowledge base - use only if applicable, do not assume it is exhaustive):"]
+        for h in hits:
+            lines.append(f"- [{h['category'] or 'general'}/{h['id']}] {h['snippet']}")
+        return "\n".join(lines) + "\n\n"
+
+    def _extract_trust_relationship(self, trust_text, model=None):
+        cache_hits = self._cache_context_for(trust_text)
         context_block = self._format_context_block(cache_hits)
         prompt = (
             context_block +
-            "You are a contract-structuring assistant. Read the contract text below and "
-            "extract ONLY the following fields as a single valid JSON object (no markdown "
-            "fences, no commentary, no legal analysis or opinions):\n"
+            "You are a trust-document-structuring assistant. Read the trust document text "
+            "below and extract ONLY the following fields as a single valid JSON object (no "
+            "markdown fences, no commentary, no legal or fiduciary advice):\n"
             "{\n"
-            '  "entity_a": "",\n'
-            '  "entity_b": "",\n'
-            '  "contract_type": "",\n'
-            '  "asset": "",\n'
-            '  "asset_owner": "",\n'
-            '  "custodian": "",\n'
+            '  "trust_type": "",\n'
+            '  "settlor": "",\n'
+            '  "trustee": "",\n'
+            '  "beneficiary": "",\n'
+            '  "trust_property": "",\n'
+            '  "duties": [],\n'
+            '  "powers": [],\n'
             '  "obligations": [],\n'
             '  "rights": [],\n'
-            '  "beneficiary": "",\n'
-            '  "service_provider": "",\n'
-            '  "fee_recipient": "",\n'
             '  "governing_law": "",\n'
-            '  "applicable_statutes": []\n'
+            '  "termination_conditions": ""\n'
             "}\n"
-            "If a field cannot be determined from the text, use an empty string or empty "
-            "list. Only extract and structure what is explicitly stated in the text - do not "
-            "infer facts, and do not provide legal advice or opinions. If the cached reference "
-            "material above names a governing statute that matches this contract, you may use it "
-            "for the governing_law/applicable_statutes fields - otherwise leave them as stated in "
-            "the contract text itself.\n\n"
-            f"Contract text:\n\"\"\"\n{contract_text}\n\"\"\"\n\nJSON:"
+            "trust_type should be a short label such as revocable, irrevocable, testamentary, "
+            "or living_trust. duties/powers describe the trustee specifically; obligations/"
+            "rights may cover other parties. If a field cannot be determined from the text, "
+            "use an empty string or empty list. Only extract and structure what is explicitly "
+            "stated - do not infer facts, and do not provide legal or fiduciary advice.\n\n"
+            f"Trust document text:\n\"\"\"\n{trust_text}\n\"\"\"\n\nJSON:"
         )
         raw = self._call_inference(prompt, model_name=model)
         parsed, parse_error = self._safe_parse_json(raw)
         if parsed is None:
-            parsed = {field: ([] if field in ("obligations", "rights", "applicable_statutes") else "") for field in RELATIONSHIP_FIELDS}
+            parsed = {field: ([] if field in ("duties", "powers", "obligations", "rights") else "") for field in TRUST_FIELDS}
         else:
-            for field in RELATIONSHIP_FIELDS:
-                parsed.setdefault(field, [] if field in ("obligations", "rights", "applicable_statutes") else "")
+            for field in TRUST_FIELDS:
+                parsed.setdefault(field, [] if field in ("duties", "powers", "obligations", "rights") else "")
         parsed["parse_error"] = parse_error
         if parse_error:
             parsed["raw_model_output"] = raw
@@ -216,7 +201,6 @@ class LegalAgent(AgentBase):
 
     # ---------- Relationship storage helpers ----------
     def _get_stored_value(self, retrieval_result):
-        """Unwrap the A2A response from retrieve_own_memory down to the stored value string."""
         if not isinstance(retrieval_result, dict):
             return None
         result = retrieval_result.get("result")
@@ -253,11 +237,10 @@ class LegalAgent(AgentBase):
             return None
 
     def _push_to_graph(self, doc, project_id):
-        """Best-effort: keep Boss's relationship graph in sync when a relationship is
-        created. Failure here doesn't fail the caller - the record is already stored
-        in this agent's own memory regardless."""
+        """Best-effort: keep Boss's relationship graph in sync. Failure here doesn't
+        fail the caller - the record is already stored in this agent's own memory."""
         try:
-            graph_rel = from_legacy_fields(doc, domain="legal", project_id=project_id)
+            graph_rel = from_legacy_fields(doc, domain="trust", project_id=project_id)
             resp = self.send_a2a("boss_agent", "update_graph", {
                 "action": "ingest_relationship",
                 "relationship": graph_rel,
@@ -282,16 +265,10 @@ class LegalAgent(AgentBase):
             term = args[0]
             hits = self.query_cache(term, top_k=3)
             if hits:
-                return {
-                    "term": term,
-                    "source": "cache",
-                    "results": hits,
-                    "disclaimer": DISCLAIMER
-                }
-            # Cache had nothing - fall back to inference, but say so plainly.
+                return {"term": term, "source": "cache", "results": hits, "disclaimer": DISCLAIMER}
             raw = self._call_inference(
-                f"Briefly define or explain the following legal term or statute citation, "
-                f"in one or two sentences, without giving legal advice: {term}"
+                f"Briefly define or explain the following trust/fiduciary term or statute "
+                f"citation, in one or two sentences, without giving legal advice: {term}"
             )
             return {
                 "term": term,
@@ -302,51 +279,28 @@ class LegalAgent(AgentBase):
                 "disclaimer": DISCLAIMER
             }
 
-        if task == "parse_contract":
+        elif task == "parse_trust_document":
             if not args or not args[0]:
-                return {"error": "Missing contract_text", "disclaimer": DISCLAIMER}
-            return self._extract_relationship(args[0])
+                return {"error": "Missing trust_text", "disclaimer": DISCLAIMER}
+            return self._extract_trust_relationship(args[0])
 
-        elif task == "extract_parties":
+        elif task == "model_trust_relationship":
             if not args or not args[0]:
-                return {"error": "Missing contract_text", "disclaimer": DISCLAIMER}
-            extraction = self._extract_relationship(args[0])
-            return {
-                "entity_a": extraction.get("entity_a", ""),
-                "entity_b": extraction.get("entity_b", ""),
-                "parse_error": extraction.get("parse_error", False),
-                "disclaimer": DISCLAIMER
-            }
-
-        elif task == "analyze_roles":
-            if not args or not args[0]:
-                return {"error": "Missing contract_text", "disclaimer": DISCLAIMER}
-            extraction = self._extract_relationship(args[0])
-            return {
-                "beneficiary": extraction.get("beneficiary", ""),
-                "service_provider": extraction.get("service_provider", ""),
-                "fee_recipient": extraction.get("fee_recipient", ""),
-                "parse_error": extraction.get("parse_error", False),
-                "disclaimer": DISCLAIMER
-            }
-
-        elif task == "model_relationship":
-            if not args or not args[0]:
-                return {"error": "Missing contract_text", "disclaimer": DISCLAIMER}
-            contract_text = args[0]
+                return {"error": "Missing trust_text", "disclaimer": DISCLAIMER}
+            trust_text = args[0]
             project_id = args[1] if len(args) > 1 and args[1] else ""
-            extraction = self._extract_relationship(contract_text)
-            relationship_id = f"relationship_{uuid.uuid4().hex[:12]}"
+            extraction = self._extract_trust_relationship(trust_text)
+            relationship_id = f"trust_{uuid.uuid4().hex[:12]}"
             doc = {
                 "id": relationship_id,
                 "created": datetime.now().isoformat(),
-                "source_excerpt": contract_text[:500],
+                "source_excerpt": trust_text[:500],
                 "project_id": project_id,
             }
             doc.update(extraction)
             self.store_own_memory(relationship_id, json.dumps(doc))
             self._append_to_index(relationship_id)
-            self.log(f"Modeled and stored relationship {relationship_id}")
+            self.log(f"Modeled and stored trust relationship {relationship_id}")
             self._push_to_graph(doc, project_id)
             return doc
 
@@ -361,26 +315,23 @@ class LegalAgent(AgentBase):
                 return {"error": f"Relationship {args[0]} not found", "disclaimer": DISCLAIMER}
             return doc
 
-        elif task in ("query_relationship", "find_relationships"):
+        elif task == "find_relationships":
             if not args or not args[0]:
                 return {"error": "Missing entity_identifier", "disclaimer": DISCLAIMER}
-            entity_identifier = args[0]
-            needle = entity_identifier.strip().lower()
+            needle = args[0].strip().lower()
             matches = []
             for relationship_id in self._load_index():
                 doc = self._load_relationship(relationship_id)
                 if not doc:
                     continue
                 haystacks = [
-                    str(doc.get("entity_a", "")), str(doc.get("entity_b", "")),
-                    str(doc.get("beneficiary", "")), str(doc.get("service_provider", "")),
-                    str(doc.get("fee_recipient", "")), str(doc.get("asset_owner", "")),
-                    str(doc.get("custodian", ""))
+                    str(doc.get("settlor", "")), str(doc.get("trustee", "")),
+                    str(doc.get("beneficiary", "")),
                 ]
                 if any(needle in h.lower() for h in haystacks if h):
                     matches.append(doc)
             return {
-                "entity_identifier": entity_identifier,
+                "entity_identifier": args[0],
                 "count": len(matches),
                 "relationships": matches,
                 "disclaimer": DISCLAIMER
@@ -405,22 +356,14 @@ class LegalAgent(AgentBase):
             if not args or len(args) < 2:
                 return {"error": "Usage: compare_relationships <relationship_id_1> <relationship_id_2>", "disclaimer": DISCLAIMER}
             id1, id2 = args[0], args[1]
-            raw1 = self._get_stored_value(self.retrieve_own_memory(id1))
-            raw2 = self._get_stored_value(self.retrieve_own_memory(id2))
-            if not raw1 or not raw2:
+            doc1, doc2 = self._load_relationship(id1), self._load_relationship(id2)
+            if not doc1 or not doc2:
                 return {"error": f"Could not load one or both relationships ({id1}, {id2})", "disclaimer": DISCLAIMER}
-            try:
-                doc1, doc2 = json.loads(raw1), json.loads(raw2)
-            except Exception as e:
-                return {"error": f"Failed to parse stored relationships: {e}", "disclaimer": DISCLAIMER}
-
-            diff_fields = RELATIONSHIP_FIELDS
             differences = {}
-            for field in diff_fields:
+            for field in TRUST_FIELDS:
                 v1, v2 = doc1.get(field), doc2.get(field)
                 if v1 != v2:
                     differences[field] = {"relationship_1": v1, "relationship_2": v2}
-
             return {
                 "relationship_1_id": id1,
                 "relationship_2_id": id2,
@@ -434,7 +377,7 @@ class LegalAgent(AgentBase):
 
 
 if __name__ == "__main__":
-    agent = LegalAgent()
+    agent = TrustAgent()
     while True:
         time.sleep(60)
         agent.heartbeat()

@@ -1,0 +1,8 @@
+{
+  "agent_id": "accounting_agent",
+  "role": "agent",
+  "port": 9012,
+  "capabilities": ["parse_financial_instrument", "assess_tax_liability", "track_account_balance", "lookup", "list_relationships", "get_relationship", "find_relationships", "find_relationships_by_project", "refresh_cache", "query_cache", "cache_stats", "cache_manifest"],
+  "entry_point": "agents.accounting_agent.accounting_agent:main",
+  "description": "Structures financial instruments and cached tax/accounting reference data (extraction and structuring only - not tax or financial advice)"
+}

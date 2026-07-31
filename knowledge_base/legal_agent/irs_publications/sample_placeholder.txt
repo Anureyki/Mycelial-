@@ -1,0 +1,2 @@
+[PLACEHOLDER - not a real IRS publication]
+Replace with real IRS publication/regulation text fetched from irs.gov.

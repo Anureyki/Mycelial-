@@ -1,0 +1,3 @@
+[PLACEHOLDER - not a real IRS form summary]
+Form 1099-INT (placeholder): used to report interest income paid to a payee
+during the tax year. Replace with a real summary sourced from irs.gov.

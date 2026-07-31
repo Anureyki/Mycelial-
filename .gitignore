@@ -19,11 +19,22 @@ state/
 # Configuration with secrets (don't commit raw tokens)
 config/mcp.d/sentry.json
 config/mcp.d/git.json
+config/.security_bootstrap_secret
 
 # Data directories
 datasets/
 weights/
 sensor_data/
+
+# Private financial/legal source documents for agent CAG knowledge bases -
+# these are the owner's real records, never meant to leave this machine.
+knowledge_base/accounting_agent/instruments/*
+!knowledge_base/accounting_agent/instruments/.gitkeep
+knowledge_base/accounting_agent/statements/*
+!knowledge_base/accounting_agent/statements/.gitkeep
+knowledge_base/accounting_agent/trust_estate/*
+!knowledge_base/accounting_agent/trust_estate/.gitkeep
+
 
 # Backup and temp files
 *.bak

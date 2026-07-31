@@ -4,7 +4,7 @@ Mycelial Agent Base – with hook support + Registry Service integration + Loggi
 Now with JSON-RPC compatibility (handles both top-level and nested params).
 Includes Tool Service integration for MCP tools and agent‑specific memory helpers.
 """
-import os, json, uuid, time, requests, paho.mqtt.client as mqtt, subprocess
+import os, re, json, uuid, time, threading, requests, paho.mqtt.client as mqtt, subprocess
 from datetime import datetime
 from flask import Flask, request, jsonify
 
@@ -13,6 +13,13 @@ CONFIG_DIR = os.path.join(BASE, "config", "agent_cards")
 LOG_FILE = os.path.join(BASE, "logs", "audit.log")
 REGISTRY_FILE = os.path.join(BASE, "state", "registry.json")
 PENDING_DIR = os.path.join(BASE, "state", "pending_requests")
+KNOWLEDGE_BASE_ROOT = os.path.join(BASE, "knowledge_base")
+CAG_STATE_DIR = os.path.join(BASE, "state", "cag")
+
+# File types read as text into the cache. Anything else is skipped (logged, not crashed on).
+CAG_TEXT_EXTENSIONS = {".txt", ".md", ".json", ".csv"}
+CAG_MAX_DOC_CHARS = 200_000  # guard against one huge file blowing up memory
+CAG_TOKEN_RE = re.compile(r"[a-zA-Z0-9§][a-zA-Z0-9§.\-]*")
 
 REGISTRY_SERVICE_URL = "http://localhost:8004/execute"
 LOGGING_SERVICE_URL = "http://localhost:8009/log"
@@ -29,6 +36,7 @@ class AgentBase:
         self.role = role
         self.mqtt_broker = mqtt_broker
         self.mqtt_client = None
+        self._extra_subscriptions = []
 
         os.makedirs(CONFIG_DIR, exist_ok=True)
         os.makedirs(os.path.dirname(LOG_FILE), exist_ok=True)
@@ -312,12 +320,49 @@ class AgentBase:
             topic = self.card["mqtt_topics"]["subscribe"]
             self.mqtt_client.subscribe(topic)
             self.log(f"MQTT subscribed to {topic}")
+            for extra_topic in self._extra_subscriptions:
+                self.mqtt_client.subscribe(extra_topic)
+                self.log(f"MQTT subscribed to {extra_topic}")
         else:
             self.log(f"MQTT connection failed with code {rc}")
 
+    def subscribe_project_events(self):
+        """Opt in to Boss's project-wide event topics (mycelial/project/<id>/{stage,
+        action,graph_update}, published by Boss's publish_event task). Incoming
+        messages are routed to self.on_project_event() - override that in a
+        subclass to react autonomously; the default just logs."""
+        topics = [
+            "mycelial/project/+/stage",
+            "mycelial/project/+/action",
+            "mycelial/project/+/graph_update",
+        ]
+        self._extra_subscriptions = list(set(self._extra_subscriptions) | set(topics))
+        if self.mqtt_client and self.mqtt_client.is_connected():
+            for t in topics:
+                self.mqtt_client.subscribe(t)
+        self.log("Subscribed to project events (stage, action, graph_update)")
+
+    def on_project_event(self, project_id, event_type, data, sender):
+        """Override in a subclass to react to a project event. Called for every
+        message on mycelial/project/<project_id>/<event_type> once
+        subscribe_project_events() has been called. Default: log only."""
+        self.log(f"Project event {project_id}/{event_type} from {sender}: {json.dumps(data)[:200]}")
+
     def on_mqtt_message(self, client, userdata, msg):
         payload = msg.payload.decode()
-        self.log(f"MQTT received: {payload}")
+        self.log(f"MQTT received on {msg.topic}: {payload}")
+        if msg.topic.startswith("mycelial/project/"):
+            try:
+                data = json.loads(payload)
+            except Exception:
+                data = {"raw": payload}
+            parts = msg.topic.split("/")
+            project_id = parts[2] if len(parts) > 2 else None
+            event_type = parts[3] if len(parts) > 3 else "unknown"
+            try:
+                self.on_project_event(project_id, event_type, data, data.get("sender") if isinstance(data, dict) else None)
+            except Exception as e:
+                self.log(f"on_project_event handler failed: {e}")
 
     def publish_event(self, event_type, data):
         topic = self.card["mqtt_topics"]["publish"]
@@ -423,3 +468,249 @@ class AgentBase:
         """Delete memory from the agent's own namespace."""
         namespace = f"agent_{self.agent_id}"
         return self.send_a2a("hermes", "forget_memory", [namespace, key])
+
+    # ---------- CAG (Cache-Augmented Generation) ----------
+    # Opt-in: a subclass calls self.init_cag(...) once, after super().__init__(),
+    # to get a per-agent file-backed knowledge cache. Agents that never call
+    # init_cag are completely unaffected - self.cache simply stays unset.
+    def init_cag(self, knowledge_dir=None, cache_ttl=3600, watch_interval=None):
+        """Enable the CAG layer for this agent.
+
+        knowledge_dir: directory of source documents (default: knowledge_base/<agent_id>/).
+                       Subdirectories become the doc "category" (e.g. statutes/, dictionary/).
+        cache_ttl:     seconds after which cache_age() callers should consider the cache stale.
+        watch_interval: if set, a background thread calls refresh_cache() every N seconds
+                        (a simple mtime-poll "file watcher" - swap for inotify/watchdog later
+                        without changing the public API).
+        """
+        self.knowledge_dir = knowledge_dir or os.path.join(KNOWLEDGE_BASE_ROOT, self.agent_id)
+        self.cache_ttl = cache_ttl
+        self.cache = {}          # doc_id -> {category, path, content, tokens, mtime, size}
+        self.cache_loaded_at = None
+        os.makedirs(self.knowledge_dir, exist_ok=True)
+        os.makedirs(CAG_STATE_DIR, exist_ok=True)
+        self._cag_manifest_path = os.path.join(CAG_STATE_DIR, f"{self.agent_id}_manifest.json")
+        self.load_cache()
+        if watch_interval:
+            self._start_cache_watcher(watch_interval)
+
+    def _cag_manifest(self):
+        if os.path.exists(self._cag_manifest_path):
+            try:
+                with open(self._cag_manifest_path, "r") as f:
+                    return json.load(f)
+            except Exception:
+                return {}
+        return {}
+
+    def _write_cag_manifest(self, manifest):
+        with open(self._cag_manifest_path, "w") as f:
+            json.dump(manifest, f, indent=2)
+
+    def _read_source_file(self, path):
+        try:
+            with open(path, "r", errors="ignore") as f:
+                return f.read(CAG_MAX_DOC_CHARS)
+        except Exception as e:
+            self.log(f"CAG: failed to read {path}: {e}")
+            return None
+
+    def _tokenize(self, text):
+        return set(m.group(0).lower() for m in CAG_TOKEN_RE.finditer(text))
+
+    def load_cache(self):
+        """Full (re)build of the in-memory cache from knowledge_dir. Safe to call repeatedly."""
+        manifest = {}
+        new_cache = {}
+        added, skipped = 0, 0
+        for root, _dirs, files in os.walk(self.knowledge_dir):
+            category = os.path.relpath(root, self.knowledge_dir)
+            category = "" if category == "." else category
+            for fname in files:
+                if fname.upper() == "README.MD":
+                    continue
+                ext = os.path.splitext(fname)[1].lower()
+                if ext not in CAG_TEXT_EXTENSIONS:
+                    skipped += 1
+                    continue
+                path = os.path.join(root, fname)
+                relpath = os.path.relpath(path, self.knowledge_dir)
+                content = self._read_source_file(path)
+                if content is None:
+                    continue
+                stat = os.stat(path)
+                doc_id = relpath.replace(os.sep, "/")
+                new_cache[doc_id] = {
+                    "id": doc_id,
+                    "category": category,
+                    "path": path,
+                    "content": content,
+                    "tokens": self._tokenize(content) | self._tokenize(doc_id),
+                    "mtime": stat.st_mtime,
+                    "size": stat.st_size,
+                }
+                manifest[doc_id] = {
+                    "last_modified": datetime.fromtimestamp(stat.st_mtime).isoformat(),
+                    "size": stat.st_size,
+                    "indexed_at": datetime.now().isoformat(),
+                }
+                added += 1
+        self.cache = new_cache
+        self.cache_loaded_at = time.time()
+        self._write_cag_manifest(manifest)
+        self.log(f"CAG: loaded {added} document(s) from {self.knowledge_dir} ({skipped} skipped file type)")
+        return {"loaded": added, "skipped": skipped}
+
+    def refresh_cache(self):
+        """Incremental refresh: re-reads only new/changed files, drops removed ones."""
+        if not hasattr(self, "cache"):
+            return self.load_cache()
+        seen = set()
+        added, updated, removed = 0, 0, 0
+        for root, _dirs, files in os.walk(self.knowledge_dir):
+            category = os.path.relpath(root, self.knowledge_dir)
+            category = "" if category == "." else category
+            for fname in files:
+                if fname.upper() == "README.MD":
+                    continue
+                ext = os.path.splitext(fname)[1].lower()
+                if ext not in CAG_TEXT_EXTENSIONS:
+                    continue
+                path = os.path.join(root, fname)
+                relpath = os.path.relpath(path, self.knowledge_dir)
+                doc_id = relpath.replace(os.sep, "/")
+                seen.add(doc_id)
+                stat = os.stat(path)
+                cached = self.cache.get(doc_id)
+                is_new_or_changed = cached is None or cached["mtime"] != stat.st_mtime
+                if is_new_or_changed:
+                    content = self._read_source_file(path)
+                    if content is None:
+                        continue
+                    self.cache[doc_id] = {
+                        "id": doc_id,
+                        "category": category,
+                        "path": path,
+                        "content": content,
+                        "tokens": self._tokenize(content) | self._tokenize(doc_id),
+                        "mtime": stat.st_mtime,
+                        "size": stat.st_size,
+                    }
+                    if cached is None:
+                        added += 1
+                    else:
+                        updated += 1
+        for doc_id in list(self.cache.keys()):
+            if doc_id not in seen:
+                del self.cache[doc_id]
+                removed += 1
+        manifest = {
+            doc_id: {
+                "last_modified": datetime.fromtimestamp(doc["mtime"]).isoformat(),
+                "size": doc["size"],
+                "indexed_at": datetime.now().isoformat(),
+            }
+            for doc_id, doc in self.cache.items()
+        }
+        self._write_cag_manifest(manifest)
+        self.cache_loaded_at = time.time()
+        if added or updated or removed:
+            self.log(f"CAG: refresh - {added} added, {updated} updated, {removed} removed")
+        return {"added": added, "updated": updated, "removed": removed, "total": len(self.cache)}
+
+    def query_cache(self, query, top_k=5, category=None):
+        """Keyword-overlap search over the cache. Returns [] if nothing scores above zero -
+        callers should treat that as 'cache lacks sufficient context' and fall back to inference."""
+        if not query or not hasattr(self, "cache") or not self.cache:
+            return []
+        q_tokens = self._tokenize(query)
+        if not q_tokens:
+            return []
+        scored = []
+        for doc in self.cache.values():
+            if category and doc["category"] != category:
+                continue
+            overlap = q_tokens & doc["tokens"]
+            if not overlap:
+                continue
+            score = len(overlap) / len(q_tokens)
+            scored.append((score, doc, overlap))
+        scored.sort(key=lambda t: t[0], reverse=True)
+        results = []
+        for score, doc, overlap in scored[:top_k]:
+            snippet = self._snippet(doc["content"], overlap)
+            results.append({
+                "id": doc["id"],
+                "category": doc["category"],
+                "score": round(score, 3),
+                "snippet": snippet,
+                "path": doc["path"],
+            })
+        return results
+
+    def _snippet(self, content, overlap_tokens, window=300):
+        lower = content.lower()
+        for tok in overlap_tokens:
+            idx = lower.find(tok)
+            if idx != -1:
+                start = max(0, idx - window // 2)
+                end = min(len(content), idx + window // 2)
+                return ("..." if start > 0 else "") + content[start:end].strip() + ("..." if end < len(content) else "")
+        return content[:window]
+
+    def cache_manifest(self):
+        """Per-document versioning info: last_modified (source file mtime) and indexed_at
+        (when this agent last picked that version up)."""
+        return self._cag_manifest()
+
+    def cache_age(self):
+        if not getattr(self, "cache_loaded_at", None):
+            return None
+        return time.time() - self.cache_loaded_at
+
+    def cache_stats(self):
+        if not hasattr(self, "cache"):
+            return {"enabled": False}
+        by_category = {}
+        for doc in self.cache.values():
+            by_category[doc["category"]] = by_category.get(doc["category"], 0) + 1
+        return {
+            "enabled": True,
+            "knowledge_dir": self.knowledge_dir,
+            "documents": len(self.cache),
+            "by_category": by_category,
+            "cache_age_seconds": self.cache_age(),
+            "cache_ttl_seconds": self.cache_ttl,
+            "stale": (self.cache_age() or 0) > self.cache_ttl,
+        }
+
+    def _start_cache_watcher(self, interval):
+        def _loop():
+            while True:
+                time.sleep(interval)
+                try:
+                    self.refresh_cache()
+                except Exception as e:
+                    self.log(f"CAG: background refresh failed: {e}")
+        threading.Thread(target=_loop, daemon=True).start()
+        self.log(f"CAG: file-watch polling every {interval}s on {self.knowledge_dir}")
+
+    def try_handle_cag_task(self, task, args):
+        """Generic cache tasks every CAG-enabled agent gets for free.
+        Call from the top of a subclass's handle_task(); if this returns
+        not-None, return that result directly. Returns None for anything
+        it doesn't recognize so the caller's own dispatch continues."""
+        if not hasattr(self, "cache"):
+            return None
+        if task == "refresh_cache":
+            return self.refresh_cache()
+        if task == "cache_stats":
+            return self.cache_stats()
+        if task == "cache_manifest":
+            return self.cache_manifest()
+        if task == "query_cache":
+            if not args or not args[0]:
+                return {"error": "Usage: query_cache <query> [top_k]"}
+            top_k = int(args[1]) if len(args) > 1 else 5
+            return {"query": args[0], "results": self.query_cache(args[0], top_k=top_k)}
+        return None

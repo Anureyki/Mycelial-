@@ -1,0 +1,5 @@
+[PLACEHOLDER contract template]
+This Account Agreement is between Customer (asset owner) and Bank (custodian
+and service provider). Bank shall hold Customer's funds, pay interest as
+agreed, and may charge disclosed fees. Customer may withdraw funds on demand.
+Governing law: state commercial law and applicable federal banking statutes.
