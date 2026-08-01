@@ -60,8 +60,8 @@ MODELS = {
         "domain": "general",
         "specialization": "reasoning"
     },
-    "claude-opus-4-8": {
-        "name": "claude-opus-4-8",
+    "claude-opus-5": {
+        "name": "claude-opus-5",
         "active": CLAUDE_AVAILABLE,
         "speed": "slow",
         "quality": "maximum",
@@ -74,6 +74,15 @@ MODELS = {
         "active": CLAUDE_AVAILABLE,
         "speed": "fast",
         "quality": "high",
+        "size": "cloud",
+        "domain": "general",
+        "specialization": "reasoning"
+    },
+    "claude-haiku-4-5": {
+        "name": "claude-haiku-4-5",
+        "active": CLAUDE_AVAILABLE,
+        "speed": "fast",
+        "quality": "medium",
         "size": "cloud",
         "domain": "general",
         "specialization": "reasoning"
