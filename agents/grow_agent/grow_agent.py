@@ -18,7 +18,8 @@ class GrowAgent(AgentBase):
             capabilities=[
                 "log_reading", "check_stage", "adjust_nutrients",
                 "transition_stage", "log_water_change", "get_status",
-                "set_germination_date", "add_reminder", "list_reminders"
+                "set_germination_date", "add_reminder", "list_reminders",
+                "web_search"
             ],
             role="gardener"
         )
@@ -200,6 +201,12 @@ class GrowAgent(AgentBase):
 
         elif task == "list_reminders":
             return {"result": self._get_all_reminders()}
+
+        elif task == "web_search":
+            query = args.get("query") if isinstance(args, dict) else args[0] if args else None
+            if not query:
+                return {"error": "Missing query"}
+            return self.search_public(query)
 
         else:
             return {"error": f"Unknown task: {task}"}

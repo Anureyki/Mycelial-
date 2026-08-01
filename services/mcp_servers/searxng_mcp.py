@@ -3,8 +3,13 @@ import sys
 import json
 import requests
 
-# Public SearXNG instances (try them in order)
+# Local SearXNG instance (docker container, see ~/searxng/docker-compose.yml)
+# tried first since it doesn't depend on outbound internet access.
+LOCAL_INSTANCE = "http://localhost:8082"
+
+# Public SearXNG instances, tried in order only if the local instance fails.
 INSTANCES = [
+    LOCAL_INSTANCE,
     "https://searx.be",
     "https://searxng.polymorphic.solutions",
     "https://search.projectsegfault.de",

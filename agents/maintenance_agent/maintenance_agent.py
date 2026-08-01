@@ -10,6 +10,13 @@ sys.path.insert(0, project_root)
 
 from core.base_agent import AgentBase
 
+# Docker-compose-managed containers this agent is allowed to maintain.
+# Deliberately a fixed whitelist (not a caller-supplied path) so update_container
+# can't be used to run compose against an arbitrary directory.
+CONTAINER_REGISTRY = {
+    "pihole-unbound": "/opt/pihole",
+}
+
 class MaintenanceAgent(AgentBase):
     def __init__(self):
         super().__init__(
@@ -17,11 +24,26 @@ class MaintenanceAgent(AgentBase):
             port=8003,
             capabilities=[
                 "check_disk", "clean_logs", "check_updates",
-                "apply_updates", "rollback", "check_errors"
+                "apply_updates", "rollback", "check_errors",
+                "check_container_updates", "update_container"
             ],
             role="system_health"
         )
         self.log("🛠️ Maintenance agent started with real system commands.")
+
+    def _compose(self, container, *compose_args):
+        """Run `docker compose <compose_args>` in a whitelisted container's directory."""
+        compose_dir = CONTAINER_REGISTRY.get(container)
+        if not compose_dir:
+            return {"error": f"Unknown container: {container}"}
+        try:
+            result = subprocess.run(
+                ["docker", "compose", *compose_args],
+                cwd=compose_dir, capture_output=True, text=True, timeout=180
+            )
+            return {"stdout": result.stdout, "stderr": result.stderr, "returncode": result.returncode}
+        except Exception as e:
+            return {"stdout": "", "stderr": str(e), "returncode": 1}
 
     def _execute_local(self, command):
         """Execute a command locally with a safe prefix whitelist."""
@@ -72,6 +94,38 @@ class MaintenanceAgent(AgentBase):
 
         elif task == "rollback":
             return {"result": "Rollback not implemented"}
+
+        elif task == "check_container_updates":
+            container = args.get("container")
+            if container not in CONTAINER_REGISTRY:
+                return {"error": f"Unknown container: {container}", "known": list(CONTAINER_REGISTRY)}
+            before = self._compose(container, "images", "-q")
+            pull = self._compose(container, "pull")
+            after = self._compose(container, "images", "-q")
+            changed = before.get("stdout") != after.get("stdout")
+            return {
+                "container": container,
+                "update_available": changed,
+                "pull_output": pull.get("stdout", "") + pull.get("stderr", "")
+            }
+
+        elif task == "update_container":
+            if args.get("confirm") != True:
+                return {"error": "Confirmation required (confirm=true)"}
+            container = args.get("container")
+            if container not in CONTAINER_REGISTRY:
+                return {"error": f"Unknown container: {container}", "known": list(CONTAINER_REGISTRY)}
+            pull = self._compose(container, "pull")
+            if pull.get("returncode") != 0:
+                return {"error": "Pull failed", "detail": pull.get("stderr")}
+            up = self._compose(container, "up", "-d")
+            self.log_to_audit("CONTAINER_UPDATE", f"Updated {container}",
+                              metadata={"pull": pull.get("stdout", "")[:200]})
+            return {
+                "container": container,
+                "result": "updated" if up.get("returncode") == 0 else "failed",
+                "detail": up.get("stdout", "") + up.get("stderr", "")
+            }
 
         elif task == "check_errors":
             org = args.get("org")

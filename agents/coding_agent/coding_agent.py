@@ -20,7 +20,7 @@ class CodingAgent(AgentBase):
             capabilities=[
                 "read_file", "edit_file", "run_command", "run_code",
                 "crontab", "reason", "reason_and_act", "fix_code", "evaluate",
-                "fetch_repo"
+                "fetch_repo", "web_search"
             ],
             role="software_engineering"
         )
@@ -305,6 +305,12 @@ class CodingAgent(AgentBase):
                 "result": summary,
                 "raw_content": content[:1000]  # trim for display
             }
+
+        elif task == "web_search":
+            query = args.get("query") if isinstance(args, dict) else args[0] if args else None
+            if not query:
+                return {"error": "Missing query"}
+            return self.search_public(query)
 
         else:
             return {"error": f"Unknown task: {task}"}

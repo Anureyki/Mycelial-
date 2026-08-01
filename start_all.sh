@@ -111,13 +111,19 @@ if [ -f "agents/security_agent/security_agent.py" ]; then
     echo "  ✅ Security Agent (port 9010)"
 fi
 
+# Optional: PQA Agent (if it exists) - public web search/browse via SearXNG + Puppeteer
+if [ -f "agents/pqa_agent/pqa_agent.py" ]; then
+    python3 -m agents.pqa_agent.pqa_agent &
+    echo "  ✅ PQA Agent (port 9007)"
+fi
+
 # ----------------------------------------------------------------------
 # 3. Health Check Summary
 # ----------------------------------------------------------------------
 sleep 3
 echo ""
 echo "📋 Health check summary:"
-for port in 8004 8007 8008 8009 8005 8006 8010 8011 8012 8014 8015 8000 8001 8002 8003 8081 9006 9009 9010 9011 9012 9013; do
+for port in 8004 8007 8008 8009 8005 8006 8010 8011 8012 8014 8015 8000 8001 8002 8003 8081 9006 9007 9009 9010 9011 9012 9013; do
     if curl -s -o /dev/null -w "%{http_code}" http://localhost:$port/health | grep -q 200; then
         echo "  ✅ Port $port is healthy"
     else

@@ -28,7 +28,7 @@ class AnalyzerAgent(AgentBase):
         super().__init__(
             agent_id="analyzer_agent",
             port=9006,
-            capabilities=["analyze_outcomes", "generate_recommendations", "report_to_boss"],
+            capabilities=["analyze_outcomes", "generate_recommendations", "report_to_boss", "web_search"],
             role="analytics"
         )
         self.log("🔍 Analyzer Agent started.")
@@ -220,6 +220,12 @@ class AnalyzerAgent(AgentBase):
                 "report_path": report_path,
                 "boss_response": boss_response
             }
+
+        elif task == "web_search":
+            query = args.get("query") if isinstance(args, dict) else args[0] if args else None
+            if not query:
+                return {"error": "Missing query"}
+            return self.search_public(query)
 
         else:
             return {"error": f"Unknown task: {task}"}
