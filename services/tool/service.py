@@ -118,13 +118,15 @@ def call_mcp_server(server_id, method, params=None):
     input_data = json.dumps(init_request) + "\n" + json.dumps(method_request) + "\n"
 
     try:
+        proc_env = os.environ.copy()
+        proc_env.update({k: v for k, v in config.get("env", {}).items() if v})
         proc = subprocess.Popen(
             [cmd] + config.get("args", []),
             stdin=subprocess.PIPE,
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE,
             text=True,
-            env=os.environ.copy()
+            env=proc_env
         )
         stdout, stderr = proc.communicate(input=input_data)
         if proc.returncode != 0:

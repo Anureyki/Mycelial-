@@ -432,6 +432,20 @@ class AgentBase:
         except Exception as e:
             return {"error": str(e)}
 
+    # ---------- Public search (delegates to PQA Agent) ----------
+    def search_public(self, query):
+        """Ask PQA Agent to run a public web search. Falls back to calling the
+        searxng tool directly (same path PQA itself uses) if PQA is unreachable,
+        so callers get a result even if that one agent is down."""
+        response = self.send_a2a("pqa_agent", "search", {"query": query})
+        if response and isinstance(response, dict) and not response.get("error"):
+            result = response.get("result", response)
+            return {"source": "pqa_agent", "query": query, "result": result}
+
+        self.log(f"PQA Agent unavailable for search ({response}); falling back to direct tool call")
+        tool_result = self.call_tool("searxng", "search", {"query": query})
+        return {"source": "searxng_tool", "query": query, "result": tool_result}
+
     # ---------- Convenience method for Vestige ----------
     def vestige_memory(self, action, content=None, memory_id=None, reason=None, confirm=False):
         """Call Vestige's memory tool with a clean interface."""

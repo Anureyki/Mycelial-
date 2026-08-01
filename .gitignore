@@ -19,6 +19,8 @@ state/
 # Configuration with secrets (don't commit raw tokens)
 config/mcp.d/sentry.json
 config/mcp.d/git.json
+config/mcp.d/courtlistener.json
+config/mcp.d/e2b.json
 config/.security_bootstrap_secret
 
 # Data directories
@@ -34,6 +36,8 @@ knowledge_base/accounting_agent/statements/*
 !knowledge_base/accounting_agent/statements/.gitkeep
 knowledge_base/accounting_agent/trust_estate/*
 !knowledge_base/accounting_agent/trust_estate/.gitkeep
+knowledge_base/legal_agent/lessons_learned/*
+!knowledge_base/legal_agent/lessons_learned/.gitkeep
 
 
 # Backup and temp files
