@@ -59,11 +59,18 @@ Ollama       Ubuntu        Local Sandbox
 
 | Agent | Port | Role | Capabilities |
 |-------|------|------|--------------|
-| **Boss** | 8000 | Orchestrator | Delegates tasks, routes requests, manages workflows |
+| **Boss** | 8000 | Orchestrator | Delegates tasks, routes requests, manages workflows, maintains the CAG/KAG relationship graph |
 | **Coding** | 8001 | Software Engineer | Reads/writes files, runs commands, lints, fixes code, evaluates codebase |
 | **Hermes** | 8002 | Memory/Librarian | Stores/retrieves memories, searches documentation |
 | **Maintenance** | 8003 | System Health | Disk checks, log cleaning, system updates, error monitoring |
 | **Anansi** | 8081 | User Interface | Accepts natural language, routes to Boss |
+| **Analyzer** | 9006 | Outcome Analysis | Scans logs, generates recommendations |
+| **PQA** | 9007 | Public Query | Public web search fallback, used by other agents when local knowledge is insufficient |
+| **Security** | 9010 | Security | Authenticates, authorizes, audits, issues tokens |
+| **Legal** | 9011 | Legal | Parses contracts, models legal relationships, CourtListener case-law lookups |
+| **Accounting** | 9012 | Accounting | Parses financial instruments, assesses tax liability, tracks account balances |
+| **Trust** | 9013 | Trust/Estate | Parses trust documents, models trust relationships |
+| **Grow** | 9009 | Gardener | Tracks plant growth stages, logs readings, suggests nutrient adjustments |
 
 ---
 
@@ -72,7 +79,7 @@ Ollama       Ubuntu        Local Sandbox
 | Service | Port | Purpose |
 |---------|------|---------|
 | Registry | 8004 | Agent discovery and registration |
-| Inference | 8005 | LLM reasoning (Ollama) |
+| Inference | 8005 | LLM reasoning (local Ollama models + cloud Claude models) |
 | Model | 8006 | Dynamic model selection |
 | Memory | 8007 | SQLite versioned storage |
 | Policy | 8008 | Decision engine |
@@ -105,7 +112,12 @@ Mycelial uses the **Model Context Protocol** to connect agents to external tools
 
 ## 📌 Current State
 
-- ✅ All core agents running and communicating via A2A.
+- ✅ 12 agents running and communicating via A2A, including domain agents for legal, accounting, trust/estate, and security.
+- ✅ CAG + KAG layer: per‑agent knowledge caches plus a Boss‑maintained relationship graph.
+- ✅ PQA public web search fallback wired across agents.
+- ✅ CourtListener case‑law integration in the Legal Agent.
+- ✅ Inference Service supports local Ollama models and cloud Claude models.
+- ✅ CI workflow (compile + lint checks) on every push/PR.
 - ✅ MCP integration with 7+ servers.
 - ✅ Distillation data collection active.
 - ✅ Code evaluation and fixing.
