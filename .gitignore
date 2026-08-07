@@ -3,6 +3,9 @@ venv/
 env/
 .venv/
 
+# Container secrets (see .env.example for the expected keys)
+.env
+
 # Python cache
 __pycache__/
 *.pyc
@@ -38,6 +41,10 @@ knowledge_base/accounting_agent/trust_estate/*
 !knowledge_base/accounting_agent/trust_estate/.gitkeep
 knowledge_base/legal_agent/lessons_learned/*
 !knowledge_base/legal_agent/lessons_learned/.gitkeep
+knowledge_base/grow_agent/photos/*
+!knowledge_base/grow_agent/photos/.gitkeep
+knowledge_base/grow_agent/notes/*
+!knowledge_base/grow_agent/notes/.gitkeep
 
 
 # Backup and temp files
