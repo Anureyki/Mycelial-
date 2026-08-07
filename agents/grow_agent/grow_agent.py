@@ -464,7 +464,17 @@ class GrowAgent(AgentBase):
                 "nutrients": nutrients
             }
             self.store_own_memory("current_nutrients", json.dumps(record))
-            return {"result": "Current nutrients set", "nutrients": record}
+
+            auto_transition = None
+            current_stage = self._unwrap_value(self.retrieve_own_memory("current_stage")) or "unknown"
+            if stage != "unknown" and stage != current_stage:
+                transition_result = self.handle_task("transition_stage", {
+                    "new_stage": stage,
+                    "notes": f"Auto-transitioned: nutrient recipe changed to the {stage} formula."
+                }, sender)
+                auto_transition = transition_result.get("transition")
+
+            return {"result": "Current nutrients set", "nutrients": record, "auto_transition": auto_transition}
 
         elif task == "add_reminder":
             title = args.get("title")
