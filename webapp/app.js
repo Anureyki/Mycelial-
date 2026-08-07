@@ -6,6 +6,10 @@ const settingsBtn = document.getElementById('settingsBtn');
 const settingsPanel = document.getElementById('settingsPanel');
 const serverUrlInput = document.getElementById('serverUrl');
 const saveSettingsBtn = document.getElementById('saveSettings');
+const chatTabBtn = document.getElementById('chatTabBtn');
+const dashboardTabBtn = document.getElementById('dashboardTabBtn');
+const dashboard = document.getElementById('dashboard');
+const refreshDashboardBtn = document.getElementById('refreshDashboard');
 
 const STORAGE_KEY = 'mycelial.serverUrl';
 
@@ -65,6 +69,64 @@ async function sendPrompt(text) {
     sendBtn.disabled = false;
   }
 }
+
+async function fetchNarration(promptText) {
+  const serverUrl = getServerUrl();
+  if (!serverUrl) return 'No server URL set - open settings first.';
+  try {
+    const res = await fetch(`${serverUrl}/execute`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ task: 'process_request', args: [promptText] }),
+    });
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const data = await res.json();
+    return extractResult(data);
+  } catch (err) {
+    return `Couldn't load this right now (${err.message}).`;
+  }
+}
+
+async function refreshDashboard() {
+  const cards = [
+    { id: 'systemCard', prompt: 'system status' },
+    { id: 'growCard', prompt: 'how is my plant' },
+    { id: 'progressCard', prompt: 'catch me up on progress' },
+  ];
+  for (const { id, prompt } of cards) {
+    const body = document.querySelector(`#${id} .card-body`);
+    if (body) body.textContent = 'Loading...';
+  }
+  // Sequential, not parallel - these route through the same shared local
+  // inference backend, so firing all three at once would just make them
+  // queue behind each other anyway.
+  for (const { id, prompt } of cards) {
+    const body = document.querySelector(`#${id} .card-body`);
+    const text = await fetchNarration(prompt);
+    if (body) body.textContent = text;
+  }
+}
+
+function showChat() {
+  chatTabBtn.classList.add('active');
+  dashboardTabBtn.classList.remove('active');
+  log.classList.remove('hidden');
+  dashboard.classList.add('hidden');
+  form.classList.remove('hidden');
+}
+
+function showDashboard() {
+  dashboardTabBtn.classList.add('active');
+  chatTabBtn.classList.remove('active');
+  dashboard.classList.remove('hidden');
+  log.classList.add('hidden');
+  form.classList.add('hidden');
+  refreshDashboard();
+}
+
+chatTabBtn.addEventListener('click', showChat);
+dashboardTabBtn.addEventListener('click', showDashboard);
+refreshDashboardBtn.addEventListener('click', refreshDashboard);
 
 function openSettings() {
   serverUrlInput.value = getServerUrl();

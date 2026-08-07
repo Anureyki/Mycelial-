@@ -1,10 +1,13 @@
 #!/bin/bash
-# dashboard_orchestrator.sh – Start/stop/status the Flask dashboard
+# dashboard_orchestrator.sh – Start/stop/status the Mycelial web dashboard
+# (the static webapp/ PWA - chat + agent status/grow/progress cards -
+# served via webapp/serve.sh. This previously pointed at a dashboard/app.py
+# Flask app that was never actually created.)
 
 PID_FILE="$HOME/mycelial/state/dashboard.pid"
 LOG_FILE="$HOME/mycelial/logs/dashboard.log"
-APP_PATH="$HOME/mycelial/dashboard/app.py"
-VENV_PYTHON="$HOME/mycelial/venv/bin/python"
+WEBAPP_DIR="$HOME/mycelial/webapp"
+PORT="${DASHBOARD_PORT:-8090}"
 
 case "$1" in
     start)
@@ -12,10 +15,10 @@ case "$1" in
             echo "✅ Dashboard already running (PID $(cat "$PID_FILE"))."
             exit 0
         fi
-        cd "$HOME/mycelial/dashboard"
-        nohup "$VENV_PYTHON" app.py > "$LOG_FILE" 2>&1 &
+        cd "$WEBAPP_DIR" || exit 1
+        nohup python3 -m http.server "$PORT" --bind 0.0.0.0 > "$LOG_FILE" 2>&1 &
         echo $! > "$PID_FILE"
-        echo "✅ Dashboard started (PID $(cat "$PID_FILE"))."
+        echo "✅ Dashboard started on port $PORT (PID $(cat "$PID_FILE"))."
         ;;
     stop)
         if [ -f "$PID_FILE" ]; then
@@ -24,7 +27,7 @@ case "$1" in
             echo "✅ Dashboard stopped."
         else
             echo "⚠️ No PID file found. Attempting pkill..."
-            pkill -f "app.py"
+            pkill -f "http.server $PORT"
         fi
         ;;
     status)

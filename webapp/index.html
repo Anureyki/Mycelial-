@@ -14,6 +14,10 @@
 <body>
 <header>
   <h1>Mycelial</h1>
+  <nav id="tabs">
+    <button id="chatTabBtn" class="tab active" type="button">Chat</button>
+    <button id="dashboardTabBtn" class="tab" type="button">Dashboard</button>
+  </nav>
   <button id="settingsBtn" aria-label="Settings">&#9881;</button>
 </header>
 
@@ -24,6 +28,13 @@
 </div>
 
 <main id="log" aria-live="polite"></main>
+
+<section id="dashboard" class="hidden" aria-live="polite">
+  <button id="refreshDashboard" type="button">Refresh</button>
+  <div class="card" id="systemCard"><h2>System</h2><p class="card-body">Loading...</p></div>
+  <div class="card" id="growCard"><h2>Grow</h2><p class="card-body">Loading...</p></div>
+  <div class="card" id="progressCard"><h2>Progress</h2><p class="card-body">Loading...</p></div>
+</section>
 
 <form id="composer">
   <textarea id="promptInput" placeholder="Ask Mycelial..." rows="1" autocomplete="off"></textarea>
