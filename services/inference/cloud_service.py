@@ -4,6 +4,8 @@ Cloud reasoning provider – routes prompts to the Anthropic API.
 Used by the Inference Service to serve Claude models alongside local Ollama models.
 """
 import os
+import base64
+import mimetypes
 
 from anthropic import Anthropic
 
@@ -28,19 +30,43 @@ def _get_client():
     return _client
 
 
-def reason(prompt, model=None, max_tokens=1024):
-    """Send a prompt to Claude and return a normalized result dict."""
+def reason(prompt, model=None, max_tokens=1024, image_path=None):
+    """Send a prompt to Claude and return a normalized result dict.
+
+    image_path is optional and used only by low-confidence-escalation callers
+    (e.g. Grow Agent's perception pipeline) - the primary reasoning path stays
+    text-only local inference; this is the rarely-hit verification tier."""
     client = _get_client()
     if client is None:
         return {"error": "ANTHROPIC_API_KEY not set"}
 
     model_id = ANTHROPIC_MODELS.get(model, model or "claude-sonnet-5")
 
+    content = prompt
+    if image_path:
+        try:
+            with open(image_path, "rb") as f:
+                image_bytes = f.read()
+            media_type = mimetypes.guess_type(image_path)[0] or "image/jpeg"
+            content = [
+                {
+                    "type": "image",
+                    "source": {
+                        "type": "base64",
+                        "media_type": media_type,
+                        "data": base64.b64encode(image_bytes).decode("utf-8"),
+                    },
+                },
+                {"type": "text", "text": prompt},
+            ]
+        except Exception as e:
+            return {"error": f"Could not read image for vision call: {e}"}
+
     try:
         response = client.messages.create(
             model=model_id,
             max_tokens=max_tokens,
-            messages=[{"role": "user", "content": prompt}],
+            messages=[{"role": "user", "content": content}],
         )
     except Exception as e:
         return {"error": str(e)}

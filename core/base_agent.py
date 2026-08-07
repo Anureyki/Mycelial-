@@ -477,6 +477,52 @@ class AgentBase:
         namespace = f"agent_{self.agent_id}"
         return self.send_a2a("hermes", "knowledge_search", [namespace, query])
 
+    # ---------- Checkpoint / resume ----------
+    # Long-running work (multi-step reasoning, multi-agent chains, model loads)
+    # shouldn't assume an uninterrupted session - a restart or timeout mid-task
+    # loses nothing if the agent periodically checkpoints its own progress here.
+    # Built on the same store_own_memory/retrieve_own_memory mechanism every
+    # agent already uses, so it works identically for all of them for free.
+    def _unwrap_memory_value(self, retrieval_result):
+        if not isinstance(retrieval_result, dict):
+            return None
+        result = retrieval_result.get("result")
+        if not isinstance(result, dict):
+            return None
+        entry = result.get("entry")
+        if not isinstance(entry, dict):
+            return None
+        return entry.get("value")
+
+    def save_checkpoint(self, checkpoint_id, state, status="in_progress"):
+        """status: 'in_progress' | 'completed' | 'failed'. Call periodically during
+        long-running work with whatever's needed to resume (e.g. which step
+        finished, partial results so far)."""
+        record = {
+            "checkpoint_id": checkpoint_id,
+            "status": status,
+            "state": state,
+            "updated_at": datetime.now().isoformat(),
+        }
+        self.store_own_memory(f"checkpoint_{checkpoint_id}", json.dumps(record))
+        return record
+
+    def load_checkpoint(self, checkpoint_id):
+        """Returns the last saved checkpoint dict, or None if none exists yet."""
+        raw = self._unwrap_memory_value(self.retrieve_own_memory(f"checkpoint_{checkpoint_id}"))
+        if not raw:
+            return None
+        try:
+            return json.loads(raw)
+        except Exception:
+            return None
+
+    def clear_checkpoint(self, checkpoint_id):
+        """Call once work completes successfully - a lingering 'in_progress'
+        checkpoint after real completion would make a future resume attempt
+        redo already-finished work."""
+        self.forget_own_memory(f"checkpoint_{checkpoint_id}")
+
     def forget_own_memory(self, key):
         """Delete memory from the agent's own namespace."""
         namespace = f"agent_{self.agent_id}"

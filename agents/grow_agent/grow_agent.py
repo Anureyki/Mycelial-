@@ -19,6 +19,16 @@ try:
 except ImportError:
     NUMPY_AVAILABLE = False
 
+# Perception pipeline (YOLO + ViT + OCR, fused) - optional, degrades gracefully
+# if the vision deps aren't installed. See services/vision/plant_perception.py.
+sys.path.insert(0, os.path.join(project_root, "services", "vision"))
+try:
+    from plant_perception import fuse_observations, LOW_CONFIDENCE_THRESHOLD
+    VISION_AVAILABLE = True
+except ImportError:
+    VISION_AVAILABLE = False
+    LOW_CONFIDENCE_THRESHOLD = 0.55
+
 # ---------------------------
 # VPD calculation (if needed)
 # ---------------------------
@@ -103,7 +113,7 @@ class GrowAgent(AgentBase):
                 "add_reminder", "list_reminders", "complete_reminder",
                 "add_note", "list_notes",
                 "evaluate_reservoir", "evaluate_leaf", "get_grow_history", "evaluate_growth_stage",
-                "remove_plant",
+                "remove_plant", "list_vision_corrections",
                 "web_search",
                 "prepare_dataset", "fit_linear_model", "predict_linear"
             ],
@@ -274,6 +284,81 @@ class GrowAgent(AgentBase):
         except Exception as e:
             self.log(f"Inference fallback failed ({e}); defaulting to 'warning' classification.")
         return None
+
+    def _call_inference_vision(self, prompt, image_path, timeout=60):
+        """Verification tier for low-confidence local perception results - rarely
+        hit (only when the YOLO+ViT fusion's overall_confidence is low), so the
+        per-call API cost stays small even though it's a cloud model."""
+        try:
+            resp = requests.post(
+                "http://localhost:8005/reason",
+                json={"prompt": prompt, "model": "claude-sonnet-5", "image_path": image_path},
+                timeout=timeout
+            )
+            if resp.status_code == 200:
+                data = resp.json()
+                if data.get("success"):
+                    return data.get("result", "")
+                self.log(f"Vision verification call failed: {data.get('message', data.get('error'))}")
+        except Exception as e:
+            self.log(f"Vision verification call failed: {e}")
+        return None
+
+    def _describe_fused_observation(self, fused):
+        """Turns a fuse_observations() dict into the kind of plain-text symptom
+        description evaluate_leaf/evaluate_growth_stage's existing keyword/LLM
+        classification logic already expects - reuses that logic unchanged
+        rather than building a parallel image-aware classifier."""
+        parts = []
+        health = fused.get("health")
+        if health and health.get("label"):
+            parts.append(f"{health['label']} (model confidence {health['confidence']:.2f})")
+        for d in fused.get("detections", [])[:5]:
+            parts.append(f"{d['label']} detected (confidence {d['confidence']:.2f})")
+        if fused.get("text"):
+            parts.append("visible text: " + "; ".join(fused["text"][:3]))
+        return "; ".join(parts) if parts else "No clear signal from the perception pipeline."
+
+    def _load_vision_correction_index(self):
+        raw = self._unwrap_value(self.retrieve_own_memory("vision_correction_index"))
+        if not raw:
+            return []
+        try:
+            index = json.loads(raw)
+            return index if isinstance(index, list) else []
+        except Exception:
+            return []
+
+    def _get_all_vision_corrections(self):
+        corrections = []
+        for cid in self._load_vision_correction_index():
+            raw = self._unwrap_value(self.retrieve_own_memory(cid))
+            if not raw:
+                continue
+            try:
+                corrections.append(json.loads(raw))
+            except Exception:
+                pass
+        return corrections
+
+    def _log_vision_correction(self, image_path, fused, verification_result):
+        record = {
+            "id": f"vision_correction_{int(time.time())}",
+            "timestamp": datetime.now().isoformat(),
+            "image_path": image_path,
+            "fused_observation": fused,
+            "verification_result": verification_result,
+            "verified": False,
+        }
+        self.store_own_memory(record["id"], json.dumps(record))
+        index_raw = self._unwrap_value(self.retrieve_own_memory("vision_correction_index"))
+        try:
+            index = json.loads(index_raw) if index_raw else []
+        except Exception:
+            index = []
+        index.append(record["id"])
+        self.store_own_memory("vision_correction_index", json.dumps(index))
+        return record
 
     def _classify_by_keywords(self, text, stable_keywords, critical_keywords):
         """Returns 'stable', 'critical', or None (inconclusive - caller should escalate)."""
@@ -673,6 +758,9 @@ class GrowAgent(AgentBase):
             self.forget_own_memory(f"plant_{plant_id}")
             return {"result": f"Removed {plant_id} from tracking"}
 
+        elif task == "list_vision_corrections":
+            return {"result": self._get_all_vision_corrections()}
+
         elif task == "evaluate_reservoir":
             plant_id = args.get("plant_id", "current_plant")
             stage = args.get("stage") or "seedling"
@@ -828,7 +916,42 @@ class GrowAgent(AgentBase):
             symptom_text = args.get("symptom_text") or args.get("notes") or ""
             airflow_impact = args.get("airflow_impact")
             disease_signs = args.get("disease_signs")
+            photo_path = args.get("photo_path")
             photo_refs = args.get("photo_refs", [])
+            vision_note = None
+
+            if photo_path and VISION_AVAILABLE and not symptom_text:
+                # Checkpointed: model loading + inference + a possible escalation call
+                # can take a while, and shouldn't have to redo the (possibly slow) fusion
+                # pass if the process restarts mid-evaluation - a retry on the same
+                # plant/photo resumes from whatever was last saved instead of redoing it.
+                checkpoint_id = f"evaluate_leaf_{plant_id}_{os.path.basename(photo_path)}"
+                checkpoint = self.load_checkpoint(checkpoint_id)
+                if checkpoint and checkpoint.get("status") == "completed":
+                    fused = checkpoint["state"]["fused"]
+                    symptom_text = checkpoint["state"]["symptom_text"]
+                    vision_note = checkpoint["state"]["vision_note"] + " (resumed from checkpoint)"
+                else:
+                    fused = fuse_observations(photo_path)
+                    self.save_checkpoint(checkpoint_id, {"fused": fused}, status="in_progress")
+                    if "error" not in fused:
+                        if fused["low_confidence"]:
+                            verification = self._call_inference_vision(
+                                "Describe this plant leaf's health in one or two sentences - color, "
+                                "spots, damage, pests, or disease signs. Be specific and concrete.",
+                                photo_path
+                            )
+                            correction = self._log_vision_correction(photo_path, fused, verification)
+                            symptom_text = verification or self._describe_fused_observation(fused)
+                            vision_note = f"Local perception confidence was low ({fused['overall_confidence']:.2f}) - escalated to verification model. Logged as {correction['id']} for future retraining."
+                        else:
+                            symptom_text = self._describe_fused_observation(fused)
+                            vision_note = f"Derived from local YOLO+ViT perception pipeline (confidence {fused['overall_confidence']:.2f})."
+                        self.save_checkpoint(checkpoint_id, {"fused": fused, "symptom_text": symptom_text, "vision_note": vision_note}, status="completed")
+                    else:
+                        vision_note = f"Perception pipeline unavailable: {fused['error']}"
+                if fused.get("text"):
+                    photo_refs = photo_refs + [photo_path]
 
             lowered = symptom_text.lower()
             airflow_flag = bool(airflow_impact) and str(airflow_impact).lower() not in ("false", "no", "none", "0")
@@ -865,6 +988,8 @@ class GrowAgent(AgentBase):
 
             recommendation = self._make_recommendation(observation, reason, action, confidence)
             recommendation["classification"] = classification
+            if vision_note:
+                recommendation["vision_note"] = vision_note
 
             record = {
                 "id": f"leaf_eval_{int(time.time())}",
@@ -932,6 +1057,37 @@ class GrowAgent(AgentBase):
             plant_id = args.get("plant_id", "current_plant")
             morphology_text = args.get("morphology_text") or args.get("notes") or ""
             species = args.get("species") or self._get_species_for_plant(plant_id)
+            photo_path = args.get("photo_path")
+            vision_note = None
+
+            if photo_path and VISION_AVAILABLE and not morphology_text:
+                # Checkpointed, same idiom as evaluate_leaf above - a retry on the
+                # same plant/photo resumes instead of redoing the fusion pass.
+                checkpoint_id = f"evaluate_growth_stage_{plant_id}_{os.path.basename(photo_path)}"
+                checkpoint = self.load_checkpoint(checkpoint_id)
+                if checkpoint and checkpoint.get("status") == "completed":
+                    morphology_text = checkpoint["state"]["morphology_text"]
+                    vision_note = checkpoint["state"]["vision_note"] + " (resumed from checkpoint)"
+                else:
+                    fused = fuse_observations(photo_path)
+                    self.save_checkpoint(checkpoint_id, {"fused": fused}, status="in_progress")
+                    if "error" not in fused:
+                        if fused["low_confidence"]:
+                            verification = self._call_inference_vision(
+                                "Describe this plant's growth stage in one or two sentences - leaf "
+                                "shape/count, node structure, presence of pistils/hairs or flower sites. "
+                                "Be specific and concrete.",
+                                photo_path
+                            )
+                            correction = self._log_vision_correction(photo_path, fused, verification)
+                            morphology_text = verification or self._describe_fused_observation(fused)
+                            vision_note = f"Local perception confidence was low ({fused['overall_confidence']:.2f}) - escalated to verification model. Logged as {correction['id']} for future retraining."
+                        else:
+                            morphology_text = self._describe_fused_observation(fused)
+                            vision_note = f"Derived from local YOLO+ViT perception pipeline (confidence {fused['overall_confidence']:.2f})."
+                        self.save_checkpoint(checkpoint_id, {"fused": fused, "morphology_text": morphology_text, "vision_note": vision_note}, status="completed")
+                    else:
+                        vision_note = f"Perception pipeline unavailable: {fused['error']}"
 
             if plant_id == "current_plant":
                 current_stage = self._unwrap_value(self.retrieve_own_memory("current_stage")) or "unknown"
@@ -997,6 +1153,8 @@ class GrowAgent(AgentBase):
 
             recommendation = self._make_recommendation(observation, reason, action, confidence)
             recommendation["classification"] = classification
+            if vision_note:
+                recommendation["vision_note"] = vision_note
 
             record = {
                 "id": f"stage_eval_{int(time.time())}",

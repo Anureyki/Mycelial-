@@ -100,12 +100,17 @@ def run_claude_inference(model, prompt):
         "timestamp": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())
     }
 
-def run_inference(model, prompt):
+def run_inference(model, prompt, image_path=None):
     """Route to the appropriate inference backend."""
     if model in ANTHROPIC_MODELS or model.startswith("claude"):
-        return run_claude_inference(model, prompt)
-    else:
-        return run_ollama_inference(model, prompt)
+        return run_claude_inference(model, prompt, image_path=image_path)
+    if image_path:
+        return {
+            "success": False,
+            "error": "vision_unsupported",
+            "message": "Image input requires a Claude model - local Ollama models here are text-only.",
+        }
+    return run_ollama_inference(model, prompt)
 
 @app.route("/health", methods=["GET"])
 def health():
@@ -116,11 +121,12 @@ def reason_endpoint():
     data = request.json or {}
     prompt = data.get("prompt", "")
     model = data.get("model") or DEFAULT_MODEL
+    image_path = data.get("image_path")
     if not prompt:
         return jsonify({"success": False, "error": "missing_prompt", "message": "No prompt provided"}), 400
 
-    result = run_inference(model, prompt)
+    result = run_inference(model, prompt, image_path=image_path)
     return jsonify(result)
 
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=8005, debug=False)
+    app.run(host="127.0.0.1", port=8005, debug=False)
