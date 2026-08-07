@@ -47,7 +47,7 @@ class AccountingAgent(AgentBase):
                 "find_relationships_by_project",
                 "refresh_cache", "query_cache", "cache_stats", "cache_manifest",
                 "map_transaction_roles", "log_transaction", "check_ledger_integrity",
-                "map_assets_liabilities", "prepare_documentation_package"
+                "map_assets_liabilities", "prepare_documentation_package", "check_budget_constraint"
             ],
             role="agent"
         )
@@ -595,6 +595,37 @@ class AccountingAgent(AgentBase):
                 "liabilities": liabilities,
                 "related_transactions": transactions,
                 "note": "Assets = instruments where entity is creditor/beneficiary; liabilities = instruments where entity is debtor. Derived from stored data, not a reconciled balance sheet.",
+                "disclaimer": DISCLAIMER,
+            }
+
+        elif task == "check_budget_constraint":
+            # Direct-consultation endpoint for other agents (e.g. Grow Agent
+            # checking before recommending a purchase) - returns a minimal
+            # structured constraint, never the underlying transaction/ledger
+            # data. Callers get a yes/no and a number, not 10,000 lines of
+            # transactions to interpret themselves.
+            if not isinstance(args, dict) or args.get("estimated_cost") is None:
+                return {"error": "Usage: {estimated_cost, [purpose], [entity]}", "disclaimer": DISCLAIMER}
+            try:
+                estimated_cost = float(args["estimated_cost"])
+            except (TypeError, ValueError):
+                return {"error": "estimated_cost must be a number", "disclaimer": DISCLAIMER}
+            entity = args.get("entity")
+            transactions = self._get_transactions(entity)
+            if not transactions:
+                return {
+                    "within_budget": None,
+                    "available_discretionary": None,
+                    "note": "No logged transactions to evaluate against - insufficient data for a budget constraint check.",
+                    "disclaimer": DISCLAIMER,
+                }
+            income = sum(float(t["amount"]) for t in transactions if str(t.get("category", "")).lower() in ("income", "revenue"))
+            expenses = sum(float(t["amount"]) for t in transactions if str(t.get("category", "")).lower() not in ("income", "revenue"))
+            available_discretionary = income - expenses
+            return {
+                "within_budget": estimated_cost <= available_discretionary,
+                "available_discretionary": round(available_discretionary, 2),
+                "note": f"Estimated cost {estimated_cost} vs {available_discretionary:.2f} available (from {len(transactions)} logged transaction(s)).",
                 "disclaimer": DISCLAIMER,
             }
 

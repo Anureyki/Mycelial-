@@ -82,6 +82,11 @@ LEAF_PRODUCTIVE_KEYWORDS = ("green", "vigorous", "healthy")
 # ---------------------------
 STAGE_ORDER = ["germination", "seedling", "early_veg", "veg", "flower"]
 
+# Above this, a purchase recommendation is held for explicit user decision
+# (via Boss's threshold check) rather than auto-narrated as resolved, even
+# if Accounting confirms it's within budget.
+PURCHASE_ESCALATION_THRESHOLD = 50.0
+
 DECLINE_KEYWORDS = (
     "rot", "decompos", "damping off", "wilt", "collapse", "mushy stem",
     "mold", "fungal infection", "necrosis spreading", "black stem", "dying"
@@ -113,7 +118,7 @@ class GrowAgent(AgentBase):
                 "add_reminder", "list_reminders", "complete_reminder",
                 "add_note", "list_notes",
                 "evaluate_reservoir", "evaluate_leaf", "get_grow_history", "evaluate_growth_stage",
-                "remove_plant", "list_vision_corrections",
+                "remove_plant", "list_vision_corrections", "recommend_purchase",
                 "web_search",
                 "prepare_dataset", "fit_linear_model", "predict_linear"
             ],
@@ -760,6 +765,41 @@ class GrowAgent(AgentBase):
 
         elif task == "list_vision_corrections":
             return {"result": self._get_all_vision_corrections()}
+
+        elif task == "recommend_purchase":
+            # Direct A2A consultation with Accounting Agent - no Boss mediation
+            # needed for the consult itself, only for the threshold decision
+            # below. Sends a minimal structured request and gets back a minimal
+            # structured constraint, never the underlying ledger.
+            if not isinstance(args, dict) or not args.get("item") or args.get("estimated_cost") is None:
+                return {"error": "Usage: {item, estimated_cost, [reason]}"}
+            item = args["item"]
+            estimated_cost = args["estimated_cost"]
+            reason = args.get("reason", "")
+
+            budget_response = self.send_a2a("accounting_agent", "check_budget_constraint", {
+                "estimated_cost": estimated_cost,
+                "purpose": f"grow: {item}"
+            })
+            constraint = budget_response.get("result", {}) if isinstance(budget_response, dict) else {}
+            if not isinstance(constraint, dict) or "error" in constraint:
+                constraint = {"within_budget": None, "available_discretionary": None, "note": "Budget check unavailable."}
+
+            requires_escalation = (
+                estimated_cost > PURCHASE_ESCALATION_THRESHOLD or constraint.get("within_budget") is False
+            )
+
+            recommendation = self._make_recommendation(
+                observation=f"Recommending {item} ({reason})." if reason else f"Recommending {item}.",
+                reason=constraint.get("note", "No budget data available."),
+                action=f"Purchase {item} (~${estimated_cost:.2f})." if not requires_escalation else f"Hold for your decision - {item} (~${estimated_cost:.2f}) needs explicit sign-off.",
+                confidence="high" if constraint.get("within_budget") is not None else "low"
+            )
+            recommendation["item"] = item
+            recommendation["estimated_cost"] = estimated_cost
+            recommendation["budget_constraint"] = constraint
+            recommendation["requires_escalation"] = requires_escalation
+            return {"result": recommendation}
 
         elif task == "evaluate_reservoir":
             plant_id = args.get("plant_id", "current_plant")

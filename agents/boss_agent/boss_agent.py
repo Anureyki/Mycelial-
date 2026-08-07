@@ -142,6 +142,25 @@ class BossAgent(AgentBase):
                 if len(summaries) > 1:
                     lines.append(f"({len(summaries)} recent sessions on record - ask for more detail if you want the full history.)")
                 return " ".join(lines) if lines else "Nothing notable to report from the last session."
+            elif task == "purchase_recommendation":
+                inner = result.get("result", {}) if isinstance(result, dict) else {}
+                rec = inner.get("result", {}) if isinstance(inner, dict) else {}
+                if not isinstance(rec, dict) or not rec:
+                    return "I couldn't put together a recommendation for that."
+                constraint = rec.get("budget_constraint", {}) or {}
+                item = rec.get("item", "that")
+                cost = rec.get("estimated_cost", 0)
+                if rec.get("requires_escalation"):
+                    if constraint.get("within_budget") is False:
+                        return (
+                            f"I'd recommend picking up {item} (about ${cost:.2f}), but there isn't enough "
+                            f"discretionary budget available right now (${constraint.get('available_discretionary', 0):.2f} free). "
+                            f"Let me know if you want to move funds or go ahead anyway."
+                        )
+                    return f"I'd recommend {item} (about ${cost:.2f}) - that's above the amount I'll auto-approve, so I'm holding it for your go-ahead."
+                if constraint.get("within_budget") is True:
+                    return f"I'd recommend picking up {item} - about ${cost:.2f}, and that's within your discretionary budget."
+                return f"I'd recommend {item} (about ${cost:.2f}). {constraint.get('note', '')}".strip()
             elif task == "grow_status":
                 status_resp = result.get("status", {}) if isinstance(result, dict) else {}
                 if isinstance(status_resp, dict) and "error" in status_resp:
@@ -676,6 +695,26 @@ class BossAgent(AgentBase):
                 response = self.send_a2a("maintenance_agent", "check_errors", {"org": org, "project": project})
                 text = self._format_response("check_errors", response, "maintenance_agent")
                 return {"result": text}
+
+            # --- Purchase recommendation (Grow consults Accounting directly;
+            # Boss's only role here is the threshold-escalation gate) ---
+            # Checked before the generic Grow branch below since phrasing like
+            # "should I buy more nutrients" contains "nutrient" and would
+            # otherwise be swallowed by the broader plant/status branch.
+            if any(keyword in prompt.lower() for keyword in ("should i buy", "can i afford", "worth buying", "recommend buying", "recommend a purchase")):
+                self.log("User asking about a purchase – grow_agent consulting accounting_agent directly")
+                cost_match = re.search(r'\$?(\d+(?:\.\d+)?)', prompt)
+                estimated_cost = float(cost_match.group(1)) if cost_match else 0.0
+                item = re.sub(
+                    r'^(should i buy|can i afford|worth buying|recommend buying|recommend a purchase of)?\s*',
+                    '', prompt, flags=re.IGNORECASE
+                )
+                item = re.sub(r'\$?\d+(\.\d+)?', '', item).strip(" ?.!")
+                item = re.sub(r'\b(for|at|costs?|around|about)\s*$', '', item, flags=re.IGNORECASE).strip(" ?.!")
+                item = item or "this item"
+                response = self.send_a2a("grow_agent", "recommend_purchase", {"item": item, "estimated_cost": estimated_cost})
+                text = self._format_response("purchase_recommendation", response, "grow_agent")
+                return {"result": text, "evidence": response}
 
             # --- Grow Agent (plant/garden monitoring) ---
             if any(keyword in prompt.lower() for keyword in ("plant", "grow ", "garden", "reservoir", "seedling", "nutrient")):
