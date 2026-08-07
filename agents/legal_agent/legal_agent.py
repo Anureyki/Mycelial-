@@ -46,44 +46,25 @@ class LegalAgent(AgentBase):
                 "find_relationships_by_project",
                 "refresh_cache", "query_cache", "cache_stats", "cache_manifest",
                 "search_cases", "monitor_user", "monitor_docket",
-                "log_lesson", "query_lessons", "list_lessons"
+                "log_lesson", "query_lessons", "list_lessons",
+                "analyze_case"
             ],
             role="agent"
         )
-        # CAG: source docs live in knowledge_base/legal_agent/{statutes,irs_publications,
-        # dictionary,contract_templates}/. Poll every 5 min for changed/added files; a
-        # cron-driven refresh_cache task call works too (see hooks/ for the pattern).
         self.init_cag(cache_ttl=86400, watch_interval=300)
         self.subscribe_project_events()
         self.log("Legal Agent initialized (extraction/structuring only - no legal advice).")
 
     def on_project_event(self, project_id, event_type, data, sender):
-        """Example event-driven reaction: when a project moves to the 'negotiation'
-        stage, Legal Agent notes that contract terms should be reviewed. This is
-        illustrative logging, not an autonomous drafting pipeline - see the demo
-        workflow in scripts/demo_workflow.py."""
-        stage = data.get("data", {}).get("stage") if isinstance(data, dict) else None
-        if event_type == "stage" and stage == "negotiation":
-            self.log_to_audit(
-                "project_event_reaction",
-                f"project={project_id}: negotiation stage reached - contract terms review needed",
-                level="info", metadata={"namespace": f"project_{project_id}"}
-            )
-            self.log(f"Reacting to project {project_id} entering negotiation: flagging for contract review")
-        else:
-            self.log(f"Project event {project_id}/{event_type} from {sender} (no reaction configured)")
+        self.log(f"Project event {project_id}/{event_type} from {sender}")
 
-    # ---------- CAG-backed lookups ----------
     def _extract_citations(self, text):
         return list({m.group(0).strip() for m in STATUTE_CITATION_RE.finditer(text)})
 
     def _cache_context_for(self, text, top_k=3):
-        """Cache-first context gathering: pull relevant statute/definition snippets
-        for the given text, to ground the extraction prompt. Never calls inference."""
         hits = self.query_cache(text[:1000], top_k=top_k)
         for citation in self._extract_citations(text):
             hits.extend(self.query_cache(citation, top_k=1))
-        # de-dupe by doc id, keep highest score
         best = {}
         for h in hits:
             if h["id"] not in best or h["score"] > best[h["id"]]["score"]:
@@ -93,12 +74,11 @@ class LegalAgent(AgentBase):
     def _format_context_block(self, hits):
         if not hits:
             return ""
-        lines = ["Relevant cached reference material (from the local knowledge base - use only if applicable, do not assume it is exhaustive):"]
+        lines = ["Relevant cached reference material:"]
         for h in hits:
             lines.append(f"- [{h['category'] or 'general'}/{h['id']}] {h['snippet']}")
         return "\n".join(lines) + "\n\n"
 
-    # ---------- Model / Inference helpers ----------
     def _get_model_for_task(self, requirements="reasoning"):
         try:
             resp = requests.post(MODEL_SERVICE_URL, json={"requirements": requirements}, timeout=3)
@@ -111,8 +91,6 @@ class LegalAgent(AgentBase):
             return DEFAULT_MODEL
 
     def _call_inference(self, prompt, model_name=None, timeout=60):
-        """Call the Inference Service, falling back to an alternate model
-        via the Model Service if the primary call is slow or unavailable."""
         if model_name is None:
             model_name = self._get_model_for_task("reasoning")
         try:
@@ -125,13 +103,12 @@ class LegalAgent(AgentBase):
                 data = resp.json()
                 if data.get("success"):
                     return data.get("result", "")
-            self.log(f"Inference Service returned an error (HTTP {resp.status_code}); trying fallback model.")
+            self.log(f"Inference Service returned error (HTTP {resp.status_code}); trying fallback.")
         except requests.exceptions.Timeout:
-            self.log("Inference Service timed out; trying fallback model.")
+            self.log("Inference Service timed out; trying fallback.")
         except Exception as e:
-            self.log(f"Inference Service call failed ({e}); trying fallback model.")
+            self.log(f"Inference Service call failed ({e}); trying fallback.")
 
-        # Small fallback: ask the Model Service for a lighter/alternate model and retry once
         fallback_model = self._get_model_for_task("lightweight")
         if fallback_model and fallback_model != model_name:
             try:
@@ -150,9 +127,7 @@ class LegalAgent(AgentBase):
         self.log("Inference unavailable after fallback attempt.")
         return ""
 
-    # ---------- JSON extraction helpers ----------
     def _safe_parse_json(self, raw):
-        """Return (parsed_dict_or_None, parse_error_bool)."""
         if not raw or not raw.strip():
             return None, True
         text = re.sub(r'^```(?:json)?\s*|\s*```$', '', raw.strip(), flags=re.IGNORECASE | re.MULTILINE).strip()
@@ -169,16 +144,12 @@ class LegalAgent(AgentBase):
         return None, True
 
     def _extract_relationship(self, contract_text, model=None):
-        """Cache-Augmented Generation: pull relevant statute/definition context from the
-        local knowledge base first, then ask the Inference Service to extract structured
-        fields from contract text, grounded in that context where applicable."""
         cache_hits = self._cache_context_for(contract_text)
         context_block = self._format_context_block(cache_hits)
         prompt = (
             context_block +
             "You are a contract-structuring assistant. Read the contract text below and "
-            "extract ONLY the following fields as a single valid JSON object (no markdown "
-            "fences, no commentary, no legal analysis or opinions):\n"
+            "extract ONLY the following fields as a single valid JSON object:\n"
             "{\n"
             '  "entity_a": "",\n'
             '  "entity_b": "",\n'
@@ -194,12 +165,8 @@ class LegalAgent(AgentBase):
             '  "governing_law": "",\n'
             '  "applicable_statutes": []\n'
             "}\n"
-            "If a field cannot be determined from the text, use an empty string or empty "
-            "list. Only extract and structure what is explicitly stated in the text - do not "
-            "infer facts, and do not provide legal advice or opinions. If the cached reference "
-            "material above names a governing statute that matches this contract, you may use it "
-            "for the governing_law/applicable_statutes fields - otherwise leave them as stated in "
-            "the contract text itself.\n\n"
+            "If a field cannot be determined, use empty string or empty list. "
+            "Only extract what is explicitly stated.\n\n"
             f"Contract text:\n\"\"\"\n{contract_text}\n\"\"\"\n\nJSON:"
         )
         raw = self._call_inference(prompt, model_name=model)
@@ -216,9 +183,65 @@ class LegalAgent(AgentBase):
         parsed["disclaimer"] = DISCLAIMER
         return parsed
 
-    # ---------- Relationship storage helpers ----------
+    def _extract_case(self, case_text, model=None):
+        prompt = (
+            "You are a legal case analyst. Read the following court case text and extract "
+            "ONLY the following fields as a single valid JSON object:\n"
+            "{\n"
+            '  "parties": [{"name": "", "role": ""}],\n'
+            '  "legal_issues": [],\n'
+            '  "ruling": "",\n'
+            '  "date": "",\n'
+            '  "court": "",\n'
+            '  "jurisdiction": "",\n'
+            '  "cited_statutes": [],\n'
+            '  "summary": ""\n'
+            "}\n"
+            "If a field cannot be determined, use an empty string or empty list. "
+            "Only extract what is explicitly stated.\n\n"
+            f"Case text:\n\"\"\"\n{case_text[:8000]}\n\"\"\"\n\nJSON:"
+        )
+        raw = self._call_inference(prompt, model_name=model)
+        parsed, parse_error = self._safe_parse_json(raw)
+
+        if parsed is None:
+            parsed = {
+                "parties": [],
+                "legal_issues": [],
+                "ruling": "",
+                "date": "",
+                "court": "",
+                "jurisdiction": "",
+                "cited_statutes": [],
+                "summary": ""
+            }
+
+        if not isinstance(parsed.get("parties"), list):
+            parsed["parties"] = []
+        if not isinstance(parsed.get("legal_issues"), list):
+            parsed["legal_issues"] = []
+        if not isinstance(parsed.get("cited_statutes"), list):
+            parsed["cited_statutes"] = []
+
+        cleaned = {
+            "parties": parsed.get("parties", []),
+            "legal_issues": parsed.get("legal_issues", []),
+            "ruling": parsed.get("ruling", "") or "",
+            "date": parsed.get("date", "") or "",
+            "court": parsed.get("court", "") or "",
+            "jurisdiction": parsed.get("jurisdiction", "") or "",
+            "cited_statutes": parsed.get("cited_statutes", []),
+            "summary": parsed.get("summary", "") or "",
+            "parse_error": parse_error,
+            "disclaimer": DISCLAIMER
+        }
+
+        if parse_error:
+            cleaned["raw_model_output"] = raw
+
+        return cleaned
+
     def _get_stored_value(self, retrieval_result):
-        """Unwrap the A2A response from retrieve_own_memory down to the stored value string."""
         if not isinstance(retrieval_result, dict):
             return None
         result = retrieval_result.get("result")
@@ -255,9 +278,6 @@ class LegalAgent(AgentBase):
             return None
 
     def _push_to_graph(self, doc, project_id):
-        """Best-effort: keep Boss's relationship graph in sync when a relationship is
-        created. Failure here doesn't fail the caller - the record is already stored
-        in this agent's own memory regardless."""
         try:
             graph_rel = from_legacy_fields(doc, domain="legal", project_id=project_id)
             resp = self.send_a2a("boss_agent", "update_graph", {
@@ -270,12 +290,7 @@ class LegalAgent(AgentBase):
         except Exception as e:
             self.log(f"Graph push failed for {doc.get('id')}: {e}")
 
-    # ---------- CourtListener helpers ----------
     def _unwrap_tool_result(self, tool_response, disclaimer=False):
-        """Unwrap a call_tool() response down to the JSON payload the MCP tool
-        returned. call_tool() can fail at three levels: the Tool Service itself
-        ({"error": ...} at the top), the MCP JSON-RPC call ({"result": {"error": ...}}),
-        or the tool's own handler (JSON-encoded {"error": ...} in the text content)."""
         if not isinstance(tool_response, dict):
             out = {"error": f"Unexpected tool response: {tool_response}"}
         elif tool_response.get("error"):
@@ -295,7 +310,6 @@ class LegalAgent(AgentBase):
             out["disclaimer"] = DISCLAIMER
         return out
 
-    # ---------- Task handling ----------
     def handle_task(self, task, args, sender):
         self.log(f"Task {task} from {sender}")
 
@@ -309,37 +323,22 @@ class LegalAgent(AgentBase):
             term = args[0]
             hits = self.query_cache(term, top_k=3)
             if hits:
-                return {
-                    "term": term,
-                    "source": "cache",
-                    "results": hits,
-                    "disclaimer": DISCLAIMER
-                }
-            # Cache had nothing - try a public web search via PQA Agent before
-            # falling back to raw inference (which can hallucinate).
+                return {"term": term, "source": "cache", "results": hits, "disclaimer": DISCLAIMER}
             web = self.search_public(f"{term} legal definition statute")
             web_result = web.get("result") if isinstance(web, dict) else None
             if web_result and not (isinstance(web_result, dict) and web_result.get("error")):
                 return {
                     "term": term,
                     "source": web.get("source", "pqa_agent"),
-                    "note": "No match in the local knowledge base cache; this answer came from "
-                            "a public web search and is NOT verified against a cached authoritative source.",
+                    "note": "Public web search result, not verified.",
                     "answer": web_result,
                     "disclaimer": DISCLAIMER
                 }
-
-            # Web search unavailable/empty - fall back to inference, but say so plainly.
-            raw = self._call_inference(
-                f"Briefly define or explain the following legal term or statute citation, "
-                f"in one or two sentences, without giving legal advice: {term}"
-            )
+            raw = self._call_inference(f"Briefly define or explain: {term}, without giving legal advice.")
             return {
                 "term": term,
                 "source": "inference_fallback",
-                "note": "No match in the local knowledge base cache or public web search; this "
-                        "answer was generated by the model and is NOT verified against a cached "
-                        "authoritative source.",
+                "note": "Generated by model, not verified.",
                 "answer": raw,
                 "disclaimer": DISCLAIMER
             }
@@ -455,14 +454,12 @@ class LegalAgent(AgentBase):
                 doc1, doc2 = json.loads(raw1), json.loads(raw2)
             except Exception as e:
                 return {"error": f"Failed to parse stored relationships: {e}", "disclaimer": DISCLAIMER}
-
             diff_fields = RELATIONSHIP_FIELDS
             differences = {}
             for field in diff_fields:
                 v1, v2 = doc1.get(field), doc2.get(field)
                 if v1 != v2:
                     differences[field] = {"relationship_1": v1, "relationship_2": v2}
-
             return {
                 "relationship_1_id": id1,
                 "relationship_2_id": id2,
@@ -552,6 +549,26 @@ class LegalAgent(AgentBase):
                 ],
                 "disclaimer": DISCLAIMER,
             }
+
+        elif task == "analyze_case":
+            case_text = args.get("case_text") if isinstance(args, dict) else args[0] if args else None
+            if not case_text:
+                return {"error": "Missing case_text", "disclaimer": DISCLAIMER}
+            if isinstance(args, dict) and args.get("file_path"):
+                try:
+                    with open(args["file_path"], "r") as f:
+                        case_text = f.read()
+                except Exception as e:
+                    return {"error": f"Could not read file: {e}", "disclaimer": DISCLAIMER}
+            analysis = self._extract_case(case_text)
+            case_id = f"case_{uuid.uuid4().hex[:12]}"
+            self.store_own_memory(case_id, json.dumps(analysis))
+            index = self._load_index() or []
+            if case_id not in index:
+                index.append(case_id)
+                self.store_own_memory("case_index", json.dumps(index))
+            analysis["case_id"] = case_id
+            return analysis
 
         else:
             return {"error": f"Unknown task: {task}", "disclaimer": DISCLAIMER}
