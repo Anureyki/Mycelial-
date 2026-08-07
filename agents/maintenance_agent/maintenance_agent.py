@@ -29,6 +29,16 @@ CONTAINER_REGISTRY = {
     "pihole-unbound": "/opt/pihole",
 }
 
+# Docker cleanup: anything whose tag mentions the platform itself, or that's
+# referenced by this repo's own compose/Dockerfile, counts as "major infra or
+# an active project" and gets held for confirmation rather than auto-cleared -
+# even with zero running containers (e.g. a rebuildable-but-not-currently-
+# running deployment image). Pure build byproducts (dangling <none> layers,
+# build cache) are never "the thing itself," so those are always safe to clear.
+KNOWN_PROJECT_MARKERS = ("mycelial",)
+REPO_ROOT = os.path.expanduser("~/mycelial")
+PROJECT_REFERENCE_FILES = ("docker-compose.yml", "Dockerfile")
+
 class MaintenanceAgent(AgentBase):
     def __init__(self):
         super().__init__(
@@ -38,7 +48,8 @@ class MaintenanceAgent(AgentBase):
                 "check_disk", "clean_logs", "check_updates",
                 "apply_updates", "rollback", "check_errors",
                 "check_container_updates", "update_container",
-                "sample_telemetry", "get_telemetry_history", "predict_disk_full"
+                "sample_telemetry", "get_telemetry_history", "predict_disk_full",
+                "scan_unused_docker_resources", "run_cleanup_routine"
             ],
             role="system_health"
         )
@@ -111,6 +122,51 @@ class MaintenanceAgent(AgentBase):
                 pass
         samples.sort(key=lambda s: s.get("timestamp", ""))
         return samples[-limit:] if limit else samples
+
+    # ---------- Docker cleanup: classify before clearing ----------
+    def _docker_images(self):
+        try:
+            result = subprocess.run(
+                ["docker", "images", "--format", "{{.Repository}}:{{.Tag}}|{{.ID}}|{{.Size}}"],
+                capture_output=True, text=True, timeout=30
+            )
+            images = []
+            for line in result.stdout.splitlines():
+                parts = line.split("|")
+                if len(parts) == 3:
+                    images.append({"tag": parts[0], "id": parts[1], "size": parts[2]})
+            return images
+        except Exception as e:
+            self.log(f"docker images failed: {e}")
+            return []
+
+    def _docker_containers_using(self, image_id):
+        try:
+            result = subprocess.run(
+                ["docker", "ps", "-a", "--filter", f"ancestor={image_id}", "--format", "{{.ID}}"],
+                capture_output=True, text=True, timeout=15
+            )
+            return [c for c in result.stdout.splitlines() if c.strip()]
+        except Exception:
+            return []
+
+    def _is_project_referenced(self, tag):
+        lowered = tag.lower()
+        if any(marker in lowered for marker in KNOWN_PROJECT_MARKERS):
+            return True
+        repo_name = tag.split(":")[0]
+        if repo_name in CONTAINER_REGISTRY:
+            return True
+        for fname in PROJECT_REFERENCE_FILES:
+            fpath = os.path.join(REPO_ROOT, fname)
+            if os.path.exists(fpath):
+                try:
+                    with open(fpath) as f:
+                        if repo_name in f.read():
+                            return True
+                except Exception:
+                    pass
+        return False
 
     def handle_task(self, task, args, sender):
         self.log(f"Task: {task} from {sender}")
@@ -206,6 +262,63 @@ class MaintenanceAgent(AgentBase):
 
         elif task == "rollback":
             return {"result": "Rollback not implemented"}
+
+        elif task == "scan_unused_docker_resources":
+            images = self._docker_images()
+            safe_to_clear = []
+            needs_confirmation = []
+            for img in images:
+                if img["tag"] == "<none>:<none>":
+                    safe_to_clear.append(img)
+                    continue
+                if self._docker_containers_using(img["id"]):
+                    continue  # actively used - leave alone entirely
+                if self._is_project_referenced(img["tag"]):
+                    needs_confirmation.append(img)
+                else:
+                    safe_to_clear.append(img)
+            return {
+                "result": {
+                    "safe_to_clear": safe_to_clear,
+                    "needs_confirmation": needs_confirmation,
+                    "note": (
+                        f"{len(safe_to_clear)} unused item(s) look like disposable test/build artifacts; "
+                        f"{len(needs_confirmation)} reference known project infrastructure and need a go-ahead."
+                    ),
+                }
+            }
+
+        elif task == "run_cleanup_routine":
+            scan = self.handle_task("scan_unused_docker_resources", {}, sender).get("result", {})
+            cleared = []
+            for img in scan.get("safe_to_clear", []):
+                try:
+                    subprocess.run(["docker", "image", "rm", img["id"]], capture_output=True, timeout=30)
+                    cleared.append(img["tag"])
+                except Exception as e:
+                    self.log(f"Failed to clear {img['tag']}: {e}")
+            try:
+                subprocess.run(["docker", "builder", "prune", "-f"], capture_output=True, timeout=60)
+            except Exception as e:
+                self.log(f"Builder prune failed: {e}")
+
+            needs_confirmation = scan.get("needs_confirmation", [])
+            self.log_to_audit(
+                "CLEANUP_ROUTINE", f"Auto-cleared {len(cleared)} unused image(s); {len(needs_confirmation)} held for confirmation",
+                metadata={"cleared": cleared}
+            )
+            return {
+                "result": {
+                    "cleared": cleared,
+                    "requires_escalation": len(needs_confirmation) > 0,
+                    "needs_confirmation": needs_confirmation,
+                    "note": (
+                        f"Cleared {len(cleared)} disposable item(s)." +
+                        (f" {len(needs_confirmation)} more reference known project infrastructure - let me know if you want those removed too."
+                         if needs_confirmation else "")
+                    ),
+                }
+            }
 
         elif task == "check_container_updates":
             container = args.get("container")

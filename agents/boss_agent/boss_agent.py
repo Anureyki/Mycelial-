@@ -142,6 +142,22 @@ class BossAgent(AgentBase):
                 if len(summaries) > 1:
                     lines.append(f"({len(summaries)} recent sessions on record - ask for more detail if you want the full history.)")
                 return " ".join(lines) if lines else "Nothing notable to report from the last session."
+            elif task == "cleanup_routine":
+                inner = result.get("result", {}) if isinstance(result, dict) else {}
+                data = inner.get("result", {}) if isinstance(inner, dict) else {}
+                if not isinstance(data, dict) or not data:
+                    return "I couldn't run the cleanup routine right now."
+                cleared = data.get("cleared", [])
+                needs_confirmation = data.get("needs_confirmation", [])
+                lines = []
+                if cleared:
+                    lines.append(f"Cleared {len(cleared)} unused test/build item(s) that weren't tied to anything active.")
+                else:
+                    lines.append("Nothing unused to clear right now.")
+                if needs_confirmation:
+                    names = ", ".join(img.get("tag", "?") for img in needs_confirmation[:5])
+                    lines.append(f"I also found {len(needs_confirmation)} unused item(s) that reference known project infrastructure ({names}) - let me know if you want those removed too, since they're rebuildable but not currently disposable-looking.")
+                return " ".join(lines)
             elif task == "purchase_recommendation":
                 inner = result.get("result", {}) if isinstance(result, dict) else {}
                 rec = inner.get("result", {}) if isinstance(inner, dict) else {}
@@ -695,6 +711,13 @@ class BossAgent(AgentBase):
                 response = self.send_a2a("maintenance_agent", "check_errors", {"org": org, "project": project})
                 text = self._format_response("check_errors", response, "maintenance_agent")
                 return {"result": text}
+
+            # --- Disk/cleanup routine ---
+            if any(keyword in prompt.lower() for keyword in ("clean up", "cleanup", "free up disk", "free up space", "clear unused", "disk space")):
+                self.log("User asking about disk cleanup – delegating to maintenance_agent")
+                response = self.send_a2a("maintenance_agent", "run_cleanup_routine", {}, timeout=90)
+                text = self._format_response("cleanup_routine", response, "maintenance_agent")
+                return {"result": text, "evidence": response}
 
             # --- Purchase recommendation (Grow consults Accounting directly;
             # Boss's only role here is the threshold-escalation gate) ---
