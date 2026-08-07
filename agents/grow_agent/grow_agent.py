@@ -103,6 +103,7 @@ class GrowAgent(AgentBase):
                 "add_reminder", "list_reminders", "complete_reminder",
                 "add_note", "list_notes",
                 "evaluate_reservoir", "evaluate_leaf", "get_grow_history", "evaluate_growth_stage",
+                "remove_plant",
                 "web_search",
                 "prepare_dataset", "fit_linear_model", "predict_linear"
             ],
@@ -659,6 +660,18 @@ class GrowAgent(AgentBase):
 
         elif task == "list_notes":
             return {"result": self._get_all_notes()}
+
+        elif task == "remove_plant":
+            plant_id = args.get("plant_id")
+            if not plant_id or plant_id == "current_plant":
+                return {"error": "Provide a non-current_plant plant_id to remove"}
+            index = self._load_plant_index()
+            if plant_id not in index:
+                return {"error": f"Unknown plant_id: {plant_id}"}
+            index.remove(plant_id)
+            self.store_own_memory("plant_index", json.dumps(index))
+            self.forget_own_memory(f"plant_{plant_id}")
+            return {"result": f"Removed {plant_id} from tracking"}
 
         elif task == "evaluate_reservoir":
             plant_id = args.get("plant_id", "current_plant")

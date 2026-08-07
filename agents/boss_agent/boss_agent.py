@@ -118,6 +118,57 @@ class BossAgent(AgentBase):
                     return result["result"]
                 else:
                     return "Repo summary available."
+            elif task == "grow_status":
+                if "error" in result:
+                    return f"Grow Agent error: {result['error']}"
+                inner = result.get("result", result)
+                if isinstance(inner, dict) and "error" in inner:
+                    return f"Grow Agent error: {inner['error']}"
+                r = inner.get("result", inner) if isinstance(inner, dict) else {}
+                if not isinstance(r, dict) or not r:
+                    return "Grow Agent didn't return any status data."
+
+                stage = r.get("current_stage", "unknown")
+                strain = r.get("current_strain") or "an unspecified strain"
+                germ = r.get("germination_date")
+                lines = [f"Your plant ({strain}) is in the {stage} stage" + (f", germinated {germ}." if germ else ".")]
+
+                nutrients = r.get("current_nutrients")
+                if isinstance(nutrients, dict) and nutrients.get("nutrients"):
+                    n_str = ", ".join(f"{k} {v}" for k, v in nutrients["nutrients"].items())
+                    lines.append(f"Current nutrient recipe ({nutrients.get('stage', stage)}): {n_str}.")
+
+                for p in r.get("other_plants") or []:
+                    lines.append(
+                        f"Also tracking {p.get('strain', p.get('plant_id'))}: "
+                        f"{p.get('stage', 'unknown')} stage, germinated {p.get('germination_date', 'unknown date')}."
+                    )
+
+                notes = r.get("notes") or []
+                if notes:
+                    lines.append(f"Latest note: {notes[-1].get('text')}")
+
+                reminders = r.get("pending_reminders") or []
+                if reminders:
+                    reminder_str = "; ".join(f"{rem.get('title')} (due {rem.get('target_date')})" for rem in reminders)
+                    lines.append(f"Pending reminders: {reminder_str}")
+                else:
+                    lines.append("No pending reminders.")
+
+                return "\n".join(lines)
+            elif task == "system_status":
+                alive = result.get("alive", [])
+                dead = result.get("dead", [])
+                total = result.get("total_registered", 0)
+                projects = result.get("projects", [])
+                lines = [f"{len(alive)} of {total} registered agents are up: {', '.join(alive) if alive else 'none'}."]
+                if dead:
+                    lines.append(f"Not responding: {', '.join(dead)}.")
+                if projects:
+                    lines.append(f"Active projects tracked: {', '.join(projects)}.")
+                else:
+                    lines.append("No projects currently tracked in the relationship graph.")
+                return "\n".join(lines)
             else:
                 return json.dumps(result, indent=2)
         if isinstance(result, list):
@@ -182,6 +233,46 @@ class BossAgent(AgentBase):
             self.log(f"answer_question: graph lookup failed: {e}")
             return []
         return [r["id"] for r in rows if r["id"] and r["id"].lower() in prompt_lower]
+
+    def _get_system_status(self):
+        """Aggregate live health across every registered agent, plus any
+        active projects tracked in the relationship graph."""
+        try:
+            resp = requests.post(
+                "http://localhost:8004/execute",
+                json={"task": "list_agents", "args": [], "sender": self.agent_id},
+                timeout=5
+            )
+            agents = resp.json().get("result", []) if resp.status_code == 200 else []
+        except Exception as e:
+            self.log(f"system_status: registry lookup failed: {e}")
+            agents = []
+
+        alive, dead = [], []
+        for agent in agents:
+            agent_id = agent.get("agent_id")
+            url = agent.get("url")
+            if not agent_id or not url:
+                continue
+            try:
+                h = requests.get(f"{url}/health", timeout=2)
+                (alive if h.status_code == 200 else dead).append(agent_id)
+            except Exception:
+                dead.append(agent_id)
+
+        projects = []
+        try:
+            rows = self.graph.query_graph("SELECT id FROM nodes WHERE type = 'project' LIMIT 100")
+            projects = [r["id"] for r in rows if r.get("id")]
+        except Exception as e:
+            self.log(f"system_status: project graph lookup failed: {e}")
+
+        return {
+            "alive": sorted(alive),
+            "dead": sorted(dead),
+            "total_registered": len(agents),
+            "projects": projects
+        }
 
     def handle_task(self, task, args, sender):
         self.log(f"Task: {task} from {sender} with args: {args}")
@@ -401,6 +492,15 @@ class BossAgent(AgentBase):
                 text = self._format_response("fetch_repo", response, "coding_agent")
                 return {"result": text}
 
+            # --- System status (all agents + active projects) ---
+            if any(keyword in prompt.lower() for keyword in
+                   ("system status", "all agents", "agent status", "everything running", "how is everything", "status update")) \
+                    or prompt.lower().strip() in ("status", "status?"):
+                self.log("User asking for system-wide status – aggregating agent health + graph projects")
+                status = self._get_system_status()
+                text = self._format_response("system_status", status, "boss_agent")
+                return {"result": text}
+
             # --- Evaluation / Lint / Analyze code ---
             if any(keyword in prompt.lower() for keyword in ("evaluate", "lint", "analyze", "check code", "quality")):
                 self.log("User asking for code evaluation – delegating to coding_agent")
@@ -435,6 +535,13 @@ class BossAgent(AgentBase):
                     org = match.group(1)
                 response = self.send_a2a("maintenance_agent", "check_errors", {"org": org, "project": project})
                 text = self._format_response("check_errors", response, "maintenance_agent")
+                return {"result": text}
+
+            # --- Grow Agent (plant/garden monitoring) ---
+            if any(keyword in prompt.lower() for keyword in ("plant", "grow ", "garden", "reservoir", "seedling", "nutrient")):
+                self.log("User asking about the grow/plant – delegating to grow_agent")
+                response = self.send_a2a("grow_agent", "get_status", {})
+                text = self._format_response("grow_status", response, "grow_agent")
                 return {"result": text}
 
             # --- Web search ---
