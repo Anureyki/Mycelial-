@@ -263,14 +263,14 @@ class AgentBase:
             return jsonify({"status": "alive", "agent": self.agent_id})
 
         import threading
-        threading.Thread(target=lambda: self.app.run(host="0.0.0.0", port=self.port, debug=False, use_reloader=False)).start()
+        threading.Thread(target=lambda: self.app.run(host="127.0.0.1", port=self.port, debug=False, use_reloader=False)).start()
         self.log(f"HTTP server started on port {self.port}")
 
     def handle_task(self, task, args, sender):
         return f"Task '{task}' not implemented by {self.agent_id}"
 
     # ---------- A2A Client ----------
-    def send_a2a(self, target, task, args=None):
+    def send_a2a(self, target, task, args=None, timeout=120):
         agent_info = self._lookup_agent(target)
         if not agent_info:
             self.log(f"Unknown agent {target}")
@@ -288,8 +288,7 @@ class AgentBase:
             "id": str(uuid.uuid4())
         }
         try:
-            # Increased timeout to 120 seconds
-            response = requests.post(url + "/execute", json=payload, timeout=120)
+            response = requests.post(url + "/execute", json=payload, timeout=timeout)
             self.log(f"A2A sent to {target}: {task}")
             try:
                 return response.json()

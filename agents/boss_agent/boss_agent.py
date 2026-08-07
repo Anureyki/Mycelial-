@@ -4,6 +4,7 @@ import os
 import time
 import json
 import uuid
+import threading
 import requests
 import re
 from datetime import datetime
@@ -120,41 +121,59 @@ class BossAgent(AgentBase):
                 else:
                     return "Repo summary available."
             elif task == "grow_status":
-                if "error" in result:
-                    return f"Grow Agent error: {result['error']}"
-                inner = result.get("result", result)
-                if isinstance(inner, dict) and "error" in inner:
-                    return f"Grow Agent error: {inner['error']}"
-                r = inner.get("result", inner) if isinstance(inner, dict) else {}
+                status_resp = result.get("status", {}) if isinstance(result, dict) else {}
+                if isinstance(status_resp, dict) and "error" in status_resp:
+                    return "I couldn't reach the grow system right now."
+                status_inner = status_resp.get("result", status_resp) if isinstance(status_resp, dict) else {}
+                r = status_inner.get("result", status_inner) if isinstance(status_inner, dict) else {}
                 if not isinstance(r, dict) or not r:
-                    return "Grow Agent didn't return any status data."
+                    return "I don't have any grow data yet."
 
-                stage = r.get("current_stage", "unknown")
-                strain = r.get("current_strain") or "an unspecified strain"
-                germ = r.get("germination_date")
-                lines = [f"Your plant ({strain}) is in the {stage} stage" + (f", germinated {germ}." if germ else ".")]
+                history_resp = result.get("history", {}) if isinstance(result, dict) else {}
+                history_inner = history_resp.get("result", {}) if isinstance(history_resp, dict) else {}
+                history = history_inner.get("result", {}) if isinstance(history_inner, dict) else {}
+                timeline = history.get("timeline", []) if isinstance(history, dict) else []
+
+                # Lead with the most recent unresolved evaluation, if any - this is the
+                # "Your reservoir pH has been drifting..." style alert. The underlying
+                # observation/reason/action/confidence shape already carries everything
+                # needed to narrate this in plain language, with no agent/task names.
+                alert_line = None
+                for entry in reversed(timeline):
+                    etype = entry.get("type")
+                    data = entry.get("data", {}) if isinstance(entry, dict) else {}
+                    rec = data.get("recommendation", {}) if isinstance(data, dict) else {}
+                    if etype == "reservoir_eval" and rec.get("stability_band") in ("warning", "critical"):
+                        urgency = "I'd address this now" if rec.get("stability_band") == "critical" else "I recommend addressing it today"
+                        alert_line = f"{rec.get('observation', 'Something in the reservoir needs attention.')} {urgency}."
+                        break
+                    if etype == "leaf_eval" and rec.get("classification") == "problem":
+                        alert_line = f"{rec.get('observation', 'A leaf issue was spotted.')} {rec.get('action', '')}".strip()
+                        break
+                    if etype == "stage_eval" and rec.get("classification") in ("decline", "regression"):
+                        alert_line = f"{rec.get('observation', '')} {rec.get('action', '')}".strip()
+                        break
+
+                if alert_line:
+                    lines = [alert_line]
+                else:
+                    stage = r.get("current_stage", "unknown")
+                    strain = r.get("current_strain")
+                    plant_label = f"Your {strain}" if strain else "Your plant"
+                    lines = [f"{plant_label} is in the {stage} stage and everything looks stable."]
 
                 nutrients = r.get("current_nutrients")
                 if isinstance(nutrients, dict) and nutrients.get("nutrients"):
                     n_str = ", ".join(f"{k} {v}" for k, v in nutrients["nutrients"].items())
-                    lines.append(f"Current nutrient recipe ({nutrients.get('stage', stage)}): {n_str}.")
+                    lines.append(f"Current feed: {n_str}.")
 
                 for p in r.get("other_plants") or []:
-                    lines.append(
-                        f"Also tracking {p.get('strain', p.get('plant_id'))}: "
-                        f"{p.get('stage', 'unknown')} stage, germinated {p.get('germination_date', 'unknown date')}."
-                    )
-
-                notes = r.get("notes") or []
-                if notes:
-                    lines.append(f"Latest note: {notes[-1].get('text')}")
+                    lines.append(f"Also coming along: {p.get('strain', 'another plant')}, {p.get('stage', 'unknown')} stage.")
 
                 reminders = r.get("pending_reminders") or []
                 if reminders:
                     reminder_str = "; ".join(f"{rem.get('title')} (due {rem.get('target_date')})" for rem in reminders)
-                    lines.append(f"Pending reminders: {reminder_str}")
-                else:
-                    lines.append("No pending reminders.")
+                    lines.append(f"Also on your list: {reminder_str}.")
 
                 return "\n".join(lines)
             elif task == "system_status":
@@ -171,34 +190,32 @@ class BossAgent(AgentBase):
                     lines.append("No projects currently tracked in the relationship graph.")
                 return "\n".join(lines)
             elif task == "analyze_relationship_document":
-                project_id = result.get("project_id")
-                legal_resp = result.get("legal_result", {})
+                legal_resp = result.get("legal_result", {}) if isinstance(result, dict) else {}
                 legal_doc = legal_resp.get("result", {}) if isinstance(legal_resp, dict) else {}
-                accounting_resp = result.get("accounting_result", {})
+                accounting_resp = result.get("accounting_result", {}) if isinstance(result, dict) else {}
                 accounting_doc = accounting_resp.get("result", {}) if isinstance(accounting_resp, dict) else {}
 
-                lines = [f"Analyzed agreement (project: {project_id})."]
-                if isinstance(legal_doc, dict) and legal_doc.get("entity_a"):
-                    obligations = ", ".join(legal_doc.get("obligations", [])) or "none extracted"
+                has_legal = isinstance(legal_doc, dict) and legal_doc.get("entity_a")
+                has_financial = isinstance(accounting_doc, dict) and (accounting_doc.get("creditor") or accounting_doc.get("debtor"))
+
+                if not has_legal and not has_financial:
+                    return "I couldn't find a clear relationship or financial terms in that text - can you share more detail?"
+
+                lines = []
+                if has_legal:
+                    obligations = ", ".join(legal_doc.get("obligations", [])) or "none stated"
                     lines.append(
-                        f"Legal: {legal_doc.get('relationship_type', 'relationship')} between "
-                        f"{legal_doc.get('entity_a', '?')} and {legal_doc.get('entity_b', '?')}. "
-                        f"Obligations: {obligations}."
+                        f"This looks like a {legal_doc.get('relationship_type', 'relationship')} between "
+                        f"{legal_doc.get('entity_a', '?')} and {legal_doc.get('entity_b', '?')}, with obligations: {obligations}."
                     )
-                else:
-                    lines.append("Legal: no relationship could be extracted from the text.")
-                if isinstance(accounting_doc, dict) and (accounting_doc.get("creditor") or accounting_doc.get("debtor")):
+                if has_financial:
                     lines.append(
-                        f"Financial: {accounting_doc.get('instrument_type', 'instrument')} - "
-                        f"creditor {accounting_doc.get('creditor', '?')}, debtor {accounting_doc.get('debtor', '?')}, "
+                        f"Financially, it's a {accounting_doc.get('instrument_type', 'instrument')} - "
+                        f"{accounting_doc.get('creditor', '?')} is owed by {accounting_doc.get('debtor', '?')}, "
                         f"amount {accounting_doc.get('principal_amount', 'unspecified')}."
                     )
-                else:
-                    lines.append("Financial: no financial instrument could be extracted from the text.")
-                graph_view = result.get("combined_graph_view", {})
-                node_count = len(graph_view.get("nodes", [])) if isinstance(graph_view, dict) else 0
-                lines.append(f"Combined relationship graph now has {node_count} node(s) tracked for this project.")
-                return "\n".join(lines)
+                lines.append("I've recorded this so I can reference it if it comes up again.")
+                return " ".join(lines)
             else:
                 return json.dumps(result, indent=2)
         if isinstance(result, list):
@@ -399,8 +416,26 @@ class BossAgent(AgentBase):
             if not project_id:
                 project_id = f"doc_{uuid.uuid4().hex[:8]}"
 
-            legal_response = self.send_a2a("legal_agent", "model_relationship", [text, project_id])
-            accounting_response = self.send_a2a("accounting_agent", "parse_financial_instrument", [text, project_id])
+            # Run both extractions in parallel - each is a single local-model call, so
+            # running them sequentially roughly doubled latency for no reason. This was
+            # the direct cause of Anansi's A2A hop timing out under load even though
+            # the underlying work completed correctly when called directly.
+            results = {}
+
+            def _call(key, agent_id, agent_task):
+                # Local-model extraction can run well past the 120s default under
+                # load (observed directly this session) - give it real headroom
+                # since these two calls now run in parallel, not stacked.
+                results[key] = self.send_a2a(agent_id, agent_task, [text, project_id], timeout=240)
+
+            legal_thread = threading.Thread(target=_call, args=("legal", "legal_agent", "model_relationship"))
+            accounting_thread = threading.Thread(target=_call, args=("accounting", "accounting_agent", "parse_financial_instrument"))
+            legal_thread.start()
+            accounting_thread.start()
+            legal_thread.join()
+            accounting_thread.join()
+            legal_response = results.get("legal")
+            accounting_response = results.get("accounting")
             combined = self.graph.get_project_relationships(project_id)
 
             return {
@@ -553,7 +588,24 @@ class BossAgent(AgentBase):
                 self.log("User asking for system-wide status – aggregating agent health + graph projects")
                 status = self._get_system_status()
                 text = self._format_response("system_status", status, "boss_agent")
-                return {"result": text}
+                return {"result": text, "evidence": status}
+
+            # --- Cross-agent relationship document analysis (Legal + Accounting) ---
+            # Must come before the generic "analyze"/"evaluate" code-review branch below -
+            # its single-word "analyze" keyword was silently swallowing every prompt that
+            # started with "Analyze this agreement...", so this branch was unreachable via
+            # natural language despite working correctly when called directly. Specific
+            # multi-word phrases need to be checked before broad single-word ones.
+            if any(keyword in prompt.lower() for keyword in ("analyze this agreement", "analyze this contract", "obligations and financial consequences", "legal and financial consequences")):
+                self.log("User asking for combined legal+financial analysis – delegating to legal_agent + accounting_agent")
+                doc_text = re.sub(
+                    r"^(analyze this (agreement|contract)|what are the (obligations and )?"
+                    r"(legal and )?financial consequences( of)?)[:\s]*",
+                    "", prompt, flags=re.IGNORECASE
+                ).strip() or prompt
+                result = self.handle_task("analyze_relationship_document", {"text": doc_text}, sender)
+                text = self._format_response("analyze_relationship_document", result, "boss_agent")
+                return {"result": text, "evidence": result}
 
             # --- Evaluation / Lint / Analyze code ---
             if any(keyword in prompt.lower() for keyword in ("evaluate", "lint", "analyze", "check code", "quality")):
@@ -595,20 +647,9 @@ class BossAgent(AgentBase):
             if any(keyword in prompt.lower() for keyword in ("plant", "grow ", "garden", "reservoir", "seedling", "nutrient")):
                 self.log("User asking about the grow/plant – delegating to grow_agent")
                 response = self.send_a2a("grow_agent", "get_status", {})
-                text = self._format_response("grow_status", response, "grow_agent")
-                return {"result": text}
-
-            # --- Cross-agent relationship document analysis (Legal + Accounting) ---
-            if any(keyword in prompt.lower() for keyword in ("analyze this agreement", "analyze this contract", "obligations and financial consequences", "legal and financial consequences")):
-                self.log("User asking for combined legal+financial analysis – delegating to legal_agent + accounting_agent")
-                doc_text = re.sub(
-                    r"^(analyze this (agreement|contract)|what are the (obligations and )?"
-                    r"(legal and )?financial consequences( of)?)[:\s]*",
-                    "", prompt, flags=re.IGNORECASE
-                ).strip() or prompt
-                result = self.handle_task("analyze_relationship_document", {"text": doc_text}, sender)
-                text = self._format_response("analyze_relationship_document", result, "boss_agent")
-                return {"result": text}
+                history = self.send_a2a("grow_agent", "get_grow_history", {"plant_id": "current_plant"})
+                text = self._format_response("grow_status", {"status": response, "history": history}, "grow_agent")
+                return {"result": text, "evidence": {"status": response, "history": history}}
 
             # --- Web search ---
             if any(keyword in prompt.lower() for keyword in ("search", "find", "look up", "google")):

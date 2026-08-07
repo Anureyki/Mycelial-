@@ -14,6 +14,8 @@ from core.base_agent import AgentBase
 BASE = os.path.expanduser("~/mycelial")
 REGISTRY_FILE = os.path.join(BASE, "state", "registry.json")
 
+EVIDENCE_KEYWORDS = ("why", "how do you know", "show your work", "evidence", "proof", "based on what", "show evidence")
+
 class Anansi(AgentBase):
     def __init__(self):
         super().__init__(
@@ -86,7 +88,36 @@ class Anansi(AgentBase):
                     "source": "anansi"
                 }
 
-            return self.route_to_orchestrator(prompt, metadata)
+            # "default" so evidence-mode works out of the box for callers that
+            # don't manage their own session id (curl, the webapp client as-is).
+            session_id = metadata.get("session_id") or "default"
+
+            if any(kw in prompt.lower() for kw in EVIDENCE_KEYWORDS):
+                session = self.get_or_create_session(session_id)
+                last = session["conversation"][-1] if session["conversation"] else None
+                if last and last.get("evidence") is not None:
+                    self.log(f"Evidence request for session {session_id} - returning cached detail, not re-routing")
+                    return {"result": last["evidence"]}
+
+            response = self.route_to_orchestrator(prompt, metadata)
+
+            # Agents attach raw "evidence" alongside the narrated "result" so the
+            # architecture can stay behind the curtain by default - cache it here,
+            # strip it from what's actually shown, and only surface it if asked.
+            evidence = None
+            narrated = response
+            if isinstance(response, dict) and "result" in response:
+                inner = response.get("result")
+                if isinstance(inner, dict) and "evidence" in inner:
+                    evidence = inner.get("evidence")
+                    narrated = {"result": inner.get("result")}
+            self.append_to_session(session_id, {
+                "timestamp": datetime.now().isoformat(),
+                "prompt": prompt,
+                "response": narrated,
+                "evidence": evidence,
+            })
+            return narrated
 
         elif task == "voice":
             transcript = " ".join(args) if args else ""
@@ -104,7 +135,11 @@ class Anansi(AgentBase):
         self.log(f"Routing to {orchestrator}: {prompt[:50]}...")
         try:
             payload = json.dumps({"prompt": prompt, "metadata": metadata})
-            response = self.send_a2a(orchestrator, "process_request", [payload])
+            # Boss may fan requests out to multiple agents sequentially (e.g.
+            # analyze_relationship_document); give this hop more room than the
+            # 120s default so a multi-agent chain doesn't get reported as a
+            # failure when it actually completed on the Boss side.
+            response = self.send_a2a(orchestrator, "process_request", [payload], timeout=280)
             return response
         except Exception as e:
             self.log(f"Error routing to orchestrator: {e}")
