@@ -54,6 +54,43 @@ LEAF_PROBLEM_KEYWORDS = ("rot", "pest", "mold", "mildew", "disease", "infestatio
 LEAF_SENESCENT_KEYWORDS = ("yellow", "yellowing")
 LEAF_PRODUCTIVE_KEYWORDS = ("green", "vigorous", "healthy")
 
+# ---------------------------
+# Growth-stage morphology recognition.
+# STAGE_ORDER defines the forward progression used to detect unexpected
+# early transitions (e.g. environment-driven acceleration). DECLINE_KEYWORDS
+# catch disease/decomposition signals, which are never treated as forward
+# progress regardless of what else the description mentions.
+#
+# STAGE_MORPHOLOGY_CUES is keyed by species/crop and only hardcodes what's
+# actually evidenced by this grow (cannabis - net-cup hydro, GH Flora line,
+# serrated-leaf photos already reviewed). Any other species/crop (including
+# fungi) has no keyword table and falls straight to the LLM fallback in
+# _classify_growth_stage, which uses general botanical/mycological knowledge
+# instead of a hardcoded list this agent would have to be manually kept
+# "up to date" - that's the mechanism for staying current across organisms
+# without fabricating cues we have no evidence for.
+# ---------------------------
+STAGE_ORDER = ["germination", "seedling", "early_veg", "veg", "flower"]
+
+DECLINE_KEYWORDS = (
+    "rot", "decompos", "damping off", "wilt", "collapse", "mushy stem",
+    "mold", "fungal infection", "necrosis spreading", "black stem", "dying"
+)
+
+STAGE_MORPHOLOGY_CUES = {
+    "cannabis": {
+        "germination": ("cotyledon", "seed coat", "taproot only", "no true leaves"),
+        "seedling": ("single blade", "one-point leaf", "1-point leaf", "first true leaf",
+                     "3-point leaf", "3-prong", "three point leaf", "three-prong"),
+        "early_veg": ("5-point leaf", "5-prong", "five point leaf", "five-prong",
+                      "five-finger leaf", "5-finger leaf"),
+        "veg": ("7-point leaf", "7-prong", "seven point leaf", "9-point leaf",
+                "multiple nodes", "bushy growth", "vigorous vegetative growth"),
+        "flower": ("pistil", "white hair", "calyx", "calyxes", "flowering site",
+                   "bud site", "stretch", "trichome"),
+    }
+}
+
 class GrowAgent(AgentBase):
     def __init__(self):
         super().__init__(
@@ -65,7 +102,7 @@ class GrowAgent(AgentBase):
                 "set_germination_date", "set_current_nutrients",
                 "add_reminder", "list_reminders", "complete_reminder",
                 "add_note", "list_notes",
-                "evaluate_reservoir", "evaluate_leaf", "get_grow_history",
+                "evaluate_reservoir", "evaluate_leaf", "get_grow_history", "evaluate_growth_stage",
                 "web_search",
                 "prepare_dataset", "fit_linear_model", "predict_linear"
             ],
@@ -195,6 +232,28 @@ class GrowAgent(AgentBase):
                 pass
         return evals
 
+    def _load_stage_eval_index(self):
+        raw = self._unwrap_value(self.retrieve_own_memory("stage_eval_index"))
+        if not raw:
+            return []
+        try:
+            index = json.loads(raw)
+            return index if isinstance(index, list) else []
+        except Exception:
+            return []
+
+    def _get_all_stage_evals(self):
+        evals = []
+        for eval_id in self._load_stage_eval_index():
+            raw = self._unwrap_value(self.retrieve_own_memory(eval_id))
+            if not raw:
+                continue
+            try:
+                evals.append(json.loads(raw))
+            except Exception:
+                pass
+        return evals
+
     def _parse_numeric(self, value):
         try:
             return float(value)
@@ -245,6 +304,44 @@ class GrowAgent(AgentBase):
                 if verdict in lowered:
                     return verdict, "llm"
         return "warning", "llm_unavailable"
+
+    def _get_species_for_plant(self, plant_id):
+        if plant_id == "current_plant":
+            return self._unwrap_value(self.retrieve_own_memory("current_species")) or "cannabis"
+        plant = next((p for p in self._get_all_plants() if p.get("plant_id") == plant_id), None)
+        return (plant or {}).get("species") or "cannabis"
+
+    def _classify_stage_by_keywords(self, text, species):
+        if not text:
+            return None
+        cues = STAGE_MORPHOLOGY_CUES.get(species, {})
+        lowered = text.lower()
+        matched = [stage for stage, keywords in cues.items() if any(k in lowered for k in keywords)]
+        if not matched:
+            return None
+        # Multiple cues can match a mixed description (e.g. veg leaves + early
+        # pistils) - the most advanced matching stage wins.
+        return max(matched, key=lambda s: STAGE_ORDER.index(s))
+
+    def _classify_growth_stage(self, text, species):
+        """Returns (stage_or_None, method). method is 'keyword', 'llm', or 'llm_unavailable'."""
+        if not text:
+            return None, "none"
+        stage = self._classify_stage_by_keywords(text, species)
+        if stage is not None:
+            return stage, "keyword"
+        prompt = (
+            f"A {species} plant shows this morphology: \"{text}\". "
+            f"Which growth stage is it most likely in? Answer with exactly one word "
+            f"from this list: {', '.join(STAGE_ORDER)}."
+        )
+        result = self._call_inference(prompt)
+        if result:
+            lowered = result.strip().lower()
+            for candidate in STAGE_ORDER:
+                if candidate.replace("_", " ") in lowered or candidate in lowered:
+                    return candidate, "llm"
+        return None, "llm_unavailable"
 
     def _verdict_score(self, verdict):
         return {"stable": 2, "warning": 1, "critical": 0}.get(verdict, 1)
@@ -369,10 +466,31 @@ class GrowAgent(AgentBase):
         elif task == "transition_stage":
             new_stage = args.get("new_stage")
             notes = args.get("notes", "")
+            plant_id = args.get("plant_id", "current_plant")
             if not new_stage:
                 return {"error": "Missing new_stage"}
+
+            if plant_id != "current_plant":
+                plants = self._get_all_plants()
+                plant = next((p for p in plants if p.get("plant_id") == plant_id), None)
+                if not plant:
+                    return {"error": f"Unknown plant_id: {plant_id}"}
+                transition = {
+                    "timestamp": datetime.now().isoformat(),
+                    "plant_id": plant_id,
+                    "new_stage": new_stage,
+                    "notes": notes,
+                    "previous_stage": plant.get("stage", "unknown")
+                }
+                plant["stage"] = new_stage
+                plant["logged_at"] = datetime.now().isoformat()
+                self.store_own_memory(f"plant_{plant_id}", json.dumps(plant))
+                self.store_own_memory(f"stage_transition_{plant_id}_{int(time.time())}", json.dumps(transition))
+                return {"result": f"Stage transitioned to {new_stage} for {plant_id}", "transition": transition}
+
             transition = {
                 "timestamp": datetime.now().isoformat(),
+                "plant_id": "current_plant",
                 "new_stage": new_stage,
                 "notes": notes,
                 "previous_stage": self._unwrap_value(self.retrieve_own_memory("current_stage")) or "unknown"
@@ -432,6 +550,7 @@ class GrowAgent(AgentBase):
             plant_id = args.get("plant_id")
             if not date_str:
                 return {"error": "Missing date"}
+            species = args.get("species", "cannabis")
             if plant_id:
                 # Multi-plant tracking: store as its own record, keyed by plant_id,
                 # so it doesn't clobber the legacy single-plant fields below.
@@ -439,6 +558,7 @@ class GrowAgent(AgentBase):
                     "plant_id": plant_id,
                     "germination_date": date_str,
                     "strain": strain,
+                    "species": species,
                     "stage": args.get("stage", "seedling"),
                     "logged_at": datetime.now().isoformat()
                 }
@@ -449,6 +569,7 @@ class GrowAgent(AgentBase):
                 self.store_own_memory("plant_index", json.dumps(index))
                 return {"result": f"Germination date set for {plant_id}", "plant": record}
             self.store_own_memory("germination_date", date_str)
+            self.store_own_memory("current_species", species)
             if strain:
                 self.store_own_memory("current_strain", strain)
             return {"result": f"Germination date set to {date_str}", "strain": strain}
@@ -754,6 +875,7 @@ class GrowAgent(AgentBase):
                     "plant_id": "current_plant",
                     "germination_date": self._unwrap_value(self.retrieve_own_memory("germination_date")),
                     "strain": self._unwrap_value(self.retrieve_own_memory("current_strain")),
+                    "species": self._unwrap_value(self.retrieve_own_memory("current_species")) or "cannabis",
                     "stage": self._unwrap_value(self.retrieve_own_memory("current_stage")) or "unknown"
                 }
             else:
@@ -763,6 +885,7 @@ class GrowAgent(AgentBase):
             notes = [n for n in self._get_all_notes() if n.get("plant_id") == plant_id]
             reservoir_evals = [e for e in self._get_all_reservoir_evals() if e.get("plant_id") == plant_id]
             leaf_evals = [e for e in self._get_all_leaf_evals() if e.get("plant_id") == plant_id]
+            stage_evals = [e for e in self._get_all_stage_evals() if e.get("plant_id") == plant_id]
 
             timeline = []
             for r in readings:
@@ -773,6 +896,8 @@ class GrowAgent(AgentBase):
                 timeline.append({"type": "reservoir_eval", "timestamp": e.get("timestamp"), "data": e})
             for e in leaf_evals:
                 timeline.append({"type": "leaf_eval", "timestamp": e.get("timestamp"), "data": e})
+            for e in stage_evals:
+                timeline.append({"type": "stage_eval", "timestamp": e.get("timestamp"), "data": e})
             timeline.sort(key=lambda t: t.get("timestamp") or "")
 
             return {
@@ -784,10 +909,98 @@ class GrowAgent(AgentBase):
                         "readings": len(readings),
                         "notes": len(notes),
                         "reservoir_evals": len(reservoir_evals),
-                        "leaf_evals": len(leaf_evals)
+                        "leaf_evals": len(leaf_evals),
+                        "stage_evals": len(stage_evals)
                     }
                 }
             }
+
+        elif task == "evaluate_growth_stage":
+            plant_id = args.get("plant_id", "current_plant")
+            morphology_text = args.get("morphology_text") or args.get("notes") or ""
+            species = args.get("species") or self._get_species_for_plant(plant_id)
+
+            if plant_id == "current_plant":
+                current_stage = self._unwrap_value(self.retrieve_own_memory("current_stage")) or "unknown"
+            else:
+                plant = next((p for p in self._get_all_plants() if p.get("plant_id") == plant_id), None)
+                current_stage = (plant or {}).get("stage", "unknown")
+
+            lowered = morphology_text.lower()
+            is_decline = any(k in lowered for k in DECLINE_KEYWORDS)
+
+            transitioned = None
+            if is_decline:
+                classification = "decline"
+                observation = f"Morphology description flags a decline signal: \"{morphology_text}\"."
+                reason = "Disease/decomposition keywords detected - this is never treated as forward stage progress."
+                action = "Inspect immediately (roots, stem, affected tissue) before any other intervention; do not assume normal stage progression."
+                confidence = "high"
+            else:
+                inferred_stage, method = self._classify_growth_stage(morphology_text, species)
+                if inferred_stage is None:
+                    classification = "inconclusive"
+                    observation = f"No clear stage signal found in morphology description: \"{morphology_text}\"." if morphology_text else "No morphology description provided."
+                    reason = "Neither known keyword cues nor inference could determine a growth stage."
+                    action = "No change. Provide a more specific morphology description (leaf shape/count, presence of pistils/hairs, node count, etc.)."
+                    confidence = "low"
+                elif current_stage not in STAGE_ORDER:
+                    classification = inferred_stage
+                    observation = f"Morphology indicates {inferred_stage} (method: {method}); current tracked stage was '{current_stage}'."
+                    reason = "Current stage wasn't a recognized stage to compare against, so the morphology read is applied directly."
+                    action = f"Transition to {inferred_stage}."
+                    confidence = "high" if method == "keyword" else "medium"
+                    transition_result = self.handle_task("transition_stage", {
+                        "plant_id": plant_id, "new_stage": inferred_stage,
+                        "notes": f"Auto-transitioned from morphology evidence ({method}): {morphology_text}"
+                    }, sender)
+                    transitioned = transition_result.get("transition")
+                else:
+                    current_idx = STAGE_ORDER.index(current_stage)
+                    inferred_idx = STAGE_ORDER.index(inferred_stage)
+                    if inferred_idx > current_idx:
+                        classification = inferred_stage
+                        observation = f"Morphology indicates {inferred_stage} (method: {method}), ahead of tracked stage '{current_stage}'."
+                        reason = "Leaf/plant structure has progressed further than the calendar/nutrient-tracked stage - likely an environment-driven early transition."
+                        action = f"Transition to {inferred_stage}."
+                        confidence = "high" if method == "keyword" else "medium"
+                        transition_result = self.handle_task("transition_stage", {
+                            "plant_id": plant_id, "new_stage": inferred_stage,
+                            "notes": f"Auto-transitioned from morphology evidence ({method}): {morphology_text}"
+                        }, sender)
+                        transitioned = transition_result.get("transition")
+                    elif inferred_idx < current_idx:
+                        classification = "regression"
+                        observation = f"Morphology indicates {inferred_stage} (method: {method}), behind tracked stage '{current_stage}'."
+                        reason = "A stage regression is unusual and is not auto-applied - could be plant stress, damage, or a misread description."
+                        action = "Do not auto-transition backward. Investigate for plant stress, damage, or environmental cause before making any change."
+                        confidence = "medium" if method == "keyword" else "low"
+                    else:
+                        classification = inferred_stage
+                        observation = f"Morphology confirms tracked stage '{current_stage}' (method: {method})."
+                        reason = "No discrepancy between morphology and tracked stage."
+                        action = "No change needed."
+                        confidence = "high" if method == "keyword" else "medium"
+
+            recommendation = self._make_recommendation(observation, reason, action, confidence)
+            recommendation["classification"] = classification
+
+            record = {
+                "id": f"stage_eval_{int(time.time())}",
+                "timestamp": datetime.now().isoformat(),
+                "plant_id": plant_id,
+                "species": species,
+                "morphology_text": morphology_text,
+                "previous_stage": current_stage,
+                "transitioned": transitioned,
+                "recommendation": recommendation
+            }
+            self.store_own_memory(record["id"], json.dumps(record))
+            index = self._load_stage_eval_index()
+            index.append(record["id"])
+            self.store_own_memory("stage_eval_index", json.dumps(index))
+
+            return {"result": recommendation, "record": record}
 
         elif task == "web_search":
             query = args.get("query") if isinstance(args, dict) else args[0] if args else None
