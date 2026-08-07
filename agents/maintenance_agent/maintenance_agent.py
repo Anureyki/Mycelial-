@@ -4,11 +4,23 @@ import os
 import time
 import json
 import subprocess
+from datetime import datetime, timedelta
 
 project_root = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 sys.path.insert(0, project_root)
 
 from core.base_agent import AgentBase
+
+try:
+    import psutil
+    PSUTIL_AVAILABLE = True
+except ImportError:
+    PSUTIL_AVAILABLE = False
+
+# Below this many days-to-full at the current trend, a disk-space predictive
+# check flags it as worth attention now rather than waiting for it to
+# actually fill.
+DISK_FULL_WARNING_DAYS = 14
 
 # Docker-compose-managed containers this agent is allowed to maintain.
 # Deliberately a fixed whitelist (not a caller-supplied path) so update_container
@@ -25,7 +37,8 @@ class MaintenanceAgent(AgentBase):
             capabilities=[
                 "check_disk", "clean_logs", "check_updates",
                 "apply_updates", "rollback", "check_errors",
-                "check_container_updates", "update_container"
+                "check_container_updates", "update_container",
+                "sample_telemetry", "get_telemetry_history", "predict_disk_full"
             ],
             role="system_health"
         )
@@ -64,6 +77,41 @@ class MaintenanceAgent(AgentBase):
         except Exception as e:
             return {"stdout": "", "stderr": str(e), "returncode": 1}
 
+    # ---------- Telemetry storage ----------
+    def _unwrap_value(self, retrieval_result):
+        if not isinstance(retrieval_result, dict):
+            return None
+        result = retrieval_result.get("result")
+        if not isinstance(result, dict):
+            return None
+        entry = result.get("entry")
+        if not isinstance(entry, dict):
+            return None
+        return entry.get("value")
+
+    def _load_telemetry_index(self):
+        raw = self._unwrap_value(self.retrieve_own_memory("telemetry_index"))
+        if not raw:
+            return []
+        try:
+            index = json.loads(raw)
+            return index if isinstance(index, list) else []
+        except Exception:
+            return []
+
+    def _get_telemetry_history(self, limit=None):
+        samples = []
+        for key in self._load_telemetry_index():
+            raw = self._unwrap_value(self.retrieve_own_memory(key))
+            if not raw:
+                continue
+            try:
+                samples.append(json.loads(raw))
+            except Exception:
+                pass
+        samples.sort(key=lambda s: s.get("timestamp", ""))
+        return samples[-limit:] if limit else samples
+
     def handle_task(self, task, args, sender):
         self.log(f"Task: {task} from {sender}")
 
@@ -72,6 +120,70 @@ class MaintenanceAgent(AgentBase):
             expanded = os.path.expanduser(path)
             result = self._execute_local(f"df -h {expanded}")
             return {"result": result.get("stdout", "No output")}
+
+        elif task == "sample_telemetry":
+            if not PSUTIL_AVAILABLE:
+                return {"error": "psutil not installed"}
+            path = args.get("path", "/") if isinstance(args, dict) else "/"
+            disk = psutil.disk_usage(os.path.expanduser(path))
+            sample = {
+                "timestamp": datetime.now().isoformat(),
+                "path": path,
+                "cpu_percent": psutil.cpu_percent(interval=0.5),
+                "memory_percent": psutil.virtual_memory().percent,
+                "disk_percent": disk.percent,
+                "disk_free_gb": round(disk.free / (1024 ** 3), 2),
+                "disk_total_gb": round(disk.total / (1024 ** 3), 2),
+            }
+            key = f"telemetry_{int(time.time())}"
+            self.store_own_memory(key, json.dumps(sample))
+            index = self._load_telemetry_index()
+            index.append(key)
+            self.store_own_memory("telemetry_index", json.dumps(index))
+            return {"result": sample}
+
+        elif task == "get_telemetry_history":
+            limit = args.get("limit", 20) if isinstance(args, dict) else 20
+            return {"result": self._get_telemetry_history(limit=limit)}
+
+        elif task == "predict_disk_full":
+            # Deterministic trend scan, not a point-in-time reading - projects
+            # days-to-full from the change in free space across stored samples.
+            path = args.get("path", "/") if isinstance(args, dict) else "/"
+            history = [s for s in self._get_telemetry_history() if s.get("path") == path]
+            if len(history) < 2:
+                return {
+                    "result": {
+                        "path": path,
+                        "days_to_full": None,
+                        "note": "Not enough telemetry samples yet to compute a trend - need at least 2 (call sample_telemetry periodically).",
+                    }
+                }
+            first, last = history[0], history[-1]
+            elapsed_days = (datetime.fromisoformat(last["timestamp"]) - datetime.fromisoformat(first["timestamp"])).total_seconds() / 86400
+            free_change_gb = first["disk_free_gb"] - last["disk_free_gb"]  # positive = shrinking
+            if elapsed_days <= 0 or free_change_gb <= 0:
+                return {
+                    "result": {
+                        "path": path,
+                        "current_disk_percent": last["disk_percent"],
+                        "days_to_full": None,
+                        "warning": False,
+                        "note": "Disk usage isn't trending toward full based on recent samples.",
+                    }
+                }
+            shrink_rate_gb_per_day = free_change_gb / elapsed_days
+            days_to_full = last["disk_free_gb"] / shrink_rate_gb_per_day
+            warning = days_to_full <= DISK_FULL_WARNING_DAYS
+            return {
+                "result": {
+                    "path": path,
+                    "current_disk_percent": last["disk_percent"],
+                    "days_to_full": round(days_to_full, 1),
+                    "warning": warning,
+                    "note": f"At the current rate ({shrink_rate_gb_per_day:.2f} GB/day), disk will be full in ~{days_to_full:.1f} days.",
+                }
+            }
 
         elif task == "clean_logs":
             log_dir = args.get("log_dir", os.path.expanduser("~/mycelial/logs"))
