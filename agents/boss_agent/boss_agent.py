@@ -120,6 +120,28 @@ class BossAgent(AgentBase):
                     return result["result"]
                 else:
                     return "Repo summary available."
+            elif task == "progress_recap":
+                inner = result.get("result", {}) if isinstance(result, dict) else {}
+                summaries = inner.get("result", []) if isinstance(inner, dict) else []
+                if not summaries:
+                    return "I don't have any recorded progress to recap yet."
+                latest = summaries[-1]
+                lines = []
+                accomplished = latest.get("accomplished") or []
+                if accomplished:
+                    lines.append("Since we last checked in, I've " + "; ".join(accomplished).lower() + ".")
+                pending = latest.get("pending") or []
+                if pending:
+                    lines.append("Still pending: " + ", ".join(pending) + ".")
+                next_steps = latest.get("next_steps") or []
+                if next_steps:
+                    lines.append("Next up: " + ", ".join(next_steps) + ".")
+                depends_on = latest.get("depends_on")
+                if depends_on:
+                    lines.append(f"That's waiting on: {depends_on}.")
+                if len(summaries) > 1:
+                    lines.append(f"({len(summaries)} recent sessions on record - ask for more detail if you want the full history.)")
+                return " ".join(lines) if lines else "Nothing notable to report from the last session."
             elif task == "grow_status":
                 status_resp = result.get("status", {}) if isinstance(result, dict) else {}
                 if isinstance(status_resp, dict) and "error" in status_resp:
@@ -580,6 +602,18 @@ class BossAgent(AgentBase):
                 response = self.send_a2a("coding_agent", "fetch_repo", {"url": url})
                 text = self._format_response("fetch_repo", response, "coding_agent")
                 return {"result": text}
+
+            # --- Progress / session recap (from Hermes's session log) ---
+            # Checked before "System status" below since phrasing like "status
+            # update" could otherwise match the wrong branch - progress recap
+            # needs more specific phrasing to win.
+            if any(keyword in prompt.lower() for keyword in
+                   ("progress", "what have you accomplished", "what's been done", "what have you done",
+                    "what's pending", "what's next", "recap", "summary of work", "catch me up")):
+                self.log("User asking for a progress recap – reading Hermes's session log")
+                summary_resp = self.send_a2a("hermes", "get_progress_summary", {"limit": 3})
+                text = self._format_response("progress_recap", summary_resp, "hermes")
+                return {"result": text, "evidence": summary_resp}
 
             # --- System status (all agents + active projects) ---
             if any(keyword in prompt.lower() for keyword in

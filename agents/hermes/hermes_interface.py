@@ -28,7 +28,8 @@ class HermesInterface(AgentBase):
                 "update_memory",
                 "forget_memory",
                 "pin_memory",
-                "search_docs"          # NEW: librarian skill
+                "search_docs",          # NEW: librarian skill
+                "log_session_summary", "get_progress_summary"
             ]
         )
         self.log("🧠 Hermes (Memory Intelligence + Librarian) initialized.")
@@ -50,6 +51,30 @@ class HermesInterface(AgentBase):
                 return {"error": f"HTTP {resp.status_code}", "detail": resp.text}
         except Exception as e:
             return {"error": str(e)}
+
+    def _unwrap_memory_entry(self, retrieval_result):
+        # _call_memory_service hits the Memory Service's REST API directly (no
+        # A2A/HTTP round-trip through this agent itself), so the response is
+        # flat - {"entry": {...}, "success": ...} - unlike store_own_memory/
+        # retrieve_own_memory elsewhere in this codebase, which go through
+        # send_a2a and get an extra "result" wrapper from that HTTP hop.
+        if not isinstance(retrieval_result, dict):
+            return None
+        entry = retrieval_result.get("entry")
+        if not isinstance(entry, dict):
+            return None
+        return entry.get("value")
+
+    def _load_session_log_index(self):
+        raw = self._call_memory_service("retrieve", "GET", {"namespace": "session_log", "key": "session_log_index"})
+        value = self._unwrap_memory_entry(raw)
+        if not value:
+            return []
+        try:
+            index = json.loads(value)
+            return index if isinstance(index, list) else []
+        except Exception:
+            return []
 
     def _ask_policy(self, namespace):
         """Ask Policy Service if this namespace should be pinned."""
@@ -156,6 +181,50 @@ class HermesInterface(AgentBase):
                 "pin": False
             })
             return {"result": result, "library": library, "query": query}
+
+        # ----- NEW: session progress log -----
+        # Anansi narrates progress in plain language on request; this is the log
+        # of record it reads from - what got done, what's pending, what's next,
+        # and what a pending item is waiting on, per work session.
+        elif task == "log_session_summary":
+            if not isinstance(args, dict):
+                return {"error": "Usage: {session_id, accomplished, updated, started, pending, next_steps, [depends_on]}"}
+            session_id = args.get("session_id") or f"session_{int(time.time())}"
+            summary = {
+                "session_id": session_id,
+                "timestamp": datetime.now().isoformat(),
+                "accomplished": args.get("accomplished", []),
+                "updated": args.get("updated", []),
+                "started": args.get("started", []),
+                "pending": args.get("pending", []),
+                "next_steps": args.get("next_steps", []),
+                "depends_on": args.get("depends_on", ""),
+            }
+            entry_key = f"summary_{summary['timestamp']}"
+            self._call_memory_service("store", "POST", {
+                "namespace": "session_log", "key": entry_key, "value": json.dumps(summary), "pin": True
+            })
+            index = self._load_session_log_index()
+            index.append(entry_key)
+            self._call_memory_service("store", "POST", {
+                "namespace": "session_log", "key": "session_log_index", "value": json.dumps(index), "pin": True
+            })
+            self.log(f"Logged session summary for {session_id}")
+            return {"result": "Session summary logged", "summary": summary}
+
+        elif task == "get_progress_summary":
+            limit = args.get("limit", 5) if isinstance(args, dict) else 5
+            index = self._load_session_log_index()
+            summaries = []
+            for key in index[-limit:]:
+                raw = self._call_memory_service("retrieve", "GET", {"namespace": "session_log", "key": key})
+                value = self._unwrap_memory_entry(raw)
+                if value:
+                    try:
+                        summaries.append(json.loads(value))
+                    except Exception:
+                        pass
+            return {"result": summaries}
 
         else:
             return {"error": f"Unknown task: {task}"}
