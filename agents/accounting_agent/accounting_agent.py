@@ -45,7 +45,9 @@ class AccountingAgent(AgentBase):
                 "parse_financial_instrument", "assess_tax_liability", "track_account_balance",
                 "lookup", "list_relationships", "get_relationship", "find_relationships",
                 "find_relationships_by_project",
-                "refresh_cache", "query_cache", "cache_stats", "cache_manifest"
+                "refresh_cache", "query_cache", "cache_stats", "cache_manifest",
+                "map_transaction_roles", "log_transaction", "check_ledger_integrity",
+                "map_assets_liabilities", "prepare_documentation_package"
             ],
             role="agent"
         )
@@ -129,14 +131,17 @@ class AccountingAgent(AgentBase):
         if not raw or not raw.strip():
             return None, True
         text = re.sub(r'^```(?:json)?\s*|\s*```$', '', raw.strip(), flags=re.IGNORECASE | re.MULTILINE).strip()
+        # strict=False allows literal control characters (raw newlines, tabs) inside
+        # string values - small local models frequently wrap long field values across
+        # lines without escaping them as \n, which strict JSON parsing rejects outright.
         try:
-            return json.loads(text), False
+            return json.loads(text, strict=False), False
         except Exception:
             pass
         match = re.search(r'\{.*\}', text, re.DOTALL)
         if match:
             try:
-                return json.loads(match.group(0)), False
+                return json.loads(match.group(0), strict=False), False
             except Exception:
                 pass
         return None, True
@@ -273,6 +278,49 @@ class AccountingAgent(AgentBase):
                 self.log(f"Graph push for {doc.get('id')} did not confirm success: {resp}")
         except Exception as e:
             self.log(f"Graph push failed for {doc.get('id')}: {e}")
+
+    # ---------- Transaction ledger (new storage - kept local, not graph-pushed;
+    # transaction-level detail would flood a graph meant for durable relationships,
+    # not granular line items. Instruments keep pushing as they already do.) ----------
+    def _load_transaction_index(self):
+        raw = self._get_stored_value(self.retrieve_own_memory("transaction_index"))
+        if not raw:
+            return []
+        try:
+            index = json.loads(raw)
+            return index if isinstance(index, list) else []
+        except Exception:
+            return []
+
+    def _append_to_transaction_index(self, transaction_id):
+        index = self._load_transaction_index()
+        if transaction_id not in index:
+            index.append(transaction_id)
+            self.store_own_memory("transaction_index", json.dumps(index))
+
+    def _load_record(self, record_id):
+        raw = self._get_stored_value(self.retrieve_own_memory(record_id))
+        if not raw:
+            return None
+        try:
+            return json.loads(raw)
+        except Exception:
+            return None
+
+    def _get_transactions(self, entity_or_project=None):
+        transactions = []
+        for txn_id in self._load_transaction_index():
+            txn = self._load_record(txn_id)
+            if not txn:
+                continue
+            if entity_or_project:
+                needle = entity_or_project.strip().lower()
+                haystacks = [str(txn.get("payor", "")), str(txn.get("payee", "")), str(txn.get("project_id", ""))]
+                if not any(needle in h.lower() for h in haystacks if h):
+                    continue
+            transactions.append(txn)
+        transactions.sort(key=lambda t: t.get("timestamp", ""))
+        return transactions
 
     # ---------- Task handling ----------
     def handle_task(self, task, args, sender):
@@ -456,6 +504,144 @@ class AccountingAgent(AgentBase):
                 **parsed,
                 "disclaimer": DISCLAIMER
             }
+
+        elif task == "map_transaction_roles":
+            instrument_id = args.get("instrument_id") if isinstance(args, dict) else (args[0] if args else None)
+            if not instrument_id:
+                return {"error": "Usage: map_transaction_roles <instrument_id>", "disclaimer": DISCLAIMER}
+            doc = self._load_instrument(instrument_id)
+            if doc is None:
+                return {"error": f"Instrument {instrument_id} not found", "disclaimer": DISCLAIMER}
+            return {
+                "instrument_id": instrument_id,
+                "roles": {
+                    "payor": doc.get("debtor", ""),
+                    "payee": doc.get("creditor", ""),
+                    "custodian": doc.get("account_id", ""),
+                    "purpose": doc.get("instrument_type", ""),
+                    "documentation": doc.get("applicable_forms", []),
+                },
+                "note": "Roles are derived from the stored instrument extraction, not assumed.",
+                "disclaimer": DISCLAIMER,
+            }
+
+        elif task == "log_transaction":
+            if not isinstance(args, dict) or not args.get("payor") or not args.get("payee") or args.get("amount") is None:
+                return {"error": "Usage: {payor, payee, amount, [date], [purpose], [documentation_ref], [category], [project_id]}", "disclaimer": DISCLAIMER}
+            txn_id = f"transaction_{uuid.uuid4().hex[:12]}"
+            txn = {
+                "id": txn_id,
+                "timestamp": datetime.now().isoformat(),
+                "payor": args["payor"],
+                "payee": args["payee"],
+                "amount": args["amount"],
+                "date": args.get("date", ""),
+                "purpose": args.get("purpose", ""),
+                "documentation_ref": args.get("documentation_ref", ""),
+                "category": args.get("category", ""),
+                "project_id": args.get("project_id", ""),
+            }
+            self.store_own_memory(txn_id, json.dumps(txn))
+            self._append_to_transaction_index(txn_id)
+            return {"transaction": txn, "disclaimer": DISCLAIMER}
+
+        elif task == "check_ledger_integrity":
+            entity_or_project = args.get("entity_or_project") if isinstance(args, dict) else (args[0] if args else None)
+            transactions = self._get_transactions(entity_or_project)
+            flags = []
+
+            seen = {}
+            for t in transactions:
+                key = (str(t.get("payee", "")).strip().lower(), str(t.get("amount", "")), str(t.get("date", "")))
+                if key in seen:
+                    flags.append({"type": "duplicate", "transaction_ids": [seen[key], t["id"]], "note": "Same payee/amount/date as another logged transaction."})
+                else:
+                    seen[key] = t["id"]
+                if not t.get("documentation_ref"):
+                    flags.append({"type": "unsupported_balance", "transaction_id": t["id"], "note": "No documentation_ref - balance is unsupported by a record."})
+                if not t.get("category"):
+                    flags.append({"type": "inconsistent_classification", "transaction_id": t["id"], "note": "No category assigned."})
+
+            return {
+                "entity_or_project": entity_or_project,
+                "transactions_reviewed": len(transactions),
+                "flags": flags,
+                "recommendation": {
+                    "observation": f"{len(transactions)} transaction(s) reviewed, {len(flags)} flag(s) raised.",
+                    "reason": "Missing documentation or categorization, and duplicate-looking entries, are the most common sources of reconciliation failures.",
+                    "action": "Add missing documentation_ref/category fields and resolve flagged duplicates." if flags else "No integrity issues found.",
+                    "confidence": "medium",
+                },
+                "disclaimer": DISCLAIMER,
+            }
+
+        elif task == "map_assets_liabilities":
+            entity = args.get("entity") if isinstance(args, dict) else (args[0] if args else None)
+            if not entity:
+                return {"error": "Missing entity", "disclaimer": DISCLAIMER}
+            needle = entity.strip().lower()
+            assets, liabilities = [], []
+            for doc in self._find_instruments(lambda d: True):
+                creditor = str(doc.get("creditor", "")).lower()
+                debtor = str(doc.get("debtor", "")).lower()
+                if needle in creditor:
+                    assets.append(doc)
+                elif needle in debtor:
+                    liabilities.append(doc)
+            transactions = self._get_transactions(entity)
+            return {
+                "entity": entity,
+                "assets": assets,
+                "liabilities": liabilities,
+                "related_transactions": transactions,
+                "note": "Assets = instruments where entity is creditor/beneficiary; liabilities = instruments where entity is debtor. Derived from stored data, not a reconciled balance sheet.",
+                "disclaimer": DISCLAIMER,
+            }
+
+        elif task == "prepare_documentation_package":
+            entity_or_project = args.get("entity_or_project") if isinstance(args, dict) else (args[0] if args else None)
+            audience = args.get("audience", "accountant") if isinstance(args, dict) else "accountant"
+            if not entity_or_project:
+                return {"error": "Missing entity_or_project", "disclaimer": DISCLAIMER}
+            matches = self._find_instruments(
+                lambda d: entity_or_project.strip().lower() in str(d.get("creditor", "")).lower()
+                or entity_or_project.strip().lower() in str(d.get("debtor", "")).lower()
+                or d.get("project_id") == entity_or_project
+            )
+            transactions = self._get_transactions(entity_or_project)
+            cache_hits = self._cache_context_for(f"{entity_or_project} documentation {audience}", top_k=3)
+            instruments_summary = "\n".join(
+                f"- {d.get('instrument_type', 'unknown')}: creditor={d.get('creditor', '')}, debtor={d.get('debtor', '')}, amount={d.get('principal_amount', '')}"
+                for d in matches
+            ) or "(none stored)"
+            transactions_summary = "\n".join(
+                f"- {t.get('date', t.get('timestamp', ''))}: {t.get('payor', '')} -> {t.get('payee', '')}, {t.get('amount', '')}, doc_ref={t.get('documentation_ref', '(none)')}"
+                for t in transactions
+            ) or "(none logged)"
+            prompt = (
+                f"Prepare a documentation readiness checklist for a {audience} reviewing records "
+                f"for '{entity_or_project}'. Based only on the material below, produce a single "
+                "valid JSON object:\n"
+                "{\n"
+                '  "package_summary": "",\n'
+                '  "included_items": [],\n'
+                '  "missing_items": [],\n'
+                '  "readiness_notes": ""\n'
+                "}\n\n"
+                f"Stored instruments:\n{instruments_summary}\n\nLogged transactions:\n{transactions_summary}\n\nJSON:"
+            )
+            raw = self._call_inference(prompt)
+            parsed, parse_error = self._safe_parse_json(raw)
+            if parsed is None:
+                parsed = {"package_summary": "", "included_items": [], "missing_items": [], "readiness_notes": ""}
+            parsed["entity_or_project"] = entity_or_project
+            parsed["audience"] = audience
+            parsed["parse_error"] = parse_error
+            if parse_error:
+                parsed["raw_model_output"] = raw
+            parsed["cache_sources"] = [h["id"] for h in cache_hits]
+            parsed["disclaimer"] = DISCLAIMER
+            return parsed
 
         else:
             return {"error": f"Unknown task: {task}", "disclaimer": DISCLAIMER}

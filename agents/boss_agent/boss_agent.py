@@ -3,6 +3,7 @@ import sys
 import os
 import time
 import json
+import uuid
 import requests
 import re
 from datetime import datetime
@@ -168,6 +169,35 @@ class BossAgent(AgentBase):
                     lines.append(f"Active projects tracked: {', '.join(projects)}.")
                 else:
                     lines.append("No projects currently tracked in the relationship graph.")
+                return "\n".join(lines)
+            elif task == "analyze_relationship_document":
+                project_id = result.get("project_id")
+                legal_resp = result.get("legal_result", {})
+                legal_doc = legal_resp.get("result", {}) if isinstance(legal_resp, dict) else {}
+                accounting_resp = result.get("accounting_result", {})
+                accounting_doc = accounting_resp.get("result", {}) if isinstance(accounting_resp, dict) else {}
+
+                lines = [f"Analyzed agreement (project: {project_id})."]
+                if isinstance(legal_doc, dict) and legal_doc.get("entity_a"):
+                    obligations = ", ".join(legal_doc.get("obligations", [])) or "none extracted"
+                    lines.append(
+                        f"Legal: {legal_doc.get('relationship_type', 'relationship')} between "
+                        f"{legal_doc.get('entity_a', '?')} and {legal_doc.get('entity_b', '?')}. "
+                        f"Obligations: {obligations}."
+                    )
+                else:
+                    lines.append("Legal: no relationship could be extracted from the text.")
+                if isinstance(accounting_doc, dict) and (accounting_doc.get("creditor") or accounting_doc.get("debtor")):
+                    lines.append(
+                        f"Financial: {accounting_doc.get('instrument_type', 'instrument')} - "
+                        f"creditor {accounting_doc.get('creditor', '?')}, debtor {accounting_doc.get('debtor', '?')}, "
+                        f"amount {accounting_doc.get('principal_amount', 'unspecified')}."
+                    )
+                else:
+                    lines.append("Financial: no financial instrument could be extracted from the text.")
+                graph_view = result.get("combined_graph_view", {})
+                node_count = len(graph_view.get("nodes", [])) if isinstance(graph_view, dict) else 0
+                lines.append(f"Combined relationship graph now has {node_count} node(s) tracked for this project.")
                 return "\n".join(lines)
             else:
                 return json.dumps(result, indent=2)
@@ -356,6 +386,30 @@ class BossAgent(AgentBase):
             )
             return view
 
+        elif task == "analyze_relationship_document":
+            # Drives the cross-agent workflow end-to-end from one request: Legal Agent
+            # identifies contractual obligations, Accounting Agent identifies financial
+            # consequences, both already push to the shared relationship graph
+            # (domain="legal" / domain="financial" respectively), then this pulls the
+            # combined view back via the same get_project_relationships used above.
+            text = args.get("text") if isinstance(args, dict) else (args[0] if args else None)
+            if not text:
+                return {"error": "Missing text"}
+            project_id = args.get("project_id") if isinstance(args, dict) else ""
+            if not project_id:
+                project_id = f"doc_{uuid.uuid4().hex[:8]}"
+
+            legal_response = self.send_a2a("legal_agent", "model_relationship", [text, project_id])
+            accounting_response = self.send_a2a("accounting_agent", "parse_financial_instrument", [text, project_id])
+            combined = self.graph.get_project_relationships(project_id)
+
+            return {
+                "project_id": project_id,
+                "legal_result": legal_response,
+                "accounting_result": accounting_response,
+                "combined_graph_view": combined,
+            }
+
         elif task == "answer_question":
             prompt = args.get("prompt", "")
             if not prompt:
@@ -542,6 +596,18 @@ class BossAgent(AgentBase):
                 self.log("User asking about the grow/plant – delegating to grow_agent")
                 response = self.send_a2a("grow_agent", "get_status", {})
                 text = self._format_response("grow_status", response, "grow_agent")
+                return {"result": text}
+
+            # --- Cross-agent relationship document analysis (Legal + Accounting) ---
+            if any(keyword in prompt.lower() for keyword in ("analyze this agreement", "analyze this contract", "obligations and financial consequences", "legal and financial consequences")):
+                self.log("User asking for combined legal+financial analysis – delegating to legal_agent + accounting_agent")
+                doc_text = re.sub(
+                    r"^(analyze this (agreement|contract)|what are the (obligations and )?"
+                    r"(legal and )?financial consequences( of)?)[:\s]*",
+                    "", prompt, flags=re.IGNORECASE
+                ).strip() or prompt
+                result = self.handle_task("analyze_relationship_document", {"text": doc_text}, sender)
+                text = self._format_response("analyze_relationship_document", result, "boss_agent")
                 return {"result": text}
 
             # --- Web search ---
