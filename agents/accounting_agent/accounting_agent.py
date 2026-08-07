@@ -47,7 +47,8 @@ class AccountingAgent(AgentBase):
                 "find_relationships_by_project",
                 "refresh_cache", "query_cache", "cache_stats", "cache_manifest",
                 "map_transaction_roles", "log_transaction", "check_ledger_integrity",
-                "map_assets_liabilities", "prepare_documentation_package", "check_budget_constraint"
+                "map_assets_liabilities", "prepare_documentation_package", "check_budget_constraint",
+                "forecast_cash_flow", "build_budget"
             ],
             role="agent"
         )
@@ -628,6 +629,64 @@ class AccountingAgent(AgentBase):
                 "note": f"Estimated cost {estimated_cost} vs {available_discretionary:.2f} available (from {len(transactions)} logged transaction(s)).",
                 "disclaimer": DISCLAIMER,
             }
+
+        elif task == "forecast_cash_flow":
+            entity_or_project = args.get("entity_or_project") if isinstance(args, dict) else (args[0] if args else None)
+            horizon_days = args.get("horizon_days", 30) if isinstance(args, dict) else 30
+            transactions = self._get_transactions(entity_or_project)
+            if not transactions:
+                return {
+                    "entity_or_project": entity_or_project,
+                    "forecast": None,
+                    "note": "No logged transactions to forecast from.",
+                    "disclaimer": DISCLAIMER,
+                }
+            timestamps = [datetime.fromisoformat(t["timestamp"]) for t in transactions]
+            span_days = max((max(timestamps) - min(timestamps)).total_seconds() / 86400, 1)
+            income = sum(float(t["amount"]) for t in transactions if str(t.get("category", "")).lower() in ("income", "revenue"))
+            expenses = sum(float(t["amount"]) for t in transactions if str(t.get("category", "")).lower() not in ("income", "revenue"))
+            net_per_day = (income - expenses) / span_days
+            projected_net_change = net_per_day * horizon_days
+            return {
+                "entity_or_project": entity_or_project,
+                "horizon_days": horizon_days,
+                "observed_span_days": round(span_days, 1),
+                "income_to_date": round(income, 2),
+                "expenses_to_date": round(expenses, 2),
+                "net_per_day": round(net_per_day, 2),
+                "projected_net_change": round(projected_net_change, 2),
+                "note": f"Based on {len(transactions)} transaction(s) over {span_days:.1f} day(s) - projection assumes the recent rate continues, not a guarantee.",
+                "disclaimer": DISCLAIMER,
+            }
+
+        elif task == "build_budget":
+            entity_or_project = args.get("entity_or_project") if isinstance(args, dict) else (args[0] if args else None)
+            if not entity_or_project:
+                return {"error": "Missing entity_or_project", "disclaimer": DISCLAIMER}
+            transactions = self._get_transactions(entity_or_project)
+            if not transactions:
+                return {"entity_or_project": entity_or_project, "budget_by_category": {}, "note": "No logged transactions to build a budget from.", "disclaimer": DISCLAIMER}
+            spending_by_category = {}
+            for t in transactions:
+                cat = t.get("category") or "uncategorized"
+                spending_by_category[cat] = spending_by_category.get(cat, 0) + float(t["amount"])
+            prompt = (
+                "Based on this spending breakdown by category, suggest a simple monthly budget "
+                "allocation. Produce a single valid JSON object:\n"
+                '{"budget_by_category": {}, "notes": ""}\n\n'
+                f"Spending by category (all logged transactions, not necessarily one month):\n{json.dumps(spending_by_category)}\n\nJSON:"
+            )
+            raw = self._call_inference(prompt)
+            parsed, parse_error = self._safe_parse_json(raw)
+            if parsed is None:
+                parsed = {"budget_by_category": spending_by_category, "notes": ""}
+            parsed["entity_or_project"] = entity_or_project
+            parsed["spending_by_category"] = spending_by_category
+            parsed["parse_error"] = parse_error
+            if parse_error:
+                parsed["raw_model_output"] = raw
+            parsed["disclaimer"] = DISCLAIMER
+            return parsed
 
         elif task == "prepare_documentation_package":
             entity_or_project = args.get("entity_or_project") if isinstance(args, dict) else (args[0] if args else None)
