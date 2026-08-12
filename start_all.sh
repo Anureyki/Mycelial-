@@ -62,6 +62,9 @@ echo "  ✅ Service Manager (port 8014)"
 nohup python3 services/tool/service.py > logs/tool.log 2>&1 &
 echo "  ✅ Tool Service (port 8015)"
 
+nohup python3 services/provenance/service.py > logs/provenance.log 2>&1 &
+echo "  ✅ Provenance Service (port 8016)"
+
 # Wait a moment for services to initialize
 sleep 5
 
@@ -134,7 +137,7 @@ fi
 sleep 3
 echo ""
 echo "📋 Health check summary:"
-for port in 8004 8007 8008 8009 8005 8006 8010 8011 8012 8014 8015 8000 8001 8002 8003 8081 9006 9007 9009 9010 9011 9012 9013; do
+for port in 8004 8007 8008 8009 8005 8006 8010 8011 8012 8014 8015 8016 8000 8001 8002 8003 8081 9006 9007 9009 9010 9011 9012 9013; do
     if curl -s -o /dev/null -w "%{http_code}" http://localhost:$port/health | grep -q 200; then
         echo "  ✅ Port $port is healthy"
     else

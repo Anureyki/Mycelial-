@@ -431,6 +431,42 @@ class AgentBase:
         except Exception as e:
             return {"error": str(e)}
 
+    # ---------- Provenance ----------
+    def record_provenance_event(self, operation, actor_type="agent", artifact_id=None,
+                                 parent_artifact_id=None, execution_id=None, actor_id=None,
+                                 model_id=None, tools_used=None, input_artifacts=None,
+                                 output_artifacts=None, metadata=None, artifact_content=None):
+        """Record a provenance event via the Provenance Service. actor_type
+        defaults to "agent" with agent_id=self.agent_id - pass
+        actor_type="human"/actor_id=<who> when recording on a human's
+        behalf (e.g. an approval relayed through this agent). See
+        core/provenance_schemas.py for the operation vocabulary."""
+        payload = {
+            "task": "record_event",
+            "args": {
+                "operation": operation,
+                "actor_type": actor_type,
+                "actor_id": actor_id,
+                "agent_id": self.agent_id if actor_type == "agent" else None,
+                "artifact_id": artifact_id,
+                "parent_artifact_id": parent_artifact_id,
+                "execution_id": execution_id,
+                "model_id": model_id,
+                "tools_used": tools_used,
+                "input_artifacts": input_artifacts,
+                "output_artifacts": output_artifacts,
+                "metadata": metadata,
+                "artifact_content": artifact_content,
+            },
+        }
+        try:
+            response = requests.post("http://localhost:8016/execute", json=payload, timeout=30)
+            if response.status_code == 200:
+                return response.json().get("result", {"error": "No result"})
+            return {"error": f"Provenance Service error: {response.status_code}: {response.text[:200]}"}
+        except Exception as e:
+            return {"error": str(e)}
+
     # ---------- Public search (delegates to PQA Agent) ----------
     def search_public(self, query):
         """Ask PQA Agent to run a public web search. Falls back to calling the

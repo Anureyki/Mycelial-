@@ -90,6 +90,7 @@ Ollama       Ubuntu        Local Sandbox
 | Agent Service | 8013 | *(disabled – stub generator)* |
 | Service Manager | 8014 | Process supervision, auto‑restart |
 | Tool Service | 8015 | MCP gateway |
+| Provenance Service | 8016 | Records who/what created, modified, reviewed, or orchestrated an artifact; artifact lineage, origin classification, integrity verification |
 
 ---
 
@@ -137,6 +138,7 @@ Mycelial uses the **Model Context Protocol** to connect agents to external tools
 - ✅ Fixed a live bug the audit turned up: crontab was running `agents/source_monitor.py` hourly/every 5 min against a file that no longer exists (broken since the 2026‑06‑21 refactor, silently failing for ~2 months per `logs/source_monitor.log`). The recovered backup copy (`backup_20260621_053644/agents/source_monitor.py`) turned out to be itself incomplete — missing imports and the `monitor` task entirely — so restoring it verbatim wouldn't have worked. Removed the two broken crontab entries instead; historical data in `state/source_monitor/` left in place in case this gets rebuilt. Full details in the resolved Security Agent finding.
 - 🗑️ Removed `scripts/generate_agent.py` — the legacy, unused generator (raw FastAPI templates, incompatible with the current Flask+`AgentBase` architecture) that produced the dead stub-agent graveyard cleaned up above. Its port_map's `datagatherer`/`agriculture_agent` entries matched the deleted `dgta_agent`/`ag_agent` `.md` files exactly, confirming it as the origin.
 - ✅ Cleaned up the last dangling references to the deleted `dgta_agent`: `chat.py`'s `/agents` list now shows the real 12 registered agent IDs (also fixed a stale `codingagent` typo), `hooks/post_search.sh` no longer hardcodes an agent name into its audit-log line (takes it as an argument now), and `analyzer_agent.md`'s example now references a real agent.
+- 🔄 New Provenance Service (port 8016, `core/provenance_schemas.py` + `core/provenance_manager.py`) records how artifacts are created/modified/reviewed/orchestrated by human and agent actors: SHA‑256 artifact hashing, parent‑child lineage (modifications are new child artifact_ids, not in‑place overwrites — the service rejects attempts to change a recorded artifact's hash), origin classification (`HUMAN`/`AI_GENERATED`/`AI_ASSISTED`/`AI_MODIFIED`/`HUMAN_MODIFIED_AI`/`MULTI_AGENT`/`AI_ORCHESTRATED`/`UNKNOWN`, always derived from events, never set manually), and integrity verification (`UNVERIFIED`/`RECORDED`/`VERIFIED`/`INVALID`). `AgentBase.record_provenance_event()` gives any agent a one-call way to emit events. Functionally tested end-to-end (lineage chains, all classification branches, the hash-conflict guard, all four verification states) — this is the **foundation layer only**: no visual seal, no Anansi presentation integration, no Git/GitHub integration, no automated test suite, and no agents have been instrumented to actually call it yet from their business logic. All deliberately deferred to a follow-up pass.
 
 ---
 
@@ -149,7 +151,8 @@ Mycelial uses the **Model Context Protocol** to connect agents to external tools
 - Finish wiring `voice_listener.py` into Anansi's request path — the listener exists standalone but isn't integrated yet.
 - If source monitoring is wanted again, rebuild it properly (the old implementation was already incomplete before it broke) rather than resurrecting `backup_20260621_053644/agents/source_monitor.py` as-is.
 - Wire `agriculture_agent.py`'s DQN logic into the AgentBase/A2A framework (or decide it's fine staying a standalone CLI script), and decide whether to start/register `quantum_agent`.
-- Deployment: Phase 1 (Docker packaging) is built and smoke‑tested. Remaining: Phase 2 (reverse proxy, TLS, and gating Boss requests through the Security Agent — not started), Phase 3 (provision a dedicated device — undecided), Phase 4 (cut over, blocked on Phase 3). See `DEPLOYMENT_PROGRESS.md`.
+- Deployment: Phase 1 (Docker packaging) is built and smoke‑tested and pushed, along with hardening every platform service to a localhost-only bind. Remaining: Phase 2 (reverse proxy, TLS, and gating Boss requests through the Security Agent — not started, no code exists for it), Phase 3 (provision a dedicated device — blocked on a hardware purchase decision), Phase 4 (cut over, blocked on Phase 3). See `DEPLOYMENT_PROGRESS.md`.
+- KAG relationship archive (`core/graph_manager.py`'s `relationships` table, added via `ingest_relationship()`) is write-only — nothing reads it back. `get_entity_relationships`/`get_project_relationships` still only query the old nodes/edges tables; there's no `get_relationship_by_id` or a wired Boss task to expose one. Doesn't break anything as-is (purely additive), but needs a read path — likely a new `update_graph`/`query_graph` action in `boss_agent.py` plus the corresponding `GraphManager` method — before it's actually useful.
 
 ---
 
