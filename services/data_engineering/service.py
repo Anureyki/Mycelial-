@@ -227,4 +227,4 @@ def delete_dataset(dataset_id):
     return jsonify({"success": True, "message": "Dataset deleted"})
 
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=8012, debug=False)
+    app.run(host="127.0.0.1", port=8012, debug=False)

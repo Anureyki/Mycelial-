@@ -190,4 +190,4 @@ def export_logs():
         return jsonify({"success": True, "logs": [dict(row) for row in rows]})
 
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=8009, debug=False)
+    app.run(host="127.0.0.1", port=8009, debug=False)

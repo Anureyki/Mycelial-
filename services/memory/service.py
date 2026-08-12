@@ -127,4 +127,4 @@ def list_pins():
         return jsonify({"success":True,"pins":[dict(r) for r in cur.fetchall()]})
 
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=8007, debug=False)
+    app.run(host="127.0.0.1", port=8007, debug=False)

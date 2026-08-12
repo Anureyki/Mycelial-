@@ -1,0 +1,29 @@
+services:
+  mycelial:
+    build: .
+    image: mycelial:latest
+    restart: unless-stopped
+    env_file:
+      - .env
+    ports:
+      # Only Anansi is published to the host, on 8081, via the in-container
+      # socat forwarder on 9081 (see docker-entrypoint.sh - Anansi itself
+      # binds 127.0.0.1:8081 inside the container per core/base_agent.py,
+      # which Docker's port publishing can't reach directly). Every other
+      # agent/service (8000-8015, 9006-9013) stays inside the container
+      # network namespace. Put a TLS-terminating reverse proxy in front of
+      # this port before exposing it beyond localhost/the LAN.
+      - "127.0.0.1:8081:9081"
+    volumes:
+      - ./logs:/root/mycelial/logs
+      - ./state:/root/mycelial/state
+      - ./databases:/root/mycelial/databases
+      - ./models:/root/mycelial/models
+      - ./weights:/root/mycelial/weights
+      - ./knowledge_base:/root/mycelial/knowledge_base
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8081/health"]
+      interval: 30s
+      timeout: 5s
+      start_period: 60s
+      retries: 3

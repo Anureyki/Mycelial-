@@ -10,6 +10,8 @@ import glob
 import subprocess
 import time
 import uuid
+import requests
+from urllib.parse import urlparse
 from datetime import datetime
 from flask import Flask, request, jsonify
 
@@ -19,6 +21,8 @@ BASE = os.path.expanduser("~/mycelial")
 CONFIG_DIR = os.path.join(BASE, "config")
 MAIN_CONFIG = os.path.join(CONFIG_DIR, "mcp.json")
 EXTRA_DIR = os.path.join(CONFIG_DIR, "mcp.d")
+HTTP_ALLOWLIST_FILE = os.path.join(CONFIG_DIR, "tool_allowlist.json")
+HTTP_FETCH_MAX_BYTES = 500_000
 os.makedirs(EXTRA_DIR, exist_ok=True)
 
 # In-memory config
@@ -198,4 +202,4 @@ def execute():
         return jsonify({"error": f"Unknown task: {task}"}), 400
 
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=8015, debug=False)
+    app.run(host="127.0.0.1", port=8015, debug=False)

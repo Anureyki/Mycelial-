@@ -162,4 +162,4 @@ def evaluate():
         return jsonify({"success": False, "error": f"Unknown decision type: {decision_type}"}), 400
 
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=8008, debug=False)
+    app.run(host="127.0.0.1", port=8008, debug=False)
