@@ -4,7 +4,18 @@
 set -e
 
 cd ~/mycelial
-source venv/bin/activate
+if [ -f venv/bin/activate ]; then
+    source venv/bin/activate
+fi
+
+# Load secrets/config from .env (see .env.example) so MCP servers like
+# Sentry and CourtListener pick up their tokens via os.environ - the
+# services/tool/service.py subprocess env is built from os.environ.copy().
+if [ -f .env ]; then
+    set -a
+    source .env
+    set +a
+fi
 
 # Create logs directory
 mkdir -p logs

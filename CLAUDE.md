@@ -67,7 +67,8 @@ MCP servers are configured in `config/mcp.d/`. Currently active:
 
 ## Environment Variables
 - `ANTHROPIC_API_KEY` – for Claude models (optional)
-- `SENTRY_AUTH_TOKEN` – for Sentry MCP (optional)
+- `SENTRY_ACCESS_TOKEN` – for Sentry MCP (optional)
+- `COURTLISTENER_API_TOKEN` – for CourtListener MCP, used by the Legal Agent (optional)
 - `INFERENCE_MODEL` – default model for Inference Service (default: `qwen2.5:1.5b`)
 - `OLLAMA_KEEP_ALIVE` – keep model loaded in memory (default: 5m)
 

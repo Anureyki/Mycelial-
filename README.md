@@ -66,7 +66,7 @@ Ollama       Ubuntu        Local Sandbox
 | **Anansi** | 8081 | User Interface | Accepts natural language, routes to Boss |
 | **Analyzer** | 9006 | Outcome Analysis | Scans logs, generates recommendations |
 | **PQA** | 9007 | Public Query | Public web search fallback, used by other agents when local knowledge is insufficient |
-| **Security** | 9010 | Security | Authenticates, authorizes, audits, issues tokens |
+| **Security** | 9010 | Security | Authenticates, authorizes, audits, issues tokens, tracks security findings (`flag_finding`/`list_findings`/`resolve_finding`) |
 | **Legal** | 9011 | Legal | Parses contracts, models legal relationships, CourtListener case-law lookups |
 | **Accounting** | 9012 | Accounting | Parses financial instruments, assesses tax liability, tracks account balances |
 | **Trust** | 9013 | Trust/Estate | Parses trust documents, models trust relationships |
@@ -104,7 +104,11 @@ Mycelial uses the **Model Context Protocol** to connect agents to external tools
 | `git` | Git operations | ✅ Active |
 | `puppeteer` | Browser automation | ✅ Configured |
 | `searxng` | Web search | ✅ Active |
+| `open-websearch` | Web search (DuckDuckGo backend) | ✅ Configured |
 | `grounded-docs` | Documentation search | ⚠️ Needs indexing |
+| `courtlistener` | Case‑law lookups (used by Legal Agent) | ✅ Active |
+| `a2asearch` | Agent‑to‑agent search/discovery | ✅ Configured |
+| `secure-execute` | Sandboxed code execution | ✅ Configured |
 | `sentry` | Error monitoring | ✅ Configured |
 | `e2b` | Code sandbox | 🔄 Token optional |
 
@@ -118,12 +122,21 @@ Mycelial uses the **Model Context Protocol** to connect agents to external tools
 - ✅ CourtListener case‑law integration in the Legal Agent.
 - ✅ Inference Service supports local Ollama models and cloud Claude models.
 - ✅ CI workflow (compile + lint checks) on every push/PR.
-- ✅ MCP integration with 7+ servers.
+- ✅ MCP integration with 12 servers.
 - ✅ Distillation data collection active.
 - ✅ Code evaluation and fixing.
 - ✅ Web search and browsing.
 - ✅ Memory and logging.
 - ✅ Self‑healing via Service Manager.
+- ✅ Basic status dashboard (`webapp/`) — live System/Grow/Progress cards; this is the primary day‑to‑day health check now (see `CLAUDE.md`).
+- ✅ Docker packaging (Phase 1) built and smoke‑tested — all 12 agents and platform services pass health checks in‑container; not yet cut over to a live deployment.
+- ✅ Security Agent now tracks findings persistently (`state/security_findings.json`) via `flag_finding`/`list_findings`/`resolve_finding` — any agent (or a code review) can flag an issue once instead of it being rediscovered on the next audit. All 7 findings from the last audit are now resolved (0 open).
+- 🔄 `quantum_agent` now runs real circuits on qiskit's `BasicSimulator` (`run_circuit`, `bell_state`, `random_bits`), on its own port (9014, no collisions) — implemented but not yet started/registered or added to `start_all.sh`.
+- ✅ `agents/ag_agent/agriculture_agent.py` is a real, standalone DQN reinforcement-learning agent for grow-room climate control (torch, checkpointed at `models/dqn_model.pth`) — invoked directly via CLI (`--task dqn_train`/`dqn_decide`), not wired into the AgentBase/A2A framework. Its unused AgentBase stub wrapper (`ag_agent.py`, empty capabilities) was removed.
+- 🗑️ Removed five dead stub agents that were never implemented beyond boilerplate or a planning doc: `dgta_agent`, `study_agent`, `trustee_agent`, `source_agent`, `source_monitor`. This also resolved the port collision between `dgta_agent` and Security (both hardcoded 9010).
+- ✅ Fixed a live bug the audit turned up: crontab was running `agents/source_monitor.py` hourly/every 5 min against a file that no longer exists (broken since the 2026‑06‑21 refactor, silently failing for ~2 months per `logs/source_monitor.log`). The recovered backup copy (`backup_20260621_053644/agents/source_monitor.py`) turned out to be itself incomplete — missing imports and the `monitor` task entirely — so restoring it verbatim wouldn't have worked. Removed the two broken crontab entries instead; historical data in `state/source_monitor/` left in place in case this gets rebuilt. Full details in the resolved Security Agent finding.
+- 🗑️ Removed `scripts/generate_agent.py` — the legacy, unused generator (raw FastAPI templates, incompatible with the current Flask+`AgentBase` architecture) that produced the dead stub-agent graveyard cleaned up above. Its port_map's `datagatherer`/`agriculture_agent` entries matched the deleted `dgta_agent`/`ag_agent` `.md` files exactly, confirming it as the origin.
+- ✅ Cleaned up the last dangling references to the deleted `dgta_agent`: `chat.py`'s `/agents` list now shows the real 12 registered agent IDs (also fixed a stale `codingagent` typo), `hooks/post_search.sh` no longer hardcodes an agent name into its audit-log line (takes it as an argument now), and `analyzer_agent.md`'s example now references a real agent.
 
 ---
 
@@ -132,9 +145,11 @@ Mycelial uses the **Model Context Protocol** to connect agents to external tools
 - Train the first student model from distillation data.
 - Implement model fallback (student first, teacher fallback).
 - Add Apify MCP server for web scraping.
-- Build a web dashboard for agent status.
-- Enable voice input via Anansi.
-- Deploy as a public API with authentication.
+- Extend the existing status dashboard (`webapp/`) beyond the System/Grow/Progress cards.
+- Finish wiring `voice_listener.py` into Anansi's request path — the listener exists standalone but isn't integrated yet.
+- If source monitoring is wanted again, rebuild it properly (the old implementation was already incomplete before it broke) rather than resurrecting `backup_20260621_053644/agents/source_monitor.py` as-is.
+- Wire `agriculture_agent.py`'s DQN logic into the AgentBase/A2A framework (or decide it's fine staying a standalone CLI script), and decide whether to start/register `quantum_agent`.
+- Deployment: Phase 1 (Docker packaging) is built and smoke‑tested. Remaining: Phase 2 (reverse proxy, TLS, and gating Boss requests through the Security Agent — not started), Phase 3 (provision a dedicated device — undecided), Phase 4 (cut over, blocked on Phase 3). See `DEPLOYMENT_PROGRESS.md`.
 
 ---
 

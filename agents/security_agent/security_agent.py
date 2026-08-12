@@ -1,17 +1,20 @@
 #!/usr/bin/env python3
 # agents/security_agent/security_agent.py
-import os, json, time, secrets
+import os, json, time, secrets, uuid
 from core.base_agent import AgentBase
 
 BASE = os.path.expanduser("~/mycelial")
 SECRET_FILE = os.path.join(BASE, "config", ".security_bootstrap_secret")
+FINDINGS_FILE = os.path.join(BASE, "state", "security_findings.json")
+VALID_SEVERITIES = ("low", "medium", "high", "critical")
 
 class SecurityAgent(AgentBase):
     def __init__(self):
         super().__init__(
             agent_id="security_agent",
             port=9010,
-            capabilities=["authenticate", "authorize", "audit", "issue_token"],
+            capabilities=["authenticate", "authorize", "audit", "issue_token",
+                          "flag_finding", "list_findings", "resolve_finding"],
             role="security"
         )
         self.tokens = {}  # simple in-memory token store (persist later)
@@ -64,6 +67,17 @@ class SecurityAgent(AgentBase):
             return None
         return self.tokens[token]["agent_id"]
 
+    def _load_findings(self):
+        if os.path.exists(FINDINGS_FILE):
+            with open(FINDINGS_FILE, "r") as f:
+                return json.load(f)
+        return []
+
+    def _save_findings(self, findings):
+        os.makedirs(os.path.dirname(FINDINGS_FILE), exist_ok=True)
+        with open(FINDINGS_FILE, "w") as f:
+            json.dump(findings, f, indent=2)
+
     def handle_task(self, task, args, sender):
         if task == "issue_token":
             agent_id = args.get("agent_id")
@@ -105,6 +119,59 @@ class SecurityAgent(AgentBase):
             }
             self.store_own_memory(f"audit_{int(time.time())}", json.dumps(entry))
             return {"result": "Audit logged"}
+
+        elif task == "flag_finding":
+            # Lets any agent (or a human/Claude reviewing the codebase) record
+            # a security/config issue once, persistently, so it doesn't need
+            # to be rediscovered by re-auditing the repo from scratch next time.
+            summary = args.get("summary")
+            if not summary:
+                return {"error": "Missing summary"}
+            severity = args.get("severity", "medium")
+            if severity not in VALID_SEVERITIES:
+                return {"error": f"severity must be one of {VALID_SEVERITIES}"}
+            finding = {
+                "id": uuid.uuid4().hex[:12],
+                "severity": severity,
+                "summary": summary,
+                "location": args.get("location"),
+                "recommendation": args.get("recommendation"),
+                "reporter": args.get("reporter", sender),
+                "status": "open",
+                "flagged_at": time.time(),
+                "resolved_at": None,
+                "resolution_note": None,
+            }
+            findings = self._load_findings()
+            findings.append(finding)
+            self._save_findings(findings)
+            self.log_to_audit("SECURITY_FINDING", summary, level="warning" if severity in ("high", "critical") else "info",
+                               metadata=finding)
+            return {"result": "Finding flagged", "finding": finding}
+
+        elif task == "list_findings":
+            status = args.get("status", "open")  # "open" | "resolved" | "all"
+            severity = args.get("severity")
+            findings = self._load_findings()
+            if status != "all":
+                findings = [f for f in findings if f["status"] == status]
+            if severity:
+                findings = [f for f in findings if f["severity"] == severity]
+            return {"findings": findings, "count": len(findings)}
+
+        elif task == "resolve_finding":
+            finding_id = args.get("finding_id")
+            if not finding_id:
+                return {"error": "Missing finding_id"}
+            findings = self._load_findings()
+            for f in findings:
+                if f["id"] == finding_id:
+                    f["status"] = "resolved"
+                    f["resolved_at"] = time.time()
+                    f["resolution_note"] = args.get("resolution_note")
+                    self._save_findings(findings)
+                    return {"result": "Finding resolved", "finding": f}
+            return {"error": f"No finding with id {finding_id}"}
 
         else:
             return {"error": f"Unknown task: {task}"}

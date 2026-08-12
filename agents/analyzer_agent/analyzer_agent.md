@@ -39,7 +39,7 @@ Reports are saved as `~/mycelial/reports/analyzer_report_<timestamp>.json` with 
 
 ```json
 {
-  "agent": "dgta_agent",
+  "agent": "coding_agent",
   "issue": "File not found errors in 5 outcomes",
   "suggestion": "Add a pre-action hook to validate file existence before processing",
   "criticality": "high"

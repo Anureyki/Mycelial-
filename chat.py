@@ -54,7 +54,9 @@ def chat_loop():
                 
             if user_input.lower() == "/agents":
                 print("🤖 Available Agents:")
-                agents = ["boss_agent", "codingagent", "security_agent", "dgta_agent", "pqa_agent"]
+                agents = ["boss_agent", "coding_agent", "hermes", "maintenance_agent", "anansi",
+                          "analyzer_agent", "pqa_agent", "security_agent", "legal_agent",
+                          "accounting_agent", "trust_agent", "grow_agent"]
                 for a in agents:
                     print(f"  - {a}")
                 continue
