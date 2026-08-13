@@ -74,6 +74,36 @@ class BossAgent(AgentBase):
             self.log(f"Reconciliation error: {e}")
             return False
 
+    def _save_uploaded_image(self, image_base64, image_name):
+        """Decode a base64 (optionally data-URL-prefixed) image and save it to
+        Grow Agent's photo directory, returning a real path evaluate_leaf can
+        pass to the vision pipeline. Returns None on any decode/size failure."""
+        import base64
+        try:
+            data = image_base64
+            if isinstance(data, str) and "," in data and data.strip().lower().startswith("data:"):
+                data = data.split(",", 1)[1]
+            raw = base64.b64decode(data, validate=False)
+            if not raw:
+                return None
+            if len(raw) > 15 * 1024 * 1024:
+                self.log("Rejected uploaded image: exceeds 15MB limit")
+                return None
+            safe_name = re.sub(r'[^A-Za-z0-9_.-]', '_', image_name or "upload.jpg")
+            ext = os.path.splitext(safe_name)[1].lower()
+            if ext not in (".jpg", ".jpeg", ".png", ".heic", ".webp"):
+                ext = ".jpg"
+            photos_dir = os.path.expanduser("~/mycelial/knowledge_base/grow_agent/photos")
+            os.makedirs(photos_dir, exist_ok=True)
+            path = os.path.join(photos_dir, f"upload_{int(time.time())}{ext}")
+            with open(path, "wb") as f:
+                f.write(raw)
+            self.log(f"Saved uploaded image to {path} ({len(raw)} bytes)")
+            return path
+        except Exception as e:
+            self.log(f"Failed to save uploaded image: {e}")
+            return None
+
     def _format_response(self, task, result, sender):
         if result is None:
             return "The request did not return a result."
@@ -82,6 +112,40 @@ class BossAgent(AgentBase):
         if isinstance(result, dict):
             if "error" in result:
                 return f"Error: {result['error']}"
+            if task == "evaluate_leaf":
+                inner = result.get("result", {}) if isinstance(result, dict) else {}
+                inner = inner.get("result", inner) if isinstance(inner, dict) else {}
+                if not isinstance(inner, dict) or not inner:
+                    return "I couldn't get a read on that photo right now."
+                classification = inner.get("classification", "unknown")
+                lines = [inner.get("observation", "")]
+                if inner.get("reason"):
+                    lines.append(inner["reason"])
+                if inner.get("action"):
+                    lines.append(inner["action"])
+                text = " ".join(l for l in lines if l)
+                if classification == "problem":
+                    text = f"Heads up - {text}"
+                elif classification == "productive":
+                    text = f"Looks healthy. {text}"
+                vision_note = inner.get("vision_note")
+                if vision_note and "escalated" in vision_note.lower():
+                    text += " (This one was uncertain enough locally that I double-checked it more carefully.)"
+                return text
+            if task == "log_reading":
+                inner = result.get("result", {}) if isinstance(result, dict) else {}
+                reading = inner.get("reading") if isinstance(inner, dict) else None
+                if not isinstance(reading, dict):
+                    return "I wasn't able to log that reading."
+                parts = []
+                if reading.get("ppm") is not None:
+                    parts.append(f"{reading['ppm']} ppm")
+                if reading.get("temp") is not None:
+                    parts.append(f"{reading['temp']}°C")
+                if reading.get("ph") is not None:
+                    parts.append(f"pH {reading['ph']}")
+                detail = ", ".join(parts) if parts else "that reading"
+                return f"Got it - logged {detail} for the {reading.get('stage', 'current')} stage. I'll factor it into the reservoir trend."
             if task == "evaluate":
                 issues = result.get("issues_found", 0)
                 files = result.get("python_files", 0)
@@ -610,10 +674,31 @@ class BossAgent(AgentBase):
             else:
                 return {"error": "Invalid args format"}
 
-            if not prompt:
+            image_base64 = metadata.get("image_base64") if isinstance(metadata, dict) else None
+
+            if not prompt and not image_base64:
                 return {"error": "Missing prompt"}
 
             self.log(f"Received user prompt: {prompt[:80]}...")
+
+            # --- Image upload (plant photo) ---
+            # Only Grow Agent has a vision pipeline today, so any uploaded image
+            # routes there. Kept as its own branch (not folded into the generic
+            # image_base64 handling below) so a future second vision-capable
+            # agent can be added by branching on prompt content/metadata here
+            # without touching the upload/save plumbing.
+            if image_base64:
+                self.log("User uploaded an image - routing to grow_agent's vision pipeline")
+                photo_path = self._save_uploaded_image(image_base64, metadata.get("image_name", "upload.jpg"))
+                if not photo_path:
+                    return {"result": "I couldn't process that image - it may be corrupted, empty, or too large (15MB max)."}
+                response = self.send_a2a(
+                    "grow_agent", "evaluate_leaf",
+                    {"plant_id": metadata.get("plant_id", "current_plant"), "photo_path": photo_path},
+                    timeout=180
+                )
+                text = self._format_response("evaluate_leaf", response, "grow_agent")
+                return {"result": text, "evidence": response}
 
             # --- README / documentation ---
             if "readme" in prompt.lower() or "documentation" in prompt.lower():
@@ -737,6 +822,42 @@ class BossAgent(AgentBase):
                 item = item or "this item"
                 response = self.send_a2a("grow_agent", "recommend_purchase", {"item": item, "estimated_cost": estimated_cost})
                 text = self._format_response("purchase_recommendation", response, "grow_agent")
+                return {"result": text, "evidence": response}
+
+            # --- Log a reservoir/plant reading given in plain language ---
+            # e.g. "388 ppm, 21.0c, 6.42 ph are today's average results" - checked
+            # before the generic grow-status branch below since a reading like this
+            # often doesn't contain any of that branch's keywords at all and would
+            # otherwise fall through all the way to the generic reasoning delegate,
+            # silently discarding the reading instead of logging it.
+            ppm_match = re.search(r'(\d+(?:\.\d+)?)\s*ppm', prompt, re.IGNORECASE)
+            ph_match = re.search(r'(\d+(?:\.\d+)?)\s*ph\b', prompt, re.IGNORECASE) or \
+                re.search(r'\bph\s*(?:of|is|:)?\s*(\d+(?:\.\d+)?)', prompt, re.IGNORECASE)
+            temp_c_match = re.search(r'(\d+(?:\.\d+)?)\s*(?:°|deg(?:rees)?)?\s*c\b', prompt, re.IGNORECASE)
+            temp_f_match = re.search(r'(\d+(?:\.\d+)?)\s*(?:°|deg(?:rees)?)?\s*f\b', prompt, re.IGNORECASE)
+            reading_signals = sum(1 for m in (ppm_match, ph_match, temp_c_match, temp_f_match) if m)
+            if reading_signals >= 2:
+                self.log("User reported a reading in plain language - logging to grow_agent")
+                temp_c = None
+                if temp_c_match:
+                    temp_c = float(temp_c_match.group(1))
+                elif temp_f_match:
+                    temp_c = (float(temp_f_match.group(1)) - 32) * 5 / 9
+                status = self.send_a2a("grow_agent", "get_status", {})
+                status_result = status.get("result", {}) if isinstance(status, dict) else {}
+                status_result = status_result.get("result", status_result) if isinstance(status_result, dict) else {}
+                stage = status_result.get("current_stage") or "seedling"
+                if stage == "unknown":
+                    stage = "seedling"
+                reading_args = {"stage": stage}
+                if ppm_match:
+                    reading_args["ppm"] = float(ppm_match.group(1))
+                if ph_match:
+                    reading_args["ph"] = float(ph_match.group(1))
+                if temp_c is not None:
+                    reading_args["temp"] = round(temp_c, 1)
+                response = self.send_a2a("grow_agent", "log_reading", reading_args)
+                text = self._format_response("log_reading", response, "grow_agent")
                 return {"result": text, "evidence": response}
 
             # --- Grow Agent (plant/garden monitoring) ---

@@ -10,6 +10,13 @@ const chatTabBtn = document.getElementById('chatTabBtn');
 const dashboardTabBtn = document.getElementById('dashboardTabBtn');
 const dashboard = document.getElementById('dashboard');
 const refreshDashboardBtn = document.getElementById('refreshDashboard');
+const imageInput = document.getElementById('imageInput');
+const attachBtn = document.getElementById('attachBtn');
+const attachPreview = document.getElementById('attachPreview');
+const attachName = document.getElementById('attachName');
+const attachClear = document.getElementById('attachClear');
+
+let pendingImage = null; // { base64, name }
 
 const STORAGE_KEY = 'mycelial.serverUrl';
 
@@ -40,7 +47,7 @@ function extractResult(payload) {
   return JSON.stringify(payload);
 }
 
-async function sendPrompt(text) {
+async function sendPrompt(text, image) {
   const serverUrl = getServerUrl();
   if (!serverUrl) {
     addMessage('No server URL set. Open settings (gear icon) and set your Anansi server URL first.', 'error');
@@ -48,15 +55,21 @@ async function sendPrompt(text) {
     return;
   }
 
-  addMessage(text, 'user');
+  addMessage(image ? `${text || '(photo)'} \n[photo attached: ${image.name}]` : text, 'user');
   const pending = addMessage('...', 'pending');
   sendBtn.disabled = true;
 
   try {
+    const body = image
+      ? { task: 'process_request', args: [JSON.stringify({
+            prompt: text || 'Uploaded a plant photo',
+            metadata: { image_base64: image.base64, image_name: image.name },
+          })] }
+      : { task: 'process_request', args: [text] };
     const res = await fetch(`${serverUrl}/execute`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ task: 'process_request', args: [text] }),
+      body: JSON.stringify(body),
     });
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
     const data = await res.json();
@@ -148,13 +161,41 @@ saveSettingsBtn.addEventListener('click', () => {
   addMessage(`Server set to ${url}`, 'agent');
 });
 
+attachBtn.addEventListener('click', () => imageInput.click());
+
+imageInput.addEventListener('change', () => {
+  const file = imageInput.files && imageInput.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = () => {
+    const base64 = String(reader.result).split(',')[1] || '';
+    pendingImage = { base64, name: file.name || 'photo.jpg' };
+    attachName.textContent = pendingImage.name;
+    attachPreview.classList.remove('hidden');
+  };
+  reader.onerror = () => {
+    addMessage("Couldn't read that photo - try a different one.", 'error');
+  };
+  reader.readAsDataURL(file);
+});
+
+attachClear.addEventListener('click', () => {
+  pendingImage = null;
+  imageInput.value = '';
+  attachPreview.classList.add('hidden');
+});
+
 form.addEventListener('submit', (e) => {
   e.preventDefault();
   const text = promptInput.value.trim();
-  if (!text) return;
+  if (!text && !pendingImage) return;
+  const image = pendingImage;
   promptInput.value = '';
   promptInput.style.height = 'auto';
-  sendPrompt(text);
+  pendingImage = null;
+  imageInput.value = '';
+  attachPreview.classList.add('hidden');
+  sendPrompt(text, image);
 });
 
 promptInput.addEventListener('keydown', (e) => {

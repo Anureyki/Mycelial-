@@ -223,3 +223,38 @@ main#log {
 #sendBtn:disabled {
   opacity: 0.5;
 }
+
+#attachBtn {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  color: var(--text);
+  border-radius: 12px;
+  padding: 0 14px;
+  font-size: 1.1rem;
+  cursor: pointer;
+}
+
+#attachPreview {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 8px 12px;
+  background: var(--panel);
+  border-top: 1px solid var(--border);
+  font-size: 0.85rem;
+  color: var(--muted);
+}
+
+#attachPreview.hidden {
+  display: none;
+}
+
+#attachClear {
+  background: none;
+  border: none;
+  color: var(--muted);
+  font-size: 1.1rem;
+  cursor: pointer;
+  padding: 0 6px;
+}

@@ -36,7 +36,13 @@
   <div class="card" id="progressCard"><h2>Progress</h2><p class="card-body">Loading...</p></div>
 </section>
 
+<div id="attachPreview" class="hidden">
+  <span id="attachName"></span>
+  <button id="attachClear" type="button" aria-label="Remove photo">&times;</button>
+</div>
 <form id="composer">
+  <input id="imageInput" type="file" accept="image/*" capture="environment" class="hidden">
+  <button id="attachBtn" type="button" aria-label="Attach photo">&#128247;</button>
   <textarea id="promptInput" placeholder="Ask Mycelial..." rows="1" autocomplete="off"></textarea>
   <button id="sendBtn" type="submit">Send</button>
 </form>
