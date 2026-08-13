@@ -1,0 +1,12 @@
+[Unit]
+Description=Anansi LAN forwarder (socat 9081 -> Anansi's loopback-only 8081)
+After=network.target
+
+[Service]
+User=anureyki
+ExecStart=/usr/bin/socat TCP-LISTEN:9081,fork,reuseaddr,bind=0.0.0.0 TCP:127.0.0.1:8081
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target

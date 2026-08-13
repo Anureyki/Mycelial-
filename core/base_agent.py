@@ -263,7 +263,8 @@ class AgentBase:
             return jsonify({"status": "alive", "agent": self.agent_id})
 
         import threading
-        threading.Thread(target=lambda: self.app.run(host="127.0.0.1", port=self.port, debug=False, use_reloader=False)).start()
+        from waitress import serve
+        threading.Thread(target=lambda: serve(self.app, host="127.0.0.1", port=self.port, _quiet=True)).start()
         self.log(f"HTTP server started on port {self.port}")
 
     def handle_task(self, task, args, sender):
