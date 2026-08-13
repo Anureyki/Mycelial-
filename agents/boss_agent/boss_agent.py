@@ -255,25 +255,39 @@ class BossAgent(AgentBase):
                 history = history_inner.get("result", {}) if isinstance(history_inner, dict) else {}
                 timeline = history.get("timeline", []) if isinstance(history, dict) else []
 
-                # Lead with the most recent unresolved evaluation, if any - this is the
-                # "Your reservoir pH has been drifting..." style alert. The underlying
+                # Lead with an alert only if the MOST RECENT check of that type is
+                # still unresolved - a fresh stable reservoir_eval must supersede an
+                # older warning, not get skipped past while hunting further back in
+                # history for the last time something looked bad. The underlying
                 # observation/reason/action/confidence shape already carries everything
                 # needed to narrate this in plain language, with no agent/task names.
                 alert_line = None
+                latest_by_type = {}
                 for entry in reversed(timeline):
                     etype = entry.get("type")
-                    data = entry.get("data", {}) if isinstance(entry, dict) else {}
-                    rec = data.get("recommendation", {}) if isinstance(data, dict) else {}
-                    if etype == "reservoir_eval" and rec.get("stability_band") in ("warning", "critical"):
+                    if etype in ("reservoir_eval", "leaf_eval", "stage_eval") and etype not in latest_by_type:
+                        latest_by_type[etype] = entry
+
+                reservoir_entry = latest_by_type.get("reservoir_eval")
+                if reservoir_entry:
+                    rec = reservoir_entry.get("data", {}).get("recommendation", {})
+                    if rec.get("stability_band") in ("warning", "critical"):
                         urgency = "I'd address this now" if rec.get("stability_band") == "critical" else "I recommend addressing it today"
                         alert_line = f"{rec.get('observation', 'Something in the reservoir needs attention.')} {urgency}."
-                        break
-                    if etype == "leaf_eval" and rec.get("classification") == "problem":
-                        alert_line = f"{rec.get('observation', 'A leaf issue was spotted.')} {rec.get('action', '')}".strip()
-                        break
-                    if etype == "stage_eval" and rec.get("classification") in ("decline", "regression"):
-                        alert_line = f"{rec.get('observation', '')} {rec.get('action', '')}".strip()
-                        break
+
+                if not alert_line:
+                    leaf_entry = latest_by_type.get("leaf_eval")
+                    if leaf_entry:
+                        rec = leaf_entry.get("data", {}).get("recommendation", {})
+                        if rec.get("classification") == "problem":
+                            alert_line = f"{rec.get('observation', 'A leaf issue was spotted.')} {rec.get('action', '')}".strip()
+
+                if not alert_line:
+                    stage_entry = latest_by_type.get("stage_eval")
+                    if stage_entry:
+                        rec = stage_entry.get("data", {}).get("recommendation", {})
+                        if rec.get("classification") in ("decline", "regression"):
+                            alert_line = f"{rec.get('observation', '')} {rec.get('action', '')}".strip()
 
                 if alert_line:
                     lines = [alert_line]
