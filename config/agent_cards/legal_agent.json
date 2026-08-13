@@ -1,0 +1,43 @@
+{
+  "agent_id": "legal_agent",
+  "role": "agent",
+  "version": "1.0.0",
+  "capabilities": [
+    "parse_contract",
+    "model_relationship",
+    "extract_parties",
+    "analyze_roles",
+    "query_relationship",
+    "compare_relationships",
+    "lookup",
+    "list_relationships",
+    "get_relationship",
+    "find_relationships",
+    "find_relationships_by_project",
+    "refresh_cache",
+    "query_cache",
+    "cache_stats",
+    "cache_manifest",
+    "search_cases",
+    "monitor_user",
+    "monitor_docket",
+    "log_lesson",
+    "query_lessons",
+    "list_lessons"
+  ],
+  "endpoint": "/execute",
+  "port": 9011,
+  "transport": [
+    "http",
+    "mqtt"
+  ],
+  "mqtt_topics": {
+    "publish": "mycelial/agent/legal_agent/out",
+    "subscribe": "mycelial/agent/legal_agent/in"
+  },
+  "public_key": "",
+  "owner": "anureyki",
+  "created": "2026-07-31T17:59:12.877063",
+  "pre_hook": null,
+  "post_hook": null
+}

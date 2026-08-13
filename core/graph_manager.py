@@ -21,6 +21,8 @@ import sqlite3
 import uuid
 from datetime import datetime
 
+from .schemas import new_relationship_id, now_iso
+
 BASE = os.path.expanduser("~/mycelial")
 DEFAULT_DB_PATH = os.path.join(BASE, "state", "graph.db")
 
@@ -71,6 +73,16 @@ class GraphManager:
                     rel_type TEXT NOT NULL,
                     properties TEXT NOT NULL DEFAULT '{}',
                     created_at TEXT NOT NULL
+                )
+            """)
+            conn.execute("""
+                CREATE TABLE IF NOT EXISTS relationships (
+                    relationship_id TEXT PRIMARY KEY,
+                    project_id TEXT,
+                    domain TEXT,
+                    data TEXT NOT NULL,
+                    source_agent TEXT,
+                    ingested_at TEXT NOT NULL
                 )
             """)
             conn.execute("CREATE INDEX IF NOT EXISTS idx_nodes_type ON nodes(type)")
@@ -240,14 +252,29 @@ class GraphManager:
 
     # ---------- Convenience: build from a canonical relationship dict ----------
     def ingest_relationship(self, relationship, source_agent=None):
-        """Turn a core.schemas relationship dict into graph nodes + edges.
+        """Turn a core.schemas relationship dict into graph nodes + edges, and
+        archive the full raw relationship JSON in the `relationships` table
+        (keyed by relationship_id) for audit/lookup by id.
+
         Creates/updates a relationship node, a project node (if project_id set),
         a node per party, and PARTY / GOVERNS / BENEFICIARY / SERVICE_PROVIDER /
         FEE_RECIPIENT edges. Idempotent (add_edge dedupes)."""
-        rel_id = relationship["relationship_id"]
+        rel_id = relationship.get("relationship_id") or new_relationship_id()
         project_id = relationship.get("project_id") or None
+        domain = relationship.get("domain")
+        ingested_at = now_iso()
+
+        with self._conn() as conn:
+            conn.execute(
+                "INSERT OR REPLACE INTO relationships "
+                "(relationship_id, project_id, domain, data, source_agent, ingested_at) "
+                "VALUES (?, ?, ?, ?, ?, ?)",
+                (rel_id, project_id, domain, json.dumps(relationship), source_agent, ingested_at)
+            )
+            conn.commit()
+
         self.add_node(rel_id, "relationship", {
-            "domain": relationship.get("domain"),
+            "domain": domain,
             "project_id": project_id,
             "governing_law": relationship.get("governing_law"),
             "assets": relationship.get("assets", []),

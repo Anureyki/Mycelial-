@@ -1,0 +1,34 @@
+{
+  "agent_id": "accounting_agent",
+  "role": "agent",
+  "version": "1.0.0",
+  "capabilities": [
+    "parse_financial_instrument",
+    "assess_tax_liability",
+    "track_account_balance",
+    "lookup",
+    "list_relationships",
+    "get_relationship",
+    "find_relationships",
+    "find_relationships_by_project",
+    "refresh_cache",
+    "query_cache",
+    "cache_stats",
+    "cache_manifest"
+  ],
+  "endpoint": "/execute",
+  "port": 9012,
+  "transport": [
+    "http",
+    "mqtt"
+  ],
+  "mqtt_topics": {
+    "publish": "mycelial/agent/accounting_agent/out",
+    "subscribe": "mycelial/agent/accounting_agent/in"
+  },
+  "public_key": "",
+  "owner": "anureyki",
+  "created": "2026-07-31T17:59:12.923481",
+  "pre_hook": null,
+  "post_hook": null
+}

@@ -1,0 +1,26 @@
+{
+  "agent_id": "security_agent",
+  "role": "security",
+  "version": "1.0.0",
+  "capabilities": [
+    "authenticate",
+    "authorize",
+    "audit",
+    "issue_token"
+  ],
+  "endpoint": "/execute",
+  "port": 9010,
+  "transport": [
+    "http",
+    "mqtt"
+  ],
+  "mqtt_topics": {
+    "publish": "mycelial/agent/security_agent/out",
+    "subscribe": "mycelial/agent/security_agent/in"
+  },
+  "public_key": "",
+  "owner": "anureyki",
+  "created": "2026-07-31T17:59:12.821540",
+  "pre_hook": null,
+  "post_hook": null
+}

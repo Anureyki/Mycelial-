@@ -1,0 +1,34 @@
+{
+  "agent_id": "trust_agent",
+  "role": "agent",
+  "version": "1.0.0",
+  "capabilities": [
+    "parse_trust_document",
+    "model_trust_relationship",
+    "lookup",
+    "list_relationships",
+    "get_relationship",
+    "find_relationships",
+    "find_relationships_by_project",
+    "compare_relationships",
+    "refresh_cache",
+    "query_cache",
+    "cache_stats",
+    "cache_manifest"
+  ],
+  "endpoint": "/execute",
+  "port": 9013,
+  "transport": [
+    "http",
+    "mqtt"
+  ],
+  "mqtt_topics": {
+    "publish": "mycelial/agent/trust_agent/out",
+    "subscribe": "mycelial/agent/trust_agent/in"
+  },
+  "public_key": "",
+  "owner": "anureyki",
+  "created": "2026-07-31T17:59:12.890278",
+  "pre_hook": null,
+  "post_hook": null
+}

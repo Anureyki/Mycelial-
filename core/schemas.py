@@ -154,3 +154,15 @@ def from_legacy_fields(doc, domain, project_id="", asset_field="asset"):
         relationship_id=f"rel_{doc['id']}" if doc.get("id") else None,
         timestamp=doc.get("created"),
     )
+
+
+def new_relationship_id():
+    """Raw relationship-id generator (no 'rel_' prefix), for callers that
+    just need a unique id rather than a full canonical relationship dict
+    (e.g. core.graph_manager when ingesting a relationship that didn't
+    come through new_relationship())."""
+    return str(uuid.uuid4())
+
+
+def now_iso():
+    return datetime.now().isoformat()
