@@ -3,7 +3,6 @@ agent_id: legal.mycelial
 type: Legal & Regulatory Interpretation
 capabilities:
   - interpret
-hooks: {}
 permissions:
   - read: ~/mycelial/databases/sqlite/knowledge_base.db
   - write: ~/mycelial/databases/sqlite/knowledge_base.db

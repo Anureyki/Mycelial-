@@ -1,0 +1,17 @@
+{
+  "_comment": "Resource guards enforced by security_agent's check_guard task, called from core.base_agent on every inbound /execute. Denylist semantics: a request with no matching rule is ALLOWED. Fields agent/task accept fnmatch globs ('*' = any); target_glob only fires when the request carries a target path. Edit this file then call security_agent's reload_guards task - no restart needed.",
+  "deny": [
+    {
+      "agent": "*",
+      "task": "*",
+      "target_glob": "*/hooks/*",
+      "reason": "hooks/ is retired - guards live here now"
+    },
+    {
+      "agent": "*",
+      "task": "edit_file",
+      "target_glob": "*/README.md",
+      "reason": "README is the source of truth; editing it requires owner approval"
+    }
+  ]
+}

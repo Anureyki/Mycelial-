@@ -65,6 +65,9 @@ echo "  ✅ Tool Service (port 8015)"
 nohup python3 services/provenance/service.py > logs/provenance.log 2>&1 &
 echo "  ✅ Provenance Service (port 8016)"
 
+nohup python3 services/federated/service.py > logs/federated.log 2>&1 &
+echo "  ✅ Federated Learning Service (port 8017)"
+
 # Wait a moment for services to initialize
 sleep 5
 
@@ -73,6 +76,15 @@ sleep 5
 # ----------------------------------------------------------------------
 echo ""
 echo "🤖 Starting core agents..."
+
+# Security Agent goes first: core/base_agent asks it to authorize every inbound
+# task via check_guard. Guard checks fail open, so a late start is not fatal -
+# but until it is up, no guard rules are being enforced.
+if [ -f "agents/security_agent/security_agent.py" ]; then
+    python3 -m agents.security_agent.security_agent &
+    echo "  ✅ Security Agent (port 9010)"
+    sleep 2
+fi
 
 python3 -m agents.boss_agent.boss_agent &
 echo "  ✅ Boss Agent (port 8000)"
@@ -119,11 +131,10 @@ if [ -f "agents/trust_agent/trust_agent.py" ]; then
     echo "  ✅ Trust Agent (port 9013)"
 fi
 
-# Optional: Security Agent (if it exists) - needed for update_graph token auth
-if [ -f "agents/security_agent/security_agent.py" ]; then
-    python3 -m agents.security_agent.security_agent &
-    echo "  ✅ Security Agent (port 9010)"
-fi
+# Department heads (ag_agent, and future domain heads) are deliberately NOT
+# started here. They are meant to wake on demand once the wake-word / UX layer
+# exists. Start one manually when you need it:
+#   python3 -m agents.ag_agent.agriculture_agent &
 
 # Optional: PQA Agent (if it exists) - public web search/browse via SearXNG + Puppeteer
 if [ -f "agents/pqa_agent/pqa_agent.py" ]; then
@@ -137,7 +148,7 @@ fi
 sleep 3
 echo ""
 echo "📋 Health check summary:"
-for port in 8004 8007 8008 8009 8005 8006 8010 8011 8012 8014 8015 8016 8000 8001 8002 8003 8081 9006 9007 9009 9010 9011 9012 9013; do
+for port in 8004 8007 8008 8009 8005 8006 8010 8011 8012 8014 8015 8016 8017 8000 8001 8002 8003 8081 9006 9007 9009 9010 9011 9012 9013; do
     if curl -s -o /dev/null -w "%{http_code}" http://localhost:$port/health | grep -q 200; then
         echo "  ✅ Port $port is healthy"
     else

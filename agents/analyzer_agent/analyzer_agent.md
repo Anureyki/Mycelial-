@@ -5,9 +5,6 @@ capabilities:
   - analyze_outcomes
   - generate_recommendations
   - report_to_boss
-hooks:
-  pre: pre_analyze.sh
-  post: post_analyze.sh
 permissions:
   - read: ~/mycelial/knowledge/
   - write: ~/mycelial/reports/

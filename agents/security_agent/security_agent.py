@@ -1,11 +1,17 @@
 #!/usr/bin/env python3
 # agents/security_agent/security_agent.py
-import os, json, time, secrets, uuid
+import os, json, time, secrets, uuid, fnmatch, shutil
+from datetime import datetime
 from core.base_agent import AgentBase
 
 BASE = os.path.expanduser("~/mycelial")
 SECRET_FILE = os.path.join(BASE, "config", ".security_bootstrap_secret")
 FINDINGS_FILE = os.path.join(BASE, "state", "security_findings.json")
+GUARDS_FILE = os.path.join(BASE, "config", "guards.json")
+LOCK_FILE = os.path.join(BASE, "state", "LOCKED")
+QUARANTINE_DIR = os.path.join(BASE, "quarantine")
+BLOCKLIST_FILE = os.path.join(BASE, "state", "blocklist.txt")
+PENDING_DIR = os.path.join(BASE, "state", "pending_requests")
 VALID_SEVERITIES = ("low", "medium", "high", "critical")
 
 class SecurityAgent(AgentBase):
@@ -14,11 +20,13 @@ class SecurityAgent(AgentBase):
             agent_id="security_agent",
             port=9010,
             capabilities=["authenticate", "authorize", "audit", "issue_token",
-                          "flag_finding", "list_findings", "resolve_finding"],
+                          "flag_finding", "list_findings", "resolve_finding",
+                          "check_guard", "reload_guards", "quarantine", "eliminate"],
             role="security"
         )
         self.tokens = {}  # simple in-memory token store (persist later)
         self.bootstrap_secret = self._load_or_create_bootstrap_secret()
+        self.guards = self._load_guards()
         self.policies = {
             "coding_agent": ["run_command", "edit_file", "read_file"],
             "grow_agent": ["log_reading", "transition_stage"],
@@ -67,6 +75,40 @@ class SecurityAgent(AgentBase):
             return None
         return self.tokens[token]["agent_id"]
 
+    def _load_guards(self):
+        """Resource guards, replacing the old hooks/pre_*.sh scripts.
+
+        Deliberately separate from self.policies: policies is an *allowlist*
+        keyed by agent_id, and most agents aren't in it, so using it to gate
+        every request would deny the majority of the swarm. Guards are a
+        *denylist* - anything with no matching rule is allowed through."""
+        if os.path.exists(GUARDS_FILE):
+            try:
+                with open(GUARDS_FILE, "r") as f:
+                    return json.load(f)
+            except (json.JSONDecodeError, OSError) as e:
+                # A malformed guards file must not take the swarm down, but it
+                # also must not silently disable every guard - say so loudly.
+                self.log(f"⚠️  Could not read {GUARDS_FILE} ({e}); running with NO deny rules.")
+                return {"deny": []}
+        return {"deny": []}
+
+    def _guard_matches(self, rule, agent, action, target):
+        """A rule matches when every field it specifies matches. Absent fields
+        and "*" both mean 'any'."""
+        if not fnmatch.fnmatch(agent, rule.get("agent", "*")):
+            return False
+        if not fnmatch.fnmatch(action, rule.get("task", "*")):
+            return False
+        target_glob = rule.get("target_glob")
+        if target_glob:
+            # A rule scoped to a path can only fire when we were given one.
+            if not target:
+                return False
+            if not fnmatch.fnmatch(target, target_glob):
+                return False
+        return True
+
     def _load_findings(self):
         if os.path.exists(FINDINGS_FILE):
             with open(FINDINGS_FILE, "r") as f:
@@ -107,6 +149,126 @@ class SecurityAgent(AgentBase):
                 return {"authorized": False, "error": "Authentication required"}
             allowed = self.policies.get(agent_id, [])
             return {"authorized": action in allowed}
+
+        elif task == "check_guard":
+            # Tokenless on purpose: this is called by core.base_agent on every
+            # inbound /execute, before the caller has done anything. Requiring a
+            # token here would mean every agent needs the bootstrap secret just
+            # to serve a request. Authorization-by-capability stays in
+            # "authorize" above; this is the resource guard layer.
+            agent = args.get("agent", "unknown")
+            action = args.get("task", "")
+            target = args.get("target", "") or ""
+
+            # Global kill switch. The old hooks/pre_action.sh wrote and read a
+            # state/LOCKED file that no Python ever honoured; now it's real.
+            if os.path.exists(LOCK_FILE):
+                return {"allowed": False, "reason": "System is LOCKED pending owner review"}
+
+            for rule in self.guards.get("deny", []):
+                if self._guard_matches(rule, agent, action, target):
+                    reason = rule.get("reason", "denied by guard")
+                    self.log(f"GUARD DENY {agent}/{action} on {target or '-'}: {reason}")
+                    return {"allowed": False, "reason": reason}
+
+            return {"allowed": True, "reason": "no matching deny rule"}
+
+        elif task == "reload_guards":
+            # config/guards.json is the kind of file that goes stale silently.
+            # Being able to reload it without restarting the swarm is what keeps
+            # it maintained rather than abandoned.
+            self.guards = self._load_guards()
+            count = len(self.guards.get("deny", []))
+            self.log(f"Reloaded guards: {count} deny rule(s)")
+            return {"result": "Guards reloaded", "deny_rules": count}
+
+        elif task == "quarantine":
+            # Ported from the retired hooks/quarantine.sh.
+            file_path = args.get("file")
+            reason = args.get("reason")
+            if not file_path or not reason:
+                return {"error": "quarantine requires 'file' and 'reason'"}
+            file_path = os.path.expanduser(file_path)
+            if not os.path.isfile(file_path):
+                return {"error": f"File {file_path} does not exist"}
+
+            os.makedirs(QUARANTINE_DIR, exist_ok=True)
+            stamp = datetime.now().strftime("%Y-%m-%dT%H-%M-%S")
+            dest = os.path.join(QUARANTINE_DIR, f"{os.path.basename(file_path)}_{stamp}")
+            shutil.move(file_path, dest)
+            os.chmod(dest, 0o444)  # read-only: quarantined, not executable
+
+            with open(f"{dest}.meta", "w") as f:
+                json.dump({
+                    "original_path": file_path,
+                    "reason": reason,
+                    "quarantined_at": datetime.now().isoformat(),
+                    "quarantined_by": sender,
+                }, f, indent=2)
+
+            self.log_to_audit("quarantine", f"{file_path} -> {dest}", level="warning",
+                              event_type="QUARANTINE",
+                              metadata={"file": file_path, "reason": reason, "destination": dest})
+            return {"result": "File quarantined", "destination": dest}
+
+        elif task == "eliminate":
+            # Ported from hooks/eliminate.sh, which used an interactive `read -r`
+            # double-confirm. A service has no TTY, so approval moves to a file in
+            # state/pending_requests/ that a human must flip to "approved".
+            # Nothing currently reads that directory, so the safe default is to
+            # REFUSE and wait rather than assume consent.
+            file_path = args.get("file")
+            reason = args.get("reason")
+            if not file_path or not reason:
+                return {"error": "eliminate requires 'file' and 'reason'"}
+            file_path = os.path.expanduser(file_path)
+            if not os.path.isfile(file_path):
+                return {"error": f"File {file_path} does not exist"}
+
+            approval_id = args.get("approval_id")
+            if not approval_id:
+                request_id = self.request_permission(
+                    target="owner", task="eliminate",
+                    args={"file": file_path, "reason": reason,
+                          "source_url": args.get("source_url", "unknown")})
+                return {
+                    "allowed": False,
+                    "result": "Approval required - nothing was deleted",
+                    "approval_id": request_id,
+                    "instructions": (
+                        f"Set \"status\": \"approved\" in state/pending_requests/{request_id}.json, "
+                        f"then call eliminate again with approval_id={request_id}"
+                    ),
+                }
+
+            approval_file = os.path.join(PENDING_DIR, f"{approval_id}.json")
+            if not os.path.exists(approval_file):
+                return {"error": f"No such approval request: {approval_id}"}
+            with open(approval_file, "r") as f:
+                approval = json.load(f)
+            if approval.get("status") != "approved":
+                return {"allowed": False,
+                        "error": f"Request {approval_id} is '{approval.get('status')}', not 'approved'"}
+            if approval.get("args", {}).get("file") != file_path:
+                # Stops an approval for one file being replayed against another.
+                return {"error": "Approval does not match the requested file"}
+
+            source_url = args.get("source_url", approval.get("args", {}).get("source_url", "unknown"))
+            if source_url and source_url != "unknown":
+                os.makedirs(os.path.dirname(BLOCKLIST_FILE), exist_ok=True)
+                with open(BLOCKLIST_FILE, "a") as f:
+                    f.write(f"{source_url}\n")
+
+            os.remove(file_path)
+            approval["status"] = "executed"
+            with open(approval_file, "w") as f:
+                json.dump(approval, f, indent=2)
+
+            self.log_to_audit("eliminate", f"Deleted {file_path}", level="warning",
+                              event_type="ELIMINATE",
+                              metadata={"file": file_path, "reason": reason,
+                                        "source": source_url, "approval_id": approval_id})
+            return {"result": "File eliminated", "file": file_path, "blocklisted": source_url}
 
         elif task == "audit":
             # log an audit event (store in Hermes)

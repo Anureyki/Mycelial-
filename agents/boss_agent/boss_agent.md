@@ -2,31 +2,19 @@
 agent_id: boss.mycelial
 type: Orchestrator & Governance
 capabilities:
-  - fl_orchestrate
-  - fl_orchestrate
   - show_pending
   - approve
   - deny
   - interactive_pending
-  - interactive_pending
   - delegate
   - check_updates
   - health_check
-  - set_autostart
-  - fl_status
-  - fl_start
-  - fl_stop
-  - fl_train
   - sync_all
   - check_desync
   - agent_status
   - discover
   - learn
   - security_recommend
-  - show_pending
-  - approve
-  - deny
-hooks: {}
 permissions:
   - read: ~/mycelial/**
   - write: ~/mycelial/state/**
@@ -90,11 +78,6 @@ When the Boss is running without a terminal (e.g., cron or startup script):
 | `health_check` | Run full system status: updates, Pi‑hole, Docker, agents, autostart services. |
 | `delegate` | Pass a task to another agent (subprocess or A2A, subject to permission). |
 | `check_updates` | Trigger Data Gatherer to scan for system and blocklist updates. |
-| `set_autostart` | Enable/disable autostart for a service (`fl_server`). |
-| `fl_status` | Check if Federated Learning server is running. |
-| `fl_start` | Start the FL server (with interactive autostart prompt). |
-| `fl_stop` | Stop the FL server. |
-| `fl_train` | Trigger an FL training round (mode and crop optional). |
 | `check_desync` | Compare `.md` capabilities with `.py` tasks and report mismatches. |
 | `sync_all` | Regenerate all agent `.py` scripts from their `.md` definitions. |
 | `agent_status` | Print a summary of each agent's capabilities, last task, last run, and error count. |
@@ -123,10 +106,10 @@ The Boss learns from task outcomes stored in `~/mycelial/knowledge/`. It can:
 
 ### Commands
 
-- `~/mycelial/agents/boss_agent.py --task agent_status` – view all agents' capabilities and health.
-- `~/mycelial/agents/boss_agent.py --task check_desync` – detect drift.
-- `~/mycelial/agents/boss_agent.py --task sync_all` – bring all agents back in sync.
-- `~/mycelial/agents/boss_agent.py --task discover` – scan for new agents via A2A.
+- `python3 -m agents.boss_agent.boss_agent --task agent_status` – view all agents' capabilities and health.
+- `python3 -m agents.boss_agent.boss_agent --task check_desync` – detect drift.
+- `python3 -m agents.boss_agent.boss_agent --task sync_all` – bring all agents back in sync.
+- `python3 -m agents.boss_agent.boss_agent --task discover` – scan for new agents via A2A.
 
 ---
 
@@ -167,9 +150,9 @@ Tracks:
 ## 📎 Related Files
 
 - `~/mycelial/README.md` – Source of Truth
-- `~/mycelial/hooks/*` – Validation and automation scripts
+- `~/mycelial/config/guards.json` – Resource guards enforced by the Security Agent
 - `~/mycelial/agents/*.md` – Agent definitions
-- `~/mycelial/agents/*.py` – Agent implementations (generated from `.md`)
+- `~/mycelial/agents/*.py` – Agent implementations
 - `~/mycelial/state/` – All agent state files
 - `~/mycelial/logs/audit.log` – Central audit trail
 

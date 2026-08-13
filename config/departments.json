@@ -1,0 +1,26 @@
+{
+  "_comment": "Department rosters. A department head aggregates results across its member agents and reviews how they can improve. Adding a member is a config change, not a code change - that is deliberate, so a new agent does not require editing the head's source (the pattern that let hooks/ drift out of sync with reality).",
+  "agriculture": {
+    "head": "ag_agent",
+    "members": [
+      {
+        "agent_id": "grow_agent",
+        "domain": "cannabis/mushroom cultivation",
+        "status_task": "get_status",
+        "active": true
+      },
+      {
+        "agent_id": "bee_agent",
+        "domain": "apiary monitoring",
+        "status_task": "get_status",
+        "active": false
+      },
+      {
+        "agent_id": "aquaponics_agent",
+        "domain": "aquaponics loop",
+        "status_task": "get_status",
+        "active": false
+      }
+    ]
+  }
+}

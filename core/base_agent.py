@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
 """
-Mycelial Agent Base – with hook support + Registry Service integration + Logging helper
+Mycelial Agent Base – Security Agent guards + Registry Service integration + Logging helper
 Now with JSON-RPC compatibility (handles both top-level and nested params).
 Includes Tool Service integration for MCP tools and agent‑specific memory helpers.
 """
-import os, re, json, uuid, time, threading, requests, paho.mqtt.client as mqtt, subprocess
+import os, re, json, uuid, time, threading, requests, paho.mqtt.client as mqtt
 from datetime import datetime
 from flask import Flask, request, jsonify
 
@@ -23,6 +23,11 @@ CAG_TOKEN_RE = re.compile(r"[a-zA-Z0-9§][a-zA-Z0-9§.\-]*")
 
 REGISTRY_SERVICE_URL = "http://localhost:8004/execute"
 LOGGING_SERVICE_URL = "http://localhost:8009/log"
+SECURITY_AGENT_URL = "http://localhost:9010/execute"
+
+# Guard checks sit in front of every request, so they must be fast and must
+# never be the reason a request hangs.
+GUARD_TIMEOUT = 5
 
 # Registration retry settings
 REGISTRY_RETRY_ATTEMPTS = 10
@@ -68,9 +73,7 @@ class AgentBase:
                 },
                 "public_key": "",
                 "owner": os.getenv("USER", "unknown"),
-                "created": datetime.now().isoformat(),
-                "pre_hook": None,
-                "post_hook": None
+                "created": datetime.now().isoformat()
             }
             with open(card_path, "w") as f:
                 json.dump(card, f, indent=2)
@@ -194,27 +197,54 @@ class AgentBase:
         self._call_logging_service(log_entry)
         return correlation_id
 
-    # ---------- HOOKS ----------
-    def run_pre_hook(self, task, args):
-        hook_path = self.card.get("pre_hook")
-        if hook_path and os.path.exists(os.path.expanduser(hook_path)):
-            hook = os.path.expanduser(hook_path)
-            self.log(f"Running pre‑hook: {hook}")
-            try:
-                subprocess.run([hook, task] + args, check=True)
-            except subprocess.CalledProcessError as e:
-                self.log(f"Pre‑hook failed: {e}")
-                raise
+    # ---------- GUARDS ----------
+    def _extract_target(self, args):
+        """Best-effort resource path out of a task's args, for path-scoped
+        guard rules. Args shapes vary across agents, so check the usual keys
+        and give up quietly rather than guessing."""
+        if isinstance(args, dict):
+            for key in ("path", "file", "file_path", "target", "filename"):
+                value = args.get(key)
+                if isinstance(value, str):
+                    return value
+        return ""
 
-    def run_post_hook(self, task, args, result):
-        hook_path = self.card.get("post_hook")
-        if hook_path and os.path.exists(os.path.expanduser(hook_path)):
-            hook = os.path.expanduser(hook_path)
-            self.log(f"Running post‑hook: {hook}")
-            try:
-                subprocess.run([hook, task] + args + [str(result)], check=True)
-            except subprocess.CalledProcessError as e:
-                self.log(f"Post‑hook failed: {e}")
+    def check_guard(self, task, args, sender):
+        """Ask the Security Agent whether this request may proceed.
+
+        Replaces the old card["pre_hook"] shell-out. Returns (allowed, reason).
+
+        Fails OPEN on transport error, matching how _lookup_agent degrades: a
+        Security Agent that is down or restarting must not halt the whole swarm.
+        Only an explicit allowed=False denies."""
+        # The Security Agent cannot ask itself for permission to answer the
+        # question - that recurses until something gives out.
+        if self.agent_id == "security_agent":
+            return True, "security_agent is exempt"
+
+        try:
+            response = requests.post(
+                SECURITY_AGENT_URL,
+                json={"jsonrpc": "2.0", "method": "execute", "params": {
+                    "task": "check_guard",
+                    "args": {"agent": self.agent_id, "task": task,
+                             "target": self._extract_target(args),
+                             "sender": sender},
+                    "sender": self.agent_id,
+                }, "id": str(uuid.uuid4())},
+                timeout=GUARD_TIMEOUT,
+            )
+            if response.status_code != 200:
+                self.log(f"Guard check returned HTTP {response.status_code}; allowing by default")
+                return True, "guard unavailable"
+            result = response.json().get("result", {})
+            if not isinstance(result, dict) or "allowed" not in result:
+                self.log("Guard check returned an unexpected shape; allowing by default")
+                return True, "guard unavailable"
+            return bool(result["allowed"]), result.get("reason", "")
+        except Exception as e:
+            self.log(f"Guard check failed ({e}); allowing by default")
+            return True, "guard unavailable"
 
     # ---------- HTTP SERVER ----------
     def start_http_server(self):
@@ -250,9 +280,20 @@ class AgentBase:
             self.log(f"Received A2A: {task} from {sender}")
 
             try:
-                self.run_pre_hook(task, args)
+                allowed, reason = self.check_guard(task, args, sender)
+                if not allowed:
+                    self.log(f"Denied {task} from {sender}: {reason}")
+                    self.log_to_audit(task, f"Denied: {reason}", level="warning",
+                                      event_type="GUARD_DENY",
+                                      metadata={"task": task, "sender": sender,
+                                                "reason": reason})
+                    return jsonify({"error": f"Denied: {reason}"}), 403
+
                 result = self.handle_task(task, args, sender)
-                self.run_post_hook(task, args, result)
+
+                self.log_to_audit(task, str(result), event_type="TASK_COMPLETED",
+                                  metadata={"task": task, "sender": sender})
+                self.publish_event("task.completed", {"task": task, "sender": sender})
                 return jsonify({"result": result})
             except Exception as e:
                 self.log(f"Error: {e}")

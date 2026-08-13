@@ -46,6 +46,8 @@ Mycelial is a self‑hosted, stateless, agent‑based operating system for auton
 | Data Engineering | 8012 | Dataset preprocessing |
 | Service Manager | 8014 | Process supervision, auto‑restart |
 | Tool Service | 8015 | MCP gateway |
+| Provenance | 8016 | Artifact lineage and origin classification |
+| Federated Learning | 8017 | Flower server lifecycle + FedAvg (gRPC on 9092) |
 
 ## MCP Integration
 MCP servers are configured in `config/mcp.d/`. Currently active:
@@ -64,6 +66,34 @@ MCP servers are configured in `config/mcp.d/`. Currently active:
 - **Debug an agent:** Run it in the foreground (without `&`) to see tracebacks.
 - **View logs:** `tail -f logs/<agent>.log` or `tail -f logs/<service>.log`.
 - **Restart a single agent:** `pkill -f "agent_name" && python3 -m agents.<agent_name>.<agent_name> &`.
+
+## Guards (replaces the retired `hooks/`)
+
+Every inbound `/execute` passes through `AgentBase.check_guard()`, which asks the Security Agent (9010) to authorize it. Deny rules live in `config/guards.json` (denylist — no matching rule means allowed).
+
+- **Edit rules:** change `config/guards.json`, then `curl -X POST localhost:9010/execute -d '{"task":"reload_guards","args":{}}'` — no restart needed.
+- **Kill switch:** `touch state/LOCKED` denies everything until removed.
+- **Fails open:** if the Security Agent is unreachable the request is allowed and a warning is logged — an outage must not halt the swarm. Only an explicit `allowed: false` denies.
+- Denials return HTTP 403 and a `GUARD_DENY` row in the audit log.
+
+## Federated Learning
+
+```bash
+curl -X POST localhost:8017/start -d '{"rounds":3,"min_clients":2}'   # Flower gRPC on 9092
+python3 services/federated/client/fl_client.py --mode synth --node-id node1
+curl localhost:8017/status          # round progress while running
+curl localhost:8017/rounds          # per-round aggregated metrics
+curl -X POST localhost:8017/stop
+```
+Use `--mode real` to train on `~/grower-node/sensor_data/*.csv`. To deploy a client to a remote node, ship `services/federated/client/fl_client.py` **and** `services/federated/model.py` together.
+
+## On-demand agents (not in `start_all.sh`)
+
+Department heads wake on demand rather than at boot, pending the wake-word/UX layer:
+```bash
+python3 -m agents.ag_agent.agriculture_agent &     # agriculture dept head, port 9015
+```
+`ag_agent` aggregates its department (roster in `config/departments.json`) and reviews FL results via `review_improvements`. `quantum_agent` (9014) is likewise implemented but unstarted.
 
 ## Environment Variables
 - `ANTHROPIC_API_KEY` – for Claude models (optional)

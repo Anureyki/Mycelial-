@@ -1,0 +1,7 @@
+# Mycelial FL client - install on each grower node.
+# Ship model.py (from services/federated/) alongside fl_client.py.
+flwr>=1.33
+torch>=2.0
+numpy>=2.0
+pandas>=2.0
+diffprivlib>=0.6   # optional: fl_client falls back to numpy Laplace noise without it
