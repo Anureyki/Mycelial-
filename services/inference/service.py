@@ -76,35 +76,81 @@ def resolve_capability(capability):
     return None, skipped
 
 
+def simplify_prompt(prompt):
+    """Flatten punctuation small vision models choke on.
+
+    Verified against moondream: a prompt containing an apostrophe and a
+    dash-joined clause ("Describe this leaf's health - color, spots, ...")
+    returns an EMPTY completion with done_reason=stop, while the same question
+    in plain sentences answers normally. Reproducible, not intermittent."""
+    simplified = prompt.replace("’", "").replace("'", "")
+    simplified = simplified.replace("—", " ").replace("–", " ")
+    simplified = re.sub(r'\s+-\s+', '. ', simplified)
+    return re.sub(r'\s{2,}', ' ', simplified).strip()
+
+
+def _ollama_generate(model, prompt, b64, timeout):
+    resp = requests.post(
+        f"{OLLAMA_URL}/api/generate",
+        json={"model": model, "prompt": prompt, "images": [b64], "stream": False},
+        timeout=timeout,
+    )
+    return resp
+
+
 def run_ollama_vision(model, prompt, image_path):
     """Vision via Ollama's HTTP API - the CLI path used for text can't carry
-    images, so this is a separate call rather than a flag on the other one."""
+    images, so this is a separate call rather than a flag on the other one.
+
+    An empty completion is treated as a failure to retry, not as a valid answer:
+    callers reasonably treat "" as "no result", and silently returning success
+    with nothing in it is how a broken read gets mistaken for a clean one."""
     start_time = time.time()
     try:
         with open(image_path, "rb") as f:
             b64 = base64.b64encode(f.read()).decode("utf-8")
     except Exception as e:
         return {"success": False, "error": "image_unreadable", "message": str(e)}
-    try:
-        resp = requests.post(
-            f"{OLLAMA_URL}/api/generate",
-            json={"model": model, "prompt": prompt, "images": [b64], "stream": False},
-            timeout=TIMEOUT,
-        )
-        latency = int((time.time() - start_time) * 1000)
+
+    attempts = [prompt]
+    simplified = simplify_prompt(prompt)
+    if simplified and simplified != prompt:
+        attempts.append(simplified)
+
+    last_error = None
+    for attempt_prompt in attempts:
+        try:
+            resp = _ollama_generate(model, attempt_prompt, b64, TIMEOUT)
+        except Exception as e:
+            last_error = str(e)
+            continue
         if resp.status_code != 200:
-            return {"success": False, "error": "ollama_vision_failed",
-                    "message": f"HTTP {resp.status_code}: {resp.text[:300]}", "latency_ms": latency}
-        return {
-            "success": True,
-            "model": model,
-            "result": clean_output((resp.json().get("response") or "").strip()),
-            "latency_ms": latency,
-            "timestamp": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
-        }
-    except Exception as e:
-        return {"success": False, "error": "ollama_vision_exception", "message": str(e),
-                "latency_ms": int((time.time() - start_time) * 1000)}
+            last_error = f"HTTP {resp.status_code}: {resp.text[:300]}"
+            continue
+        text = clean_output((resp.json().get("response") or "").strip())
+        # Small VLMs sometimes emit a degenerate completion ("!!!") instead of
+        # nothing. That's not an answer either, and it passes a bare truthiness
+        # check, so require some actual words before accepting it.
+        if text and not re.search(r'[A-Za-z]{3}', text):
+            last_error = f"model returned a degenerate completion ({text[:20]!r})"
+            continue
+        if text:
+            return {
+                "success": True,
+                "model": model,
+                "result": text,
+                "latency_ms": int((time.time() - start_time) * 1000),
+                "retried_simplified": attempt_prompt is not prompt,
+                "timestamp": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
+            }
+        last_error = "model returned an empty completion"
+
+    return {
+        "success": False,
+        "error": "ollama_vision_empty" if last_error and "empty" in last_error else "ollama_vision_failed",
+        "message": f"{model}: {last_error}",
+        "latency_ms": int((time.time() - start_time) * 1000),
+    }
 
 def clean_output(text):
     """Remove ANSI escape codes and normalize whitespace."""

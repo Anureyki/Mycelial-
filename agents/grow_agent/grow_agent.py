@@ -1104,8 +1104,12 @@ class GrowAgent(AgentBase):
                     if "error" not in fused:
                         if fused["low_confidence"]:
                             verification = self._call_inference_vision(
-                                "Describe this plant leaf's health in one or two sentences - color, "
-                                "spots, damage, pests, or disease signs. Be specific and concrete.",
+                                # Plain sentences on purpose. Small local vision
+                                # models (moondream) return an empty or degenerate
+                                # completion for prompts with apostrophes, dash
+                                # clauses, or meta-instructions like "in one or two
+                                # sentences" - verified reproducibly. Keep it flat.
+                                "Describe this plant leaf health. Color, spots, damage, pests, disease signs.",
                                 photo_path
                             )
                             correction = self._log_vision_correction(photo_path, fused, verification)
@@ -1295,9 +1299,9 @@ class GrowAgent(AgentBase):
                     if "error" not in fused:
                         if fused["low_confidence"]:
                             verification = self._call_inference_vision(
-                                "Describe this plant's growth stage in one or two sentences - leaf "
-                                "shape/count, node structure, presence of pistils/hairs or flower sites. "
-                                "Be specific and concrete.",
+                                # Flat phrasing for the same reason as evaluate_leaf above.
+                                "Describe this plant growth stage. Leaf shape and count, node "
+                                "structure, any pistils or white hairs, any flower sites.",
                                 photo_path
                             )
                             correction = self._log_vision_correction(photo_path, fused, verification)
