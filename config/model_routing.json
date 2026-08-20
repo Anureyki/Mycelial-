@@ -1,0 +1,29 @@
+{
+  "_comment": "Capability -> backend routing. Agents ask for a CAPABILITY ('vision', 'reasoning'), never a vendor or model name, so the brain behind a capability can be swapped without touching agent code. Local providers are listed first deliberately: the system must work on this machine with no external API and no network, and a cloud provider is an optional upgrade, never a dependency. When the purpose-trained local model for this system exists, adopting it is an edit to this file.",
+
+  "_provider_notes": {
+    "ollama": "Local. Text goes through the ollama CLI; vision goes through the HTTP API at /api/generate, which is the only path that accepts images.",
+    "anthropic": "Optional cloud. Skipped automatically unless its `requires` env var is set, so a missing key degrades capability rather than breaking the call."
+  },
+
+  "reasoning": {
+    "chain": [
+      { "provider": "ollama", "model": "qwen2.5:1.5b" },
+      { "provider": "ollama", "model": "llama3.2:3b" }
+    ]
+  },
+
+  "vision": {
+    "chain": [
+      { "provider": "ollama", "model": "moondream", "note": "~1.7GB, runs CPU-only in the RAM this host has free." },
+      { "provider": "ollama", "model": "llava:7b", "note": "Better quality, needs ~5GB RAM free." },
+      { "provider": "anthropic", "model": "claude-sonnet-5", "requires": "ANTHROPIC_API_KEY" }
+    ]
+  },
+
+  "code": {
+    "chain": [
+      { "provider": "ollama", "model": "deepseek-coder:1.3b" }
+    ]
+  }
+}

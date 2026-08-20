@@ -4,10 +4,14 @@ Inference Service – Pure HTTP service, NOT an agent.
 Runs inference using a specified model or the default.
 Supports local Ollama models and cloud models (Claude) via cloud_service.
 """
+import base64
+import json
 import os
 import re
 import subprocess
 import time
+
+import requests
 from flask import Flask, request, jsonify
 
 # Import the cloud reasoning provider
@@ -23,6 +27,84 @@ app = Flask(__name__)
 
 DEFAULT_MODEL = os.getenv("INFERENCE_MODEL", "qwen2.5:1.5b")
 TIMEOUT = int(os.getenv("INFERENCE_TIMEOUT", "180"))
+OLLAMA_URL = os.getenv("OLLAMA_URL", "http://localhost:11434")
+ROUTING_FILE = os.path.expanduser("~/mycelial/config/model_routing.json")
+
+
+def load_routing():
+    try:
+        with open(ROUTING_FILE) as f:
+            return {k: v for k, v in json.load(f).items() if not k.startswith("_")}
+    except Exception:
+        return {}
+
+
+def ollama_installed_models():
+    try:
+        resp = requests.get(f"{OLLAMA_URL}/api/tags", timeout=5)
+        if resp.status_code == 200:
+            return {m.get("name", "") for m in resp.json().get("models", [])}
+    except Exception:
+        pass
+    return set()
+
+
+def resolve_capability(capability):
+    """Pick the first backend in a capability's chain that is actually usable
+    right now - an ollama model that's pulled, or a cloud provider whose key is
+    present. Returns (entry, skipped) so a caller can report *why* nothing was
+    available instead of failing opaquely."""
+    chain = (load_routing().get(capability) or {}).get("chain", [])
+    installed = None
+    skipped = []
+    for entry in chain:
+        provider = entry.get("provider")
+        model = entry.get("model")
+        if provider == "ollama":
+            if installed is None:
+                installed = ollama_installed_models()
+            # Ollama tags carry an explicit :tag; match with or without it.
+            if model in installed or any(m.split(":")[0] == model.split(":")[0] for m in installed):
+                return entry, skipped
+            skipped.append(f"{provider}:{model} (not pulled - `ollama pull {model}`)")
+        else:
+            required = entry.get("requires")
+            if required and not os.getenv(required):
+                skipped.append(f"{provider}:{model} ({required} not set)")
+                continue
+            return entry, skipped
+    return None, skipped
+
+
+def run_ollama_vision(model, prompt, image_path):
+    """Vision via Ollama's HTTP API - the CLI path used for text can't carry
+    images, so this is a separate call rather than a flag on the other one."""
+    start_time = time.time()
+    try:
+        with open(image_path, "rb") as f:
+            b64 = base64.b64encode(f.read()).decode("utf-8")
+    except Exception as e:
+        return {"success": False, "error": "image_unreadable", "message": str(e)}
+    try:
+        resp = requests.post(
+            f"{OLLAMA_URL}/api/generate",
+            json={"model": model, "prompt": prompt, "images": [b64], "stream": False},
+            timeout=TIMEOUT,
+        )
+        latency = int((time.time() - start_time) * 1000)
+        if resp.status_code != 200:
+            return {"success": False, "error": "ollama_vision_failed",
+                    "message": f"HTTP {resp.status_code}: {resp.text[:300]}", "latency_ms": latency}
+        return {
+            "success": True,
+            "model": model,
+            "result": clean_output((resp.json().get("response") or "").strip()),
+            "latency_ms": latency,
+            "timestamp": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
+        }
+    except Exception as e:
+        return {"success": False, "error": "ollama_vision_exception", "message": str(e),
+                "latency_ms": int((time.time() - start_time) * 1000)}
 
 def clean_output(text):
     """Remove ANSI escape codes and normalize whitespace."""
@@ -102,16 +184,34 @@ def run_claude_inference(model, prompt, image_path=None):
         "timestamp": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())
     }
 
-def run_inference(model, prompt, image_path=None):
-    """Route to the appropriate inference backend."""
+def run_inference(model, prompt, image_path=None, capability=None):
+    """Route to a backend. Prefer capability-based routing ('vision',
+    'reasoning') so callers never name a vendor - an explicit `model` still
+    works and wins, for callers that genuinely need one specific brain."""
+    if capability and not model:
+        entry, skipped = resolve_capability(capability)
+        if not entry:
+            return {
+                "success": False,
+                "error": "no_backend_for_capability",
+                "message": (
+                    f"No usable backend for capability '{capability}'. Tried: "
+                    + ("; ".join(skipped) if skipped else "nothing configured")
+                    + f". Configure it in {ROUTING_FILE}."
+                ),
+                "skipped": skipped,
+            }
+        provider, model = entry.get("provider"), entry.get("model")
+        if provider == "ollama":
+            return run_ollama_vision(model, prompt, image_path) if image_path \
+                else run_ollama_inference(model, prompt)
+        return run_claude_inference(model, prompt, image_path=image_path)
+
+    model = model or DEFAULT_MODEL
     if model in ANTHROPIC_MODELS or model.startswith("claude"):
         return run_claude_inference(model, prompt, image_path=image_path)
     if image_path:
-        return {
-            "success": False,
-            "error": "vision_unsupported",
-            "message": "Image input requires a Claude model - local Ollama models here are text-only.",
-        }
+        return run_ollama_vision(model, prompt, image_path)
     return run_ollama_inference(model, prompt)
 
 @app.route("/health", methods=["GET"])
@@ -122,13 +222,31 @@ def health():
 def reason_endpoint():
     data = request.json or {}
     prompt = data.get("prompt", "")
-    model = data.get("model") or DEFAULT_MODEL
+    capability = data.get("capability")
+    # Only default the model when no capability was requested - otherwise the
+    # default would silently override routing and defeat the whole point.
+    model = data.get("model") or (None if capability else DEFAULT_MODEL)
     image_path = data.get("image_path")
     if not prompt:
         return jsonify({"success": False, "error": "missing_prompt", "message": "No prompt provided"}), 400
 
-    result = run_inference(model, prompt, image_path=image_path)
+    result = run_inference(model, prompt, image_path=image_path, capability=capability)
     return jsonify(result)
+
+
+@app.route("/capabilities", methods=["GET"])
+def capabilities_endpoint():
+    """What each capability would resolve to right now, and what got skipped -
+    so a missing backend is diagnosable without reading code."""
+    out = {}
+    for capability in load_routing():
+        entry, skipped = resolve_capability(capability)
+        out[capability] = {
+            "resolves_to": f"{entry['provider']}:{entry['model']}" if entry else None,
+            "available": bool(entry),
+            "skipped": skipped,
+        }
+    return jsonify({"success": True, "capabilities": out, "routing_file": ROUTING_FILE})
 
 if __name__ == "__main__":
     app.run(host="127.0.0.1", port=8005, debug=False)

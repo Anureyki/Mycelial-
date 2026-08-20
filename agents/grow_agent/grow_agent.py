@@ -307,14 +307,19 @@ class GrowAgent(AgentBase):
             self.log(f"Inference fallback failed ({e}); defaulting to 'warning' classification.")
         return None
 
-    def _call_inference_vision(self, prompt, image_path, timeout=60):
-        """Verification tier for low-confidence local perception results - rarely
-        hit (only when the YOLO+ViT fusion's overall_confidence is low), so the
-        per-call API cost stays small even though it's a cloud model."""
+    def _call_inference_vision(self, prompt, image_path, timeout=180):
+        """Verification tier for cases the local disease models can't judge -
+        either low fusion confidence, or a species they have no class for.
+
+        Asks for the 'vision' CAPABILITY rather than naming a model: the
+        Inference Service resolves that against config/model_routing.json, which
+        prefers a local Ollama vision model and only falls back to a cloud one
+        if a key happens to be set. No vendor is named here on purpose - swapping
+        the brain behind vision is a config edit, not an agent change."""
         try:
             resp = requests.post(
                 "http://localhost:8005/reason",
-                json={"prompt": prompt, "model": "claude-sonnet-5", "image_path": image_path},
+                json={"prompt": prompt, "capability": "vision", "image_path": image_path},
                 timeout=timeout
             )
             if resp.status_code == 200:
