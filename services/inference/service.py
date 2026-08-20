@@ -78,10 +78,12 @@ def run_ollama_inference(model, prompt):
             "latency_ms": int((time.time() - start_time) * 1000)
         }
 
-def run_claude_inference(model, prompt):
-    """Run inference with Claude (via cloud_service)."""
+def run_claude_inference(model, prompt, image_path=None):
+    """Run inference with Claude (via cloud_service). image_path is forwarded for
+    the vision-escalation tier - omitting it here silently broke every escalated
+    vision call with a TypeError, which then fell back to the (wrong) local read."""
     start_time = time.time()
-    result = cloud_reason(prompt=prompt, model=model, max_tokens=1024)
+    result = cloud_reason(prompt=prompt, model=model, max_tokens=1024, image_path=image_path)
     latency = int((time.time() - start_time) * 1000)
     if "error" in result:
         return {

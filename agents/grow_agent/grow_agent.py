@@ -4,6 +4,7 @@ import os
 import time
 import json
 import math
+import re
 import requests
 from datetime import datetime
 
@@ -28,6 +29,18 @@ try:
 except ImportError:
     VISION_AVAILABLE = False
     LOW_CONFIDENCE_THRESHOLD = 0.55
+
+try:
+    from dataset_inventory import scan as scan_training_set, MIN_PER_CLASS, TRAINING_DIR
+    DATASET_TOOLS_AVAILABLE = True
+except ImportError:
+    DATASET_TOOLS_AVAILABLE = False
+    MIN_PER_CLASS = 100
+    TRAINING_DIR = os.path.expanduser("~/mycelial/knowledge_base/grow_agent/training")
+
+from core.quest_manager import QuestManager
+
+VISION_CAMPAIGN_ID = "cannabis_vision"
 
 # ---------------------------
 # VPD calculation (if needed)
@@ -118,6 +131,10 @@ class GrowAgent(AgentBase):
                 "add_reminder", "list_reminders", "complete_reminder",
                 "add_note", "list_notes",
                 "evaluate_reservoir", "evaluate_leaf", "get_grow_history", "evaluate_growth_stage",
+                "verify_growth_stage",
+                "validate_environment_targets",
+                "training_quest_status", "source_training_candidates",
+                "review_training_candidate", "list_training_candidates",
                 "remove_plant", "list_vision_corrections", "recommend_purchase",
                 "web_search",
                 "prepare_dataset", "fit_linear_model", "predict_linear"
@@ -315,6 +332,14 @@ class GrowAgent(AgentBase):
         classification logic already expects - reuses that logic unchanged
         rather than building a parallel image-aware classifier."""
         parts = []
+        if fused.get("species_supported") is False:
+            # The local models have no class for this species - reporting their
+            # nearest-class guess would be actively misleading (a cannabis leaf
+            # comes back as a tomato virus), so say what's actually known instead.
+            if fused.get("text"):
+                parts.append("visible text: " + "; ".join(fused["text"][:3]))
+            parts.append(fused.get("health_error") or "No local classification available for this species.")
+            return "; ".join(parts)
         health = fused.get("health")
         if health and health.get("label"):
             parts.append(f"{health['label']} (model confidence {health['confidence']:.2f})")
@@ -347,6 +372,12 @@ class GrowAgent(AgentBase):
         return corrections
 
     def _log_vision_correction(self, image_path, fused, verification_result):
+        """Logs a low-confidence case for future retraining. Only useful when the
+        verification tier actually returned something - a record with no
+        verification_result is a wrong prediction with no ground truth to correct
+        it against, which is worse than no data at all for a retraining set, so
+        it's marked unusable rather than silently sitting in the index looking
+        like a labelled example."""
         record = {
             "id": f"vision_correction_{int(time.time())}",
             "timestamp": datetime.now().isoformat(),
@@ -354,6 +385,7 @@ class GrowAgent(AgentBase):
             "fused_observation": fused,
             "verification_result": verification_result,
             "verified": False,
+            "usable_for_training": bool(verification_result),
         }
         self.store_own_memory(record["id"], json.dumps(record))
         index_raw = self._unwrap_value(self.retrieve_own_memory("vision_correction_index"))
@@ -365,14 +397,100 @@ class GrowAgent(AgentBase):
         self.store_own_memory("vision_correction_index", json.dumps(index))
         return record
 
+    def _training_counts(self):
+        """Counter adapter for the data_collection_quest skill: reports how many
+        images sit in each label folder. Only real files on disk count - this is
+        what makes campaign progress mean 'trainable' rather than 'clicked a lot'."""
+        if not DATASET_TOOLS_AVAILABLE:
+            return {}, []
+        scanned = scan_training_set()
+        if not scanned:
+            return {}, []
+        classes, _duplicates, _unreadable = scanned
+        counts = {label: len(files) for label, files in classes.items()}
+        return counts, sorted(classes.keys())
+
+    def _get_candidate_index(self):
+        raw = self._unwrap_value(self.retrieve_own_memory("training_candidate_index"))
+        if not raw:
+            return []
+        try:
+            index = json.loads(raw)
+            return index if isinstance(index, list) else []
+        except Exception:
+            return []
+
+    def _get_pending_candidates(self):
+        pending = []
+        for cid in self._get_candidate_index():
+            raw = self._unwrap_value(self.retrieve_own_memory(cid))
+            if not raw:
+                continue
+            try:
+                c = json.loads(raw)
+            except Exception:
+                continue
+            if c.get("status") == "awaiting_review":
+                pending.append(c)
+        return pending
+
+    def _extract_search_items(self, search_result):
+        """Pull {title, url} out of the tool-service search envelope, which nests
+        results a few layers deep depending on which path served the query."""
+        items = []
+
+        def walk(node, depth=0):
+            if depth > 6 or len(items) > 40:
+                return
+            if isinstance(node, dict):
+                url = node.get("url") or node.get("link")
+                if url and isinstance(url, str) and url.startswith("http"):
+                    items.append({
+                        "url": url,
+                        "img_src": node.get("img_src") or "",
+                        "title": node.get("title") or node.get("content", "")[:120],
+                    })
+                for v in node.values():
+                    walk(v, depth + 1)
+            elif isinstance(node, list):
+                for v in node:
+                    walk(v, depth + 1)
+            elif isinstance(node, str) and node.strip()[:1] in ("{", "["):
+                # Tool-service responses nest a JSON payload as a *string* inside
+                # content[0].text - and search_structured's payload is an array,
+                # so this must accept "[" as well as "{".
+                try:
+                    walk(json.loads(node), depth + 1)
+                except Exception:
+                    pass
+
+        walk(search_result)
+        return items
+
+    NEGATION_CUES = ("no ", "not ", "without ", "never ", "free of ", "absence of ", "n't ")
+
+    def _negation_aware_hit(self, text, keywords):
+        """True if any keyword appears in a non-negated clause of text. Splits on
+        clause boundaries so a negation word governs its whole clause - e.g. "no
+        brown slime or rot" must not match "brown"/"rot" just because they appear
+        as bare substrings; the clause as a whole is a negative/absence statement."""
+        if not text:
+            return False
+        lowered = str(text).lower()
+        for clause in re.split(r'[.;,]|\bbut\b|\bhowever\b', lowered):
+            if any(neg in clause for neg in self.NEGATION_CUES):
+                continue
+            if any(k in clause for k in keywords):
+                return True
+        return False
+
     def _classify_by_keywords(self, text, stable_keywords, critical_keywords):
         """Returns 'stable', 'critical', or None (inconclusive - caller should escalate)."""
         if not text:
             return None
-        lowered = str(text).lower()
-        if any(k in lowered for k in critical_keywords):
+        if self._negation_aware_hit(text, critical_keywords):
             return "critical"
-        if any(k in lowered for k in stable_keywords):
+        if self._negation_aware_hit(text, stable_keywords):
             return "stable"
         return None
 
@@ -959,6 +1077,9 @@ class GrowAgent(AgentBase):
             photo_path = args.get("photo_path")
             photo_refs = args.get("photo_refs", [])
             vision_note = None
+            fused = None
+            verification_text = None
+            symptom_text_from_user = bool(symptom_text)
 
             if photo_path and VISION_AVAILABLE and not symptom_text:
                 # Checkpointed: model loading + inference + a possible escalation call
@@ -970,9 +1091,10 @@ class GrowAgent(AgentBase):
                 if checkpoint and checkpoint.get("status") == "completed":
                     fused = checkpoint["state"]["fused"]
                     symptom_text = checkpoint["state"]["symptom_text"]
+                    verification_text = checkpoint["state"].get("verification_text")
                     vision_note = checkpoint["state"]["vision_note"] + " (resumed from checkpoint)"
                 else:
-                    fused = fuse_observations(photo_path)
+                    fused = fuse_observations(photo_path, species=self._get_species_for_plant(plant_id))
                     self.save_checkpoint(checkpoint_id, {"fused": fused}, status="in_progress")
                     if "error" not in fused:
                         if fused["low_confidence"]:
@@ -982,26 +1104,80 @@ class GrowAgent(AgentBase):
                                 photo_path
                             )
                             correction = self._log_vision_correction(photo_path, fused, verification)
+                            verification_text = verification
                             symptom_text = verification or self._describe_fused_observation(fused)
-                            vision_note = f"Local perception confidence was low ({fused['overall_confidence']:.2f}) - escalated to verification model. Logged as {correction['id']} for future retraining."
+                            if verification:
+                                reason = ("no local model covers this species"
+                                          if fused.get("species_supported") is False
+                                          else f"local perception confidence was low ({fused['overall_confidence']:.2f})")
+                                vision_note = f"Verified by the vision verification model ({reason}). Logged as {correction['id']} for future retraining."
+                            else:
+                                # Don't claim a verification that didn't happen - the
+                                # escalation call failed, so this read is unverified.
+                                vision_note = (
+                                    "Escalation to the verification model was attempted but did not return a result "
+                                    "(check ANTHROPIC_API_KEY / inference service). "
+                                    + ("No local model covers this species, so no reliable read is available."
+                                       if fused.get("species_supported") is False
+                                       else f"Falling back to the low-confidence local read ({fused['overall_confidence']:.2f}).")
+                                )
                         else:
                             symptom_text = self._describe_fused_observation(fused)
                             vision_note = f"Derived from local YOLO+ViT perception pipeline (confidence {fused['overall_confidence']:.2f})."
-                        self.save_checkpoint(checkpoint_id, {"fused": fused, "symptom_text": symptom_text, "vision_note": vision_note}, status="completed")
+                        self.save_checkpoint(checkpoint_id, {
+                            "fused": fused, "symptom_text": symptom_text,
+                            "verification_text": verification_text, "vision_note": vision_note
+                        }, status="completed")
                     else:
                         vision_note = f"Perception pipeline unavailable: {fused['error']}"
                 if fused.get("text"):
                     photo_refs = photo_refs + [photo_path]
 
-            lowered = symptom_text.lower()
             airflow_flag = bool(airflow_impact) and str(airflow_impact).lower() not in ("false", "no", "none", "0")
             disease_flag = bool(disease_signs) and str(disease_signs).lower() not in ("false", "no", "none", "0")
 
-            if disease_flag or airflow_flag or any(k in lowered for k in LEAF_PROBLEM_KEYWORDS):
+            # No usable read at all: the local models don't cover this species and
+            # the verification tier didn't answer either. symptom_text here is a
+            # diagnostic message, not a symptom description - running it through
+            # the keyword classifier below would classify the *error text* (e.g.
+            # "local disease models cover only..." trips the "disease" keyword),
+            # so short-circuit with an explicit inconclusive result instead.
+            unreadable = (
+                photo_path and not symptom_text_from_user
+                and isinstance(fused, dict)
+                and fused.get("species_supported") is False
+                and not verification_text
+            )
+            if unreadable:
+                recommendation = self._make_recommendation(
+                    "No reliable read of this photo is available.",
+                    (fused.get("health_error") or "Local models don't cover this species.")
+                    + " The verification model didn't return a result either.",
+                    "Describe the symptoms in text and I'll evaluate those, or set ANTHROPIC_API_KEY "
+                    "to enable photo verification for this species.",
+                    "low"
+                )
+                recommendation["classification"] = "inconclusive"
+                if vision_note:
+                    recommendation["vision_note"] = vision_note
+                record = {
+                    "id": f"leaf_eval_{int(time.time())}",
+                    "timestamp": datetime.now().isoformat(),
+                    "plant_id": plant_id,
+                    "photo_refs": photo_refs,
+                    "recommendation": recommendation
+                }
+                self.store_own_memory(record["id"], json.dumps(record))
+                index = self._load_leaf_eval_index()
+                index.append(record["id"])
+                self.store_own_memory("leaf_eval_index", json.dumps(index))
+                return {"result": recommendation, "record": record}
+
+            if disease_flag or airflow_flag or self._negation_aware_hit(symptom_text, LEAF_PROBLEM_KEYWORDS):
                 classification = "problem"
-            elif any(k in lowered for k in LEAF_SENESCENT_KEYWORDS):
+            elif self._negation_aware_hit(symptom_text, LEAF_SENESCENT_KEYWORDS):
                 classification = "senescent"
-            elif any(k in lowered for k in LEAF_PRODUCTIVE_KEYWORDS):
+            elif self._negation_aware_hit(symptom_text, LEAF_PRODUCTIVE_KEYWORDS):
                 classification = "productive"
             else:
                 verdict, _method = self._classify_qualitative(
@@ -1109,7 +1285,7 @@ class GrowAgent(AgentBase):
                     morphology_text = checkpoint["state"]["morphology_text"]
                     vision_note = checkpoint["state"]["vision_note"] + " (resumed from checkpoint)"
                 else:
-                    fused = fuse_observations(photo_path)
+                    fused = fuse_observations(photo_path, species=species)
                     self.save_checkpoint(checkpoint_id, {"fused": fused}, status="in_progress")
                     if "error" not in fused:
                         if fused["low_confidence"]:
@@ -1135,8 +1311,7 @@ class GrowAgent(AgentBase):
                 plant = next((p for p in self._get_all_plants() if p.get("plant_id") == plant_id), None)
                 current_stage = (plant or {}).get("stage", "unknown")
 
-            lowered = morphology_text.lower()
-            is_decline = any(k in lowered for k in DECLINE_KEYWORDS)
+            is_decline = self._negation_aware_hit(morphology_text, DECLINE_KEYWORDS)
 
             transitioned = None
             if is_decline:
@@ -1212,6 +1387,265 @@ class GrowAgent(AgentBase):
             self.store_own_memory("stage_eval_index", json.dumps(index))
 
             return {"result": recommendation, "record": record}
+
+        elif task == "verify_growth_stage":
+            # Cross-checks the tracked stage against real-world reference data,
+            # not just the local keyword/morphology heuristic - looks up how long
+            # this strain/type typically takes to reach each stage (autoflowers in
+            # particular run on a fixed genetic clock, not photoperiod), combines
+            # that with days-since-germination and any morphology notes, and asks
+            # the LLM to reconcile all three. Never auto-transitions - stage changes
+            # from this task are a recommendation for a human or Boss to confirm,
+            # given the extra uncertainty layered on top of the morphology-only path.
+            plant_id = args.get("plant_id", "current_plant")
+            if plant_id == "current_plant":
+                germination_date = self._unwrap_value(self.retrieve_own_memory("germination_date"))
+                strain = self._unwrap_value(self.retrieve_own_memory("current_strain")) or "unspecified strain"
+                current_stage = self._unwrap_value(self.retrieve_own_memory("current_stage")) or "unknown"
+            else:
+                plant = next((p for p in self._get_all_plants() if p.get("plant_id") == plant_id), None)
+                if not plant:
+                    return {"error": f"Unknown plant_id: {plant_id}"}
+                germination_date = plant.get("germination_date")
+                strain = plant.get("strain") or "unspecified strain"
+                current_stage = plant.get("stage", "unknown")
+
+            morphology_text = args.get("morphology_text") or args.get("notes") or ""
+
+            days_elapsed = None
+            if germination_date:
+                try:
+                    g = datetime.fromisoformat(germination_date)
+                    days_elapsed = (datetime.now() - g).days
+                except Exception:
+                    days_elapsed = None
+
+            query = (f"{strain} day {days_elapsed} growth stage" if days_elapsed is not None
+                      else f"{strain} vegetative stage how many weeks")
+            search_result = self.search_public(query)
+            search_snippet = json.dumps(search_result)[:1500]
+
+            prompt = (
+                f"A cannabis plant (strain: {strain}) is {days_elapsed if days_elapsed is not None else 'an unknown number of'} "
+                f"days past germination (germination date: {germination_date or 'unknown'}). "
+                f"It is currently tracked as '{current_stage}' stage. "
+                f"Morphology/canopy notes: \"{morphology_text}\"\n\n"
+                f"Web search reference (may be noisy - weigh it, don't trust it blindly):\n{search_snippet}\n\n"
+                "Considering typical timelines for this strain/type AND the morphology notes together, "
+                "which single stage is most accurate right now: germination, seedling, early_veg, veg, or flower? "
+                "Reply with the stage name on the first line, then one sentence of justification on the second line."
+            )
+            llm_response = self._call_inference(prompt, timeout=45)
+
+            inferred_stage = None
+            justification = ""
+            if llm_response:
+                lines = [l.strip() for l in llm_response.strip().splitlines() if l.strip()]
+                if lines:
+                    first = lines[0].lower()
+                    inferred_stage = next((s for s in STAGE_ORDER if s in first), None)
+                    justification = " ".join(lines[1:]) if len(lines) > 1 else ""
+
+            if inferred_stage is None:
+                recommendation = self._make_recommendation(
+                    f"Couldn't get a clear stage read from web+LLM verification (raw response: {llm_response!r}).",
+                    "Reference lookup was inconclusive or the inference service didn't return a usable answer.",
+                    f"Keep tracked stage '{current_stage}' unchanged; rely on morphology-only evaluate_growth_stage instead.",
+                    "low"
+                )
+                recommendation["classification"] = "inconclusive"
+            elif inferred_stage == current_stage:
+                recommendation = self._make_recommendation(
+                    f"Web+timeline verification confirms '{current_stage}' at {days_elapsed} days post-germination for {strain}. {justification}",
+                    "Reference timeline and tracked stage agree.",
+                    "No change needed.",
+                    "medium"
+                )
+                recommendation["classification"] = current_stage
+            else:
+                recommendation = self._make_recommendation(
+                    f"Web+timeline verification suggests '{inferred_stage}' (tracked stage is '{current_stage}') at {days_elapsed} days post-germination for {strain}. {justification}",
+                    "Reference timeline/LLM read disagrees with the currently tracked stage.",
+                    f"Consider transitioning to '{inferred_stage}' - call transition_stage to confirm, this task does not auto-apply it.",
+                    "medium"
+                )
+                recommendation["classification"] = inferred_stage
+
+            recommendation["days_since_germination"] = days_elapsed
+            recommendation["search_query"] = query
+
+            record = {
+                "id": f"stage_verification_{int(time.time())}",
+                "timestamp": datetime.now().isoformat(),
+                "plant_id": plant_id,
+                "strain": strain,
+                "previous_stage": current_stage,
+                "recommendation": recommendation
+            }
+            self.store_own_memory(record["id"], json.dumps(record))
+
+            return {"result": recommendation, "record": record}
+
+        elif task == "validate_environment_targets":
+            # Text data points (pH, PPM/EC, temp, humidity, light) ARE things web
+            # search can legitimately check: they're published, strain/stage/
+            # medium-specific numbers, not a judgement about pixels. This looks up
+            # the recommended ranges and compares them against both the hardcoded
+            # STAGE_PROFILES/check_stage targets and the latest logged reading, so
+            # a wrong built-in target gets caught instead of silently persisting.
+            plant_id = args.get("plant_id", "current_plant")
+            if plant_id == "current_plant":
+                stage = self._unwrap_value(self.retrieve_own_memory("current_stage")) or "unknown"
+                strain = self._unwrap_value(self.retrieve_own_memory("current_strain")) or "cannabis"
+            else:
+                plant = next((p for p in self._get_all_plants() if p.get("plant_id") == plant_id), None)
+                stage = (plant or {}).get("stage", "unknown")
+                strain = (plant or {}).get("strain", "cannabis")
+            medium = args.get("medium", "DWC hydroponic")
+            metrics = args.get("metrics") or ["pH", "PPM", "water temperature", "humidity", "light"]
+
+            builtin = self.handle_task("check_stage", {"stage": stage}, sender).get("result", {})
+            readings = self._get_readings_for_plant(plant_id)
+            latest = readings[-1] if readings else {}
+
+            findings = []
+            for metric in metrics:
+                query = f"{strain} {stage} stage {medium} recommended {metric} range cannabis"
+                snippet = json.dumps(self.search_public(query))[:900]
+                prompt = (
+                    f"Grower question: what is the recommended {metric} range for cannabis in the "
+                    f"'{stage}' stage grown in {medium}?\n\n"
+                    f"Web search reference (noisy - weigh it, don't trust blindly):\n{snippet}\n\n"
+                    f"Our system currently uses these built-in targets for this stage: {json.dumps(builtin)}\n"
+                    f"Latest logged reading: {json.dumps({k: latest.get(k) for k in ('ph','ppm','temp','humidity')})}\n\n"
+                    "Reply in exactly two lines.\n"
+                    "Line 1: the recommended range as a concise value (e.g. '5.5-6.5' or '600-800 ppm').\n"
+                    "Line 2: one sentence - does our current reading fall in that range, and if not what to change?"
+                )
+                answer = self._call_inference(prompt, timeout=45)
+                # Small local models often echo the "Line 1:"/"Line 2:" scaffolding
+                # from the prompt back into the answer - strip it so the stored
+                # finding reads as a value, not as a transcript of the instructions.
+                lines = [
+                    re.sub(r'^line\s*\d+\s*[:.\-]\s*', '', l.strip(), flags=re.IGNORECASE)
+                    for l in (answer or "").splitlines() if l.strip()
+                ]
+                lines = [l for l in lines if l]
+                findings.append({
+                    "metric": metric,
+                    "researched_range": lines[0] if lines else None,
+                    "assessment": " ".join(lines[1:]) if len(lines) > 1 else None,
+                    "query": query,
+                    "resolved": bool(lines),
+                })
+
+            record = {
+                "id": f"env_validation_{int(time.time())}",
+                "timestamp": datetime.now().isoformat(),
+                "plant_id": plant_id,
+                "stage": stage,
+                "strain": strain,
+                "medium": medium,
+                "builtin_targets": builtin,
+                "latest_reading": latest,
+                "findings": findings,
+            }
+            self.store_own_memory(record["id"], json.dumps(record))
+            return {"result": record}
+
+        elif task == "training_quest_status":
+            # Gamified view of the cannabis-vision data campaign. Uses the
+            # generic core.quest_manager skill - the only cannabis-specific part
+            # is the counter below (folder counts) and the label set.
+            qm = QuestManager(self, VISION_CAMPAIGN_ID)
+            counts, labels = self._training_counts()
+            if not qm._load():
+                qm.start_campaign(
+                    labels=labels,
+                    threshold_per_label=MIN_PER_CLASS,
+                    description="Collect labelled cannabis leaf photos until a vision model can actually be trained."
+                )
+            status = qm.status(counts)
+            status["next_quests"] = qm.next_quests(counts)
+            status["training_dir"] = TRAINING_DIR
+            pending = self._get_pending_candidates()
+            status["candidates_awaiting_review"] = len(pending)
+            return {"result": status}
+
+        elif task == "source_training_candidates":
+            # Candidate sourcing for labels the grower's own plant can't supply.
+            # These are PROPOSALS, saved to a review queue - never counted as
+            # training data until a human accepts them (see config/skills.json's
+            # candidate_sourcing invariants). Provenance is recorded per item so
+            # an unreviewed set is never mistaken for a licensed, labelled one.
+            label = args.get("label")
+            if not label:
+                return {"error": "Missing label (e.g. nitrogen_deficiency)"}
+            limit = int(args.get("limit", 5))
+            query = args.get("query") or f"cannabis leaf {label.replace('_', ' ')} photo"
+
+            # Image category - the plain "search" tool returns a single text
+            # snippet with no URLs at all, which is useless for sourcing images.
+            search_result = self.call_tool("searxng", "search_structured", {
+                "query": query, "categories": "images", "max_results": limit * 3
+            })
+            candidates = []
+            for item in self._extract_search_items(search_result)[:limit]:
+                candidates.append({
+                    "id": f"candidate_{int(time.time() * 1000)}_{len(candidates)}",
+                    "label": label,
+                    "query": query,
+                    "source_url": item.get("url"),
+                    "image_url": item.get("img_src"),
+                    "source_title": item.get("title"),
+                    "retrieved_at": datetime.now().isoformat(),
+                    "status": "awaiting_review",
+                })
+            for c in candidates:
+                self.store_own_memory(c["id"], json.dumps(c))
+            index = self._get_candidate_index()
+            index.extend(c["id"] for c in candidates)
+            self.store_own_memory("training_candidate_index", json.dumps(index))
+
+            return {"result": {
+                "label": label,
+                "query": query,
+                "proposed": len(candidates),
+                "candidates": candidates,
+                "note": (
+                    "These are unverified proposals, not training data. Review each one "
+                    "(review_training_candidate) and only accepted images count toward the campaign. "
+                    "Check licensing before using any web-sourced image for training."
+                ),
+            }}
+
+        elif task == "review_training_candidate":
+            candidate_id = args.get("candidate_id")
+            decision = (args.get("decision") or "").lower()
+            if not candidate_id or decision not in ("accept", "reject"):
+                return {"error": "Usage: {candidate_id, decision: accept|reject}"}
+            raw = self._unwrap_value(self.retrieve_own_memory(candidate_id))
+            if not raw:
+                return {"error": f"Unknown candidate: {candidate_id}"}
+            candidate = json.loads(raw)
+            candidate["status"] = "accepted" if decision == "accept" else "rejected"
+            candidate["reviewed_at"] = datetime.now().isoformat()
+            self.store_own_memory(candidate_id, json.dumps(candidate))
+
+            # Reviewing earns XP either way - the goal is a clean set, and
+            # rejecting noise is as valuable as accepting a good example.
+            QuestManager(self, VISION_CAMPAIGN_ID).award(reviews=1)
+            return {"result": {
+                "candidate_id": candidate_id,
+                "status": candidate["status"],
+                "note": (
+                    f"Accepted - download the image into {TRAINING_DIR}/{candidate['label']}/ "
+                    "to have it counted." if decision == "accept" else "Rejected, not counted."
+                ),
+            }}
+
+        elif task == "list_training_candidates":
+            return {"result": self._get_pending_candidates()}
 
         elif task == "web_search":
             query = args.get("query") if isinstance(args, dict) else args[0] if args else None

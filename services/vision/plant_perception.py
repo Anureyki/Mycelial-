@@ -45,6 +45,17 @@ YOLO_REPO = "peachfawn/yolov8-plant-disease"
 YOLO_FILENAME = "best.pt"
 VIT_REPO = "gianlab/swin-tiny-patch4-window7-224-finetuned-plantdisease"
 
+# Both checkpoints above are trained on PlantVillage, whose 15 classes cover
+# ONLY these three species (verified by reading model.names / config.id2label
+# directly, not assumed from the repo description). A photo of any other plant
+# still gets forced into one of those 15 classes with a plausible-looking
+# confidence score - e.g. a cannabis leaf reliably comes back as some
+# "Tomato___*" disease. That output is meaningless, so callers must pass the
+# species they're actually growing and fuse_observations will refuse to present
+# a local classification for anything outside this set, routing it to the
+# verification tier instead.
+SUPPORTED_SPECIES = ("pepper", "potato", "tomato")
+
 # Below this fused confidence, evaluate_leaf/evaluate_growth_stage in
 # grow_agent.py escalate the case to a verification model rather than
 # trusting the local pipeline's read.
@@ -137,17 +148,45 @@ def read_text(image_path):
         return {"error": f"OCR failed: {e}"}
 
 
-def fuse_observations(image_path):
+def fuse_observations(image_path, species=None):
     """Runs all three passes and fuses them into one structured observation.
     overall_confidence is the minimum of the two vision models' confidence
     (OCR doesn't have a comparable confidence score) - the fused read is only
-    as trustworthy as its least-confident component."""
+    as trustworthy as its least-confident component.
+
+    species: what's actually being grown. If it isn't one of SUPPORTED_SPECIES,
+    the two disease models have no class for it and would emit a confident-looking
+    but meaningless label, so their output is dropped entirely and the result is
+    marked low_confidence to force the caller's verification-tier escalation.
+    OCR is species-independent and is kept either way."""
     if not os.path.exists(image_path):
         return {"error": f"Image not found: {image_path}"}
 
+    species_norm = (species or "").strip().lower()
+    species_supported = (not species_norm) or any(s in species_norm for s in SUPPORTED_SPECIES)
+
+    text = read_text(image_path)
+
+    if not species_supported:
+        return {
+            "image_path": image_path,
+            "species": species,
+            "species_supported": False,
+            "detections": [],
+            "detection_error": None,
+            "health": None,
+            "health_error": (
+                f"Local disease models cover only {', '.join(SUPPORTED_SPECIES)} - "
+                f"they have no class for '{species}', so no local classification was made."
+            ),
+            "text": text if isinstance(text, list) else [],
+            "text_error": text.get("error") if isinstance(text, dict) else None,
+            "overall_confidence": 0.0,
+            "low_confidence": True,
+        }
+
     detections = detect_objects(image_path)
     health = classify_health(image_path)
-    text = read_text(image_path)
 
     confidences = []
     if isinstance(detections, list) and detections:
@@ -158,6 +197,8 @@ def fuse_observations(image_path):
 
     return {
         "image_path": image_path,
+        "species": species,
+        "species_supported": True,
         "detections": detections if isinstance(detections, list) else [],
         "detection_error": detections.get("error") if isinstance(detections, dict) else None,
         "health": health if "error" not in (health if isinstance(health, dict) else {}) else None,
