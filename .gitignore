@@ -45,6 +45,11 @@ knowledge_base/grow_agent/photos/*
 !knowledge_base/grow_agent/photos/.gitkeep
 knowledge_base/grow_agent/notes/*
 !knowledge_base/grow_agent/notes/.gitkeep
+# Training images are large binaries supplied by the grower - keep the labelled
+# folder structure and the labelling guide, not the photos themselves.
+knowledge_base/grow_agent/training/*/*
+!knowledge_base/grow_agent/training/*/.gitkeep
+!knowledge_base/grow_agent/training/README.md
 
 
 # Backup and temp files
