@@ -1,0 +1,59 @@
+{
+  "_comment": "Cross-domain skills. A skill is a capability that is NOT specific to one agent's domain - the same machinery serves Grow, Legal, Accounting, Maintenance, etc., with only the domain-specific adapter differing. Listing a skill here is what makes it discoverable: an agent (or a department head reviewing its members) can ask which skills apply to it without that knowledge being hardcoded anywhere. Adding an adopter is a config change, not a code change - same rule as departments.json.",
+
+  "data_collection_quest": {
+    "module": "core.quest_manager",
+    "class": "QuestManager",
+    "summary": "Gamified collection of labelled domain data toward a threshold that makes downstream training/automation actually viable.",
+    "solves": "An agent can't do part of its job because no labelled domain data exists, and collecting it is tedious enough that it never happens.",
+    "adapter_contract": "Agent supplies: (1) a counter returning {label: verified_count}, (2) the label set, (3) a threshold justified by what the downstream consumer needs.",
+    "invariants": [
+      "Threshold is set by the downstream trainer's real requirement, never by what makes a nice progress bar.",
+      "Automated candidates (web search, scrape) never count as progress until a human verifies them."
+    ],
+    "adopters": [
+      {
+        "agent_id": "grow_agent",
+        "campaign_id": "cannabis_vision",
+        "status": "active",
+        "note": "Cannabis leaf-condition photos. No public dataset exists and PlantVillage models cover pepper/potato/tomato only, so grower-supplied images are the only route to a working model."
+      },
+      {
+        "agent_id": "legal_agent",
+        "campaign_id": "clause_classification",
+        "status": "candidate",
+        "note": "Labelled contract clauses by type/risk. Would let clause spotting stop depending on a general model's guess."
+      },
+      {
+        "agent_id": "accounting_agent",
+        "campaign_id": "transaction_categorisation",
+        "status": "candidate",
+        "note": "Human-categorised transactions. Categorisation is currently LLM-guessed per call with no accumulating ground truth."
+      },
+      {
+        "agent_id": "maintenance_agent",
+        "campaign_id": "failure_signatures",
+        "status": "candidate",
+        "note": "Telemetry windows labelled with what actually failed afterwards. Turns the existing trend check into a learned predictor."
+      }
+    ]
+  },
+
+  "candidate_sourcing": {
+    "module": "core.quest_manager",
+    "summary": "Propose candidate examples from an external source (web search) when the operator cannot supply enough data themselves.",
+    "solves": "A collection campaign stalls because the operator's own environment cannot produce some labels (a condition their plant has never had, a contract type they've never signed).",
+    "invariants": [
+      "Search PROPOSES, a human DISPOSES. A sourced candidate is never training data until reviewed.",
+      "Provenance (source URL, query, retrieval date) is recorded per candidate - a training set of unknown-origin images is a licensing and label-noise problem, not an asset.",
+      "Never used to 'validate' a prediction. Searching for a condition returns descriptions of that condition whether or not the sample shows it, which confirms rather than validates."
+    ],
+    "adopters": [
+      {
+        "agent_id": "grow_agent",
+        "status": "active",
+        "note": "Sources candidate leaf-condition photos via searxng for labels the grower's own plant hasn't exhibited."
+      }
+    ]
+  }
+}
