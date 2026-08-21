@@ -67,6 +67,29 @@ MCP servers are configured in `config/mcp.d/`. Currently active:
 - **View logs:** `tail -f logs/<agent>.log` or `tail -f logs/<service>.log`.
 - **Restart a single agent:** `pkill -f "agent_name" && python3 -m agents.<agent_name>.<agent_name> &`.
 
+## Working principle: agents are the students
+
+Claude is the **master teacher** on this platform; the agents are the students.
+Domain work belongs to the domain agent.
+
+- **Ask the agent, don't compute for it.** For anything agricultural, query Grow
+  Agent and relay what it returns. Same for Legal, Accounting, Maintenance in
+  their domains.
+- **If the agent can't do it yet, build the capability** - that is the teaching.
+  Substituting your own arithmetic leaves the agent exactly as capable as it was.
+- **Intervene only on a real error** in its math or algorithm, and then fix the
+  algorithm rather than papering over it with a hand-computed number.
+- **On disagreement the agent's derivation wins**, unless its algorithm is
+  demonstrably wrong - it is the one carrying reasoning and history.
+
+The failure this prevents is two sources of truth. A Cal-Mag dose was once quoted
+as 9.0 ml (hand estimate) and 8.7 ml (the agent's derivation) in consecutive
+messages; the hand figure was the wrong one and had no reasoning attached.
+
+Models underneath are interchangeable by design (see `config/model_routing.json`)
+- the point of accruing capability in the agent rather than in a conversation is
+that it survives a model swap, a fine-tune, or a replacement model entirely.
+
 ## Guards (replaces the retired `hooks/`)
 
 Every inbound `/execute` passes through `AgentBase.check_guard()`, which asks the Security Agent (9010) to authorize it. Deny rules live in `config/guards.json` (denylist — no matching rule means allowed).
