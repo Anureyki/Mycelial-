@@ -128,6 +128,39 @@ STAGE_FEED_EMPHASIS = {
 # Extra nitrogen emphasis while regrowing after capacity was removed.
 REGROWTH_N_BOOST = 1.25
 
+# The plant lives in a system, and the system changes what the readings mean.
+# Everything above this reasons about a generic reservoir; without a system
+# model, "top up to 5L" or "ppm is low" can be actively wrong advice for the
+# hardware actually in front of the grower.
+GROW_SYSTEM_TYPES = {
+    "lwc":          {"label": "low water culture", "aerated": True, "roots_in_water": True},
+    "dwc":          {"label": "deep water culture", "aerated": True, "roots_in_water": True},
+    "top_fed_dwc":  {"label": "top-fed / recirculating DWC", "aerated": True, "roots_in_water": True,
+                     "note": "A top ring wets the medium while roots are still growing down to the "
+                             "water line. Once roots reach the reservoir the ring matters less, but "
+                             "it is what keeps the plant alive during the gap."},
+    "ebb_flow":     {"label": "ebb and flow", "aerated": False, "roots_in_water": False},
+    "coco":         {"label": "coco coir", "aerated": False, "roots_in_water": False},
+    "soil":         {"label": "soil", "aerated": False, "roots_in_water": False},
+}
+
+GROW_MEDIA = {
+    "none":          {"label": "bare root / water only", "holds_moisture": False},
+    "clay_pebbles":  {"label": "expanded clay pebbles (LECA)", "holds_moisture": False,
+                      "note": "Inert and free-draining - holds almost no water on its own, so the "
+                              "medium dries fast if the top feed or water line does not reach it."},
+    "rockwool":      {"label": "rockwool", "holds_moisture": True},
+    "coco":          {"label": "coco coir", "holds_moisture": True},
+    "soil":          {"label": "soil", "holds_moisture": True},
+}
+
+WATER_SOURCES = {
+    "ro":        {"baseline_ppm": 0, "strips_calmag": True},
+    "distilled": {"baseline_ppm": 0, "strips_calmag": True},
+    "tap":       {"baseline_ppm": None, "strips_calmag": False},
+    "well":      {"baseline_ppm": None, "strips_calmag": False},
+}
+
 # Above this, a purchase recommendation is held for explicit user decision
 # (via Boss's threshold check) rather than auto-narrated as resolved, even
 # if Accounting confirms it's within budget.
@@ -167,6 +200,7 @@ class GrowAgent(AgentBase):
                 "verify_growth_stage",
                 "assess_plant", "validate_environment_targets",
                 "log_training_event", "recommend_feed", "plan_system_transition",
+                "set_grow_system", "get_grow_system",
                 "training_quest_status", "source_training_candidates",
                 "review_training_candidate", "list_training_candidates",
                 "remove_plant", "list_vision_corrections", "recommend_purchase",
@@ -1789,6 +1823,76 @@ class GrowAgent(AgentBase):
             recommendation["regrowth_adjustment"] = regrowth
             return {"result": recommendation}
 
+        elif task == "set_grow_system":
+            # The environment the plant is operating in. Stored per plant so a
+            # second grow on different hardware doesn't inherit the first one's
+            # assumptions.
+            plant_id = args.get("plant_id", "current_plant")
+            system_type = (args.get("system_type") or "").lower().replace(" ", "_").replace("-", "_")
+            if system_type and system_type not in GROW_SYSTEM_TYPES:
+                return {"error": f"system_type must be one of: {', '.join(GROW_SYSTEM_TYPES)}"}
+            medium = (args.get("medium") or "none").lower().replace(" ", "_")
+            if medium not in GROW_MEDIA:
+                return {"error": f"medium must be one of: {', '.join(GROW_MEDIA)}"}
+            water_source = (args.get("water_source") or "").lower()
+
+            record = {
+                "plant_id": plant_id,
+                "timestamp": datetime.now().isoformat(),
+                "system_type": system_type,
+                "system_label": GROW_SYSTEM_TYPES.get(system_type, {}).get("label", system_type),
+                "medium": medium,
+                "reservoir_liters": self._parse_numeric(args.get("reservoir_liters")),
+                "water_source": water_source,
+                "equipment": args.get("equipment", {}),
+                "location": args.get("location", ""),
+                "notes": args.get("notes", ""),
+            }
+            self.store_own_memory(f"grow_system_{plant_id}", json.dumps(record))
+
+            advisories = []
+            st = GROW_SYSTEM_TYPES.get(system_type, {})
+            md = GROW_MEDIA.get(medium, {})
+            if st.get("note"):
+                advisories.append(st["note"])
+            if md.get("note"):
+                advisories.append(md["note"])
+            if st.get("aerated"):
+                advisories.append(
+                    "Aerated reservoir: the air stone runs continuously, not on a timer. Dissolved "
+                    "oxygen is what keeps roots white and makes higher EC safe."
+                )
+            if st.get("roots_in_water"):
+                advisories.append(
+                    "Roots sit in solution, so water temperature is a root-health parameter, not a "
+                    "comfort setting. Warm water holds less oxygen - 18-22C is the working band."
+                )
+            if WATER_SOURCES.get(water_source, {}).get("strips_calmag"):
+                advisories.append(
+                    "RO/distilled source: baseline is ~0 ppm so the whole reading is nutrient, and "
+                    "it carries no calcium or magnesium - Cal-Mag is required, not optional."
+                )
+            record["advisories"] = advisories
+
+            recommendation = self._make_recommendation(
+                f"System registered: {record['system_label']} with {GROW_MEDIA[medium]['label']}"
+                + (f", {record['reservoir_liters']:g}L" if record["reservoir_liters"] else "") + ".",
+                "Readings are interpreted against the system they came from - the same ppm or water "
+                "level means different things in different hardware.",
+                " ".join(advisories) if advisories else "No system-specific advisories.",
+                "high",
+            )
+            recommendation["classification"] = "grow_system"
+            recommendation["system"] = record
+            return {"result": recommendation, "record": record}
+
+        elif task == "get_grow_system":
+            plant_id = args.get("plant_id", "current_plant") if isinstance(args, dict) else "current_plant"
+            raw = self._unwrap_value(self.retrieve_own_memory(f"grow_system_{plant_id}"))
+            if not raw:
+                return {"result": None, "note": "No system registered for this plant - set_grow_system first."}
+            return {"result": json.loads(raw)}
+
         elif task == "plan_system_transition":
             # Moving between growing systems (LWC -> DWC, reservoir size change).
             # The risks are not the move itself but the discontinuities around it.
@@ -1839,6 +1943,36 @@ class GrowAgent(AgentBase):
                 steps.append(
                     "Autoflower: the clock does not pause for transplant recovery, so do this while "
                     "still in veg if possible rather than mid-flower."
+                )
+
+            # System/medium-specific guidance - generic reservoir advice can be
+            # actively wrong for the hardware actually in front of the grower.
+            target_type = (args.get("to_system_type") or "").lower().replace(" ", "_").replace("-", "_")
+            target_medium = (args.get("to_medium") or "").lower().replace(" ", "_")
+            if target_type in ("dwc", "top_fed_dwc"):
+                steps.append(
+                    "DWC water level: start it high enough to reach the root mass, then once roots "
+                    "are established drop it to leave a few cm of air gap below the net pot. That "
+                    "gap grows the air roots that do the oxygen uptake - keeping the level jammed "
+                    "against the pot permanently is a common way to drown a healthy root system."
+                )
+                steps.append(
+                    "Run the air stone continuously from the moment the plant goes in. Dissolved "
+                    "oxygen is what makes a higher EC safe for the roots."
+                )
+            if target_type == "top_fed_dwc":
+                steps.append(
+                    "The top ring is what bridges the gap before roots reach the water line - run it "
+                    "until roots are visibly into the reservoir, since the medium above will not stay "
+                    "wet on its own. With an already-large free-hanging root mass that window is "
+                    "short, but do not skip it on the next grow from seed."
+                )
+            if target_medium == "clay_pebbles":
+                steps.append(
+                    "Clay pebbles are inert and free-draining - they buffer nothing. They will not "
+                    "hold water between feeds and they will not hold nutrient either, so the "
+                    "reservoir is the entire supply. Rinse them before use; the dust clouds a "
+                    "reservoir and can clog an air stone."
                 )
 
             record = {
