@@ -210,12 +210,20 @@ DECLINE_KEYWORDS = (
 STAGE_MORPHOLOGY_CUES = {
     "cannabis": {
         "germination": ("cotyledon", "seed coat", "taproot only", "no true leaves"),
+        # "blade" is the common grower term alongside point/prong/finger - leaving
+        # it out sent a plain "9-blade leaves" description to the LLM fallback,
+        # which misread it as flower. Deterministic cues should cover the
+        # vocabulary people actually use.
         "seedling": ("single blade", "one-point leaf", "1-point leaf", "first true leaf",
-                     "3-point leaf", "3-prong", "three point leaf", "three-prong"),
+                     "3-point leaf", "3-prong", "three point leaf", "three-prong",
+                     "3-blade", "3 blade", "three-blade", "three blade"),
         "early_veg": ("5-point leaf", "5-prong", "five point leaf", "five-prong",
-                      "five-finger leaf", "5-finger leaf"),
+                      "five-finger leaf", "5-finger leaf",
+                      "5-blade", "5 blade", "five-blade", "five blade"),
         "veg": ("7-point leaf", "7-prong", "seven point leaf", "9-point leaf",
-                "multiple nodes", "bushy growth", "vigorous vegetative growth"),
+                "multiple nodes", "bushy growth", "vigorous vegetative growth",
+                "7-blade", "7 blade", "seven-blade", "seven blade",
+                "9-blade", "9 blade", "nine-blade", "nine blade"),
         "flower": ("pistil", "white hair", "calyx", "calyxes", "flowering site",
                    "bud site", "stretch", "trichome"),
     }
@@ -768,8 +776,13 @@ class GrowAgent(AgentBase):
         if not text:
             return None
         cues = STAGE_MORPHOLOGY_CUES.get(species, {})
-        lowered = text.lower()
-        matched = [stage for stage, keywords in cues.items() if any(k in lowered for k in keywords)]
+        # Negation-aware, like the leaf/reservoir/decline classifiers. Raw
+        # substring matching read "no pistils, no pre-flowers, no calyx
+        # development observed" as flower evidence and auto-transitioned a
+        # vegetative plant into flower - the words were present, the negation
+        # was not considered. An absence statement is the OPPOSITE of a cue.
+        matched = [stage for stage, keywords in cues.items()
+                   if self._negation_aware_hit(text, keywords)]
         if not matched:
             return None
         # Multiple cues can match a mixed description (e.g. veg leaves + early
@@ -1666,13 +1679,25 @@ class GrowAgent(AgentBase):
                         classification = inferred_stage
                         observation = f"Morphology indicates {inferred_stage} (method: {method}), ahead of tracked stage '{current_stage}'."
                         reason = "Leaf/plant structure has progressed further than the calendar/nutrient-tracked stage - likely an environment-driven early transition."
-                        action = f"Transition to {inferred_stage}."
                         confidence = "high" if method == "keyword" else "medium"
-                        transition_result = self.handle_task("transition_stage", {
-                            "plant_id": plant_id, "new_stage": inferred_stage,
-                            "notes": f"Auto-transitioned from morphology evidence ({method}): {morphology_text}"
-                        }, sender)
-                        transitioned = transition_result.get("transition")
+                        # Only definitive keyword evidence auto-applies. A stage
+                        # change moves feed weighting, pH/ppm targets and
+                        # monitoring cadence, so an inference from a small local
+                        # model recommends rather than applies - the same rule
+                        # verify_growth_stage already follows. A 1.5b model read
+                        # "9-blade leaves, no pistils, no calyx" as flower.
+                        if method == "keyword":
+                            action = f"Transition to {inferred_stage}."
+                            transition_result = self.handle_task("transition_stage", {
+                                "plant_id": plant_id, "new_stage": inferred_stage,
+                                "notes": f"Auto-transitioned from morphology evidence ({method}): {morphology_text}"
+                            }, sender)
+                            transitioned = transition_result.get("transition")
+                        else:
+                            action = (f"Consider transitioning to {inferred_stage} - inferred by "
+                                      f"{method}, not from a definitive morphological cue, so it is "
+                                      "NOT auto-applied. Confirm against the actual marker for that "
+                                      "stage before calling transition_stage.")
                     elif inferred_idx < current_idx:
                         classification = "regression"
                         observation = f"Morphology indicates {inferred_stage} (method: {method}), behind tracked stage '{current_stage}'."
