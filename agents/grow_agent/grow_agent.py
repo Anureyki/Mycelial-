@@ -2274,8 +2274,19 @@ class GrowAgent(AgentBase):
             # The active-participant task: work out what the agent needs to know
             # right now and ask for it, rather than waiting to be told.
             plant_id = args.get("plant_id", "current_plant") if isinstance(args, dict) else "current_plant"
-            stage = self._unwrap_value(self.retrieve_own_memory("current_stage")) or "unknown"
-            strain = self._unwrap_value(self.retrieve_own_memory("current_strain")) or ""
+            # Stage and strain live in per-plant records for anything other than
+            # the legacy single-plant slot. Reading the global slot regardless of
+            # plant_id reported a day-0 seedling as "veg" and asked it for PPM,
+            # when the protocol is plain water with no nutrients at that stage.
+            if plant_id == "current_plant":
+                stage = self._unwrap_value(self.retrieve_own_memory("current_stage")) or "unknown"
+                strain = self._unwrap_value(self.retrieve_own_memory("current_strain")) or ""
+            else:
+                plant = next((p for p in self._get_all_plants() if p.get("plant_id") == plant_id), None)
+                if not plant:
+                    return {"error": f"Unknown plant_id: {plant_id}"}
+                stage = plant.get("stage", "unknown")
+                strain = plant.get("strain", "")
             sys_raw = self._unwrap_value(self.retrieve_own_memory(f"grow_system_{plant_id}"))
             system = json.loads(sys_raw) if sys_raw else None
 
