@@ -299,8 +299,20 @@ class BossAgent(AgentBase):
 
                 nutrients = r.get("current_nutrients")
                 if isinstance(nutrients, dict) and nutrients.get("nutrients"):
-                    n_str = ", ".join(f"{k} {v}" for k, v in nutrients["nutrients"].items())
-                    lines.append(f"Current feed: {n_str}.")
+                    # Always state the unit and what the dose is measured against -
+                    # a bare "FloraMicro 3.0" is ambiguous by ~3.79x.
+                    unit = nutrients.get("unit") or ""
+                    n_str = ", ".join(f"{k} {v}{unit}" for k, v in nutrients["nutrients"].items())
+                    basis, litres = nutrients.get("basis"), nutrients.get("reservoir_liters")
+                    if basis == "total" and litres:
+                        qualifier = f" per {litres:g}L reservoir"
+                    elif basis == "per_liter":
+                        qualifier = " per litre"
+                    elif basis == "per_gallon":
+                        qualifier = " per gallon"
+                    else:
+                        qualifier = ""
+                    lines.append(f"Current feed: {n_str}{qualifier}.")
 
                 for p in r.get("other_plants") or []:
                     lines.append(f"Also coming along: {p.get('strain', 'another plant')}, {p.get('stage', 'unknown')} stage.")

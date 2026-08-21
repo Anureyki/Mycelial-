@@ -829,14 +829,48 @@ class GrowAgent(AgentBase):
             return {"result": f"Germination date set to {date_str}", "strain": strain}
 
         elif task == "set_current_nutrients":
+            # A bare number is not a dose. "FloraMicro: 3.0" is ambiguous by a
+            # factor of 3.79 between ml/L and ml/gal, and ambiguous again between
+            # a per-volume rate and a total for the reservoir - which is the
+            # difference between a correct mix and a badly wrong one. The record
+            # is self-describing so that ambiguity can't be reintroduced.
             stage = args.get("stage", "unknown")
-            nutrients = {k: v for k, v in args.items() if k != "stage"}
+            unit = args.get("unit", "ml")
+            basis = (args.get("basis") or "total").lower()
+            if basis not in ("total", "per_liter", "per_gallon"):
+                return {"error": "basis must be one of: total, per_liter, per_gallon"}
+            reservoir_liters = self._parse_numeric(args.get("reservoir_liters"))
+            if basis == "total" and reservoir_liters is None:
+                return {"error": "basis 'total' needs reservoir_liters - a total dose is meaningless without the volume it was mixed into"}
+
+            reserved = {"stage", "unit", "basis", "reservoir_liters"}
+            nutrients = {k: v for k, v in args.items() if k not in reserved}
             if not nutrients:
                 return {"error": "No nutrient values provided"}
+
+            # Normalise to a per-litre concentration so recipes stay comparable
+            # across reservoir sizes and unit conventions.
+            L_PER_GAL = 3.785411784
+            per_liter = {}
+            for name, value in nutrients.items():
+                v = self._parse_numeric(value)
+                if v is None:
+                    continue
+                if basis == "total":
+                    per_liter[name] = round(v / reservoir_liters, 4)
+                elif basis == "per_gallon":
+                    per_liter[name] = round(v / L_PER_GAL, 4)
+                else:
+                    per_liter[name] = round(v, 4)
+
             record = {
                 "timestamp": datetime.now().isoformat(),
                 "stage": stage,
-                "nutrients": nutrients
+                "nutrients": nutrients,
+                "unit": unit,
+                "basis": basis,
+                "reservoir_liters": reservoir_liters,
+                "per_liter": per_liter,
             }
             self.store_own_memory("current_nutrients", json.dumps(record))
 
