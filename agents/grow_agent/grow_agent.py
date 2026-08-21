@@ -338,6 +338,41 @@ class GrowAgent(AgentBase):
         LOGGED back-to-back collided and one was lost before this was fixed."""
         return int(time.time() * 1_000_000)
 
+    # Evidence taxonomy - what KIND of record this is. Distinguishing a
+    # correction from a deliberate change is not cosmetic: the week-1 recipe on
+    # plant #1 was a dilution fixing an over-concentration, but nothing marked it
+    # as such, so the concentration-lag detector read it as an intended baseline
+    # and reported the later recipe as a decline when it was a return to normal.
+    EVIDENCE_KINDS = ("fact", "event", "reasoning", "note", "assessment", "correction")
+
+    def _reasoning_context(self, args):
+        """Optional causal context attached to a domain event. Structured state
+        answers WHAT; this answers WHY, what was expected, and what it relates
+        to - which otherwise only ever lives in free-text notes and gets lost to
+        anything reasoning over the record."""
+        if not isinstance(args, dict):
+            return None
+        ctx = {
+            "reason": args.get("reason"),
+            "observed_conditions": args.get("observed_conditions"),
+            "decision": args.get("decision"),
+            "expected_effect": args.get("expected_effect"),
+            "confidence": args.get("confidence_note") or args.get("context_confidence"),
+            "related_events": args.get("related_events") or [],
+            # A correction says a previous record was wrong. Anything reading
+            # history must be able to tell that apart from a normal change.
+            "corrects": args.get("corrects"),
+            "supersedes": args.get("supersedes"),
+        }
+        if not any(v for v in ctx.values()):
+            return None
+        kind = (args.get("evidence_kind") or "").lower()
+        if kind and kind not in self.EVIDENCE_KINDS:
+            kind = None
+        ctx["evidence_kind"] = kind or ("correction" if (ctx["corrects"] or ctx["supersedes"]) else "event")
+        ctx["source"] = args.get("source", "user")
+        return {k: v for k, v in ctx.items() if v not in (None, [], "")}
+
     def _load_nutrient_history_index(self):
         raw = self._unwrap_value(self.retrieve_own_memory("nutrient_change_index"))
         if not raw:
@@ -374,6 +409,20 @@ class GrowAgent(AgentBase):
         the plant doubled. Returns {nutrient: {...}} for components whose growth
         is under threshold_ratio of the median growth across the recipe."""
         history = self._get_nutrient_history()
+        # A recipe recorded as a CORRECTION is not a baseline - it is a mistake
+        # being undone. Comparing against it inverts the finding: plant #1's
+        # week-1 entry was a dilution fixing an over-concentration that had
+        # burned the roots, and reading it as intended made the later, normal
+        # recipe look like a decline in strength.
+        baseline_history = [
+            h for h in history
+            if (h.get("reasoning_context") or {}).get("evidence_kind") != "correction"
+        ]
+        if len(baseline_history) >= 2:
+            history = baseline_history
+        elif len(history) >= 2:
+            # Only corrections available - comparison would be misleading.
+            return {}
         if len(history) < 2:
             return {}
         # Compare CONCENTRATION, not raw millilitres. Reservoir volume changes
@@ -910,6 +959,9 @@ class GrowAgent(AgentBase):
                 "stage": args.get("stage", "seedling"),
                 "notes": args.get("notes", "")
             }
+            ctx = self._reasoning_context(args)
+            if ctx:
+                reading["reasoning_context"] = ctx
             # Also compute VPD if temp and humidity are present
             temp = self._parse_numeric(args.get("temp"))
             humidity = self._parse_numeric(args.get("humidity"))
@@ -983,10 +1035,14 @@ class GrowAgent(AgentBase):
                 transition = {
                     "timestamp": datetime.now().isoformat(),
                     "plant_id": plant_id,
+                    "event_type": "stage_transition",
                     "new_stage": new_stage,
                     "notes": notes,
                     "previous_stage": plant.get("stage", "unknown")
                 }
+                ctx = self._reasoning_context(args)
+                if ctx:
+                    transition["reasoning_context"] = ctx
                 plant["stage"] = new_stage
                 plant["logged_at"] = datetime.now().isoformat()
                 self.store_own_memory(f"plant_{plant_id}", json.dumps(plant))
@@ -1013,11 +1069,18 @@ class GrowAgent(AgentBase):
                 return {"error": "Missing volume"}
             change = {
                 "timestamp": datetime.now().isoformat(),
+                "plant_id": args.get("plant_id", "current_plant"),
+                "event_type": "reservoir_change",
                 "volume_liters": volume,
                 "ph": ph,
                 "ppm": ppm,
+                "ph_before": args.get("ph_before"),
+                "ppm_before": args.get("ppm_before"),
                 "notes": notes
             }
+            ctx = self._reasoning_context(args)
+            if ctx:
+                change["reasoning_context"] = ctx
             self.store_own_memory(f"water_change_{self._uid()}", json.dumps(change))
             return {"result": "Water change logged", "change": change}
 
@@ -1138,6 +1201,9 @@ class GrowAgent(AgentBase):
                 "backfilled": bool(backfill_ts),
                 "source_note": args.get("source_note", ""),
             }
+            ctx = self._reasoning_context(args)
+            if ctx:
+                record["reasoning_context"] = ctx
             if backfill_ts:
                 hist_key = f"nutrient_change_{backfill_ts}"
                 self.store_own_memory(hist_key, json.dumps(record))
@@ -1939,6 +2005,9 @@ class GrowAgent(AgentBase):
                 "concerns": concerns,
                 "guidance": guidance,
             }
+            ctx = self._reasoning_context(args)
+            if ctx:
+                record["reasoning_context"] = ctx
             self.store_own_memory(record["id"], json.dumps(record))
             index = self._load_training_event_index()
             index.append(record["id"])
