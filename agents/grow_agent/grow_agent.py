@@ -201,7 +201,7 @@ class GrowAgent(AgentBase):
                 "verify_growth_stage",
                 "assess_plant", "validate_environment_targets",
                 "log_training_event", "recommend_feed", "plan_system_transition",
-                "set_grow_system", "get_grow_system",
+                "set_grow_system", "get_grow_system", "get_nutrient_history",
                 "training_quest_status", "source_training_candidates",
                 "review_training_candidate", "list_training_candidates",
                 "remove_plant", "list_vision_corrections", "recommend_purchase",
@@ -277,6 +277,31 @@ class GrowAgent(AgentBase):
             return index if isinstance(index, list) else []
         except Exception:
             return []
+
+    def _load_nutrient_history_index(self):
+        raw = self._unwrap_value(self.retrieve_own_memory("nutrient_change_index"))
+        if not raw:
+            return []
+        try:
+            index = json.loads(raw)
+            return index if isinstance(index, list) else []
+        except Exception:
+            return []
+
+    def _get_nutrient_history(self, plant_id=None):
+        out = []
+        for k in self._load_nutrient_history_index():
+            raw = self._unwrap_value(self.retrieve_own_memory(k))
+            if not raw:
+                continue
+            try:
+                rec = json.loads(raw)
+            except Exception:
+                continue
+            if plant_id and rec.get("plant_id") and rec["plant_id"] != plant_id:
+                continue
+            out.append(rec)
+        return sorted(out, key=lambda r: r.get("timestamp") or "")
 
     def _load_training_event_index(self):
         raw = self._unwrap_value(self.retrieve_own_memory("training_event_index"))
@@ -964,6 +989,16 @@ class GrowAgent(AgentBase):
                 "per_liter": per_liter,
             }
             self.store_own_memory("current_nutrients", json.dumps(record))
+            # Also append to a history index. "current_nutrients" is a single
+            # overwritten slot, so every previous recipe was silently destroyed
+            # by the next change - which loses exactly the thing that matters for
+            # a grow: how feed strength moved over time relative to the plant's
+            # size and the measured ppm. Keep each change as its own entry.
+            hist_key = f"nutrient_change_{int(time.time())}"
+            self.store_own_memory(hist_key, json.dumps(record))
+            hist = self._load_nutrient_history_index()
+            hist.append(hist_key)
+            self.store_own_memory("nutrient_change_index", json.dumps(hist))
 
             auto_transition = None
             current_stage = self._unwrap_value(self.retrieve_own_memory("current_stage")) or "unknown"
@@ -1897,6 +1932,47 @@ class GrowAgent(AgentBase):
             recommendation["classification"] = "grow_system"
             recommendation["system"] = record
             return {"result": recommendation, "record": record}
+
+        elif task == "get_nutrient_history":
+            # Feed changes alongside the ppm they actually produced. The recipe
+            # alone doesn't say whether a change worked - only the measured
+            # concentration that followed it does.
+            plant_id = args.get("plant_id", "current_plant") if isinstance(args, dict) else "current_plant"
+            history = self._get_nutrient_history()
+            readings = self._get_readings_for_plant(plant_id)
+
+            timeline = []
+            for rec in history:
+                ts = rec.get("timestamp", "")
+                after = [r for r in readings if (r.get("timestamp") or "") > ts]
+                nxt = after[0] if after else None
+                timeline.append({
+                    "changed_at": ts,
+                    "stage": rec.get("stage"),
+                    "nutrients": rec.get("nutrients"),
+                    "unit": rec.get("unit"),
+                    "basis": rec.get("basis"),
+                    "reservoir_liters": rec.get("reservoir_liters"),
+                    "per_liter": rec.get("per_liter"),
+                    "next_measured_ppm": nxt.get("ppm") if nxt else None,
+                    "next_reading_at": nxt.get("timestamp") if nxt else None,
+                })
+
+            ppm_series = [{"at": r.get("timestamp"), "ppm": r.get("ppm"), "stage": r.get("stage")}
+                          for r in readings if r.get("ppm") is not None]
+            gap = None
+            if len(history) < 2 and len(ppm_series) > 2:
+                gap = ("Only %d recipe change(s) on record against %d ppm readings - feed changes "
+                       "made before nutrient history was versioned were overwritten and are not "
+                       "recoverable. The ppm series below is the reliable record for that period."
+                       % (len(history), len(ppm_series)))
+
+            return {"result": {
+                "plant_id": plant_id,
+                "recipe_changes": timeline,
+                "ppm_series": ppm_series,
+                "history_gap": gap,
+            }}
 
         elif task == "get_grow_system":
             plant_id = args.get("plant_id", "current_plant") if isinstance(args, dict) else "current_plant"
