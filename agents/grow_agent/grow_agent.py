@@ -254,7 +254,7 @@ class GrowAgent(AgentBase):
                 "assess_plant", "validate_environment_targets",
                 "log_training_event", "recommend_feed", "plan_system_transition",
                 "set_grow_system", "get_grow_system", "get_nutrient_history",
-                "check_in", "analyze_consumption",
+                "check_in", "analyze_consumption", "adjust_to_target_ppm",
                 "training_quest_status", "source_training_candidates",
                 "review_training_candidate", "list_training_candidates",
                 "remove_plant", "list_vision_corrections", "recommend_purchase",
@@ -2131,6 +2131,61 @@ class GrowAgent(AgentBase):
             recommendation["classification"] = "grow_system"
             recommendation["system"] = record
             return {"result": recommendation, "record": record}
+
+        elif task == "adjust_to_target_ppm":
+            # Close the gap between a measured ppm and the target. Deliberately
+            # volume-free: scaling what was already added by the ratio of target
+            # to measured lands on target whatever the true volume is, which
+            # matters because reservoir volume here is estimated from bottles
+            # poured in and an unmarked sight tube. The meter is the authority.
+            measured = self._parse_numeric(args.get("measured_ppm"))
+            target = self._parse_numeric(args.get("target_ppm"))
+            added = args.get("added") or {}
+            if measured is None or target is None:
+                return {"error": "Usage: {measured_ppm, target_ppm, [added: {nutrient: ml}], [assumed_volume_liters]}"}
+            if measured <= 0:
+                return {"error": "measured_ppm must be positive"}
+
+            factor = target / measured
+            top_up = {}
+            for name, ml in added.items():
+                v = self._parse_numeric(ml)
+                if v is None:
+                    continue
+                # Additional amount needed, not the new total.
+                top_up[name] = round(v * (factor - 1), 1)
+
+            assumed = self._parse_numeric(args.get("assumed_volume_liters"))
+            implied_volume = round(assumed * factor, 1) if assumed else None
+
+            notes = []
+            if factor > 1:
+                notes.append(f"Measured {measured:g} is {(1-1/factor)*100:.0f}% short of {target:g}.")
+            elif factor < 1:
+                notes.append(
+                    f"Measured {measured:g} OVERSHOOTS {target:g}. Nutrient cannot be removed - "
+                    "dilute with plain water instead, roughly "
+                    f"{(1/factor - 1)*100:.0f}% more volume."
+                )
+            if implied_volume:
+                notes.append(
+                    f"Implied actual volume is about {implied_volume:g}L against the {assumed:g}L "
+                    "assumed - the shortfall is dilution, not weak nutrient, so the volume estimate "
+                    "is what was off."
+                )
+            notes.append("Add, circulate, re-measure. Two passes usually lands it.")
+
+            recommendation = self._make_recommendation(
+                f"{measured:g} ppm measured against a {target:g} ppm target.",
+                f"Scaling factor {factor:.2f}x on what was already added.",
+                " ".join(notes),
+                "high",
+            )
+            recommendation["classification"] = "ppm_adjustment"
+            recommendation["factor"] = round(factor, 3)
+            recommendation["add_now"] = top_up if factor > 1 else {}
+            recommendation["implied_volume_liters"] = implied_volume
+            return {"result": recommendation}
 
         elif task == "analyze_consumption":
             # "Is it drinking water faster than nutrients, or the other way round?"
