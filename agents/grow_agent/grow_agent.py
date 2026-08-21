@@ -1273,6 +1273,13 @@ class GrowAgent(AgentBase):
 
             prior_readings = self._get_readings_for_plant(plant_id)
             last_reading = prior_readings[-1] if prior_readings else None
+            # A reservoir change resets the baseline. Without knowing one
+            # happened, a deliberate fresh mix reads as drift - "ppm rose,
+            # possible evaporation or salt buildup" - when the grower simply
+            # replaced the solution. Comparing across a change is meaningless.
+            reservoir_reset = bool(args.get("after_reservoir_change"))
+            if reservoir_reset:
+                last_reading = None
 
             findings = []
             scores = {}
@@ -1324,11 +1331,16 @@ class GrowAgent(AgentBase):
             if reservoir_temp is None:
                 scores["temp"] = 1
                 findings.append("No reservoir temperature provided.")
-            elif 65 <= reservoir_temp <= 75:
+            elif 64 <= reservoir_temp <= 72:
                 scores["temp"] = 2
-            elif 60 <= reservoir_temp < 65 or 75 < reservoir_temp <= 80:
+            elif 60 <= reservoir_temp < 64 or 72 < reservoir_temp <= 78:
                 scores["temp"] = 1
-                findings.append(f"Reservoir temperature {reservoir_temp} is outside the ideal 65-75F band.")
+                findings.append(
+                    f"Reservoir temperature {reservoir_temp}F is outside the 64-72F (18-22C) band. "
+                    "Where roots sit in solution this is a root-health parameter, not comfort - "
+                    "warm water holds less dissolved oxygen, and the risk of root pathogens rises "
+                    "above roughly 22C, more so as EC climbs."
+                )
             else:
                 scores["temp"] = 0
                 findings.append(f"Reservoir temperature {reservoir_temp} is well outside the safe range.")
