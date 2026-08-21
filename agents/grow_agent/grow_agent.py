@@ -128,6 +128,36 @@ STAGE_FEED_EMPHASIS = {
 # Extra nitrogen emphasis while regrowing after capacity was removed.
 REGROWTH_N_BOOST = 1.25
 
+# What the agent needs to know, how often, and why. The point is not to poll the
+# grower daily - it is to know what is missing when a decision actually depends
+# on it, and to ask then. Intervals shorten as biomass grows because consumption
+# is non-linear: a weekly check is ample when the plant is small relative to the
+# reservoir and leaves it starving for days once the root mass fills it.
+MONITORING_SCHEDULE = {
+    "germination":  {"interval_days": 7, "params": ["ph", "temp"]},
+    "seedling":     {"interval_days": 7, "params": ["ph", "ppm", "temp", "volume_liters"]},
+    "early_veg":    {"interval_days": 5, "params": ["ph", "ppm", "temp", "volume_liters"]},
+    "veg":          {"interval_days": 3, "params": ["ph", "ppm", "temp", "humidity", "volume_liters"]},
+    "flower":       {"interval_days": 3, "params": ["ph", "ppm", "temp", "humidity", "volume_liters"]},
+}
+
+# Plain-language prompts, so the narration layer asks a person a question rather
+# than naming a field.
+PARAM_QUESTIONS = {
+    "ph":            "What's the pH reading?",
+    "ppm":           "What's the PPM?",
+    "ec":            "What's the EC?",
+    "temp":          "What's the water temperature?",
+    "humidity":      "What's the humidity in the tent?",
+    "volume_liters": "Roughly how many litres are in the reservoir right now?",
+}
+
+# A reservoir change is overdue faster than most schedules assume once the plant
+# is large - this grow lost two weeks to exactly that.
+RESERVOIR_CHANGE_INTERVAL_DAYS = {
+    "germination": 14, "seedling": 10, "early_veg": 7, "veg": 7, "flower": 7,
+}
+
 # The plant lives in a system, and the system changes what the readings mean.
 # Everything above this reasons about a generic reservoir; without a system
 # model, "top up to 5L" or "ppm is low" can be actively wrong advice for the
@@ -207,6 +237,7 @@ class GrowAgent(AgentBase):
                 "assess_plant", "validate_environment_targets",
                 "log_training_event", "recommend_feed", "plan_system_transition",
                 "set_grow_system", "get_grow_system", "get_nutrient_history",
+                "check_in", "analyze_consumption",
                 "training_quest_status", "source_training_candidates",
                 "review_training_candidate", "list_training_candidates",
                 "remove_plant", "list_vision_corrections", "recommend_purchase",
@@ -282,6 +313,13 @@ class GrowAgent(AgentBase):
             return index if isinstance(index, list) else []
         except Exception:
             return []
+
+    @staticmethod
+    def _uid():
+        """Microsecond-precision id. Second-granularity keys silently overwrote
+        records logged in the same second - two readings taken minutes apart but
+        LOGGED back-to-back collided and one was lost before this was fixed."""
+        return int(time.time() * 1_000_000)
 
     def _load_nutrient_history_index(self):
         raw = self._unwrap_value(self.retrieve_own_memory("nutrient_change_index"))
@@ -545,7 +583,7 @@ class GrowAgent(AgentBase):
         it's marked unusable rather than silently sitting in the index looking
         like a labelled example."""
         record = {
-            "id": f"vision_correction_{int(time.time())}",
+            "id": f"vision_correction_{self._uid()}",
             "timestamp": datetime.now().isoformat(),
             "image_path": image_path,
             "fused_observation": fused,
@@ -777,6 +815,11 @@ class GrowAgent(AgentBase):
                 "ec": args.get("ec"),
                 "temp": args.get("temp"),
                 "humidity": args.get("humidity"),
+                # Volume is what makes ppm interpretable. 400ppm in 3L and 400ppm
+                # in 5L are different amounts of nutrient, and without it there is
+                # no way to tell whether a falling ppm means the plant is feeding
+                # or the solution is being diluted - see analyze_consumption.
+                "volume_liters": self._parse_numeric(args.get("volume_liters")),
                 "stage": args.get("stage", "seedling"),
                 "notes": args.get("notes", "")
             }
@@ -785,7 +828,7 @@ class GrowAgent(AgentBase):
             humidity = self._parse_numeric(args.get("humidity"))
             if temp is not None and humidity is not None:
                 reading["vpd"] = calculate_vpd(temp, humidity)
-            self.store_own_memory(f"reading_{int(time.time())}", json.dumps(reading))
+            self.store_own_memory(f"reading_{self._uid()}", json.dumps(reading))
             # Also add to reading index (for data preparation)
             # We'll store a separate index list.
             index = self._unwrap_value(self.retrieve_own_memory("reading_index"))
@@ -796,7 +839,7 @@ class GrowAgent(AgentBase):
                     index = json.loads(index)
                 except:
                     index = []
-            key = f"reading_{int(time.time())}"
+            key = f"reading_{self._uid()}"
             if key not in index:
                 index.append(key)
             self.store_own_memory("reading_index", json.dumps(index))
@@ -860,7 +903,7 @@ class GrowAgent(AgentBase):
                 plant["stage"] = new_stage
                 plant["logged_at"] = datetime.now().isoformat()
                 self.store_own_memory(f"plant_{plant_id}", json.dumps(plant))
-                self.store_own_memory(f"stage_transition_{plant_id}_{int(time.time())}", json.dumps(transition))
+                self.store_own_memory(f"stage_transition_{plant_id}_{self._uid()}", json.dumps(transition))
                 return {"result": f"Stage transitioned to {new_stage} for {plant_id}", "transition": transition}
 
             transition = {
@@ -871,7 +914,7 @@ class GrowAgent(AgentBase):
                 "previous_stage": self._unwrap_value(self.retrieve_own_memory("current_stage")) or "unknown"
             }
             self.store_own_memory("current_stage", new_stage)
-            self.store_own_memory(f"stage_transition_{int(time.time())}", json.dumps(transition))
+            self.store_own_memory(f"stage_transition_{self._uid()}", json.dumps(transition))
             return {"result": f"Stage transitioned to {new_stage}", "transition": transition}
 
         elif task == "log_water_change":
@@ -888,7 +931,7 @@ class GrowAgent(AgentBase):
                 "ppm": ppm,
                 "notes": notes
             }
-            self.store_own_memory(f"water_change_{int(time.time())}", json.dumps(change))
+            self.store_own_memory(f"water_change_{self._uid()}", json.dumps(change))
             return {"result": "Water change logged", "change": change}
 
         elif task == "get_status":
@@ -960,11 +1003,20 @@ class GrowAgent(AgentBase):
             basis = (args.get("basis") or "total").lower()
             if basis not in ("total", "per_liter", "per_gallon"):
                 return {"error": "basis must be one of: total, per_liter, per_gallon"}
-            reservoir_liters = self._parse_numeric(args.get("reservoir_liters"))
+            # The volume the dose was actually mixed into - NOT the container's
+            # rated capacity. A "5 gallon" bucket runs at 3-4.5 gal and a 5L unit
+            # ran at 3.5-4L in early stages, so dosing against nameplate capacity
+            # over-concentrates by however much the reservoir is underfilled.
+            reservoir_liters = self._parse_numeric(
+                args.get("volume_liters") or args.get("reservoir_liters")
+            )
             if basis == "total" and reservoir_liters is None:
-                return {"error": "basis 'total' needs reservoir_liters - a total dose is meaningless without the volume it was mixed into"}
+                return {"error": ("basis 'total' needs volume_liters - the ACTUAL volume mixed "
+                                  "into, not the container's capacity. A total dose is meaningless "
+                                  "without it, and capacity overstates it whenever the reservoir "
+                                  "is not full.")}
 
-            reserved = {"stage", "unit", "basis", "reservoir_liters"}
+            reserved = {"stage", "unit", "basis", "reservoir_liters", "volume_liters", "typical_working_liters"}
             nutrients = {k: v for k, v in args.items() if k not in reserved}
             if not nutrients:
                 return {"error": "No nutrient values provided"}
@@ -1013,7 +1065,7 @@ class GrowAgent(AgentBase):
             # by the next change - which loses exactly the thing that matters for
             # a grow: how feed strength moved over time relative to the plant's
             # size and the measured ppm. Keep each change as its own entry.
-            hist_key = f"nutrient_change_{int(time.time())}"
+            hist_key = f"nutrient_change_{self._uid()}"
             self.store_own_memory(hist_key, json.dumps(record))
             hist = self._load_nutrient_history_index()
             hist.append(hist_key)
@@ -1036,7 +1088,7 @@ class GrowAgent(AgentBase):
             notes = args.get("notes", "")
             if not title or not target_date:
                 return {"error": "Missing title or target_date"}
-            reminder_id = f"reminder_{int(time.time())}"
+            reminder_id = f"reminder_{self._uid()}"
             reminder = {
                 "id": reminder_id,
                 "title": title,
@@ -1074,7 +1126,7 @@ class GrowAgent(AgentBase):
             text = args.get("text") or args.get("notes")
             if not text:
                 return {"error": "Missing note text"}
-            note_id = f"note_{int(time.time())}"
+            note_id = f"note_{self._uid()}"
             note = {
                 "id": note_id,
                 "timestamp": datetime.now().isoformat(),
@@ -1275,7 +1327,7 @@ class GrowAgent(AgentBase):
             })
 
             record = {
-                "id": f"reservoir_eval_{int(time.time())}",
+                "id": f"reservoir_eval_{self._uid()}",
                 "timestamp": datetime.now().isoformat(),
                 "plant_id": plant_id,
                 "stage": stage,
@@ -1389,7 +1441,7 @@ class GrowAgent(AgentBase):
                 if vision_note:
                     recommendation["vision_note"] = vision_note
                 record = {
-                    "id": f"leaf_eval_{int(time.time())}",
+                    "id": f"leaf_eval_{self._uid()}",
                     "timestamp": datetime.now().isoformat(),
                     "plant_id": plant_id,
                     "photo_refs": photo_refs,
@@ -1436,7 +1488,7 @@ class GrowAgent(AgentBase):
                 recommendation["vision_note"] = vision_note
 
             record = {
-                "id": f"leaf_eval_{int(time.time())}",
+                "id": f"leaf_eval_{self._uid()}",
                 "timestamp": datetime.now().isoformat(),
                 "plant_id": plant_id,
                 "photo_refs": photo_refs,
@@ -1600,7 +1652,7 @@ class GrowAgent(AgentBase):
                 recommendation["vision_note"] = vision_note
 
             record = {
-                "id": f"stage_eval_{int(time.time())}",
+                "id": f"stage_eval_{self._uid()}",
                 "timestamp": datetime.now().isoformat(),
                 "plant_id": plant_id,
                 "species": species,
@@ -1703,7 +1755,7 @@ class GrowAgent(AgentBase):
             recommendation["search_query"] = query
 
             record = {
-                "id": f"stage_verification_{int(time.time())}",
+                "id": f"stage_verification_{self._uid()}",
                 "timestamp": datetime.now().isoformat(),
                 "plant_id": plant_id,
                 "strain": strain,
@@ -1763,7 +1815,7 @@ class GrowAgent(AgentBase):
             )
 
             record = {
-                "id": f"training_event_{int(time.time())}",
+                "id": f"training_event_{self._uid()}",
                 "timestamp": datetime.now().isoformat(),
                 "plant_id": plant_id,
                 "event_type": event_type,
@@ -1897,7 +1949,11 @@ class GrowAgent(AgentBase):
                 "system_type": system_type,
                 "system_label": GROW_SYSTEM_TYPES.get(system_type, {}).get("label", system_type),
                 "medium": medium,
-                "reservoir_liters": self._parse_numeric(args.get("reservoir_liters")),
+                # Capacity is the container's rating; typical_working_liters is what
+                # it actually runs at. A 5 gal bucket is never filled to 5 gal.
+                # Dosing must use working volume - capacity would over-concentrate.
+                "reservoir_capacity_liters": self._parse_numeric(args.get("reservoir_liters")),
+                "typical_working_liters": self._parse_numeric(args.get("typical_working_liters")),
                 "water_source": water_source,
                 "equipment": args.get("equipment", {}),
                 "location": args.get("location", ""),
@@ -1954,9 +2010,19 @@ class GrowAgent(AgentBase):
                 )
             record["advisories"] = advisories
 
+            cap, work = record["reservoir_capacity_liters"], record["typical_working_liters"]
+            if cap:
+                advisories.append(
+                    f"Capacity is {cap:g}L but that is a container rating, not an operating volume - "
+                    "reservoirs run underfilled. Dose against the volume actually in the reservoir; "
+                    "mixing for capacity over-concentrates by however far below full it sits."
+                )
+            record["advisories"] = advisories
+            size_txt = (f", {work:g}L working of {cap:g}L capacity" if cap and work
+                        else (f", {cap:g}L capacity" if cap else ""))
             recommendation = self._make_recommendation(
                 f"System registered: {record['system_label']} with {GROW_MEDIA[medium]['label']}"
-                + (f", {record['reservoir_liters']:g}L" if record["reservoir_liters"] else "") + ".",
+                + size_txt + ".",
                 "Readings are interpreted against the system they came from - the same ppm or water "
                 "level means different things in different hardware.",
                 " ".join(advisories) if advisories else "No system-specific advisories.",
@@ -1965,6 +2031,141 @@ class GrowAgent(AgentBase):
             recommendation["classification"] = "grow_system"
             recommendation["system"] = record
             return {"result": recommendation, "record": record}
+
+        elif task == "analyze_consumption":
+            # "Is it drinking water faster than nutrients, or the other way round?"
+            # Answerable only with volume alongside ppm: nutrient mass is
+            # volume x ppm, so comparing mass against volume between two readings
+            # separates uptake from concentration. If ppm FALLS while volume FALLS
+            # the plant is stripping the reservoir; if ppm RISES while volume
+            # falls, transpiration is outrunning feeding and it wants water.
+            plant_id = args.get("plant_id", "current_plant") if isinstance(args, dict) else "current_plant"
+            readings = [r for r in self._get_readings_for_plant(plant_id)
+                        if r.get("ppm") is not None and r.get("volume_liters") is not None]
+            if len(readings) < 2:
+                have = len(readings)
+                return {"result": {
+                    "verdict": "insufficient_data",
+                    "readings_with_volume": have,
+                    "observation": (
+                        f"Only {have} reading(s) carry both ppm and volume. This comparison needs "
+                        "two, because nutrient mass is volume x ppm - ppm alone cannot distinguish "
+                        "the plant feeding from the solution being topped up or evaporating."
+                    ),
+                    "action": "Log volume_liters alongside ppm from here on.",
+                }}
+
+            a, b = readings[-2], readings[-1]
+            va, vb = float(a["volume_liters"]), float(b["volume_liters"])
+            pa, pb = float(a["ppm"]), float(b["ppm"])
+            ma, mb = va * pa, vb * pb
+            water_used = (1 - vb / va) * 100 if va else 0
+            nutrient_used = (1 - mb / ma) * 100 if ma else 0
+
+            if vb > va:
+                verdict = "topped_up"
+                observation = (
+                    f"Volume rose {va:g}L to {vb:g}L, so this spans a top-up or change - uptake "
+                    "cannot be separated out across it."
+                )
+                action = "Compare two readings taken between top-ups for a clean consumption read."
+            elif nutrient_used > water_used + 5:
+                verdict = "feeding_faster_than_drinking"
+                observation = (
+                    f"Nutrient down {nutrient_used:.0f}% while water down {water_used:.0f}% "
+                    f"({pa:g}ppm/{va:g}L -> {pb:g}ppm/{vb:g}L). Falling ppm against falling volume "
+                    "means uptake outpaced water loss - evaporation alone would concentrate the "
+                    "solution and raise ppm."
+                )
+                action = ("The plant is stripping the reservoir faster than the recipe replaces it. "
+                          "Raise strength and shorten the interval between changes.")
+            elif water_used > nutrient_used + 5:
+                verdict = "drinking_faster_than_feeding"
+                observation = (
+                    f"Water down {water_used:.0f}% while nutrient down only {nutrient_used:.0f}% "
+                    f"({pa:g}ppm/{va:g}L -> {pb:g}ppm/{vb:g}L). The solution is concentrating."
+                )
+                action = ("Top up with plain water rather than more nutrient, or strength will "
+                          "climb on its own and risk burn.")
+            else:
+                verdict = "balanced"
+                observation = (
+                    f"Water and nutrient falling together ({water_used:.0f}% vs "
+                    f"{nutrient_used:.0f}%) - uptake is proportional."
+                )
+                action = "Hold the current strength; top up to volume as needed."
+
+            result = self._make_recommendation(observation, f"Verdict: {verdict}.", action,
+                                               "high" if verdict != "balanced" else "medium")
+            result["classification"] = verdict
+            result["window"] = {"from": a.get("timestamp"), "to": b.get("timestamp")}
+            result["water_used_pct"] = round(water_used, 1)
+            result["nutrient_used_pct"] = round(nutrient_used, 1)
+            return {"result": result}
+
+        elif task == "check_in":
+            # The active-participant task: work out what the agent needs to know
+            # right now and ask for it, rather than waiting to be told.
+            plant_id = args.get("plant_id", "current_plant") if isinstance(args, dict) else "current_plant"
+            stage = self._unwrap_value(self.retrieve_own_memory("current_stage")) or "unknown"
+            strain = self._unwrap_value(self.retrieve_own_memory("current_strain")) or ""
+            sys_raw = self._unwrap_value(self.retrieve_own_memory(f"grow_system_{plant_id}"))
+            system = json.loads(sys_raw) if sys_raw else None
+
+            schedule = MONITORING_SCHEDULE.get(stage, MONITORING_SCHEDULE["veg"])
+            readings = self._get_readings_for_plant(plant_id)
+            latest = readings[-1] if readings else None
+            now = datetime.now()
+
+            days_since = None
+            if latest and latest.get("timestamp"):
+                try:
+                    days_since = (now - datetime.fromisoformat(latest["timestamp"])).days
+                except Exception:
+                    pass
+
+            # Missing = never captured, or absent from the most recent reading.
+            missing, stale = [], []
+            for p in schedule["params"]:
+                if not latest or latest.get(p) is None:
+                    missing.append(p)
+            if days_since is not None and days_since >= schedule["interval_days"]:
+                stale.append(f"last reading was {days_since} day(s) ago; "
+                             f"{stage} wants one every {schedule['interval_days']}")
+
+            triggers = []
+            change_interval = RESERVOIR_CHANGE_INTERVAL_DAYS.get(stage, 7)
+            if days_since is not None and days_since >= change_interval:
+                triggers.append(
+                    f"Reservoir change likely due - {days_since} day(s) since the last logged "
+                    f"reading and {stage} wants a change about every {change_interval}."
+                )
+            if system and system.get("system_type") in ("dwc", "top_fed_dwc"):
+                triggers.append("Water temperature matters here - roots sit in solution.")
+            if system and WATER_SOURCES.get((system.get("water_source") or "").lower(), {}).get("unbuffered"):
+                triggers.append("Unbuffered source water - pH needs checking more often than mineral water would.")
+            if "auto" in str(strain).lower() and stage == "veg":
+                triggers.append("Autoflower in veg - watch the nodes for pistils; that is the trigger to change feed weighting.")
+
+            questions = [PARAM_QUESTIONS.get(p, f"What's the {p}?") for p in missing]
+            if not missing and not stale:
+                questions.append("Anything changed since the last reading - top-up, change, or new growth?")
+
+            recommendation = self._make_recommendation(
+                (f"Last reading {days_since} day(s) ago." if days_since is not None
+                 else "No readings logged yet."),
+                ("Missing for this stage: " + ", ".join(missing)) if missing else "Have what this stage needs.",
+                " ".join(questions),
+                "high" if (missing or stale) else "medium",
+            )
+            recommendation["classification"] = "check_in"
+            recommendation["stage"] = stage
+            recommendation["days_since_last_reading"] = days_since
+            recommendation["missing_params"] = missing
+            recommendation["stale"] = stale
+            recommendation["triggers"] = triggers
+            recommendation["questions"] = questions
+            return {"result": recommendation}
 
         elif task == "get_nutrient_history":
             # Feed changes alongside the ppm they actually produced. The recipe
@@ -2097,7 +2298,7 @@ class GrowAgent(AgentBase):
                 )
 
             record = {
-                "id": f"transition_plan_{int(time.time())}",
+                "id": f"transition_plan_{self._uid()}",
                 "timestamp": datetime.now().isoformat(),
                 "plant_id": plant_id,
                 "from_system": from_system,
@@ -2242,7 +2443,7 @@ class GrowAgent(AgentBase):
             }
 
             record = {
-                "id": f"assessment_{int(time.time())}",
+                "id": f"assessment_{self._uid()}",
                 "timestamp": datetime.now().isoformat(),
                 "plant_id": plant_id,
                 "snapshot": snapshot,
@@ -2306,7 +2507,7 @@ class GrowAgent(AgentBase):
                 })
 
             record = {
-                "id": f"env_validation_{int(time.time())}",
+                "id": f"env_validation_{self._uid()}",
                 "timestamp": datetime.now().isoformat(),
                 "plant_id": plant_id,
                 "stage": stage,
