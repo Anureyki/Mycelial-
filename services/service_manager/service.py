@@ -7,6 +7,7 @@ Now supports entry_point for module-based agent startup.
 import os
 import json
 import time
+import re
 import subprocess
 import threading
 import requests
@@ -97,7 +98,14 @@ def start_agent_process(agent_id, config_path):
 def stop_agent_process(agent_id):
     """Stop the agent process (uses pkill)."""
     try:
-        result = subprocess.run(["pgrep", "-f", f"agents/{agent_id}.py"], capture_output=True, text=True)
+        # Agents are launched in module form ("python3 -m agents.grow_agent.grow_agent")
+        # by both start_all.sh and start_agent_process below. The old pattern
+        # "agents/{id}.py" only matched the direct-script form, which nothing
+        # uses - so stop/restart silently matched nothing and reported success.
+        # Match either form, and anchor on the agent id so a partial name can't
+        # take down a different agent.
+        pattern = rf"agents[./]{re.escape(agent_id)}[./]"
+        result = subprocess.run(["pgrep", "-f", pattern], capture_output=True, text=True)
         if result.returncode == 0:
             pids = result.stdout.strip().split()
             for pid in pids:

@@ -1,0 +1,22 @@
+[Unit]
+# Brings the whole stack up at boot. Before this existed, only two @reboot cron
+# lines ran (Registry, twice, racing for port 8004, plus Service Manager) - so
+# after a power cycle Anansi was down and the system was silently gone until
+# someone SSH'd in and ran start_all.sh by hand.
+Description=Mycelial agent stack
+After=network-online.target mosquitto.service
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+User=anureyki
+WorkingDirectory=/home/anureyki/mycelial
+# start_all.sh backgrounds everything and returns; RemainAfterExit keeps the
+# unit "active" so `systemctl stop` can run the matching teardown.
+ExecStart=/bin/bash /home/anureyki/mycelial/start_all.sh
+ExecStop=/usr/bin/pkill -f "python3 .*(-m agents\\.|services/[a-z_]+/[a-z_]+\\.py|http\\.server 8090)"
+TimeoutStartSec=600
+
+[Install]
+WantedBy=multi-user.target

@@ -148,6 +148,18 @@ fi
 sleep 3
 echo ""
 echo "📋 Health check summary:"
+
+# ----------------------------------------------------------------------
+# Web client (static PWA). Was started by hand and supervised by nothing,
+# so it stayed down silently after the last memory-pressure kill.
+# ----------------------------------------------------------------------
+if ! curl -s -o /dev/null -m 2 http://localhost:8090/; then
+    (cd "$HOME/mycelial/webapp" && nohup python3 -m http.server 8090 --bind 0.0.0.0 > "$HOME/mycelial/logs/webapp.log" 2>&1 &)
+    echo "  ✅ Web client (port 8090)"
+else
+    echo "  ✅ Web client already running (port 8090)"
+fi
+
 for port in 8004 8007 8008 8009 8005 8006 8010 8011 8012 8014 8015 8016 8017 8000 8001 8002 8003 8081 9006 9007 9009 9010 9011 9012 9013; do
     if curl -s -o /dev/null -w "%{http_code}" http://localhost:$port/health | grep -q 200; then
         echo "  ✅ Port $port is healthy"

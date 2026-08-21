@@ -14,6 +14,7 @@ from core.base_agent import AgentBase
 BASE = os.path.expanduser("~/mycelial")
 MEMORY_SERVICE_URL = "http://localhost:8007"
 POLICY_SERVICE_URL = "http://localhost:8008"
+LOGGING_SERVICE_URL = "http://localhost:8009"
 
 class HermesInterface(AgentBase):
     def __init__(self):
@@ -29,7 +30,8 @@ class HermesInterface(AgentBase):
                 "forget_memory",
                 "pin_memory",
                 "search_docs",          # NEW: librarian skill
-                "log_session_summary", "get_progress_summary"
+                "log_session_summary", "get_progress_summary",
+                "consolidate_audit", "get_audit_digests"
             ]
         )
         self.log("🧠 Hermes (Memory Intelligence + Librarian) initialized.")
@@ -64,6 +66,15 @@ class HermesInterface(AgentBase):
         if not isinstance(entry, dict):
             return None
         return entry.get("value")
+
+
+    def _last_consolidation_marker(self):
+        """Timestamp of the newest audit row already folded into memory, so a
+        consolidation run reads forward instead of re-digesting the whole log."""
+        res = self._call_memory_service("retrieve", "GET",
+                                        {"namespace": "audit_digest", "key": "last_consolidation"})
+        entry = self._unwrap_memory_entry(res)
+        return entry or ""
 
     def _load_session_log_index(self):
         raw = self._call_memory_service("retrieve", "GET", {"namespace": "session_log", "key": "session_log_index"})
@@ -186,6 +197,85 @@ class HermesInterface(AgentBase):
         # Anansi narrates progress in plain language on request; this is the log
         # of record it reads from - what got done, what's pending, what's next,
         # and what a pending item is waiting on, per work session.
+        elif task == "consolidate_audit":
+            # The bridge between the two record-keepers. Operational activity is
+            # written to the Logging Service (TASK_COMPLETED rows) while memory
+            # holds only domain facts, and nothing ever connected them - so the
+            # system recorded everything it did but could not recall any of it,
+            # because recall reads memory. This distils the audit trail into a
+            # memory entry, which is what makes progress self-updating instead
+            # of depending on someone remembering to write a summary by hand.
+            since = args.get("since") or self._last_consolidation_marker()
+            limit = int(args.get("limit", 500))
+
+            try:
+                resp = requests.get(f"{LOGGING_SERVICE_URL}/logs", params={"limit": limit}, timeout=15)
+                entries = resp.json().get("entries", []) if resp.status_code == 200 else []
+            except Exception as e:
+                return {"error": f"Could not read audit log: {e}"}
+
+            fresh = [e for e in entries if (e.get("timestamp") or "") > since] if since else entries
+            if not fresh:
+                return {"result": {"consolidated": 0, "since": since,
+                                   "note": "No audit activity since the last consolidation."}}
+
+            by_agent, denials, errors = {}, [], []
+            for e in fresh:
+                agent = e.get("agent_id", "unknown")
+                meta = e.get("metadata") or "{}"
+                try:
+                    task_name = json.loads(meta).get("task", e.get("task", "?"))
+                except Exception:
+                    task_name = e.get("task", "?")
+                by_agent.setdefault(agent, {}).setdefault(task_name, 0)
+                by_agent[agent][task_name] += 1
+                if e.get("event_type") == "GUARD_DENY":
+                    denials.append({"agent": agent, "task": task_name, "at": e.get("timestamp")})
+                if (e.get("level") or "").lower() in ("error", "critical"):
+                    errors.append({"agent": agent, "task": task_name, "at": e.get("timestamp"),
+                                   "result": (e.get("result") or "")[:200]})
+
+            newest = max((e.get("timestamp") or "") for e in fresh)
+            record = {
+                "consolidated_at": datetime.now().isoformat(),
+                "window_start": since,
+                "window_end": newest,
+                "entries_seen": len(fresh),
+                "activity_by_agent": by_agent,
+                "denials": denials[:20],
+                "errors": errors[:20],
+            }
+            key = f"audit_digest_{record['consolidated_at']}"
+            self._call_memory_service("store", "POST", {
+                "namespace": "audit_digest", "key": key, "value": json.dumps(record), "pin": False
+            })
+            # Marker so the next run only reads forward, not the whole log again.
+            self._call_memory_service("store", "POST", {
+                "namespace": "audit_digest", "key": "last_consolidation", "value": newest, "pin": True
+            })
+            self.log(f"Consolidated {len(fresh)} audit entries into memory ({key})")
+            return {"result": record}
+
+        elif task == "get_audit_digests":
+            limit = int(args.get("limit", 5)) if isinstance(args, dict) else 5
+            try:
+                resp = requests.get(f"{MEMORY_SERVICE_URL}/search",
+                                    params={"q": "audit_digest_", "namespace": "audit_digest"}, timeout=10)
+                rows = resp.json().get("results", []) if resp.status_code == 200 else []
+            except Exception as e:
+                return {"error": str(e)}
+            digests = []
+            for r in sorted(rows, key=lambda x: x.get("key", ""), reverse=True):
+                if not r.get("key", "").startswith("audit_digest_"):
+                    continue
+                try:
+                    digests.append(json.loads(r["value"]))
+                except Exception:
+                    pass
+                if len(digests) >= limit:
+                    break
+            return {"result": digests}
+
         elif task == "log_session_summary":
             if not isinstance(args, dict):
                 return {"error": "Usage: {session_id, accomplished, updated, started, pending, next_steps, [depends_on]}"}
