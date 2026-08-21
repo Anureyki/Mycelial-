@@ -95,6 +95,39 @@ LEAF_PRODUCTIVE_KEYWORDS = ("green", "vigorous", "healthy")
 # ---------------------------
 STAGE_ORDER = ["germination", "seedling", "early_veg", "veg", "flower"]
 
+# Training/pruning events change what the plant needs, and the effect depends on
+# how much photosynthetic capacity and stored nutrient was removed. Fan leaves
+# are the plant's nitrogen reserve, not just its sails - removing the biggest
+# ones takes away what it would otherwise draw on while regrowing.
+TRAINING_EVENT_TYPES = {
+    "topping":       {"severity": "moderate", "removes_capacity": False},
+    "lollipopping":  {"severity": "moderate", "removes_capacity": True},
+    "defoliation":   {"severity": "heavy",    "removes_capacity": True},
+    "lst":           {"severity": "light",    "removes_capacity": False},
+    "leaf_removal":  {"severity": "moderate", "removes_capacity": True},
+}
+
+# Direction of nutrient emphasis by stage. Deliberately expressed as multipliers
+# on whatever recipe is already recorded rather than absolute ml, because the
+# right absolute numbers depend on the product line, the source water, and the
+# reservoir volume - all of which the agent already knows per-grow and none of
+# which generalise. In the GH Flora trio: Gro carries nitrogen for leaf/stem,
+# Micro carries nitrogen plus calcium, Bloom is the P-K side.
+STAGE_FEED_EMPHASIS = {
+    "germination":  {"note": "Plain pH-balanced water or a very dilute feed. Seed reserves cover this stage."},
+    "seedling":     {"FloraMicro": 1.0, "FloraGro": 0.8, "FloraBloom": 0.5, "Cal-Mag": 1.0,
+                     "note": "Light feed. Roots are small and burn easily."},
+    "early_veg":    {"FloraMicro": 1.0, "FloraGro": 1.0, "FloraBloom": 0.7, "Cal-Mag": 1.0,
+                     "note": "Balanced, leaning vegetative."},
+    "veg":          {"FloraMicro": 1.15, "FloraGro": 1.4, "FloraBloom": 1.0, "Cal-Mag": 1.2,
+                     "note": "Nitrogen-forward for leaf and stem. Raise Gro hardest."},
+    "flower":       {"FloraMicro": 1.0, "FloraGro": 0.5, "FloraBloom": 2.0, "Cal-Mag": 1.2,
+                     "note": "Back nitrogen off, drive P-K. Shift once pistils appear, not on a date."},
+}
+
+# Extra nitrogen emphasis while regrowing after capacity was removed.
+REGROWTH_N_BOOST = 1.25
+
 # Above this, a purchase recommendation is held for explicit user decision
 # (via Boss's threshold check) rather than auto-narrated as resolved, even
 # if Accounting confirms it's within budget.
@@ -133,6 +166,7 @@ class GrowAgent(AgentBase):
                 "evaluate_reservoir", "evaluate_leaf", "get_grow_history", "evaluate_growth_stage",
                 "verify_growth_stage",
                 "assess_plant", "validate_environment_targets",
+                "log_training_event", "recommend_feed", "plan_system_transition",
                 "training_quest_status", "source_training_candidates",
                 "review_training_candidate", "list_training_candidates",
                 "remove_plant", "list_vision_corrections", "recommend_purchase",
@@ -208,6 +242,28 @@ class GrowAgent(AgentBase):
             return index if isinstance(index, list) else []
         except Exception:
             return []
+
+    def _load_training_event_index(self):
+        raw = self._unwrap_value(self.retrieve_own_memory("training_event_index"))
+        if not raw:
+            return []
+        try:
+            index = json.loads(raw)
+            return index if isinstance(index, list) else []
+        except Exception:
+            return []
+
+    def _get_all_training_events(self):
+        events = []
+        for eid in self._load_training_event_index():
+            raw = self._unwrap_value(self.retrieve_own_memory(eid))
+            if not raw:
+                continue
+            try:
+                events.append(json.loads(raw))
+            except Exception:
+                pass
+        return sorted(events, key=lambda e: e.get("timestamp") or "")
 
     def _get_all_notes(self):
         notes = []
@@ -1567,6 +1623,248 @@ class GrowAgent(AgentBase):
             }
             self.store_own_memory(record["id"], json.dumps(record))
 
+            return {"result": recommendation, "record": record}
+
+        elif task == "log_training_event":
+            # Topping, lollipopping, defoliation, LST. Recorded as a first-class
+            # event rather than a free-text note so recommend_feed below can
+            # actually reason about it - a plant regrowing removed capacity has
+            # different needs from one that was never cut.
+            plant_id = args.get("plant_id", "current_plant")
+            event_type = (args.get("event_type") or "").lower().replace(" ", "_")
+            if event_type not in TRAINING_EVENT_TYPES:
+                return {"error": f"event_type must be one of: {', '.join(TRAINING_EVENT_TYPES)}"}
+            profile = TRAINING_EVENT_TYPES[event_type]
+
+            if plant_id == "current_plant":
+                stage = self._unwrap_value(self.retrieve_own_memory("current_stage")) or "unknown"
+                species = self._unwrap_value(self.retrieve_own_memory("current_species")) or "cannabis"
+                strain = self._unwrap_value(self.retrieve_own_memory("current_strain")) or ""
+            else:
+                plant = next((p for p in self._get_all_plants() if p.get("plant_id") == plant_id), None)
+                stage = (plant or {}).get("stage", "unknown")
+                species = (plant or {}).get("species", "cannabis")
+                strain = (plant or {}).get("strain", "")
+
+            is_auto = "auto" in str(strain).lower()
+            concerns, guidance = [], []
+
+            if profile["removes_capacity"]:
+                guidance.append(
+                    "Photosynthetic capacity and stored nitrogen were removed. Expect regrowth "
+                    "demand: weight the feed toward nitrogen while the plant rebuilds leaf."
+                )
+            if stage == "flower":
+                concerns.append(
+                    "Removing capacity during flower costs bud development directly - the plant "
+                    "cannot rebuild leaf and fill flower at the same time."
+                )
+            elif stage == "veg" and is_auto:
+                concerns.append(
+                    "Autoflower in late veg: the genetic clock does not pause for recovery, so "
+                    "days spent regrowing leaf are days not spent building bud sites. The window "
+                    "to feed nitrogen and recover is short."
+                )
+            if profile["severity"] == "heavy":
+                concerns.append("Heavy removal - watch for stalled growth over the next few days.")
+
+            guidance.append(
+                "For airflow specifically, a clip fan costs the plant nothing; leaf removal buys "
+                "airflow at the price of photosynthetic capacity."
+            )
+
+            record = {
+                "id": f"training_event_{int(time.time())}",
+                "timestamp": datetime.now().isoformat(),
+                "plant_id": plant_id,
+                "event_type": event_type,
+                "severity": profile["severity"],
+                "removed_capacity": profile["removes_capacity"],
+                "stage_at_event": stage,
+                "species": species,
+                "strain": strain,
+                "detail": args.get("detail", ""),
+                "concerns": concerns,
+                "guidance": guidance,
+            }
+            self.store_own_memory(record["id"], json.dumps(record))
+            index = self._load_training_event_index()
+            index.append(record["id"])
+            self.store_own_memory("training_event_index", json.dumps(index))
+
+            recommendation = self._make_recommendation(
+                f"{event_type.replace('_', ' ').title()} logged at {stage} stage.",
+                "; ".join(concerns) if concerns else "No stage-specific risk flagged for this event.",
+                " ".join(guidance),
+                "high" if concerns else "medium",
+            )
+            recommendation["classification"] = "training_event"
+            return {"result": recommendation, "record": record}
+
+        elif task == "recommend_feed":
+            # Stage-aware nutrient ratio, adjusted for recent training. Scales the
+            # recipe already recorded for THIS grow rather than inventing absolute
+            # ml, since the right numbers depend on product line, source water and
+            # reservoir volume - all per-grow, none of which generalise.
+            plant_id = args.get("plant_id", "current_plant")
+            target_ppm = self._parse_numeric(args.get("target_ppm"))
+
+            if plant_id == "current_plant":
+                stage = self._unwrap_value(self.retrieve_own_memory("current_stage")) or "unknown"
+                strain = self._unwrap_value(self.retrieve_own_memory("current_strain")) or ""
+            else:
+                plant = next((p for p in self._get_all_plants() if p.get("plant_id") == plant_id), None)
+                stage = (plant or {}).get("stage", "unknown")
+                strain = (plant or {}).get("strain", "")
+
+            raw = self._unwrap_value(self.retrieve_own_memory("current_nutrients"))
+            current = json.loads(raw) if raw else {}
+            base = current.get("nutrients") or {}
+            if not base:
+                return {"error": "No current recipe recorded - set_current_nutrients first"}
+
+            emphasis = STAGE_FEED_EMPHASIS.get(stage, {})
+            if "note" in emphasis and len(emphasis) == 1:
+                return {"result": self._make_recommendation(
+                    f"Stage '{stage}' does not use a scaled recipe.", emphasis["note"],
+                    "No ratio change recommended.", "medium")}
+
+            # Recent capacity-removing training raises nitrogen demand for regrowth.
+            recent_events = [e for e in self._get_all_training_events()
+                             if e.get("plant_id") == plant_id and e.get("removed_capacity")]
+            regrowth = None
+            if recent_events:
+                last = recent_events[-1]
+                try:
+                    age_days = (datetime.now() - datetime.fromisoformat(last["timestamp"])).days
+                except Exception:
+                    age_days = 99
+                if age_days <= 10:
+                    regrowth = {"event": last["event_type"], "days_ago": age_days}
+
+            suggested, notes = {}, []
+            for name, value in base.items():
+                v = self._parse_numeric(value)
+                if v is None:
+                    continue
+                mult = emphasis.get(name, 1.0)
+                if regrowth and name in ("FloraGro", "FloraMicro"):
+                    mult *= REGROWTH_N_BOOST
+                suggested[name] = round(v * mult, 1)
+
+            if regrowth:
+                notes.append(
+                    f"Nitrogen raised further: {regrowth['event'].replace('_',' ')} "
+                    f"{regrowth['days_ago']} day(s) ago removed capacity the plant is rebuilding."
+                )
+            if stage == "veg" and "auto" in str(strain).lower():
+                notes.append(
+                    "Autoflower in veg: shift to bloom weighting when pistils appear, not on a "
+                    "date. Watch the nodes rather than the calendar."
+                )
+            notes.append(
+                "Treat these as a starting ratio, not a recipe - mix, stir, and measure. "
+                "Different product lines contribute EC differently, so hit the ppm target by "
+                "meter rather than by arithmetic."
+            )
+            if target_ppm:
+                notes.append(
+                    f"Target {target_ppm:g} ppm. If you are on RO or distilled water the baseline "
+                    "is ~0, so the whole reading is nutrient; on tap, subtract your source-water "
+                    "ppm from both sides before scaling."
+                )
+
+            recommendation = self._make_recommendation(
+                f"Feed ratio for {stage} stage" + (f" ({strain})" if strain else "") + ".",
+                emphasis.get("note", ""),
+                "; ".join(notes),
+                "medium",
+            )
+            recommendation["classification"] = "feed_recommendation"
+            recommendation["current"] = base
+            recommendation["suggested"] = suggested
+            recommendation["unit"] = current.get("unit", "ml")
+            recommendation["basis"] = current.get("basis")
+            recommendation["reservoir_liters"] = current.get("reservoir_liters")
+            recommendation["regrowth_adjustment"] = regrowth
+            return {"result": recommendation}
+
+        elif task == "plan_system_transition":
+            # Moving between growing systems (LWC -> DWC, reservoir size change).
+            # The risks are not the move itself but the discontinuities around it.
+            plant_id = args.get("plant_id", "current_plant")
+            from_system = args.get("from_system", "current system")
+            to_system = args.get("to_system", "new system")
+            new_liters = self._parse_numeric(args.get("new_reservoir_liters"))
+            water_source = (args.get("water_source") or "").lower()
+
+            stage = self._unwrap_value(self.retrieve_own_memory("current_stage")) or "unknown"
+            strain = self._unwrap_value(self.retrieve_own_memory("current_strain")) or ""
+            readings = self._get_readings_for_plant(plant_id)
+            latest = readings[-1] if readings else {}
+            raw = self._unwrap_value(self.retrieve_own_memory("current_nutrients"))
+            current = json.loads(raw) if raw else {}
+
+            steps = [
+                "Have the new reservoir filled, temperature-matched, and pH-balanced BEFORE lifting "
+                "anything. Free-hanging roots have no medium holding moisture and the fine hairs "
+                "desiccate in open air - this is measured in seconds, not minutes.",
+                "Match the new solution to the old on temperature and pH first. Shock at transfer "
+                "comes from abrupt change in conditions, not from the move.",
+                "Start the new reservoir at roughly the CURRENT EC, then ramp toward target over "
+                "following days. Moving and raising strength at the same time makes it impossible "
+                "to tell which caused any reaction.",
+                "Keep the root mass intact. Roots already free-hanging in solution move with the net "
+                "pot and suffer almost no mechanical disturbance - do not tease them apart.",
+                "Re-check pH about an hour after transfer and again the next day. A larger volume "
+                "buffers better, but the solution is still weakly buffered until EC comes up.",
+            ]
+            if new_liters and current.get("reservoir_liters"):
+                try:
+                    factor = new_liters / float(current["reservoir_liters"])
+                    steps.append(
+                        f"Volume changes by {factor:.2f}x ({current['reservoir_liters']:g}L -> "
+                        f"{new_liters:g}L). Scale the recipe by the same factor to hold "
+                        f"concentration, then adjust strength separately."
+                    )
+                except Exception:
+                    pass
+            if "ro" in water_source or "distil" in water_source:
+                steps.append(
+                    "RO/distilled source: baseline is ~0 ppm, so every ppm you read is nutrient. "
+                    "Targets that assumed tap water will now come out stronger than intended, and "
+                    "RO strips calcium and magnesium - Cal-Mag becomes more important, not less."
+                )
+            if "auto" in str(strain).lower():
+                steps.append(
+                    "Autoflower: the clock does not pause for transplant recovery, so do this while "
+                    "still in veg if possible rather than mid-flower."
+                )
+
+            record = {
+                "id": f"transition_plan_{int(time.time())}",
+                "timestamp": datetime.now().isoformat(),
+                "plant_id": plant_id,
+                "from_system": from_system,
+                "to_system": to_system,
+                "stage_at_plan": stage,
+                "reference_reading": {k: latest.get(k) for k in ("ph", "ppm", "temp")},
+                "current_recipe": current,
+                "new_reservoir_liters": new_liters,
+                "water_source": args.get("water_source"),
+                "steps": steps,
+            }
+            self.store_own_memory(record["id"], json.dumps(record))
+
+            recommendation = self._make_recommendation(
+                f"Transition plan: {from_system} -> {to_system} at {stage} stage.",
+                "Risk is in the discontinuities - root desiccation, and abrupt temp/pH/EC change - "
+                "not in the move itself.",
+                " ".join(f"({i+1}) {s}" for i, s in enumerate(steps)),
+                "high",
+            )
+            recommendation["classification"] = "transition_plan"
+            recommendation["steps"] = steps
             return {"result": recommendation, "record": record}
 
         elif task == "assess_plant":
