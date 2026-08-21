@@ -90,6 +90,59 @@ Models underneath are interchangeable by design (see `config/model_routing.json`
 - the point of accruing capability in the agent rather than in a conversation is
 that it survives a model swap, a fine-tune, or a replacement model entirely.
 
+## Ownership model: who owns what
+
+Each agent owns the reasoning for its domain. Nothing else reasons on its behalf,
+and it does not reason outside its domain. This is the same rule for every agent,
+not a Grow-specific arrangement.
+
+| Layer | Owns |
+|-------|------|
+| **Domain agents** (Grow, Legal, Accounting, Maintenance, Security, Coding, Analyzer) | Reasoning, assessment and recommendations inside their own domain |
+| **Hermes** | Memory transport and policy enforcement. A broker - it does not interpret, summarise or consolidate domain records |
+| **Memory Service** | Evidence and state |
+| **Logging Service** | Operational execution history. Kept separate from domain memory |
+| **Boss** | Orchestration, routing, cross-domain coordination and threshold escalation |
+| **Anansi** | Narration and translation |
+
+### Anansi is a storyteller, not a dispatcher
+
+Named for the trickster-storyteller, and the role is the same: translate between
+the user's world and the system's. Two directions -
+
+- **Inward:** turn what a person says into what the orchestration layer needs.
+- **Outward:** tell the story of what happened, in plain language, without naming
+  agents or tasks. "Your reservoir pH has been drifting - I'd adjust it today,"
+  never "Grow Agent reported a warning."
+
+### Not every message is a task
+
+Some inputs are simply conversation. Those do not need an agent, a task, or a
+memory write. A quick SearXNG lookup is often the whole answer - for example when
+a factual claim in conversation is worth checking. Routing a chat turn to a
+domain agent because it contains a keyword is a failure mode, not thoroughness.
+
+The test is whether the subject is **domain-specific**. If it is, it belongs to
+that domain's agent. If it is not, answer it and move on without persisting
+anything.
+
+### Cross-domain findings
+
+A domain agent may surface something that belongs to another domain - Legal
+spotting a payment obligation inside a contract that Accounting needs, or
+Accounting seeing a disbursement that implies a legal instrument. The finding
+travels agent-to-agent as a minimal structured payload (never a raw document
+dump), and Boss gates on thresholds rather than mediating the consultation
+itself. See `recommend_purchase` in `agents/grow_agent/grow_agent.py` for the
+established shape.
+
+### Hardware is behind an authorization boundary
+
+"The agent believes this should happen" and "the system is authorised to make it
+happen" are different states. Recommendations flow through Boss for
+authorisation before reaching any control service or device. No agent holds
+direct actuation authority.
+
 ## Guards (replaces the retired `hooks/`)
 
 Every inbound `/execute` passes through `AgentBase.check_guard()`, which asks the Security Agent (9010) to authorize it. Deny rules live in `config/guards.json` (denylist — no matching rule means allowed).
