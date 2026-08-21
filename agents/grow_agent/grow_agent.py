@@ -132,7 +132,7 @@ class GrowAgent(AgentBase):
                 "add_note", "list_notes",
                 "evaluate_reservoir", "evaluate_leaf", "get_grow_history", "evaluate_growth_stage",
                 "verify_growth_stage",
-                "validate_environment_targets",
+                "assess_plant", "validate_environment_targets",
                 "training_quest_status", "source_training_candidates",
                 "review_training_candidate", "list_training_candidates",
                 "remove_plant", "list_vision_corrections", "recommend_purchase",
@@ -305,6 +305,46 @@ class GrowAgent(AgentBase):
                     return data.get("result", "")
         except Exception as e:
             self.log(f"Inference fallback failed ({e}); defaulting to 'warning' classification.")
+        return None
+
+    @staticmethod
+    def _join_wrapped(existing, addition):
+        """Join a wrapped continuation line, dropping the fragment small models
+        duplicate at the wrap point ("shows s" + "signs..." -> "shows signs...",
+        "inadequate nutrient" + "nutrient supply" -> "inadequate nutrient supply").
+        Only collapses an exact repeat or a very short prefix, and never a
+        single-letter word that stands on its own - otherwise "eat a" + "apple
+        pie" would lose the article."""
+        if not existing:
+            return addition
+        last = existing.split()[-1] if existing.split() else ""
+        first = addition.split()[0] if addition.split() else ""
+        if last and first and (
+            last.lower() == first.lower()
+            or (len(last) <= 3
+                and last.lower() not in ("a", "i")
+                and first.lower().startswith(last.lower()))
+        ):
+            existing = " ".join(existing.split()[:-1])
+        return f"{existing} {addition}".strip()
+
+    def _call_inference_capability(self, prompt, capability="reasoning", timeout=120):
+        """Text inference routed by capability rather than model name, so the
+        brain behind e.g. 'synthesis' is a config choice (see
+        config/model_routing.json) instead of something baked in here."""
+        try:
+            resp = requests.post(
+                "http://localhost:8005/reason",
+                json={"prompt": prompt, "capability": capability},
+                timeout=timeout
+            )
+            if resp.status_code == 200:
+                data = resp.json()
+                if data.get("success"):
+                    return data.get("result", "")
+                self.log(f"Capability '{capability}' call failed: {data.get('message', data.get('error'))}")
+        except Exception as e:
+            self.log(f"Capability '{capability}' call failed: {e}")
         return None
 
     def _call_inference_vision(self, prompt, image_path, timeout=180):
@@ -1493,6 +1533,136 @@ class GrowAgent(AgentBase):
             }
             self.store_own_memory(record["id"], json.dumps(record))
 
+            return {"result": recommendation, "record": record}
+
+        elif task == "assess_plant":
+            # The cross-domain reasoning step. Everything else in this agent
+            # judges ONE thing in isolation: the vision model sees only pixels,
+            # _classify_qualitative sees one sentence, evaluate_reservoir scores
+            # numbers deterministically. None of them ever look at the whole
+            # picture together, so a conclusion that only emerges from combining
+            # them (e.g. pale leaves + ppm well under target for the stage =
+            # under-fed, not disease) could never be reached. This gathers the
+            # full snapshot from memory and reasons over it in one pass.
+            plant_id = args.get("plant_id", "current_plant")
+            include_photo = args.get("photo_path")
+
+            if plant_id == "current_plant":
+                stage = self._unwrap_value(self.retrieve_own_memory("current_stage")) or "unknown"
+                strain = self._unwrap_value(self.retrieve_own_memory("current_strain")) or "cannabis"
+                germination_date = self._unwrap_value(self.retrieve_own_memory("germination_date"))
+            else:
+                plant = next((p for p in self._get_all_plants() if p.get("plant_id") == plant_id), None)
+                if not plant:
+                    return {"error": f"Unknown plant_id: {plant_id}"}
+                stage, strain = plant.get("stage", "unknown"), plant.get("strain", "cannabis")
+                germination_date = plant.get("germination_date")
+
+            days = None
+            if germination_date:
+                try:
+                    days = (datetime.now() - datetime.fromisoformat(germination_date)).days
+                except Exception:
+                    days = None
+
+            readings = self._get_readings_for_plant(plant_id)
+            res_evals = [e for e in self._get_all_reservoir_evals() if e.get("plant_id") == plant_id]
+            leaf_evals = [e for e in self._get_all_leaf_evals() if e.get("plant_id") == plant_id]
+            notes = [n for n in self._get_all_notes() if n.get("plant_id") == plant_id]
+            targets = self.handle_task("check_stage", {"stage": stage}, sender).get("result", {})
+
+            # Optional fresh visual input - the vision model still only sees the
+            # image, but its description becomes one input to this synthesis
+            # rather than a verdict on its own.
+            vision_text = None
+            if include_photo and VISION_AVAILABLE:
+                vision_text = self._call_inference_vision(
+                    "Describe this plant leaf health. Color, spots, damage, pests, disease signs.",
+                    include_photo
+                )
+
+            def _recent(items, n=3):
+                return items[-n:] if items else []
+
+            snapshot = {
+                "strain": strain,
+                "stage": stage,
+                "days_since_germination": days,
+                "stage_targets": targets,
+                "recent_readings": [
+                    {k: r.get(k) for k in ("timestamp", "ph", "ppm", "temp", "humidity", "notes")}
+                    for r in _recent(readings)
+                ],
+                "latest_reservoir_assessment": (
+                    _recent(res_evals, 1)[0].get("recommendation") if res_evals else None
+                ),
+                "latest_leaf_assessment": (
+                    _recent(leaf_evals, 1)[0].get("recommendation") if leaf_evals else None
+                ),
+                "recent_notes": [
+                    {"timestamp": n.get("timestamp"), "category": n.get("category"), "text": n.get("text")}
+                    for n in _recent(notes)
+                ],
+                "fresh_visual_observation": vision_text,
+            }
+
+            prompt = (
+                "You are advising a grower on one cannabis plant. Below is everything currently known "
+                "about it, gathered from sensor readings, prior assessments, and the grower notes.\n\n"
+                f"{json.dumps(snapshot, indent=2, default=str)}\n\n"
+                "Reason across ALL of this together, not each item separately. Look especially for "
+                "conclusions that only appear when the sources are combined, and for any conflict "
+                "between them.\n\n"
+                "Answer in exactly these four lines, no other text.\n"
+                "ASSESSMENT: one sentence on the plant overall state.\n"
+                "PRIORITY: the single most important thing to address right now.\n"
+                "ACTION: the concrete step to take, with numbers where relevant.\n"
+                "CONFIDENCE: high, medium, or low, and why in a few words."
+            )
+
+            answer = self._call_inference_capability(prompt, capability="synthesis", timeout=240)
+            # Accumulate continuation lines: the model wraps its answer, so
+            # capturing only the marker line truncates every field mid-sentence.
+            # A line belongs to the current field until the next marker appears.
+            fields = ("ASSESSMENT", "PRIORITY", "ACTION", "CONFIDENCE")
+            parsed, current = {}, None
+            for line in (answer or "").splitlines():
+                stripped = line.strip()
+                if not stripped:
+                    continue
+                marker = next((f for f in fields if stripped.upper().startswith(f)), None)
+                if marker:
+                    current = marker.lower()
+                    parsed[current] = stripped.split(":", 1)[-1].strip()
+                elif current:
+                    parsed[current] = self._join_wrapped(parsed[current], stripped)
+            parsed = {k: re.sub(r'\s{2,}', ' ', v).strip() for k, v in parsed.items() if v}
+
+            recommendation = self._make_recommendation(
+                parsed.get("assessment") or "Could not synthesize an assessment from the current data.",
+                parsed.get("priority") or "No single priority identified.",
+                parsed.get("action") or "No action determined.",
+                # First word only, punctuation stripped - the model writes
+                # "medium, because ..." and the bare word is the graded value.
+                re.sub(r'[^a-z]', '', (parsed.get("confidence") or "low").split()[0].lower()) or "low"
+            )
+            recommendation["classification"] = "synthesis"
+            recommendation["confidence_note"] = parsed.get("confidence")
+            recommendation["synthesized_from"] = {
+                "readings": len(readings), "reservoir_evals": len(res_evals),
+                "leaf_evals": len(leaf_evals), "notes": len(notes),
+                "fresh_photo": bool(vision_text),
+            }
+
+            record = {
+                "id": f"assessment_{int(time.time())}",
+                "timestamp": datetime.now().isoformat(),
+                "plant_id": plant_id,
+                "snapshot": snapshot,
+                "raw_response": answer,
+                "recommendation": recommendation,
+            }
+            self.store_own_memory(record["id"], json.dumps(record))
             return {"result": recommendation, "record": record}
 
         elif task == "validate_environment_targets":

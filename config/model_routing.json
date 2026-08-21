@@ -13,6 +13,15 @@
     ]
   },
 
+  "synthesis": {
+    "_note": "Reasoning across a whole domain snapshot (several data sources at once) rather than classifying one short string. Ordered largest-local-first: the 1.5b used for single-string classification loses the thread on a multi-section prompt.",
+    "chain": [
+      { "provider": "ollama", "model": "llama3.2:3b" },
+      { "provider": "ollama", "model": "qwen2.5:1.5b" },
+      { "provider": "anthropic", "model": "claude-sonnet-5", "requires": "ANTHROPIC_API_KEY" }
+    ]
+  },
+
   "vision": {
     "chain": [
       { "provider": "ollama", "model": "moondream", "note": "~1.7GB, runs CPU-only in the RAM this host has free." },
