@@ -76,3 +76,96 @@ needed) recommended in the plan. Not yet purchased/chosen.
 
 ## Phase 4 — Migrate and cut over — NOT STARTED
 Blocked on Phase 3.
+
+---
+
+## Phase 5 — Multi-tenancy — NOT STARTED, DELIBERATELY DEFERRED
+
+**Do not start this before Phase 4 is done and the single-user system has been
+running on its own device for a while.** It is written down here so it stops
+occupying attention, not because it is next. Nothing above depends on it, and
+starting it early would destabilise a system that currently works.
+
+This phase only exists if Mycelial is turned into something other people run
+(the DigitalOcean/product path). The on-premises personal instance —
+NAS/mini-PC, one household — **never needs any of it**. Single-user is a
+feature there, not a limitation.
+
+### Why it is a rewrite of the trust model, not a deployment step
+
+Three properties make the current system correct for localhost and unsafe on a
+public IP:
+
+1. **There is no tenant concept.** `user_id` is the string `"default_user"`,
+   hardcoded in two places in `agents/anansi/Anansi.py`, and read by nothing.
+2. **Guards fail open.** `AgentBase.check_guard()` returns *"allowing by
+   default"* on any transport error and denies only on an explicit
+   `allowed: false`. Correct for a home swarm (a Security Agent outage must not
+   halt the fleet); exactly inverted for a service, where an auth failure must
+   deny.
+3. **`/execute` is unauthenticated.** Anyone who can reach the port can run any
+   task on any agent. The Security Agent already has `authenticate` /
+   `issue_token` / `authorize`, but no inbound path calls them.
+
+### Concrete scope
+
+**Storage isolation.** `services/memory/service.py` keys on
+`UNIQUE(namespace, key)` where namespace is `agent_<agent_id>`, built in exactly
+**4 places** in `core/base_agent.py`. That centralisation is the good news — the
+storage layer becomes `tenant_<id>_agent_<agent_id>` at those 4 sites.
+
+The bad news is **20 global index-list keys** that would silently collide, one
+tenant overwriting another's:
+
+```
+action_index  case_index  evidence_index  filing_index  instrument_index
+leaf_eval_index  matter_index  notebook_index  note_index  plant_index
+reading_index  relationship_index  reminder_index  reservoir_eval_index
+session_log_index  stage_eval_index  telemetry_index  training_candidate_index
+transaction_index  vision_correction_index
+```
+
+These are per-agent singletons today. Namespacing fixes them for free *if and
+only if* the tenant id reaches `store_own_memory` — see threading below.
+
+**Threading tenant context.** `store_own_memory(key, value)` takes no request
+context, and agents are long-lived processes serving many requests. Two options:
+
+- Thread `tenant_id` through every `handle_task` signature — invasive, touches
+  every agent, high chance of a missed call site defaulting to the wrong tenant.
+- **Preferred:** a `contextvars.ContextVar` set in the `/execute` handler in
+  `core/base_agent.py` and read by the 4 namespace sites. ~10 lines, no agent
+  changes for the storage path. Must fail closed if unset, or a bug silently
+  writes into a shared namespace.
+
+**Other stores that are single-tenant today and need the same treatment:**
+- `core/graph_manager.py` — one `state/graph.db` (nodes, edges, relationships)
+- `core/provenance_manager.py` — one provenance DB and lineage chain
+- `state/security_findings.json`, `state/processes.json`
+- `knowledge_base/<agent>/` CAG directories, and on-disk media such as
+  `knowledge_base/grow_agent/photos/` and `training/`
+
+**Auth, inverted.** `check_guard` must fail *closed* when the caller is a
+tenant request (while staying fail-open for internal A2A, or the swarm
+deadlocks on a Security Agent blip). Token validation on `/execute`, wired to
+the Security Agent's existing `issue_token`/`authenticate`.
+
+**Also required before exposure, and not otherwise in any phase:** TLS and a
+reverse proxy (Phase 2), per-tenant rate limits and quotas, provisioning and
+onboarding, OTA updates, and fleet observability — `logs/` is local files per
+process today.
+
+### What this breaks
+
+Every existing memory row lives in an un-namespaced key. A migration must
+either rewrite them into a default tenant or the system loses all history —
+grow readings, notes, the KAG graph, provenance lineage. Write and test that
+migration **before** touching the namespace format, not after.
+
+### Cheaper thing to do first
+
+A voice/Alexa-style device pointed at the **local** instance over the LAN needs
+none of this. `voice_listener.py` exists and is wired to nothing; the webapp
+already proves the thin-client pattern, and the socat forwarder already exposes
+Anansi to the LAN. That de-risks the whole UX question without touching the
+trust model.
