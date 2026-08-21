@@ -2051,6 +2051,11 @@ class GrowAgent(AgentBase):
                 "light_schedule_hours": self._parse_numeric(args.get("light_schedule_hours")),
                 "light_height_cm": self._parse_numeric(args.get("light_height_cm")),
                 "light_wattage": self._parse_numeric(args.get("light_wattage")),
+                # "overhead" = one fixture above the canopy, where height is a real
+                # parameter and the canopy can reach it. "distributed" = multiple
+                # bars around a reflective space, where there is nothing to run
+                # into and height stops being a meaningful question.
+                "light_mounting": (args.get("light_mounting") or "overhead").lower(),
                 "location": args.get("location", ""),
                 "notes": args.get("notes", ""),
             }
@@ -2247,7 +2252,11 @@ class GrowAgent(AgentBase):
             # Lighting: asked once per system, except height which moves with the
             # canopy. Only asked when a light is actually registered.
             if system and system.get("equipment", {}).get("lighting"):
+                distributed = system.get("light_mounting") == "distributed"
                 for field, q in LIGHTING_QUESTIONS.items():
+                    # Height is meaningless without a single fixture overhead.
+                    if field == "light_height_cm" and distributed:
+                        continue
                     if system.get(field) is None:
                         missing.append(field)
                         questions.append(q)
