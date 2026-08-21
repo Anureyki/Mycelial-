@@ -152,6 +152,15 @@ PARAM_QUESTIONS = {
     "volume_liters": "Roughly how many litres are in the reservoir right now?",
 }
 
+# Lighting properties, asked once per system rather than per reading. Height is
+# the exception - it changes as the plant grows, and a canopy that reaches the
+# fixture is what caused this grow's leaf cupping.
+LIGHTING_QUESTIONS = {
+    "light_schedule_hours": "How many hours a day are the lights on?",
+    "light_height_cm":      "How far is the light above the canopy right now?",
+    "light_wattage":        "What's the light's actual draw in watts?",
+}
+
 # A reservoir change is overdue faster than most schedules assume once the plant
 # is large - this grow lost two weeks to exactly that.
 RESERVOIR_CHANGE_INTERVAL_DAYS = {
@@ -2036,6 +2045,12 @@ class GrowAgent(AgentBase):
                 "typical_working_liters": self._parse_numeric(args.get("typical_working_liters")),
                 "water_source": water_source,
                 "equipment": args.get("equipment", {}),
+                # Lighting is an environment parameter, not decoration: schedule
+                # drives heat load and VPD, and height is what the canopy runs
+                # into - contact with the fixture caused this grow's leaf cupping.
+                "light_schedule_hours": self._parse_numeric(args.get("light_schedule_hours")),
+                "light_height_cm": self._parse_numeric(args.get("light_height_cm")),
+                "light_wattage": self._parse_numeric(args.get("light_wattage")),
                 "location": args.get("location", ""),
                 "notes": args.get("notes", ""),
             }
@@ -2228,6 +2243,20 @@ class GrowAgent(AgentBase):
                 triggers.append("Autoflower in veg - watch the nodes for pistils; that is the trigger to change feed weighting.")
 
             questions = [PARAM_QUESTIONS.get(p, f"What's the {p}?") for p in missing]
+
+            # Lighting: asked once per system, except height which moves with the
+            # canopy. Only asked when a light is actually registered.
+            if system and system.get("equipment", {}).get("lighting"):
+                for field, q in LIGHTING_QUESTIONS.items():
+                    if system.get(field) is None:
+                        missing.append(field)
+                        questions.append(q)
+                if system.get("light_schedule_hours") and stage == "veg" and "auto" in str(strain).lower():
+                    triggers.append(
+                        f"Lights at {system['light_schedule_hours']:g}h/day. Autoflowers do not need a "
+                        "light-cycle change to flower, so this stays as-is through the transition - "
+                        "unlike a photoperiod, where the flip is the trigger."
+                    )
             if not missing and not stale:
                 questions.append("Anything changed since the last reading - top-up, change, or new growth?")
 
