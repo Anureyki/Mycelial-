@@ -156,10 +156,15 @@ GROW_MEDIA = {
 }
 
 WATER_SOURCES = {
-    "ro":        {"baseline_ppm": 0, "strips_calmag": True},
-    "distilled": {"baseline_ppm": 0, "strips_calmag": True},
-    "tap":       {"baseline_ppm": None, "strips_calmag": False},
-    "well":      {"baseline_ppm": None, "strips_calmag": False},
+    # unbuffered: no carbonate/alkalinity to resist pH movement. Distilled has
+    # none at all; RO membranes usually leave a little residual, so distilled
+    # swings faster than RO despite both reading ~0 ppm.
+    "ro":        {"baseline_ppm": 0, "strips_calmag": True, "unbuffered": True,
+                  "residual_ppm": "5-20 typical"},
+    "distilled": {"baseline_ppm": 0, "strips_calmag": True, "unbuffered": True,
+                  "residual_ppm": "~0"},
+    "tap":       {"baseline_ppm": None, "strips_calmag": False, "unbuffered": False},
+    "well":      {"baseline_ppm": None, "strips_calmag": False, "unbuffered": False},
 }
 
 # Above this, a purchase recommendation is held for explicit user decision
@@ -979,15 +984,29 @@ class GrowAgent(AgentBase):
                 else:
                     per_liter[name] = round(v, 4)
 
+            # A backfilled entry carries its real date and must NOT clobber the
+            # current recipe - reconstructing history should never rewrite the
+            # present.
+            backfill_ts = args.get("timestamp")
             record = {
-                "timestamp": datetime.now().isoformat(),
+                "timestamp": backfill_ts or datetime.now().isoformat(),
                 "stage": stage,
                 "nutrients": nutrients,
                 "unit": unit,
                 "basis": basis,
                 "reservoir_liters": reservoir_liters,
                 "per_liter": per_liter,
+                "backfilled": bool(backfill_ts),
+                "source_note": args.get("source_note", ""),
             }
+            if backfill_ts:
+                hist_key = f"nutrient_change_{backfill_ts}"
+                self.store_own_memory(hist_key, json.dumps(record))
+                hist = self._load_nutrient_history_index()
+                if hist_key not in hist:
+                    hist.append(hist_key)
+                self.store_own_memory("nutrient_change_index", json.dumps(sorted(hist)))
+                return {"result": "Historical nutrient entry recorded", "nutrients": record}
             self.store_own_memory("current_nutrients", json.dumps(record))
             # Also append to a history index. "current_nutrients" is a single
             # overwritten slot, so every previous recipe was silently destroyed
@@ -1914,10 +1933,24 @@ class GrowAgent(AgentBase):
                     "Roots sit in solution, so water temperature is a root-health parameter, not a "
                     "comfort setting. Warm water holds less oxygen - 18-22C is the working band."
                 )
-            if WATER_SOURCES.get(water_source, {}).get("strips_calmag"):
+            ws = WATER_SOURCES.get(water_source, {})
+            if ws.get("strips_calmag"):
                 advisories.append(
-                    "RO/distilled source: baseline is ~0 ppm so the whole reading is nutrient, and "
-                    "it carries no calcium or magnesium - Cal-Mag is required, not optional."
+                    f"{water_source.title()} source: baseline is ~0 ppm so the whole reading is "
+                    "nutrient, and it carries no calcium or magnesium - Cal-Mag is required, not "
+                    "optional."
+                )
+            if ws.get("unbuffered"):
+                advisories.append(
+                    "No carbonate buffering in the source water, so pH moves fast - especially at "
+                    "low EC, where there is little else holding it. Swings of most of a pH point "
+                    "between readings are the water, not sloppy technique. Two consequences: "
+                    "Cal-Mag is doing double duty as both the Ca/Mg supply and most of what "
+                    "buffering exists, and pH steadies as EC comes up - so mix nutrients fully "
+                    "and let them circulate BEFORE chasing pH, or you will be correcting a "
+                    "number that has not settled yet."
+                    + (" Distilled has no residual at all, so it swings faster than RO."
+                       if water_source == "distilled" else "")
                 )
             record["advisories"] = advisories
 
