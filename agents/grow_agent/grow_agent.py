@@ -346,6 +346,46 @@ class GrowAgent(AgentBase):
             out.append(rec)
         return sorted(out, key=lambda r: r.get("timestamp") or "")
 
+    def _detect_lagging_nutrients(self, threshold_ratio=0.5):
+        """Find components that have not scaled with the rest of the recipe.
+
+        Stage multipliers are applied to whatever is currently recorded, which
+        assumes the current recipe was right for the previous stage. When one
+        component has been left untouched while the others moved, multiplying it
+        carries the lag forward instead of correcting it - which is how Cal-Mag
+        sat at the same dose from week 1 to week 4 while everything else rose and
+        the plant doubled. Returns {nutrient: {...}} for components whose growth
+        is under threshold_ratio of the median growth across the recipe."""
+        history = self._get_nutrient_history()
+        if len(history) < 2:
+            return {}
+        first, current = history[0].get("nutrients", {}), history[-1].get("nutrients", {})
+        growth = {}
+        for name, start in first.items():
+            s, c = self._parse_numeric(start), self._parse_numeric(current.get(name))
+            if s is None or c is None or s <= 0:
+                continue
+            growth[name] = (c / s) - 1.0
+        if len(growth) < 2:
+            return {}
+        ordered = sorted(growth.values())
+        mid = len(ordered) // 2
+        median = ordered[mid] if len(ordered) % 2 else (ordered[mid - 1] + ordered[mid]) / 2
+        if median <= 0:
+            return {}
+
+        lagging = {}
+        for name, g in growth.items():
+            if g < median * threshold_ratio:
+                lagging[name] = {
+                    "growth_pct": round(g * 100, 1),
+                    "median_growth_pct": round(median * 100, 1),
+                    # Catch-up brings it to the median the rest of the recipe moved by.
+                    "catchup_multiplier": round((1 + median) / (1 + g), 3),
+                    "since": history[0].get("timestamp"),
+                }
+        return lagging
+
     def _load_training_event_index(self):
         raw = self._unwrap_value(self.retrieve_own_memory("training_event_index"))
         if not raw:
@@ -1883,6 +1923,11 @@ class GrowAgent(AgentBase):
                 if age_days <= 10:
                     regrowth = {"event": last["event_type"], "days_ago": age_days}
 
+            # Correct components that never scaled with the rest before applying
+            # the stage multiplier - otherwise the multiplier carries the lag
+            # forward rather than fixing it.
+            lagging = self._detect_lagging_nutrients()
+
             suggested, notes = {}, []
             for name, value in base.items():
                 v = self._parse_numeric(value)
@@ -1891,7 +1936,17 @@ class GrowAgent(AgentBase):
                 mult = emphasis.get(name, 1.0)
                 if regrowth and name in ("FloraGro", "FloraMicro"):
                     mult *= REGROWTH_N_BOOST
+                if name in lagging:
+                    mult *= lagging[name]["catchup_multiplier"]
                 suggested[name] = round(v * mult, 1)
+
+            for name, info in lagging.items():
+                notes.append(
+                    f"{name} has not kept pace: up {info['growth_pct']:.0f}% since the first "
+                    f"recorded recipe while the recipe as a whole moved {info['median_growth_pct']:.0f}%. "
+                    f"Applied a {info['catchup_multiplier']:.2f}x catch-up on top of the stage "
+                    "multiplier, because scaling a stalled component just carries the lag forward."
+                )
 
             if regrowth:
                 notes.append(
