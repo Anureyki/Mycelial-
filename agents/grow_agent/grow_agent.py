@@ -138,7 +138,8 @@ GROW_SYSTEM_TYPES = {
     "top_fed_dwc":  {"label": "top-fed / recirculating DWC", "aerated": True, "roots_in_water": True,
                      "note": "A top ring wets the medium while roots are still growing down to the "
                              "water line. Once roots reach the reservoir the ring matters less, but "
-                             "it is what keeps the plant alive during the gap."},
+                             "it is what keeps the plant alive during the gap.",
+                     "airlift": True},
     "ebb_flow":     {"label": "ebb and flow", "aerated": False, "roots_in_water": False},
     "coco":         {"label": "coco coir", "aerated": False, "roots_in_water": False},
     "soil":         {"label": "soil", "aerated": False, "roots_in_water": False},
@@ -1861,6 +1862,17 @@ class GrowAgent(AgentBase):
                 advisories.append(
                     "Aerated reservoir: the air stone runs continuously, not on a timer. Dissolved "
                     "oxygen is what keeps roots white and makes higher EC safe."
+                )
+            if st.get("airlift"):
+                advisories.append(
+                    "The top feed is an airlift - rising bubbles drag water up the tube, so the air "
+                    "pump both oxygenates and moves the water, with no separate water pump. Its "
+                    "critical property: lift depends on how deep the intake sits, so the feed WEAKENS "
+                    "AND STOPS WHILE THE RESERVOIR STILL HAS WATER IN IT. For an established plant "
+                    "with roots in solution that is cosmetic; for a seedling whose roots have not "
+                    "reached the water line it is fatal, because the medium dries out while the "
+                    "bucket still looks part full. Treat 'top feed has gone quiet' as a refill "
+                    "trigger, not the water level itself."
                 )
             if st.get("roots_in_water"):
                 advisories.append(
