@@ -376,7 +376,15 @@ class GrowAgent(AgentBase):
         history = self._get_nutrient_history()
         if len(history) < 2:
             return {}
-        first, current = history[0].get("nutrients", {}), history[-1].get("nutrients", {})
+        # Compare CONCENTRATION, not raw millilitres. Reservoir volume changes
+        # between recipes, so raw ml is meaningless: 2.5ml in 3.5L is a stronger
+        # feed than 3.0ml in 5L, and comparing the numbers alone reported that as
+        # a 20% increase when the concentration actually fell 16%.
+        first = history[0].get("per_liter") or history[0].get("nutrients", {})
+        current = history[-1].get("per_liter") or history[-1].get("nutrients", {})
+        if not history[0].get("per_liter") or not history[-1].get("per_liter"):
+            # Without per-litre on both ends the comparison cannot be trusted.
+            return {}
         growth = {}
         for name, start in first.items():
             s, c = self._parse_numeric(start), self._parse_numeric(current.get(name))
@@ -388,8 +396,25 @@ class GrowAgent(AgentBase):
         ordered = sorted(growth.values())
         mid = len(ordered) // 2
         median = ordered[mid] if len(ordered) % 2 else (ordered[mid - 1] + ordered[mid]) / 2
+
         if median <= 0:
-            return {}
+            # The recipe as a whole did not scale - concentration held flat or
+            # fell while the plant grew. That is a stronger version of the same
+            # problem, not an absence of one, and returning nothing here hid it:
+            # this grow went seedling -> veg while per-litre strength dropped 16%
+            # on the nitrogen carriers and 30% on Cal-Mag. Flag every component
+            # that fell, and target the flat case at the stage multiplier alone.
+            lagging = {}
+            for name, g in growth.items():
+                if g < 0:
+                    lagging[name] = {
+                        "growth_pct": round(g * 100, 1),
+                        "median_growth_pct": round(median * 100, 1),
+                        "catchup_multiplier": round(1.0 / (1 + g), 3),
+                        "since": history[0].get("timestamp"),
+                        "whole_recipe_regressed": True,
+                    }
+            return lagging
 
         lagging = {}
         for name, g in growth.items():
@@ -1987,12 +2012,20 @@ class GrowAgent(AgentBase):
                 suggested[name] = round(v * mult, 1)
 
             for name, info in lagging.items():
-                notes.append(
-                    f"{name} has not kept pace: up {info['growth_pct']:.0f}% since the first "
-                    f"recorded recipe while the recipe as a whole moved {info['median_growth_pct']:.0f}%. "
-                    f"Applied a {info['catchup_multiplier']:.2f}x catch-up on top of the stage "
-                    "multiplier, because scaling a stalled component just carries the lag forward."
-                )
+                if info.get("whole_recipe_regressed"):
+                    notes.append(
+                        f"{name} concentration FELL {abs(info['growth_pct']):.0f}% per litre since the "
+                        f"first recorded recipe (recipe overall {info['median_growth_pct']:.0f}%), while "
+                        "the plant advanced stages. Restored to at least the earlier strength before "
+                        "the stage multiplier - the feed got weaker as demand grew."
+                    )
+                else:
+                    notes.append(
+                        f"{name} has not kept pace: up {info['growth_pct']:.0f}% since the first "
+                        f"recorded recipe while the recipe as a whole moved {info['median_growth_pct']:.0f}%. "
+                        f"Applied a {info['catchup_multiplier']:.2f}x catch-up on top of the stage "
+                        "multiplier, because scaling a stalled component just carries the lag forward."
+                    )
 
             if regrowth:
                 notes.append(
