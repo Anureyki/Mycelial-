@@ -990,7 +990,12 @@ class GrowAgent(AgentBase):
             humidity = self._parse_numeric(args.get("humidity"))
             if temp is not None and humidity is not None:
                 reading["vpd"] = calculate_vpd(temp, humidity)
-            self.store_own_memory(f"reading_{self._uid()}", json.dumps(reading))
+            # Compute the key ONCE. Calling _uid() again for the index produced a
+            # different microsecond value, so the index pointed at keys that did
+            # not exist and readings were saved but orphaned. At the old second
+            # granularity the two calls happened to agree, which hid the bug.
+            reading_key = f"reading_{self._uid()}"
+            self.store_own_memory(reading_key, json.dumps(reading))
             # Also add to reading index (for data preparation)
             # We'll store a separate index list.
             index = self._unwrap_value(self.retrieve_own_memory("reading_index"))
@@ -1001,9 +1006,8 @@ class GrowAgent(AgentBase):
                     index = json.loads(index)
                 except:
                     index = []
-            key = f"reading_{self._uid()}"
-            if key not in index:
-                index.append(key)
+            if reading_key not in index:
+                index.append(reading_key)
             self.store_own_memory("reading_index", json.dumps(index))
             return {"result": "Reading logged", "reading": reading}
 
