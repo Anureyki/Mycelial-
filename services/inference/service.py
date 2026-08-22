@@ -31,12 +31,7 @@ OLLAMA_URL = os.getenv("OLLAMA_URL", "http://localhost:11434")
 ROUTING_FILE = os.path.expanduser("~/mycelial/config/model_routing.json")
 
 
-def load_routing():
-    try:
-        with open(ROUTING_FILE) as f:
-            return {k: v for k, v in json.load(f).items() if not k.startswith("_")}
-    except Exception:
-        return {}
+MODEL_SERVICE_URL = os.getenv("MODEL_SERVICE_URL", "http://localhost:8006")
 
 
 def ollama_installed_models():
@@ -49,24 +44,25 @@ def ollama_installed_models():
     return set()
 
 
-def resolve_capability(capability):
-    """Pick the first backend in a capability's chain that is actually usable
-    right now - an ollama model that's pulled, or a cloud provider whose key is
-    present. Returns (entry, skipped) so a caller can report *why* nothing was
-    available instead of failing opaquely."""
-    chain = (load_routing().get(capability) or {}).get("chain", [])
-    installed = None
-    skipped = []
+def _local_resolve(capability):
+    """Fallback only. Model Service owns routing; this exists so an inference
+    request still works if that service is momentarily down, rather than the
+    whole capability disappearing with it."""
+    try:
+        with open(ROUTING_FILE) as f:
+            routing = {k: v for k, v in json.load(f).items() if not k.startswith("_")}
+    except Exception:
+        return None, ["routing file unreadable"]
+    chain = (routing.get(capability) or {}).get("chain", [])
+    installed, skipped = None, []
     for entry in chain:
-        provider = entry.get("provider")
-        model = entry.get("model")
+        provider, model = entry.get("provider"), entry.get("model")
         if provider == "ollama":
             if installed is None:
                 installed = ollama_installed_models()
-            # Ollama tags carry an explicit :tag; match with or without it.
             if model in installed or any(m.split(":")[0] == model.split(":")[0] for m in installed):
                 return entry, skipped
-            skipped.append(f"{provider}:{model} (not pulled - `ollama pull {model}`)")
+            skipped.append(f"{provider}:{model} (not pulled)")
         else:
             required = entry.get("requires")
             if required and not os.getenv(required):
@@ -76,6 +72,26 @@ def resolve_capability(capability):
     return None, skipped
 
 
+def resolve_capability(capability):
+    """Ask Model Service. It owns model selection - this service only executes.
+    Falls back to reading the routing file directly if Model Service is
+    unreachable, so an outage degrades rather than breaks."""
+    try:
+        resp = requests.get(f"{MODEL_SERVICE_URL}/resolve",
+                            params={"capability": capability}, timeout=8)
+        if resp.status_code == 200:
+            d = resp.json()
+            return {"provider": d.get("provider"), "model": d.get("model")}, d.get("skipped", [])
+        if resp.status_code == 404:
+            return None, resp.json().get("skipped", [])
+    except Exception:
+        pass
+    entry, skipped = _local_resolve(capability)
+    if skipped:
+        skipped = list(skipped) + ["(model service unreachable - resolved locally)"]
+    return entry, skipped
+
+
 def simplify_prompt(prompt):
     """Flatten punctuation small vision models choke on.
 
@@ -83,8 +99,8 @@ def simplify_prompt(prompt):
     dash-joined clause ("Describe this leaf's health - color, spots, ...")
     returns an EMPTY completion with done_reason=stop, while the same question
     in plain sentences answers normally. Reproducible, not intermittent."""
-    simplified = prompt.replace("’", "").replace("'", "")
-    simplified = simplified.replace("—", " ").replace("–", " ")
+    simplified = prompt.replace("\u2019", "").replace("'", "")
+    simplified = simplified.replace("\u2014", " ").replace("\u2013", " ")
     simplified = re.sub(r'\s+-\s+', '. ', simplified)
     return re.sub(r'\s{2,}', ' ', simplified).strip()
 

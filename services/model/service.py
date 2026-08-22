@@ -5,6 +5,7 @@ Manages model metadata and selects models based on requirements.
 """
 import os
 import json
+import requests
 from flask import Flask, request, jsonify
 
 app = Flask(__name__)
@@ -88,6 +89,96 @@ MODELS = {
         "specialization": "reasoning"
     }
 }
+
+# ---------------------------------------------------------------------------
+# Capability routing. This service owns model selection, so the capability ->
+# backend chains live here rather than in the Inference Service, which only
+# executes. Inference asks; Model decides.
+# ---------------------------------------------------------------------------
+ROUTING_FILE = os.path.expanduser("~/mycelial/config/model_routing.json")
+OLLAMA_URL = os.getenv("OLLAMA_URL", "http://localhost:11434")
+
+
+def load_routing():
+    try:
+        with open(ROUTING_FILE) as f:
+            return {k: v for k, v in json.load(f).items() if not k.startswith("_")}
+    except Exception:
+        return {}
+
+
+def ollama_installed_models():
+    try:
+        resp = requests.get(f"{OLLAMA_URL}/api/tags", timeout=5)
+        if resp.status_code == 200:
+            return {m.get("name", "") for m in resp.json().get("models", [])}
+    except Exception:
+        pass
+    return set()
+
+
+def resolve_capability(capability):
+    """First backend in the capability's chain that is usable right now: an
+    Ollama model that is actually pulled, or a provider whose required env var
+    is set. Returns (entry, skipped) so a caller can report WHY nothing was
+    available rather than failing opaquely."""
+    chain = (load_routing().get(capability) or {}).get("chain", [])
+    installed = None
+    skipped = []
+    for entry in chain:
+        provider, model = entry.get("provider"), entry.get("model")
+        if provider == "ollama":
+            if installed is None:
+                installed = ollama_installed_models()
+            if model in installed or any(m.split(":")[0] == model.split(":")[0] for m in installed):
+                return entry, skipped
+            skipped.append(f"{provider}:{model} (not pulled - `ollama pull {model}`)")
+        else:
+            required = entry.get("requires")
+            if required and not os.getenv(required):
+                skipped.append(f"{provider}:{model} ({required} not set)")
+                continue
+            return entry, skipped
+    return None, skipped
+
+
+@app.route("/resolve", methods=["GET", "POST"])
+def resolve_endpoint():
+    data = request.json if request.method == "POST" else {}
+    capability = (data or {}).get("capability") or request.args.get("capability")
+    if not capability:
+        return jsonify({"success": False, "error": "missing capability"}), 400
+    entry, skipped = resolve_capability(capability)
+    if not entry:
+        return jsonify({
+            "success": False, "capability": capability, "skipped": skipped,
+            "error": f"No usable backend for '{capability}'. Tried: "
+                     + ("; ".join(skipped) if skipped else "nothing configured")
+                     + f". Configure it in {ROUTING_FILE}.",
+        }), 404
+    return jsonify({"success": True, "capability": capability,
+                    "provider": entry.get("provider"), "model": entry.get("model"),
+                    "skipped": skipped})
+
+
+@app.route("/capabilities", methods=["GET"])
+def capabilities_endpoint():
+    out = {}
+    for capability in load_routing():
+        entry, skipped = resolve_capability(capability)
+        out[capability] = {
+            "resolves_to": f"{entry['provider']}:{entry['model']}" if entry else None,
+            "available": bool(entry),
+            "skipped": skipped,
+        }
+    return jsonify({"success": True, "capabilities": out, "routing_file": ROUTING_FILE})
+
+
+@app.route("/models/installed", methods=["GET"])
+def installed_endpoint():
+    """What is actually pulled, as opposed to what the static MODELS table
+    claims. The table drifts; this does not."""
+    return jsonify({"success": True, "installed": sorted(ollama_installed_models())})
 
 @app.route("/health", methods=["GET"])
 def health():
