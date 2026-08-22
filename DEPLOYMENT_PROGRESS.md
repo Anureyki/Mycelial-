@@ -79,9 +79,98 @@ Blocked on Phase 3.
 
 ---
 
-## Phase 5 — Multi-tenancy — NOT STARTED, DELIBERATELY DEFERRED
+---
 
-**Do not start this before Phase 4 is done and the single-user system has been
+## Phase 5 — Identity and authorization (DID / verifiable claims) — NOT STARTED
+
+**Comes BEFORE multi-tenancy, which is now Phase 6.** The ordering matters:
+multi-user tenancy without strong identity and authorization is an apartment
+block with one key on the front door. Tenancy answers "whose data is this";
+authorization answers "what may this requester actually do". Building the second
+on top of the first means retrofitting authority onto a system that already
+assumes everyone who gets in belongs there.
+
+### Correcting the premise: the foundation does not exist
+
+A design note handed over described this foundation as already present. It is
+not - `grep` across `agents/`, `core/`, `services/` and `config/` returns **zero**
+matches for DID, SSI, verifiable credential, or ZKP. This phase is greenfield.
+
+What actually exists today:
+
+- `security_agent.authenticate` / `issue_token` — a bearer token in an
+  **in-memory dict** (`self.tokens = {}  # persist later`). Every token is
+  invalidated by a restart.
+- `security_agent.authorize` — `action in self.policies.get(agent_id, [])`. A
+  per-agent action allowlist keyed on a **self-reported** agent id.
+- `check_guard` — a denylist that **fails open** on transport error, correct for
+  a home swarm and inverted for anything multi-user.
+
+So there is an authorization *shape* to build into, and no identity layer at all.
+
+### The idea, stated plainly
+
+The machine does not need to ask "what is your email". It can ask **what
+authority can this requester cryptographically demonstrate**. A credential
+carries scoped claims rather than an account:
+
+```text
+DID:       did:example:123...
+Authority: manage_grow_system = true
+           approve_device_control = true
+           view_accounting = true
+           view_legal = false
+Scope:     this Mycelial instance
+Validity:  currently valid
+```
+
+A zero-knowledge proof can establish that a required property holds without
+disclosing the underlying material - which is the part that makes this more than
+a password with better branding.
+
+The same framework governs humans and agents. A human holds authority to approve
+an action; an agent holds authority to perform a narrowly scoped one; a
+specialist requests another specialist's capability; Boss coordinates; Security
+verifies every requested action falls inside authority actually granted; and
+Provenance records who or what authorized the resulting artifact and on what
+evidence.
+
+### Three layers, in order
+
+**1. Foundation** — DID resolution, identity objects, credential verification,
+persistent identity cache. Note the token store must become durable regardless;
+an in-memory dict cannot carry identity across a restart.
+
+**2. Authorization** — map verified claims to permissions; enforce in Security
+Agent; authorize Boss requests; resource and action scopes; and record every
+authorization decision through the Provenance Service, which already exists and
+which **no agent currently calls**. This phase is its first real consumer.
+
+`check_guard` must also invert for credential-bearing requests: fail open stays
+correct for internal A2A (a Security Agent outage must not halt the swarm) and
+becomes wrong the moment a request carries claimed authority.
+
+**3. UX** — show what is being asked for, present verification status, request
+approval, display what a credential grants, handle issuance and revocation, and
+carry ZKP consent flows. The "Needs You" dashboard card is the natural surface;
+it already aggregates pending decisions.
+
+### Why this ordering is worth holding
+
+Two users on one instance should be able to differ radically in authority - one
+with grow read/write and device approval but no legal access, another with
+accounting and legal read/write and no device authority. **Boss should never
+infer that from conversation.** Security enforces it, and Boss simply refuses
+what is not authorized.
+
+That is also what turns cross-domain agent cooperation into a controlled system
+rather than a swarm accumulating permission slips.
+
+---
+
+## Phase 6 — Multi-tenancy — NOT STARTED, DELIBERATELY DEFERRED
+
+**Do not start this before Phase 5 (identity/authorization) is done and the single-user system has been
 running on its own device for a while.** It is written down here so it stops
 occupying attention, not because it is next. Nothing above depends on it, and
 starting it early would destabilise a system that currently works.
