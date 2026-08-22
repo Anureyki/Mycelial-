@@ -765,6 +765,91 @@ class GrowAgent(AgentBase):
             self.log(f"Capability '{capability}' call failed: {e}")
         return None
 
+    # Roughly how long each stage lasts from germination, for autoflowers.
+    # Used ONLY to detect a contradiction, never to advance a stage on its own -
+    # the plant decides when it transitions, not the calendar. See
+    # verify_growth_stage, which reads morphology.
+    STAGE_AGE_BOUNDS = {"germination": (0, 7), "seedling": (0, 21),
+                        "veg": (14, 70), "flower": (35, 130)}
+
+    def _stage_age_conflict(self, stage, germination_date):
+        """Flag a stage that cannot be right for the plant's age.
+
+        A reading logged against the wrong stage is not cosmetic: stage drives
+        the nutrient targets, so a 25-day-old plant still recorded as a seedling
+        gets judged against seedling ppm bands. This surfaces the contradiction
+        rather than silently correcting it - which stage it actually is depends
+        on morphology this function cannot see."""
+        if not stage or not germination_date:
+            return None
+        try:
+            age = (datetime.now() - datetime.fromisoformat(str(germination_date)[:19])).days
+        except Exception:
+            return None
+        bounds = self.STAGE_AGE_BOUNDS.get(str(stage).lower())
+        if not bounds or bounds[0] <= age <= bounds[1]:
+            return None
+        return {
+            "stage_recorded": stage,
+            "days_since_germination": age,
+            "expected_for_stage": f"{bounds[0]}-{bounds[1]} days",
+            "warning": (f"Recorded stage is '{stage}' but the plant is {age} days old. "
+                        f"Readings are being logged against '{stage}' nutrient targets, "
+                        f"which are probably the wrong band."),
+            "resolve_with": "verify_growth_stage with a photo, or transition_stage if you know",
+        }
+
+    def _vision_prompt_for(self, plant_id="current_plant"):
+        """Build the verification prompt from what this agent already knows.
+
+        The prompt used to be "Describe this plant leaf health. Color, spots,
+        damage, pests, disease signs." - no species, no strain, no age, no
+        system. A small vision model asked a contextless question answers about a
+        generic plant and fills the gaps with stereotype: a real upload came back
+        describing a greenhouse and mesh material that are not in the photo, and
+        "adequate sunlight and nutrients" it has no way to see. The agent knew it
+        was a 25-day-old Girl Scout Cookies autoflower in deep water culture and
+        said none of it.
+
+        Flat sentences on purpose. moondream returns empty or degenerate
+        completions for apostrophes, dash clauses and meta-instructions - verified
+        reproducibly - so this stays punctuation-light."""
+        bits = []
+        try:
+            plant = self._get_plant_record(plant_id) if hasattr(self, "_get_plant_record") else None
+        except Exception:
+            plant = None
+        strain = species = germ = None
+        if isinstance(plant, dict):
+            strain, species, germ = plant.get("strain"), plant.get("species"), plant.get("germination_date")
+        if not strain:
+            strain = self._unwrap_value(self.retrieve_own_memory("current_strain"))
+            if isinstance(strain, str):
+                strain = strain.strip().strip('"')
+        if not germ:
+            germ = self._unwrap_value(self.retrieve_own_memory("germination_date"))
+            if isinstance(germ, str):
+                germ = germ.strip().strip('"')
+        bits.append(f"This is a {species or 'cannabis'} plant.")
+        if strain:
+            bits.append(f"The strain is {re.sub(r'[^A-Za-z0-9 ()]', ' ', str(strain))}.")
+        if germ:
+            try:
+                age = (datetime.now() - datetime.fromisoformat(str(germ)[:19])).days
+                if 0 <= age < 400:
+                    bits.append(f"It is {age} days old.")
+            except Exception:
+                pass
+        try:
+            sysinfo = self._unwrap_value(self.retrieve_own_memory("grow_system"))
+            if sysinfo and "dwc" in str(sysinfo).lower():
+                bits.append("It grows in deep water culture hydroponics.")
+        except Exception:
+            pass
+        bits.append("Describe the leaf health. Color, spots, damage, pests, disease signs.")
+        bits.append("Only describe what you can see in this photo.")
+        return " ".join(bits)
+
     def _call_inference_vision(self, prompt, image_path, timeout=180):
         """Verification tier for cases the local disease models can't judge -
         either low fusion confidence, or a species they have no class for.
@@ -1414,9 +1499,14 @@ class GrowAgent(AgentBase):
             pending_reminders = [
                 r for r in self._get_all_reminders() if r.get("status") == "pending"
             ]
+            stage_conflict = self._stage_age_conflict(stage, germination_date)
             return {
                 "result": {
                     "current_stage": stage,
+                    # Surfaced, not corrected: which stage it actually is depends
+                    # on morphology, and a reading logged against the wrong stage
+                    # is judged against the wrong nutrient band.
+                    **({"stage_conflict": stage_conflict} if stage_conflict else {}),
                     "germination_date": germination_date,
                     "current_strain": strain,
                     "current_nutrients": current_nutrients,
@@ -1868,13 +1958,7 @@ class GrowAgent(AgentBase):
                     if "error" not in fused:
                         if fused["low_confidence"]:
                             verification = self._call_inference_vision(
-                                # Plain sentences on purpose. Small local vision
-                                # models (moondream) return an empty or degenerate
-                                # completion for prompts with apostrophes, dash
-                                # clauses, or meta-instructions like "in one or two
-                                # sentences" - verified reproducibly. Keep it flat.
-                                "Describe this plant leaf health. Color, spots, damage, pests, disease signs.",
-                                photo_path
+                                self._vision_prompt_for(plant_id), photo_path
                             )
                             correction = self._log_vision_correction(photo_path, fused, verification)
                             verification_text = verification
