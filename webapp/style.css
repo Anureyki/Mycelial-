@@ -258,3 +258,43 @@ main#log {
   cursor: pointer;
   padding: 0 6px;
 }
+
+/* --- Anansi walking the mycelium while she looks something up ---------------
+   Replaces a literal "..." pending message. currentColor throughout so it
+   inherits the message colour and needs no palette of its own. */
+.msg.pending { display: flex; align-items: center; gap: 10px; color: var(--muted); }
+
+.anansi { width: 132px; height: 36px; overflow: visible; }
+
+/* She walks the width, pauses at the far side, and comes back. */
+.anansi .spider { animation: anansi-walk 4.6s ease-in-out infinite; }
+@keyframes anansi-walk {
+  0%   { transform: translate(6px, 30px) scaleX(1); }
+  45%  { transform: translate(146px, 30px) scaleX(1); }
+  50%  { transform: translate(146px, 30px) scaleX(-1); }
+  95%  { transform: translate(6px, 30px) scaleX(-1); }
+  100% { transform: translate(6px, 30px) scaleX(1); }
+}
+
+/* Legs scissor as she goes. Short cycle so the gait reads as walking. */
+.anansi .legs { animation: anansi-legs 0.42s ease-in-out infinite alternate; transform-origin: 0 0; }
+@keyframes anansi-legs {
+  from { transform: scaleY(0.82) translateY(1px); }
+  to   { transform: scaleY(1.12) translateY(-1px); }
+}
+
+/* The mushrooms breathe very slightly, so the scene is not static behind her. */
+.anansi .shrooms { animation: anansi-breathe 5.5s ease-in-out infinite; transform-origin: center bottom; }
+@keyframes anansi-breathe { 0%,100% { opacity: 0.28; } 50% { opacity: 0.45; } }
+
+.waiting-text::after {
+  content: ''; animation: anansi-ellipsis 1.6s steps(4, end) infinite;
+}
+@keyframes anansi-ellipsis {
+  0% { content: ''; } 25% { content: '.'; } 50% { content: '..'; } 75% { content: '...'; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .anansi .spider, .anansi .legs, .anansi .shrooms, .waiting-text::after { animation: none; }
+  .anansi .spider { transform: translate(76px, 30px); }
+}

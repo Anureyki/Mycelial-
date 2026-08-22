@@ -37,6 +37,39 @@ function addMessage(text, cls) {
   return el;
 }
 
+// Anansi crossing the mycelium while she looks something up. The three dots
+// said "waiting"; this says who is waiting and what they are doing.
+// Pure inline SVG so it needs no asset and works offline from the cached shell.
+function addWaiting() {
+  const el = document.createElement('div');
+  el.className = 'msg pending';
+  el.innerHTML = `
+<svg class="anansi" viewBox="0 0 160 44" role="img" aria-label="Anansi is looking...">
+  <g class="shrooms" fill="currentColor" opacity="0.35">
+    <g transform="translate(14,34)"><rect x="-1.5" y="-7" width="3" height="7" rx="1"/>
+      <path d="M-7 -7 a7 5 0 0 1 14 0 z"/></g>
+    <g transform="translate(52,34)"><rect x="-1" y="-5" width="2" height="5" rx="1"/>
+      <path d="M-5 -5 a5 3.5 0 0 1 10 0 z"/></g>
+    <g transform="translate(96,34)"><rect x="-1.5" y="-8" width="3" height="8" rx="1"/>
+      <path d="M-8 -8 a8 5.5 0 0 1 16 0 z"/></g>
+    <g transform="translate(138,34)"><rect x="-1" y="-6" width="2" height="6" rx="1"/>
+      <path d="M-6 -6 a6 4 0 0 1 12 0 z"/></g>
+  </g>
+  <line x1="0" y1="34" x2="160" y2="34" stroke="currentColor" stroke-width="1" opacity="0.25"/>
+  <g class="spider" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round">
+    <g class="legs">
+      <path d="M-6 0 l-5 -4 l-3 4"/><path d="M-6 2 l-6 1 l-3 4"/>
+      <path d="M6 0 l5 -4 l3 4"/><path d="M6 2 l6 1 l3 4"/>
+    </g>
+    <ellipse cx="0" cy="0" rx="5.5" ry="4.5" fill="currentColor" stroke="none"/>
+    <circle cx="6.5" cy="-1" r="2.6" fill="currentColor" stroke="none"/>
+  </g>
+</svg><span class="waiting-text">Anansi is looking</span>`;
+  log.appendChild(el);
+  log.scrollTop = log.scrollHeight;
+  return el;
+}
+
 function extractResult(payload) {
   let node = payload;
   for (let i = 0; i < 6 && node && typeof node === 'object'; i++) {
@@ -58,7 +91,7 @@ async function sendPrompt(text, images) {
   const n = (images || []).length;
   const label = n === 1 ? `[photo: ${images[0].name}]` : `[${n} photos attached]`;
   addMessage(n ? `${text || '(photos)'} \n${label}` : text, 'user');
-  const pending = addMessage('...', 'pending');
+  const pending = addWaiting();
   sendBtn.disabled = true;
 
   try {
