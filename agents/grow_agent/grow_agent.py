@@ -255,6 +255,8 @@ DECLINE_KEYWORDS = (
 
 STAGE_MORPHOLOGY_CUES = {
     "cannabis": {
+        "stages": ("germination", "seedling", "early_veg", "veg", "flower"),
+        "default_stage": "seedling",
         "germination": ("cotyledon", "seed coat", "taproot only", "no true leaves"),
         # "blade" is the common grower term alongside point/prong/finger - leaving
         # it out sent a plain "9-blade leaves" description to the LLM fallback,
@@ -377,6 +379,8 @@ CARE_SIGNS = {
 # reference, and observation of the actual plant outranks it.
 SPECIES_PROFILES = {
     "aloe": {
+        "stages": ("establishing", "mature", "dormant", "flowering"),
+        "default_stage": "mature",
         "common_name": "Aloe",
         "group": "succulent",
         "water": "Soak thoroughly, then let the soil dry COMPLETELY before watering again. Typically 2-3 weeks indoors.",
@@ -394,6 +398,8 @@ SPECIES_PROFILES = {
         "note": "Drought-adapted. When in doubt, wait. Far more aloes die from water than from thirst.",
     },
     "cactus": {
+        "stages": ("establishing", "mature", "dormant", "flowering"),
+        "default_stage": "mature",
         "common_name": "Cactus (incl. San Pedro, peyote)",
         "group": "succulent",
         "water": "Heavy soak then complete dry-out. Much less in winter dormancy - some species none at all.",
@@ -411,6 +417,8 @@ SPECIES_PROFILES = {
         "note": "Slow growing - a change over days is unusual, so anything sudden is worth attention.",
     },
     "succulent": {
+        "stages": ("establishing", "mature", "dormant", "flowering"),
+        "default_stage": "mature",
         "common_name": "Succulent (general)",
         "group": "succulent",
         "water": "Soak and dry completely between waterings.",
@@ -420,6 +428,8 @@ SPECIES_PROFILES = {
         "note": "Stores water in its tissue, so it shows thirst late and rot early.",
     },
     "tropical_foliage": {
+        "stages": ("establishing", "mature"),
+        "default_stage": "mature",
         "common_name": "Tropical foliage houseplant",
         "group": "foliage",
         "water": "Keep evenly moist, let the top inch dry. Do NOT let it dry out completely.",
@@ -1366,6 +1376,19 @@ class GrowAgent(AgentBase):
                     break
         return SPECIES_PROFILES.get(key or s)
 
+    def stages_for_species(self, species):
+        """Lifecycle vocabulary for a species.
+
+        germination/seedling/veg/flower is a cannabis clock. An aloe does not
+        have a vegetative stage in that sense - it establishes, matures, may go
+        dormant, and rarely flowers indoors. Registering the aloe as "veg" was
+        cannabis vocabulary applied to a succulent, which is the same error as
+        running its age through the cannabis stage bounds."""
+        profile = self._profile_for(species)
+        if profile and profile.get("stages"):
+            return list(profile["stages"]), profile.get("default_stage")
+        return list(STAGE_ORDER), "seedling"
+
     def _care_signs_in(self, text):
         """Which care signs a description mentions. Negation-aware, like the
         other classifiers here - "no sign of rot" must not read as rot."""
@@ -1826,6 +1849,15 @@ class GrowAgent(AgentBase):
 
         elif task == "transition_stage":
             new_stage = args.get("new_stage")
+            # A stage must belong to THIS species' lifecycle. "veg" is meaningless
+            # for an aloe, and accepting it is how the aloe ended up recorded in a
+            # cannabis stage an hour after the code stopped doing that.
+            _sp = self._get_species_for_plant(args.get("plant_id", "current_plant"))
+            _allowed, _default = self.stages_for_species(_sp)
+            if new_stage and new_stage not in _allowed:
+                return {"error": (f"'{new_stage}' is not a stage for {_sp or 'this species'}. "
+                                  f"Valid: {', '.join(_allowed)}."),
+                        "species": _sp, "valid_stages": _allowed}
             notes = args.get("notes", "")
             plant_id = args.get("plant_id", "current_plant")
             if not new_stage:
