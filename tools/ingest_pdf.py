@@ -57,6 +57,18 @@ def extract_text(path):
 DASHES = dict.fromkeys(map(ord, "\u2010\u2011\u2012\u2013\u2014\u2015"), "-")
 
 
+def dehyphenate(text):
+    """Rejoin words broken across a line by hyphenation.
+
+    PDF text layers render an end-of-line hyphen as a SPACED hyphen
+    ("at - torney", "vol - untary") once the line break is collapsed to a space.
+    Left alone a search for "attorney" misses the word entirely - 3,625 such
+    breaks in the Federal Rules alone - which quietly degrades every document in
+    the corpus. Both sides must be lowercase word fragments so that genuine
+    ranges and compounds ("2010 - 2012", "arm's - length") survive."""
+    return re.sub(r'([a-z]{2,})\s+[-\u2010-\u2015]\s+([a-z]{2,})', r'\1\2', text)
+
+
 def normalise_citation(c):
     """Fold the several dash characters these documents use onto one, so
     "210.1-01" is a single key however the typesetter wrote it."""
@@ -67,7 +79,7 @@ def split_sections(pages):
     sections, cur_id, cur_kind, buf, cur_page = [], None, None, [], 1
     def flush():
         if cur_id and buf:
-            body = re.sub(r'\s+', ' ', " ".join(buf)).strip()
+            body = dehyphenate(re.sub(r'\s+', ' ', " ".join(buf)).strip())
             if len(body) >= MIN_SECTION:
                 sections.append({"citation": cur_id, "kind": cur_kind,
                                  "page": cur_page, "text": body[:MAX_SECTION]})
