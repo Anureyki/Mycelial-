@@ -755,6 +755,14 @@ class AgentBase:
             self.log(f"CAG: refresh - {added} added, {updated} updated, {removed} removed")
         return {"added": added, "updated": updated, "removed": removed, "total": len(self.cache)}
 
+    PLACEHOLDER_MARKERS = ("[placeholder", "placeholder - not", "this placeholder",
+                           "replace with a properly licensed", "sample_placeholder",
+                           "exists only to verify")
+
+    def _is_placeholder_doc(self, doc):
+        blob = f"{doc.get('id','')} {doc.get('content','')[:400]}".lower()
+        return any(m in blob for m in self.PLACEHOLDER_MARKERS)
+
     def query_cache(self, query, top_k=5, category=None):
         """Keyword-overlap search over the cache. Returns [] if nothing scores above zero -
         callers should treat that as 'cache lacks sufficient context' and fall back to inference."""
@@ -772,6 +780,16 @@ class AgentBase:
                 continue
             score = len(overlap) / len(q_tokens)
             scored.append((score, doc, overlap))
+        # Documents that announce themselves as placeholders are test fixtures,
+        # not reference material. Several knowledge_base folders are seeded with
+        # files that say "[PLACEHOLDER - not from Black's Law Dictionary...]" and
+        # then define terms with invented meanings; retrieval was faithfully
+        # surfacing them to models under the heading "cached reference material",
+        # i.e. as authority. Filtered here, in the shared retrieval path, so that
+        # every agent is covered - fixing it in one agent left the identical bug
+        # live in the others, which is how accounting_agent was still citing
+        # irs_forms/sample_placeholder.txt hours after legal_agent stopped.
+        scored = [t for t in scored if not self._is_placeholder_doc(t[1])]
         scored.sort(key=lambda t: t[0], reverse=True)
         results = []
         for score, doc, overlap in scored[:top_k]:

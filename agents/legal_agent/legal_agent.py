@@ -118,20 +118,8 @@ class LegalAgent(AgentBase):
     def _extract_citations(self, text):
         return list({m.group(0).strip() for m in STATUTE_CITATION_RE.finditer(text)})
 
-    # Documents that announce themselves as placeholders are not reference
-    # material. The seeded dictionary/statutes files say "[PLACEHOLDER - not from
-    # Black's Law Dictionary...]" and then define custodian and beneficiary with
-    # invented meanings; the CAG pipeline was faithfully retrieving them and
-    # presenting them to the model under the heading "Relevant cached reference
-    # material", i.e. as authority. Those are two of the fields that came back
-    # wrong on a real opinion. Filtering here rather than deleting the files
-    # keeps them available for testing the retrieval pipeline itself.
-    PLACEHOLDER_MARKERS = ("[PLACEHOLDER", "placeholder - not", "this placeholder",
-                           "replace with a properly licensed", "sample_placeholder")
-
-    def _is_placeholder(self, hit):
-        blob = f"{hit.get('id','')} {hit.get('snippet','')}".lower()
-        return any(m.lower() in blob for m in self.PLACEHOLDER_MARKERS)
+    # Placeholder filtering now lives in AgentBase.query_cache so every
+    # agent inherits it - see the note there.
 
     # ---- Legal dictionary -------------------------------------------------
     #
@@ -210,11 +198,7 @@ class LegalAgent(AgentBase):
         for h in hits:
             if h["id"] not in best or h["score"] > best[h["id"]]["score"]:
                 best[h["id"]] = h
-        kept = [h for h in best.values() if not self._is_placeholder(h)]
-        dropped = len(best) - len(kept)
-        if dropped:
-            self.log(f"CAG: dropped {dropped} placeholder document(s) from context")
-        return sorted(kept, key=lambda h: h["score"], reverse=True)[:top_k]
+        return sorted(best.values(), key=lambda h: h["score"], reverse=True)[:top_k]
 
     def _format_context_block(self, hits):
         if not hits:

@@ -102,9 +102,15 @@ class AccountingAgent(AgentBase):
         capability. Returns a capability name, never a model name."""
         return CAPABILITY_FOR.get(requirements, "reasoning")
 
-    def _call_inference(self, prompt, model_name=None, timeout=60, capability=None):
+    def _call_inference(self, prompt, model_name=None, timeout=None, capability=None,
+                        status=None, temperature=None):
         """Call the Inference Service, falling back to an alternate model
         via the Model Service if the primary call is slow or unavailable."""
+        if status is None:
+            status = {}
+        status["ok"] = False
+        status["reason"] = None
+        timeout = timeout or INFERENCE_TIMEOUT
         if model_name is None and capability is None:
             capability = self._capability_for_task("reasoning")
         try:
