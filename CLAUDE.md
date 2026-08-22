@@ -151,6 +151,61 @@ The same applies to every domain. A statute as published, a contract as drafted,
 a vendor's stated behaviour, a datasheet's rated tolerance - all reference.
 What was observed to happen is the record.
 
+### Every agent gets a reference corpus, and the corpus is the floor
+
+Each domain agent carries its own body of rules, doctrine and vocabulary in
+`reference/<agent>/`. The point is not that the agent can recite them. It is
+that the principal does not have to be specialised in the domain, because the
+agent is - and shows its reasoning, so the principal can check it.
+
+**Two distinct stores, deliberately separate:**
+
+| Store | Holds | Retrieval |
+|-------|-------|-----------|
+| `reference/<agent>/` | Codified rules, standards, dictionaries, canons | Exact lookup by term or citation |
+| `knowledge_base/<agent>/` | This principal's own documents, lessons, working notes | CAG similarity search |
+
+Reference material is looked up by **exact headword or citation**, never by
+bag-of-words similarity. The CAG cache scores `len(overlap)/len(query_tokens)`
+with no stopword filter, so a long passage of boilerplate outranks a short
+passage that is exactly on point - measured on a real case at 0.040 against
+0.030 - and it truncates any file at 200,000 characters. A dictionary or a
+standards volume run through that would be mostly invisible and partly noise.
+A definition reaches the model because the instrument uses that word; a section
+reaches it because the document cites it.
+
+**The written corpus is the floor, not the ceiling.** Codified rules are what
+was agreed and published, which means they already lag practice. Actual
+operation runs above them. So the corpus is a baseline to reason *from*, and the
+agent's real job is the layer above it: comparing what is written against what
+is observed to happen.
+
+This is the same rule as **"Lived data outranks documentation"** above, applied
+outside horticulture. A statute as published, a standard as drafted, a rated
+tolerance - all reference. What was observed to happen is the record, and where
+the two diverge, **the divergence is itself the finding** and is worth logging,
+because a codified rule that repeatedly fails against live data is information
+about the rule.
+
+Each domain has a live source that supplies exactly that:
+
+| Domain | Codified (floor) | Live (how it actually operates) |
+|--------|------------------|--------------------------------|
+| Legal | U.S. Code, CFR, canons of construction, Black's | CourtListener - how courts actually rule and what dockets actually do |
+| Accounting | Exchange Act, Reg S-X/S-K, ASC, IFRS | EDGAR filings and SEC comment letters - where the regulator actually pushed back |
+| Grow | Product labels, published guidelines | Measured ppm, pH, and observed plant response |
+
+**Copyright constrains what can be shipped.** Statutes, regulations, court
+opinions and government works are public domain. FASB's ASC and the IFRS
+standards are not, and neither are current editions of Black's - which is why
+the corpus uses Black's 2nd edition (1910), whose term has expired. Where an
+edition is too recent to be free, the principal supplies their own licensed
+copy; `tools/ingest_pdf.py` ingests any PDF into a citation-addressable index.
+Where a source is authored rather than quoted, it says so in its own `source`
+field. Nothing is presented to a model as authority without its provenance
+attached - the failure this prevents is a placeholder file defining `custodian`
+with an invented meaning and being read as reference.
+
 ### Domain focus (recorded intent, not yet built)
 
 - **Accounting** should surface **equitable interest and control**, not debit

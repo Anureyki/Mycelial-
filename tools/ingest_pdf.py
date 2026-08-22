@@ -30,7 +30,10 @@ SECTION_PATTERNS = [
     (re.compile(r'^\s*(IFRS\s+\d+|IAS\s+\d+)\b', re.I), "ifrs"),
     (re.compile(r'^\s*(?:SEC(?:TION)?\.?\s*)?(\d+[A-Za-z]?\([a-z0-9]+\))', re.I), "subsection"),
     (re.compile(r'^\s*(Rule\s+\d+[A-Za-z]?-\d+)', re.I), "rule"),
-    (re.compile(r'^\s*(§+\s*\d+[A-Za-z0-9.\-]*)'), "section_sign"),
+    # Dashes: these documents use EN DASH (U+2013) in citations like
+    # "210.1-01", not a hyphen. Omitting it truncated the citation at "210.1",
+    # collapsing 1-01, 1-02 and 1-03 onto one ambiguous key.
+    (re.compile(r'^\s*(§+\s*\d+[A-Za-z0-9.\-\u2010-\u2015]*)'), "section_sign"),
     (re.compile(r'^\s*(SEC(?:TION)?\.\s+\d+[A-Za-z0-9.\-]*)', re.I), "section"),
 ]
 MIN_SECTION, MAX_SECTION = 80, 4000
@@ -51,6 +54,15 @@ def extract_text(path):
     return pages, empty
 
 
+DASHES = dict.fromkeys(map(ord, "\u2010\u2011\u2012\u2013\u2014\u2015"), "-")
+
+
+def normalise_citation(c):
+    """Fold the several dash characters these documents use onto one, so
+    "210.1-01" is a single key however the typesetter wrote it."""
+    return re.sub(r'\s+', ' ', c.translate(DASHES).strip())
+
+
 def split_sections(pages):
     sections, cur_id, cur_kind, buf, cur_page = [], None, None, [], 1
     def flush():
@@ -65,7 +77,7 @@ def split_sections(pages):
             for rx, kind in SECTION_PATTERNS:
                 m = rx.match(line)
                 if m:
-                    matched = (re.sub(r'\s+', ' ', m.group(1).strip()), kind)
+                    matched = (normalise_citation(m.group(1)), kind)
                     break
             if matched:
                 flush()
