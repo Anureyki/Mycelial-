@@ -374,6 +374,20 @@ CARE_SIGNS = {
                       "stunted"),
 }
 
+# Cues that a sign has gone PAST its early stage. The first real test of this
+# layer read an aloe with papery dead leaves as "the normal first sign of thirst,
+# easily corrected" - right about the direction, wrong about how far along it
+# was, and it therefore recommended nothing. A sign and its severity are
+# different facts and the advice depends on both.
+SEVERITY_CUES = {
+    "advanced": ("papery", "dried", "dead", "crispy", "brittle", "shrivelled beyond",
+                 "collapsed", "splayed flat", "flattened outward", "brown and dry",
+                 "leaf litter", "desiccated", "several leaves lost", "hollow"),
+    "widespread": ("most leaves", "across most", "all the leaves", "whole plant",
+                   "throughout", "every leaf"),
+}
+
+
 # Small, honest profiles. Each says what normal is, what usually kills this
 # plant, and how to read an ambiguous sign. Everything here is stated as
 # reference, and observation of the actual plant outranks it.
@@ -1425,6 +1439,11 @@ class GrowAgent(AgentBase):
                 "resolve_with": "Add a profile for this species so the signs can be interpreted.",
             }
 
+        lowered = (description or "").lower()
+        advanced = any(c in lowered for c in SEVERITY_CUES["advanced"])
+        widespread = any(c in lowered for c in SEVERITY_CUES["widespread"])
+        severity = ("advanced" if advanced else "early") if signs else "none"
+
         lines, actions = [], []
         for sign in signs:
             reading = (profile.get("reads_differently") or {}).get(sign)
@@ -1436,6 +1455,14 @@ class GrowAgent(AgentBase):
                 article = "an" if profile['common_name'][0].lower() in "aeiou" else "a"
                 actions.append(f"This is the direction that usually kills {article} {profile['common_name']}. "
                                "Treat it as urgent.")
+            elif advanced:
+                # A sign in the "safe" direction stops being safe once it has
+                # gone this far. Tissue that is papery is not coming back, and
+                # the reassurance that it is "easily corrected" is wrong.
+                actions.append(f"This has gone past the early stage - dried or collapsed tissue "
+                               f"does not recover. Act now rather than waiting; the plant is "
+                               f"further along than the sign alone suggests"
+                               + (" and it is across most of the plant." if widespread else "."))
 
         if not signs:
             art = "an" if profile['common_name'][0].lower() in "aeiou" else "a"
@@ -1448,12 +1475,14 @@ class GrowAgent(AgentBase):
             "group": profile["group"],
             "known_profile": True,
             "signs": signs,
+            "severity": severity,
+            "widespread": widespread,
             "assessment": " ".join(lines),
             "care": {"water": profile["water"], "light": profile["light"], "soil": profile["soil"]},
             "note": profile.get("note"),
             "action": " ".join(actions) if actions else "No urgent action indicated.",
             # A description is somebody's words about a photo, not a measurement.
-            "confidence": "medium" if signs else "low",
+            "confidence": "high" if (signs and advanced) else ("medium" if signs else "low"),
             "basis": "Care profile plus the description given. Reference, not a measurement - "
                      "what the plant is actually doing outranks this table.",
         }
