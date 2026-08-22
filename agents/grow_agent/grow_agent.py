@@ -849,6 +849,16 @@ class GrowAgent(AgentBase):
         except Exception:
             return {"assessment": "germination date unparseable", "stage": stage, "acted": False}
 
+        # STAGE_AGE_BOUNDS is a cannabis clock - germination, seedling, veg,
+        # flower, with autoflower timings. It means nothing for an aloe, a
+        # pepper, or anything else, and applying it would produce confident
+        # nonsense about a plant whose life cycle this agent has no model of.
+        species = self._get_species_for_plant(plant_id)
+        if species and species.lower() != "cannabis":
+            return {"assessment": (f"No stage model for {species}. The stage clock here is "
+                                   "cannabis-specific and does not transfer."),
+                    "stage": stage, "days": age, "species": species, "acted": False}
+
         bounds = self.STAGE_AGE_BOUNDS.get(str(stage).lower())
         impossible = bool(bounds) and age > bounds[1]
 
@@ -960,15 +970,21 @@ class GrowAgent(AgentBase):
         strain = species = germ = None
         if isinstance(plant, dict):
             strain, species, germ = plant.get("strain"), plant.get("species"), plant.get("germination_date")
-        if not strain:
+        # Legacy single-plant fields describe current_plant ONLY. Falling back to
+        # them for a different plant_id would label another plant with this one's
+        # strain, age and growing system.
+        if not strain and plant_id == "current_plant":
             strain = self._unwrap_value(self.retrieve_own_memory("current_strain"))
             if isinstance(strain, str):
                 strain = strain.strip().strip('"')
-        if not germ:
+        if not germ and plant_id == "current_plant":
             germ = self._unwrap_value(self.retrieve_own_memory("germination_date"))
             if isinstance(germ, str):
                 germ = germ.strip().strip('"')
-        bits.append(f"This is a {species or 'cannabis'} plant.")
+        # Never assert a species that was not recorded. An unknown plant gets a
+        # neutral prompt; asserting the wrong one is how a confident wrong answer
+        # gets manufactured.
+        bits.append(f"This is a {species} plant." if species else "This is a plant.")
         if strain:
             bits.append(f"The strain is {re.sub(r'[^A-Za-z0-9 ()]', ' ', str(strain))}.")
         if germ:
@@ -979,7 +995,9 @@ class GrowAgent(AgentBase):
             except Exception:
                 pass
         try:
-            sysinfo = self._unwrap_value(self.retrieve_own_memory("grow_system"))
+            sysinfo = (self._unwrap_value(self.retrieve_own_memory(f"grow_system_{plant_id}"))
+                       or (self._unwrap_value(self.retrieve_own_memory("grow_system"))
+                           if plant_id == "current_plant" else None))
             if sysinfo and "dwc" in str(sysinfo).lower():
                 bits.append("It grows in deep water culture hydroponics.")
         except Exception:
@@ -1213,10 +1231,20 @@ class GrowAgent(AgentBase):
         return "warning", "llm_unavailable"
 
     def _get_species_for_plant(self, plant_id):
+        """Species for a plant, or None when it genuinely is not known.
+
+        This used to default to "cannabis" for anything unrecognised, which is
+        how an aloe photo would have been described to the vision model as a
+        25-day-old Girl Scout Cookies autoflower in deep water culture. A default
+        that asserts a species is worse than no species: the guard that refuses
+        to classify an unsupported plant relies on being told the truth, and the
+        prompt builder repeats whatever it is given."""
         if plant_id == "current_plant":
             return self._unwrap_value(self.retrieve_own_memory("current_species")) or "cannabis"
         plant = next((p for p in self._get_all_plants() if p.get("plant_id") == plant_id), None)
-        return (plant or {}).get("species") or "cannabis"
+        if plant is None:
+            return None
+        return plant.get("species") or None
 
     def _classify_stage_by_keywords(self, text, species):
         if not text:
