@@ -125,6 +125,14 @@ STAGE_FEED_EMPHASIS = {
                      "note": "Back nitrogen off, drive P-K. Shift once pistils appear, not on a date."},
 }
 
+# analyze_consumption resolution limits. Uptake is a slow signal: a 15L
+# reservoir loses a few percent a day even under heavy draw, and volume read off
+# an unmarked sight tube is good to maybe +/-10%. So a short window or a small
+# delta cannot distinguish uptake from measurement error, and reporting
+# "balanced" over six hours is false confidence rather than a finding.
+MIN_CONSUMPTION_WINDOW_HOURS = 24
+CONSUMPTION_NOISE_FLOOR_PCT = 5.0
+
 # Extra nitrogen emphasis while regrowing after capacity was removed.
 REGROWTH_N_BOOST = 1.25
 
@@ -2412,6 +2420,26 @@ class GrowAgent(AgentBase):
             water_used = (1 - vb / va) * 100 if va else 0
             nutrient_used = (1 - mb / ma) * 100 if ma else 0
 
+            # Resolution guards before any conclusion.
+            hours = None
+            try:
+                hours = (datetime.fromisoformat(b["timestamp"]) -
+                         datetime.fromisoformat(a["timestamp"])).total_seconds() / 3600.0
+            except Exception:
+                pass
+            if hours is not None and hours < MIN_CONSUMPTION_WINDOW_HOURS and vb <= va:
+                res = self._make_recommendation(
+                    f"Only {hours:.1f}h between these readings.",
+                    f"Uptake is a slow signal - a reservoir this size shifts a few percent a day at "
+                    f"most, so a window under {MIN_CONSUMPTION_WINDOW_HOURS}h cannot separate it from "
+                    "measurement error.",
+                    "Compare readings at least a day apart. Watch ppm and pH in the meantime - those "
+                    "move measurably on this timescale and are measured precisely.",
+                    "low")
+                res["classification"] = "window_too_short"
+                res["hours"] = round(hours, 1)
+                return {"result": res}
+
             if vb > va:
                 verdict = "topped_up"
                 observation = (
@@ -2437,6 +2465,16 @@ class GrowAgent(AgentBase):
                 )
                 action = ("Top up with plain water rather than more nutrient, or strength will "
                           "climb on its own and risk burn.")
+            elif max(abs(water_used), abs(nutrient_used)) < CONSUMPTION_NOISE_FLOOR_PCT:
+                verdict = "below_resolution"
+                observation = (
+                    f"Water moved {water_used:.1f}% and nutrient {nutrient_used:.1f}% - both under the "
+                    f"{CONSUMPTION_NOISE_FLOOR_PCT:.0f}% floor. Volume read off an unmarked sight tube "
+                    "is good to roughly a tenth, so changes this small are indistinguishable from "
+                    "measurement error."
+                )
+                action = ("No conclusion drawn. Calibrating the reservoir with a known measure would "
+                          "lower this floor and make the comparison usable sooner.")
             else:
                 verdict = "balanced"
                 observation = (
