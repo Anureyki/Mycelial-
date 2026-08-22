@@ -12,6 +12,14 @@ sys.path.insert(0, project_root)
 
 from core.base_agent import AgentBase
 
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+try:
+    from bug_patterns import PATTERNS as BUG_PATTERNS, scan as scan_bug_patterns
+    BUG_PATTERNS_AVAILABLE = True
+except ImportError:
+    BUG_PATTERNS_AVAILABLE = False
+    BUG_PATTERNS = []
+
 class CodingAgent(AgentBase):
     def __init__(self):
         super().__init__(
@@ -20,11 +28,27 @@ class CodingAgent(AgentBase):
             capabilities=[
                 "read_file", "edit_file", "run_command", "run_code",
                 "crontab", "reason", "reason_and_act", "fix_code", "evaluate",
-                "fetch_repo", "web_search"
+                "fetch_repo", "web_search",
+                "scan_bug_patterns", "list_bug_patterns"
             ],
             role="software_engineering"
         )
         self.log("💻 Coding agent ready (local execution, return-code verification).")
+
+    def _scratch_file(self, prefix, ext):
+        """Private, collision-free scratch path.
+
+        Was f"/tmp/code_{int(time.time())}.{ext}" - two executions inside the
+        same second wrote to the SAME file, so one overwrote the other and both
+        ran whichever code landed last. Silent wrong execution, not just lost
+        data. A predictable path in a world-writable directory is also something
+        another local user can pre-create or symlink."""
+        import tempfile
+        scratch = os.path.join(tempfile.gettempdir(), f"mycelial_{self.agent_id}")
+        os.makedirs(scratch, mode=0o700, exist_ok=True)
+        fd, path = tempfile.mkstemp(prefix=f"{prefix}_", suffix=f".{ext}", dir=scratch)
+        os.close(fd)
+        return path
 
     def _get_model_for_task(self, task_type="code_fix"):
         requirements = {}
@@ -140,7 +164,7 @@ class CodingAgent(AgentBase):
             language = args.get("language", "python")
             if not code:
                 return {"error": "Missing code"}
-            temp_file = f"/tmp/code_{int(time.time())}.{language}"
+            temp_file = self._scratch_file("code", language)
             self._write_file_local(temp_file, code)
             if language == "python":
                 cmd = f"python3 {temp_file}"
@@ -224,7 +248,7 @@ class CodingAgent(AgentBase):
             fixed_code = self._call_inference(fix_prompt, model_fix)
             fixed_code = re.sub(r'```[\w]*\n?', '', fixed_code).strip()
 
-            temp_file = f"/tmp/fixed_code_{int(time.time())}.{language}"
+            temp_file = self._scratch_file("fixed_code", language)
             self._write_file_local(temp_file, fixed_code)
             if language == "python":
                 run_cmd = f"python3 {temp_file}"
@@ -305,6 +329,54 @@ class CodingAgent(AgentBase):
                 "result": summary,
                 "raw_content": content[:1000]  # trim for display
             }
+
+        elif task == "list_bug_patterns":
+            if not BUG_PATTERNS_AVAILABLE:
+                return {"error": "bug_patterns catalog not importable"}
+            return {"result": [
+                {k: p[k] for k in ("id", "severity", "why", "seen_in", "check")}
+                for p in BUG_PATTERNS
+            ]}
+
+        elif task == "scan_bug_patterns":
+            # Scan for the SHAPES of bugs that have actually shipped here, rather
+            # than for generic lint. Returns candidates - every pattern has
+            # legitimate uses, and each carries the check that separates a real
+            # finding from noise. Reporting a match as a confirmed defect without
+            # doing that check is itself one of the failure modes catalogued.
+            if not BUG_PATTERNS_AVAILABLE:
+                return {"error": "bug_patterns catalog not importable"}
+            root = os.path.expanduser(args.get("path", "~/mycelial")) if isinstance(args, dict) else os.path.expanduser("~/mycelial")
+            wanted = args.get("pattern") if isinstance(args, dict) else None
+            min_sev = (args.get("min_severity") or "low").lower() if isinstance(args, dict) else "low"
+            order = {"low": 0, "medium": 1, "high": 2}
+
+            pats = [p for p in BUG_PATTERNS
+                    if (not wanted or p["id"] == wanted)
+                    and order.get(p["severity"], 0) >= order.get(min_sev, 0)]
+            findings = scan_bug_patterns(root, patterns=pats)
+
+            by_pattern = {}
+            for f in findings:
+                by_pattern.setdefault(f["pattern"], []).append(f)
+            summary = sorted(
+                ({"pattern": k,
+                  "severity": v[0]["severity"],
+                  "count": len(v),
+                  "files": sorted({x["file"] for x in v})[:8],
+                  "why": v[0]["why"],
+                  "check": v[0]["check"]} for k, v in by_pattern.items()),
+                key=lambda x: (-order.get(x["severity"], 0), -x["count"])
+            )
+            self.log(f"Bug-pattern scan of {root}: {len(findings)} candidate(s) across {len(summary)} pattern(s)")
+            return {"result": {
+                "root": root,
+                "total_candidates": len(findings),
+                "patterns_matched": len(summary),
+                "summary": summary,
+                "note": ("Candidates, not verdicts. Apply each pattern's `check` before "
+                         "treating a match as a defect."),
+            }}
 
         elif task == "web_search":
             query = args.get("query") if isinstance(args, dict) else args[0] if args else None
