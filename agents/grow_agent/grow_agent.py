@@ -1793,6 +1793,118 @@ class GrowAgent(AgentBase):
     STAGE_AGE_MIDPOINT = {"germination": 3, "seedling": 12, "early_veg": 20,
                           "veg": 35, "flower": 60}
 
+    def analyze_deficit(self, plant_id="current_plant"):
+        """What a period below target actually cost, measured rather than guessed.
+
+        The grower asked "what is the expected loss for plant one being stagnant
+        for two weeks" and got a status card. It is a fair question and the data
+        to answer part of it is already recorded - but only part, and the honest
+        answer has to separate the two.
+
+        What CAN be measured: how many days each reading sat below the band its
+        stage required, and by how much. That is arithmetic over the record.
+
+        What CANNOT: yield in grams. Nothing here has ever weighed a harvest, so
+        any percentage would be invented. Growth response to nutrient
+        availability is non-linear, strain-specific and confounded by light,
+        root health and temperature, and a number with no measurement behind it
+        would be exactly the false confidence the rest of this agent refuses to
+        produce."""
+        stage_hist = []
+        readings = [r for r in self._get_readings_for_plant(plant_id)
+                    if self._parse_numeric(r.get("ppm")) is not None]
+        if len(readings) < 2:
+            return {"error": "Not enough readings to characterise a deficit."}
+        readings.sort(key=lambda r: r.get("timestamp") or "")
+
+        germ = self._unwrap_value(self.retrieve_own_memory("germination_date"))
+        if isinstance(germ, str):
+            germ = germ.strip().strip('"')
+
+        periods, current = [], None
+        for r in readings:
+            ppm = self._parse_numeric(r.get("ppm"))
+            stage = (r.get("stage") or "unknown").lower()
+            band = STAGE_TARGETS.get(stage, {}).get("ppm")
+            if not band:
+                continue
+            lo, hi = band
+            below = ppm < lo
+            ts = r.get("timestamp")
+            if below:
+                if current is None:
+                    current = {"from": ts, "to": ts, "stage": stage, "band": [lo, hi],
+                               "min_ppm": ppm, "max_gap": lo - ppm, "readings": 1}
+                else:
+                    current["to"] = ts
+                    current["readings"] += 1
+                    current["min_ppm"] = min(current["min_ppm"], ppm)
+                    current["max_gap"] = max(current["max_gap"], lo - ppm)
+                    if stage != current["stage"]:
+                        current["stage"] = f"{current['stage']}->{stage}"
+                        current["band"] = [lo, hi]
+            elif current:
+                periods.append(current)
+                current = None
+        if current:
+            periods.append(current)
+        if not periods:
+            return {"plant_id": plant_id, "deficit_periods": [],
+                    "finding": "No reading has sat below its stage band."}
+
+        def days(a, b):
+            try:
+                return max(0, (datetime.fromisoformat(b[:19]) - datetime.fromisoformat(a[:19])).days)
+            except Exception:
+                return 0
+
+        total_days = 0
+        for p_ in periods:
+            p_["days"] = days(p_["from"], p_["to"])
+            total_days += p_["days"]
+            p_["from"] = p_["from"][:10]
+            p_["to"] = p_["to"][:10]
+
+        worst = max(periods, key=lambda x: x["days"])
+        strain = self._unwrap_value(self.retrieve_own_memory("current_strain")) or ""
+        auto = "auto" in str(strain).lower()
+
+        consequence = [
+            (f"{total_days} day(s) below target across {len(periods)} period(s). The longest ran "
+             f"{worst['days']} day(s) in {worst['stage']}, bottoming at {worst['min_ppm']:.0f} ppm "
+             f"against a {worst['band'][0]}-{worst['band'][1]} band - {worst['max_gap']:.0f} ppm short."),
+            ("Below-target feeding does not damage the plant, it slows it. Less nitrogen and "
+             "magnesium available means less leaf area built, and less leaf area means less "
+             "photosynthesis for the days that follow, so the shortfall compounds while it lasts."),
+        ]
+        if auto:
+            consequence.append(
+                "This is an autoflower, which is what makes it matter. A photoperiod plant is "
+                "simply vegged longer to make the growth back. An autoflower starts flowering on "
+                "a genetic clock regardless, so the biomass not built during those days is the "
+                "biomass it enters flower with - and final yield tracks the size at flower onset "
+                "more than anything that happens after.")
+        return {
+            "plant_id": plant_id,
+            "total_days_below_target": total_days,
+            "deficit_periods": periods,
+            "worst_period": worst,
+            "consequence": " ".join(consequence),
+            # The line this agent will not cross.
+            "yield_estimate": None,
+            "why_no_number": ("No harvest has ever been weighed here, so there is nothing to "
+                              "calibrate a percentage against. Growth response to nutrient "
+                              "availability is non-linear, strain-specific, and confounded by "
+                              "light, root health and temperature. A figure would be invented, "
+                              "and an invented figure is worse than the measured deficit above, "
+                              "which is real."),
+            "what_would_make_it_answerable": (
+                "Weigh this harvest and record it against this deficit. One data point does not "
+                "make a model, but it is the first one, and after a few grows the agent can say "
+                "what a deficit of this size cost THIS grower on THIS strain - which is worth "
+                "more than any published figure."),
+        }
+
     def acquire_plant(self, plant_id, stage, species="cannabis", strain="",
                       source="", prior_system="", prior_medium="",
                       estimated_age_days=None, note=""):
@@ -3436,6 +3548,10 @@ class GrowAgent(AgentBase):
 
         elif task == "check_target_drift":
             return {"result": self.check_target_drift(
+                args.get("plant_id", "current_plant") if isinstance(args, dict) else "current_plant")}
+
+        elif task == "analyze_deficit":
+            return {"result": self.analyze_deficit(
                 args.get("plant_id", "current_plant") if isinstance(args, dict) else "current_plant")}
 
         elif task == "acquire_plant":

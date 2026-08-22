@@ -255,6 +255,10 @@ class BossAgent(AgentBase):
         ("measurement", r"\bwhat('| i)?s? (my|the) (ppm|ph|ec|tds|temp|temperature|humidity|volume)\b|"
                         r"\b(ppm|ph|ec|temp|humidity) (right now|currently|reading|level)\b|"
                         r"\bhow (much|many) (ppm|ml)\b"),
+        # "What did that cost me" - asked before "feed" so that a question about
+        # the loss from an underfeed is not answered with the current recipe.
+        ("impact", r"\b(loss|lost|cost|impact|damage|set ?back|setback|stagnant|stunted|"
+                   r"behind|deficit|underfed|under-?feed|how bad|make up for|catch up)\b"),
         ("feed", r"\bfeed\b|\bnutrient|\brecipe\b|\bdose\b|\bhow much .*(cal|flora|nute)"),
     )
 
@@ -356,6 +360,19 @@ class BossAgent(AgentBase):
                 bits.append("Scheduled: " + "; ".join(
                     f"{r.get('title')} (due {r.get('target_date')})" for r in rem[:3]) + ".")
             return " ".join(b for b in bits if b) or None
+
+        if intent == "impact":
+            d = peel(self.send_a2a("grow_agent", "analyze_deficit",
+                                   {"plant_id": plant_id}, timeout=90))
+            if d.get("error") or not d.get("deficit_periods"):
+                return d.get("finding") or d.get("error") or None
+            bits = [d.get("consequence") or ""]
+            # The refusal is part of the answer, not a footnote to it.
+            if d.get("why_no_number"):
+                bits.append("No yield figure: " + d["why_no_number"])
+            if d.get("what_would_make_it_answerable"):
+                bits.append(d["what_would_make_it_answerable"])
+            return " ".join(b for b in bits if b)
 
         if intent == "feed":
             rec = peel(self.send_a2a("grow_agent", "recommend_feed",
