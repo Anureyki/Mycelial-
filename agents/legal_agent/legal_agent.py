@@ -6,7 +6,7 @@ import json
 import time
 import uuid
 import requests
-from datetime import datetime
+from datetime import datetime, timedelta
 
 # Add project root
 project_root = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
@@ -85,6 +85,61 @@ PII_PATTERNS = {
     "drivers_license": re.compile(r"\bdriver'?s?\s*licen[sc]e[^\n]{0,15}?([A-Z0-9]{6,12})\b", re.IGNORECASE),
 }
 MEDICAL_KEYWORDS = ("diagnosis", "medical record", "treatment history", "prescription", "therapy session", "health condition")
+
+
+# ---------------------------------------------------------------------------
+# Pre-filing guard. Deterministic, and deliberately not a model call.
+#
+# Derived from what actually happened in 5:25-cv-00500-XR (W.D. Tex.), where a
+# petition was dismissed with prejudice as frivolous and leave to amend denied
+# as futile. The four failure modes below are the ones that decided that case.
+#
+# Regex rather than inference for three reasons: an inference pass costs minutes
+# on this hardware and a guard that is slow gets skipped; a model that catches a
+# fatal pattern 90% of the time is not a guard; and a pattern match can cite the
+# authority that makes it fatal, which teaches rather than merely refuses.
+# ---------------------------------------------------------------------------
+
+# Theories that end a case before the merits are reached. Each carries the
+# authority so the warning explains itself.
+FATAL_THEORY_MARKERS = [
+    (r'\bUCC[- ]?1\b|\bfinancing statement\b',
+     "UCC-1 financing statements asserted as liens against parties or agencies",
+     "Watson v. Tex. State Univ., 829 F. App'x 686 (5th Cir. 2020) - frivolous, appeal "
+     "dismissed and sanction imposed. Dismissed on this basis in 5:25-cv-00500-XR."),
+    (r'\bstrawman\b|\bstraw man\b|\bcestui que vie\b',
+     "strawman / cestui que vie trust theory",
+     "Burleson v. United States, 2022 WL 17732434 (W.D. Tex.) - hallmark of the "
+     "sovereign-citizen theory courts treat as frivolous per se."),
+    (r'\baccepted for value\b|\bA4V\b|\bredemption\b.{0,30}\btreasury\b',
+     "accepted-for-value / redemption theory",
+     "Uniformly rejected; see Wirsche v. Bank of Am., 2013 WL 6564657 (S.D. Tex.) "
+     "(\"These teachings have never worked in a court of law - not a single time.\")"),
+    (r'\bdiplomatic (military )?(administrative )?trustee\b|\bMoorish\b|\bsovereign citizen\b'
+     r'|\bprivate military fiduciary\b',
+     "sovereign / diplomatic capacity claim",
+     "Bey v. Indiana, 847 F.3d 559 (7th Cir. 2017); dismissed on this basis in "
+     "5:25-cv-00500-XR, leave to amend denied as FUTILE."),
+    (r'\bsui juris\b|\bflesh and blood\b|\bnon-?domestic\b|\bfreeman on the land\b',
+     "sovereign-citizen capacity or jurisdiction language",
+     "Berman v. Stephens, 2015 WL 3622694 (N.D. Tex.) (collecting cases)."),
+]
+
+# Captions the Federal Rules actually recognise as asking a court for something.
+RECOGNISED_VEHICLES = (
+    "motion", "petition", "complaint", "objection", "response", "reply", "brief",
+    "notice of appeal", "application", "declaration", "affidavit", "memorandum",
+    "proposed order", "stipulation", "answer", "amended complaint",
+)
+# Captions that ask for nothing and therefore cannot be granted.
+INERT_CAPTIONS = (r'\badvisory to the court\b', r'^\s*advisory\b', r'\bsupplement to\b',
+                  r'\bstatement of\b(?!.*\bclaim\b)')
+
+RR_OBJECTION_DAYS = 14          # 28 U.S.C. 636(b)(1); FRCP 72(b)
+APPEAL_DAYS_US_PARTY = 60       # FRAP 4(a)(1)(B) - 60, not 30, when the US is a party
+RULE59_DAYS = 28                # FRCP 59(e)
+FILING_BURST_WINDOW_DAYS = 7
+FILING_BURST_THRESHOLD = 5
 
 
 class LegalAgent(AgentBase):
@@ -207,6 +262,120 @@ class LegalAgent(AgentBase):
         for h in hits:
             lines.append(f"- [{h['category'] or 'general'}/{h['id']}] {h['snippet']}")
         return "\n".join(lines) + "\n\n"
+
+    def _check_theory(self, text):
+        out = []
+        for pattern, label, authority in FATAL_THEORY_MARKERS:
+            m = re.search(pattern, text, re.I)
+            if m:
+                out.append({"severity": "BLOCK", "check": "vehicle_selection",
+                            "found": m.group(0), "issue": label, "authority": authority,
+                            "why": ("This is not a drafting problem. Courts reach this "
+                                    "conclusion before considering the merits, so any "
+                                    "legitimate underlying claim is dismissed with it.")})
+        return out
+
+    def _check_caption(self, text):
+        head = "\n".join(text.strip().splitlines()[:12]).lower()
+        for pattern in INERT_CAPTIONS:
+            if re.search(pattern, head, re.I):
+                return [{"severity": "BLOCK", "check": "filing_discipline",
+                         "issue": "caption is not a vehicle that requests relief",
+                         "authority": ("No Federal Rule authorises an 'Advisory to the Court'. "
+                                       "56 such filings over 700+ pages in 5:25-cv-00500-XR were "
+                                       "denied wholesale and became the basis for a Rule 11 and "
+                                       "pre-filing-injunction warning."),
+                         "why": ("A court cannot grant a document that asks for nothing. "
+                                 "Re-caption as a motion stating the relief sought.")}]
+        if not any(v in head for v in RECOGNISED_VEHICLES):
+            return [{"severity": "WARN", "check": "filing_discipline",
+                     "issue": "no recognised vehicle found in the caption",
+                     "authority": "FRCP 7(b) - a request for a court order must be made by motion.",
+                     "why": "State plainly what the document is and what it asks the court to do."}]
+        return []
+
+    def _check_citations(self, text):
+        out = []
+        # 28 U.S.C. 1651 is not a jurisdictional grant - the specific error on this docket.
+        if re.search(r'1651', text) and not re.search(r'\b1361\b', text):
+            out.append({"severity": "WARN", "check": "citation_accuracy",
+                        "issue": "relies on 28 U.S.C. 1651 (All Writs Act) as a basis for relief",
+                        "authority": ("Clinton v. Goldsmith, 526 U.S. 529 (1999) - the All Writs "
+                                      "Act is not an independent grant of jurisdiction. Mandamus "
+                                      "against a federal officer runs under 28 U.S.C. 1361 and "
+                                      "requires a clear nondiscretionary duty."),
+                        "why": "Confirm the statute invoked actually confers the jurisdiction asked for."})
+        cites = re.findall(r'\b\d+\s+U\.?\s?S\.?\s?C\.?\s*(?:§+\s*)?\d+[a-zA-Z0-9\-]*', text)
+        if cites:
+            out.append({"severity": "VERIFY", "check": "citation_accuracy",
+                        "issue": f"{len(cites)} statutory citation(s) to verify",
+                        "citations": sorted(set(c.strip() for c in cites))[:12],
+                        "authority": ("Both orders in 5:25-cv-00500-XR footnote that cited statutes "
+                                      "were not at the U.S. Code sections given."),
+                        "why": "A court that catches a miscitation discounts the whole filing."})
+        return out
+
+    def _check_deadlines(self, text, matter):
+        """Deadline exposure. Reports days remaining; never guesses a date it
+        was not given."""
+        out = []
+        if re.search(r'report and recommendation|\bR&R\b', text, re.I) and \
+           not re.search(r'\bobjection', text, re.I):
+            out.append({"severity": "BLOCK", "check": "deadline",
+                        "issue": "responds to a Report and Recommendation but is not captioned as objections",
+                        "authority": ("28 U.S.C. 636(b)(1); FRCP 72(b) - 14 days for SPECIFIC "
+                                      "WRITTEN objections. In 5:25-cv-00500-XR eleven filings "
+                                      "landed in that window and the court held none were "
+                                      "objections, so it conducted no de novo review. Under "
+                                      "Douglass, 79 F.3d 1415 (5th Cir. en banc), appellate "
+                                      "review of unobjected findings is then barred but for "
+                                      "plain error."),
+                        "why": ("Caption it OBJECTIONS TO REPORT AND RECOMMENDATION and identify "
+                                "each finding objected to and the basis for the objection.")})
+        rr = (matter or {}).get("rr_filed_date")
+        if rr:
+            try:
+                due = datetime.fromisoformat(rr) + timedelta(days=RR_OBJECTION_DAYS)
+                left = (due - datetime.now()).days
+                out.append({"severity": "BLOCK" if left < 0 else ("WARN" if left <= 5 else "INFO"),
+                            "check": "deadline",
+                            "issue": (f"objections due {due.date().isoformat()} "
+                                      f"({'PASSED' if left < 0 else str(left) + ' days left'})"),
+                            "authority": "28 U.S.C. 636(b)(1); FRCP 72(b)",
+                            "why": "Fourteen days from service of the R&R."})
+            except Exception:
+                pass
+        return out
+
+    def _check_volume(self, matter_id):
+        if not matter_id:
+            return []
+        try:
+            filings = self._get_layer_entries("filing_index", matter_id)
+        except Exception:
+            return []
+        if not filings:
+            return []
+        cutoff = datetime.now() - timedelta(days=FILING_BURST_WINDOW_DAYS)
+        recent = [f for f in filings
+                  if (lambda t: t and t > cutoff)(self._safe_ts(f.get("timestamp")))]
+        if len(recent) >= FILING_BURST_THRESHOLD:
+            return [{"severity": "WARN", "check": "filing_discipline",
+                     "issue": f"{len(recent)} filings in the last {FILING_BURST_WINDOW_DAYS} days",
+                     "authority": ("FRCP 11; In re Stone, 986 F.2d 898 (5th Cir. 1993); Baum v. "
+                                   "Blue Moon Ventures, 513 F.3d 181 (5th Cir. 2008). A "
+                                   "pre-filing-injunction warning is already on this principal's "
+                                   "record from 5:25-cv-00500-XR."),
+                     "why": ("Volume was what drew the sanctions discussion in the prior case. "
+                             "One properly captioned motion beats several advisories.")}]
+        return []
+
+    @staticmethod
+    def _safe_ts(value):
+        try:
+            return datetime.fromisoformat(value)
+        except Exception:
+            return None
 
     def _capability_for_task(self, requirements="reasoning"):
         """Map this agent's internal notion of task weight onto a routed
@@ -1025,6 +1194,43 @@ class LegalAgent(AgentBase):
                 "filing_layer": self._get_layer_entries("filing_index", matter_id),
                 "disclaimer": DISCLAIMER,
             }
+
+        elif task == "check_filing":
+            # Deterministic pre-filing guard. Runs in milliseconds without a
+            # matter, because a check that needs setup and minutes gets skipped
+            # at exactly the moment it is most needed.
+            draft_text = args.get("draft_text") if isinstance(args, dict) else (args[0] if args else None)
+            matter_id = args.get("matter_id") if isinstance(args, dict) else None
+            if not draft_text:
+                return {"error": "Usage: check_filing {draft_text, [matter_id]}", "disclaimer": DISCLAIMER}
+            matter = self._load_record(matter_id) if matter_id else None
+
+            findings = (self._check_theory(draft_text)
+                        + self._check_caption(draft_text)
+                        + self._check_deadlines(draft_text, matter)
+                        + self._check_citations(draft_text)
+                        + self._check_volume(matter_id))
+            blocks = [f for f in findings if f["severity"] == "BLOCK"]
+            warns = [f for f in findings if f["severity"] == "WARN"]
+            verdict = "DO NOT FILE" if blocks else ("REVIEW BEFORE FILING" if warns else "no blocking issues found")
+            result = {
+                "verdict": verdict,
+                "blocking": len(blocks), "warnings": len(warns),
+                "findings": findings,
+                # Stated plainly so a clean result is not read as approval. This
+                # checks four documented failure modes, not the merits.
+                "scope": ("Checks the four failure modes that decided 5:25-cv-00500-XR: "
+                          "fatal legal theory, filing vehicle, the 14-day R&R objection "
+                          "window, and citation accuracy. A clean result means those four "
+                          "were not triggered - it is not a view on whether the filing "
+                          "should succeed."),
+                "disclaimer": DISCLAIMER,
+            }
+            self._write_lesson(
+                f"check_filing run: {verdict} ({len(blocks)} blocking, {len(warns)} warnings)",
+                strategy_type="pre_filing_check", case_id=matter_id or "", category="procedural"
+            ) if blocks else None
+            return result
 
         elif task == "review_filing_draft":
             matter_id = args.get("matter_id") if isinstance(args, dict) else None
