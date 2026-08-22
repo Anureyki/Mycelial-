@@ -496,6 +496,30 @@ SPECIES_ALIASES = {
 }
 
 
+# Target ranges per stage. Hoisted out of check_stage, which only ever answered
+# "what should this stage be?" when asked - it never compared the answer against
+# what was actually in the reservoir.
+#
+# That gap cost a real grow. Days 4 to 23 sat at 366-404 ppm while the plant
+# moved through early_veg into veg, which wants 600-900. Every number needed to
+# catch it was already recorded: the stage, the band, the reading. Nothing put
+# them together and said so, and a first-time grower had no way to know the
+# target had moved out from under a recipe that had not changed.
+STAGE_TARGETS = {
+    "germination": {"ph": (5.8, 6.2), "ppm": (100, 300), "ec": (0.2, 0.6)},
+    "seedling":    {"ph": (5.8, 6.0), "ppm": (200, 400), "ec": (0.4, 0.8)},
+    "early_veg":   {"ph": (5.8, 6.2), "ppm": (400, 600), "ec": (0.8, 1.2)},
+    "veg":         {"ph": (5.8, 6.2), "ppm": (600, 900), "ec": (1.2, 1.8)},
+    "flower":      {"ph": (5.8, 6.2), "ppm": (800, 1200), "ec": (1.6, 2.4)},
+}
+
+# How long a reading may sit outside its band before this stops being a note and
+# becomes the headline. Below-target is the one that compounds silently: the
+# plant does not wilt, it just builds less, and on an autoflower that time is
+# never recovered because the clock does not wait.
+DRIFT_PATIENCE_DAYS = 3
+
+
 class GrowAgent(AgentBase):
     def __init__(self):
         super().__init__(
@@ -1078,7 +1102,9 @@ class GrowAgent(AgentBase):
             "evidence_kind": "correction",
             "corrects": f"current_stage={stage}",
         }, "grow_agent")
+        target_shift = self.stage_target_change(stage, candidate)
         return {"assessment": f"transitioned '{stage}' -> '{candidate}'", "stage": candidate,
+                **({"target_change": target_shift} if target_shift else {}),
                 "was": stage, "days": age, "evidence": evidence, "acted": True,
                 "note": ("Moved on age because the old stage was impossible. Confirm with "
                          "verify_growth_stage if the morphology says otherwise. Flower is never "
@@ -1395,7 +1421,18 @@ class GrowAgent(AgentBase):
                     return verdict, "llm"
         return "warning", "llm_unavailable"
 
+    _learned_loaded = False
+
     def _profile_for(self, species):
+        if not self._learned_loaded:
+            self.__class__._learned_loaded = True
+            try:
+                self._load_learned_profiles()
+            except Exception as e:
+                self.log(f"could not restore learned profiles: {e}")
+        return self.__profile_for(species)
+
+    def __profile_for(self, species):
         """Species profile, or None. Falls back through the alias table so
         "Aloe vera", "San Pedro" and "Trichocereus" all resolve."""
         if not species:
@@ -1477,6 +1514,225 @@ class GrowAgent(AgentBase):
                 found.append(sign)
         return found
 
+    def learn_species_profile(self, species, plant_id=None):
+        """Look a species up and build a care profile for it, rather than
+        needing one hand-written in advance.
+
+        SPECIES_PROFILES was authored by hand, which does not scale and does not
+        need to: this agent already has search. An unfamiliar plant should send
+        it to look, not stop it.
+
+        What comes back is REFERENCE and is labelled as such. It is generic
+        advice written by strangers about a plant that is not this one, so it
+        ranks below anything actually observed here - the same rule as a product
+        label losing to a meter reading. A learned profile carries its queries
+        and its source so the provenance travels with it, and never silently
+        becomes indistinguishable from something measured."""
+        if not species:
+            return {"error": "No species given"}
+        sp = str(species).strip()
+        existing = self._profile_for(sp)
+        if existing and not existing.get("learned"):
+            return {"species": sp, "already_known": True,
+                    "profile": existing.get("common_name"),
+                    "note": "A hand-written profile already covers this species."}
+
+        queries = [
+            f"{sp} plant care watering light soil requirements",
+            f"{sp} overwatering vs underwatering signs symptoms",
+            f"{sp} temperature range minimum tolerance",
+        ]
+        findings = []
+        for q in queries:
+            try:
+                r = self.search_public(q)
+            except Exception as e:
+                self.log(f"species lookup failed for '{q}': {e}")
+                continue
+            findings.append({"query": q, "result": json.dumps(r)[:1500]})
+        if not findings:
+            return {"species": sp, "learned": False,
+                    "error": "Search returned nothing - cannot build a profile."}
+
+        prompt = (
+            "You are recording plant care facts for a reference table. From the search "
+            "results below, state ONLY what is supported by them. Return a single JSON "
+            "object with these keys and nothing else:\n"
+            '{"common_name":"","group":"","water":"","light":"","soil":"",'
+            '"kills_it":"","temp_f_min":0,"temp_f_max":0,"note":""}\n'
+            '"group" is one of: succulent, cactus, foliage, grass, tree, herb, other.\n'
+            '"kills_it" is whichever of overwatered or underwatered is the more common '
+            "cause of death for this plant, or an empty string if that is not clear.\n"
+            "Leave any field empty rather than guessing.\n\n"
+            f"Plant: {sp}\n\nSearch results:\n" +
+            "\n".join(f"[{f['query']}]\n{f['result']}" for f in findings) +
+            "\n\nJSON:"
+        )
+        raw = self._call_inference_capability(prompt, capability="reasoning", timeout=240)
+        parsed = None
+        if raw:
+            try:
+                m = re.search(r'\{.*\}', raw, re.DOTALL)
+                parsed = json.loads(m.group(0)) if m else None
+            except Exception:
+                parsed = None
+        if not isinstance(parsed, dict) or not parsed.get("water"):
+            return {"species": sp, "learned": False,
+                    "searched": [f["query"] for f in findings],
+                    "error": ("Could not extract a usable profile from the results. "
+                              "Better to have none than an invented one.")}
+
+        profile = {
+            "common_name": parsed.get("common_name") or sp.title(),
+            "group": parsed.get("group") or "other",
+            "water": parsed.get("water", ""),
+            "light": parsed.get("light", ""),
+            "soil": parsed.get("soil", ""),
+            "kills_it": parsed.get("kills_it") or "",
+            "note": parsed.get("note", ""),
+            # Provenance travels with it. This is reference, not observation.
+            "learned": True,
+            "source": "web search, synthesised - REFERENCE only, outranked by anything observed here",
+            "learned_at": datetime.now().isoformat(),
+            "queries": [f["query"] for f in findings],
+        }
+        try:
+            lo, hi = int(parsed.get("temp_f_min") or 0), int(parsed.get("temp_f_max") or 0)
+            if 0 < lo < hi < 130:
+                profile["temp_f_ok"] = (lo, hi)
+        except Exception:
+            pass
+
+        key = sp.lower()
+        SPECIES_PROFILES[key] = profile
+        SPECIES_ALIASES[key] = key
+        self.store_own_memory(f"species_profile_{key.replace(' ','_')}", json.dumps(profile))
+        idx = self._unwrap_value(self.retrieve_own_memory("species_profile_index"))
+        try:
+            idx = json.loads(idx) if idx else []
+        except Exception:
+            idx = []
+        if key not in idx:
+            idx.append(key)
+            self.store_own_memory("species_profile_index", json.dumps(idx))
+        self.log(f"learned a care profile for {sp} from search")
+        return {"species": sp, "learned": True, "profile": profile,
+                "note": ("Stored as reference. Generic advice about a plant that is not this "
+                         "one - anything observed here outranks it.")}
+
+    def _load_learned_profiles(self):
+        """Bring learned profiles back after a restart."""
+        idx = self._unwrap_value(self.retrieve_own_memory("species_profile_index"))
+        try:
+            idx = json.loads(idx) if idx else []
+        except Exception:
+            return 0
+        n = 0
+        for key in idx:
+            raw = self._unwrap_value(self.retrieve_own_memory(f"species_profile_{key.replace(' ','_')}"))
+            if not raw:
+                continue
+            try:
+                SPECIES_PROFILES[key] = json.loads(raw)
+                SPECIES_ALIASES[key] = key
+                n += 1
+            except Exception:
+                continue
+        if n:
+            self.log(f"restored {n} learned species profile(s)")
+        return n
+
+    def check_target_drift(self, plant_id="current_plant"):
+        """Is the reservoir where this stage needs it to be?
+
+        Answers the question the grower actually needed answered on day 15 -
+        "you are past early veg now, the target moved, your recipe did not" -
+        rather than the retrospective one."""
+        stage = self._unwrap_value(self.retrieve_own_memory("current_stage")) or "unknown"
+        if plant_id != "current_plant":
+            plant = next((p for p in self._get_all_plants()
+                          if p.get("plant_id") == plant_id), None)
+            if not plant:
+                return {"error": f"Unknown plant_id: {plant_id}"}
+            stage = plant.get("stage", "unknown")
+            if (self._get_species_for_plant(plant_id) or "").lower() != "cannabis":
+                return {"applicable": False,
+                        "reason": "Target bands here are for cannabis in a reservoir."}
+        target = STAGE_TARGETS.get(str(stage).lower())
+        if not target:
+            return {"applicable": False, "stage": stage,
+                    "reason": f"No target band defined for stage '{stage}'."}
+
+        readings = [r for r in self._get_readings_for_plant(plant_id)
+                    if self._parse_numeric(r.get("ppm")) is not None]
+        if not readings:
+            return {"applicable": False, "stage": stage, "reason": "No ppm readings yet."}
+        readings.sort(key=lambda r: r.get("timestamp") or "")
+        latest = readings[-1]
+        ppm = self._parse_numeric(latest.get("ppm"))
+        lo, hi = target["ppm"]
+
+        # How long has it been out of band, in the SAME direction?
+        streak, first_out = 0, None
+        for r in reversed(readings):
+            v = self._parse_numeric(r.get("ppm"))
+            if v is None:
+                continue
+            below, above = v < lo, v > hi
+            if (ppm < lo and below) or (ppm > hi and above):
+                streak += 1
+                first_out = r.get("timestamp")
+            else:
+                break
+        days_out = 0
+        if first_out:
+            try:
+                days_out = (datetime.now() - datetime.fromisoformat(first_out[:19])).days
+            except Exception:
+                days_out = 0
+
+        if lo <= ppm <= hi:
+            return {"applicable": True, "stage": stage, "ppm": ppm, "target": [lo, hi],
+                    "status": "in_band",
+                    "message": f"{ppm:.0f} ppm is inside the {lo}-{hi} band for {stage}."}
+
+        direction = "below" if ppm < lo else "above"
+        gap = (lo - ppm) if ppm < lo else (ppm - hi)
+        urgent = days_out >= DRIFT_PATIENCE_DAYS or streak >= 3
+        msg = (f"{ppm:.0f} ppm is {gap:.0f} {direction} the {lo}-{hi} band that {stage} needs"
+               + (f", and has been for {days_out} day(s) across {streak} reading(s)."
+                  if days_out or streak > 1 else "."))
+        if direction == "below":
+            action = (f"Raise the feed toward {lo}-{hi} ppm. Below-target does not look like a "
+                      "problem day to day - the plant does not wilt, it just builds less - and "
+                      "on an autoflower that growth is not recovered later, because the clock "
+                      "does not wait for it.")
+        else:
+            action = (f"Bring it down toward {lo}-{hi} ppm, by dilution rather than by waiting "
+                      "for uptake. Over-strength shows up as tip burn and root damage.")
+        return {"applicable": True, "stage": stage, "ppm": ppm, "target": [lo, hi],
+                "status": f"{direction}_target", "gap_ppm": round(gap),
+                "days_out_of_band": days_out, "readings_out_of_band": streak,
+                "urgent": urgent, "message": msg, "action": action}
+
+    def stage_target_change(self, old_stage, new_stage):
+        """What a stage transition does to the target. Said at the moment the
+        stage changes, because that is when the recipe needs to move and when a
+        first-time grower has no reason to know it."""
+        a, b = STAGE_TARGETS.get(str(old_stage).lower()), STAGE_TARGETS.get(str(new_stage).lower())
+        if not b:
+            return None
+        if not a:
+            return {"new_target": list(b["ppm"]),
+                    "message": f"{new_stage} wants {b['ppm'][0]}-{b['ppm'][1]} ppm."}
+        if a["ppm"] == b["ppm"]:
+            return None
+        return {"old_target": list(a["ppm"]), "new_target": list(b["ppm"]),
+                "message": (f"Target moved with the stage: {old_stage} wanted "
+                            f"{a['ppm'][0]}-{a['ppm'][1]} ppm, {new_stage} wants "
+                            f"{b['ppm'][0]}-{b['ppm'][1]}. The recipe has to move with it - "
+                            "a dose that was right last stage is under-feeding in this one.")}
+
     def temp_verdict(self, species, temp_f=None, temp_c=None):
         """Whether temperature can explain a symptom, stated either way.
 
@@ -1514,6 +1770,14 @@ class GrowAgent(AgentBase):
             species = self._get_species_for_plant(plant_id)
         profile = self._profile_for(species)
         signs = self._care_signs_in(description)
+
+        if not profile and species:
+            # Do not stop at "I have no profile for this". The agent has search;
+            # an unfamiliar plant is a cue to go and look, not a dead end.
+            self.log(f"no profile for {species} - looking it up")
+            learned = self.learn_species_profile(species)
+            if learned.get("learned"):
+                profile = self._profile_for(species)
 
         if not profile:
             return {
@@ -1923,6 +2187,15 @@ class GrowAgent(AgentBase):
                 index.append(reading_key)
             self.store_own_memory("reading_index", json.dumps(index))
             out = {"result": "Reading logged", "reading": reading}
+            # Every reading is checked against what THIS stage needs. Reporting a
+            # number without saying whether it is the right number is what let a
+            # grow sit 200ppm under target for nineteen days.
+            try:
+                drift = self.check_target_drift(reading.get("plant_id", "current_plant"))
+                if drift.get("applicable") and drift.get("status") != "in_band":
+                    out["off_target"] = drift
+            except Exception as e:
+                self.log(f"target drift check failed: {e}")
             # Surfaced on the reading itself so a stage correction is visible at
             # the moment it happens, not only to whoever thinks to ask later.
             if stage_check and stage_check.get("acted"):
@@ -2879,6 +3152,14 @@ class GrowAgent(AgentBase):
             self.store_own_memory("stage_eval_index", json.dumps(index))
 
             return {"result": recommendation, "record": record}
+
+        elif task == "learn_species_profile":
+            return {"result": self.learn_species_profile(
+                args.get("species"), args.get("plant_id"))}
+
+        elif task == "check_target_drift":
+            return {"result": self.check_target_drift(
+                args.get("plant_id", "current_plant") if isinstance(args, dict) else "current_plant")}
 
         elif task == "assess_care":
             desc = args.get("description") or args.get("notes") or args.get("text") or ""
