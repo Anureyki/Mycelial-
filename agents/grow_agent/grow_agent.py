@@ -254,6 +254,7 @@ class GrowAgent(AgentBase):
                 "assess_plant", "validate_environment_targets",
                 "log_training_event", "recommend_feed", "plan_system_transition",
                 "set_grow_system", "get_grow_system", "get_nutrient_history",
+                "set_inventory", "get_inventory",
                 "check_in", "analyze_consumption", "adjust_to_target_ppm",
                 "training_quest_status", "source_training_candidates",
                 "review_training_candidate", "list_training_candidates",
@@ -372,6 +373,16 @@ class GrowAgent(AgentBase):
         ctx["evidence_kind"] = kind or ("correction" if (ctx["corrects"] or ctx["supersedes"]) else "event")
         ctx["source"] = args.get("source", "user")
         return {k: v for k, v in ctx.items() if v not in (None, [], "")}
+
+    def _load_inventory_index(self):
+        raw = self._unwrap_value(self.retrieve_own_memory("inventory_index"))
+        if not raw:
+            return []
+        try:
+            idx = json.loads(raw)
+            return idx if isinstance(idx, list) else []
+        except Exception:
+            return []
 
     def _load_nutrient_history_index(self):
         raw = self._unwrap_value(self.retrieve_own_memory("nutrient_change_index"))
@@ -2132,6 +2143,50 @@ class GrowAgent(AgentBase):
             recommendation["reservoir_liters"] = current.get("reservoir_liters")
             recommendation["regrowth_adjustment"] = regrowth
             return {"result": recommendation}
+
+        elif task == "set_inventory":
+            # What the grower actually has on hand. Product label guidance is
+            # recorded as REFERENCE, never as the operating rate: manufacturer
+            # charts are written to sell product and assume generic conditions -
+            # they do not know the source water carries no minerals, what the
+            # reservoir volume is, or how this plant responded last week.
+            # Observed plant response and measured readings are the authority.
+            item_id = args.get("item_id") or (args.get("name") or "").lower().replace(" ", "_")
+            if not item_id:
+                return {"error": "Missing item_id or name"}
+            record = {
+                "item_id": item_id,
+                "name": args.get("name", item_id),
+                "category": args.get("category", "nutrient"),
+                "analysis": args.get("analysis", {}),
+                "label_guidance": args.get("label_guidance", {}),
+                "label_basis": args.get("label_basis"),
+                "on_hand": args.get("on_hand", True),
+                "notes": args.get("notes", ""),
+                "updated": datetime.now().isoformat(),
+            }
+            self.store_own_memory(f"inventory_{item_id}", json.dumps(record))
+            index = self._load_inventory_index()
+            if item_id not in index:
+                index.append(item_id)
+            self.store_own_memory("inventory_index", json.dumps(index))
+            return {"result": f"Inventory item recorded: {record['name']}", "item": record}
+
+        elif task == "get_inventory":
+            items = []
+            for iid in self._load_inventory_index():
+                raw = self._unwrap_value(self.retrieve_own_memory(f"inventory_{iid}"))
+                if not raw:
+                    continue
+                try:
+                    items.append(json.loads(raw))
+                except Exception:
+                    pass
+            return {"result": {
+                "items": items,
+                "note": ("Label guidance is reference only. Operating rates come from measured "
+                         "readings and observed plant response - see nutrient history."),
+            }}
 
         elif task == "set_grow_system":
             # The environment the plant is operating in. Stored per plant so a
