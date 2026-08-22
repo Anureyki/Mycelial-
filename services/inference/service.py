@@ -193,7 +193,7 @@ def clean_output(text):
             cleaned.append(line)
     return '\n'.join(cleaned).strip()
 
-def run_ollama_inference(model, prompt):
+def run_ollama_inference(model, prompt, temperature=None):
     """Text inference over Ollama's HTTP API.
 
     Previously this shelled out to `ollama run`, which spawns a process per call
@@ -206,7 +206,9 @@ def run_ollama_inference(model, prompt):
         resp = requests.post(
             f"{OLLAMA_URL}/api/generate",
             json={"model": model, "prompt": prompt,
-                  "stream": False, "keep_alive": OLLAMA_KEEP_ALIVE},
+                  "stream": False, "keep_alive": OLLAMA_KEEP_ALIVE,
+                  **({"options": {"temperature": temperature}}
+                     if temperature is not None else {})},
             timeout=TIMEOUT,
         )
         latency = int((time.time() - start_time) * 1000)
@@ -266,7 +268,7 @@ def run_claude_inference(model, prompt, image_path=None):
         "timestamp": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())
     }
 
-def run_inference(model, prompt, image_path=None, capability=None):
+def run_inference(model, prompt, image_path=None, capability=None, temperature=None):
     """Route to a backend. Prefer capability-based routing ('vision',
     'reasoning') so callers never name a vendor - an explicit `model` still
     works and wins, for callers that genuinely need one specific brain."""
@@ -286,7 +288,7 @@ def run_inference(model, prompt, image_path=None, capability=None):
         provider, model = entry.get("provider"), entry.get("model")
         if provider == "ollama":
             return run_ollama_vision(model, prompt, image_path) if image_path \
-                else run_ollama_inference(model, prompt)
+                else run_ollama_inference(model, prompt, temperature=temperature)
         return run_claude_inference(model, prompt, image_path=image_path)
 
     model = model or DEFAULT_MODEL
@@ -294,7 +296,7 @@ def run_inference(model, prompt, image_path=None, capability=None):
         return run_claude_inference(model, prompt, image_path=image_path)
     if image_path:
         return run_ollama_vision(model, prompt, image_path)
-    return run_ollama_inference(model, prompt)
+    return run_ollama_inference(model, prompt, temperature=temperature)
 
 @app.route("/health", methods=["GET"])
 def health():
@@ -309,10 +311,18 @@ def reason_endpoint():
     # default would silently override routing and defeat the whole point.
     model = data.get("model") or (None if capability else DEFAULT_MODEL)
     image_path = data.get("image_path")
+    # Structured extraction should be greedy, not sampled. At Ollama's default
+    # temperature the same document yields a different extraction each run -
+    # measured on one Supreme Court opinion, the same prompt filled 7, 9 and 11
+    # of 29 fields across runs, and disagreed with itself on WHICH party was the
+    # custodian. An evidence system cannot record an answer that changes when
+    # you ask again, so callers doing extraction pass temperature=0.
+    temperature = data.get("temperature")
     if not prompt:
         return jsonify({"success": False, "error": "missing_prompt", "message": "No prompt provided"}), 400
 
-    result = run_inference(model, prompt, image_path=image_path, capability=capability)
+    result = run_inference(model, prompt, image_path=image_path, capability=capability,
+                           temperature=temperature)
     return jsonify(result)
 
 

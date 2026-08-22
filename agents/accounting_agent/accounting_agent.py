@@ -110,8 +110,9 @@ class AccountingAgent(AgentBase):
         try:
             resp = requests.post(
                 INFERENCE_SERVICE_URL,
-                json=({"prompt": prompt, "model": model_name} if model_name
-                      else {"prompt": prompt, "capability": capability}),
+                json=dict({"prompt": prompt, "model": model_name} if model_name
+                          else {"prompt": prompt, "capability": capability},
+                          **({"temperature": temperature} if temperature is not None else {})),
                 timeout=timeout
             )
             if resp.status_code == 200:
@@ -131,7 +132,8 @@ class AccountingAgent(AgentBase):
             try:
                 resp = requests.post(
                     INFERENCE_SERVICE_URL,
-                    json={"prompt": prompt, "capability": fallback_cap},
+                    json=dict({"prompt": prompt, "capability": fallback_cap},
+                              **({"temperature": temperature} if temperature is not None else {})),
                     timeout=FALLBACK_TIMEOUT
                 )
                 if resp.status_code == 200:

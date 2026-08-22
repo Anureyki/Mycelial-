@@ -118,6 +118,21 @@ class LegalAgent(AgentBase):
     def _extract_citations(self, text):
         return list({m.group(0).strip() for m in STATUTE_CITATION_RE.finditer(text)})
 
+    # Documents that announce themselves as placeholders are not reference
+    # material. The seeded dictionary/statutes files say "[PLACEHOLDER - not from
+    # Black's Law Dictionary...]" and then define custodian and beneficiary with
+    # invented meanings; the CAG pipeline was faithfully retrieving them and
+    # presenting them to the model under the heading "Relevant cached reference
+    # material", i.e. as authority. Those are two of the fields that came back
+    # wrong on a real opinion. Filtering here rather than deleting the files
+    # keeps them available for testing the retrieval pipeline itself.
+    PLACEHOLDER_MARKERS = ("[PLACEHOLDER", "placeholder - not", "this placeholder",
+                           "replace with a properly licensed", "sample_placeholder")
+
+    def _is_placeholder(self, hit):
+        blob = f"{hit.get('id','')} {hit.get('snippet','')}".lower()
+        return any(m.lower() in blob for m in self.PLACEHOLDER_MARKERS)
+
     def _cache_context_for(self, text, top_k=3):
         hits = self.query_cache(text[:1000], top_k=top_k)
         for citation in self._extract_citations(text):
@@ -126,7 +141,11 @@ class LegalAgent(AgentBase):
         for h in hits:
             if h["id"] not in best or h["score"] > best[h["id"]]["score"]:
                 best[h["id"]] = h
-        return sorted(best.values(), key=lambda h: h["score"], reverse=True)[:top_k]
+        kept = [h for h in best.values() if not self._is_placeholder(h)]
+        dropped = len(best) - len(kept)
+        if dropped:
+            self.log(f"CAG: dropped {dropped} placeholder document(s) from context")
+        return sorted(kept, key=lambda h: h["score"], reverse=True)[:top_k]
 
     def _format_context_block(self, hits):
         if not hits:
@@ -142,7 +161,7 @@ class LegalAgent(AgentBase):
         return CAPABILITY_FOR.get(requirements, "reasoning")
 
     def _call_inference(self, prompt, model_name=None, timeout=None, capability=None,
-                        status=None):
+                        status=None, temperature=None):
         """Returns the model's text, or "" if it never answered.
 
         `status` is an optional dict the caller passes in to learn WHY it got "".
@@ -159,8 +178,9 @@ class LegalAgent(AgentBase):
         try:
             resp = requests.post(
                 INFERENCE_SERVICE_URL,
-                json=({"prompt": prompt, "model": model_name} if model_name
-                      else {"prompt": prompt, "capability": capability}),
+                json=dict({"prompt": prompt, "model": model_name} if model_name
+                          else {"prompt": prompt, "capability": capability},
+                          **({"temperature": temperature} if temperature is not None else {})),
                 timeout=timeout
             )
             if resp.status_code == 200:
@@ -186,7 +206,8 @@ class LegalAgent(AgentBase):
             try:
                 resp = requests.post(
                     INFERENCE_SERVICE_URL,
-                    json={"prompt": prompt, "capability": fallback_cap},
+                    json=dict({"prompt": prompt, "capability": fallback_cap},
+                              **({"temperature": temperature} if temperature is not None else {})),
                     timeout=FALLBACK_TIMEOUT
                 )
                 if resp.status_code == 200:
@@ -269,7 +290,7 @@ class LegalAgent(AgentBase):
             f"Text:\n\"\"\"\n{contract_text}\n\"\"\"\n\nJSON:"
         )
         status = {}
-        raw = self._call_inference(prompt, model_name=model, status=status)
+        raw = self._call_inference(prompt, model_name=model, status=status, temperature=0)
         parsed, parse_error = self._safe_parse_json(raw)
         # An empty return means the model never answered - a timeout on this
         # hardware, most often. Reporting that as parse_error blames the model
@@ -312,7 +333,7 @@ class LegalAgent(AgentBase):
             f"Case text:\n\"\"\"\n{case_text[:8000]}\n\"\"\"\n\nJSON:"
         )
         status = {}
-        raw = self._call_inference(prompt, model_name=model, status=status)
+        raw = self._call_inference(prompt, model_name=model, status=status, temperature=0)
         parsed, parse_error = self._safe_parse_json(raw)
         # An empty return means the model never answered - a timeout on this
         # hardware, most often. Reporting that as parse_error blames the model

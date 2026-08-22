@@ -96,7 +96,7 @@ class TrustAgent(AgentBase):
         return CAPABILITY_FOR.get(requirements, "reasoning")
 
     def _call_inference(self, prompt, model_name=None, timeout=None, capability=None,
-                        status=None):
+                        status=None, temperature=None):
         """Returns the model's text, or "" if it never answered.
 
         `status` is an optional dict the caller passes in to learn WHY it got "".
@@ -113,8 +113,9 @@ class TrustAgent(AgentBase):
         try:
             resp = requests.post(
                 INFERENCE_SERVICE_URL,
-                json=({"prompt": prompt, "model": model_name} if model_name
-                      else {"prompt": prompt, "capability": capability}),
+                json=dict({"prompt": prompt, "model": model_name} if model_name
+                          else {"prompt": prompt, "capability": capability},
+                          **({"temperature": temperature} if temperature is not None else {})),
                 timeout=timeout
             )
             if resp.status_code == 200:
@@ -134,7 +135,8 @@ class TrustAgent(AgentBase):
             try:
                 resp = requests.post(
                     INFERENCE_SERVICE_URL,
-                    json={"prompt": prompt, "capability": fallback_cap},
+                    json=dict({"prompt": prompt, "capability": fallback_cap},
+                              **({"temperature": temperature} if temperature is not None else {})),
                     timeout=FALLBACK_TIMEOUT
                 )
                 if resp.status_code == 200:
