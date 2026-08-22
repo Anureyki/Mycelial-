@@ -2,16 +2,37 @@
 import os, json, sqlite3, uuid
 from datetime import datetime
 from flask import Flask, request, jsonify
+from contextlib import contextmanager
 
 app = Flask(__name__)
 BASE = os.path.expanduser("~/mycelial")
 DB_PATH = os.path.join(BASE, "state", "memory.db")
 os.makedirs(os.path.dirname(DB_PATH), exist_ok=True)
 
+@contextmanager
 def get_db():
+    """Connection that is actually CLOSED when the block ends.
+
+    Every call site says `with get_db() as conn:`, which reads like it closes
+    the connection and does not - `with` on a sqlite3 Connection manages the
+    TRANSACTION, committing or rolling back, and leaves the handle open. So one
+    file descriptor leaked per request until the process hit its 1024 limit,
+    after which the Memory Service could no longer open its own database and the
+    whole platform went blind: every agent lost its state while the data sat
+    intact on disk. Found at 1,019 open handles to memory.db.
+
+    A generator-based context manager keeps every existing call site working and
+    closes in a finally, so the handle is released even when a query raises."""
     conn = sqlite3.connect(DB_PATH)
     conn.row_factory = sqlite3.Row
-    return conn
+    try:
+        yield conn
+        conn.commit()
+    except Exception:
+        conn.rollback()
+        raise
+    finally:
+        conn.close()
 
 def init_db():
     with get_db() as conn:

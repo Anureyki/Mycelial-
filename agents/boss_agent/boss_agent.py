@@ -184,39 +184,74 @@ class BossAgent(AgentBase):
         c = self._plant_terms_cache
         if c["terms"] is not None and now - c["at"] < 300:
             return c["terms"]
-        terms = set()
+        terms = {}          # term -> plant_id it identifies
         try:
             st = self.send_a2a("grow_agent", "get_status", {}, timeout=20)
             for _ in range(3):
                 st = st.get("result", st) if isinstance(st, dict) else st
             if isinstance(st, dict):
-                for v in (st.get("current_strain"),):
-                    if isinstance(v, str) and v.strip():
-                        terms.add(v.strip().strip('"').lower())
+                v = st.get("current_strain")
+                if isinstance(v, str) and v.strip():
+                    terms[v.strip().strip('"').lower()] = "current_plant"
                 for pl in st.get("other_plants") or []:
+                    pid = pl.get("plant_id")
                     for k in ("plant_id", "strain", "species"):
                         v = pl.get(k)
                         if isinstance(v, str) and v.strip():
-                            terms.add(v.strip().lower())
+                            # A term already claimed by another plant is ambiguous
+                            # (both cannabis plants share a strain), so it routes
+                            # to grow without naming one.
+                            key = v.strip().lower()
+                            terms[key] = None if key in terms and terms[key] != pid else pid
         except Exception as e:
             self.log(f"could not fetch plant terms: {e}")
         # Also index the distinctive words inside a strain name, so "gsc",
         # "girl scout cookies" and "cookies" all reach the right agent. Short and
         # generic tokens are dropped - "auto" and "1" would match anything.
-        extra = set()
-        STOP = {"the", "and", "auto", "autoflower", "plant", "current", "cannabis", "vera"}
+        extra = {}
+        # Words that are common English before they are plant names. "girl" on
+        # its own would match unrelated text, and an initialism built from an id
+        # like "gsc_auto_2" produced "ga2", which means nothing to anyone.
+        STOP = {"the", "and", "auto", "autoflower", "plant", "current", "cannabis",
+                "vera", "girl", "scout", "seed", "seeds", "pot", "mother", "clone"}
         for t in list(terms):
-            for w in re.split(r'[^a-z0-9]+', t):
-                if len(w) >= 3 and w not in STOP and not w.isdigit():
-                    extra.add(w)
-            initials = "".join(w[0] for w in re.split(r'[^a-z0-9]+', t) if w)
-            if len(initials) >= 3:
-                extra.add(initials)
-        terms |= extra
+            words = [w for w in re.split(r'[^a-z0-9]+', t) if w]
+            for w in words:
+                if len(w) >= 4 and w not in STOP and not w.isdigit():
+                    extra[w] = terms[t] if extra.get(w, terms[t]) == terms[t] else None
+            # Initials only from a multi-word NAME, not from an underscored id -
+            # "girl scout cookies" gives gsc, "gsc_auto_2" gives nothing useful.
+            # Initials from the NAME only. "Girl Scout Cookies (autoflower)"
+            # must give gsc, not gsca - the parenthetical is a qualifier, not
+            # part of what anyone calls the plant.
+            if "_" not in t:
+                base = re.sub(r'\(.*?\)', '', t)
+                bw = [w for w in re.split(r'[^a-z]+', base) if w]
+                if len(bw) >= 2:
+                    initials = "".join(w[0] for w in bw)
+                    if len(initials) >= 3:
+                        extra[initials] = terms[t] if extra.get(initials, terms[t]) == terms[t] else None
+        for k, v in extra.items():
+            terms.setdefault(k, v)
         c["terms"], c["at"] = terms, now
         if terms:
             self.log(f"plant routing terms: {sorted(terms)[:12]}")
         return terms
+
+    def _plant_from_prompt(self, prompt):
+        """Which plant this prompt is about, or None for "the grow" generally.
+
+        Without this, "how is the aloe" routed to Grow Agent correctly and then
+        asked it about the cannabis, because the branch hardcoded current_plant.
+        Reaching the right agent is only half of routing."""
+        lp = (prompt or "").lower()
+        hit = None
+        for term, pid in self._known_plant_terms().items():
+            if pid and re.search(r"\b" + re.escape(term) + r"\b", lp):
+                # Prefer the most specific term that matched.
+                if hit is None or len(term) > hit[0]:
+                    hit = (len(term), pid)
+        return hit[1] if hit else None
 
     def _format_response(self, task, result, sender):
         if result is None:
@@ -226,6 +261,27 @@ class BossAgent(AgentBase):
         if isinstance(result, dict):
             if "error" in result:
                 return f"Error: {result['error']}"
+            if task == "assess_care":
+                inner = result.get("result", {}) if isinstance(result, dict) else {}
+                inner = inner.get("result", inner) if isinstance(inner, dict) else {}
+                if not isinstance(inner, dict) or not inner:
+                    return "I could not get a reading on that plant."
+                name = inner.get("profile") or inner.get("species") or "that plant"
+                bits = [f"Your {name}:"]
+                if inner.get("signs"):
+                    bits.append(inner.get("assessment") or "")
+                else:
+                    bits.append(f"Nothing flags a care problem right now.")
+                t = inner.get("temperature") or {}
+                if t.get("note"):
+                    bits.append(t["note"])
+                if inner.get("action") and "No urgent" not in inner["action"]:
+                    bits.append(inner["action"])
+                c = inner.get("care") or {}
+                if c.get("water"):
+                    bits.append(f"Watering: {c['water']}")
+                return " ".join(b for b in bits if b)
+
             if task == "resource_reclaim":
                 def _peel(x, depth=3):
                     for _ in range(depth):
@@ -1205,7 +1261,14 @@ class BossAgent(AgentBase):
                     for t in GROW_TERMS)
                     or any(re.search(r"\b" + re.escape(t) + r"\b", _lp)
                            for t in self._known_plant_terms())):
-                self.log("User asking about the grow/plant – delegating to grow_agent")
+                which = self._plant_from_prompt(prompt)
+                self.log(f"User asking about the grow/plant - delegating to grow_agent"
+                         + (f" (plant: {which})" if which else ""))
+                if which and which != "current_plant":
+                    care = self.send_a2a("grow_agent", "assess_care",
+                                         {"plant_id": which, "description": prompt}, timeout=120)
+                    text = self._format_response("assess_care", care, "grow_agent")
+                    return {"result": text, "evidence": {"plant_id": which, "care": care}}
                 response = self.send_a2a("grow_agent", "get_status", {})
                 history = self.send_a2a("grow_agent", "get_grow_history", {"plant_id": "current_plant"})
                 text = self._format_response("grow_status", {"status": response, "history": history}, "grow_agent")
