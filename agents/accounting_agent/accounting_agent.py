@@ -16,7 +16,16 @@ from core.base_agent import AgentBase
 from core.schemas import from_legacy_fields
 
 INFERENCE_SERVICE_URL = "http://localhost:8005/reason"
-MODEL_SERVICE_URL = "http://localhost:8006/models/select"
+# Capability routing: this agent names the KIND of thinking it needs and
+# Model Service picks the model. It never names a vendor or a checkpoint,
+# so swapping brains is a config edit in config/model_routing.json.
+#
+# The previous /models/select call passed `requirements` as a string where
+# the service does requirements.items(), so every call 500'd and silently
+# fell back to the hardcoded DEFAULT_MODEL. Model Service has never actually
+# selected a model for this agent, and the lightweight/reasoning distinction
+# below was decorative - both got the same 1.5b model.
+CAPABILITY_FOR = {"reasoning": "synthesis", "lightweight": "reasoning"}
 DEFAULT_MODEL = "qwen2.5:1.5b"
 
 DISCLAIMER = (
@@ -77,26 +86,21 @@ class AccountingAgent(AgentBase):
             self.log(f"Project event {project_id}/{event_type} from {sender} (no reaction configured)")
 
     # ---------- Model / Inference helpers ----------
-    def _get_model_for_task(self, requirements="reasoning"):
-        try:
-            resp = requests.post(MODEL_SERVICE_URL, json={"requirements": requirements}, timeout=3)
-            if resp.status_code == 200:
-                data = resp.json()
-                if data.get("success"):
-                    return data.get("model", DEFAULT_MODEL)
-            return DEFAULT_MODEL
-        except Exception:
-            return DEFAULT_MODEL
+    def _capability_for_task(self, requirements="reasoning"):
+        """Map this agent's internal notion of task weight onto a routed
+        capability. Returns a capability name, never a model name."""
+        return CAPABILITY_FOR.get(requirements, "reasoning")
 
-    def _call_inference(self, prompt, model_name=None, timeout=60):
+    def _call_inference(self, prompt, model_name=None, timeout=60, capability=None):
         """Call the Inference Service, falling back to an alternate model
         via the Model Service if the primary call is slow or unavailable."""
-        if model_name is None:
-            model_name = self._get_model_for_task("reasoning")
+        if model_name is None and capability is None:
+            capability = self._capability_for_task("reasoning")
         try:
             resp = requests.post(
                 INFERENCE_SERVICE_URL,
-                json={"prompt": prompt, "model": model_name},
+                json=({"prompt": prompt, "model": model_name} if model_name
+                      else {"prompt": prompt, "capability": capability}),
                 timeout=timeout
             )
             if resp.status_code == 200:
@@ -109,12 +113,14 @@ class AccountingAgent(AgentBase):
         except Exception as e:
             self.log(f"Inference Service call failed ({e}); trying fallback model.")
 
-        fallback_model = self._get_model_for_task("lightweight")
-        if fallback_model and fallback_model != model_name:
+        # Second chance on a deliberately cheaper capability - a small model
+        # answering beats no answer when the primary route is down.
+        fallback_cap = self._capability_for_task("lightweight")
+        if fallback_cap and fallback_cap != capability:
             try:
                 resp = requests.post(
                     INFERENCE_SERVICE_URL,
-                    json={"prompt": prompt, "model": fallback_model},
+                    json={"prompt": prompt, "capability": fallback_cap},
                     timeout=30
                 )
                 if resp.status_code == 200:

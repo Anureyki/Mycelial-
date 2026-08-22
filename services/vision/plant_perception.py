@@ -17,7 +17,10 @@ Both vision checkpoints are pulled from the Hugging Face Hub on first use
 (cached locally after that) rather than fine-tuned from scratch here - real,
 existing plant-specific models, not COCO-generic ones repurposed and hoped to work.
 """
+import gc
 import os
+import threading
+import time
 
 try:
     from ultralytics import YOLO
@@ -61,13 +64,74 @@ SUPPORTED_SPECIES = ("pepper", "potato", "tomato")
 # trusting the local pipeline's read.
 LOW_CONFIDENCE_THRESHOLD = 0.55
 
+# Models are loaded on first use and RELEASED once idle. Loading lazily was
+# already the behaviour; holding them afterwards was not deliberate. A grow
+# agent sitting at 99MB grew to 867MB after one batch of photos and stayed
+# there - roughly half the swarm's memory, held for the life of the process,
+# whether or not another photo ever arrived. On a box where memory pressure has
+# already OOM-killed the stack once, an agent that keeps a model resident is
+# taking that headroom away from every other agent.
+#
+# The idle window rather than release-on-return so a batch of photos does not
+# pay the reload cost per image.
+IDLE_RELEASE_SECONDS = float(os.getenv("VISION_IDLE_RELEASE_SECONDS", "180"))
+
 _yolo_model = None
 _vit_model = None
 _vit_processor = None
+_last_used = 0.0
+_reaper_started = False
+_model_lock = threading.Lock()
+
+
+def release_models(force=False):
+    """Drop model references and reclaim. Returns True if anything was freed."""
+    global _yolo_model, _vit_model, _vit_processor
+    with _model_lock:
+        if not force and _last_used and (time.time() - _last_used) < IDLE_RELEASE_SECONDS:
+            return False
+        freed = any(m is not None for m in (_yolo_model, _vit_model, _vit_processor))
+        _yolo_model = None
+        _vit_model = None
+        _vit_processor = None
+    if freed:
+        gc.collect()
+        try:
+            import torch as _t
+            if _t.cuda.is_available():
+                _t.cuda.empty_cache()
+        except Exception:
+            pass
+    return freed
+
+
+def _start_reaper():
+    """One daemon thread per process, started on first model load."""
+    global _reaper_started
+    if _reaper_started:
+        return
+    _reaper_started = True
+
+    def _loop():
+        while True:
+            time.sleep(max(15.0, IDLE_RELEASE_SECONDS / 4))
+            try:
+                release_models()
+            except Exception:
+                pass
+
+    threading.Thread(target=_loop, daemon=True).start()
+
+
+def _touch():
+    global _last_used
+    _last_used = time.time()
 
 
 def _get_yolo_model():
     global _yolo_model
+    _touch()
+    _start_reaper()
     if _yolo_model is None and YOLO_AVAILABLE:
         weights_path = hf_hub_download(repo_id=YOLO_REPO, filename=YOLO_FILENAME)
         _yolo_model = YOLO(weights_path)
@@ -76,6 +140,8 @@ def _get_yolo_model():
 
 def _get_vit_model():
     global _vit_model, _vit_processor
+    _touch()
+    _start_reaper()
     if _vit_model is None and VIT_AVAILABLE:
         _vit_processor = AutoImageProcessor.from_pretrained(VIT_REPO)
         _vit_model = AutoModelForImageClassification.from_pretrained(VIT_REPO)
@@ -187,6 +253,7 @@ def fuse_observations(image_path, species=None):
 
     detections = detect_objects(image_path)
     health = classify_health(image_path)
+    _touch()
 
     confidences = []
     if isinstance(detections, list) and detections:
@@ -208,3 +275,46 @@ def fuse_observations(image_path, species=None):
         "overall_confidence": overall_confidence,
         "low_confidence": overall_confidence < LOW_CONFIDENCE_THRESHOLD,
     }
+
+
+# ---------------------------------------------------------------------------
+# Subprocess entry point.
+#
+# Importing this module costs ~860MB of RSS - torch and ultralytics, before a
+# single model is loaded or a single photo looked at. Python cannot unload a
+# module, so an agent that imports this at startup pays that for its entire life
+# whether or not a photo ever arrives, and lazy-importing only defers the same
+# permanent cost to the first call.
+#
+# So callers run this as a process instead. It reads a request on stdin, writes
+# one JSON object to stdout, and exits - and the kernel takes the memory back in
+# full. The caller stays small. Cost is process start plus import (~4-6s) per
+# invocation, which is why a batch of images is passed in ONE call rather than
+# one call per image.
+#
+#   echo '{"images": ["a.jpg"], "species": "tomato"}' | python3 plant_perception.py
+# ---------------------------------------------------------------------------
+if __name__ == "__main__":
+    import json
+    import sys
+
+    try:
+        req = json.load(sys.stdin)
+    except Exception as e:
+        print(json.dumps({"error": f"bad request: {e}"}))
+        sys.exit(1)
+
+    images = req.get("images") or ([req["image"]] if req.get("image") else [])
+    species = req.get("species")
+    results = {}
+    for img in images:
+        try:
+            results[img] = fuse_observations(img, species=species)
+        except Exception as e:
+            results[img] = {"error": f"perception failed: {e}"}
+
+    print(json.dumps({
+        "results": results,
+        "low_confidence_threshold": LOW_CONFIDENCE_THRESHOLD,
+        "supported_species": list(SUPPORTED_SPECIES),
+    }))

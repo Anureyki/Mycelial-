@@ -2,6 +2,7 @@
 import sys
 import os
 import time
+import subprocess
 import json
 import math
 import re
@@ -20,15 +21,21 @@ try:
 except ImportError:
     NUMPY_AVAILABLE = False
 
-# Perception pipeline (YOLO + ViT + OCR, fused) - optional, degrades gracefully
-# if the vision deps aren't installed. See services/vision/plant_perception.py.
-sys.path.insert(0, os.path.join(project_root, "services", "vision"))
-try:
-    from plant_perception import fuse_observations, LOW_CONFIDENCE_THRESHOLD
-    VISION_AVAILABLE = True
-except ImportError:
-    VISION_AVAILABLE = False
-    LOW_CONFIDENCE_THRESHOLD = 0.55
+# Perception pipeline (YOLO + ViT + OCR, fused). Deliberately NOT imported here.
+#
+# `import plant_perception` pulls in torch and ultralytics, which cost ~860MB of
+# RSS on their own - before any model loads and whether or not a photo ever
+# arrives. Importing it at module scope made this agent the largest process on
+# the box by a factor of five, permanently, because Python cannot unload a
+# module once imported. Lazy-importing would only move that cost to the first
+# photo and then keep it forever.
+#
+# Instead perception runs as a short-lived subprocess that exits, so the memory
+# is returned in full. See the __main__ block in services/vision/plant_perception.py.
+VISION_SCRIPT = os.path.join(project_root, "services", "vision", "plant_perception.py")
+VISION_AVAILABLE = os.path.exists(VISION_SCRIPT)
+VISION_TIMEOUT = int(os.getenv("VISION_TIMEOUT", "300"))
+LOW_CONFIDENCE_THRESHOLD = 0.55
 
 try:
     from dataset_inventory import scan as scan_training_set, MIN_PER_CLASS, TRAINING_DIR
@@ -616,6 +623,40 @@ class GrowAgent(AgentBase):
 
     def _make_recommendation(self, observation, reason, action, confidence):
         return {"observation": observation, "reason": reason, "action": action, "confidence": confidence}
+
+    def _run_perception(self, images, species=None):
+        """Run the perception pipeline out of process and return
+        {image_path: fused_observation}. Empty dict on any failure - callers
+        already handle a missing fused read by falling back to text symptoms."""
+        if isinstance(images, str):
+            images = [images]
+        if not VISION_AVAILABLE or not images:
+            return {}
+        try:
+            proc = subprocess.run(
+                [sys.executable, VISION_SCRIPT],
+                input=json.dumps({"images": images, "species": species}),
+                capture_output=True, text=True, timeout=VISION_TIMEOUT,
+            )
+        except subprocess.TimeoutExpired:
+            self.log(f"perception timed out after {VISION_TIMEOUT}s for {images}", "ERROR")
+            return {}
+        except Exception as e:
+            self.log(f"perception subprocess failed: {e}", "ERROR")
+            return {}
+        if proc.returncode != 0:
+            self.log(f"perception exited {proc.returncode}: {proc.stderr[-400:]}", "ERROR")
+            return {}
+        try:
+            return json.loads(proc.stdout.strip().splitlines()[-1]).get("results", {})
+        except Exception as e:
+            self.log(f"perception returned unparseable output: {e}", "ERROR")
+            return {}
+
+    def _fuse_one(self, image_path, species=None):
+        """Single-image convenience wrapper. Prefer _run_perception for batches -
+        each call pays process start plus a ~5s import."""
+        return self._run_perception([image_path], species=species).get(image_path)
 
     def _call_inference(self, prompt, timeout=30):
         try:
@@ -1594,7 +1635,7 @@ class GrowAgent(AgentBase):
                     verification_text = checkpoint["state"].get("verification_text")
                     vision_note = checkpoint["state"]["vision_note"] + " (resumed from checkpoint)"
                 else:
-                    fused = fuse_observations(photo_path, species=self._get_species_for_plant(plant_id))
+                    fused = self._fuse_one(photo_path, species=self._get_species_for_plant(plant_id))
                     self.save_checkpoint(checkpoint_id, {"fused": fused}, status="in_progress")
                     if "error" not in fused:
                         if fused["low_confidence"]:
@@ -1789,7 +1830,7 @@ class GrowAgent(AgentBase):
                     morphology_text = checkpoint["state"]["morphology_text"]
                     vision_note = checkpoint["state"]["vision_note"] + " (resumed from checkpoint)"
                 else:
-                    fused = fuse_observations(photo_path, species=species)
+                    fused = self._fuse_one(photo_path, species=species)
                     self.save_checkpoint(checkpoint_id, {"fused": fused}, status="in_progress")
                     if "error" not in fused:
                         if fused["low_confidence"]:

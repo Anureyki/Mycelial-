@@ -215,7 +215,13 @@ python3 -m agents.ag_agent.agriculture_agent &     # agriculture dept head, port
 - `SENTRY_ACCESS_TOKEN` – for Sentry MCP (optional)
 - `COURTLISTENER_API_TOKEN` – for CourtListener MCP, used by the Legal Agent (optional)
 - `INFERENCE_MODEL` – default model for Inference Service (default: `qwen2.5:1.5b`)
-- `OLLAMA_KEEP_ALIVE` – keep model loaded in memory (default: 5m)
+- `OLLAMA_KEEP_ALIVE` – how long Ollama keeps a model resident after a request
+  (default: `60s`). Sent per-request by the Inference Service, so this is
+  authoritative regardless of how the Ollama daemon was started. Raise to `5m`
+  to trade RAM for latency; `0` unloads immediately after every call.
+- `VISION_IDLE_RELEASE_SECONDS` – idle window before the perception pipeline drops
+  its YOLO/ViT weights (default: `180`)
+- `VISION_TIMEOUT` – timeout for a perception subprocess call (default: `300`)
 
 ## Troubleshooting
 - **500 errors:** Run the agent/service in foreground to see the traceback.

@@ -8,7 +8,6 @@ import base64
 import json
 import os
 import re
-import subprocess
 import time
 
 import requests
@@ -32,6 +31,18 @@ ROUTING_FILE = os.path.expanduser("~/mycelial/config/model_routing.json")
 
 
 MODEL_SERVICE_URL = os.getenv("MODEL_SERVICE_URL", "http://localhost:8006")
+
+# How long Ollama keeps a model resident after a request. Sent per-request so
+# this service decides, rather than inheriting whatever the Ollama daemon was
+# started with - OLLAMA_KEEP_ALIVE was documented as configured and was in fact
+# set nowhere, leaving Ollama's built-in 5 minutes in charge.
+#
+# A model held in RAM is taken from every other agent on the box. 60s is long
+# enough that a burst of calls reuses one load and short enough that an idle
+# model does not sit on gigabytes waiting for a request that may never come.
+# Set OLLAMA_KEEP_ALIVE=5m to trade memory back for latency, or 0 to unload
+# immediately after every call.
+OLLAMA_KEEP_ALIVE = os.getenv("OLLAMA_KEEP_ALIVE", "60s")
 
 
 def ollama_installed_models():
@@ -108,7 +119,8 @@ def simplify_prompt(prompt):
 def _ollama_generate(model, prompt, b64, timeout):
     resp = requests.post(
         f"{OLLAMA_URL}/api/generate",
-        json={"model": model, "prompt": prompt, "images": [b64], "stream": False},
+        json={"model": model, "prompt": prompt, "images": [b64],
+              "stream": False, "keep_alive": OLLAMA_KEEP_ALIVE},
         timeout=timeout,
     )
     return resp
@@ -182,22 +194,30 @@ def clean_output(text):
     return '\n'.join(cleaned).strip()
 
 def run_ollama_inference(model, prompt):
-    """Run inference with Ollama."""
+    """Text inference over Ollama's HTTP API.
+
+    Previously this shelled out to `ollama run`, which spawns a process per call
+    and - the reason for the change - gives the caller no way to say how long the
+    model should stay resident afterwards. keep_alive is a request field on the
+    HTTP API only, so releasing memory on our terms was simply not expressible
+    through the CLI."""
     start_time = time.time()
     try:
-        result = subprocess.run(
-            ["ollama", "run", model, prompt],
-            capture_output=True, text=True, timeout=TIMEOUT
+        resp = requests.post(
+            f"{OLLAMA_URL}/api/generate",
+            json={"model": model, "prompt": prompt,
+                  "stream": False, "keep_alive": OLLAMA_KEEP_ALIVE},
+            timeout=TIMEOUT,
         )
         latency = int((time.time() - start_time) * 1000)
-        if result.returncode != 0:
+        if resp.status_code != 200:
             return {
                 "success": False,
                 "error": "inference_failed",
-                "message": result.stderr,
+                "message": f"HTTP {resp.status_code}: {resp.text[:300]}",
                 "latency_ms": latency
             }
-        output = clean_output(result.stdout.strip())
+        output = clean_output((resp.json().get("response") or "").strip())
         tokens = len(output) // 4
         return {
             "success": True,
@@ -207,7 +227,7 @@ def run_ollama_inference(model, prompt):
             "tokens": tokens,
             "timestamp": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())
         }
-    except subprocess.TimeoutExpired:
+    except requests.Timeout:
         return {
             "success": False,
             "error": "timeout",

@@ -50,35 +50,24 @@ class CodingAgent(AgentBase):
         os.close(fd)
         return path
 
-    def _get_model_for_task(self, task_type="code_fix"):
-        requirements = {}
-        if task_type == "code_fix":
-            requirements = {"domain": "code", "specialization": "code", "speed": "fast"}
-        elif task_type == "verification":
-            requirements = {"domain": "general", "specialization": "general", "quality": "medium"}
-        else:
-            requirements = {"domain": "general", "specialization": "general", "speed": "fast"}
-        try:
-            resp = requests.post(
-                "http://localhost:8006/models/select",
-                json={"requirements": requirements},
-                timeout=3
-            )
-            if resp.status_code == 200:
-                data = resp.json()
-                if data.get("success"):
-                    return data.get("model", "qwen2.5:1.5b")
-            return "qwen2.5:1.5b"
-        except:
-            return "qwen2.5:1.5b"
+    def _capability_for_task(self, task_type="code_fix"):
+        # Capability routing - name the kind of thinking, not the model.
+        # Model Service resolves it via config/model_routing.json, so a
+        # model swap never touches agent code.
+        return {"code_fix": "code", "verification": "reasoning"}.get(task_type, "reasoning")
 
-    def _call_inference(self, prompt, model_name=None):
-        if model_name is None:
-            model_name = self._get_model_for_task("reasoning")
+    def _call_inference(self, prompt, model_name=None, capability=None):
+        """Send a capability, not a model name, unless a caller explicitly pins
+        one. Inference Service executes; Model Service chooses."""
+        payload = {"prompt": prompt}
+        if model_name:
+            payload["model"] = model_name
+        else:
+            payload["capability"] = capability or self._capability_for_task("reasoning")
         try:
             resp = requests.post(
                 "http://localhost:8005/reason",
-                json={"prompt": prompt, "model": model_name},
+                json=payload,
                 timeout=120
             )
             if resp.status_code == 200:
@@ -195,19 +184,19 @@ class CodingAgent(AgentBase):
             prompt = args.get("prompt", "")
             if not prompt:
                 return {"error": "Missing prompt"}
-            model = self._get_model_for_task("reasoning")
-            self.log(f"Selected model for reasoning: {model}")
-            result = self._call_inference(prompt, model)
+            cap = self._capability_for_task("reasoning")
+            self.log(f"Routing reasoning via capability: {cap}")
+            result = self._call_inference(prompt, capability=cap)
             self.store_own_memory(f"reasoning_{int(time.time())}", result)
-            return {"result": result, "model_used": model}
+            return {"result": result, "capability_used": cap}
 
         elif task == "reason_and_act":
             prompt = args.get("prompt", "")
             if not prompt:
                 return {"error": "Missing prompt"}
             reason_prompt = f"Given the request '{prompt}', generate a single shell command (or action) to fulfill it. Return only the command."
-            model = self._get_model_for_task("reasoning")
-            plan = self._call_inference(reason_prompt, model)
+            cap = self._capability_for_task("reasoning")
+            plan = self._call_inference(reason_prompt, capability=cap)
             self.log(f"Generated plan: {plan}")
             lines = plan.strip().split('\n')
             command = lines[0].strip()
@@ -243,9 +232,9 @@ class CodingAgent(AgentBase):
                 f"Code:\n{code}\n\n"
                 f"Provide the corrected code only, no explanations."
             )
-            model_fix = self._get_model_for_task("code_fix")
-            self.log(f"Using model for fix: {model_fix}")
-            fixed_code = self._call_inference(fix_prompt, model_fix)
+            cap_fix = self._capability_for_task("code_fix")
+            self.log(f"Routing code fix via capability: {cap_fix}")
+            fixed_code = self._call_inference(fix_prompt, capability=cap_fix)
             fixed_code = re.sub(r'```[\w]*\n?', '', fixed_code).strip()
 
             temp_file = self._scratch_file("fixed_code", language)
