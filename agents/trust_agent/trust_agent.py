@@ -26,6 +26,17 @@ INFERENCE_SERVICE_URL = "http://localhost:8005/reason"
 # selected a model for this agent, and the lightweight/reasoning distinction
 # below was decorative - both got the same 1.5b model.
 CAPABILITY_FOR = {"reasoning": "synthesis", "lightweight": "reasoning"}
+
+# Inference timeouts, sized for the hardware this actually runs on rather than
+# for a GPU. Measured on the deployment box (i5-4570T, 4 threads, no GPU):
+# llama3.2:3b generates at ~6.3 tokens/sec. A structured extraction asking for a
+# 30-field JSON object is 400-600 tokens of output, so 80-95s of generation
+# before prompt evaluation - against the previous 60s default, which meant those
+# calls could never complete. They timed out, returned empty, and were reported
+# to the caller as parse_error: the model looked like it had answered badly when
+# it had not answered at all.
+INFERENCE_TIMEOUT = int(os.getenv("AGENT_INFERENCE_TIMEOUT", "240"))
+FALLBACK_TIMEOUT = int(os.getenv("AGENT_FALLBACK_TIMEOUT", "120"))
 DEFAULT_MODEL = "qwen2.5:1.5b"
 
 DISCLAIMER = (
@@ -84,7 +95,19 @@ class TrustAgent(AgentBase):
         capability. Returns a capability name, never a model name."""
         return CAPABILITY_FOR.get(requirements, "reasoning")
 
-    def _call_inference(self, prompt, model_name=None, timeout=60, capability=None):
+    def _call_inference(self, prompt, model_name=None, timeout=None, capability=None,
+                        status=None):
+        """Returns the model's text, or "" if it never answered.
+
+        `status` is an optional dict the caller passes in to learn WHY it got "".
+        Without it an empty return is ambiguous - a timeout and a model replying
+        with nothing are indistinguishable from a genuinely unparseable answer,
+        which is how a starved model gets misreported as a badly-behaved one."""
+        if status is None:
+            status = {}
+        status["ok"] = False
+        status["reason"] = None
+        timeout = timeout or INFERENCE_TIMEOUT
         if model_name is None and capability is None:
             capability = self._capability_for_task("reasoning")
         try:
@@ -112,11 +135,13 @@ class TrustAgent(AgentBase):
                 resp = requests.post(
                     INFERENCE_SERVICE_URL,
                     json={"prompt": prompt, "capability": fallback_cap},
-                    timeout=30
+                    timeout=FALLBACK_TIMEOUT
                 )
                 if resp.status_code == 200:
                     data = resp.json()
                     if data.get("success"):
+                        status["ok"] = True
+                        status["reason"] = f"served by fallback capability '{fallback_cap}'"
                         return data.get("result", "")
             except Exception as e:
                 self.log(f"Fallback inference call failed: {e}")

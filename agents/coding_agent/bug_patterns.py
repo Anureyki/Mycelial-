@@ -161,6 +161,48 @@ PATTERNS = [
         "seen_in": "webapp served a shell without the photo-upload button while the server had the correct file.",
         "check": "Is the strategy network-first, or is the version bumped on every shell change?",
     },
+    {
+        "id": "failure_relabelled_as_bad_output",
+        "severity": "high",
+        "regex": r'parse_error|_safe_parse_json|if not raw',
+        "why": ("A call that never returned is reported as a call that returned something "
+                "unusable. An empty string from a timeout and an empty string from a model "
+                "that answered with nothing are indistinguishable downstream, so blame lands "
+                "on output quality and the investigation goes to the prompt instead of the clock."),
+        "seen_in": ("legal_agent reported parse_error on a real Supreme Court opinion. The model "
+                    "had not answered badly, it had not answered at all: a 30-field JSON "
+                    "extraction needs 400-600 tokens, and at the 6.3 tok/s this CPU actually "
+                    "delivers that is ~90s against a 60s timeout. Both models extracted the "
+                    "parties correctly once given time."),
+        "check": "Can the caller tell 'no answer' from 'bad answer'? If both produce the same value, it cannot.",
+    },
+    {
+        "id": "timeout_calibrated_for_other_hardware",
+        "severity": "medium",
+        "regex": r'timeout\s*=\s*(?:30|60|90)\b',
+        "why": ("A timeout carried over from a machine with a GPU. Generation cost scales with "
+                "tokens REQUESTED, not with prompt size, so the calls that break first are the "
+                "ones asking for large structured output - exactly the valuable ones - while "
+                "short prompts keep working and mask it."),
+        "seen_in": ("legal/accounting/trust used timeout=60 for extractions needing ~90s of "
+                    "generation on the deployment box, so structured extraction could never "
+                    "complete."),
+        "check": "Measure tok/s on the target hardware, multiply by expected output length. Is the timeout above that?",
+    },
+    {
+        "id": "matcher_catches_the_matcher",
+        "severity": "medium",
+        "regex": r'pgrep -f|pkill -f',
+        "why": ("A -f pattern matches full command lines, including the command doing the "
+                "matching and any tool whose arguments contain the string. The result is either "
+                "killing yourself or measuring the wrong process, and the wrong-process reading "
+                "looks perfectly plausible."),
+        "seen_in": ('pkill -f "inference/service" killed the shell that ran it. Separately, '
+                    "pgrep -f agents.grow_agent returned the Claude session, whose cmdline "
+                    "contained --add-dir .../agents/grow_agent, giving a 101MB reading for a "
+                    "process actually using 867MB."),
+        "check": "Would this pattern match the command line running it? Exclude self and known wrappers.",
+    },
 ]
 
 

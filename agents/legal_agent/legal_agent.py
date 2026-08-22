@@ -26,6 +26,17 @@ INFERENCE_SERVICE_URL = "http://localhost:8005/reason"
 # selected a model for this agent, and the lightweight/reasoning distinction
 # below was decorative - both got the same 1.5b model.
 CAPABILITY_FOR = {"reasoning": "synthesis", "lightweight": "reasoning"}
+
+# Inference timeouts, sized for the hardware this actually runs on rather than
+# for a GPU. Measured on the deployment box (i5-4570T, 4 threads, no GPU):
+# llama3.2:3b generates at ~6.3 tokens/sec. A structured extraction asking for a
+# 30-field JSON object is 400-600 tokens of output, so 80-95s of generation
+# before prompt evaluation - against the previous 60s default, which meant those
+# calls could never complete. They timed out, returned empty, and were reported
+# to the caller as parse_error: the model looked like it had answered badly when
+# it had not answered at all.
+INFERENCE_TIMEOUT = int(os.getenv("AGENT_INFERENCE_TIMEOUT", "240"))
+FALLBACK_TIMEOUT = int(os.getenv("AGENT_FALLBACK_TIMEOUT", "120"))
 DEFAULT_MODEL = "qwen2.5:1.5b"
 
 DISCLAIMER = (
@@ -130,7 +141,19 @@ class LegalAgent(AgentBase):
         capability. Returns a capability name, never a model name."""
         return CAPABILITY_FOR.get(requirements, "reasoning")
 
-    def _call_inference(self, prompt, model_name=None, timeout=60, capability=None):
+    def _call_inference(self, prompt, model_name=None, timeout=None, capability=None,
+                        status=None):
+        """Returns the model's text, or "" if it never answered.
+
+        `status` is an optional dict the caller passes in to learn WHY it got "".
+        Without it an empty return is ambiguous - a timeout and a model replying
+        with nothing are indistinguishable from a genuinely unparseable answer,
+        which is how a starved model gets misreported as a badly-behaved one."""
+        if status is None:
+            status = {}
+        status["ok"] = False
+        status["reason"] = None
+        timeout = timeout or INFERENCE_TIMEOUT
         if model_name is None and capability is None:
             capability = self._capability_for_task("reasoning")
         try:
@@ -143,11 +166,17 @@ class LegalAgent(AgentBase):
             if resp.status_code == 200:
                 data = resp.json()
                 if data.get("success"):
+                    status["ok"] = True
                     return data.get("result", "")
+                status["reason"] = f"inference_error: {data.get('message', 'unknown')}"
+            else:
+                status["reason"] = f"http_{resp.status_code}"
             self.log(f"Inference Service returned error (HTTP {resp.status_code}); trying fallback.")
         except requests.exceptions.Timeout:
-            self.log("Inference Service timed out; trying fallback.")
+            status["reason"] = f"timeout after {timeout}s"
+            self.log(f"Inference Service timed out after {timeout}s; trying fallback.")
         except Exception as e:
+            status["reason"] = f"transport: {e}"
             self.log(f"Inference Service call failed ({e}); trying fallback.")
 
         # Second chance on a deliberately cheaper capability - a small model
@@ -158,11 +187,13 @@ class LegalAgent(AgentBase):
                 resp = requests.post(
                     INFERENCE_SERVICE_URL,
                     json={"prompt": prompt, "capability": fallback_cap},
-                    timeout=30
+                    timeout=FALLBACK_TIMEOUT
                 )
                 if resp.status_code == 200:
                     data = resp.json()
                     if data.get("success"):
+                        status["ok"] = True
+                        status["reason"] = f"served by fallback capability '{fallback_cap}'"
                         return data.get("result", "")
             except Exception as e:
                 self.log(f"Fallback inference call failed: {e}")
@@ -237,8 +268,14 @@ class LegalAgent(AgentBase):
             "validity - structural extraction only.\n\n"
             f"Text:\n\"\"\"\n{contract_text}\n\"\"\"\n\nJSON:"
         )
-        raw = self._call_inference(prompt, model_name=model)
+        status = {}
+        raw = self._call_inference(prompt, model_name=model, status=status)
         parsed, parse_error = self._safe_parse_json(raw)
+        # An empty return means the model never answered - a timeout on this
+        # hardware, most often. Reporting that as parse_error blames the model
+        # for a bad answer when it gave none, and sends anyone debugging it to
+        # the prompt instead of the clock.
+        inference_error = None if status.get("ok") else (status.get("reason") or "no response")
         if parsed is None:
             parsed = {field: ([] if field in list_fields else "") for field in EXTENDED_RELATIONSHIP_FIELDS}
             parsed["relationship_type"] = ""
@@ -247,7 +284,9 @@ class LegalAgent(AgentBase):
                 parsed.setdefault(field, [] if field in list_fields else "")
             if parsed.get("relationship_type") not in RELATIONSHIP_TYPES:
                 parsed["relationship_type"] = parsed.get("relationship_type") or "contractual"
-        parsed["parse_error"] = parse_error
+        parsed["parse_error"] = parse_error and inference_error is None
+        if inference_error:
+            parsed["inference_error"] = inference_error
         if parse_error:
             parsed["raw_model_output"] = raw
         parsed["cache_sources"] = [h["id"] for h in cache_hits]
@@ -272,8 +311,14 @@ class LegalAgent(AgentBase):
             "Only extract what is explicitly stated.\n\n"
             f"Case text:\n\"\"\"\n{case_text[:8000]}\n\"\"\"\n\nJSON:"
         )
-        raw = self._call_inference(prompt, model_name=model)
+        status = {}
+        raw = self._call_inference(prompt, model_name=model, status=status)
         parsed, parse_error = self._safe_parse_json(raw)
+        # An empty return means the model never answered - a timeout on this
+        # hardware, most often. Reporting that as parse_error blames the model
+        # for a bad answer when it gave none, and sends anyone debugging it to
+        # the prompt instead of the clock.
+        inference_error = None if status.get("ok") else (status.get("reason") or "no response")
 
         if parsed is None:
             parsed = {
@@ -303,9 +348,11 @@ class LegalAgent(AgentBase):
             "jurisdiction": parsed.get("jurisdiction", "") or "",
             "cited_statutes": parsed.get("cited_statutes", []),
             "summary": parsed.get("summary", "") or "",
-            "parse_error": parse_error,
+            "parse_error": parse_error and inference_error is None,
             "disclaimer": DISCLAIMER
         }
+        if inference_error:
+            cleaned["inference_error"] = inference_error
 
         if parse_error:
             cleaned["raw_model_output"] = raw

@@ -26,6 +26,17 @@ INFERENCE_SERVICE_URL = "http://localhost:8005/reason"
 # selected a model for this agent, and the lightweight/reasoning distinction
 # below was decorative - both got the same 1.5b model.
 CAPABILITY_FOR = {"reasoning": "synthesis", "lightweight": "reasoning"}
+
+# Inference timeouts, sized for the hardware this actually runs on rather than
+# for a GPU. Measured on the deployment box (i5-4570T, 4 threads, no GPU):
+# llama3.2:3b generates at ~6.3 tokens/sec. A structured extraction asking for a
+# 30-field JSON object is 400-600 tokens of output, so 80-95s of generation
+# before prompt evaluation - against the previous 60s default, which meant those
+# calls could never complete. They timed out, returned empty, and were reported
+# to the caller as parse_error: the model looked like it had answered badly when
+# it had not answered at all.
+INFERENCE_TIMEOUT = int(os.getenv("AGENT_INFERENCE_TIMEOUT", "240"))
+FALLBACK_TIMEOUT = int(os.getenv("AGENT_FALLBACK_TIMEOUT", "120"))
 DEFAULT_MODEL = "qwen2.5:1.5b"
 
 DISCLAIMER = (
@@ -121,11 +132,13 @@ class AccountingAgent(AgentBase):
                 resp = requests.post(
                     INFERENCE_SERVICE_URL,
                     json={"prompt": prompt, "capability": fallback_cap},
-                    timeout=30
+                    timeout=FALLBACK_TIMEOUT
                 )
                 if resp.status_code == 200:
                     data = resp.json()
                     if data.get("success"):
+                        status["ok"] = True
+                        status["reason"] = f"served by fallback capability '{fallback_cap}'"
                         return data.get("result", "")
             except Exception as e:
                 self.log(f"Fallback inference call failed: {e}")
