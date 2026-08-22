@@ -331,6 +331,128 @@ def _canonical_metric(*candidates):
     return None
 
 
+# ---------------------------------------------------------------------------
+# Universal plant care - the layer under cultivation.
+#
+# This agent grew up around one cannabis plant in a reservoir, so everything
+# assumed a cultivar with stages, a nutrient schedule and a solution to sample.
+# That is the DEEP tier and it is right where it applies. But most plants a
+# person owns are not being cultivated to harvest: an aloe, a San Pedro, a
+# houseplant that is quietly dying. Those need "it is shrivelled and the soil is
+# bone dry", not a flowering schedule.
+#
+# The refusal to assess a species the disease models have no class for confused
+# two different questions. PlantVillage having no aloe class means it cannot name
+# an aloe PATHOGEN. It says nothing about whether a plant is browning, wilting,
+# etiolated or rotting - those are visible on any plant, and a general vision
+# model can describe them. What turns a description into advice is knowing what
+# is NORMAL for that species, which is a small table, not a trained model.
+#
+# Three tiers, deliberately:
+#   universal  - water, light, drainage. Every plant.
+#   profile    - what normal looks like for this species. A dozen fields.
+#   cultivar   - stages, feed schedules, harvest. Only for what is cultivated.
+# ---------------------------------------------------------------------------
+
+# What "wrong" looks like, independent of species. The interpretation of each
+# sign depends on the profile below - a shrivelled succulent means something
+# very different from a shrivelled fern.
+CARE_SIGNS = {
+    "underwatered": ("shrivel", "shriveled", "shrivelled", "wrinkled", "puckered",
+                     "limp", "drooping", "wilting", "wilted", "crispy", "dry soil",
+                     "curling inward", "thin"),
+    "overwatered":  ("mushy", "soft", "translucent", "yellowing at the base", "soggy",
+                     "waterlogged", "rot", "rotting", "black at the base", "smells"),
+    "light_starved": ("leggy", "etiolated", "stretching", "stretched", "pale",
+                      "reaching", "leaning toward", "elongated", "spindly"),
+    "light_burned": ("bleached", "white patches", "sunburn", "scorched", "reddish",
+                     "purple tinge", "brown tips"),
+    "cold_damage": ("black spots", "mushy tips", "translucent patches"),
+    "nutrient_poor": ("pale overall", "yellowing older leaves", "small new growth",
+                      "stunted"),
+}
+
+# Small, honest profiles. Each says what normal is, what usually kills this
+# plant, and how to read an ambiguous sign. Everything here is stated as
+# reference, and observation of the actual plant outranks it.
+SPECIES_PROFILES = {
+    "aloe": {
+        "common_name": "Aloe",
+        "group": "succulent",
+        "water": "Soak thoroughly, then let the soil dry COMPLETELY before watering again. Typically 2-3 weeks indoors.",
+        "light": "Bright indirect to direct. Tolerates less, but stretches.",
+        "soil": "Fast-draining, gritty. Never sitting in water.",
+        "kills_it": "overwatered",
+        "reads_differently": {
+            "underwatered": ("Leaves thinning, curling inward or wrinkling is the NORMAL first sign "
+                             "of thirst in a succulent and is easily corrected. This is the safe "
+                             "direction to err in."),
+            "overwatered": ("Mushy, translucent or yellowing leaves at the base is the dangerous "
+                            "direction. Aloe rot moves fast and is usually fatal once it reaches "
+                            "the crown. Stop watering, check drainage."),
+        },
+        "note": "Drought-adapted. When in doubt, wait. Far more aloes die from water than from thirst.",
+    },
+    "cactus": {
+        "common_name": "Cactus (incl. San Pedro, peyote)",
+        "group": "succulent",
+        "water": "Heavy soak then complete dry-out. Much less in winter dormancy - some species none at all.",
+        "light": "Bright. Acclimatise gradually to direct sun or it scorches.",
+        "soil": "Mineral, very fast draining.",
+        "kills_it": "overwatered",
+        "reads_differently": {
+            "underwatered": ("Ribbing tightening or the body puckering is normal thirst and reverses "
+                             "within days of a soak."),
+            "overwatered": ("Soft or discoloured base is basal rot and is usually terminal. "
+                            "Columnar cacti like San Pedro show it at the soil line first."),
+            "light_burned": ("A reddish or purple cast is often light stress rather than disease, "
+                             "and is common after a move to stronger light."),
+        },
+        "note": "Slow growing - a change over days is unusual, so anything sudden is worth attention.",
+    },
+    "succulent": {
+        "common_name": "Succulent (general)",
+        "group": "succulent",
+        "water": "Soak and dry completely between waterings.",
+        "light": "Bright.",
+        "soil": "Fast draining.",
+        "kills_it": "overwatered",
+        "note": "Stores water in its tissue, so it shows thirst late and rot early.",
+    },
+    "tropical_foliage": {
+        "common_name": "Tropical foliage houseplant",
+        "group": "foliage",
+        "water": "Keep evenly moist, let the top inch dry. Do NOT let it dry out completely.",
+        "light": "Bright indirect. Direct sun scorches.",
+        "soil": "Retentive but draining.",
+        "kills_it": "underwatered",
+        "note": "Opposite regime to a succulent - drying out fully is damage here, not discipline.",
+    },
+    "cannabis": {
+        "common_name": "Cannabis",
+        "group": "cultivar",
+        "water": "Depends on the system - see the grow system record.",
+        "light": "High. Stage-dependent schedule.",
+        "soil": "System-dependent.",
+        "kills_it": "varies",
+        "note": "Actively cultivated here - the full stage, feed and harvest model applies.",
+        "cultivated": True,
+    },
+}
+
+SPECIES_ALIASES = {
+    "aloe vera": "aloe", "aloe": "aloe",
+    "san pedro": "cactus", "peyote": "cactus", "cactus": "cactus",
+    "echinopsis": "cactus", "lophophora": "cactus", "trichocereus": "cactus",
+    "jade": "succulent", "echeveria": "succulent", "haworthia": "succulent",
+    "succulent": "succulent",
+    "pothos": "tropical_foliage", "monstera": "tropical_foliage",
+    "philodendron": "tropical_foliage", "fern": "tropical_foliage",
+    "houseplant": "tropical_foliage",
+    "cannabis": "cannabis", "marijuana": "cannabis", "hemp": "cannabis",
+}
+
+
 class GrowAgent(AgentBase):
     def __init__(self):
         super().__init__(
@@ -1229,6 +1351,89 @@ class GrowAgent(AgentBase):
                 if verdict in lowered:
                     return verdict, "llm"
         return "warning", "llm_unavailable"
+
+    def _profile_for(self, species):
+        """Species profile, or None. Falls back through the alias table so
+        "Aloe vera", "San Pedro" and "Trichocereus" all resolve."""
+        if not species:
+            return None
+        s = str(species).strip().lower()
+        key = SPECIES_ALIASES.get(s)
+        if not key:
+            for alias, target in SPECIES_ALIASES.items():
+                if alias in s:
+                    key = target
+                    break
+        return SPECIES_PROFILES.get(key or s)
+
+    def _care_signs_in(self, text):
+        """Which care signs a description mentions. Negation-aware, like the
+        other classifiers here - "no sign of rot" must not read as rot."""
+        if not text:
+            return []
+        found = []
+        for sign, cues in CARE_SIGNS.items():
+            if self._negation_aware_hit(text, cues):
+                found.append(sign)
+        return found
+
+    def assess_care(self, description, species=None, plant_id=None):
+        """Species-aware care reading from a plain description of the plant.
+
+        Deliberately does NOT need a disease model. Whether something is
+        shrivelled, mushy, leggy or bleached is visible on any plant; what makes
+        it actionable is knowing what normal is for THIS species, which is the
+        profile table."""
+        if plant_id and not species:
+            species = self._get_species_for_plant(plant_id)
+        profile = self._profile_for(species)
+        signs = self._care_signs_in(description)
+
+        if not profile:
+            return {
+                "species": species,
+                "known_profile": False,
+                "signs": signs,
+                "assessment": (f"No care profile for {species or 'this plant'}, so what is normal "
+                               "for it is unknown. " +
+                               (f"Visible signs: {', '.join(signs)}." if signs
+                                else "Nothing in the description flags a care problem.")),
+                "confidence": "low",
+                "resolve_with": "Add a profile for this species so the signs can be interpreted.",
+            }
+
+        lines, actions = [], []
+        for sign in signs:
+            reading = (profile.get("reads_differently") or {}).get(sign)
+            if reading:
+                lines.append(f"{sign.replace('_',' ')}: {reading}")
+            else:
+                lines.append(f"{sign.replace('_',' ')} noted.")
+            if sign == profile.get("kills_it"):
+                article = "an" if profile['common_name'][0].lower() in "aeiou" else "a"
+                actions.append(f"This is the direction that usually kills {article} {profile['common_name']}. "
+                               "Treat it as urgent.")
+
+        if not signs:
+            art = "an" if profile['common_name'][0].lower() in "aeiou" else "a"
+            lines.append(f"Nothing in the description flags a care problem for {art} "
+                         f"{profile['common_name']}.")
+
+        return {
+            "species": species,
+            "profile": profile["common_name"],
+            "group": profile["group"],
+            "known_profile": True,
+            "signs": signs,
+            "assessment": " ".join(lines),
+            "care": {"water": profile["water"], "light": profile["light"], "soil": profile["soil"]},
+            "note": profile.get("note"),
+            "action": " ".join(actions) if actions else "No urgent action indicated.",
+            # A description is somebody's words about a photo, not a measurement.
+            "confidence": "medium" if signs else "low",
+            "basis": "Care profile plus the description given. Reference, not a measurement - "
+                     "what the plant is actually doing outranks this table.",
+        }
 
     def _get_species_for_plant(self, plant_id):
         """Species for a plant, or None when it genuinely is not known.
@@ -2151,6 +2356,26 @@ class GrowAgent(AgentBase):
 
         elif task == "evaluate_leaf":
             plant_id = args.get("plant_id", "current_plant")
+            # A plant that is not being cultivated does not need a leaf-disease
+            # verdict, it needs care advice. Routing an aloe through the cannabis
+            # path was the mistake: the disease models have no class for it, so
+            # the answer was always going to be a refusal or a guess, when the
+            # useful question - is it thirsty, drowning, or reaching for light -
+            # needs no disease model at all.
+            _species = self._get_species_for_plant(plant_id)
+            _profile = self._profile_for(_species)
+            if _profile and not _profile.get("cultivated"):
+                _desc = args.get("symptom_text") or args.get("notes") or ""
+                if not _desc and args.get("photo_path") and VISION_AVAILABLE:
+                    _desc = self._call_inference_vision(
+                        self._vision_prompt_for(plant_id), args["photo_path"]) or ""
+                care = self.assess_care(_desc, species=_species, plant_id=plant_id)
+                care["classification"] = "care_assessment"
+                care["description_used"] = _desc[:400]
+                care["routed"] = (f"{_species} is not a cultivated species here, so this is a care "
+                                  "reading rather than a disease diagnosis.")
+                return {"result": care}
+
             symptom_text = args.get("symptom_text") or args.get("notes") or ""
             airflow_impact = args.get("airflow_impact")
             disease_signs = args.get("disease_signs")
@@ -2500,6 +2725,11 @@ class GrowAgent(AgentBase):
             self.store_own_memory("stage_eval_index", json.dumps(index))
 
             return {"result": recommendation, "record": record}
+
+        elif task == "assess_care":
+            desc = args.get("description") or args.get("notes") or args.get("text") or ""
+            return {"result": self.assess_care(
+                desc, species=args.get("species"), plant_id=args.get("plant_id"))}
 
         elif task == "assess_stage":
             return {"result": self.assess_stage(
