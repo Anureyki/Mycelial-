@@ -392,8 +392,20 @@ class GrowAgent(AgentBase):
         except Exception:
             return []
 
-    def _load_nutrient_history_index(self):
-        raw = self._unwrap_value(self.retrieve_own_memory("nutrient_change_index"))
+    @staticmethod
+    def _nutrient_keys(plant_id):
+        """Per-plant nutrient storage. These were single global keys, so setting
+        a recipe for a second plant overwrote the first one's and interleaved
+        their histories - which would have made the concentration-lag detector
+        compare a seedling against a veg plant. current_plant keeps the original
+        key names so existing records stay readable."""
+        if not plant_id or plant_id == "current_plant":
+            return "current_nutrients", "nutrient_change_index"
+        return f"current_nutrients_{plant_id}", f"nutrient_change_index_{plant_id}"
+
+    def _load_nutrient_history_index(self, plant_id="current_plant"):
+        _, index_key = self._nutrient_keys(plant_id)
+        raw = self._unwrap_value(self.retrieve_own_memory(index_key))
         if not raw:
             return []
         try:
@@ -402,9 +414,9 @@ class GrowAgent(AgentBase):
         except Exception:
             return []
 
-    def _get_nutrient_history(self, plant_id=None):
+    def _get_nutrient_history(self, plant_id="current_plant"):
         out = []
-        for k in self._load_nutrient_history_index():
+        for k in self._load_nutrient_history_index(plant_id):
             raw = self._unwrap_value(self.retrieve_own_memory(k))
             if not raw:
                 continue
@@ -417,7 +429,7 @@ class GrowAgent(AgentBase):
             out.append(rec)
         return sorted(out, key=lambda r: r.get("timestamp") or "")
 
-    def _detect_lagging_nutrients(self, threshold_ratio=0.5):
+    def _detect_lagging_nutrients(self, threshold_ratio=0.5, plant_id="current_plant"):
         """Find components that have not scaled with the rest of the recipe.
 
         Stage multipliers are applied to whatever is currently recorded, which
@@ -427,7 +439,7 @@ class GrowAgent(AgentBase):
         sat at the same dose from week 1 to week 4 while everything else rose and
         the plant doubled. Returns {nutrient: {...}} for components whose growth
         is under threshold_ratio of the median growth across the recipe."""
-        history = self._get_nutrient_history()
+        history = self._get_nutrient_history(plant_id)
         # A recipe recorded as a CORRECTION is not a baseline - it is a mistake
         # being undone. Comparing against it inverts the finding: plant #1's
         # week-1 entry was a dilution fixing an over-concentration that had
@@ -1183,6 +1195,8 @@ class GrowAgent(AgentBase):
             # a per-volume rate and a total for the reservoir - which is the
             # difference between a correct mix and a badly wrong one. The record
             # is self-describing so that ambiguity can't be reintroduced.
+            nut_plant_id = args.get("plant_id", "current_plant")
+            cur_key, idx_key = self._nutrient_keys(nut_plant_id)
             stage = args.get("stage", "unknown")
             unit = args.get("unit", "ml")
             basis = (args.get("basis") or "total").lower()
@@ -1252,12 +1266,12 @@ class GrowAgent(AgentBase):
             if backfill_ts:
                 hist_key = f"nutrient_change_{backfill_ts}"
                 self.store_own_memory(hist_key, json.dumps(record))
-                hist = self._load_nutrient_history_index()
+                hist = self._load_nutrient_history_index(nut_plant_id)
                 if hist_key not in hist:
                     hist.append(hist_key)
-                self.store_own_memory("nutrient_change_index", json.dumps(sorted(hist)))
+                self.store_own_memory(idx_key, json.dumps(sorted(hist)))
                 return {"result": "Historical nutrient entry recorded", "nutrients": record}
-            self.store_own_memory("current_nutrients", json.dumps(record))
+            self.store_own_memory(cur_key, json.dumps(record))
             # Also append to a history index. "current_nutrients" is a single
             # overwritten slot, so every previous recipe was silently destroyed
             # by the next change - which loses exactly the thing that matters for
@@ -1265,9 +1279,9 @@ class GrowAgent(AgentBase):
             # size and the measured ppm. Keep each change as its own entry.
             hist_key = f"nutrient_change_{self._uid()}"
             self.store_own_memory(hist_key, json.dumps(record))
-            hist = self._load_nutrient_history_index()
+            hist = self._load_nutrient_history_index(nut_plant_id)
             hist.append(hist_key)
-            self.store_own_memory("nutrient_change_index", json.dumps(hist))
+            self.store_own_memory(idx_key, json.dumps(hist))
 
             auto_transition = None
             current_stage = self._unwrap_value(self.retrieve_own_memory("current_stage")) or "unknown"
@@ -2083,7 +2097,8 @@ class GrowAgent(AgentBase):
                 stage = (plant or {}).get("stage", "unknown")
                 strain = (plant or {}).get("strain", "")
 
-            raw = self._unwrap_value(self.retrieve_own_memory("current_nutrients"))
+            cur_key, _ = self._nutrient_keys(plant_id)
+            raw = self._unwrap_value(self.retrieve_own_memory(cur_key))
             current = json.loads(raw) if raw else {}
             base = current.get("nutrients") or {}
             if not base:
@@ -2111,7 +2126,7 @@ class GrowAgent(AgentBase):
             # Correct components that never scaled with the rest before applying
             # the stage multiplier - otherwise the multiplier carries the lag
             # forward rather than fixing it.
-            lagging = self._detect_lagging_nutrients()
+            lagging = self._detect_lagging_nutrients(plant_id=plant_id)
 
             suggested, notes = {}, []
             for name, value in base.items():
@@ -2589,7 +2604,7 @@ class GrowAgent(AgentBase):
             # alone doesn't say whether a change worked - only the measured
             # concentration that followed it does.
             plant_id = args.get("plant_id", "current_plant") if isinstance(args, dict) else "current_plant"
-            history = self._get_nutrient_history()
+            history = self._get_nutrient_history(plant_id)
             readings = self._get_readings_for_plant(plant_id)
 
             timeline = []
@@ -2641,11 +2656,17 @@ class GrowAgent(AgentBase):
             new_liters = self._parse_numeric(args.get("new_reservoir_liters"))
             water_source = (args.get("water_source") or "").lower()
 
-            stage = self._unwrap_value(self.retrieve_own_memory("current_stage")) or "unknown"
-            strain = self._unwrap_value(self.retrieve_own_memory("current_strain")) or ""
+            if plant_id == "current_plant":
+                stage = self._unwrap_value(self.retrieve_own_memory("current_stage")) or "unknown"
+                strain = self._unwrap_value(self.retrieve_own_memory("current_strain")) or ""
+            else:
+                _p = next((x for x in self._get_all_plants() if x.get("plant_id") == plant_id), None)
+                stage = (_p or {}).get("stage", "unknown")
+                strain = (_p or {}).get("strain", "")
             readings = self._get_readings_for_plant(plant_id)
             latest = readings[-1] if readings else {}
-            raw = self._unwrap_value(self.retrieve_own_memory("current_nutrients"))
+            _cur_key, _ = self._nutrient_keys(plant_id)
+            raw = self._unwrap_value(self.retrieve_own_memory(_cur_key))
             current = json.loads(raw) if raw else {}
 
             steps = [
