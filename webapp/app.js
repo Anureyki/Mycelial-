@@ -16,7 +16,7 @@ const attachPreview = document.getElementById('attachPreview');
 const attachName = document.getElementById('attachName');
 const attachClear = document.getElementById('attachClear');
 
-let pendingImage = null; // { base64, name }
+let pendingImages = []; // [{ base64, name }]
 
 const STORAGE_KEY = 'mycelial.serverUrl';
 
@@ -47,7 +47,7 @@ function extractResult(payload) {
   return JSON.stringify(payload);
 }
 
-async function sendPrompt(text, image) {
+async function sendPrompt(text, images) {
   const serverUrl = getServerUrl();
   if (!serverUrl) {
     addMessage('No server URL set. Open settings (gear icon) and set your Anansi server URL first.', 'error');
@@ -55,15 +55,22 @@ async function sendPrompt(text, image) {
     return;
   }
 
-  addMessage(image ? `${text || '(photo)'} \n[photo attached: ${image.name}]` : text, 'user');
+  const n = (images || []).length;
+  const label = n === 1 ? `[photo: ${images[0].name}]` : `[${n} photos attached]`;
+  addMessage(n ? `${text || '(photos)'} \n${label}` : text, 'user');
   const pending = addMessage('...', 'pending');
   sendBtn.disabled = true;
 
   try {
-    const body = image
+    const body = n
       ? { task: 'process_request', args: [JSON.stringify({
-            prompt: text || 'Uploaded a plant photo',
-            metadata: { image_base64: image.base64, image_name: image.name },
+            prompt: text || (n > 1 ? 'Uploaded plant photos' : 'Uploaded a plant photo'),
+            metadata: {
+              images: images.map((im) => ({ data: im.base64, name: im.name })),
+              // Single-image fields kept so an older server still works.
+              image_base64: images[0].base64,
+              image_name: images[0].name,
+            },
           })] }
       : { task: 'process_request', args: [text] };
     const res = await fetch(`${serverUrl}/execute`, {
@@ -164,23 +171,35 @@ saveSettingsBtn.addEventListener('click', () => {
 attachBtn.addEventListener('click', () => imageInput.click());
 
 imageInput.addEventListener('change', () => {
-  const file = imageInput.files && imageInput.files[0];
-  if (!file) return;
-  const reader = new FileReader();
-  reader.onload = () => {
-    const base64 = String(reader.result).split(',')[1] || '';
-    pendingImage = { base64, name: file.name || 'photo.jpg' };
-    attachName.textContent = pendingImage.name;
-    attachPreview.classList.remove('hidden');
-  };
-  reader.onerror = () => {
-    addMessage("Couldn't read that photo - try a different one.", 'error');
-  };
-  reader.readAsDataURL(file);
+  const files = Array.from(imageInput.files || []);
+  if (!files.length) return;
+  let pending = files.length;
+  files.forEach((file) => {
+    const reader = new FileReader();
+    reader.onload = () => {
+      const base64 = String(reader.result).split(',')[1] || '';
+      pendingImages.push({ base64, name: file.name || 'photo.jpg' });
+      if (--pending === 0) refreshAttachPreview();
+    };
+    reader.onerror = () => {
+      addMessage(`Couldn't read ${file.name || 'a photo'} - skipped.`, 'error');
+      if (--pending === 0) refreshAttachPreview();
+    };
+    reader.readAsDataURL(file);
+  });
 });
 
+function refreshAttachPreview() {
+  const n = pendingImages.length;
+  if (!n) { attachPreview.classList.add('hidden'); return; }
+  attachName.textContent = n === 1
+    ? pendingImages[0].name
+    : `${n} photos attached`;
+  attachPreview.classList.remove('hidden');
+}
+
 attachClear.addEventListener('click', () => {
-  pendingImage = null;
+  pendingImages = [];
   imageInput.value = '';
   attachPreview.classList.add('hidden');
 });
@@ -188,14 +207,14 @@ attachClear.addEventListener('click', () => {
 form.addEventListener('submit', (e) => {
   e.preventDefault();
   const text = promptInput.value.trim();
-  if (!text && !pendingImage) return;
-  const image = pendingImage;
+  if (!text && !pendingImages.length) return;
+  const images = pendingImages;
   promptInput.value = '';
   promptInput.style.height = 'auto';
-  pendingImage = null;
+  pendingImages = [];
   imageInput.value = '';
   attachPreview.classList.add('hidden');
-  sendPrompt(text, image);
+  sendPrompt(text, images);
 });
 
 promptInput.addEventListener('keydown', (e) => {

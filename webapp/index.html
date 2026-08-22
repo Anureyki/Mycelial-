@@ -41,7 +41,9 @@
   <button id="attachClear" type="button" aria-label="Remove photo">&times;</button>
 </div>
 <form id="composer">
-  <input id="imageInput" type="file" accept="image/*" capture="environment" class="hidden">
+  <!-- No capture attribute: capture="environment" forces the camera and hides the
+       photo library on iOS/Android. multiple allows batch upload. -->
+  <input id="imageInput" type="file" accept="image/*" multiple class="hidden">
   <button id="attachBtn" type="button" aria-label="Attach photo">&#128247;</button>
   <textarea id="promptInput" placeholder="Ask Mycelial..." rows="1" autocomplete="off"></textarea>
   <button id="sendBtn" type="submit">Send</button>

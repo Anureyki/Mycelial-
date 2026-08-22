@@ -815,6 +815,16 @@ class GrowAgent(AgentBase):
 
     NEGATION_CUES = ("no ", "not ", "without ", "never ", "free of ", "absence of ", "n't ")
 
+    # Phrases where a problem keyword appears in a PROTECTIVE or hypothetical
+    # context rather than as an observed symptom. A vision model describing a
+    # scene says things like "foil used to protect the plant from pests" - the
+    # keyword is present, nothing is negated, and nothing is wrong. Matching it
+    # produced "Recommend intervention or removal" on a plant it had just called
+    # healthy. This is a mitigation, not a fix: the real answer is structured
+    # observations from the perception layer instead of keyword-matched prose.
+    PROTECTIVE_CUES = ("protect", "prevent", "guard against", "deter", "in case of",
+                       "to avoid", "used against", "treatment for", "resistant to")
+
     def _negation_aware_hit(self, text, keywords):
         """True if any keyword appears in a non-negated clause of text. Splits on
         clause boundaries so a negation word governs its whole clause - e.g. "no
@@ -825,6 +835,8 @@ class GrowAgent(AgentBase):
         lowered = str(text).lower()
         for clause in re.split(r'[.;,]|\bbut\b|\bhowever\b', lowered):
             if any(neg in clause for neg in self.NEGATION_CUES):
+                continue
+            if any(cue in clause for cue in self.PROTECTIVE_CUES):
                 continue
             if any(k in clause for k in keywords):
                 return True

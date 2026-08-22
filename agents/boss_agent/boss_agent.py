@@ -95,7 +95,10 @@ class BossAgent(AgentBase):
                 ext = ".jpg"
             photos_dir = os.path.expanduser("~/mycelial/knowledge_base/grow_agent/photos")
             os.makedirs(photos_dir, exist_ok=True)
-            path = os.path.join(photos_dir, f"upload_{int(time.time())}{ext}")
+            # Microsecond precision: a batch upload saves several images inside
+            # the same second, and second-granularity names would silently
+            # overwrite each other down to a single file.
+            path = os.path.join(photos_dir, f"upload_{int(time.time() * 1_000_000)}{ext}")
             with open(path, "wb") as f:
                 f.write(raw)
             self.log(f"Saved uploaded image to {path} ({len(raw)} bytes)")
@@ -700,7 +703,13 @@ class BossAgent(AgentBase):
             else:
                 return {"error": "Invalid args format"}
 
-            image_base64 = metadata.get("image_base64") if isinstance(metadata, dict) else None
+            # Batch upload: metadata.images is a list of {data, name}. The older
+            # single image_base64/image_name pair is still accepted so a stale
+            # cached client keeps working.
+            images = metadata.get("images") if isinstance(metadata, dict) else None
+            if not images and isinstance(metadata, dict) and metadata.get("image_base64"):
+                images = [{"data": metadata["image_base64"], "name": metadata.get("image_name", "upload.jpg")}]
+            image_base64 = images[0]["data"] if images else None
 
             if not prompt and not image_base64:
                 return {"error": "Missing prompt"}
@@ -713,18 +722,40 @@ class BossAgent(AgentBase):
             # image_base64 handling below) so a future second vision-capable
             # agent can be added by branching on prompt content/metadata here
             # without touching the upload/save plumbing.
-            if image_base64:
-                self.log("User uploaded an image - routing to grow_agent's vision pipeline")
-                photo_path = self._save_uploaded_image(image_base64, metadata.get("image_name", "upload.jpg"))
-                if not photo_path:
-                    return {"result": "I couldn't process that image - it may be corrupted, empty, or too large (15MB max)."}
-                response = self.send_a2a(
-                    "grow_agent", "evaluate_leaf",
-                    {"plant_id": metadata.get("plant_id", "current_plant"), "photo_path": photo_path},
-                    timeout=180
-                )
-                text = self._format_response("evaluate_leaf", response, "grow_agent")
-                return {"result": text, "evidence": response}
+            if images:
+                self.log(f"User uploaded {len(images)} image(s) - routing to grow_agent's vision pipeline")
+                saved, failed = [], 0
+                for im in images:
+                    path = self._save_uploaded_image(im.get("data"), im.get("name", "upload.jpg"))
+                    if path:
+                        saved.append(path)
+                    else:
+                        failed += 1
+                if not saved:
+                    return {"result": "I couldn't process those images - they may be corrupted, empty, or over the 15MB limit."}
+
+                plant_id = metadata.get("plant_id", "current_plant")
+                results = []
+                for path in saved:
+                    resp = self.send_a2a(
+                        "grow_agent", "evaluate_leaf",
+                        {"plant_id": plant_id, "photo_path": path},
+                        timeout=180
+                    )
+                    results.append({"photo": os.path.basename(path),
+                                    "assessment": self._format_response("evaluate_leaf", resp, "grow_agent"),
+                                    "raw": resp})
+
+                if len(results) == 1:
+                    text = results[0]["assessment"]
+                else:
+                    lines = [f"Looked at {len(results)} photos."]
+                    for i, r in enumerate(results, 1):
+                        lines.append(f"{i}. {r['assessment']}")
+                    text = "\n".join(lines)
+                if failed:
+                    text += f"\n({failed} could not be read and were skipped.)"
+                return {"result": text, "evidence": results}
 
             # --- README / documentation ---
             if "readme" in prompt.lower() or "documentation" in prompt.lower():
