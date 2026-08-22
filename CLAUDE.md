@@ -126,6 +126,45 @@ The test is whether the subject is **domain-specific**. If it is, it belongs to
 that domain's agent. If it is not, answer it and move on without persisting
 anything.
 
+### Lived data outranks documentation
+
+Observed outcomes carry more authority than what is written down. A product
+label, a spec sheet, a manual or a published guideline is **reference**: it is
+generic, it may be out of date, and it was often written by someone with an
+interest in the answer. What the system actually measured, and what actually
+happened afterwards, is evidence.
+
+This is not a licence to ignore documentation. Where the two agree, confidence
+rises - two independent lines pointing the same way is worth more than either.
+Where they disagree, the recorded outcome wins and the disagreement itself is
+worth logging, because a documented figure that repeatedly fails against live
+data is information about the document.
+
+Concretely: Botanicare's Cal-Mag chart says 3-5 mL/gal in vegetative growth.
+That is recorded as `label_guidance` in the inventory, never as the operating
+rate. The rate this grow actually runs is derived from measured ppm, observed
+leaf response, and the plant's own history. When the label and the observations
+converged on Cal-Mag being under-dosed, that convergence was the finding - not
+the label on its own.
+
+The same applies to every domain. A statute as published, a contract as drafted,
+a vendor's stated behaviour, a datasheet's rated tolerance - all reference.
+What was observed to happen is the record.
+
+### Domain focus (recorded intent, not yet built)
+
+- **Accounting** should surface **equitable interest and control**, not debit
+  versus credit. Cash in and out is bookkeeping. What matters is who holds
+  beneficial interest in what, and who controls it.
+- **Legal** should scrutinise whether an instrument actually operates in the
+  principal's favour - whether it was negotiated properly, whether it holds up
+  against current law, and whether the principal's equitable interest as a
+  party is preserved. A signed contract is not automatically a lawful one, and
+  execution is not the same as enforceability.
+- Cross-domain: a court order, judgment or instrument establishing an amount or
+  an equitable interest is exactly the kind of finding one agent should flag to
+  the other.
+
 ### Cross-domain findings
 
 A domain agent may surface something that belongs to another domain - Legal
