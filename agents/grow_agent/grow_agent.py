@@ -1793,6 +1793,94 @@ class GrowAgent(AgentBase):
     STAGE_AGE_MIDPOINT = {"germination": 3, "seedling": 12, "early_veg": 20,
                           "veg": 35, "flower": 60}
 
+    def reading_cadence(self, plant_id="current_plant"):
+        """How often this system needs a reading, derived from what its own
+        analyses require rather than from a generic recommendation.
+
+        Every number here is a constraint that already exists in this file. The
+        point is that cadence is not a preference - each analysis has a minimum
+        spacing below which it cannot conclude anything, and a maximum gap above
+        which it cannot prove anything.
+
+        The two failure directions are different and both real:
+
+        TOO CLOSE wastes effort and produces nothing. analyze_consumption
+        refuses a window under 24h because a 15L reservoir shifts a few percent
+        a day and volume read off an unmarked sight tube is good to about
+        +/-10%. Two readings an hour apart cannot separate uptake from
+        measurement error, so the extra reading buys no information.
+
+        TOO FAR APART loses evidence permanently. analyze_deficit could only
+        prove 9 days of a deficit that ran longer, because a 9-day gap between
+        readings contains no measurement to attribute to either side of it. The
+        plant was underfed the whole time; the record can only defend part of
+        it."""
+        stage = self._unwrap_value(self.retrieve_own_memory("current_stage")) or "unknown"
+        if plant_id != "current_plant":
+            p = next((x for x in self._get_all_plants()
+                      if x.get("plant_id") == plant_id), None)
+            stage = (p or {}).get("stage", "unknown")
+        sched = MONITORING_SCHEDULE.get(str(stage).lower())
+        target_days = sched["interval_days"] if sched else 3
+
+        # What the grower is ACTUALLY doing, from the record.
+        readings = sorted([r for r in self._get_readings_for_plant(plant_id)
+                           if r.get("timestamp")], key=lambda r: r["timestamp"])
+        gaps = []
+        for a, b in zip(readings, readings[1:]):
+            try:
+                h = (datetime.fromisoformat(b["timestamp"][:19])
+                     - datetime.fromisoformat(a["timestamp"][:19])).total_seconds() / 3600
+                if h > 0:
+                    gaps.append(h)
+            except Exception:
+                continue
+        observed = None
+        if gaps:
+            gaps_sorted = sorted(gaps)
+            median_h = gaps_sorted[len(gaps_sorted) // 2]
+            observed = {
+                "readings": len(readings),
+                "median_gap_days": round(median_h / 24, 1),
+                "longest_gap_days": round(max(gaps) / 24, 1),
+                "gaps_over_target": sum(1 for g in gaps if g / 24 > target_days),
+            }
+
+        return {
+            "plant_id": plant_id,
+            "stage": stage,
+            "recommended_days": target_days,
+            "recommended_because": (
+                f"{stage} wants a reading every {target_days} day(s). Intervals shorten as the "
+                "plant grows because consumption is non-linear: a weekly check is ample while the "
+                "plant is small relative to the reservoir and leaves it starving for days once "
+                "the root mass fills it."),
+            "minimum_useful_spacing_hours": MIN_CONSUMPTION_WINDOW_HOURS,
+            "minimum_because": (
+                f"Readings closer than {MIN_CONSUMPTION_WINDOW_HOURS}h cannot measure uptake. "
+                f"A reservoir this size shifts a few percent a day and volume off an unmarked "
+                f"sight tube is good to about +/-10%, so anything under the "
+                f"{CONSUMPTION_NOISE_FLOOR_PCT:.0f}% noise floor is measurement error, not "
+                "consumption. The extra reading costs effort and buys nothing."),
+            "maximum_useful_gap_days": target_days * 2,
+            "maximum_because": (
+                "A gap contains no measurement, so nothing inside it can be attributed to either "
+                "side. This is not hypothetical here: the deficit analysis can only prove 9 days "
+                "of an underfeed that ran longer, because a 9-day gap sits inside it."),
+            "observed": observed,
+            "sensors": {
+                "ph_temp": ("Hourly is genuinely useful. These move on that timescale and are "
+                            "measured precisely, so more samples means real signal."),
+                "ppm_volume": ("Hourly is mostly noise. Log an hourly sensor as a DAILY "
+                               "aggregate - min, max and mean - rather than as 24 readings, or "
+                               "the resolution guards will correctly refuse almost all of it and "
+                               "the record fills with rows that cannot support a conclusion."),
+                "why": ("More data is only better when it is above the resolution of the question "
+                        "being asked. Sampling faster than the thing changes does not add "
+                        "information, it adds rows."),
+            },
+        }
+
     def analyze_deficit(self, plant_id="current_plant"):
         """What a period below target actually cost, measured rather than guessed.
 
@@ -3548,6 +3636,10 @@ class GrowAgent(AgentBase):
 
         elif task == "check_target_drift":
             return {"result": self.check_target_drift(
+                args.get("plant_id", "current_plant") if isinstance(args, dict) else "current_plant")}
+
+        elif task == "reading_cadence":
+            return {"result": self.reading_cadence(
                 args.get("plant_id", "current_plant") if isinstance(args, dict) else "current_plant")}
 
         elif task == "analyze_deficit":

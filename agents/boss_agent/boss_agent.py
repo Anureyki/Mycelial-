@@ -37,6 +37,9 @@ GROW_TERMS = (
     "vegetative", "flower", "bloom", "pistil", "calyx", "trichome", "harvest",
     "leaf", "leaves", "canopy", "node", "root", "roots", "strain",
     "autoflower", "auto-?flower", "photoperiod", "cultivar",
+    # the act of keeping the record itself - asking how often to log is a grow
+    # question even when it names no plant, no measurement and no equipment
+    "reading", "readings", "log\b", "logging", "cadence", "how often",
     # actions
     "transplant", "defoliat", "lollipop", "topping", "water change", "top ?off",
 )
@@ -250,6 +253,12 @@ class BossAgent(AgentBase):
     # status card - "when is my next nutrient upgrade", "what is my ppm right
     # now" and "how is plant one" all returned identical text.
     GROW_INTENTS = (
+        # Asked before "schedule" so "how often should I log" is answered with
+        # the cadence the analyses need, not with the next reservoir change.
+        ("cadence", r"\bhow often\b.*\b(log|read|check|measure|record|take)\b|"
+                    r"\b(log|reading|readings)\b.*\b(how often|frequency|cadence|expectancy)\b|"
+                    r"\b(reading|logging) (frequency|cadence|schedule|expectancy)\b|"
+                    r"\bhow many (readings|logs)\b"),
         ("schedule", r"\bwhen\b|\bhow (long|soon|often)\b|\bnext\b|\bdue\b|\bschedule\b|"
                      r"\bupcoming\b|\bshould i .*(change|feed|water|top ?up)\b"),
         ("measurement", r"\bwhat('| i)?s? (my|the) (ppm|ph|ec|tds|temp|temperature|humidity|volume)\b|"
@@ -360,6 +369,28 @@ class BossAgent(AgentBase):
                 bits.append("Scheduled: " + "; ".join(
                     f"{r.get('title')} (due {r.get('target_date')})" for r in rem[:3]) + ".")
             return " ".join(b for b in bits if b) or None
+
+        if intent == "cadence":
+            c = peel(self.send_a2a("grow_agent", "reading_cadence",
+                                   {"plant_id": plant_id}, timeout=40))
+            if not c or c.get("error"):
+                return None
+            bits = [f"Every {c.get('recommended_days')} days at {c.get('stage')} stage.",
+                    c.get("recommended_because") or ""]
+            o = c.get("observed") or {}
+            if o.get("median_gap_days") is not None:
+                bits.append(f"You are averaging one every {o['median_gap_days']} days across "
+                            f"{o['readings']} readings, with a longest gap of "
+                            f"{o['longest_gap_days']} days"
+                            + (f" and {o['gaps_over_target']} gap(s) past target."
+                               if o.get("gaps_over_target") else "."))
+            bits.append(c.get("maximum_because") or "")
+            bits.append(c.get("minimum_because") or "")
+            sens = c.get("sensors") or {}
+            if sens:
+                bits.append("With sensors: " + (sens.get("ph_temp") or "")
+                            + " " + (sens.get("ppm_volume") or ""))
+            return " ".join(b for b in bits if b)
 
         if intent == "impact":
             d = peel(self.send_a2a("grow_agent", "analyze_deficit",
