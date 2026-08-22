@@ -1189,7 +1189,17 @@ class GrowAgent(AgentBase):
                                   "without it, and capacity overstates it whenever the reservoir "
                                   "is not full.")}
 
-            reserved = {"stage", "unit", "basis", "reservoir_liters", "volume_liters", "typical_working_liters"}
+            # Everything that is NOT a nutrient. Adding reasoning_context without
+            # extending this swept reason/decision/expected_effect into the
+            # recipe itself, so the feed read back as "confidence_note high...ml".
+            reserved = {
+                "stage", "unit", "basis", "reservoir_liters", "volume_liters",
+                "typical_working_liters", "plant_id", "timestamp", "source_note",
+                # reasoning_context fields
+                "reason", "observed_conditions", "decision", "expected_effect",
+                "confidence_note", "context_confidence", "related_events",
+                "corrects", "supersedes", "evidence_kind", "source",
+            }
             nutrients = {k: v for k, v in args.items() if k not in reserved}
             if not nutrients:
                 return {"error": "No nutrient values provided"}

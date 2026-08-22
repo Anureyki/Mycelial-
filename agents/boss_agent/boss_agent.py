@@ -17,6 +17,30 @@ from core.graph_manager import GraphManager
 from core.schemas import RELATIONSHIP_DOMAINS
 
 # Agents that model relationships and are expected to keep the graph in sync.
+# Vocabulary that routes a request to Grow Agent. Deliberately broad, and
+# matched on word boundaries so short terms ("res", "ec", "veg") don't fire on
+# unrelated words. The narrow original list - plant/grow/garden/reservoir/
+# seedling/nutrient - missed "what's the nutrition in the DWC" entirely
+# ("nutrient" is not a substring of "nutrition", and "dwc" was absent), so a
+# question squarely about the grow fell through to the generic reasoning
+# fallback and a 1.5b model answered about a "Direct Water Cooker".
+GROW_TERMS = (
+    # systems and hardware
+    "dwc", "lwc", "hydro", "hydroponic", "reservoir", "res", "bucket", "tent",
+    "net pot", "clay pebble", "pebbles", "leca", "air stone", "airstone",
+    "top feed", "air pump",
+    # measurements and inputs
+    "ppm", "\bph\b", "\bec\b", "tds", "nutrient", "nutrition", "feed", "feeding",
+    "cal-?mag", "calmag", "flora ?(micro|gro|bloom)", "runoff",
+    # plant and lifecycle
+    "plant", "grow", "garden", "seedling", "germinat", "sprout", "veg\b",
+    "vegetative", "flower", "bloom", "pistil", "calyx", "trichome", "harvest",
+    "leaf", "leaves", "canopy", "node", "root", "roots", "strain",
+    "autoflower", "auto-?flower", "photoperiod", "cultivar",
+    # actions
+    "transplant", "defoliat", "lollipop", "topping", "water change", "top ?off",
+)
+
 RELATIONSHIP_AGENTS = ["legal_agent", "accounting_agent", "trust_agent"]
 
 # Soft ACL for update_graph: the `sender` field is self-reported by the calling
@@ -918,7 +942,8 @@ class BossAgent(AgentBase):
                 return {"result": text, "evidence": response}
 
             # --- Grow Agent (plant/garden monitoring) ---
-            if any(keyword in prompt.lower() for keyword in ("plant", "grow ", "garden", "reservoir", "seedling", "nutrient")):
+            if any(re.search(t if "\\b" in t or "?" in t else r"\b" + t, prompt.lower())
+                   for t in GROW_TERMS):
                 self.log("User asking about the grow/plant – delegating to grow_agent")
                 response = self.send_a2a("grow_agent", "get_status", {})
                 history = self.send_a2a("grow_agent", "get_grow_history", {"plant_id": "current_plant"})
