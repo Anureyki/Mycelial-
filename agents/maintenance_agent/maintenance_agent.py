@@ -17,6 +17,26 @@ try:
 except ImportError:
     PSUTIL_AVAILABLE = False
 
+# Processes that must never be suggested for shutdown - the swarm cannot
+# function without them, regardless of how idle they look.
+CORE_PROCESSES = (
+    "registry_service", "memory/service", "logging_auditing",
+    "boss_agent", "anansi", "hermes",
+)
+
+# Services with no caller anywhere in the codebase. Verified by grepping for
+# their ports across agents/ and core/: nothing references them, so they start
+# at boot, pass health checks, and do nothing. Listed rather than detected
+# because "no caller" is a static fact about the code, not a runtime one.
+KNOWN_IDLE_SERVICES = {
+    "training/service": "no caller anywhere in agents/ or core/",
+    "evaluation/service": "no caller anywhere in agents/ or core/",
+    "data_engineering/service": "no caller anywhere in agents/ or core/",
+}
+
+# A process using less than this is not worth reporting as a memory concern.
+RAM_REPORT_FLOOR_MB = 25.0
+
 # Below this many days-to-full at the current trend, a disk-space predictive
 # check flags it as worth attention now rather than waiting for it to
 # actually fill.
@@ -49,7 +69,8 @@ class MaintenanceAgent(AgentBase):
                 "apply_updates", "rollback", "check_errors",
                 "check_container_updates", "update_container",
                 "sample_telemetry", "get_telemetry_history", "predict_disk_full",
-                "scan_unused_docker_resources", "run_cleanup_routine"
+                "scan_unused_docker_resources", "run_cleanup_routine",
+                "analyze_memory_usage"
             ],
             role="system_health"
         )
@@ -176,6 +197,136 @@ class MaintenanceAgent(AgentBase):
             expanded = os.path.expanduser(path)
             result = self._execute_local(f"df -h {expanded}")
             return {"result": result.get("stdout", "No output")}
+
+        elif task == "analyze_memory_usage":
+            # Per-process RAM for the swarm, cross-referenced against whether
+            # anything actually calls each service. Recommends, never kills -
+            # stopping a process is an action that belongs behind the same
+            # authorization boundary as any other.
+            if not PSUTIL_AVAILABLE:
+                return {"error": "psutil not installed - cannot sample per-process memory"}
+
+            vm = psutil.virtual_memory()
+            procs = []
+            for pr in psutil.process_iter(["pid", "name", "cmdline", "memory_info", "create_time"]):
+                try:
+                    cmdline = pr.info.get("cmdline") or []
+                    cmd = " ".join(cmdline)
+                    # Must be a python process actually running an agent module or
+                    # a service file. Matching "mycelial" anywhere in the command
+                    # line also caught shell wrappers and this very scan, which
+                    # reported nine 1MB "services" that were bash invocations.
+                    exe = os.path.basename(cmdline[0]) if cmdline else ""
+                    if not exe.startswith("python"):
+                        continue
+                    is_agent = any(a.startswith("agents.") for a in cmdline)
+                    is_service = any(a.endswith("service.py") or a.endswith("service_manager/service.py")
+                                     or "/services/" in a for a in cmdline)
+                    if not (is_agent or is_service):
+                        continue
+                    rss_mb = pr.info["memory_info"].rss / (1024 * 1024)
+                    procs.append({"pid": pr.info["pid"], "rss_mb": round(rss_mb, 1), "cmd": cmd})
+                except Exception:
+                    continue
+
+            # Recent activity per agent, from the audit trail.
+            active_agents = set()
+            try:
+                resp = requests.get("http://localhost:8009/logs", params={"limit": 500}, timeout=10)
+                if resp.status_code == 200:
+                    for e in resp.json().get("entries", []):
+                        if e.get("agent_id"):
+                            active_agents.add(e["agent_id"])
+            except Exception:
+                pass
+
+            core, idle, other = [], [], []
+            for pinfo in procs:
+                cmd = pinfo["cmd"]
+                idle_reason = next((why for svc, why in KNOWN_IDLE_SERVICES.items() if svc in cmd), None)
+                # A known-idle service is reported regardless of size. The floor
+                # exists to keep noise out of the "other" list, and applying it
+                # first hid three no-caller services at ~13MB each and reported
+                # 0MB reclaimable while they were running.
+                if idle_reason:
+                    pinfo["classification"] = "idle_service"
+                    pinfo["reason"] = idle_reason
+                    idle.append(pinfo)
+                    continue
+                if pinfo["rss_mb"] < RAM_REPORT_FLOOR_MB:
+                    continue
+                if any(c in cmd for c in CORE_PROCESSES):
+                    pinfo["classification"] = "core"
+                    core.append(pinfo)
+                    continue
+                # An agent with no audit activity in the recent window is a
+                # candidate, not a verdict - it may simply not have been asked
+                # anything yet.
+                agent_id = None
+                for part in cmd.split():
+                    if part.startswith("agents."):
+                        agent_id = part.split(".")[-1]
+                if agent_id and agent_id not in active_agents:
+                    pinfo["classification"] = "no_recent_activity"
+                    pinfo["reason"] = "no entries in the last 500 audit events - may simply be unused rather than stuck"
+                    other.append(pinfo)
+                else:
+                    pinfo["classification"] = "active"
+                    other.append(pinfo)
+
+            reclaimable = round(sum(p["rss_mb"] for p in idle), 1)
+            swarm_total = round(sum(p["rss_mb"] for p in procs), 1)
+            findings = []
+            if idle:
+                names = ", ".join(sorted({next(s for s in KNOWN_IDLE_SERVICES if s in p["cmd"]) for p in idle}))
+                findings.append(
+                    f"{len(idle)} service(s) with no caller anywhere in the codebase are holding "
+                    f"{reclaimable:.0f}MB ({names}). They start at boot, pass health checks, and "
+                    "do nothing. Starting them on demand instead would return that memory."
+                )
+            quiet = [p for p in other if p.get("classification") == "no_recent_activity"]
+            if quiet:
+                findings.append(
+                    f"{len(quiet)} agent(s) show no recent audit activity. That is not proof they are "
+                    "idle - an agent nobody has asked anything looks identical to one that is stuck."
+                )
+            if procs:
+                biggest = max(procs, key=lambda x: x["rss_mb"])
+                share = biggest["rss_mb"] / swarm_total * 100 if swarm_total else 0
+                if share > 35:
+                    name = next((c for c in biggest["cmd"].split() if "agents." in c or "service" in c), "a process")
+                    findings.append(
+                        f"{name} alone holds {biggest['rss_mb']:.0f}MB, {share:.0f}% of the swarm. "
+                        "Agents that load ML models keep them resident for the process lifetime, so "
+                        "the cost is paid whether or not the model is being used."
+                    )
+            if vm.percent > 85:
+                findings.append(f"System memory at {vm.percent:.0f}% - headroom is thin.")
+
+            recommendation = self._make_recommendation(
+                f"Swarm using {swarm_total:.0f}MB across {len(procs)} processes; system at {vm.percent:.0f}%.",
+                " ".join(findings) if findings else "Nothing obviously wasteful.",
+                (f"Up to {reclaimable:.0f}MB is reclaimable by not starting the no-caller services at boot. "
+                 "Recommendation only - no process is stopped automatically.") if reclaimable
+                else "No action needed.",
+                "high" if (reclaimable > 100 or vm.percent > 85) else "medium",
+            ) if hasattr(self, "_make_recommendation") else {
+                "observation": f"Swarm using {swarm_total:.0f}MB across {len(procs)} processes",
+                "findings": findings,
+            }
+
+            return {"result": {
+                "system_percent": vm.percent,
+                "system_available_mb": round(vm.available / (1024 * 1024), 1),
+                "swarm_total_mb": swarm_total,
+                "reclaimable_mb": reclaimable,
+                "core": sorted(core, key=lambda x: -x["rss_mb"]),
+                "idle_services": sorted(idle, key=lambda x: -x["rss_mb"]),
+                "other": sorted(other, key=lambda x: -x["rss_mb"])[:12],
+                "findings": findings,
+                "recommendation": recommendation,
+                "note": "Recommendations only. Stopping a process is an authorized action, not a maintenance side effect.",
+            }}
 
         elif task == "sample_telemetry":
             if not PSUTIL_AVAILABLE:
