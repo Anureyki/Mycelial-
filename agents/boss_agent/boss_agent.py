@@ -139,6 +139,50 @@ class BossAgent(AgentBase):
         if isinstance(result, dict):
             if "error" in result:
                 return f"Error: {result['error']}"
+            if task == "resource_reclaim":
+                def _peel(x, depth=3):
+                    for _ in range(depth):
+                        if isinstance(x, dict) and "result" in x:
+                            x = x["result"]
+                        else:
+                            break
+                    return x if isinstance(x, dict) else {}
+                lines = []
+                mem = _peel(result.get("memory"))
+                if mem:
+                    total = mem.get("swarm_total_mb")
+                    avail = mem.get("system_available_mb")
+                    if total:
+                        lines.append(f"The swarm is holding {total:.0f} MB; "
+                                     f"{avail:.0f} MB free on the machine.")
+                    for f in (mem.get("findings") or [])[:3]:
+                        lines.append(f)
+                    idle = mem.get("idle_services") or []
+                    if idle:
+                        lines.append("")
+                        for c in idle[:8]:
+                            # services/evaluation/service.py - the meaningful
+                            # part is the directory, not the filename, which is
+                            # "service" for every one of them.
+                            parts = [x for x in c.get("cmd", "?").split() if "/" in x or x.endswith(".py")]
+                            path = parts[-1] if parts else c.get("cmd", "?")
+                            seg = [x for x in path.replace(".py", "").split("/") if x]
+                            name = seg[-2] if len(seg) > 1 and seg[-1] == "service" else seg[-1]
+                            lines.append(f"  - {name}: {c.get('rss_mb','?')} MB - {c.get('reason','idle')}")
+                        # Stopping a process is an action, not a report - it goes
+                        # through authorisation like any other actuation.
+                        lines.append(f"\nThat is {mem.get('reclaimable_mb', 0):.0f} MB reclaimable. "
+                                     "Stopping them needs your OK - say the word and I'll "
+                                     "route it through authorisation.")
+                    elif total:
+                        lines.append("Nothing is sitting idle right now.")
+                disk = _peel(result.get("disk"))
+                if disk:
+                    freed = disk.get("freed_mb") or disk.get("reclaimed_mb")
+                    lines.append(f"Disk cleanup: {freed} MB reclaimed." if freed
+                                 else "Disk cleanup ran; nothing significant to reclaim.")
+                return "\n".join(lines) if lines else "Nothing reclaimable was found."
+
             if task == "pending_decisions":
                 def _inner(x, depth=3):
                     for _ in range(depth):
@@ -916,12 +960,51 @@ class BossAgent(AgentBase):
                 text = self._format_response("check_errors", response, "maintenance_agent")
                 return {"result": text}
 
-            # --- Disk/cleanup routine ---
-            if any(keyword in prompt.lower() for keyword in ("clean up", "cleanup", "free up disk", "free up space", "clear unused", "disk space")):
-                self.log("User asking about disk cleanup – delegating to maintenance_agent")
-                response = self.send_a2a("maintenance_agent", "run_cleanup_routine", {}, timeout=90)
-                text = self._format_response("cleanup_routine", response, "maintenance_agent")
-                return {"result": text, "evidence": response}
+            # --- Reclaiming resources: memory, disk, or unspecified ---
+            #
+            # "Recover 39 mb idle space" matched none of the old keywords - it has
+            # "space" but not "free up space" or "disk space" - so it fell through
+            # to the generic reasoner, which asked a CODE model about system
+            # administration and got back invented Windows and macOS instructions.
+            # The 39 MB it referred to was RAM held by idle services, a figure this
+            # system produced itself via analyze_memory_usage.
+            #
+            # Two failures, both fixed here: the vocabulary was too narrow, and
+            # there was no memory branch at all, only a disk one.
+            lowered_p = prompt.lower()
+            _RECLAIM = ("clean up", "cleanup", "free up", "clear", "reclaim", "recover",
+                        "release", "reduce", "shrink", "idle", "unused", "wasted",
+                        "wasting", "waste", "hogging", "eating", "bloat", "trim",
+                        "not being used", "doing nothing")
+            # Bare "memory" cannot trigger this: in this system it also means the
+            # Memory Service and Hermes storage, so "store that in memory" must not
+            # be read as a request to free RAM. Require RAM-specific phrasing.
+            _MEMORY = ("ram", "memory usage", "memory footprint", "wasting memory",
+                       "eating memory", "hogging memory", "free memory", "resident",
+                       "memory hog", "using memory", "much memory", "footprint")
+            _DISK = ("disk", "storage", "drive", "logs", "docker")
+            # Things that HOLD a resource - reclaim language plus one of these is
+            # a resource question even when no unit is named.
+            _HOLDERS = ("service", "services", "process", "processes", "agent", "agents")
+            has_reclaim = any(k in lowered_p for k in _RECLAIM)
+            if has_reclaim and (any(k in lowered_p for k in _MEMORY + _DISK + _HOLDERS)
+                                or "space" in lowered_p):
+                wants_mem = any(k in lowered_p for k in _MEMORY) or \
+                            any(k in lowered_p for k in _HOLDERS)
+                wants_disk = any(k in lowered_p for k in _DISK)
+                # "space" alone is genuinely ambiguous between RAM and disk, so
+                # report both rather than guessing and acting on the wrong one.
+                if not wants_mem and not wants_disk:
+                    wants_mem = wants_disk = True
+                gathered = {}
+                if wants_mem:
+                    self.log("Resource reclaim (memory) - delegating to maintenance_agent")
+                    gathered["memory"] = self.send_a2a("maintenance_agent", "analyze_memory_usage", {}, timeout=90)
+                if wants_disk:
+                    self.log("Resource reclaim (disk) - delegating to maintenance_agent")
+                    gathered["disk"] = self.send_a2a("maintenance_agent", "run_cleanup_routine", {}, timeout=90)
+                text = self._format_response("resource_reclaim", gathered, "maintenance_agent")
+                return {"result": text, "evidence": gathered}
 
             # --- Purchase recommendation (Grow consults Accounting directly;
             # Boss's only role here is the threshold-escalation gate) ---
