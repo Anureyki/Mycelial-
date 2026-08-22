@@ -2567,8 +2567,15 @@ class GrowAgent(AgentBase):
                     notes.append(
                         f"{name} has not kept pace: up {info['growth_pct']:.0f}% since the first "
                         f"recorded recipe while the recipe as a whole moved {info['median_growth_pct']:.0f}%. "
-                        f"Applied a {info['catchup_multiplier']:.2f}x catch-up on top of the stage "
-                        "multiplier, because scaling a stalled component just carries the lag forward."
+                        # "Applied" read as though the dose had already gone into
+                        # the reservoir, so the grower reasonably asked why it was
+                        # still being flagged. The catch-up is applied to the
+                        # SUGGESTION; nothing has been added to the tank until the
+                        # grower doses it and it is recorded.
+                        f"The suggested figure below already includes a "
+                        f"{info['catchup_multiplier']:.2f}x catch-up on top of the stage multiplier, "
+                        "because scaling a stalled component just carries the lag forward. "
+                        "This stays flagged until a recipe is recorded with the higher amount in it."
                     )
 
             if regrowth:
@@ -2607,6 +2614,61 @@ class GrowAgent(AgentBase):
             recommendation["reservoir_liters"] = current.get("reservoir_liters")
             recommendation["regrowth_adjustment"] = regrowth
             return {"result": recommendation}
+
+        elif task == "apply_feed_recommendation":
+            # Closes the loop between recommending a feed and recording that it
+            # happened.
+            #
+            # recommend_feed produced a 1.45x FloraBloom catch-up and the grower
+            # dosed it - but nothing wrote the resulting recipe back, so the two
+            # most recent entries were byte-identical and the lag detector kept
+            # seeing FloraBloom at the same concentration and kept re-recommending
+            # the same correction. A recommendation acted on and never recorded is
+            # indistinguishable from one ignored.
+            plant_id = args.get("plant_id", "current_plant") if isinstance(args, dict) else "current_plant"
+            rec = self.handle_task("recommend_feed", {"plant_id": plant_id})
+            rec = rec.get("result", rec) if isinstance(rec, dict) else {}
+            if not isinstance(rec, dict) or "suggested" not in rec:
+                return {"error": "No feed recommendation available to apply",
+                        "detail": str(rec)[:200]}
+
+            suggested = rec.get("suggested") or {}
+            # The grower may have rounded to what a syringe can actually measure.
+            # What went in the reservoir is the record; the suggestion is not.
+            actual = args.get("actual") if isinstance(args, dict) else None
+            applied = actual if isinstance(actual, dict) and actual else suggested
+            if not applied:
+                return {"error": "Nothing to apply"}
+
+            payload = dict(applied)
+            payload["basis"] = rec.get("basis") or "total"
+            payload["unit"] = rec.get("unit") or "ml"
+            vol = rec.get("reservoir_liters")
+            if vol:
+                payload["reservoir_liters"] = vol
+            payload["plant_id"] = plant_id
+            payload["evidence_kind"] = "event"
+            payload["reason"] = args.get("reason") or (
+                "Applied the feed recommendation. " + (rec.get("action") or "")[:300])
+            payload["decision"] = ("Dosed as recommended." if applied is suggested
+                                   else "Dosed close to the recommendation, rounded to what the syringe measures.")
+            payload["expected_effect"] = args.get("expected_effect") or (
+                "The lagging component should now track the rest of the recipe, "
+                "and the next lag check should not re-flag it.")
+            payload["confidence_note"] = args.get("confidence_note") or "high - dose applied by the grower"
+            payload["observed_conditions"] = args.get("observed_conditions", "")
+
+            result = self.handle_task("set_current_nutrients", payload)
+            lag_after = self._detect_lagging_nutrients(plant_id=plant_id)
+            return {"result": {
+                "applied": applied,
+                "was_suggestion": actual is None,
+                "recorded": result.get("result", result) if isinstance(result, dict) else result,
+                "lagging_after": lag_after,
+                "note": ("Recorded. The lag check now reports "
+                         + (", ".join(lag_after) if lag_after else "nothing lagging")
+                         + "."),
+            }}
 
         elif task == "set_inventory":
             # What the grower actually has on hand. Product label guidance is
