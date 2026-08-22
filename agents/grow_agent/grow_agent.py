@@ -7,7 +7,7 @@ import json
 import math
 import re
 import requests
-from datetime import datetime
+from datetime import datetime, timedelta
 
 project_root = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 sys.path.insert(0, project_root)
@@ -1059,8 +1059,25 @@ class GrowAgent(AgentBase):
                                    "cannabis-specific and does not transfer."),
                     "stage": stage, "days": age, "species": species, "acted": False}
 
+        # A germination date inferred FROM the stage cannot then be evidence
+        # ABOUT the stage - that is circular, and it would auto-transition an
+        # acquired plant on the strength of a guess.
+        estimated = False
+        if plant_id != "current_plant":
+            _r = self._unwrap_value(self.retrieve_own_memory(f"plant_{plant_id}"))
+            try:
+                estimated = bool(json.loads(_r).get("germination_date_estimated")) if _r else False
+            except Exception:
+                estimated = False
+
         bounds = self.STAGE_AGE_BOUNDS.get(str(stage).lower())
-        impossible = bool(bounds) and age > bounds[1]
+        impossible = bool(bounds) and age > bounds[1] and not estimated
+        if estimated and bounds and age > bounds[1]:
+            return {"assessment": (f"'{stage}' sits outside the usual window for {age} days, but "
+                                   "that age is estimated rather than observed, so it is not "
+                                   "grounds to move the stage."),
+                    "stage": stage, "days": age, "age_estimated": True, "acted": False,
+                    "resolve_with": "verify_growth_stage with a photo - morphology is observable, the germination date is not"}
 
         # The furthest stage the age alone supports, never past veg.
         candidate = stage
@@ -1769,6 +1786,91 @@ class GrowAgent(AgentBase):
                     if isinstance(p_, str):
                         paths.add(p_)
         return sorted(paths)
+
+    # Roughly how far into life each stage sits, for estimating the age of a
+    # plant that arrived already grown. Midpoints, and only ever used to produce
+    # an ESTIMATE that is labelled as one.
+    STAGE_AGE_MIDPOINT = {"germination": 3, "seedling": 12, "early_veg": 20,
+                          "veg": 35, "flower": 60}
+
+    def acquire_plant(self, plant_id, stage, species="cannabis", strain="",
+                      source="", prior_system="", prior_medium="",
+                      estimated_age_days=None, note=""):
+        """Register a plant that arrived already growing.
+
+        set_germination_date refuses without a date, which is right for a seed
+        you started and wrong for a plant someone hands you: you know its stage,
+        maybe roughly its age, and nothing about the day it cracked.
+
+        The germination date is therefore ESTIMATED and marked as such, because
+        the difference matters downstream. assess_stage uses age to decide
+        whether a recorded stage is impossible, and it must not transition a
+        plant on the strength of a date that was inferred from the very stage it
+        is checking - that is circular. Everything before acquisition is
+        recorded as unknown rather than absent, so the agent can say what it does
+        not know instead of reasoning as though the history were complete."""
+        if not plant_id:
+            return {"error": "Missing plant_id"}
+        if not stage:
+            return {"error": ("Missing stage. For an acquired plant the stage on arrival is "
+                              "what is actually observable - the germination date is not.")}
+        allowed, _ = self.stages_for_species(species)
+        if stage not in allowed:
+            return {"error": f"'{stage}' is not a stage for {species}. Valid: {', '.join(allowed)}"}
+
+        est_age = self._parse_numeric(estimated_age_days)
+        inferred = est_age is None
+        if inferred:
+            est_age = self.STAGE_AGE_MIDPOINT.get(str(stage).lower())
+        germ_est = None
+        if est_age:
+            germ_est = (datetime.now() - timedelta(days=int(est_age))).date().isoformat()
+
+        acquired_at = datetime.now().isoformat()
+        record = {
+            "plant_id": plant_id,
+            "species": species,
+            "strain": strain or "Unknown",
+            "stage": stage,
+            "status": "active",
+            "logged_at": acquired_at,
+            "acquired_at": acquired_at,
+            "origin": "acquired",
+            "source": source or "unknown",
+            "germination_date": germ_est,
+            # The flag other reasoning has to respect. A date worked backwards
+            # from a stage cannot then be used as evidence about that stage.
+            "germination_date_estimated": True,
+            "age_basis": ("grower's estimate" if not inferred
+                          else f"inferred from arriving at '{stage}'"),
+            "prior_system": prior_system or "unknown",
+            "prior_medium": prior_medium or "unknown",
+            "history_known_from": acquired_at,
+            "history_before_acquisition": "unknown - not observed by this system",
+            "note": note,
+        }
+        self.store_own_memory(f"plant_{plant_id}", json.dumps(record))
+        index = self._load_plant_index()
+        if plant_id not in index:
+            index.append(plant_id)
+            self.store_own_memory("plant_index", json.dumps(index))
+
+        advisories = [
+            ("Nothing is known about this plant before today. Feed response, past "
+             "deficiencies and how it was watered are all unobserved, so early "
+             "recommendations lean on the stage rather than on its history."),
+        ]
+        if germ_est:
+            advisories.append(
+                f"Germination estimated at {germ_est} ({record['age_basis']}). Treated as an "
+                "estimate everywhere - stage will not be auto-corrected from it.")
+        if prior_medium and prior_medium.lower() in ("soil", "coco"):
+            advisories.append(
+                f"Coming out of {prior_medium}: roots grown in medium are structurally different "
+                "from water roots, and the changeover is the risky part, not the destination. "
+                "Use plan_system_transition before moving it.")
+        return {"result": f"Acquired {plant_id} at stage '{stage}'", "plant": record,
+                "advisories": advisories}
 
     def archive_plant(self, plant_id, status="harvested", note="", outcome=None,
                       photos="purge"):
@@ -3336,6 +3438,13 @@ class GrowAgent(AgentBase):
             return {"result": self.check_target_drift(
                 args.get("plant_id", "current_plant") if isinstance(args, dict) else "current_plant")}
 
+        elif task == "acquire_plant":
+            return {"result": self.acquire_plant(
+                args.get("plant_id"), args.get("stage"), args.get("species", "cannabis"),
+                args.get("strain", ""), args.get("source", ""),
+                args.get("prior_system", ""), args.get("prior_medium", ""),
+                args.get("estimated_age_days"), args.get("note", ""))}
+
         elif task == "archive_plant":
             return {"result": self.archive_plant(
                 args.get("plant_id"), args.get("status", "harvested"),
@@ -4180,6 +4289,16 @@ class GrowAgent(AgentBase):
             plant_id = args.get("plant_id", "current_plant")
             from_system = args.get("from_system", "current system")
             to_system = args.get("to_system", "new system")
+            # Out of a MEDIUM is a different operation from hydro to hydro, and
+            # the generic advice below is written for the latter: it says roots
+            # move with the net pot and suffer almost no disturbance, which is
+            # true of water roots and false of a soil root ball. Soil roots and
+            # water roots are structurally different - soil roots have root hairs
+            # adapted to air pockets in medium and largely die back in standing
+            # water, so the plant has to grow a new root system while living off
+            # the old one.
+            _from_medium = str(from_system).lower() in ("soil", "coco", "peat", "medium", "potting soil")
+            _to_water = str(to_system).lower() in ("dwc", "lwc", "top_fed_dwc", "hydro", "rdwc")
             new_liters = self._parse_numeric(args.get("new_reservoir_liters"))
             water_source = (args.get("water_source") or "").lower()
 
@@ -4196,7 +4315,33 @@ class GrowAgent(AgentBase):
             raw = self._unwrap_value(self.retrieve_own_memory(_cur_key))
             current = json.loads(raw) if raw else {}
 
-            steps = [
+            # A move out of medium into water needs its own steps, first,
+            # because the generic ones assume roots that are already in solution.
+            medium_steps = []
+            if _from_medium and _to_water:
+                medium_steps = [
+                    "Soak the root ball in room-temperature water and let the medium fall away "
+                    "on its own. Do not pick or rinse soil off under a tap - the fine root hairs "
+                    "are what feed the plant and they strip off with the soil.",
+                    "Expect to lose most of the existing root function anyway. Soil roots are "
+                    "adapted to air pockets in medium and largely die back in standing water, so "
+                    "the plant has to build a water root system while living off the old one. "
+                    "That is the real cost of this move and it is paid over one to two weeks.",
+                    "Keep the water line HIGH at first so the remaining roots stay wet, then drop "
+                    "it as white water roots appear. This is the opposite of a hydro-to-hydro "
+                    "move, where the level starts low to force roots down.",
+                    "Feed weak - roughly half the target for the stage - until new white root "
+                    "growth is visible. A damaged root system cannot take up a full-strength "
+                    "solution and the excess just raises EC around dying tissue.",
+                    "Watch for browning or sliming in the first week. In soil that is a fungal "
+                    "problem; here it is usually the old roots rotting, which is expected in "
+                    "small amounts and dangerous if it spreads to the crown.",
+                    "If this plant is late in veg or showing preflower, consider NOT moving it. "
+                    "An autoflower on a fixed clock cannot spare one to two weeks of stalled "
+                    "growth to rebuild roots, and there is no extra veg time to make it back.",
+                ]
+
+            steps = medium_steps + [
                 "Have the new reservoir filled, temperature-matched, and pH-balanced BEFORE lifting "
                 "anything. Free-hanging roots have no medium holding moisture and the fine hairs "
                 "desiccate in open air - this is measured in seconds, not minutes.",
