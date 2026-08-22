@@ -112,6 +112,7 @@ async function refreshDashboard() {
     { id: 'systemCard', prompt: 'system status' },
     { id: 'growCard', prompt: 'how is my plant' },
     { id: 'progressCard', prompt: 'catch me up on progress' },
+    { id: 'decisionsCard', prompt: 'what needs my approval' },
   ];
   for (const { id, prompt } of cards) {
     const body = document.querySelector(`#${id} .card-body`);

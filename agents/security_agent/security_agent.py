@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # agents/security_agent/security_agent.py
-import os, json, time, secrets, uuid, fnmatch, shutil
+import os, json, time, secrets, uuid, fnmatch, shutil, re, subprocess
 from datetime import datetime
 from core.base_agent import AgentBase
 
@@ -21,7 +21,9 @@ class SecurityAgent(AgentBase):
             port=9010,
             capabilities=["authenticate", "authorize", "audit", "issue_token",
                           "flag_finding", "list_findings", "resolve_finding",
-                          "check_guard", "reload_guards", "quarantine", "eliminate"],
+                          "check_guard", "reload_guards", "quarantine", "eliminate",
+                          "list_pending_approvals",
+                          "scan_codebase"],
             role="security"
         )
         self.tokens = {}  # simple in-memory token store (persist later)
@@ -120,6 +122,188 @@ class SecurityAgent(AgentBase):
         with open(FINDINGS_FILE, "w") as f:
             json.dump(findings, f, indent=2)
 
+    # --- scanning and learning ---
+    def _secret_patterns(self):
+        """Patterns that detect exposed secrets. Each pattern is (regex, name, severity)."""
+        return [
+            (r'ghp_[A-Za-z0-9_]{36,255}', "GitHub PAT (ghp_)", "critical"),
+            (r'github_pat_[A-Za-z0-9_]{36,255}', "GitHub PAT (github_pat_)", "critical"),
+            (r'AKIA[0-9A-Z]{16}', "AWS Access Key", "critical"),
+            (r'aws_secret_access_key.*=.*[A-Za-z0-9/+=]{40}', "AWS Secret Key", "critical"),
+            (r'api[_-]?key["\']?\s*[:=]\s*["\']?[A-Za-z0-9_\-]{20,}["\']?', "API Key", "high"),
+            (r'password["\']?\s*[:=]\s*["\']([^"\']+)["\']', "Hardcoded password", "high"),
+            (r'secret["\']?\s*[:=]\s*["\']([^"\']+)["\']', "Hardcoded secret", "high"),
+            (r'Bearer\s+[A-Za-z0-9_\-\.]{20,}', "Bearer token", "high"),
+        ]
+
+    def _scan_files_for_secrets(self, deep=False):
+        """Scan Python and config files for secret patterns."""
+        findings = []
+        existing = self._load_findings()
+        existing_locs = {f.get("location") for f in existing if f.get("status") == "open"}
+
+        patterns = self._secret_patterns()
+        scan_dirs = [
+            os.path.join(BASE, "config"),
+            os.path.join(BASE, "agents"),
+            os.path.join(BASE, "services"),
+            os.path.join(BASE, "core"),
+        ]
+
+        for scan_dir in scan_dirs:
+            if not os.path.exists(scan_dir):
+                continue
+            for root, dirs, files in os.walk(scan_dir):
+                # Skip hidden directories and common non-code folders
+                dirs[:] = [d for d in dirs if not d.startswith(".") and d not in ("__pycache__", "node_modules")]
+                for file in files:
+                    if file.endswith((".py", ".json", ".env", ".txt", ".sh")):
+                        file_path = os.path.join(root, file)
+                        try:
+                            with open(file_path, "r", encoding="utf-8", errors="ignore") as f:
+                                content = f.read()
+                                for pattern, name, severity in patterns:
+                                    if re.search(pattern, content, re.IGNORECASE):
+                                        loc = f"{file_path}:{name}"
+                                        if loc not in existing_locs:
+                                            findings.append({
+                                                "severity": severity,
+                                                "summary": f"Exposed {name} in {os.path.relpath(file_path, BASE)}",
+                                                "location": loc,
+                                                "recommendation": f"Rotate the {name} immediately. Remove from code, store in local config files not tracked by git.",
+                                            })
+                                            existing_locs.add(loc)
+                        except (OSError, UnicodeDecodeError):
+                            pass
+        return findings
+
+    def _scan_git_history(self):
+        """Scan git history for secrets (requires gitleaks or manual patterns)."""
+        findings = []
+        existing = self._load_findings()
+        existing_locs = {f.get("location") for f in existing if f.get("status") == "open"}
+
+        try:
+            # Try to use gitleaks if available; fall back to manual git log scanning
+            result = subprocess.run(
+                ["gitleaks", "detect", "--source", BASE, "--verbose", "-v"],
+                cwd=BASE,
+                capture_output=True,
+                text=True,
+                timeout=30
+            )
+            # gitleaks exits 1 if leaks found, 0 if not; output contains details
+            if result.stdout or result.stderr:
+                for line in (result.stdout + result.stderr).split("\n"):
+                    if "secret" in line.lower() or "pat" in line.lower() or "api" in line.lower():
+                        loc = f"git_history:{line[:80]}"
+                        if loc not in existing_locs:
+                            findings.append({
+                                "severity": "critical",
+                                "summary": "Possible secret in git history",
+                                "location": loc,
+                                "recommendation": (
+                                    "Use git-filter-repo or BFG to remove from history, then rotate the credential. "
+                                    "See: https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/removing-sensitive-data-from-a-repository"
+                                ),
+                            })
+                            existing_locs.add(loc)
+        except (FileNotFoundError, subprocess.TimeoutExpired, Exception) as e:
+            self.log(f"gitleaks scan skipped ({type(e).__name__}), using git log fallback")
+
+            # Manual fallback: scan recent git log for secret patterns
+            try:
+                result = subprocess.run(
+                    ["git", "log", "-p", "-S", "ghp_", "--all"],
+                    cwd=BASE,
+                    capture_output=True,
+                    text=True,
+                    timeout=10
+                )
+                if result.stdout:
+                    for line in result.stdout.split("\n")[:50]:  # limit output
+                        if "ghp_" in line:
+                            loc = f"git_history:github_pat"
+                            if loc not in existing_locs:
+                                findings.append({
+                                    "severity": "critical",
+                                    "summary": "GitHub PAT found in git history",
+                                    "location": loc,
+                                    "recommendation": "Rotate immediately. Use git-filter-repo to remove from history.",
+                                })
+                                existing_locs.add(loc)
+                                break
+            except (FileNotFoundError, subprocess.TimeoutExpired, Exception):
+                pass
+
+        return findings
+
+    def _scan_for_bugs(self):
+        """Scan for known bugs: hardcoded patterns, unsafe operations, etc."""
+        findings = []
+        existing = self._load_findings()
+        existing_locs = {f.get("location") for f in existing if f.get("status") == "open"}
+
+        # Known bug patterns
+        bug_patterns = [
+            (r'pgrep\s+-f\s*["\']?\w+["\']?\s*\|\s*awk', "services/service_manager.py", "pgrep+awk race condition",
+             "high", "pgrep output is unreliable with complex process names; use /proc polling or systemd instead"),
+            (r'subprocess\.call.*shell=True', "*", "shell=True in subprocess call",
+             "high", "Potential command injection; use shell=False and pass a list instead"),
+        ]
+
+        for pattern, file_spec, name, severity, rec in bug_patterns:
+            if file_spec == "*":
+                search_dirs = [os.path.join(BASE, "services"), os.path.join(BASE, "agents")]
+            else:
+                search_dirs = [os.path.join(BASE, os.path.dirname(file_spec))]
+
+            for search_dir in search_dirs:
+                if not os.path.exists(search_dir):
+                    continue
+                for root, dirs, files in os.walk(search_dir):
+                    dirs[:] = [d for d in dirs if not d.startswith(".") and d not in ("__pycache__", "node_modules")]
+                    for file in files:
+                        if file.endswith(".py"):
+                            file_path = os.path.join(root, file)
+                            try:
+                                with open(file_path, "r", encoding="utf-8") as f:
+                                    content = f.read()
+                                    if re.search(pattern, content, re.IGNORECASE | re.MULTILINE):
+                                        loc = f"{file_path}:{name}"
+                                        if loc not in existing_locs:
+                                            findings.append({
+                                                "severity": severity,
+                                                "summary": f"{name} in {os.path.relpath(file_path, BASE)}",
+                                                "location": loc,
+                                                "recommendation": rec,
+                                            })
+                                            existing_locs.add(loc)
+                            except (OSError, UnicodeDecodeError):
+                                pass
+
+        return findings
+
+    def _scan_codebase(self, deep=False):
+        """Run all scans and flag new findings."""
+        all_findings = []
+        all_findings.extend(self._scan_files_for_secrets(deep))
+        all_findings.extend(self._scan_git_history())
+        all_findings.extend(self._scan_for_bugs())
+
+        flagged = []
+        for finding_data in all_findings:
+            result = self.handle_task("flag_finding", finding_data, sender="security_agent")
+            if "error" not in result:
+                flagged.append(result.get("finding"))
+
+        return {
+            "scanned": True,
+            "findings_flagged": len(flagged),
+            "findings": flagged,
+            "next": "call list_findings to review, then resolve_finding to mark as handled",
+        }
+
     def handle_task(self, task, args, sender):
         if task == "issue_token":
             agent_id = args.get("agent_id")
@@ -172,6 +356,34 @@ class SecurityAgent(AgentBase):
                     return {"allowed": False, "reason": reason}
 
             return {"allowed": True, "reason": "no matching deny rule"}
+
+        elif task == "list_pending_approvals":
+            # Anything waiting on a human decision. These exist as files that a
+            # person must flip to "approved" - without somewhere that surfaces
+            # them, a request sits in a directory nobody looks at.
+            pending = []
+            try:
+                for fn in sorted(os.listdir(PENDING_DIR)):
+                    if not fn.endswith(".json"):
+                        continue
+                    try:
+                        with open(os.path.join(PENDING_DIR, fn)) as fh:
+                            rec = json.load(fh)
+                    except Exception:
+                        continue
+                    if rec.get("status", "pending") == "pending":
+                        pending.append({
+                            "id": rec.get("id", fn[:-5]),
+                            "action": rec.get("action", "unknown"),
+                            "target": rec.get("target", ""),
+                            "requested_by": rec.get("requested_by", ""),
+                            "requested_at": rec.get("requested_at", ""),
+                            "reason": rec.get("reason", ""),
+                        })
+            except FileNotFoundError:
+                pass
+            return {"result": {"pending": pending, "count": len(pending),
+                               "approve_by": "set status to 'approved' in the file under state/pending_requests/"}}
 
         elif task == "reload_guards":
             # config/guards.json is the kind of file that goes stale silently.
@@ -334,6 +546,13 @@ class SecurityAgent(AgentBase):
                     self._save_findings(findings)
                     return {"result": "Finding resolved", "finding": f}
             return {"error": f"No finding with id {finding_id}"}
+
+        elif task == "scan_codebase":
+            # Proactively scan for secrets, hardcoded credentials, and known bugs.
+            # Flag findings that don't already exist, so the repo owner sees what
+            # needs attention without duplicating old findings on every scan.
+            results = self._scan_codebase(args.get("deep", False))
+            return results
 
         else:
             return {"error": f"Unknown task: {task}"}

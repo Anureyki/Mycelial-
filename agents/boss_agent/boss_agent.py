@@ -139,6 +139,44 @@ class BossAgent(AgentBase):
         if isinstance(result, dict):
             if "error" in result:
                 return f"Error: {result['error']}"
+            if task == "pending_decisions":
+                def _inner(x, depth=3):
+                    for _ in range(depth):
+                        if isinstance(x, dict) and "result" in x:
+                            x = x["result"]
+                        else:
+                            break
+                    return x if isinstance(x, dict) else {}
+
+                pend = _inner(result.get("pending_approvals"))
+                mem = _inner(result.get("memory"))
+                lines = []
+
+                items = pend.get("pending") or []
+                if items:
+                    lines.append(f"{len(items)} thing(s) are waiting on your decision:")
+                    for it in items[:5]:
+                        what = f"{it.get('action','an action')} on {it.get('target','something')}".strip()
+                        why = f" - {it['reason']}" if it.get("reason") else ""
+                        lines.append(f"  \u2022 {what}{why}")
+                    lines.append("Approve by setting status to 'approved' in the matching file under state/pending_requests/.")
+
+                findings = mem.get("findings") or []
+                reclaim = mem.get("reclaimable_mb") or 0
+                if reclaim:
+                    lines.append(
+                        f"Separately, about {reclaim:.0f}MB is sitting in services nothing calls. "
+                        "I can stop starting those at boot if you want that memory back - your call, "
+                        "nothing is stopped without it."
+                    )
+                for f in findings:
+                    if "holds" in f and "% of the swarm" in f:
+                        lines.append(f)
+
+                if not lines:
+                    return "Nothing is waiting on you right now."
+                return "\n".join(lines)
+
             if task == "evaluate_leaf":
                 inner = result.get("result", {}) if isinstance(result, dict) else {}
                 inner = inner.get("result", inner) if isinstance(inner, dict) else {}
@@ -904,6 +942,21 @@ class BossAgent(AgentBase):
                 response = self.send_a2a("grow_agent", "recommend_purchase", {"item": item, "estimated_cost": estimated_cost})
                 text = self._format_response("purchase_recommendation", response, "grow_agent")
                 return {"result": text, "evidence": response}
+
+            # --- What needs a human decision ---
+            # Approval-needing items exist in several places and surface in none
+            # of them: security holds files in state/pending_requests/ that
+            # nobody looks at, and maintenance findings only appear if you happen
+            # to ask for a cleanup. This gathers them into one answer.
+            if any(k in prompt.lower() for k in
+                   ("approval", "approve", "permission", "waiting on me", "needs my ok",
+                    "need my ok", "pending", "sign off", "sign-off", "authorize", "authorise")):
+                self.log("User asking what needs a decision - gathering pending items")
+                pend = self.send_a2a("security_agent", "list_pending_approvals", {}, timeout=30)
+                mem = self.send_a2a("maintenance_agent", "analyze_memory_usage", {}, timeout=90)
+                gathered = {"pending_approvals": pend, "memory": mem}
+                text = self._format_response("pending_decisions", gathered, "boss_agent")
+                return {"result": text, "evidence": gathered}
 
             # --- Log a reservoir/plant reading given in plain language ---
             # e.g. "388 ppm, 21.0c, 6.42 ph are today's average results" - checked
