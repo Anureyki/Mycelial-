@@ -203,6 +203,102 @@ PATTERNS = [
                     "process actually using 867MB."),
         "check": "Would this pattern match the command line running it? Exclude self and known wrappers.",
     },
+    {
+        "id": "with_does_not_close",
+        "severity": "high",
+        "regex": r'with (?:get_db|sqlite3\.connect|self\._conn)\(',
+        "why": ("`with` on a sqlite3 Connection manages the TRANSACTION, not the connection - it "
+                "commits or rolls back and leaves the handle OPEN. Code that reads as though it "
+                "closes leaks one file descriptor per request until the process hits its limit, "
+                "then fails at something unrelated."),
+        "seen_in": ("services/memory/service.py had every call site as `with get_db() as conn:` "
+                    "and no .close() anywhere. At 1,019 open handles to memory.db against a 1,024 "
+                    "limit it could no longer open its own database, and EVERY agent lost its "
+                    "state at once while the data sat intact on disk. Surfaced only as "
+                    "'OSError: Errno 24' in a log nobody was reading."),
+        "check": "Does anything actually call .close()? Count open fds under load: ls /proc/PID/fd | wc -l",
+    },
+    {
+        "id": "silent_no_op_edit",
+        "severity": "high",
+        "regex": r'\.replace\([\'"]|re\.sub\(',
+        "why": ("str.replace on text that does not occur changes nothing and reports nothing. An "
+                "edit that silently did not apply is worse than one that errors, because the "
+                "author believes the change is in and moves on. Compounds when a half-applied "
+                "edit leaves a body referencing a name the signature no longer defines."),
+        "seen_in": ("Three times in one session. A hyphenation fix targeted a function in the "
+                    "wrong file and did nothing twice. An edit to accounting_agent applied to the "
+                    "BODY but not the SIGNATURE, because its docstring differed from its "
+                    "siblings, leaving `temperature` referenced but undefined - every inference "
+                    "call raised NameError."),
+        "check": "Assert the anchor exists before writing. Then test the changed BEHAVIOUR, not that the file parses.",
+    },
+    {
+        "id": "domain_default_masquerading_as_knowledge",
+        "severity": "high",
+        "regex": r'or ["\'](?:cannabis|dwc|hydro|seedling|veg)["\']|get\([^)]*,\s*["\'](?:cannabis|dwc|seedling)["\']\)',
+        "why": ("A default that names a specific domain value is indistinguishable downstream "
+                "from a recorded fact. Anything that reads it treats a guess as evidence."),
+        "seen_in": ("_get_species_for_plant defaulted to 'cannabis' for any unknown plant, so an "
+                    "aloe photo would have been described to the vision model as a 25-day-old "
+                    "Girl Scout Cookies autoflower in deep water culture. Separately the "
+                    "transplant advice assumed hydro-to-hydro and told a soil grower that roots "
+                    "'move with the net pot and suffer almost no disturbance', which is false of "
+                    "a soil root ball."),
+        "check": "Would returning None be honest here? A default that asserts is worse than one that admits ignorance.",
+    },
+    {
+        "id": "positional_identity",
+        "severity": "medium",
+        "regex": r'\[0\]\s*(?:#|$)|plant_?(?:one|1)\b|order\[\s*n\s*-\s*1\s*\]',
+        "why": ("Using a POSITION as an identity breaks the moment the collection changes. "
+                "History attached to 'the first one' silently reattaches to a different thing "
+                "after a removal."),
+        "seen_in": ("'plant one' was resolved against all tracked plants. After a harvest or "
+                    "giving one away, the same phrase would mean a different plant while its "
+                    "readings and recipes stayed with the old id. Fixed by making the id "
+                    "permanent and the label computed over ACTIVE members only."),
+        "check": "If an item is removed, does anything that referred to a position now refer to something else?",
+    },
+    {
+        "id": "circular_inference",
+        "severity": "high",
+        "regex": r'estimated|inferred|approx',
+        "why": ("A value derived FROM something cannot then be used as evidence ABOUT it. The "
+                "conclusion is guaranteed and carries no information, but reads like a finding."),
+        "seen_in": ("acquire_plant estimates a germination date from the stage a plant arrived "
+                    "at. assess_stage then uses age to decide whether a stage is impossible - so "
+                    "it would have 'confirmed' the stage using a date computed from that stage. "
+                    "Now flagged as estimated and refused as grounds for a transition."),
+        "check": "Where did this value come from? If it was derived from the thing it is now being used to judge, it proves nothing.",
+    },
+    {
+        "id": "slow_work_inside_a_request",
+        "severity": "high",
+        "regex": r'timeout=(?:1[2-9]\d|[2-9]\d\d)|requests\.post\([^)]*timeout=\d{3}',
+        "why": ("Work measured in tens of seconds inside a synchronous request will be killed by "
+                "any real client - a phone browser drops it on screen lock or app switch - and "
+                "the client reports failure while the server completes the job with nobody left "
+                "to receive it."),
+        "seen_in": ("Photo upload ran local vision plus a model escalation inside the HTTP "
+                    "request: 21s measured for ONE photo, over a minute for three. The webapp "
+                    "showed 'Request failed' while the assessment completed and checkpointed "
+                    "server-side. Fixed by saving, answering at once, and running vision on a "
+                    "background thread."),
+        "check": "Time it with a real payload. Would a phone on a locked screen still be waiting?",
+    },
+    {
+        "id": "one_answer_shape_for_every_question",
+        "severity": "medium",
+        "regex": r'return \{"result": text',
+        "why": ("Routing to the right agent still leaves the question unanswered if every reply "
+                "is the same summary. The user asked something specific and gets a status card, "
+                "which reads as being ignored."),
+        "seen_in": ("'when is my next nutrient upgrade', 'what is my ppm right now' and 'how is "
+                    "plant one' all returned an identical paragraph about stage and feed. "
+                    "Separately, asking about ONE plant returned a roundup of the whole garden."),
+        "check": "Do two different questions to this branch produce two different answers?",
+    },
 ]
 
 

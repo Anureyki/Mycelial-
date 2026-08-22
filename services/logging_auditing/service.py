@@ -10,6 +10,7 @@ import uuid
 import requests
 from datetime import datetime
 from flask import Flask, request, jsonify
+from contextlib import contextmanager
 
 app = Flask(__name__)
 
@@ -18,10 +19,23 @@ DB_PATH = os.path.join(BASE, "state", "audit.db")
 POLICY_SERVICE_URL = "http://localhost:8008/evaluate"
 os.makedirs(os.path.dirname(DB_PATH), exist_ok=True)
 
+@contextmanager
 def get_db():
+    """Closes the connection, not just the transaction.
+
+    `with` on a sqlite3 Connection commits or rolls back and leaves the handle
+    OPEN. Found by coding_agent's with_does_not_close scan after the same leak
+    took the Memory Service to 1,019 open descriptors and blinded every agent."""
     conn = sqlite3.connect(DB_PATH)
     conn.row_factory = sqlite3.Row
-    return conn
+    try:
+        yield conn
+        conn.commit()
+    except Exception:
+        conn.rollback()
+        raise
+    finally:
+        conn.close()
 
 def init_db():
     with get_db() as conn:

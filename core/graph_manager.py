@@ -22,6 +22,7 @@ import uuid
 from datetime import datetime
 
 from .schemas import new_relationship_id, now_iso
+from contextlib import contextmanager
 
 BASE = os.path.expanduser("~/mycelial")
 DEFAULT_DB_PATH = os.path.join(BASE, "state", "graph.db")
@@ -42,17 +43,35 @@ class GraphManager:
         os.makedirs(os.path.dirname(self.db_path), exist_ok=True)
         self._init_db()
 
+    @contextmanager
     def _conn(self):
+        """Closes the connection, not just the transaction.
+
+        `with` on a sqlite3 Connection commits or rolls back and leaves the
+        handle OPEN. Found by coding_agent's with_does_not_close scan, after
+        the same leak took the Memory Service to 1,019 open descriptors and
+        blinded every agent at once."""
         conn = sqlite3.connect(self.db_path)
         conn.row_factory = sqlite3.Row
-        return conn
+        try:
+            yield conn
+            conn.commit()
+        except Exception:
+            conn.rollback()
+            raise
+        finally:
+            conn.close()
 
+    @contextmanager
     def _readonly_conn(self):
         """A connection that cannot write, regardless of what SQL is handed to it."""
         uri = f"file:{os.path.abspath(self.db_path)}?mode=ro"
         conn = sqlite3.connect(uri, uri=True)
         conn.row_factory = sqlite3.Row
-        return conn
+        try:
+            yield conn
+        finally:
+            conn.close()
 
     def _init_db(self):
         with self._conn() as conn:
