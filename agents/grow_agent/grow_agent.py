@@ -1958,11 +1958,34 @@ class GrowAgent(AgentBase):
                 )
                 classification = {"stable": "productive", "warning": "senescent", "critical": "problem"}[verdict]
 
+            # How much weight the evidence actually carries.
+            #
+            # A "productive" verdict is usually reached by finding NOTHING - no
+            # disease, pest or airflow keyword matched. Absence of a detected
+            # problem is not evidence of health, and it was being reported at the
+            # same confidence as a positive finding. On a real upload the local
+            # models could not cover the species at all, the fallback returned a
+            # generic description ("a small green plant... appears healthy and
+            # well-cared for... adequate sunlight"), and that became
+            # "productive / high" - certainty manufactured out of a stereotype.
+            unverified_vision = (not symptom_text_from_user) and bool(vision_note) and \
+                ("no local model covers this species" in (vision_note or "")
+                 or "low confidence" in (vision_note or "").lower())
             if classification == "productive":
                 observation = f"Leaf symptoms described as: \"{symptom_text}\"." if symptom_text else "No significant symptoms reported."
                 reason = "Leaf shows healthy color/vigor with no disease, pest, or airflow signals."
                 action = "Preserve the leaf."
-                confidence = "high"
+                if unverified_vision:
+                    confidence = "low"
+                    reason = ("No problem signal was detected, but no local model covers this "
+                              "species and the fallback description was generic. This is an "
+                              "absence of findings, not a finding of health.")
+                    action = "Preserve the leaf, but treat this as unassessed - describe what you see if anything looks off."
+                elif not symptom_text_from_user and not symptom_text:
+                    confidence = "low"
+                    reason = "Nothing was reported and nothing was detected - there is no evidence either way."
+                else:
+                    confidence = "high" if symptom_text_from_user else "medium"
             elif classification == "senescent":
                 observation = f"Leaf symptoms described as: \"{symptom_text}\"."
                 reason = "Yellowing consistent with natural senescence; plant reallocating resources."

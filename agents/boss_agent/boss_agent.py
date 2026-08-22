@@ -131,6 +131,40 @@ class BossAgent(AgentBase):
             self.log(f"Failed to save uploaded image: {e}")
             return None
 
+    def _extract_reading(self, prompt):
+        """Pull a plain-language reading out of a prompt, or None.
+
+        Factored out because the same numbers can arrive alongside photos, and
+        the image branch used to return before ever reaching the reading parser -
+        so "19.7c 6.15ph 688ppm" sent WITH three photos had its numbers silently
+        discarded while the photos went through. Losing a measurement is worse
+        than losing the photo: the photo can be retaken, the reservoir at that
+        moment cannot."""
+        ppm = re.search(r'(\d+(?:\.\d+)?)\s*ppm', prompt, re.IGNORECASE)
+        ph = re.search(r'(\d+(?:\.\d+)?)\s*ph\b', prompt, re.IGNORECASE) or \
+            re.search(r'\bph\s*(?:of|is|:)?\s*(\d+(?:\.\d+)?)', prompt, re.IGNORECASE)
+        tc = re.search(r'(\d+(?:\.\d+)?)\s*(?:°|deg(?:rees)?)?\s*c\b', prompt, re.IGNORECASE)
+        tf = re.search(r'(\d+(?:\.\d+)?)\s*(?:°|deg(?:rees)?)?\s*f\b', prompt, re.IGNORECASE)
+        if sum(1 for m in (ppm, ph, tc, tf) if m) < 2:
+            return None
+        temp_c = float(tc.group(1)) if tc else ((float(tf.group(1)) - 32) * 5 / 9 if tf else None)
+        out = {}
+        if ppm:
+            out["ppm"] = float(ppm.group(1))
+        if ph:
+            out["ph"] = float(ph.group(1))
+        if temp_c is not None:
+            out["temp"] = round(temp_c, 1)
+        return out or None
+
+    def _log_reading(self, reading_args):
+        status = self.send_a2a("grow_agent", "get_status", {})
+        r = status.get("result", {}) if isinstance(status, dict) else {}
+        r = r.get("result", r) if isinstance(r, dict) else {}
+        stage = r.get("current_stage") or "seedling"
+        reading_args = dict(reading_args, stage="seedling" if stage == "unknown" else stage)
+        return self.send_a2a("grow_agent", "log_reading", reading_args)
+
     def _format_response(self, task, result, sender):
         if result is None:
             return "The request did not return a result."
@@ -233,8 +267,16 @@ class BossAgent(AgentBase):
                 if inner.get("action"):
                     lines.append(inner["action"])
                 text = " ".join(l for l in lines if l)
+                # Narration has to carry the confidence, not just the verdict.
+                # "Looks healthy" was being said over a low-confidence result
+                # reached by detecting nothing - which reads to the grower as a
+                # clean bill of health when the system in fact could not assess
+                # the plant at all.
+                conf = (inner.get("confidence") or "").lower()
                 if classification == "problem":
                     text = f"Heads up - {text}"
+                elif classification == "productive" and conf == "low":
+                    text = f"I couldn't really assess this one. {text}"
                 elif classification == "productive":
                     text = f"Looks healthy. {text}"
                 vision_note = inner.get("vision_note")
@@ -841,6 +883,17 @@ class BossAgent(AgentBase):
                     return {"result": "I couldn't process those images - they may be corrupted, empty, or over the 15MB limit."}
 
                 plant_id = metadata.get("plant_id", "current_plant")
+
+                # A measurement sent with the photos is logged BEFORE they are
+                # looked at. Vision is slow and can time out; the numbers must
+                # not be lost with it.
+                reading_text = None
+                reading = self._extract_reading(prompt or "")
+                if reading:
+                    self.log(f"Reading found alongside photos - logging first: {reading}")
+                    rr = self._log_reading(reading)
+                    reading_text = self._format_response("log_reading", rr, "grow_agent")
+
                 results = []
                 for path in saved:
                     resp = self.send_a2a(
@@ -861,7 +914,9 @@ class BossAgent(AgentBase):
                     text = "\n".join(lines)
                 if failed:
                     text += f"\n({failed} could not be read and were skipped.)"
-                return {"result": text, "evidence": results}
+                if reading_text:
+                    text = reading_text + "\n\n" + text
+                return {"result": text, "evidence": {"photos": results, "reading": reading}}
 
             # --- README / documentation ---
             if "readme" in prompt.lower() or "documentation" in prompt.lower():
