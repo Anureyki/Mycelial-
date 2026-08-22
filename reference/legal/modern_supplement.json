@@ -1,0 +1,17 @@
+{
+"Custodian": {"term": "Custodian",
+ "definition": "A person or institution that holds property belonging to another for safekeeping, without discretionary authority over its investment or disposition. Distinguished from a trustee, who holds legal title and owes fiduciary duties, and from an investment manager, who holds discretion over the property. A custodian's role is possession and safekeeping, not decision-making.",
+ "source": "Authored supplement - term postdates Black's 2nd ed. (1910), which has CUSTODY and CUSTODIA LEGIS but no CUSTODIAN headword"},
+"Settlor": {"term": "Settlor",
+ "definition": "The person who creates a trust by transferring property to a trustee to hold for the benefit of a beneficiary. Also called grantor or trustor. Black's 2nd ed. treats this under SETTLEMENT.",
+ "source": "Authored supplement - modern standard term"},
+"Party In Interest": {"term": "Party In Interest",
+ "definition": "Under ERISA, a person or entity with a defined relationship to an employee benefit plan - including a person providing services to the plan - whom a plan fiduciary might be inclined to favour at the expense of the plan's beneficiaries. Transactions between a plan and a party in interest are categorically barred by ERISA s.406(a) unless exempted. Being a party in interest does not make a person a fiduciary.",
+ "source": "Authored supplement - statutory term, 29 U.S.C. 1002(14)"},
+"Beneficial Interest": {"term": "Beneficial Interest",
+ "definition": "The right to enjoy the benefit of property whose legal title is held by another. Beneficial (equitable) ownership is distinct from legal ownership: a trustee may hold legal title while the entire beneficial interest rests with the beneficiary. Identifying who holds beneficial interest, and separately who holds control, is often more revealing of a relationship than who is named as owner.",
+ "source": "Authored supplement - equity doctrine"},
+"Investment Manager": {"term": "Investment Manager",
+ "definition": "A person to whom discretionary authority over the investment of property has been delegated. Under ERISA, exercising discretionary authority over plan assets makes a person a fiduciary of the plan regardless of title.",
+ "source": "Authored supplement - 29 U.S.C. 1002(21)(A)(i)"}
+}

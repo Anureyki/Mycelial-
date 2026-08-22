@@ -133,6 +133,75 @@ class LegalAgent(AgentBase):
         blob = f"{hit.get('id','')} {hit.get('snippet','')}".lower()
         return any(m.lower() in blob for m in self.PLACEHOLDER_MARKERS)
 
+    # ---- Legal dictionary -------------------------------------------------
+    #
+    # Deliberately NOT part of the CAG cache. That cache scores
+    # len(overlap)/len(query_tokens) with no stopword filter, which means a long
+    # document of boilerplate outscores a short, exactly-on-point definition -
+    # measured: 0.040 vs 0.030 on this very case. Bag-of-words retrieval over
+    # 11,000 dictionary entries would return noise, and the CAG loader would in
+    # any event truncate a 5.5MB file at 200,000 chars.
+    #
+    # So definitions are looked up by EXACT headword: a definition reaches the
+    # model because the instrument actually uses that term, not because they
+    # share the word "the". Loaded lazily - most tasks never need it, and the
+    # index costs memory this box does not have to spare.
+    DICTIONARY_FILES = ("blacks_1910.json", "modern_supplement.json")
+    _dictionary = None
+
+    def _load_dictionary(self):
+        if self._dictionary is not None:
+            return self._dictionary
+        merged = {}
+        ref_dir = os.path.join(os.path.dirname(os.path.dirname(
+            os.path.dirname(os.path.abspath(__file__)))), "reference", "legal")
+        for fname in self.DICTIONARY_FILES:
+            path = os.path.join(ref_dir, fname)
+            try:
+                with open(path) as fh:
+                    entries = json.load(fh)
+                # later files win, so the modern supplement can correct an
+                # entry the 1910 edition lacks or states archaically
+                merged.update({k.lower(): v for k, v in entries.items()})
+            except FileNotFoundError:
+                self.log(f"dictionary: {fname} not present, skipping")
+            except Exception as e:
+                self.log(f"dictionary: failed to load {fname}: {e}")
+        self._dictionary = merged
+        self.log(f"dictionary: {len(merged)} terms indexed")
+        return merged
+
+    def lookup_term(self, term):
+        d = self._load_dictionary()
+        return d.get((term or "").strip().lower())
+
+    def _definitions_for(self, text, terms, limit=6):
+        """Definitions for the terms this extraction actually turns on, and only
+        where the text genuinely uses the word. Returns [] rather than padding -
+        an empty context block is better than an irrelevant one."""
+        lowered = (text or "").lower()
+        out = []
+        for t in terms:
+            if len(out) >= limit:
+                break
+            if t.lower() not in lowered:
+                continue
+            entry = self.lookup_term(t)
+            if entry:
+                out.append(entry)
+        return out
+
+    def _format_definitions(self, entries):
+        if not entries:
+            return ""
+        lines = ["Definitions of terms used below, for reading the instrument "
+                 "precisely. A definition inside the instrument itself always "
+                 "overrides these."]
+        for e in entries:
+            lines.append(f"- {e['term']}: {e['definition']}")
+            lines.append(f"  (source: {e['source']})")
+        return "\n".join(lines) + "\n\n"
+
     def _cache_context_for(self, text, top_k=3):
         hits = self.query_cache(text[:1000], top_k=top_k)
         for citation in self._extract_citations(text):
@@ -241,9 +310,18 @@ class LegalAgent(AgentBase):
                 pass
         return None, True
 
+    # The roles this schema most often confuses, and which a real instrument
+    # turns on. Ordered so the trustee/custodian/beneficiary triangle - the one
+    # the model demonstrably got wrong before definitions were available - is
+    # resolved first.
+    SCHEMA_TERMS = ("trustee", "custodian", "beneficiary", "settlor", "fiduciary",
+                    "party in interest", "beneficial interest", "investment manager",
+                    "consideration", "assignment", "indemnity", "lien", "escrow")
+
     def _extract_relationship(self, contract_text, model=None):
         cache_hits = self._cache_context_for(contract_text)
-        context_block = self._format_context_block(cache_hits)
+        definitions = self._definitions_for(contract_text, self.SCHEMA_TERMS)
+        context_block = self._format_definitions(definitions) + self._format_context_block(cache_hits)
         list_fields = {"obligations", "rights", "applicable_statutes"}
         prompt = (
             context_block +
