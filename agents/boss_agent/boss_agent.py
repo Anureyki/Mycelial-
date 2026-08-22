@@ -238,12 +238,148 @@ class BossAgent(AgentBase):
             self.log(f"plant routing terms: {sorted(terms)[:12]}")
         return terms
 
+    # "plant one", "plant #2", "my first autoflower". People refer to plants by
+    # position at least as often as by name, and a strain shared between two
+    # plants cannot disambiguate them at all - both of these are Girl Scout
+    # Cookies.
+    _ORDINALS = {"one": 1, "first": 1, "1st": 1, "two": 2, "second": 2, "2nd": 2,
+                 "three": 3, "third": 3, "3rd": 3, "four": 4, "fourth": 4}
+
+    # What KIND of grow question this is. Reaching the right agent and the right
+    # plant still leaves the question unanswered if every reply is the same
+    # status card - "when is my next nutrient upgrade", "what is my ppm right
+    # now" and "how is plant one" all returned identical text.
+    GROW_INTENTS = (
+        ("schedule", r"\bwhen\b|\bhow (long|soon|often)\b|\bnext\b|\bdue\b|\bschedule\b|"
+                     r"\bupcoming\b|\bshould i .*(change|feed|water|top ?up)\b"),
+        ("measurement", r"\bwhat('| i)?s? (my|the) (ppm|ph|ec|tds|temp|temperature|humidity|volume)\b|"
+                        r"\b(ppm|ph|ec|temp|humidity) (right now|currently|reading|level)\b|"
+                        r"\bhow (much|many) (ppm|ml)\b"),
+        ("feed", r"\bfeed\b|\bnutrient|\brecipe\b|\bdose\b|\bhow much .*(cal|flora|nute)"),
+    )
+
+    def _grow_intent(self, prompt):
+        lp = (prompt or "").lower()
+        for name, pattern in self.GROW_INTENTS:
+            if re.search(pattern, lp):
+                # "next nutrient upgrade" is a schedule question even though it
+                # says nutrient, so the first match wins by declaration order.
+                return name
+        return "status"
+
+    def _plant_order(self):
+        """Plants in the order a person would count them. current_plant is #1
+        because it is the one that was here first."""
+        order = ["current_plant"]
+        try:
+            st = self.send_a2a("grow_agent", "get_status", {}, timeout=20)
+            for _ in range(3):
+                st = st.get("result", st) if isinstance(st, dict) else st
+            for pl in (st or {}).get("other_plants") or []:
+                pid = pl.get("plant_id")
+                if pid and pid not in order:
+                    order.append(pid)
+        except Exception:
+            pass
+        return order
+
+    def _ordinal_from_prompt(self, prompt):
+        lp = (prompt or "").lower()
+        m = re.search(r'\b(?:plant|grow)\s*#?\s*(\d+)\b', lp) or \
+            re.search(r'#\s*(\d+)\b', lp)
+        n = int(m.group(1)) if m else None
+        if n is None:
+            for word, val in self._ORDINALS.items():
+                if re.search(r'\b(?:plant|grow|auto ?flower)\s+' + word + r'\b', lp) or \
+                   re.search(r'\b' + word + r'\s+(?:plant|grow|auto ?flower)\b', lp) or \
+                   re.search(r'\bmy\s+' + word + r'\b', lp):
+                    n = val
+                    break
+        if not n:
+            return None
+        order = self._plant_order()
+        return order[n - 1] if 1 <= n <= len(order) else None
+
+    def _answer_grow_question(self, intent, plant_id, prompt):
+        """Answer the question that was asked. Returns None to fall through to
+        the general status card when this cannot do better."""
+        def peel(x, n=3):
+            for _ in range(n):
+                x = x.get("result", x) if isinstance(x, dict) else x
+            return x if isinstance(x, dict) else {}
+
+        if intent == "measurement":
+            st = peel(self.send_a2a("grow_agent", "get_status", {}, timeout=30))
+            hist = peel(self.send_a2a("grow_agent", "get_grow_history",
+                                      {"plant_id": plant_id}, timeout=30))
+            series = hist.get("ppm_series") or []
+            lp = prompt.lower()
+            drift = peel(self.send_a2a("grow_agent", "check_target_drift",
+                                       {"plant_id": plant_id}, timeout=30))
+            bits = []
+            if series:
+                last = series[-1]
+                if "ppm" in lp or not any(k in lp for k in ("ph", "temp", "humid")):
+                    bits.append(f"Last ppm reading: {last.get('ppm'):.0f}, taken "
+                                f"{str(last.get('at'))[:10]}.")
+            if drift.get("applicable"):
+                bits.append(drift.get("message") or "")
+                if drift.get("action") and drift.get("status") != "in_band":
+                    bits.append(drift["action"])
+            return " ".join(b for b in bits if b) or None
+
+        if intent == "schedule":
+            ci = peel(self.send_a2a("grow_agent", "check_in", {"plant_id": plant_id}, timeout=60))
+            drift = peel(self.send_a2a("grow_agent", "check_target_drift",
+                                       {"plant_id": plant_id}, timeout=30))
+            st = peel(self.send_a2a("grow_agent", "get_status", {}, timeout=30))
+            bits = []
+            # A feed change is not a date - it is triggered by the stage moving
+            # or the reading drifting. Say what the trigger is.
+            if drift.get("applicable") and drift.get("status") != "in_band":
+                bits.append("Now: " + (drift.get("message") or ""))
+                bits.append(drift.get("action") or "")
+            elif drift.get("applicable"):
+                bits.append(drift.get("message") or "")
+                bits.append("No change needed on that front until the stage moves or the "
+                            "reading drifts out of band.")
+            for t in (ci.get("triggers") or [])[:3]:
+                bits.append(t)
+            rem = st.get("pending_reminders") or []
+            if rem:
+                bits.append("Scheduled: " + "; ".join(
+                    f"{r.get('title')} (due {r.get('target_date')})" for r in rem[:3]) + ".")
+            return " ".join(b for b in bits if b) or None
+
+        if intent == "feed":
+            rec = peel(self.send_a2a("grow_agent", "recommend_feed",
+                                     {"plant_id": plant_id}, timeout=120))
+            if not rec:
+                return None
+            cur, sug = rec.get("current") or {}, rec.get("suggested") or {}
+            unit, litres = rec.get("unit") or "ml", rec.get("reservoir_liters")
+            q = f" per {litres:g}L" if litres else ""
+            bits = []
+            if cur:
+                bits.append("In the reservoir now: "
+                            + ", ".join(f"{k} {v}{unit}" for k, v in cur.items()) + q + ".")
+            if sug and sug != cur:
+                bits.append("Suggested: "
+                            + ", ".join(f"{k} {v}{unit}" for k, v in sug.items()) + q + ".")
+            if rec.get("action"):
+                bits.append(str(rec["action"])[:400])
+            return " ".join(bits) or None
+        return None
+
     def _plant_from_prompt(self, prompt):
         """Which plant this prompt is about, or None for "the grow" generally.
 
         Without this, "how is the aloe" routed to Grow Agent correctly and then
         asked it about the cannabis, because the branch hardcoded current_plant.
         Reaching the right agent is only half of routing."""
+        by_ordinal = self._ordinal_from_prompt(prompt)
+        if by_ordinal:
+            return by_ordinal
         lp = (prompt or "").lower()
         hit = None
         for term, pid in self._known_plant_terms().items():
@@ -574,13 +710,20 @@ class BossAgent(AgentBase):
                         qualifier = ""
                     lines.append(f"Current feed: {n_str}{qualifier}.")
 
-                for p in r.get("other_plants") or []:
-                    lines.append(f"Also coming along: {p.get('strain', 'another plant')}, {p.get('stage', 'unknown')} stage.")
+                # Only round up the rest of the garden when the question was
+                # about the garden. Asked about one plant, answer about that
+                # plant - a roundup buries the answer that was actually wanted.
+                # The dashboard is where everything lives. In chat, a question
+                # gets an answer - the roundup only appears when the roundup is
+                # what was asked for.
+                if isinstance(result, dict) and result.get("roundup"):
+                    for p in r.get("other_plants") or []:
+                        lines.append(f"Also coming along: {p.get('strain', 'another plant')}, {p.get('stage', 'unknown')} stage.")
 
-                reminders = r.get("pending_reminders") or []
-                if reminders:
-                    reminder_str = "; ".join(f"{rem.get('title')} (due {rem.get('target_date')})" for rem in reminders)
-                    lines.append(f"Also on your list: {reminder_str}.")
+                    reminders = r.get("pending_reminders") or []
+                    if reminders:
+                        reminder_str = "; ".join(f"{rem.get('title')} (due {rem.get('target_date')})" for rem in reminders)
+                        lines.append(f"Also on your list: {reminder_str}.")
 
                 return "\n".join(lines)
             elif task == "system_status":
@@ -1269,9 +1412,21 @@ class BossAgent(AgentBase):
                                          {"plant_id": which, "description": prompt}, timeout=120)
                     text = self._format_response("assess_care", care, "grow_agent")
                     return {"result": text, "evidence": {"plant_id": which, "care": care}}
+                intent = self._grow_intent(prompt)
+                if intent != "status":
+                    ans = self._answer_grow_question(intent, which or "current_plant", prompt)
+                    if ans:
+                        return {"result": ans, "evidence": {"intent": intent, "plant": which}}
                 response = self.send_a2a("grow_agent", "get_status", {})
                 history = self.send_a2a("grow_agent", "get_grow_history", {"plant_id": "current_plant"})
-                text = self._format_response("grow_status", {"status": response, "history": history}, "grow_agent")
+                # Explicitly asking about the whole garden is the only thing
+                # that opens it up.
+                _round = (not which) and bool(re.search(
+                    r"\b(all|every|everything|each|both|garden|plants|roundup|round-?up|"
+                    r"overview|status of (the )?grow|how is (the |my )?grow)\b", prompt.lower()))
+                text = self._format_response("grow_status",
+                                             {"status": response, "history": history,
+                                              "roundup": _round}, "grow_agent")
                 return {"result": text, "evidence": {"status": response, "history": history}}
 
             # --- Web search ---
