@@ -894,24 +894,38 @@ class BossAgent(AgentBase):
                     rr = self._log_reading(reading)
                     reading_text = self._format_response("log_reading", rr, "grow_agent")
 
-                results = []
-                for path in saved:
-                    resp = self.send_a2a(
-                        "grow_agent", "evaluate_leaf",
-                        {"plant_id": plant_id, "photo_path": path},
-                        timeout=180
-                    )
-                    results.append({"photo": os.path.basename(path),
-                                    "assessment": self._format_response("evaluate_leaf", resp, "grow_agent"),
-                                    "raw": resp})
+                # Vision runs in the BACKGROUND and the upload returns at once.
+                #
+                # A single photo takes ~21s end to end - local perception plus an
+                # escalation to the vision model - so three photos is over a
+                # minute of a blocked HTTP request. A phone browser kills that
+                # the moment the screen locks or the user switches apps, and the
+                # app reports "Failed" while the server is working perfectly and
+                # finishes the job nobody is left to receive. Measured, not
+                # assumed: the same payload the webapp sends returns HTTP 200 in
+                # 21s from a client that waits.
+                #
+                # The photo is already on disk before this point and the reading
+                # is already logged, so nothing is lost by answering immediately.
+                def _run_vision(paths, pid):
+                    for pth in paths:
+                        try:
+                            r = self.send_a2a("grow_agent", "evaluate_leaf",
+                                              {"plant_id": pid, "photo_path": pth}, timeout=300)
+                            self.log(f"background vision done for {os.path.basename(pth)}: "
+                                     f"{str(r)[:120]}")
+                        except Exception as e:
+                            self.log(f"background vision failed for {pth}: {e}")
 
-                if len(results) == 1:
-                    text = results[0]["assessment"]
-                else:
-                    lines = [f"Looked at {len(results)} photos."]
-                    for i, r in enumerate(results, 1):
-                        lines.append(f"{i}. {r['assessment']}")
-                    text = "\n".join(lines)
+                threading.Thread(target=_run_vision, args=(list(saved), plant_id),
+                                 daemon=True).start()
+                results = [{"photo": os.path.basename(p_), "assessment": None, "raw": None}
+                           for p_ in saved]
+
+                n = len(results)
+                text = (f"Got {'the photo' if n == 1 else f'{n} photos'} - saved and being looked "
+                        f"at now. Assessment takes about {20 * n}s; ask me about the plant in a "
+                        "moment and I'll have it.")
                 if failed:
                     text += f"\n({failed} could not be read and were skipped.)"
                 if reading_text:
