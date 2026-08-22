@@ -534,6 +534,13 @@ class GrowAgent(AgentBase):
             h for h in history
             if (h.get("reasoning_context") or {}).get("evidence_kind") != "correction"
         ]
+        # A correction must not serve as the BASELINE - but it is exactly what
+        # should serve as CURRENT, because a correction of the present state IS
+        # the present state. Excluding it from both ends meant a voided entry
+        # stayed in force as "current": a test write that never went into the
+        # reservoir kept being read as the live recipe even after a correction
+        # explicitly voided it, and the lag it was masking silently disappeared.
+        latest_any = history[-1] if history else None
         if len(baseline_history) >= 2:
             history = baseline_history
         elif len(history) >= 2:
@@ -541,6 +548,8 @@ class GrowAgent(AgentBase):
             return {}
         if len(history) < 2:
             return {}
+        if latest_any is not None and latest_any is not history[-1]:
+            history = history[:-1] + [latest_any] if len(history) > 1 else [latest_any]
         # Compare CONCENTRATION, not raw millilitres. Reservoir volume changes
         # between recipes, so raw ml is meaningless: 2.5ml in 3.5L is a stronger
         # feed than 3.0ml in 5L, and comparing the numbers alone reported that as
@@ -1642,6 +1651,29 @@ class GrowAgent(AgentBase):
                     per_liter[name] = round(v / L_PER_GAL, 4)
                 else:
                     per_liter[name] = round(v, 4)
+
+            # Refuse a recipe identical to the one already in force.
+            #
+            # Two byte-identical entries were written a minute apart on
+            # 2026-08-22, the second carrying no reasoning at all. A duplicate is
+            # not a second feed - nothing went into the reservoir - and it makes
+            # the history claim a change happened when none did. The lag detector
+            # then compares a recipe against itself, and anyone reading the
+            # timeline sees a feed event that never occurred.
+            #
+            # An explicit re-affirmation is still allowed via allow_duplicate,
+            # for the case where the same recipe genuinely was re-mixed.
+            if not args.get("allow_duplicate"):
+                prior = self._get_nutrient_history(nut_plant_id)
+                if prior and prior[-1].get("per_liter") == per_liter:
+                    return {"result": {
+                        "recorded": False,
+                        "reason": ("Identical to the recipe already in force, so nothing was "
+                                   "recorded. Recording it again would show a feed change that "
+                                   "did not happen."),
+                        "current": per_liter,
+                        "hint": "Pass allow_duplicate=true if the same recipe was genuinely re-mixed.",
+                    }}
 
             # A backfilled entry carries its real date and must NOT clobber the
             # current recipe - reconstructing history should never rewrite the
