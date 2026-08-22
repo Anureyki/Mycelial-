@@ -253,6 +253,62 @@ STAGE_MORPHOLOGY_CUES = {
     }
 }
 
+# ---------------------------------------------------------------------------
+# Prediction scoring - closing the loop between a claim and what happened.
+#
+# reasoning_context already records expected_effect at the moment a decision is
+# made: a falsifiable claim, timestamped, with the reasoning and confidence
+# attached. Nothing ever read it back. The agent stated testable claims and
+# never graded itself, which is the difference between a system that keeps
+# records and one that learns from them.
+#
+# Assertions are extracted DETERMINISTICALLY from the prediction text. A stated
+# range like "600-900 ppm" is machine-checkable without a model, which matters
+# on hardware where an inference call costs a minute or more - and a regex does
+# not hallucinate agreement between a claim and a reading.
+#
+# The epistemic rules are the same ones the rest of this agent already follows:
+#   - no observation after the prediction is UNDETERMINED, never a failure
+#   - a reading within measurement noise of a boundary is INCONCLUSIVE, not a
+#     pass and not a fail
+#   - a prediction with no checkable assertion is UNSCORABLE, and saying so is
+#     useful feedback: it means the claim was written unfalsifiably
+# ---------------------------------------------------------------------------
+
+# Instrument precision, from the meters actually in use. A reading this close to
+# a stated boundary cannot decide the question either way.
+# Below this many decided predictions, a hit rate is a description of those
+# predictions rather than a measure of the agent's reliability.
+MIN_PREDICTIONS_FOR_RELIABILITY = 5
+
+MEASUREMENT_NOISE = {"ppm": 25.0, "ph": 0.1, "temp": 0.5, "ec": 0.05, "humidity": 3.0}
+
+_RANGE_RE = re.compile(
+    # The gap between a metric word and its numbers: "pH should hold 5.8-6.2"
+    # needs 13 characters, so a 12-character window silently dropped it. Wide
+    # enough for a natural clause, still narrow enough that the metric and the
+    # number have to belong to the same phrase.
+    r'(?:(?P<lead>ph|ppm|ec|temp|temperature|humidity)[^\d\n]{0,24})?'
+    r'(?P<lo>\d+(?:\.\d+)?)\s*(?:-|–|—|to)\s*(?P<hi>\d+(?:\.\d+)?)'
+    r'\s*(?P<trail>ppm|ph|ec|%|c\b|celsius)?', re.I)
+_BOUND_RE = re.compile(
+    r'(?P<dir>above|below|under|over|at least|no more than|at most)\s+'
+    r'(?:ph\s*)?(?P<val>\d+(?:\.\d+)?)\s*(?P<unit>ppm|ph|ec|%|c\b|celsius)?', re.I)
+
+def _canonical_metric(*candidates):
+    for c in candidates:
+        if not c:
+            continue
+        c = c.strip().lower()
+        if c in ("temperature", "c", "celsius"):
+            return "temp"
+        if c == "%":
+            return "humidity"
+        if c in ("ppm", "ph", "ec", "temp", "humidity"):
+            return c
+    return None
+
+
 class GrowAgent(AgentBase):
     def __init__(self):
         super().__init__(
@@ -979,6 +1035,130 @@ class GrowAgent(AgentBase):
     def _verdict_score(self, verdict):
         return {"stable": 2, "warning": 1, "critical": 0}.get(verdict, 1)
 
+    def _extract_assertions(self, text):
+        """Falsifiable claims in a prediction. Returns [] when the prediction
+        says nothing checkable - "nitrogen-forward weighting" is a real
+        intention and not a testable one."""
+        if not text:
+            return []
+        found = []
+        for m in _RANGE_RE.finditer(text):
+            metric = _canonical_metric(m.group("lead"), m.group("trail"))
+            if not metric:
+                continue
+            lo, hi = float(m.group("lo")), float(m.group("hi"))
+            if lo > hi:
+                lo, hi = hi, lo
+            found.append({"metric": metric, "kind": "range", "lo": lo, "hi": hi,
+                          "text": m.group(0).strip()})
+        for m in _BOUND_RE.finditer(text):
+            metric = _canonical_metric(m.group("unit"))
+            if not metric:
+                # The metric often precedes the bound rather than following the
+                # number - "keep ppm above 600" names it before "above". Look
+                # back a short way rather than only forward.
+                back = re.findall(r'(ph|ppm|ec|temp|temperature|humidity)',
+                                  text[max(0, m.start() - 30):m.start()], re.I)
+                metric = _canonical_metric(back[-1]) if back else None
+            if not metric:
+                continue
+            d = m.group("dir").lower()
+            found.append({"metric": metric, "kind": "min" if d in ("above", "over", "at least") else "max",
+                          "value": float(m.group("val")), "text": m.group(0).strip()})
+        # de-duplicate overlapping matches on the same metric+span
+        seen, out = set(), []
+        for a in found:
+            key = (a["metric"], a["kind"], a.get("lo"), a.get("hi"), a.get("value"))
+            if key not in seen:
+                seen.add(key)
+                out.append(a)
+        return out
+
+    def _check_assertion(self, assertion, observed):
+        """held / failed / inconclusive against one observed value."""
+        metric = assertion["metric"]
+        noise = MEASUREMENT_NOISE.get(metric, 0.0)
+        if assertion["kind"] == "range":
+            lo, hi = assertion["lo"], assertion["hi"]
+            if lo - noise <= observed <= hi + noise:
+                # inside, but is it too close to a boundary to be sure?
+                if observed < lo or observed > hi:
+                    return "inconclusive", (f"{observed:g} sits within measurement noise "
+                                            f"(+/-{noise:g}) of the {lo:g}-{hi:g} band")
+                return "held", f"{observed:g} is inside {lo:g}-{hi:g}"
+            return "failed", f"{observed:g} is outside {lo:g}-{hi:g}"
+        target = assertion["value"]
+        if assertion["kind"] == "min":
+            if observed >= target + noise:
+                return "held", f"{observed:g} is above {target:g}"
+            if observed <= target - noise:
+                return "failed", f"{observed:g} is below {target:g}"
+            return "inconclusive", f"{observed:g} is within noise (+/-{noise:g}) of {target:g}"
+        if observed <= target - noise:
+            return "held", f"{observed:g} is below {target:g}"
+        if observed >= target + noise:
+            return "failed", f"{observed:g} is above {target:g}"
+        return "inconclusive", f"{observed:g} is within noise (+/-{noise:g}) of {target:g}"
+
+    def _collect_predictions(self, plant_id):
+        """Every recorded expected_effect for this plant, from any record type
+        that carries reasoning_context."""
+        preds = []
+        for entry in self._get_nutrient_history(plant_id):
+            ctx = entry.get("reasoning_context") or {}
+            if ctx.get("expected_effect"):
+                preds.append({"source": "nutrient_change",
+                              "timestamp": entry.get("timestamp") or entry.get("changed_at"),
+                              "expected_effect": ctx["expected_effect"],
+                              "decision": ctx.get("decision"),
+                              "confidence": ctx.get("confidence")})
+        for r in self._get_readings_for_plant(plant_id):
+            ctx = r.get("reasoning_context") or {}
+            if ctx.get("expected_effect"):
+                preds.append({"source": "reading",
+                              "timestamp": r.get("timestamp"),
+                              "expected_effect": ctx["expected_effect"],
+                              "decision": ctx.get("decision"),
+                              "confidence": ctx.get("confidence")})
+        return [p for p in preds if p.get("timestamp")]
+
+    def _score_prediction(self, pred, readings):
+        """Score one prediction against every reading that came AFTER it."""
+        assertions = self._extract_assertions(pred["expected_effect"])
+        if not assertions:
+            return {**pred, "verdict": "unscorable",
+                    "why": ("no falsifiable claim in the prediction - it states an "
+                            "intention rather than a measurable outcome"),
+                    "checks": []}
+        later = [r for r in readings if (r.get("timestamp") or "") > pred["timestamp"]]
+        if not later:
+            return {**pred, "verdict": "undetermined",
+                    "why": "no reading recorded after this prediction yet",
+                    "checks": []}
+        checks = []
+        for a in assertions:
+            vals = [(r["timestamp"], self._parse_numeric(r.get(a["metric"])))
+                    for r in later if self._parse_numeric(r.get(a["metric"])) is not None]
+            if not vals:
+                checks.append({**a, "verdict": "undetermined",
+                               "why": f"no {a['metric']} reading after this prediction"})
+                continue
+            ts, observed = vals[0]           # the first observation that could test it
+            verdict, why = self._check_assertion(a, observed)
+            checks.append({**a, "verdict": verdict, "why": why,
+                           "observed": observed, "observed_at": ts})
+        decided = [c["verdict"] for c in checks if c["verdict"] in ("held", "failed")]
+        if not decided:
+            overall = "inconclusive" if any(c["verdict"] == "inconclusive" for c in checks) else "undetermined"
+        elif all(v == "held" for v in decided):
+            overall = "held"
+        elif all(v == "failed" for v in decided):
+            overall = "failed"
+        else:
+            overall = "mixed"
+        return {**pred, "verdict": overall, "checks": checks,
+                "why": "; ".join(c["why"] for c in checks if c.get("why"))}
+
     def _get_readings_for_plant(self, plant_id):
         index = self._unwrap_value(self.retrieve_own_memory("reading_index"))
         if not index:
@@ -1025,6 +1205,54 @@ class GrowAgent(AgentBase):
     # ---------- Existing tasks (unchanged) ----------
     def handle_task(self, task, args, sender):
         self.log(f"Task: {task} from {sender}")
+
+        if task == "score_predictions":
+            plant_id = args.get("plant_id", "current_plant") if isinstance(args, dict) else "current_plant"
+            readings = sorted(self._get_readings_for_plant(plant_id),
+                              key=lambda r: r.get("timestamp") or "")
+            preds = self._collect_predictions(plant_id)
+            if not preds:
+                return {"plant_id": plant_id, "scored": 0,
+                        "note": ("No prediction has been recorded for this plant. A prediction "
+                                 "is an expected_effect attached to a decision - without one "
+                                 "there is nothing to grade.")}
+            scored = [self._score_prediction(p, readings) for p in preds]
+            tally = {}
+            for r in scored:
+                tally[r["verdict"]] = tally.get(r["verdict"], 0) + 1
+            decided = tally.get("held", 0) + tally.get("failed", 0)
+            result = {
+                "plant_id": plant_id,
+                "scored": len(scored),
+                "tally": tally,
+                # Deliberately absent when nothing was decidable. A hit rate over
+                # zero decided predictions is not 0% and not 100% - it is unknown,
+                # and reporting a number there would be exactly the false
+                # confidence the resolution guards exist to prevent.
+                "hit_rate": round(tally.get("held", 0) / decided, 2) if decided else None,
+                "predictions": scored,
+            }
+            # A hit rate over a handful of predictions describes those
+            # predictions, not the agent's reliability. Same discipline as the
+            # consumption resolution floor: report the number, refuse the
+            # inference the sample cannot carry.
+            if decided and decided < MIN_PREDICTIONS_FOR_RELIABILITY:
+                result["reliability"] = (
+                    f"{decided} decided prediction(s) - too few to characterise how "
+                    f"reliable this agent's expectations are. The rate describes these "
+                    f"predictions only.")
+            if tally.get("unscorable"):
+                result["note"] = (f"{tally['unscorable']} prediction(s) state an intention rather "
+                                  "than a measurable outcome. Writing expected_effect with a "
+                                  "number and a unit makes it gradeable.")
+            # The scorecard is itself evidence - an assessment, not an event.
+            uid = self._uid()
+            self.store_own_memory(f"scorecard_{uid}", json.dumps({
+                "timestamp": datetime.now().isoformat(),
+                "plant_id": plant_id, "evidence_kind": "assessment",
+                "tally": tally, "hit_rate": result["hit_rate"],
+            }))
+            return result
 
         if task == "log_reading":
             reading = {
