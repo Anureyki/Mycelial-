@@ -803,6 +803,113 @@ class GrowAgent(AgentBase):
     STAGE_AGE_BOUNDS = {"germination": (0, 7), "seedling": (0, 21),
                         "veg": (14, 70), "flower": (35, 130)}
 
+    # Stage progression order. A stage is never skipped backwards automatically.
+    STAGE_ORDER = ("germination", "seedling", "early_veg", "veg", "flower")
+
+    def assess_stage(self, plant_id="current_plant"):
+        """Decide the stage from evidence, without waiting to be asked.
+
+        The agent owns this. It had 25 days of readings and several photos of a
+        plant with 7-9 blade fan leaves and still had "seedling" recorded,
+        because nothing ever concluded a stage from evidence - the only
+        auto-transition path fired when someone happened to pass a different
+        stage to set_current_nutrients, and verify_growth_stage explicitly never
+        transitions. So the stage only moved when a human noticed.
+
+        Two different situations, treated differently on purpose:
+
+        IMPOSSIBLE - the recorded stage cannot be true at this age. Seedling ends
+        around 21 days; at 25 the label is simply wrong, and that is arithmetic
+        rather than judgment. Staying at a provably wrong stage is worse than
+        moving, because stage drives the nutrient band, so this transitions
+        itself and records why.
+
+        LIKELY - the age suggests a further stage but the current one is still
+        possible. That is a judgment about the plant, not the calendar, and a
+        plant can be stunted or running slow. This only recommends, and asks for
+        the morphology that would settle it.
+
+        Flower is never entered on age alone. Pistils are the trigger, and this
+        function cannot see them."""
+        stage = self._unwrap_value(self.retrieve_own_memory("current_stage")) or "unknown"
+        germ = self._unwrap_value(self.retrieve_own_memory("germination_date"))
+        if isinstance(germ, str):
+            germ = germ.strip().strip('"')
+        if plant_id != "current_plant":
+            plant = next((p for p in self._get_all_plants()
+                          if p.get("plant_id") == plant_id), None)
+            if not plant:
+                return {"error": f"Unknown plant_id: {plant_id}"}
+            stage, germ = plant.get("stage", "unknown"), plant.get("germination_date")
+        if not germ:
+            return {"assessment": "no germination date recorded - cannot assess stage from age",
+                    "stage": stage, "acted": False}
+        try:
+            age = (datetime.now() - datetime.fromisoformat(str(germ)[:19])).days
+        except Exception:
+            return {"assessment": "germination date unparseable", "stage": stage, "acted": False}
+
+        bounds = self.STAGE_AGE_BOUNDS.get(str(stage).lower())
+        impossible = bool(bounds) and age > bounds[1]
+
+        # The furthest stage the age alone supports, never past veg.
+        candidate = stage
+        for s in self.STAGE_ORDER:
+            if s == "flower":
+                break
+            b = self.STAGE_AGE_BOUNDS.get(s)
+            if b and b[0] <= age <= b[1]:
+                candidate = s
+        if candidate == stage and not impossible:
+            return {"assessment": f"'{stage}' is consistent with {age} days", "stage": stage,
+                    "days": age, "acted": False}
+
+        evidence = [f"{age} days since germination on {str(germ)[:10]}"]
+        if bounds:
+            evidence.append(f"'{stage}' spans roughly {bounds[0]}-{bounds[1]} days")
+        readings = self._get_readings_for_plant(plant_id)
+        if readings:
+            evidence.append(f"{len(readings)} readings logged, most recent "
+                            f"{str(readings[-1].get('timestamp'))[:10]}")
+
+        # Impossible, but with nowhere to go: past veg the only stage forward is
+        # flower, and flower is never entered on age. Say so rather than
+        # attempting a transition to the stage it is already in.
+        if impossible and candidate == stage:
+            return {"assessment": (f"'{stage}' is past its usual window at {age} days, but the only "
+                                   "stage forward is flower and that needs pistils, which this "
+                                   "cannot see."),
+                    "stage": stage, "days": age, "evidence": evidence, "acted": False,
+                    "resolve_with": "check the nodes for pistils; transition_stage to flower if present"}
+
+        if not impossible:
+            return {"assessment": f"'{candidate}' is likely but '{stage}' is still possible at {age} days",
+                    "stage": stage, "suggested": candidate, "days": age,
+                    "evidence": evidence, "acted": False,
+                    "resolve_with": "verify_growth_stage with a photo - morphology settles it, not the calendar"}
+
+        result = self.handle_task("transition_stage", {
+            "plant_id": plant_id,
+            "new_stage": candidate,
+            "notes": (f"Auto-assessed. '{stage}' is not possible at {age} days "
+                      f"(it spans about {bounds[0]}-{bounds[1]}). " + "; ".join(evidence)),
+            "reason": f"Recorded stage '{stage}' contradicted the plant's age of {age} days.",
+            "observed_conditions": "; ".join(evidence),
+            "decision": f"Moved to '{candidate}' on age, which is the furthest stage the age alone supports.",
+            "expected_effect": f"Readings and feed are now judged against the {candidate} band "
+                               "instead of a stage the plant has outgrown.",
+            "confidence_note": "medium - age is decisive that the old stage is wrong, "
+                               "but morphology decides which stage is right",
+            "evidence_kind": "correction",
+            "corrects": f"current_stage={stage}",
+        }, "grow_agent")
+        return {"assessment": f"transitioned '{stage}' -> '{candidate}'", "stage": candidate,
+                "was": stage, "days": age, "evidence": evidence, "acted": True,
+                "note": ("Moved on age because the old stage was impossible. Confirm with "
+                         "verify_growth_stage if the morphology says otherwise. Flower is never "
+                         "entered on age - pistils are the trigger."),
+                "transition": result.get("transition") if isinstance(result, dict) else None}
+
     def _stage_age_conflict(self, stage, germination_date):
         """Flag a stage that cannot be right for the plant's age.
 
@@ -1407,6 +1514,14 @@ class GrowAgent(AgentBase):
             ctx = self._reasoning_context(args)
             if ctx:
                 reading["reasoning_context"] = ctx
+            # Every reading is a chance to notice the stage is wrong. Doing this
+            # only when asked is how a 25-day-old plant stayed recorded as a
+            # seedling through a month of readings and several photos.
+            try:
+                stage_check = self.assess_stage(reading.get("plant_id", "current_plant"))
+            except Exception as e:
+                self.log(f"stage self-assessment failed: {e}")
+                stage_check = None
             # Also compute VPD if temp and humidity are present
             temp = self._parse_numeric(args.get("temp"))
             humidity = self._parse_numeric(args.get("humidity"))
@@ -1431,7 +1546,14 @@ class GrowAgent(AgentBase):
             if reading_key not in index:
                 index.append(reading_key)
             self.store_own_memory("reading_index", json.dumps(index))
-            return {"result": "Reading logged", "reading": reading}
+            out = {"result": "Reading logged", "reading": reading}
+            # Surfaced on the reading itself so a stage correction is visible at
+            # the moment it happens, not only to whoever thinks to ask later.
+            if stage_check and stage_check.get("acted"):
+                out["stage_corrected"] = stage_check
+            elif stage_check and stage_check.get("suggested"):
+                out["stage_suggestion"] = stage_check
+            return out
 
         elif task == "check_stage":
             stage = args.get("stage", "seedling")
@@ -2350,6 +2472,10 @@ class GrowAgent(AgentBase):
             self.store_own_memory("stage_eval_index", json.dumps(index))
 
             return {"result": recommendation, "record": record}
+
+        elif task == "assess_stage":
+            return {"result": self.assess_stage(
+                args.get("plant_id", "current_plant") if isinstance(args, dict) else "current_plant")}
 
         elif task == "verify_growth_stage":
             # Cross-checks the tracked stage against real-world reference data,
