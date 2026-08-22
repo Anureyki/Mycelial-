@@ -1390,6 +1390,50 @@ class GrowAgent(AgentBase):
                     break
         return SPECIES_PROFILES.get(key or s)
 
+    # Targeted yes/no probes for the states that decide severity.
+    #
+    # Asked because open description does not get there. On a real aloe with
+    # papery dead leaves the model produced "brown and yellow leaves, and it
+    # appears to be wilting... there is a book next to it" - directionally right,
+    # far too shallow to judge how far gone the plant was, and inventing
+    # furniture. A 1B model is much better at answering "is there X in this
+    # image" than at writing a rich description, so the severity cues are asked
+    # for directly instead of hoped for.
+    #
+    # Flat sentences, no apostrophes or dash clauses - moondream returns empty or
+    # degenerate completions on those.
+    CARE_PROBES = (
+        ("papery dried dead leaves", "Are any leaves completely dry, papery or dead?"),
+        ("leaves splayed flat", "Are the leaves lying flat and splayed outward instead of upright?"),
+        ("leaves thin deflated", "Do the leaves look thin and deflated instead of thick and plump?"),
+        ("most leaves affected", "Is the discolouration on most of the plant or only a few leaves?"),
+        ("dry soil", "Does the soil look dry?"),
+        ("mushy soft base", "Is the base of the plant soft, mushy or dark?"),
+    )
+
+    def _probe_photo(self, photo_path, plant_id="current_plant"):
+        """Ask the vision model directly about the states that decide severity.
+        Returns text to append to whatever it said in open description."""
+        if not photo_path or not VISION_AVAILABLE:
+            return ""
+        prefix = self._vision_prompt_for(plant_id).split("Describe")[0].strip()
+        found = []
+        for cue, question in self.CARE_PROBES:
+            try:
+                ans = self._call_inference_vision(f"{prefix} {question}", photo_path, timeout=90)
+            except Exception:
+                continue
+            if not ans:
+                continue
+            a = ans.strip().lower()
+            # Only a clear yes counts. "no", "not really" and an empty answer all
+            # mean the cue is not established - absence of a yes is not a yes.
+            if a.startswith("yes") or " yes" in a[:40]:
+                found.append(cue)
+            elif cue == "most leaves affected" and "most" in a[:60]:
+                found.append("most leaves")
+        return (" " + ", ".join(found) + ".") if found else ""
+
     def stages_for_species(self, species):
         """Lifecycle vocabulary for a species.
 
@@ -2430,6 +2474,8 @@ class GrowAgent(AgentBase):
                 if not _desc and args.get("photo_path") and VISION_AVAILABLE:
                     _desc = self._call_inference_vision(
                         self._vision_prompt_for(plant_id), args["photo_path"]) or ""
+                    # Open description alone misses severity. Ask directly.
+                    _desc += self._probe_photo(args["photo_path"], plant_id)
                 care = self.assess_care(_desc, species=_species, plant_id=plant_id)
                 care["classification"] = "care_assessment"
                 care["description_used"] = _desc[:400]
