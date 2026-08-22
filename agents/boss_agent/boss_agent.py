@@ -165,6 +165,59 @@ class BossAgent(AgentBase):
         reading_args = dict(reading_args, stage="seedling" if stage == "unknown" else stage)
         return self.send_a2a("grow_agent", "log_reading", reading_args)
 
+    _plant_terms_cache = {"terms": None, "at": 0}
+
+    def _known_plant_terms(self):
+        """Names, ids and strains of the plants Grow Agent is actually tracking.
+
+        Routing on a fixed keyword list cannot know that "gsc" means a plant
+        here. "Anansi what is my gsc# 1 specs" matched no grow term and was sent
+        to the CODE agent, which replied that Anansi is a character from African
+        folklore. The strain name was in the prompt and in the agent's own
+        records, and the router had no way to connect them.
+
+        Asking the agent what it is tracking means routing follows the data:
+        register a plant and questions about it route correctly from then on,
+        with no keyword list to remember to update. Cached briefly because this
+        runs on every prompt."""
+        now = time.time()
+        c = self._plant_terms_cache
+        if c["terms"] is not None and now - c["at"] < 300:
+            return c["terms"]
+        terms = set()
+        try:
+            st = self.send_a2a("grow_agent", "get_status", {}, timeout=20)
+            for _ in range(3):
+                st = st.get("result", st) if isinstance(st, dict) else st
+            if isinstance(st, dict):
+                for v in (st.get("current_strain"),):
+                    if isinstance(v, str) and v.strip():
+                        terms.add(v.strip().strip('"').lower())
+                for pl in st.get("other_plants") or []:
+                    for k in ("plant_id", "strain", "species"):
+                        v = pl.get(k)
+                        if isinstance(v, str) and v.strip():
+                            terms.add(v.strip().lower())
+        except Exception as e:
+            self.log(f"could not fetch plant terms: {e}")
+        # Also index the distinctive words inside a strain name, so "gsc",
+        # "girl scout cookies" and "cookies" all reach the right agent. Short and
+        # generic tokens are dropped - "auto" and "1" would match anything.
+        extra = set()
+        STOP = {"the", "and", "auto", "autoflower", "plant", "current", "cannabis", "vera"}
+        for t in list(terms):
+            for w in re.split(r'[^a-z0-9]+', t):
+                if len(w) >= 3 and w not in STOP and not w.isdigit():
+                    extra.add(w)
+            initials = "".join(w[0] for w in re.split(r'[^a-z0-9]+', t) if w)
+            if len(initials) >= 3:
+                extra.add(initials)
+        terms |= extra
+        c["terms"], c["at"] = terms, now
+        if terms:
+            self.log(f"plant routing terms: {sorted(terms)[:12]}")
+        return terms
+
     def _format_response(self, task, result, sender):
         if result is None:
             return "The request did not return a result."
@@ -1147,8 +1200,11 @@ class BossAgent(AgentBase):
                 return {"result": text, "evidence": response}
 
             # --- Grow Agent (plant/garden monitoring) ---
-            if any(re.search(t if "\\b" in t or "?" in t else r"\b" + t, prompt.lower())
-                   for t in GROW_TERMS):
+            _lp = prompt.lower()
+            if (any(re.search(t if "\\b" in t or "?" in t else r"\b" + t, _lp)
+                    for t in GROW_TERMS)
+                    or any(re.search(r"\b" + re.escape(t) + r"\b", _lp)
+                           for t in self._known_plant_terms())):
                 self.log("User asking about the grow/plant – delegating to grow_agent")
                 response = self.send_a2a("grow_agent", "get_status", {})
                 history = self.send_a2a("grow_agent", "get_grow_history", {"plant_id": "current_plant"})
