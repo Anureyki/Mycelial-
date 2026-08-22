@@ -520,6 +520,17 @@ STAGE_TARGETS = {
 DRIFT_PATIENCE_DAYS = 3
 
 
+# A plant's ID is permanent; its LABEL is positional and computed.
+#
+# "Plant one" is not a name, it is a position, and positions move: plant one is
+# harvested, plant two goes to a brother, a new seed germinates. The identity
+# that history hangs off - readings, recipes, photos, lessons - has to survive
+# all of that, so the id assigned at germination is never reused and never
+# renumbered. What the grower calls it is worked out at question time from the
+# plants that are still growing.
+PLANT_STATUSES = ("active", "harvested", "gifted", "dead", "removed")
+
+
 class GrowAgent(AgentBase):
     def __init__(self):
         super().__init__(
@@ -1733,6 +1744,163 @@ class GrowAgent(AgentBase):
                             f"{b['ppm'][0]}-{b['ppm'][1]}. The recipe has to move with it - "
                             "a dose that was right last stage is under-feeding in this one.")}
 
+    def _plant_photos(self, plant_id):
+        """Photos attributable to this plant. Matched by the evaluation records
+        that reference them, not by filename, since uploads are named by
+        timestamp and carry no plant in the name."""
+        paths = set()
+        for key in ("leaf_eval_index", "reservoir_eval_index"):
+            raw = self._unwrap_value(self.retrieve_own_memory(key))
+            try:
+                keys = json.loads(raw) if raw else []
+            except Exception:
+                continue
+            for k in keys:
+                r = self._unwrap_value(self.retrieve_own_memory(k))
+                if not r:
+                    continue
+                try:
+                    rec = json.loads(r)
+                except Exception:
+                    continue
+                if rec.get("plant_id") != plant_id:
+                    continue
+                for p_ in (rec.get("photo_refs") or []):
+                    if isinstance(p_, str):
+                        paths.add(p_)
+        return sorted(paths)
+
+    def archive_plant(self, plant_id, status="harvested", note="", outcome=None,
+                      photos="purge"):
+        """Retire a plant without erasing it.
+
+        remove_plant called forget_own_memory on the record, so handing a plant
+        to someone else deleted everything it had taught: its readings, the
+        recipes that worked, the corrections. A plant leaving the tent is the
+        moment its history becomes most useful, because the outcome is finally
+        known and can be attached to everything that led to it."""
+        if status not in PLANT_STATUSES:
+            return {"error": f"status must be one of: {', '.join(PLANT_STATUSES)}"}
+        if plant_id == "current_plant":
+            return {"error": ("current_plant is the legacy single-plant slot, not an "
+                              "archivable identity. Give it a real plant_id first.")}
+        raw = self._unwrap_value(self.retrieve_own_memory(f"plant_{plant_id}"))
+        if not raw:
+            return {"error": f"Unknown plant_id: {plant_id}"}
+        try:
+            rec = json.loads(raw)
+        except Exception:
+            return {"error": f"Could not read record for {plant_id}"}
+
+        readings = self._get_readings_for_plant(plant_id)
+        recipes = self._get_nutrient_history(plant_id)
+        rec.update({
+            "status": status,
+            "archived_at": datetime.now().isoformat(),
+            "archive_note": note,
+            "outcome": outcome or {},
+            # A compact summary so the record stays useful without rereading
+            # everything it points at.
+            "summary": {
+                "readings": len(readings),
+                "recipe_changes": len(recipes),
+                "first_reading": (readings[0].get("timestamp") if readings else None),
+                "last_reading": (readings[-1].get("timestamp") if readings else None),
+                "final_stage": rec.get("stage"),
+            },
+        })
+        self.store_own_memory(f"plant_{plant_id}", json.dumps(rec))
+
+        index = self._load_plant_index()
+        if plant_id in index:
+            index.remove(plant_id)
+            self.store_own_memory("plant_index", json.dumps(index))
+        arch = self._unwrap_value(self.retrieve_own_memory("plant_archive_index"))
+        try:
+            arch = json.loads(arch) if arch else []
+        except Exception:
+            arch = []
+        if plant_id not in arch:
+            arch.append(plant_id)
+            self.store_own_memory("plant_archive_index", json.dumps(arch))
+
+        # Photos. Once the lessons are out of them, the images are just bytes:
+        # the agent does not reread a picture to know what nutrient burn looked
+        # like on day 12 - that is in the evaluation record and the lesson.
+        #
+        # The one thing lost by deleting is TRAINING data, since a local vision
+        # model fine-tuned on this grow would want the originals. So "train"
+        # moves them into the training set instead of destroying them, and the
+        # freed figure is always reported so the trade is visible.
+        photo_paths = self._plant_photos(plant_id)
+        freed = 0
+        moved = []
+        if photos in ("purge", "train"):
+            train_dir = os.path.join(project_root, "knowledge_base", "grow_agent",
+                                     "training", "archived", plant_id)
+            for pth in photo_paths:
+                try:
+                    if not os.path.exists(pth):
+                        continue
+                    size = os.path.getsize(pth)
+                    if photos == "train":
+                        os.makedirs(train_dir, exist_ok=True)
+                        dest = os.path.join(train_dir, os.path.basename(pth))
+                        os.replace(pth, dest)
+                        moved.append(dest)
+                    else:
+                        os.remove(pth)
+                    freed += size
+                except Exception as e:
+                    self.log(f"could not {photos} {pth}: {e}")
+        rec["photos"] = {"disposition": photos, "count": len(photo_paths),
+                         "freed_mb": round(freed / 1e6, 1),
+                         "moved_to_training": len(moved)}
+        self.store_own_memory(f"plant_{plant_id}", json.dumps(rec))
+
+        return {"result": f"{plant_id} archived as {status}", "plant": rec,
+                "photos_freed_mb": round(freed / 1e6, 1),
+                "note": ("History kept under the same id. Readings, recipes and lessons stay "
+                         "queryable; the plant just stops counting as active, so positions "
+                         "like 'plant one' now refer to what is still growing.")}
+
+    def active_plants(self):
+        """Plants still growing, in the order they were started. What a position
+        like "plant one" actually refers to."""
+        out = []
+        strain = self._unwrap_value(self.retrieve_own_memory("current_strain"))
+        stage = self._unwrap_value(self.retrieve_own_memory("current_stage"))
+        if strain or stage:
+            out.append({"plant_id": "current_plant", "strain": strain,
+                        "stage": stage, "status": "active"})
+        for pid in self._load_plant_index():
+            raw = self._unwrap_value(self.retrieve_own_memory(f"plant_{pid}"))
+            if not raw:
+                continue
+            try:
+                rec = json.loads(raw)
+            except Exception:
+                continue
+            if rec.get("status", "active") == "active":
+                out.append(rec)
+        return out
+
+    def archived_plants(self):
+        raw = self._unwrap_value(self.retrieve_own_memory("plant_archive_index"))
+        try:
+            ids = json.loads(raw) if raw else []
+        except Exception:
+            ids = []
+        out = []
+        for pid in ids:
+            r = self._unwrap_value(self.retrieve_own_memory(f"plant_{pid}"))
+            if r:
+                try:
+                    out.append(json.loads(r))
+                except Exception:
+                    pass
+        return out
+
     def temp_verdict(self, species, temp_f=None, temp_c=None):
         """Whether temperature can explain a symptom, stated either way.
 
@@ -2574,10 +2742,17 @@ class GrowAgent(AgentBase):
             index = self._load_plant_index()
             if plant_id not in index:
                 return {"error": f"Unknown plant_id: {plant_id}"}
+            # Archive rather than delete. This used to forget the record
+            # outright, so handing a plant to someone else erased everything it
+            # had taught - every reading, every recipe that worked. Pass
+            # hard_delete=true to actually destroy it.
+            if not args.get("hard_delete"):
+                return {"result": self.archive_plant(
+                    plant_id, args.get("status", "removed"), args.get("note", ""))}
             index.remove(plant_id)
             self.store_own_memory("plant_index", json.dumps(index))
             self.forget_own_memory(f"plant_{plant_id}")
-            return {"result": f"Removed {plant_id} from tracking"}
+            return {"result": f"Deleted {plant_id} and its record permanently"}
 
         elif task == "list_vision_corrections":
             return {"result": self._get_all_vision_corrections()}
@@ -3160,6 +3335,16 @@ class GrowAgent(AgentBase):
         elif task == "check_target_drift":
             return {"result": self.check_target_drift(
                 args.get("plant_id", "current_plant") if isinstance(args, dict) else "current_plant")}
+
+        elif task == "archive_plant":
+            return {"result": self.archive_plant(
+                args.get("plant_id"), args.get("status", "harvested"),
+                args.get("note", ""), args.get("outcome"),
+                args.get("photos", "purge"))}
+
+        elif task == "list_plants":
+            return {"result": {"active": self.active_plants(),
+                               "archived": self.archived_plants()}}
 
         elif task == "assess_care":
             desc = args.get("description") or args.get("notes") or args.get("text") or ""

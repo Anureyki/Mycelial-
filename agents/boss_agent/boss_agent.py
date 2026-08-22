@@ -270,17 +270,23 @@ class BossAgent(AgentBase):
     def _plant_order(self):
         """Plants in the order a person would count them. current_plant is #1
         because it is the one that was here first."""
-        order = ["current_plant"]
+        # ACTIVE plants only. A position is not a name: once plant one is
+        # harvested or given away, "plant one" means whatever is still growing
+        # and started earliest. The underlying id never changes and never gets
+        # reused, so the history stays attached to the plant that earned it.
+        order = []
         try:
-            st = self.send_a2a("grow_agent", "get_status", {}, timeout=20)
+            lp = self.send_a2a("grow_agent", "list_plants", {}, timeout=20)
             for _ in range(3):
-                st = st.get("result", st) if isinstance(st, dict) else st
-            for pl in (st or {}).get("other_plants") or []:
+                lp = lp.get("result", lp) if isinstance(lp, dict) else lp
+            for pl in (lp or {}).get("active") or []:
                 pid = pl.get("plant_id")
                 if pid and pid not in order:
                     order.append(pid)
         except Exception:
             pass
+        if not order:
+            order = ["current_plant"]
         return order
 
     def _ordinal_from_prompt(self, prompt):
