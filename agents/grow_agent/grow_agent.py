@@ -148,6 +148,28 @@ REGROWTH_N_BOOST = 1.25
 # on it, and to ask then. Intervals shorten as biomass grows because consumption
 # is non-linear: a weekly check is ample when the plant is small relative to the
 # reservoir and leaves it starving for days once the root mass fills it.
+# How long a recorded value stays USABLE before it needs re-asking.
+#
+# Distinct from how often a reading is wanted. The check-in previously looked
+# only at the most recent reading, so a value logged two days ago at a reservoir
+# change read as "missing" the moment a reading came in without it - and the
+# grower got asked for the volume a day after setting it themselves.
+#
+# The horizons come from how fast each quantity can actually move:
+#   volume - a 15L reservoir loses single-digit percent a day even under heavy
+#     draw, which is inside the +/-10% a sight tube can be read to. Asking daily
+#     is asking below the resolution of the answer. Resets on a water change.
+#   humidity - moves with the room, but slowly when nothing is actively
+#     humidifying, and it is not what a feed decision turns on.
+#   ph, ppm, temp - genuinely move day to day. That is why they are measured.
+PARAM_STALENESS_DAYS = {
+    "volume_liters": 7,
+    "humidity": 3,
+    "temp": 2,
+    "ph": 2,
+    "ppm": 2,
+}
+
 MONITORING_SCHEDULE = {
     "germination":  {"interval_days": 7, "params": ["ph", "temp"]},
     "seedling":     {"interval_days": 7, "params": ["ph", "ppm", "temp", "volume_liters"]},
@@ -1243,6 +1265,23 @@ class GrowAgent(AgentBase):
             overall = "mixed"
         return {**pred, "verdict": overall, "checks": checks,
                 "why": "; ".join(c["why"] for c in checks if c.get("why"))}
+
+    def _last_known_param(self, param, readings):
+        """Most recent recorded value for a parameter and its age in days.
+
+        Searches back through history rather than looking only at the latest
+        reading, because a reading that omits a field does not erase what was
+        measured before it."""
+        for r in sorted(readings, key=lambda x: x.get("timestamp") or "", reverse=True):
+            v = r.get(param)
+            if v is None:
+                continue
+            try:
+                age = (datetime.now() - datetime.fromisoformat(r["timestamp"][:19])).days
+            except Exception:
+                age = None
+            return v, age
+        return None, None
 
     def _get_readings_for_plant(self, plant_id):
         index = self._unwrap_value(self.retrieve_own_memory("reading_index"))
@@ -2914,11 +2953,21 @@ class GrowAgent(AgentBase):
                 except Exception:
                     pass
 
-            # Missing = never captured, or absent from the most recent reading.
-            missing, stale = [], []
+            # Missing = never recorded at all, or the last recorded value is
+            # older than that parameter can stay useful. Carrying a value forward
+            # is the point: the grower should not be asked to re-state a reservoir
+            # volume they set themselves two days ago.
+            missing, stale, carried = [], [], {}
             for p in schedule["params"]:
-                if not latest or latest.get(p) is None:
+                last_val, last_age = self._last_known_param(p, readings)
+                if last_val is None:
                     missing.append(p)
+                    continue
+                horizon = PARAM_STALENESS_DAYS.get(p, 3)
+                if last_age is not None and last_age > horizon:
+                    missing.append(p)
+                elif last_age is not None and last_age > 0:
+                    carried[p] = {"value": last_val, "days_old": last_age}
             if days_since is not None and days_since >= schedule["interval_days"]:
                 stale.append(f"last reading was {days_since} day(s) ago; "
                              f"{stage} wants one every {schedule['interval_days']}")
@@ -2970,6 +3019,8 @@ class GrowAgent(AgentBase):
             recommendation["stage"] = stage
             recommendation["days_since_last_reading"] = days_since
             recommendation["missing_params"] = missing
+            if carried:
+                recommendation["carried_forward"] = carried
             recommendation["stale"] = stale
             recommendation["triggers"] = triggers
             recommendation["questions"] = questions
