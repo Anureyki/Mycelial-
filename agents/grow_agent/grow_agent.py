@@ -365,7 +365,14 @@ CARE_SIGNS = {
                      "curling inward", "thin"),
     "overwatered":  ("mushy", "soft", "translucent", "yellowing at the base", "soggy",
                      "waterlogged", "rot", "rotting", "black at the base", "smells"),
+    # Splaying flat and spreading outward is the classic low-light response in a
+    # rosette succulent - the plant flattens to present more surface to weak
+    # light. It was filed under thirst severity, which read a light problem as a
+    # water problem on a real aloe kept in a kitchen with only ambient spill from
+    # a grow tent nearby.
     "light_starved": ("leggy", "etiolated", "stretching", "stretched", "pale",
+                      "splayed flat", "splaying", "flattened outward", "spreading outward",
+                      "lying flat", "opening outward",
                       "reaching", "leaning toward", "elongated", "spindly"),
     "light_burned": ("bleached", "white patches", "sunburn", "scorched", "reddish",
                      "purple tinge", "brown tips"),
@@ -381,7 +388,7 @@ CARE_SIGNS = {
 # different facts and the advice depends on both.
 SEVERITY_CUES = {
     "advanced": ("papery", "dried", "dead", "crispy", "brittle", "shrivelled beyond",
-                 "collapsed", "splayed flat", "flattened outward", "brown and dry",
+                 "collapsed", "brown and dry",
                  "leaf litter", "desiccated", "several leaves lost", "hollow"),
     "widespread": ("most leaves", "across most", "all the leaves", "whole plant",
                    "throughout", "every leaf"),
@@ -393,6 +400,7 @@ SEVERITY_CUES = {
 # reference, and observation of the actual plant outranks it.
 SPECIES_PROFILES = {
     "aloe": {
+        "temp_f_ok": (50, 85),
         "stages": ("establishing", "mature", "dormant", "flowering"),
         "default_stage": "mature",
         "common_name": "Aloe",
@@ -405,6 +413,11 @@ SPECIES_PROFILES = {
             "underwatered": ("Leaves thinning, curling inward or wrinkling is the NORMAL first sign "
                              "of thirst in a succulent and is easily corrected. This is the safe "
                              "direction to err in."),
+            "light_starved": ("Splaying flat and spreading outward is how a rosette succulent reaches "
+                              "for weak light - it flattens to present more surface. This does not "
+                              "reverse on its own; the leaves already open stay open, and only new "
+                              "growth comes in tighter once the light improves. Move it somewhere "
+                              "brighter and expect the change to show over weeks, not days."),
             "overwatered": ("Mushy, translucent or yellowing leaves at the base is the dangerous "
                             "direction. Aloe rot moves fast and is usually fatal once it reaches "
                             "the crown. Stop watering, check drainage."),
@@ -412,6 +425,7 @@ SPECIES_PROFILES = {
         "note": "Drought-adapted. When in doubt, wait. Far more aloes die from water than from thirst.",
     },
     "cactus": {
+        "temp_f_ok": (45, 90),
         "stages": ("establishing", "mature", "dormant", "flowering"),
         "default_stage": "mature",
         "common_name": "Cactus (incl. San Pedro, peyote)",
@@ -427,10 +441,14 @@ SPECIES_PROFILES = {
                             "Columnar cacti like San Pedro show it at the soil line first."),
             "light_burned": ("A reddish or purple cast is often light stress rather than disease, "
                              "and is common after a move to stronger light."),
+            "light_starved": ("A cactus reaching for light narrows at the growing tip - new growth "
+                              "thinner than the body below it. That taper is permanent; only the "
+                              "growth after the move comes in at full width."),
         },
         "note": "Slow growing - a change over days is unusual, so anything sudden is worth attention.",
     },
     "succulent": {
+        "temp_f_ok": (50, 85),
         "stages": ("establishing", "mature", "dormant", "flowering"),
         "default_stage": "mature",
         "common_name": "Succulent (general)",
@@ -442,6 +460,7 @@ SPECIES_PROFILES = {
         "note": "Stores water in its tissue, so it shows thirst late and rot early.",
     },
     "tropical_foliage": {
+        "temp_f_ok": (60, 85),
         "stages": ("establishing", "mature"),
         "default_stage": "mature",
         "common_name": "Tropical foliage houseplant",
@@ -1458,7 +1477,33 @@ class GrowAgent(AgentBase):
                 found.append(sign)
         return found
 
-    def assess_care(self, description, species=None, plant_id=None):
+    def temp_verdict(self, species, temp_f=None, temp_c=None):
+        """Whether temperature can explain a symptom, stated either way.
+
+        Ruling a cause OUT is as useful as ruling it in. An aloe browning at 72F
+        is not cold-stressed - aloe is comfortable to about 50F - and leaving
+        that hypothesis open sends the grower after the wrong fix."""
+        if temp_f is None and temp_c is not None:
+            temp_f = temp_c * 9 / 5 + 32
+        profile = self._profile_for(species)
+        band = (profile or {}).get("temp_f_ok")
+        if temp_f is None or not band:
+            return None
+        lo, hi = band
+        if temp_f < lo:
+            return {"temp_f": round(temp_f), "verdict": "too cold",
+                    "note": f"Below {lo}F, cold damage is plausible for a {profile['common_name']}."}
+        if temp_f > hi:
+            return {"temp_f": round(temp_f), "verdict": "too hot",
+                    "note": f"Above {hi}F, heat stress is plausible."}
+        return {"temp_f": round(temp_f), "verdict": "fine",
+                "note": (f"{round(temp_f)}F is inside the {lo}-{hi}F band "
+                         f"{'an' if profile['common_name'][0].lower() in 'aeiou' else 'a'} "
+                         f"{profile['common_name']} is comfortable in, so temperature does NOT "
+                         "explain the symptoms. Look elsewhere.")}
+
+    def assess_care(self, description, species=None, plant_id=None,
+                    temp_f=None, temp_c=None, light_note=None):
         """Species-aware care reading from a plain description of the plant.
 
         Deliberately does NOT need a disease model. Whether something is
@@ -1483,6 +1528,7 @@ class GrowAgent(AgentBase):
                 "resolve_with": "Add a profile for this species so the signs can be interpreted.",
             }
 
+        temp = self.temp_verdict(species, temp_f=temp_f, temp_c=temp_c)
         lowered = (description or "").lower()
         advanced = any(c in lowered for c in SEVERITY_CUES["advanced"])
         widespread = any(c in lowered for c in SEVERITY_CUES["widespread"])
@@ -1519,6 +1565,7 @@ class GrowAgent(AgentBase):
             "group": profile["group"],
             "known_profile": True,
             "signs": signs,
+            **({"temperature": temp} if temp else {}),
             "severity": severity,
             "widespread": widespread,
             "assessment": " ".join(lines),
@@ -2836,7 +2883,9 @@ class GrowAgent(AgentBase):
         elif task == "assess_care":
             desc = args.get("description") or args.get("notes") or args.get("text") or ""
             return {"result": self.assess_care(
-                desc, species=args.get("species"), plant_id=args.get("plant_id"))}
+                desc, species=args.get("species"), plant_id=args.get("plant_id"),
+                temp_f=args.get("temp_f"), temp_c=args.get("temp_c"),
+                light_note=args.get("light_note"))}
 
         elif task == "assess_stage":
             return {"result": self.assess_stage(
