@@ -548,6 +548,43 @@ DRIFT_PATIENCE_DAYS = 3
 PLANT_STATUSES = ("active", "harvested", "gifted", "dead", "removed")
 
 
+# Constants the agent can REPLACE with its own measurements.
+#
+# Every default in this file is somebody's guess - mine, mostly, informed by
+# general horticulture rather than by this reservoir, this strain, this room.
+# That is the difference between an agent that accumulates what it was told and
+# one that learns: the second replaces the guess with what it measured, without
+# anyone deciding for it what the new number should be.
+#
+# min_samples is the honesty gate. A rate computed from two readings is not a
+# rate, and adopting it would be exactly the false confidence the resolution
+# guards exist to prevent.
+LEARNABLE = {
+    "ppm_drift_per_day": {
+        "default_from": "STAGE_PROFILES[stage]['expected_ppm_drift_per_day']",
+        "min_samples": 4,
+        "why": ("How fast THIS plant in THIS reservoir actually draws the solution down. The "
+                "default is a generic figure per stage; the real one depends on root mass, "
+                "reservoir volume, temperature and the plant itself."),
+    },
+    "ppm_measurement_noise": {
+        "default_from": "MEASUREMENT_NOISE['ppm']",
+        "min_samples": 3,
+        "why": ("How much this meter and this grower's technique actually vary between readings "
+                "taken close together. The +/-25 default is a guess about the instrument; the "
+                "real figure is measurable from readings minutes apart, where nothing can have "
+                "changed."),
+    },
+    "dose_response_factor": {
+        "default_from": "1.0 (assumes scaling nutrients scales ppm linearly)",
+        "min_samples": 3,
+        "why": ("adjust_to_target_ppm assumes scaling the recipe by X scales ppm by X. Whether "
+                "that holds for this water and these products is checkable: predict the ppm, "
+                "measure it, and learn the correction."),
+    },
+}
+
+
 class GrowAgent(AgentBase):
     def __init__(self):
         super().__init__(
@@ -1809,6 +1846,115 @@ class GrowAgent(AgentBase):
     # an ESTIMATE that is labelled as one.
     STAGE_AGE_MIDPOINT = {"germination": 3, "seedling": 12, "early_veg": 20,
                           "veg": 35, "flower": 60}
+
+    def _learned_store(self):
+        raw = self._unwrap_value(self.retrieve_own_memory("learned_constants"))
+        try:
+            return json.loads(raw) if raw else {}
+        except Exception:
+            return {}
+
+    def learned(self, name, stage=None, default=None):
+        """The measured value if the agent has earned one, else the default.
+
+        Callers do not need to know whether a number was learned - they ask for
+        it and get the best available. What changes is that after enough
+        observations the answer stops being mine."""
+        store = self._learned_store()
+        key = f"{name}:{stage}" if stage else name
+        rec = store.get(key)
+        if rec and rec.get("adopted"):
+            return rec["value"]
+        return default
+
+    def learn_from_observations(self, plant_id="current_plant"):
+        """Recompute what can be measured, and adopt it where the evidence
+        supports it. Nothing here is told to the agent - it is derived."""
+        readings = sorted([r for r in self._get_readings_for_plant(plant_id)
+                           if r.get("timestamp")], key=lambda r: r["timestamp"])
+        store = self._learned_store()
+        results = {}
+
+        # --- consumption rate, per stage -----------------------------------
+        by_stage = {}
+        for a, b in zip(readings, readings[1:]):
+            pa, pb = self._parse_numeric(a.get("ppm")), self._parse_numeric(b.get("ppm"))
+            if pa is None or pb is None:
+                continue
+            if (a.get("stage") or "") != (b.get("stage") or ""):
+                continue          # a stage change is a different regime
+            try:
+                hrs = (datetime.fromisoformat(b["timestamp"][:19])
+                       - datetime.fromisoformat(a["timestamp"][:19])).total_seconds() / 3600
+            except Exception:
+                continue
+            # Below the consumption window the difference is noise, not uptake.
+            if hrs < MIN_CONSUMPTION_WINDOW_HOURS:
+                continue
+            # A refill or a feed change is not consumption.
+            if pb > pa:
+                continue
+            by_stage.setdefault(a.get("stage"), []).append((pa - pb) / (hrs / 24))
+
+        for stage, rates in by_stage.items():
+            spec = LEARNABLE["ppm_drift_per_day"]
+            key = f"ppm_drift_per_day:{stage}"
+            default = (STAGE_PROFILES.get(stage) or {}).get("expected_ppm_drift_per_day")
+            enough = len(rates) >= spec["min_samples"]
+            rates_sorted = sorted(rates)
+            median = rates_sorted[len(rates_sorted) // 2]
+            store[key] = {
+                "value": round(median, 1), "samples": len(rates), "default": default,
+                "adopted": enough,
+                "note": (f"Measured from {len(rates)} interval(s) of at least "
+                         f"{MIN_CONSUMPTION_WINDOW_HOURS}h in the same stage."
+                         if enough else
+                         f"{len(rates)} sample(s); needs {spec['min_samples']} before this "
+                         "replaces the default. Reported, not used."),
+            }
+            results[key] = store[key]
+
+        # --- meter noise, from readings too close together to have changed ---
+        pairs = []
+        for a, b in zip(readings, readings[1:]):
+            pa, pb = self._parse_numeric(a.get("ppm")), self._parse_numeric(b.get("ppm"))
+            if pa is None or pb is None:
+                continue
+            try:
+                mins = (datetime.fromisoformat(b["timestamp"][:19])
+                        - datetime.fromisoformat(a["timestamp"][:19])).total_seconds() / 60
+            except Exception:
+                continue
+            if 0 < mins <= 20:
+                pairs.append(abs(pa - pb))
+        if pairs:
+            spec = LEARNABLE["ppm_measurement_noise"]
+            enough = len(pairs) >= spec["min_samples"]
+            store["ppm_measurement_noise"] = {
+                "value": round(max(pairs), 1), "samples": len(pairs),
+                "default": MEASUREMENT_NOISE["ppm"], "adopted": enough,
+                "note": (f"Largest spread across {len(pairs)} reading pair(s) taken within 20 "
+                         "minutes, where nothing can actually have changed."
+                         if enough else
+                         f"{len(pairs)} pair(s); needs {spec['min_samples']}. Reported, not used."),
+            }
+            results["ppm_measurement_noise"] = store["ppm_measurement_noise"]
+
+        self.store_own_memory("learned_constants", json.dumps(store))
+        adopted = [k for k, v in results.items() if v.get("adopted")]
+        return {
+            "plant_id": plant_id,
+            "evaluated": len(results),
+            "adopted": adopted,
+            "constants": results,
+            "note": ("A value is adopted only once there are enough samples to support it. "
+                     "Until then the default stands and the measurement is shown beside it, so "
+                     "a disagreement is visible before it is acted on."),
+            "what_this_is": ("This is the agent replacing what it was TOLD with what it has "
+                             "MEASURED. Nobody chooses the new number - it is computed from the "
+                             "record, and the same computation on a different grow gives a "
+                             "different answer."),
+        }
 
     def reading_cadence(self, plant_id="current_plant"):
         """How often this system needs a reading, derived from what its own
@@ -3655,6 +3801,10 @@ class GrowAgent(AgentBase):
 
         elif task == "check_target_drift":
             return {"result": self.check_target_drift(
+                args.get("plant_id", "current_plant") if isinstance(args, dict) else "current_plant")}
+
+        elif task == "learn_from_observations":
+            return {"result": self.learn_from_observations(
                 args.get("plant_id", "current_plant") if isinstance(args, dict) else "current_plant")}
 
         elif task == "reading_cadence":
