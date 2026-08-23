@@ -372,6 +372,8 @@ class BossAgent(AgentBase):
             if add:
                 bits.append("To get there: "
                             + ", ".join(f"{k} {v}ml" for k, v in add.items()) + ".")
+            if dose.get("top_fed_caution"):
+                bits.append(dose["top_fed_caution"])
 
         # "Is now a good time" needs to know what changed recently.
         if re.search(r"\b(now|today|yet|good time|should i|safe to|ready|after)\b", lp):
@@ -471,6 +473,8 @@ class BossAgent(AgentBase):
                 bits.append("Add: " + ", ".join(f"{k} {v}ml" for k, v in add.items()) + ".")
             else:
                 bits.append(f"Scale what is already in there by {d.get('factor')}x.")
+            if d.get("top_fed_caution"):
+                bits.append(d["top_fed_caution"])
             bits.append(d.get("action") or "")
             return " ".join(b for b in bits if b)
 

@@ -215,6 +215,21 @@ GROW_SYSTEM_TYPES = {
                      "note": "A top ring wets the medium while roots are still growing down to the "
                              "water line. Once roots reach the reservoir the ring matters less, but "
                              "it is what keeps the plant alive during the gap.",
+                     # The trap that separates this from a plain DWC.
+                     "strength_reaches_roots_immediately": True,
+                     "concentration_note": (
+                         "The top feed draws from the SAME reservoir, so raising reservoir "
+                         "strength sprays that strength straight onto the root mass in the "
+                         "medium. There is no grace period while roots grow down - in a plain "
+                         "DWC the reservoir only reaches roots that reach it, and a top feed "
+                         "removes that gap by design. The roots in medium are the MOST exposed "
+                         "part of the plant, not the least."),
+                     "buffering": (
+                         "Clay pebbles have almost no cation exchange capacity, so nothing "
+                         "moderates what arrives - unlike soil, the roots see exactly what is "
+                         "sprayed. Worse, water evaporates from the pebble surface between "
+                         "sprays and the salts left behind concentrate, so the effective "
+                         "strength at the root surface is HIGHER than the reservoir reads."),
                      "airlift": True},
     "ebb_flow":     {"label": "ebb and flow", "aerated": False, "roots_in_water": False},
     "coco":         {"label": "coco coir", "aerated": False, "roots_in_water": False},
@@ -4217,6 +4232,22 @@ class GrowAgent(AgentBase):
             if measured <= 0:
                 return {"error": "measured_ppm must be positive"}
 
+            # In a top-fed system a strength increase is not held in the
+            # reservoir until roots reach it - it is sprayed onto the roots that
+            # are already there. Said at the point the increase is calculated,
+            # because that is when the grower is deciding.
+            _sysraw = self._unwrap_value(self.retrieve_own_memory(f"grow_system_{plant_id}")) \
+                      or (self._unwrap_value(self.retrieve_own_memory("grow_system"))
+                          if plant_id == "current_plant" else None)
+            _topfed = False
+            _medium = ""
+            try:
+                _sys = json.loads(_sysraw) if _sysraw else {}
+                _topfed = _sys.get("system_type") in ("top_fed_dwc",)
+                _medium = _sys.get("medium") or ""
+            except Exception:
+                pass
+
             factor = target / measured
             top_up = {}
             for name, ml in added.items():
@@ -4256,6 +4287,21 @@ class GrowAgent(AgentBase):
             recommendation["factor"] = round(factor, 3)
             recommendation["add_now"] = top_up if factor > 1 else {}
             recommendation["implied_volume_liters"] = implied_volume
+            # The distinction that separates a top-fed system from a plain DWC,
+            # said when the grower is deciding rather than after they dosed.
+            if _topfed and factor > 1:
+                recommendation["top_fed_caution"] = (
+                    "This is a top-fed system, so the increase does NOT sit in the reservoir "
+                    "waiting for roots to reach it - the ring draws from the same solution and "
+                    "sprays it straight onto the root mass in the medium. Roots up in the "
+                    "pebbles are the most exposed part of the plant, not the least."
+                    + (" Clay pebbles have almost no cation exchange capacity, so nothing "
+                       "buffers what arrives, and water evaporating between sprays leaves salts "
+                       "behind - the strength at the root surface runs HIGHER than the reservoir "
+                       "reads." if "pebble" in str(_medium).lower() or "clay" in str(_medium).lower()
+                       else "")
+                    + " A single root reaching the water is the least exposed part of the system; "
+                      "raising strength to acclimatise it front-loads the dose onto everything else.")
             return {"result": recommendation}
 
         elif task == "analyze_consumption":
