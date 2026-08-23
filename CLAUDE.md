@@ -237,6 +237,45 @@ happen" are different states. Recommendations flow through Boss for
 authorisation before reaching any control service or device. No agent holds
 direct actuation authority.
 
+## False success is the failure mode to hunt
+
+A command that reports success while doing nothing is worse than one that
+errors, because the caller believes the work is done and moves on. Every such
+report becomes a claim that was never true - which is how a system starts
+hallucinating about itself.
+
+This shape has appeared at every layer of MycOS, in one day:
+
+| Where | What reported success | What actually happened |
+|-------|----------------------|------------------------|
+| Editing code | `str.replace()` on text that does not occur | file unchanged, no error |
+| `service_manager` | `{"success": true}` from `/restart` | `/bin/sh` has no `source`; start died, only stop ran |
+| Process control | `pkill -f` / `pgrep -f` with a pattern matching nothing | "restarted" a process that never stopped |
+| Publishing | `git push ... 2>/dev/null && echo pushed` | 29 commits sat unpushed to `main` |
+| An agent's own output | `productive / high confidence` on a photo | no local model covered the species; nothing was assessed |
+
+The last row is the point: this is not only a tooling problem. **An agent that
+finds nothing and reports health is committing the same error as a push that
+fails quietly.** Absence of a detected problem is not evidence of its absence.
+
+### The rules
+
+1. **Never suppress stderr on a command whose success you are about to claim.**
+   No `2>/dev/null` in front of an assertion that the thing worked.
+2. **Verify the effect, not the exit code.** A push is confirmed by comparing
+   local and remote refs, an edit by reading back the changed behaviour, a
+   restart by the new pid serving the port. Exit status is the weakest evidence
+   available.
+3. **Assert anchors before writing.** A text substitution that cannot find its
+   target must raise, not return the original.
+4. **A check that found nothing must say so**, distinctly from a check that
+   found the thing to be fine. `undetermined` and `unscorable` exist for this
+   reason and are not filler verdicts.
+5. **Trust the machine that does not get tired.** CI ran on every commit for a
+   day, flagged two real `NameError`s, and was ignored in favour of hand-testing
+   the paths that happened to come to mind. A red check outranks a claim of
+   "verified working".
+
 ## Guards (replaces the retired `hooks/`)
 
 Every inbound `/execute` passes through `AgentBase.check_guard()`, which asks the Security Agent (9010) to authorize it. Deny rules live in `config/guards.json` (denylist — no matching rule means allowed).

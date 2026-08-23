@@ -299,6 +299,19 @@ PATTERNS = [
                     "Separately, asking about ONE plant returned a roundup of the whole garden."),
         "check": "Do two different questions to this branch produce two different answers?",
     },
+    {
+        "id": "suppressed_stderr_then_claimed_success",
+        "severity": "high",
+        "regex": r'2>\s*/dev/null.*&&|&&.*echo.*(pushed|done|success|ok)|capture_output=True',
+        "why": ("Discarding stderr and then asserting the command worked turns a failure into a "
+                "false claim. The caller believes the work is done, and every later decision "
+                "rests on something that never happened."),
+        "seen_in": ("`git push -q origin branch main 2>/dev/null && echo pushed` printed success "
+                    "29 times while local main sat frozen and nothing reached the branch CI runs "
+                    "on. Separately service_manager returned {\"success\": true} from /restart "
+                    "while every start died on `source: not found` under /bin/sh."),
+        "check": "Does anything verify the EFFECT - refs compared, pid serving the port, behaviour read back - or only the exit code?",
+    },
 ]
 
 
