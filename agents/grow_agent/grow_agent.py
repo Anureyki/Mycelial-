@@ -2271,9 +2271,35 @@ class GrowAgent(AgentBase):
         ("stage",      r"\bstage\b|\bveg\b|\bflower\b|\bpistil\b|\bharvest\b|\bhow old\b"),
     )
 
+    def amend_grow_system(self, plant_id="current_plant", **fields):
+        """Add or correct individual facts on the system record.
+
+        set_grow_system rebuilds the whole record from its arguments, so using
+        it to fix one field silently drops every field not passed. A physical
+        fact learned later - a clearance, a pump change - needs a merge, not a
+        rewrite."""
+        key = f"grow_system_{plant_id}"
+        raw = self._unwrap_value(self.retrieve_own_memory(key))
+        if not raw and plant_id == "current_plant":
+            key, raw = "grow_system", self._unwrap_value(self.retrieve_own_memory("grow_system"))
+        if not raw:
+            return {"error": f"No system record for {plant_id}."}
+        try:
+            record = json.loads(raw)
+        except Exception as e:
+            return {"error": f"System record unreadable: {e}"}
+        changed = {k: v for k, v in fields.items() if v is not None and record.get(k) != v}
+        if not changed:
+            return {"changed": {}, "record": record, "note": "nothing to change"}
+        record.update(changed)
+        record["amended_at"] = datetime.now().isoformat()
+        self.store_own_memory(key, json.dumps(record))
+        return {"changed": changed, "record": record}
+
     def measure_working_volume(self, plant_id="current_plant", reference_liters=None,
                                verdict="above", method="side_by_side_level",
-                               solids_submerged=True, upper_hint=None, note=""):
+                               solids_submerged=None, upper_hint=None, note="",
+                               precision_liters=None):
         """Interpret a volume measurement made by comparing water levels.
 
         The trap is that a level comparison measures DISPLACEMENT, not water.
@@ -2308,16 +2334,61 @@ class GrowAgent(AgentBase):
         except Exception:
             pass
 
+        # Whether anything is actually under the water line is a recorded fact
+        # about this system, not something to assume. Assuming it cost this
+        # analysis a wrong answer once: the net pot here sits clear of the
+        # water, so the clay pebbles displace nothing, and treating them as
+        # submerged turned a measurement that CONFIRMED the stored volume into
+        # one that appeared to contradict it.
+        if solids_submerged is None:
+            try:
+                sysrec = json.loads(sysraw) if sysraw else {}
+            except Exception:
+                sysrec = {}
+            contacts = sysrec.get("medium_contacts_water")
+            solids_submerged = True if contacts is None else bool(contacts)
+
         out = {"plant_id": plant_id, "method": method, "reference_liters": ref,
                "verdict": verdict, "stored_working_liters": stored,
+               "solids_submerged": solids_submerged,
                "displacement_accounted": False}
 
         if method != "side_by_side_level" or not solids_submerged:
-            # Drained and measured, or an empty vessel: level IS water.
-            out.update({"water_liters_at_least": ref if verdict == "above" else None,
-                        "water_liters_at_most": ref if verdict == "below" else upper_hint,
+            # Nothing meaningful under the line, so level IS water. The limit is
+            # now how finely two buckets can be compared by eye, which is far
+            # coarser than the arithmetic - and a difference smaller than that
+            # is not a finding.
+            prec = self._parse_numeric(precision_liters) or 1.0
+            est_lo, est_hi = ref - prec, (self._parse_numeric(upper_hint) or ref + prec)
+            out.update({"water_liters_estimate": ref,
+                        "water_liters_range": [round(est_lo, 1), round(est_hi, 1)],
+                        "precision_liters": prec,
                         "displacement_accounted": True,
-                        "confidence": "high"})
+                        "confidence": "medium"})
+            if stored is not None:
+                gap = abs(ref - stored)
+                out["difference_from_stored"] = round(gap, 2)
+                if gap < prec:
+                    out["verdict_vs_stored"] = "below_resolution"
+                    out["conclusion"] = (
+                        f"{ref:g}L against a stored {stored:g}L is a {gap:.1f}L difference, "
+                        f"measured by eye to about +/-{prec:g}L. The measurement cannot see a "
+                        f"difference that small, so it CONFIRMS the stored volume rather than "
+                        f"revising it. Changing the figure here would be reading precision the "
+                        f"method does not have.")
+                else:
+                    out["verdict_vs_stored"] = "differs"
+                    out["conclusion"] = (
+                        f"{ref:g}L against a stored {stored:g}L is {gap:.1f}L apart, larger than "
+                        f"the +/-{prec:g}L this method resolves. Worth revising - dosing runs "
+                        f"against the stored figure.")
+            out["recorded_at"] = datetime.now().isoformat()
+            if note:
+                out["note"] = note
+            try:
+                self.store_own_memory(f"volume_observation_{int(time.time())}", json.dumps(out))
+            except Exception as e:
+                self.log(f"could not store volume observation: {e}")
             return out
 
         out.update({
@@ -4851,13 +4922,21 @@ class GrowAgent(AgentBase):
             return {"result": {"text": self.describe(args.get("task") or "",
                                                      args.get("payload"))}}
 
+        elif task == "amend_grow_system":
+            fields = {k: v for k, v in (args or {}).items() if k != "plant_id"}
+            return {"result": self.amend_grow_system(
+                args.get("plant_id", "current_plant"), **fields)}
+
         elif task == "measure_working_volume":
             return {"result": self.measure_working_volume(
                 args.get("plant_id", "current_plant"),
                 args.get("reference_liters"), args.get("verdict", "above"),
                 args.get("method", "side_by_side_level"),
-                args.get("solids_submerged", True),
-                args.get("upper_hint"), args.get("note", ""))}
+                # No default here: absent means "ask the system record",
+                # and a default in this layer silently overrides that.
+                args.get("solids_submerged"),
+                args.get("upper_hint"), args.get("note", ""),
+                args.get("precision_liters"))}
 
         elif task == "parse_reading":
             # Read-only: what the agent would extract, without recording it.
