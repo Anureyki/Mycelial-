@@ -2271,6 +2271,86 @@ class GrowAgent(AgentBase):
         ("stage",      r"\bstage\b|\bveg\b|\bflower\b|\bpistil\b|\bharvest\b|\bhow old\b"),
     )
 
+    def measure_working_volume(self, plant_id="current_plant", reference_liters=None,
+                               verdict="above", method="side_by_side_level",
+                               solids_submerged=True, upper_hint=None, note=""):
+        """Interpret a volume measurement made by comparing water levels.
+
+        The trap is that a level comparison measures DISPLACEMENT, not water.
+        A reference bucket holding R litres of plain water sits at some level.
+        The operating bucket sits at a level set by its water V plus whatever
+        its submerged solids displace, D:
+
+            level_operating > level_reference  =>  V + D > R  =>  V > R - D
+
+        Because D is never negative, seeing the operating bucket sit HIGHER
+        than the reference does not establish that it holds more water. With a
+        net pot, clay pebbles and a root mass under the line, a bucket holding
+        slightly LESS than R can still read above it. Reading that observation
+        as "the reservoir is bigger" would raise every dose against a volume
+        the grow does not have.
+
+        So this returns a bound and refuses a point estimate, because a point
+        estimate is not what was measured. D is unknown here and the agent will
+        not invent it - the whole comparison is blind to the one quantity that
+        decides the answer."""
+        ref = self._parse_numeric(reference_liters)
+        if ref is None:
+            return {"error": "Need the reference volume that was poured in."}
+
+        stored = None
+        sysraw = (self._unwrap_value(self.retrieve_own_memory(f"grow_system_{plant_id}"))
+                  or (self._unwrap_value(self.retrieve_own_memory("grow_system"))
+                      if plant_id == "current_plant" else None))
+        try:
+            stored = self._parse_numeric((json.loads(sysraw) or {}).get("typical_working_liters")) \
+                if sysraw else None
+        except Exception:
+            pass
+
+        out = {"plant_id": plant_id, "method": method, "reference_liters": ref,
+               "verdict": verdict, "stored_working_liters": stored,
+               "displacement_accounted": False}
+
+        if method != "side_by_side_level" or not solids_submerged:
+            # Drained and measured, or an empty vessel: level IS water.
+            out.update({"water_liters_at_least": ref if verdict == "above" else None,
+                        "water_liters_at_most": ref if verdict == "below" else upper_hint,
+                        "displacement_accounted": True,
+                        "confidence": "high"})
+            return out
+
+        out.update({
+            "water_liters_at_least": None,
+            "water_liters_at_most": self._parse_numeric(upper_hint),
+            "confidence": "low",
+            "why_no_number": (
+                f"The operating bucket reading above the {ref:g}L line means water plus "
+                "submerged solids exceeds " f"{ref:g}L - not that the water does. A net pot, "
+                "clay pebbles and a root mass all sit under the line and displace solution. "
+                "How much they displace has never been measured, and it is the only quantity "
+                "that turns this observation into a volume."),
+            "consistent_with_stored": stored is not None and stored <= ref,
+            "what_would_settle_it": (
+                "Drain the operating reservoir back into the jugs it was filled from and "
+                "count what comes out. That measures water and nothing else, and it is the "
+                "only version of this comparison that displacement cannot distort."),
+        })
+        if stored is not None:
+            out["effect_on_dosing"] = (
+                f"Dosing currently runs against {stored:g}L. Raising it to {ref + 2:g}L on this "
+                f"evidence would increase every dose by about "
+                f"{((ref + 2 - stored) / stored * 100):.0f}% against a volume that has not been "
+                "shown to exist. The stored figure is left alone until a drain-and-count.")
+        out["recorded_at"] = datetime.now().isoformat()
+        if note:
+            out["note"] = note
+        try:
+            self.store_own_memory(f"volume_observation_{int(time.time())}", json.dumps(out))
+        except Exception as e:
+            self.log(f"could not store volume observation: {e}")
+        return out
+
     def describe(self, task, result):
         """Put this agent's own result into words.
 
@@ -4770,6 +4850,14 @@ class GrowAgent(AgentBase):
         elif task == "describe":
             return {"result": {"text": self.describe(args.get("task") or "",
                                                      args.get("payload"))}}
+
+        elif task == "measure_working_volume":
+            return {"result": self.measure_working_volume(
+                args.get("plant_id", "current_plant"),
+                args.get("reference_liters"), args.get("verdict", "above"),
+                args.get("method", "side_by_side_level"),
+                args.get("solids_submerged", True),
+                args.get("upper_hint"), args.get("note", ""))}
 
         elif task == "parse_reading":
             # Read-only: what the agent would extract, without recording it.
