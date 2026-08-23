@@ -258,3 +258,49 @@ none of this. `voice_listener.py` exists and is wired to nothing; the webapp
 already proves the thin-client pattern, and the socat forwarder already exposes
 Anansi to the LAN. That de-risks the whole UX question without touching the
 trust model.
+
+## Phase 7 — Reduce A2A read amplification inside a single answer — NOT STARTED
+
+**Independent of the deployment chain (Phases 2-4) and of identity (Phase 5).
+Sits before Phase 6, because multi-tenancy multiplies it by the number of
+tenants.** Nothing is broken today; this is cost, not correctness.
+
+### The observation
+
+Measured 2026-08-23 from a live call graph, last 500 log lines per agent, while
+answering ordinary grow questions:
+
+| Call | Count |
+|------|-------|
+| `grow_agent -> hermes (retrieve_memory)` | 166 |
+| `hermes -> security_agent (check_guard)` | 229 |
+| `grow_agent -> security_agent (check_guard)` | 7 |
+
+One question can cost well over a hundred memory round trips. `answer()` picks
+several of its own capabilities, and each one re-reads the plant record, the
+reading index and the readings independently over A2A. Every one of those
+reads is a JSON-RPC POST that Hermes then re-authorizes against the Security
+Agent, so the guard traffic is larger than the memory traffic it protects.
+
+### Why it is worth doing, and why not yet
+
+It is not a correctness bug and no answer is wrong because of it. It is the
+reason reasoning feels slow on this hardware (i5-4570T, 4 threads, no GPU),
+and it is the first thing that will hurt under load - a second tenant doubles
+it, a probe reporting hourly multiplies it again.
+
+### Likely shape (not designed yet)
+
+- A per-request read cache inside `answer()`, so the capabilities it calls
+  share one read of the plant record and one of the readings rather than each
+  fetching their own.
+- Decide whether an agent reading **its own** memory needs a full guard round
+  trip per read, or whether the guard belongs at the request boundary. That is
+  a security decision, not a performance one, and must not be made casually -
+  `check_guard` failing open already means an outage does not halt the swarm.
+
+### Do not start this by
+
+Caching across requests, or holding state in the agent between calls. The
+platform is stateless by design and that property is worth more than the
+round trips. The cache should live for one `answer()` and die with it.
