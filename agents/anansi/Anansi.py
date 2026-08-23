@@ -16,6 +16,50 @@ REGISTRY_FILE = os.path.join(BASE, "state", "registry.json")
 
 EVIDENCE_KEYWORDS = ("why", "how do you know", "show your work", "evidence", "proof", "based on what", "show evidence")
 
+
+# ---------------------------------------------------------------------------
+# Anansi's voice.
+#
+# CLAUDE.md has said from the beginning that Anansi is a storyteller, not a
+# dispatcher: "Your reservoir pH has been drifting - I'd adjust it today," never
+# "Grow Agent reported a warning." What was actually shipping was a bulletin -
+# correct facts in clipped, period-separated fragments. The variable was even
+# called `narrated` and nothing narrated.
+#
+# Deliberately DETERMINISTIC. A model rewriting these sentences would be free to
+# invent, and every fabrication caught today came from exactly that - a small
+# model given room to fill a gap. So this restructures and connects what it was
+# given and never adds a fact. If a sentence is not in the payload it does not
+# appear in the telling.
+#
+# What makes it a story rather than a report:
+#   - it opens by saying what kind of news this is
+#   - it joins fragments with connectives instead of full stops
+#   - it speaks to the grower, not about the system
+#   - it lands on what to do, or on the fact that there is nothing to do
+import random
+import re as _re
+
+OPENERS = {
+    "blocked": ["Not yet, and here is what is standing in the way.",
+                "Hold off a moment - a few things are in front of you.",
+                "I would wait, and I can tell you exactly why."],
+    "clear":   ["Nothing is in the way.", "You are clear to go ahead.",
+                "No reason to wait on this one."],
+    "steady":  ["All quiet.", "Nothing needs you right now.",
+                "Everything is sitting where it should."],
+    "action":  ["Here is what that takes.", "Right, here is the arithmetic.",
+                "That one has a number attached."],
+    "history": ["Here is how it got this way.", "That goes back a bit.",
+                "The record has the answer to that one."],
+    # No counts in the openers - the number of conditions varies and an opener
+    # that says "two" over three items reads as not having looked.
+    "timing":  ["Here is what has to be true first.", "It is not a date, it is a set of conditions.",
+                "It depends on a couple of things landing."],
+}
+CONNECTIVES = ["And ", "On top of that, ", "There is also this: ", "Then ",
+               "The other thing: "]
+
 class Anansi(AgentBase):
     def __init__(self):
         super().__init__(
@@ -61,6 +105,73 @@ class Anansi(AgentBase):
         # Hardcoded fallback
         self.log("Using default orchestrator: boss_agent")
         return "boss_agent"
+
+    def narrate(self, text, prompt=""):
+        """Tell it, rather than report it. Facts in, same facts out, arranged
+        like someone talking."""
+        if not text or not isinstance(text, str) or len(text) < 40:
+            return text
+        # Anything already conversational is left alone.
+        if text.lstrip().startswith(("Got it", "I couldn't", "I could not", "Hold", "Not yet,")):
+            return text
+
+        # Classify on the LEAD sentence. The situation carries every facet, so
+        # judging by the whole payload gave a dose answer a "three things are in
+        # the way" opener - the blockers were in there, just not first.
+        lead_sentence = _re.split(r'(?<=[.!?])\s+', text.strip())[0]
+        low = lead_sentence.lower()
+        if "in the way" in low or "clears when" in low or low.startswith("not yet"):
+            kind = "blocked"
+        elif low.startswith("nothing is blocking") or "go ahead" in low:
+            kind = "clear"
+        elif _re.search(r"\bon 20\d\d-\d\d-\d\d\b", lead_sentence):
+            kind = "history"
+        elif _re.search(r"\badd\b.*\d+(\.\d+)?ml", low):
+            kind = "action"
+        elif low.startswith("when:") or low.startswith("no condition"):
+            kind = "timing"
+        else:
+            kind = "steady"
+
+        parts = [p.strip() for p in _re.split(r'(?<=[.!?])\s+', text) if p.strip()]
+        if len(parts) < 2:
+            return text
+
+        # Deterministic per input, so the same question does not reword itself
+        # every time it is asked - that reads as instability, not personality.
+        rnd = random.Random(hash(text) & 0xffff)
+        opener = rnd.choice(OPENERS[kind])
+
+        # Drop a leading sentence the opener already covers.
+        if kind == "blocked" and _re.match(r'^not yet\b', parts[0], _re.I):
+            parts = parts[1:]
+
+        body = []
+        for i, p in enumerate(parts):
+            if i and i % 3 == 0 and len(p) > 30 and not p.startswith(("Clears", "And", "The")):
+                body.append(rnd.choice(CONNECTIVES) + p[0].lower() + p[1:])
+            else:
+                body.append(p)
+        told = opener + " " + " ".join(body)
+
+        # "Clears when:" is machine phrasing. A storyteller says what unlocks it.
+        # "Clears when:" is machine phrasing; a storyteller says what unlocks it.
+        # The replacement runs mid-sentence, so the word that followed the colon
+        # was capitalised and has to come back down - "once A reading has been
+        # taken" is the sort of seam that gives away a template.
+        def _lower_next(m):
+            return m.group(1) + m.group(2).lower()
+        told = _re.sub(r'(Clears when:\s+)([A-Z])', lambda m: "That lifts once " + m.group(2).lower(), told)
+        told = _re.sub(r'(clears when:\s+)([A-Z])', lambda m: "which lifts once " + m.group(2).lower(), told)
+        told = _re.sub(r'\bWhen:\s+', '', told)
+        told = _re.sub(r'\bAnd:\s+([A-Z])', lambda m: "and " + m.group(1).lower(), told)
+        told = _re.sub(r'\.\s+and ', ', and ', told)
+        told = told.replace("Clears when:", "That lifts once")
+        told = told.replace("clears when:", "which lifts once")
+        told = _re.sub(r'\bNot yet - (\d+) thing\(s\) in the way\.',
+                       lambda m: f"There are {m.group(1)} of them.", told)
+        told = told.replace(" thing(s)", " things")
+        return told
 
     def handle_task(self, task, args, sender):
         self.log(f"Received task: {task}, args: {args}, sender: {sender}")
@@ -110,7 +221,7 @@ class Anansi(AgentBase):
                 inner = response.get("result")
                 if isinstance(inner, dict) and "evidence" in inner:
                     evidence = inner.get("evidence")
-                    narrated = {"result": inner.get("result")}
+                    narrated = {"result": self.narrate(inner.get("result"), prompt)}
             self.append_to_session(session_id, {
                 "timestamp": datetime.now().isoformat(),
                 "prompt": prompt,
