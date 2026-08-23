@@ -158,6 +158,37 @@ The test is whether the subject is **domain-specific**. If it is, it belongs to
 that domain's agent. If it is not, answer it and move on without persisting
 anything.
 
+### A fact spoken to Claude is not a fact the system holds
+
+Until an agent can capture its own domain facts from conversation, **Claude is
+the capture layer**, and anything the principal says about the grow must be
+written into the agent's record in the same turn it is heard. A fact that lands
+only in a conversation dies when that context does.
+
+The failure this prevents, in full:
+
+| When | What happened |
+|------|---------------|
+| 2026-08-21 | Principal: *"my water is about maybe two inches away from the bottom of the basket."* |
+| same turn | Claude confirmed it: *"The 2-inch gap below the net pot is right."* |
+| never | It was written to `grow_system_current_plant`. |
+| 2026-08-23 | A volume measurement was analysed assuming the medium was **submerged**, concluding the reservoir could not be sized and the principal's measurement was distorted by displacement that does not exist. |
+
+The principal had supplied exactly the fact that decided the answer, two days
+earlier, and been agreed with. The system then contradicted them using an
+assumption in place of it.
+
+So: **hearing is not recording.** A spoken physical fact - a clearance, a pump
+change, a light height, a medium swap - goes into the agent immediately via
+`amend_grow_system` (which merges; `set_grow_system` rebuilds the record from
+its arguments and silently drops every field not passed). The same applies to
+every domain, not just Grow.
+
+The corollary is that reasoning must read the record rather than assume around
+it. `measure_working_volume` now takes `medium_contacts_water` from the system
+record instead of defaulting - and a default in the calling layer will quietly
+defeat that lookup, which is its own bug class.
+
 ### Lived data outranks documentation
 
 Observed outcomes carry more authority than what is written down. A product

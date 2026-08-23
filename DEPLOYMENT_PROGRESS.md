@@ -304,3 +304,43 @@ it, a probe reporting hourly multiplies it again.
 Caching across requests, or holding state in the agent between calls. The
 platform is stateless by design and that property is worth more than the
 round trips. The cache should live for one `answer()` and die with it.
+
+## Phase 8 — Grow captures spoken facts itself — NOT STARTED
+
+**Independent of every other phase. Small, and it removes a standing failure
+mode rather than adding a feature.**
+
+### The gap
+
+Grow already captures one class of spoken input: `ingest()` recognises a
+reservoir reading stated in passing ("19.7c 6.15ph 688ppm") and records it
+before anything slow runs. It captures no other kind of fact.
+
+Everything else the grower says about the physical system - a net pot
+clearance, a pump change, a light height, a medium swap - reaches Claude and
+stops there. Claude is currently the only path from a spoken fact to the
+agent's record, and that path is a habit, not a mechanism.
+
+### What it cost, concretely
+
+On 2026-08-21 the grower said the water sits about two inches below the
+basket. Claude agreed with it in the same turn and never wrote it down. On
+2026-08-23 a volume measurement was analysed assuming the medium was submerged
+- concluding the reservoir could not be sized and the grower's measurement was
+distorted by displacement that does not exist. The grower had supplied the
+deciding fact two days earlier and been agreed with.
+
+### Likely shape (not designed yet)
+
+Extend `ingest()` beyond readings: recognise statements of system fact and
+route them to `amend_grow_system`, which already merges without clobbering.
+The hard part is not extraction, it is **refusing to guess** - a
+misremembered clearance written confidently into the record is worse than no
+clearance at all, because the reasoning layer trusts the record. Anything
+below confident extraction should be surfaced for confirmation, not stored.
+
+### Do not start this by
+
+Letting a model rewrite the system record freely. The record is what dosing
+and stage reasoning read; it needs the same "assert the anchor before writing"
+discipline as any other substitution.
