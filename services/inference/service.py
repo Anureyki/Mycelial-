@@ -330,8 +330,24 @@ def reason_endpoint():
 def capabilities_endpoint():
     """What each capability would resolve to right now, and what got skipped -
     so a missing backend is diagnosable without reading code."""
+    # Model Service owns the routing table now, so ask it what capabilities
+    # exist rather than re-reading the file. load_routing() was deleted when
+    # routing moved and this caller was left behind - it has been raising
+    # NameError on every /capabilities request since.
+    try:
+        resp = requests.get(f"{MODEL_SERVICE_URL}/capabilities", timeout=8)
+        if resp.status_code == 200:
+            return jsonify(resp.json())
+    except Exception:
+        pass
+    # Fall back to the local file if Model Service is down, same as _local_resolve.
+    try:
+        with open(ROUTING_FILE) as f:
+            names = [k for k in json.load(f) if not k.startswith("_")]
+    except Exception:
+        names = []
     out = {}
-    for capability in load_routing():
+    for capability in names:
         entry, skipped = resolve_capability(capability)
         out[capability] = {
             "resolves_to": f"{entry['provider']}:{entry['model']}" if entry else None,

@@ -4,6 +4,7 @@ import os
 import time
 import json
 import subprocess
+import requests
 from datetime import datetime, timedelta
 
 project_root = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
