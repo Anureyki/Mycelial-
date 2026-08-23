@@ -16,6 +16,7 @@ from flask import Flask, request, jsonify
 
 app = Flask(__name__)
 
+VENV_PY = os.path.join(os.path.expanduser("~/mycelial"), "venv", "bin", "python3")
 BASE = os.path.expanduser("~/mycelial")
 PROCESS_FILE = os.path.join(BASE, "state", "processes.json")
 CONFIG_DIR = os.path.join(BASE, "config", "agent_configs")
@@ -68,7 +69,7 @@ def start_agent_process(agent_id, config_path):
         if entry_point:
             # Use module form: python3 -m agents.boss_agent.boss_agent
             module = entry_point.split(":")[0]
-            cmd = f"cd {BASE} && source venv/bin/activate && nohup python3 -m {module} > logs/{agent_id}.log 2>&1 &"
+            cmd = f"cd {BASE} && exec {VENV_PY} -u -m {module} >> logs/{agent_id}.log 2>&1"
         else:
             # Fallback to direct script (old behavior)
             agent_file = os.path.join(BASE, "agents", agent_id, f"{agent_id}.py")
@@ -76,9 +77,24 @@ def start_agent_process(agent_id, config_path):
                 agent_file = os.path.join(BASE, "agents", f"{agent_id}.py")
             if not os.path.exists(agent_file):
                 return {"success": False, "error": f"Agent file {agent_file} not found"}
-            cmd = f"cd {BASE} && source venv/bin/activate && nohup python3 {agent_file} > logs/{agent_id}.log 2>&1 &"
+            cmd = f"cd {BASE} && exec {VENV_PY} -u {agent_file} >> logs/{agent_id}.log 2>&1"
         
-        subprocess.Popen(cmd, shell=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+        # shell=True runs /bin/sh, which has no `source` - so every start died
+        # with "source: not found" while the endpoint returned success:true.
+        # stop worked, start silently did not, and a restart therefore just
+        # stopped the agent. That is why the stack has been restarted by hand
+        # all session instead of through its own supervisor.
+        #
+        # Run the venv interpreter directly rather than activating it, and use
+        # bash explicitly. setsid detaches the child so it survives this service
+        # being restarted in turn.
+        # `exec` replaces the shell with the agent instead of leaving a bash
+        # wrapper alive - a leftover wrapper matches every pgrep for the agent
+        # and makes process counts lie, which is how nine bash shells once got
+        # reported as nine running services.
+        subprocess.Popen(["/bin/bash", "-lc", cmd],
+                         stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL,
+                         start_new_session=True)
 
         processes[agent_id] = {
             "agent_id": agent_id,
