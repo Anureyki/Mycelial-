@@ -37,6 +37,11 @@ GROW_TERMS = (
     "vegetative", "flower", "bloom", "pistil", "calyx", "trichome", "harvest",
     "leaf", "leaves", "canopy", "node", "root", "roots", "strain",
     "autoflower", "auto-?flower", "photoperiod", "cultivar",
+    # dosing phrasings that name no plant, no unit and no equipment. "How much
+    # do I add to reach 800" is unambiguous inside a grow assistant and was
+    # being answered by a CODE model as "add 200".
+    "how much.*add", "add.*to reach", "to reach \\d", "reach \\d{3}",
+    "top ?up", "how much more",
     # the act of keeping the record itself - asking how often to log is a grow
     # question even when it names no plant, no measurement and no equipment
     "reading", "readings", "log\b", "logging", "cadence", "how often",
@@ -266,6 +271,13 @@ class BossAgent(AgentBase):
                         r"\bhow (much|many) (ppm|ml)\b"),
         # "What did that cost me" - asked before "feed" so that a question about
         # the loss from an underfeed is not answered with the current recipe.
+        # "How much do I add to reach 800" is a dosing calculation, not a status
+        # question. Declared before measurement so a prompt containing "ppm" is
+        # not answered with the current reading.
+        ("dosing", r"\bhow much\b.*\b(add|need|more|raise|reach|get to|bring)\b|"
+                   r"\b(add|raise|bring|get)\b.*\bto (reach|hit|get to)\b|"
+                   r"\breach\s*\d{2,4}\b|\bto\s*\d{3,4}\s*ppm\b|"
+                   r"\btarget\b.*\d{3,4}|\d{3,4}\s*ppm\b.*\b(target|reach|goal)\b"),
         ("impact", r"\b(loss|lost|cost|impact|damage|set ?back|setback|stagnant|stunted|"
                    r"behind|deficit|underfed|under-?feed|how bad|make up for|catch up)\b"),
         ("feed", r"\bfeed\b|\bnutrient|\brecipe\b|\bdose\b|\bhow much .*(cal|flora|nute)"),
@@ -369,6 +381,29 @@ class BossAgent(AgentBase):
                 bits.append("Scheduled: " + "; ".join(
                     f"{r.get('title')} (due {r.get('target_date')})" for r in rem[:3]) + ".")
             return " ".join(b for b in bits if b) or None
+
+        if intent == "dosing":
+            m = re.search(r'(\d{3,4})\s*(?:ppm)?', prompt or "")
+            if not m:
+                return None
+            target = float(m.group(1))
+            # A prompt can carry several numbers ("800 high 700 low 800"); the
+            # largest three-or-four digit figure is the target being aimed at.
+            nums = [float(x) for x in re.findall(r'\b(\d{3,4})\b', prompt or "")]
+            if nums:
+                target = max(nums)
+            d = peel(self.send_a2a("grow_agent", "adjust_to_target_ppm",
+                                   {"plant_id": plant_id, "target_ppm": target}, timeout=60))
+            if not d or d.get("error"):
+                return None
+            add = d.get("add_now") or {}
+            bits = [d.get("observation") or ""]
+            if add:
+                bits.append("Add: " + ", ".join(f"{k} {v}ml" for k, v in add.items()) + ".")
+            else:
+                bits.append(f"Scale what is already in there by {d.get('factor')}x.")
+            bits.append(d.get("action") or "")
+            return " ".join(b for b in bits if b)
 
         if intent == "cadence":
             c = peel(self.send_a2a("grow_agent", "reading_cadence",

@@ -4188,9 +4188,30 @@ class GrowAgent(AgentBase):
             # to measured lands on target whatever the true volume is, which
             # matters because reservoir volume here is estimated from bottles
             # poured in and an unmarked sight tube. The meter is the authority.
+            plant_id = args.get("plant_id", "current_plant")
             measured = self._parse_numeric(args.get("measured_ppm"))
             target = self._parse_numeric(args.get("target_ppm"))
             added = args.get("added") or {}
+            # Fall back to what the agent already knows. Requiring the grower to
+            # restate their own last reading and their own current recipe made a
+            # simple question ("how much do I add to reach 800") unanswerable
+            # when every input was already on record.
+            if measured is None:
+                _rs = [r for r in self._get_readings_for_plant(plant_id)
+                       if self._parse_numeric(r.get("ppm")) is not None]
+                if _rs:
+                    _rs.sort(key=lambda r: r.get("timestamp") or "")
+                    measured = self._parse_numeric(_rs[-1].get("ppm"))
+            if not added:
+                _cur_key, _ = self._nutrient_keys(plant_id)
+                _raw = self._unwrap_value(self.retrieve_own_memory(_cur_key))
+                if _raw:
+                    try:
+                        added = (json.loads(_raw).get("nutrients") or {})
+                    except Exception:
+                        added = {}
+                    added = {k: v for k, v in added.items()
+                             if self._parse_numeric(v) is not None}
             if measured is None or target is None:
                 return {"error": "Usage: {measured_ppm, target_ppm, [added: {nutrient: ml}], [assumed_volume_liters]}"}
             if measured <= 0:
