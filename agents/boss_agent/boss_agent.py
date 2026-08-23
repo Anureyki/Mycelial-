@@ -331,6 +331,75 @@ class BossAgent(AgentBase):
         order = self._plant_order()
         return order[n - 1] if 1 <= n <= len(order) else None
 
+    def _compose_grow_answer(self, plant_id, prompt):
+        """Assemble an answer for a grow question that matched no known intent.
+
+        The alternative was the status card, and that is what made five
+        different questions today read as being ignored. Adding a regex per
+        phrasing does not converge - the grower keeps finding wordings nobody
+        thought of, which is the correct outcome for a person talking normally.
+
+        So the fallback stops being a summary and starts being an answer built
+        from whatever the prompt actually touches: a number is treated as a
+        target, timing words pull in how recently things changed, and the
+        in-band check is always relevant because it is the question under most
+        others."""
+        def peel(x, n=3):
+            for _ in range(n):
+                x = x.get("result", x) if isinstance(x, dict) else x
+            return x if isinstance(x, dict) else {}
+
+        lp = (prompt or "").lower()
+        bits = []
+
+        drift = peel(self.send_a2a("grow_agent", "check_target_drift",
+                                   {"plant_id": plant_id}, timeout=30))
+        if drift.get("applicable"):
+            bits.append(drift.get("message") or "")
+
+        # Any three or four digit number in a grow question is almost always a
+        # ppm target being aimed at.
+        nums = [float(x) for x in re.findall(r'\b(\d{3,4})\b', prompt or "")]
+        target = max(nums) if nums else None
+        if target and 100 <= target <= 3000:
+            dose = peel(self.send_a2a("grow_agent", "adjust_to_target_ppm",
+                                      {"plant_id": plant_id, "target_ppm": target}, timeout=60))
+            add = dose.get("add_now") or {}
+            band = drift.get("target") or []
+            if band and not (band[0] <= target <= band[1]):
+                bits.append(f"{target:.0f} sits outside the {band[0]}-{band[1]} band this stage "
+                            f"wants, so that is a deliberate push rather than a correction.")
+            if add:
+                bits.append("To get there: "
+                            + ", ".join(f"{k} {v}ml" for k, v in add.items()) + ".")
+
+        # "Is now a good time" needs to know what changed recently.
+        if re.search(r"\b(now|today|yet|good time|should i|safe to|ready|after)\b", lp):
+            hist = peel(self.send_a2a("grow_agent", "get_nutrient_history",
+                                      {"plant_id": plant_id}, timeout=40))
+            changes = hist.get("recipe_changes") or []
+            if changes:
+                last = changes[-1].get("changed_at") or ""
+                try:
+                    hrs = (datetime.now() - datetime.fromisoformat(last[:19])).total_seconds() / 3600
+                except Exception:
+                    hrs = None
+                if hrs is not None and hrs < 72:
+                    bits.append(
+                        f"The feed was last changed {hrs:.0f}h ago. Changing strength again this "
+                        "soon means the next reading cannot tell you which change caused what, "
+                        "and after a system move the roots are still re-establishing - raise it "
+                        "once new white root growth is visible and the current level has held "
+                        "steady for a couple of readings.")
+                elif hrs is not None:
+                    bits.append(f"Last feed change was {hrs/24:.0f} day(s) ago, so a change now "
+                                "is cleanly attributable.")
+
+        for t in (peel(self.send_a2a("grow_agent", "check_in",
+                                     {"plant_id": plant_id}, timeout=60)).get("triggers") or [])[:2]:
+            bits.append(t)
+        return " ".join(b for b in bits if b) or None
+
     def _answer_grow_question(self, intent, plant_id, prompt):
         """Answer the question that was asked. Returns None to fall through to
         the general status card when this cannot do better."""
@@ -1506,6 +1575,14 @@ class BossAgent(AgentBase):
                     ans = self._answer_grow_question(intent, which or "current_plant", prompt)
                     if ans:
                         return {"result": ans, "evidence": {"intent": intent, "plant": which}}
+                # A question that matched no intent still deserves an answer
+                # rather than a status card. Only a bare request for status
+                # ("how is plant one") falls through to the summary.
+                elif re.search(r"\?|\b(should|can|do i|is it|is now|how much|what if|would|when)\b",
+                               prompt.lower()):
+                    ans = self._compose_grow_answer(which or "current_plant", prompt)
+                    if ans:
+                        return {"result": ans, "evidence": {"intent": "composed", "plant": which}}
                 response = self.send_a2a("grow_agent", "get_status", {})
                 history = self.send_a2a("grow_agent", "get_grow_history", {"plant_id": "current_plant"})
                 # Explicitly asking about the whole garden is the only thing
@@ -1528,6 +1605,33 @@ class BossAgent(AgentBase):
                 else:
                     text = self._format_response("search", response, "pqa_agent")
                 return {"result": text}
+
+            # --- Before the generic model: try the domain agent ---
+            #
+            # The keyword gate above was the actual fault five separate times
+            # today - DWC read as "Direct Water Cooker", a memory-reclaim request
+            # sent to a code model, a strain name explained as African folklore,
+            # a logging-cadence question answered with log rotation, and "how
+            # much do I add to reach 800" answered as "add 200". Each time the
+            # fix was another keyword, and each time the grower found a phrasing
+            # nobody had thought of - which is what people talking normally do.
+            #
+            # So the default inverts. This is a grow assistant: an unmatched
+            # QUESTION goes to the domain agent first, and only reaches the
+            # generic model if the domain has nothing to say. A composed answer
+            # that turns out not to fit is recoverable; a code model confidently
+            # doing arithmetic on a number it does not understand is not.
+            if re.search(r"\?|\b(should|can|do i|is it|is now|how much|how many|what if|"
+                         r"would|when|why|is my|are my|my plant)\b", prompt.lower()):
+                try:
+                    which2 = self._plant_from_prompt(prompt)
+                    ans = self._compose_grow_answer(which2 or "current_plant", prompt)
+                    if ans and len(ans) > 40:
+                        self.log("Unmatched question - answered from the grow domain")
+                        return {"result": ans,
+                                "evidence": {"intent": "composed_fallback", "plant": which2}}
+                except Exception as e:
+                    self.log(f"grow fallback failed, using generic model: {e}")
 
             # --- Default: delegate to Coding Agent for reasoning ---
             self.log("Delegating to coding_agent for reasoning...")
