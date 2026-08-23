@@ -260,6 +260,10 @@ class BossAgent(AgentBase):
     GROW_INTENTS = (
         # Asked before "schedule" so "how often should I log" is answered with
         # the cadence the analyses need, not with the next reservoir change.
+        # "Why is it like this" is answerable from what was recorded at the
+        # time, and is a different question from "what should I do next".
+        ("why", r"\bwhy\b|\bwhat made\b|\bhow come\b|\bwhat was the (reason|thinking)\b|"
+                r"\bdid we (stop|choose|pick|settle|decide)\b|\breasoning behind\b"),
         ("cadence", r"\bhow often\b.*\b(log|read|check|measure|record|take)\b|"
                     r"\b(log|reading|readings)\b.*\b(how often|frequency|cadence|expectancy)\b|"
                     r"\b(reading|logging) (frequency|cadence|schedule|expectancy)\b|"
@@ -331,6 +335,45 @@ class BossAgent(AgentBase):
         order = self._plant_order()
         return order[n - 1] if 1 <= n <= len(order) else None
 
+    def _target_note(self, plant_id, prompt):
+        """If the prompt names a ppm target, say where it sits and what it costs.
+
+        Folded into any answer rather than replacing it, because "when do you
+        recommend pushing to 800" is a timing question AND a target question and
+        the grower should not have to ask twice."""
+        nums = [float(x) for x in re.findall(r'\b(\d{3,4})\b', prompt or "")]
+        targets = [n for n in nums if 300 <= n <= 2000]
+        if not targets:
+            return None
+        target = max(targets)
+
+        def peel(x, n=3):
+            for _ in range(n):
+                x = x.get("result", x) if isinstance(x, dict) else x
+            return x if isinstance(x, dict) else {}
+
+        drift = peel(self.send_a2a("grow_agent", "check_target_drift",
+                                   {"plant_id": plant_id}, timeout=30))
+        cur = drift.get("ppm")
+        band = drift.get("target") or []
+        if cur is not None and abs(cur - target) < 15:
+            return None                      # already there; nothing to say
+        dose = peel(self.send_a2a("grow_agent", "adjust_to_target_ppm",
+                                  {"plant_id": plant_id, "target_ppm": target}, timeout=60))
+        add = dose.get("add_now") or {}
+        bits = []
+        if cur is not None and band:
+            where = ("the low end of" if cur < band[0] + (band[1] - band[0]) / 3
+                     else "mid" if cur < band[0] + 2 * (band[1] - band[0]) / 3 else "the top of")
+            bits.append(f"You are at {cur:.0f}, {where} the {band[0]}-{band[1]} band; "
+                        f"{target:.0f} is also inside it.")
+        if add:
+            bits.append("Getting to " + f"{target:.0f}" + " costs "
+                        + ", ".join(f"{k} {v}ml" for k, v in add.items()) + ".")
+        if dose.get("top_fed_caution"):
+            bits.append(dose["top_fed_caution"])
+        return " ".join(bits) or None
+
     def _compose_grow_answer(self, plant_id, prompt):
         """Assemble an answer for a grow question that matched no known intent.
 
@@ -360,8 +403,9 @@ class BossAgent(AgentBase):
         # Any three or four digit number in a grow question is almost always a
         # ppm target being aimed at.
         nums = [float(x) for x in re.findall(r'\b(\d{3,4})\b', prompt or "")]
-        target = max(nums) if nums else None
-        if target and 100 <= target <= 3000:
+        cand = [n for n in nums if 300 <= n <= 2000]
+        target = max(cand) if cand else None
+        if target:
             dose = peel(self.send_a2a("grow_agent", "adjust_to_target_ppm",
                                       {"plant_id": plant_id, "target_ppm": target}, timeout=60))
             add = dose.get("add_now") or {}
@@ -477,6 +521,30 @@ class BossAgent(AgentBase):
                 bits.append(d["top_fed_caution"])
             bits.append(d.get("action") or "")
             return " ".join(b for b in bits if b)
+
+        if intent == "why":
+            d = peel(self.send_a2a("grow_agent", "explain_decision",
+                                   {"plant_id": plant_id, "topic": prompt}, timeout=40))
+            if not d.get("found"):
+                return d.get("note")
+            bits = []
+            for e in (d.get("decisions") or [])[-2:]:
+                when = str(e.get("at"))[:10]
+                line = f"On {when}: {e.get('reason')}"
+                if e.get("decision"):
+                    line += f" Decision was: {e['decision']}"
+                if e.get("expected"):
+                    line += f" Expected: {e['expected']}"
+                if e.get("measured_after"):
+                    line += f" Measured afterwards: {e['measured_after']} ppm."
+                bits.append(line)
+            # Where it landed against where it was aimed is the actual answer to
+            # "why are we here rather than there".
+            drift = peel(self.send_a2a("grow_agent", "check_target_drift",
+                                       {"plant_id": plant_id}, timeout=30))
+            if drift.get("applicable"):
+                bits.append(drift.get("message") or "")
+            return " ".join(b for b in bits if b) or None
 
         if intent == "cadence":
             c = peel(self.send_a2a("grow_agent", "reading_cadence",
@@ -1577,12 +1645,22 @@ class BossAgent(AgentBase):
                 intent = self._grow_intent(prompt)
                 if intent != "status":
                     ans = self._answer_grow_question(intent, which or "current_plant", prompt)
+                    # A question can be about timing AND about a number. "When do
+                    # you recommend pushing to 800" matched the schedule intent
+                    # and answered without ever mentioning 800, because the
+                    # intents are mutually exclusive and the question was not.
+                    if ans and intent not in ("dosing",):
+                        extra = self._target_note(which or "current_plant", prompt)
+                        if extra:
+                            ans = extra + " " + ans
                     if ans:
                         return {"result": ans, "evidence": {"intent": intent, "plant": which}}
                 # A question that matched no intent still deserves an answer
                 # rather than a status card. Only a bare request for status
                 # ("how is plant one") falls through to the summary.
-                elif re.search(r"\?|\b(should|can|do i|is it|is now|how much|what if|would|when)\b",
+                elif re.search(r"\?|\b(why|when|should|can|could|do i|did we|did i|is it|is now|"
+                               r"how much|how many|how do|what if|what about|would|recommend|"
+                               r"instead of|rather than)\b",
                                prompt.lower()):
                     ans = self._compose_grow_answer(which or "current_plant", prompt)
                     if ans:
@@ -1625,8 +1703,9 @@ class BossAgent(AgentBase):
             # generic model if the domain has nothing to say. A composed answer
             # that turns out not to fit is recoverable; a code model confidently
             # doing arithmetic on a number it does not understand is not.
-            if re.search(r"\?|\b(should|can|do i|is it|is now|how much|how many|what if|"
-                         r"would|when|why|is my|are my|my plant)\b", prompt.lower()):
+            if re.search(r"\?|\b(why|when|should|can|could|do i|did we|did i|is it|is now|"
+                         r"how much|how many|how do|what if|what about|would|recommend|"
+                         r"instead of|rather than|is my|are my|my plant)\b", prompt.lower()):
                 try:
                     which2 = self._plant_from_prompt(prompt)
                     ans = self._compose_grow_answer(which2 or "current_plant", prompt)

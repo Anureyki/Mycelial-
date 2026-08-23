@@ -2116,6 +2116,63 @@ class GrowAgent(AgentBase):
                 "fields": sorted({k for s in buf for k in s if k not in ("at", "sensor_id")}),
                 "aggregate_window_hours": SENSOR_AGGREGATE_HOURS}
 
+    def explain_decision(self, plant_id="current_plant", topic=""):
+        """Why is it the way it is - answered from what was recorded at the time.
+
+        reasoning_context has been capturing reason, decision, expected_effect
+        and observed_conditions on every change for weeks, and nothing ever read
+        them back. So "why did we stop at the low end for 688 instead of 800"
+        got a status card, when the answer was written down the day it happened.
+
+        Corrections are surfaced too. A record that says a previous entry was
+        wrong is the most useful kind to find when asking how something got the
+        way it is."""
+        history = self._get_nutrient_history(plant_id)
+        entries = []
+        for e in history:
+            n = e.get("nutrients") if isinstance(e.get("nutrients"), dict) else {}
+            rc = e.get("reasoning_context") if isinstance(e.get("reasoning_context"), dict) else {}
+            src = rc or {k: n[k] for k in ("reason", "decision", "expected_effect",
+                                           "observed_conditions", "evidence_kind")
+                         if k in n}
+            if not src.get("reason") and not src.get("decision"):
+                continue
+            entries.append({
+                "at": (e.get("timestamp") or e.get("changed_at") or "")[:19],
+                "stage": e.get("stage"),
+                "kind": src.get("evidence_kind") or "event",
+                "reason": src.get("reason"),
+                "decision": src.get("decision"),
+                "expected": src.get("expected_effect"),
+                "observed": src.get("observed_conditions"),
+                "measured_after": e.get("next_measured_ppm"),
+            })
+        if not entries:
+            return {"found": False,
+                    "note": ("No decision on record carries its reasoning. Changes logged with "
+                             "reason/decision/expected_effect can be explained later; ones "
+                             "logged without cannot.")}
+        entries.sort(key=lambda x: x["at"])
+        # Consecutive entries carrying the same reasoning are one decision
+        # recorded twice, not two decisions. Reading them back as two makes the
+        # history look indecisive when it was not.
+        deduped = []
+        for e in entries:
+            prev = deduped[-1] if deduped else None
+            if prev and (e.get("reason"), e.get("decision")) == (prev.get("reason"),
+                                                                 prev.get("decision")):
+                prev["at"] = e["at"]          # keep the later timestamp
+                continue
+            deduped.append(e)
+        entries = deduped
+        # A test artifact and its retraction are noise when asking why something
+        # is the way it is - unless the question is about the retraction.
+        if "test" not in (topic or "").lower():
+            entries = [e for e in entries
+                       if "TEST" not in (e.get("reason") or "")[:8]
+                       and "VOIDS" not in (e.get("reason") or "")[:8]]
+        return {"found": True, "decisions": entries[-4:], "total_recorded": len(entries)}
+
     def reading_cadence(self, plant_id="current_plant"):
         """How often this system needs a reading, derived from what its own
         analyses require rather than from a generic recommendation.
@@ -3974,6 +4031,10 @@ class GrowAgent(AgentBase):
         elif task == "ingest_sensor_sample":
             return {"result": self.ingest_sensor_sample(
                 args.get("sensor_id", "manual"), args)}
+
+        elif task == "explain_decision":
+            return {"result": self.explain_decision(
+                args.get("plant_id", "current_plant"), args.get("topic", ""))}
 
         elif task == "reading_cadence":
             return {"result": self.reading_cadence(
