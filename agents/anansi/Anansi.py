@@ -50,6 +50,9 @@ OPENERS = {
                 "Everything is sitting where it should."],
     "action":  ["Here is what that takes.", "Right, here is the arithmetic.",
                 "That one has a number attached."],
+    "estimate":["Here is the arithmetic, with a caveat.",
+                "I can give you a number, but read the second half.",
+                "Roughly, and then why roughly."],
     "history": ["Here is how it got this way.", "That goes back a bit.",
                 "The record has the answer to that one."],
     # No counts in the openers - the number of conditions varies and an opener
@@ -130,6 +133,12 @@ class Anansi(AgentBase):
             kind = "action"
         elif low.startswith("when:") or low.startswith("no condition"):
             kind = "timing"
+        # A calculation opened with "Nothing needs you right now", because a
+        # projection matched none of the shapes above and fell through to the
+        # all-quiet default. An answer containing a number the grower asked for
+        # is never "nothing needs you".
+        elif _re.search(r"\bworks out at\b|\bday\(s\)\b|\bcomes to\b|\d+\s*ppm/day", low):
+            kind = "estimate"
         else:
             kind = "steady"
 
@@ -148,7 +157,9 @@ class Anansi(AgentBase):
 
         body = []
         for i, p in enumerate(parts):
-            if i and i % 3 == 0 and len(p) > 30 and not p.startswith(("Clears", "And", "The")):
+            if (i and i % 3 == 0 and len(p) > 30
+                    and not p.startswith(("Clears", "And", "The", "That", "At", "A "))
+                    and not _re.match(r'^(A|An|The|This|That|It|They)\b', p)):
                 body.append(rnd.choice(CONNECTIVES) + p[0].lower() + p[1:])
             else:
                 body.append(p)

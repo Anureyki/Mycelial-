@@ -2187,6 +2187,83 @@ class GrowAgent(AgentBase):
                 "note": ("One situation, several facets. The question decides which leads, not "
                          "which parts exist.")}
 
+    def project_drawdown(self, plant_id="current_plant", from_ppm=None, to_ppm=None):
+        """How long to fall from one ppm to another, and how much that is worth.
+
+        A fair question - "if I go to 800, how long until it draws down to 238
+        like the 5L did" - and the honest answer has two halves that must not be
+        blurred. The arithmetic is easy. The RATE is the thing, and this grow has
+        never produced a measurable one, because no two readings sit 24h apart in
+        the same stage. So the projection is reported against the generic
+        per-stage figure and labelled as exactly that: not this plant.
+
+        Volume is the part most likely to mislead. The 5L tank and the 14.9L
+        reservoir hold different amounts of nutrient at the same ppm, so a plant
+        drinking at the same rate moves the number roughly three times slower in
+        the larger one. Comparing a drawdown across a system change without
+        saying that would be a wrong answer wearing a number."""
+        stage = self._unwrap_value(self.retrieve_own_memory("current_stage")) or "unknown"
+        if plant_id != "current_plant":
+            p = next((x for x in self._get_all_plants()
+                      if x.get("plant_id") == plant_id), None)
+            stage = (p or {}).get("stage", "unknown")
+
+        readings = [r for r in self._get_readings_for_plant(plant_id)
+                    if self._parse_numeric(r.get("ppm")) is not None]
+        readings.sort(key=lambda r: r.get("timestamp") or "")
+        if from_ppm is None and readings:
+            from_ppm = self._parse_numeric(readings[-1].get("ppm"))
+        if from_ppm is None or to_ppm is None:
+            return {"error": "Need a starting and a target ppm."}
+        if to_ppm >= from_ppm:
+            return {"error": f"{to_ppm:.0f} is not below {from_ppm:.0f} - nothing to draw down."}
+
+        # What this grow has actually shown, if anything.
+        measured = self.learned("ppm_drift_per_day", stage=stage)
+        generic = (STAGE_PROFILES.get(stage) or {}).get("expected_ppm_drift_per_day")
+        rate = measured or generic
+        if not rate:
+            return {"error": f"No drawdown rate available for stage '{stage}'."}
+
+        # Volume scales it. ppm is a concentration, so the same uptake in litres
+        # of solution moves a big reservoir's number more slowly.
+        sysraw = (self._unwrap_value(self.retrieve_own_memory(f"grow_system_{plant_id}"))
+                  or (self._unwrap_value(self.retrieve_own_memory("grow_system"))
+                      if plant_id == "current_plant" else None))
+        litres = None
+        try:
+            litres = self._parse_numeric((json.loads(sysraw) or {}).get("reservoir_liters")) if sysraw else None
+        except Exception:
+            pass
+        if not litres:
+            hist = self._get_nutrient_history(plant_id)
+            litres = self._parse_numeric(hist[-1].get("reservoir_liters")) if hist else None
+
+        days = (from_ppm - to_ppm) / rate
+        out = {
+            "plant_id": plant_id, "stage": stage,
+            "from_ppm": round(from_ppm), "to_ppm": round(to_ppm),
+            "rate_ppm_per_day": rate,
+            "rate_source": ("measured from this grow" if measured
+                            else f"generic figure for {stage} - NOT measured from this plant"),
+            "days": round(days, 1),
+            "reservoir_liters": litres,
+        }
+        if not measured:
+            out["confidence"] = "low"
+            out["why_not_measured"] = (
+                "This grow has never produced a usable drawdown rate: no two readings sit at "
+                "least 24h apart within the same stage, and a shorter gap cannot separate uptake "
+                "from meter noise. A probe reporting hourly, or readings spaced a few days apart, "
+                "would replace this generic number with the plant's own within a week.")
+        if litres:
+            out["volume_note"] = (
+                f"At {litres:g}L this is roughly {litres / 5:.1f}x the 5L tank, so the same plant "
+                "drinking at the same rate moves the ppm number that much more slowly. A drawdown "
+                "seen in the small tank does not transfer - the plant did not change, the "
+                "denominator did.")
+        return out
+
     def blockers_for_change(self, plant_id="current_plant", target_ppm=None):
         """What is actually stopping a change right now, and what clears it.
 
@@ -4196,6 +4273,12 @@ class GrowAgent(AgentBase):
             return {"result": self.situation(
                 args.get("plant_id", "current_plant"),
                 self._parse_numeric(args.get("target_ppm")))}
+
+        elif task == "project_drawdown":
+            return {"result": self.project_drawdown(
+                args.get("plant_id", "current_plant"),
+                self._parse_numeric(args.get("from_ppm")),
+                self._parse_numeric(args.get("to_ppm")))}
 
         elif task == "blockers_for_change":
             return {"result": self.blockers_for_change(

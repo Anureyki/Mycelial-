@@ -201,10 +201,20 @@ class BossAgent(AgentBase):
                 v = st.get("current_strain")
                 if isinstance(v, str) and v.strip():
                     terms[v.strip().strip('"').lower()] = "current_plant"
+                # A SPECIES is a category, never an identity. "the cannabis
+                # plant" picked gsc_auto_2 purely because current_plant's species
+                # was not in the map to make it ambiguous - so a question about
+                # the main plant was answered about the day-old seedling. Species
+                # names route to the grow domain without choosing a plant.
+                sp = st.get("current_species") or "cannabis"
+                terms[str(sp).strip().lower()] = None
                 for pl in st.get("other_plants") or []:
                     pid = pl.get("plant_id")
                     for k in ("plant_id", "strain", "species"):
                         v = pl.get(k)
+                        if k == "species" and isinstance(v, str) and v.strip():
+                            terms[v.strip().lower()] = None   # category, not identity
+                            continue
                         if isinstance(v, str) and v.strip():
                             # A term already claimed by another plant is ambiguous
                             # (both cannabis plants share a strain), so it routes
@@ -263,6 +273,11 @@ class BossAgent(AgentBase):
         # "Why can't I do it NOW" is a different question from "why is it like
         # this", and answering the second when the first was asked reads as
         # evasion. Declared first because it is the more specific of the two.
+        # "How long until it drops to X" is a rate question, not a dose one.
+        ("drawdown", r"\bhow long\b.*\b(drop|fall|come down|draw|get (down )?to|use|burn)\b|"
+                     r"\b(drop|fall|come down|draw down)\b.*\bto\s*\d{2,4}\b|"
+                     r"\bhow (long|many days)\b.*\b\d{2,4}\b|"
+                     r"\btake .*\bto (drop|fall|reach|get)\b"),
         ("blockers", r"\bwhy (can'?t|cant|not|no|won'?t|shouldn'?t|couldn'?t)\b|"
                      r"\bwhat'?s (stopping|blocking|in the way)\b|"
                      r"\bwhy not (now|yet|today)\b|\bwhy (do|should) i (have to )?wait\b|"
@@ -368,6 +383,17 @@ class BossAgent(AgentBase):
             return x if isinstance(x, dict) else {}
 
         lp = (prompt or "").lower()
+
+        # A drawdown is a calculation, not a facet of current state. Handled
+        # here rather than at one call site, because every route into an answer
+        # must be able to produce it - putting it in the grow branch alone meant
+        # a phrasing that missed the keyword gate got the "when" facet instead,
+        # which is a list of conditions and a different question entirely.
+        if self._grow_intent(prompt) == "drawdown":
+            dd = self._answer_grow_question("drawdown", plant_id, prompt)
+            if dd:
+                return dd
+
         nums = [float(x) for x in re.findall(r'\b(\d{3,4})\b', prompt or "")]
         target = max([n for n in nums if 300 <= n <= 2000], default=None)
 
@@ -603,6 +629,27 @@ class BossAgent(AgentBase):
                 bits.append(d["top_fed_caution"])
             bits.append(d.get("action") or "")
             return " ".join(b for b in bits if b)
+
+        if intent == "drawdown":
+            nums = sorted({float(x) for x in re.findall(r'\b(\d{2,4})\b', prompt or "")
+                           if 50 <= float(x) <= 3000}, reverse=True)
+            frm = nums[0] if nums else None
+            to = nums[-1] if len(nums) > 1 else None
+            if to is None:
+                return None
+            d = peel(self.send_a2a("grow_agent", "project_drawdown",
+                                   {"plant_id": plant_id, "from_ppm": frm, "to_ppm": to},
+                                   timeout=60))
+            if d.get("error"):
+                return d["error"]
+            bits = [f"From {d['from_ppm']} to {d['to_ppm']} works out at about "
+                    f"{d['days']} day(s), at {d['rate_ppm_per_day']} ppm/day."]
+            bits.append(f"That rate is a {d['rate_source']}.")
+            if d.get("why_not_measured"):
+                bits.append(d["why_not_measured"])
+            if d.get("volume_note"):
+                bits.append(d["volume_note"])
+            return " ".join(bits)
 
         if intent == "blockers":
             nums = [float(x) for x in re.findall(r'\b(\d{3,4})\b', prompt or "")]
@@ -1749,6 +1796,16 @@ class BossAgent(AgentBase):
                                          {"plant_id": which, "description": prompt}, timeout=120)
                     text = self._format_response("assess_care", care, "grow_agent")
                     return {"result": text, "evidence": {"plant_id": which, "care": care}}
+                # A drawdown is a CALCULATION the situation does not contain -
+                # "how long until it falls to 238" needs a rate and two numbers,
+                # not a facet of current state. Checked before the situation,
+                # which would otherwise answer it with the "when" facet: a list
+                # of conditions, which is a different question.
+                if self._grow_intent(prompt) == "drawdown":
+                    ans = self._answer_grow_question("drawdown", which or "current_plant", prompt)
+                    if ans:
+                        return {"result": ans, "evidence": {"intent": "drawdown", "plant": which}}
+
                 # One situation, ordered by the question. Tried first because
                 # it answers any angle on the reservoir without needing a
                 # pattern per phrasing.
