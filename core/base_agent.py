@@ -293,6 +293,14 @@ class AgentBase:
                 # so declaring a vocabulary costs an agent nothing.
                 if task == "routing_terms":
                     result = self.routing_terms()
+                elif task == "answer":
+                    prompt = (args.get("prompt") or args.get("question") or ""
+                              if isinstance(args, dict)
+                              else (args[0] if isinstance(args, list) and args else ""))
+                    result = self.answer(prompt) if prompt else None
+                elif task == "ingest":
+                    result = self.ingest(args.get("prompt") or ""
+                                         if isinstance(args, dict) else "")
                 elif task == "describe":
                     result = {"text": self.describe(args.get("task") or "",
                                                     args.get("payload"))
@@ -338,6 +346,27 @@ class AgentBase:
     def routing_terms(self):
         """Regex fragments that claim a request for this agent."""
         return {"agent": self.agent_id, "terms": list(self.ROUTING_TERMS)}
+
+    def answer(self, prompt):
+        """Answer a question in this agent's domain, or None if it cannot.
+
+        The agent chooses which of its own capabilities the question needs.
+        That choice used to be made by Boss from a table of intent patterns,
+        which meant a router that practises no domain was picking between
+        capabilities it did not understand - and every new capability was
+        reachable from exactly one branch of it."""
+        return None
+
+    def ingest(self, prompt):
+        """Absorb anything recordable in raw user input, or return None.
+
+        Only the domain agent knows what counts as data. Grow recognises a
+        reservoir reading stated in passing and records it before answering;
+        Boss cannot, because it does not know what a reading looks like. It
+        used to hold that parser anyway, in two copies that had drifted apart.
+
+        Return a dict with a truthy "logged" when something was recorded."""
+        return None
 
     def describe(self, task, payload):
         """Put this agent's own result into words, or None if it has none.

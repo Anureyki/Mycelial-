@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 import sys
 import os
+import re
 import time
 import json
 import subprocess
@@ -61,6 +62,24 @@ REPO_ROOT = os.path.expanduser("~/mycelial")
 PROJECT_REFERENCE_FILES = ("docker-compose.yml", "Dockerfile")
 
 class MaintenanceAgent(AgentBase):
+    # Words that claim a request for this agent. Declared here, not in
+    # Boss - the orchestrator holds no domain vocabulary.
+    ROUTING_TERMS = (
+        # reclaiming resources - the verb, which is what people actually say
+        "clean ?up", "cleanup", "free ?up", "reclaim", "recover", "release",
+        "shrink", "trim", "purge", "prune", "wasted?", "wasting", "hogging",
+        "bloat", "idle", "unused", "not being used", "doing nothing",
+        # what is being reclaimed. Bare "memory" is deliberately absent: in this
+        # system it also means the Memory Service and Hermes storage, so
+        # "store that in memory" must not read as a request to free RAM.
+        "ram", "memory usage", "memory footprint", "free memory", "much memory",
+        "resident", "memory hog", "disk", "storage", "drive", "docker",
+        "disk space", "df\\b", "inode",
+        # health of the machine itself
+        "system health", "uptime", "load average", "cpu usage", "temperature",
+        "log rotation", "rotate logs", "stale logs", "update", "upgrade",
+    )
+
     def __init__(self):
         super().__init__(
             agent_id="maintenance_agent",
@@ -189,6 +208,105 @@ class MaintenanceAgent(AgentBase):
                 except Exception:
                     pass
         return False
+
+    # Reclaim language, and the things that hold a resource. This lived in
+    # Boss, which is how "recover 39 mb idle space" reached a CODE model and
+    # came back with invented Windows and macOS instructions - the 39 MB was
+    # RAM held by idle services, a figure this agent had produced itself.
+    _RECLAIM = ("clean ?up", "cleanup", "free ?up", "clear", "reclaim", "recover",
+                "release", "reduce", "shrink", "idle", "unused", "wasted", "waste",
+                "wasting", "hogging", "eating", "bloat", "trim",
+                "not being used", "doing nothing")
+    # Bare "memory" cannot trigger this: here it also means the Memory Service
+    # and Hermes storage, so "store that in memory" must not read as free RAM.
+    _MEMORY = ("ram", "memory usage", "memory footprint", "wasting memory",
+               "eating memory", "hogging memory", "free memory", "resident",
+               "memory hog", "using memory", "much memory", "footprint")
+    _DISK = ("disk", "storage", "drive", "logs", "docker")
+    _HOLDERS = ("services?", "process(es)?", "agents?")
+
+    def describe(self, task, result):
+        """Say what this agent found, in plain language.
+
+        These sentences were written inside Boss, which meant the orchestrator
+        held a second copy of this domain's language - and it drifted from the
+        checks that produce the numbers."""
+        if result is None:
+            return None
+        if task == "resource_reclaim":
+            def _peel(x, depth=3):
+                for _ in range(depth):
+                    if isinstance(x, dict) and "result" in x:
+                        x = x["result"]
+                    else:
+                        break
+                return x if isinstance(x, dict) else {}
+            lines = []
+            mem = _peel(result.get("memory"))
+            if mem:
+                total = mem.get("swarm_total_mb")
+                avail = mem.get("system_available_mb")
+                if total:
+                    lines.append(f"The swarm is holding {total:.0f} MB; "
+                                 f"{avail:.0f} MB free on the machine.")
+                for f in (mem.get("findings") or [])[:3]:
+                    lines.append(f)
+                idle = mem.get("idle_services") or []
+                if idle:
+                    lines.append("")
+                    for c in idle[:8]:
+                        # services/evaluation/service.py - the meaningful
+                        # part is the directory, not the filename, which is
+                        # "service" for every one of them.
+                        parts = [x for x in c.get("cmd", "?").split() if "/" in x or x.endswith(".py")]
+                        path = parts[-1] if parts else c.get("cmd", "?")
+                        seg = [x for x in path.replace(".py", "").split("/") if x]
+                        name = seg[-2] if len(seg) > 1 and seg[-1] == "service" else seg[-1]
+                        lines.append(f"  - {name}: {c.get('rss_mb','?')} MB - {c.get('reason','idle')}")
+                    # Stopping a process is an action, not a report - it goes
+                    # through authorisation like any other actuation.
+                    lines.append(f"\nThat is {mem.get('reclaimable_mb', 0):.0f} MB reclaimable. "
+                                 "Stopping them needs your OK - say the word and I'll "
+                                 "route it through authorisation.")
+                elif total:
+                    lines.append("Nothing is sitting idle right now.")
+            disk = _peel(result.get("disk"))
+            if disk:
+                freed = disk.get("freed_mb") or disk.get("reclaimed_mb")
+                lines.append(f"Disk cleanup: {freed} MB reclaimed." if freed
+                             else "Disk cleanup ran; nothing significant to reclaim.")
+            return "\n".join(lines) if lines else "Nothing reclaimable was found."
+        return None
+
+    def answer(self, prompt, **_):
+        """Decide which of this agent's own checks the question needs.
+
+        Boss used to make this choice from a keyword table it held itself. It
+        does not run the machine; this agent does."""
+        lp = (prompt or "").lower()
+
+        def hit(group):
+            return any(re.search(r"\b" + t, lp) for t in group)
+
+        if not hit(self._RECLAIM) or not (hit(self._MEMORY) or hit(self._DISK)
+                                          or hit(self._HOLDERS) or "space" in lp):
+            return None
+        want_mem = hit(self._MEMORY) or hit(self._HOLDERS)
+        want_disk = hit(self._DISK)
+        # "space" alone is genuinely ambiguous between RAM and disk. Report
+        # both rather than guessing and acting on the wrong one.
+        if not want_mem and not want_disk:
+            want_mem = want_disk = True
+
+        gathered = {}
+        if want_mem:
+            gathered["memory"] = self.handle_task("analyze_memory_usage", {}, self.agent_id)
+        if want_disk:
+            gathered["disk"] = self.handle_task("run_cleanup_routine", {}, self.agent_id)
+        text = self.describe("resource_reclaim", gathered)
+        if not text:
+            return None
+        return {"answered_as": "resource_reclaim", "text": text, "facts": gathered}
 
     def handle_task(self, task, args, sender):
         self.log(f"Task: {task} from {sender}")

@@ -15,6 +15,14 @@ PENDING_DIR = os.path.join(BASE, "state", "pending_requests")
 VALID_SEVERITIES = ("low", "medium", "high", "critical")
 
 class SecurityAgent(AgentBase):
+    # Words that claim a request for this agent. Declared here, not in
+    # Boss - the orchestrator holds no domain vocabulary.
+    ROUTING_TERMS = (
+        "guard", "guards", "deny rule", "denylist", "allowlist", "authoriz",
+        "permission", "kill ?switch", "locked", "audit log", "\\bacl\\b",
+        "who can", "is .* allowed",
+    )
+
     def __init__(self):
         super().__init__(
             agent_id="security_agent",

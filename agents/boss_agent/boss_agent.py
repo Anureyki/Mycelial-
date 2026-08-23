@@ -124,7 +124,7 @@ class BossAgent(AgentBase):
             resp, seen = resp["result"], seen + 1
         return resp if isinstance(resp, dict) and key in resp else None
 
-    _domain_cache = {"map": None, "at": 0}
+    _domain_cache = {"map": None, "at": 0, "ttl": 300}
 
     def _domain_vocabulary(self):
         """Ask every registered agent what vocabulary claims a request for it.
@@ -134,7 +134,7 @@ class BossAgent(AgentBase):
         by starting up - not by editing this file, which is what made the
         orchestrator accumulate the vocabulary of every domain beneath it."""
         c = self._domain_cache
-        if c["map"] is not None and time.time() - c["at"] < 300:
+        if c["map"] is not None and time.time() - c["at"] < c.get("ttl", 300):
             return c["map"]
         vocab = {}
         try:
@@ -145,6 +145,7 @@ class BossAgent(AgentBase):
         except Exception as e:
             self.log(f"routing: registry lookup failed: {e}")
             agents = []
+        silent, declined = [], []
         for a in agents:
             aid, url = a.get("agent_id"), a.get("url")
             if not aid or not url or aid == self.agent_id:
@@ -159,11 +160,28 @@ class BossAgent(AgentBase):
                 terms = (body or {}).get("terms") or []
                 if terms:
                     vocab[aid] = [t for t in terms if isinstance(t, str) and t]
+                elif isinstance(body, dict) and "terms" in body:
+                    declined.append(aid)     # answered, and claims nothing
+                else:
+                    silent.append(aid)       # no usable answer
             except Exception:
-                continue        # an agent that is down does not claim anything
+                silent.append(aid)           # down, or still starting
+
+        # An agent that was registered but did not answer is usually still
+        # booting - start_all.sh brings Boss up before most of them. Caching
+        # that gap for the full five minutes left the router blind to every
+        # domain except the one that happened to be ready, so retry soon
+        # instead of freezing an incomplete map.
+        #
+        # Declaring nothing is not the same as failing to answer. Anansi
+        # narrates and Hermes brokers; neither owns a domain, so both answer
+        # with an empty list on purpose and must not keep the router retrying.
         c["map"], c["at"] = vocab, time.time()
-        self.log(f"routing vocabulary: " +
-                 ", ".join(f"{k}={len(v)}" for k, v in vocab.items()))
+        c["ttl"] = 30 if silent else 300
+        self.log("routing vocabulary: " +
+                 ", ".join(f"{k}={len(v)}" for k, v in sorted(vocab.items())) +
+                 (f" | claims nothing: {', '.join(sorted(declined))}" if declined else "") +
+                 (f" | silent: {', '.join(sorted(silent))} (retry in 30s)" if silent else ""))
         return vocab
 
     def _domain_for(self, prompt):
@@ -215,50 +233,6 @@ class BossAgent(AgentBase):
         if isinstance(result, dict):
             if "error" in result:
                 return f"Error: {result['error']}"
-            if task == "resource_reclaim":
-                def _peel(x, depth=3):
-                    for _ in range(depth):
-                        if isinstance(x, dict) and "result" in x:
-                            x = x["result"]
-                        else:
-                            break
-                    return x if isinstance(x, dict) else {}
-                lines = []
-                mem = _peel(result.get("memory"))
-                if mem:
-                    total = mem.get("swarm_total_mb")
-                    avail = mem.get("system_available_mb")
-                    if total:
-                        lines.append(f"The swarm is holding {total:.0f} MB; "
-                                     f"{avail:.0f} MB free on the machine.")
-                    for f in (mem.get("findings") or [])[:3]:
-                        lines.append(f)
-                    idle = mem.get("idle_services") or []
-                    if idle:
-                        lines.append("")
-                        for c in idle[:8]:
-                            # services/evaluation/service.py - the meaningful
-                            # part is the directory, not the filename, which is
-                            # "service" for every one of them.
-                            parts = [x for x in c.get("cmd", "?").split() if "/" in x or x.endswith(".py")]
-                            path = parts[-1] if parts else c.get("cmd", "?")
-                            seg = [x for x in path.replace(".py", "").split("/") if x]
-                            name = seg[-2] if len(seg) > 1 and seg[-1] == "service" else seg[-1]
-                            lines.append(f"  - {name}: {c.get('rss_mb','?')} MB - {c.get('reason','idle')}")
-                        # Stopping a process is an action, not a report - it goes
-                        # through authorisation like any other actuation.
-                        lines.append(f"\nThat is {mem.get('reclaimable_mb', 0):.0f} MB reclaimable. "
-                                     "Stopping them needs your OK - say the word and I'll "
-                                     "route it through authorisation.")
-                    elif total:
-                        lines.append("Nothing is sitting idle right now.")
-                disk = _peel(result.get("disk"))
-                if disk:
-                    freed = disk.get("freed_mb") or disk.get("reclaimed_mb")
-                    lines.append(f"Disk cleanup: {freed} MB reclaimed." if freed
-                                 else "Disk cleanup ran; nothing significant to reclaim.")
-                return "\n".join(lines) if lines else "Nothing reclaimable was found."
-
             if task == "pending_decisions":
                 def _inner(x, depth=3):
                     for _ in range(depth):
@@ -929,52 +903,6 @@ class BossAgent(AgentBase):
                 text = self._format_response("check_errors", response, "maintenance_agent")
                 return {"result": text}
 
-            # --- Reclaiming resources: memory, disk, or unspecified ---
-            #
-            # "Recover 39 mb idle space" matched none of the old keywords - it has
-            # "space" but not "free up space" or "disk space" - so it fell through
-            # to the generic reasoner, which asked a CODE model about system
-            # administration and got back invented Windows and macOS instructions.
-            # The 39 MB it referred to was RAM held by idle services, a figure this
-            # system produced itself via analyze_memory_usage.
-            #
-            # Two failures, both fixed here: the vocabulary was too narrow, and
-            # there was no memory branch at all, only a disk one.
-            lowered_p = prompt.lower()
-            _RECLAIM = ("clean up", "cleanup", "free up", "clear", "reclaim", "recover",
-                        "release", "reduce", "shrink", "idle", "unused", "wasted",
-                        "wasting", "waste", "hogging", "eating", "bloat", "trim",
-                        "not being used", "doing nothing")
-            # Bare "memory" cannot trigger this: in this system it also means the
-            # Memory Service and Hermes storage, so "store that in memory" must not
-            # be read as a request to free RAM. Require RAM-specific phrasing.
-            _MEMORY = ("ram", "memory usage", "memory footprint", "wasting memory",
-                       "eating memory", "hogging memory", "free memory", "resident",
-                       "memory hog", "using memory", "much memory", "footprint")
-            _DISK = ("disk", "storage", "drive", "logs", "docker")
-            # Things that HOLD a resource - reclaim language plus one of these is
-            # a resource question even when no unit is named.
-            _HOLDERS = ("service", "services", "process", "processes", "agent", "agents")
-            has_reclaim = any(k in lowered_p for k in _RECLAIM)
-            if has_reclaim and (any(k in lowered_p for k in _MEMORY + _DISK + _HOLDERS)
-                                or "space" in lowered_p):
-                wants_mem = any(k in lowered_p for k in _MEMORY) or \
-                            any(k in lowered_p for k in _HOLDERS)
-                wants_disk = any(k in lowered_p for k in _DISK)
-                # "space" alone is genuinely ambiguous between RAM and disk, so
-                # report both rather than guessing and acting on the wrong one.
-                if not wants_mem and not wants_disk:
-                    wants_mem = wants_disk = True
-                gathered = {}
-                if wants_mem:
-                    self.log("Resource reclaim (memory) - delegating to maintenance_agent")
-                    gathered["memory"] = self.send_a2a("maintenance_agent", "analyze_memory_usage", {}, timeout=90)
-                if wants_disk:
-                    self.log("Resource reclaim (disk) - delegating to maintenance_agent")
-                    gathered["disk"] = self.send_a2a("maintenance_agent", "run_cleanup_routine", {}, timeout=90)
-                text = self._format_response("resource_reclaim", gathered, "maintenance_agent")
-                return {"result": text, "evidence": gathered}
-
             # --- Purchase recommendation (Grow consults Accounting directly;
             # Boss's only role here is the threshold-escalation gate) ---
             # Checked before the generic Grow branch below since phrasing like
@@ -1010,53 +938,42 @@ class BossAgent(AgentBase):
                 text = self._format_response("pending_decisions", gathered, "boss_agent")
                 return {"result": text, "evidence": gathered}
 
-            # --- Grow Agent (plant/garden monitoring) ---
-            _lp = prompt.lower()
-            if self._domain_for(prompt) == "grow_agent":
-                # Boss decides WHICH AGENT. It does not decide which of that
-                # agent's capabilities apply - that is domain reasoning, and
-                # Boss does not know horticulture. Roughly 600 lines of intent
-                # patterns, facet ordering, plant-name resolution and dosing
-                # composition used to live here, and every failure came from the
-                # same place: a new ability in Grow was reachable from exactly
-                # one branch of this router, and the grower phrased the question
-                # some other way. Patching in another keyword fixed the sentence
-                # and not the class.
-                #
-                # Grow now receives the prompt whole and works out what it needs.
-                # Adding a capability there requires no change here.
-                # A reading stated in plain language is recorded before the
-                # question is answered. Boss does not know what a reading looks
-                # like - it asks, and only a "yes" makes this a logging request.
-                _logged = self._unwrap(self.send_a2a("grow_agent", "log_from_text",
-                                                     {"prompt": prompt}), key="logged")
-                if _logged and _logged.get("logged"):
-                    self.log("Reading found in plain language - logged by grow_agent")
-                    text = self._format_response("log_reading", _logged.get("result"), "grow_agent")
-                    return {"result": text, "evidence": _logged}
+            # --- The domain that claims this request answers it ---
+            #
+            # Boss decides WHICH AGENT. It does not decide which of that agent's
+            # capabilities apply - that is domain reasoning, and Boss practises
+            # no domain. Roughly 600 lines of horticulture intent patterns and
+            # 171 of horticulture prose used to live here, and every failure had
+            # the same shape: a new ability in the domain agent was reachable
+            # from exactly one branch of this router, and the user phrased the
+            # question some other way. Patching in another keyword fixed the
+            # sentence and never the class.
+            #
+            # No agent is named below. The domain is whichever agent's own
+            # declared vocabulary claims the request, and adding a capability
+            # there requires no change here.
+            _domain = self._domain_for(prompt)
+            if _domain:
+                # Anything recordable in the raw input is captured first - only
+                # the domain agent knows what counts as data.
+                _got = self._unwrap(self.send_a2a(_domain, "ingest",
+                                                  {"prompt": prompt}), key="logged")
+                if _got and _got.get("logged"):
+                    self.log(f"{_domain} recorded something from the raw request")
+                    text = self._format_response("log_reading", _got.get("result"), _domain)
+                    return {"result": text, "evidence": _got}
 
-                self.log("Grow question - delegating to grow_agent to answer")
-                ans = self.send_a2a("grow_agent", "answer", {"prompt": prompt}, timeout=120)
-                res = self._unwrap(ans)
+                self.log(f"{_domain} claims this request - asking it to answer")
+                res = self._unwrap(self.send_a2a(_domain, "answer",
+                                                 {"prompt": prompt}, timeout=120))
                 if res and (res.get("text") or "").strip():
                     return {"result": res["text"],
-                            "evidence": {"answered_as": res.get("answered_as"),
-                                         "plant": res.get("plant_id"),
+                            "evidence": {"agent": _domain,
+                                         "answered_as": res.get("answered_as"),
                                          "facts": res.get("facts")}}
-
-                response = self.send_a2a("grow_agent", "get_status", {})
-                history = self.send_a2a("grow_agent", "get_grow_history", {"plant_id": "current_plant"})
-                # Explicitly asking about the whole garden is the only thing
-                # that opens it up. Which plant a question is about is no
-                # longer decided here - Grow resolves that against its own
-                # roster, so this only asks whether the grower said "all".
-                _round = bool(re.search(
-                    r"\b(all|every|everything|each|both|garden|plants|roundup|round-?up|"
-                    r"overview|status of (the )?grow|how is (the |my )?grow)\b", prompt.lower()))
-                text = self._format_response("grow_status",
-                                             {"status": response, "history": history,
-                                              "roundup": _round}, "grow_agent")
-                return {"result": text, "evidence": {"status": response, "history": history}}
+                # An agent that has not implemented answer() yet falls through
+                # to the branches below rather than failing the request.
+                self.log(f"{_domain} had no answer - continuing")
 
             # --- Web search ---
             if any(keyword in prompt.lower() for keyword in ("search", "find", "look up", "google")):

@@ -55,6 +55,13 @@ STATUTE_CITATION_RE = re.compile(r"\b\d+\s*U\.?S\.?C\.?\s*§*\s*\d+[a-zA-Z0-9\-]
 
 
 class TrustAgent(AgentBase):
+    # Words that claim a request for this agent. Declared here, not in
+    # Boss - the orchestrator holds no domain vocabulary.
+    ROUTING_TERMS = (
+        "trust", "beneficiar", "settlor", "grantor", "corpus", "fiduciary",
+        "estate", "probate", "\\bwill\\b", "testament",
+    )
+
     def __init__(self):
         super().__init__(
             agent_id="trust_agent",

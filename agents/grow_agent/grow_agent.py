@@ -2485,6 +2485,13 @@ class GrowAgent(AgentBase):
             out["temp"] = round(temp_c, 1)
         return out or None
 
+    def ingest(self, prompt):
+        """A reservoir reading mentioned in passing is recorded before anything
+        else happens - vision is slow and can time out, and the numbers must not
+        be lost with it. The photo can be retaken; the reservoir at that moment
+        cannot."""
+        return self.log_from_text(prompt or "")
+
     def log_from_text(self, prompt, plant_id="current_plant"):
         """Record a reading stated in conversation, stamped with the right stage.
 
@@ -4771,12 +4778,6 @@ class GrowAgent(AgentBase):
         elif task == "log_from_text":
             return {"result": self.log_from_text(
                 args.get("prompt") or "", args.get("plant_id") or "current_plant")}
-
-        elif task == "answer":
-            q = args.get("prompt") or args.get("question") or (args[0] if isinstance(args, list) and args else "")
-            if not q:
-                return {"error": "Missing prompt"}
-            return {"result": self.answer(q, args.get("plant_id") if isinstance(args, dict) else None)}
 
         elif task == "project_drawdown":
             return {"result": self.project_drawdown(

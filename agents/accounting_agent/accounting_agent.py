@@ -57,6 +57,16 @@ FORM_CITATION_RE = re.compile(r"\b(?:Form\s*)?(1099(?:-[A-Z]+)?|W-?2|W-?9|1040(?
 
 
 class AccountingAgent(AgentBase):
+    # Words that claim a request for this agent. Declared here, not in
+    # Boss - the orchestrator holds no domain vocabulary.
+    ROUTING_TERMS = (
+        "ledger", "journal entry", "balance sheet", "income statement",
+        "cash ?flow", "accrual", "depreciat", "amortiz", "audit",
+        "\\bgaap\\b", "\\bifrs\\b", "\\basc\\b", "\\bedgar\\b", "10-?k", "10-?q",
+        "beneficial interest", "equitable interest", "custodian", "trustee",
+        "disbursement", "receivable", "payable", "reconcil", "invoice",
+    )
+
     def __init__(self):
         super().__init__(
             agent_id="accounting_agent",

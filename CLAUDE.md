@@ -44,7 +44,7 @@ Mycelial is a self‑hosted, stateless, agent‑based operating system for auton
 | Training | 8010 | Training job management |
 | Evaluation | 8011 | Model evaluation |
 | Data Engineering | 8012 | Dataset preprocessing |
-| Service Manager | 8014 | Process supervision, auto‑restart |
+| Service Manager | 8014 | Process supervision, **on demand only** (`POST /heal`) |
 | Tool Service | 8015 | MCP gateway |
 | Provenance | 8016 | Artifact lineage and origin classification |
 | Federated Learning | 8017 | Flower server lifecycle + FedAvg (gRPC on 9092) |
@@ -269,6 +269,31 @@ happen" are different states. Recommendations flow through Boss for
 authorisation before reaching any control service or device. No agent holds
 direct actuation authority.
 
+## Supervision is on demand, and narrow
+
+Service Manager does not run a restart loop. `POST localhost:8014/heal` checks
+the core agents and restarts only the ones that are actually down; `GET /scope`
+says what it will touch.
+
+It supervises five agents - **anansi, boss_agent, coding_agent,
+maintenance_agent, security_agent** - and refuses every other agent id on
+`/start`, `/stop`, `/restart` and `/heal` alike. An on-demand agent is not
+broken when it is down; it is off, which is its normal state.
+
+Two rules keep it from becoming the problem it is meant to solve:
+
+- **Health is read from the port**, never from its own bookkeeping. It used to
+  check only agents it believed were running, so one it had lost track of was
+  never checked while one it wrongly believed alive was restarted forever.
+- **A restart abandoned after three failures in ten minutes**, with a reason
+  and a log hint. A supervisor that retries forever turns one broken agent into
+  a machine that cannot be diagnosed, because the logs fill with its own
+  restarts. Before this: ag_agent 484 restarts, quantum_agent 485,
+  maintenance_agent 488.
+
+Starting an agent waits for its port to answer before reporting success -
+`{"success": true}` used to mean only that `Popen` did not raise.
+
 ## False success is the failure mode to hunt
 
 A command that reports success while doing nothing is worse than one that
@@ -368,7 +393,7 @@ Mycelial runs on a single machine (or VM). To deploy to a cloud server (e.g., Di
 - MCP integration is working.
 - Grow Agent is tracking a real plant.
 - Analyzer Agent generates recommendations from outcome logs.
-- Self‑healing via Service Manager is active.
+- Service Manager heals on demand (`POST localhost:8014/heal`); nothing runs on a timer.
 
 ## Next Steps (as discussed)
 - Stabilise core (ongoing).

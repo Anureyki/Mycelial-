@@ -10,6 +10,13 @@ sys.path.insert(0, project_root)
 from core.base_agent import AgentBase
 
 class PqaAgent(AgentBase):
+    # Words that claim a request for this agent. Declared here, not in
+    # Boss - the orchestrator holds no domain vocabulary.
+    ROUTING_TERMS = (
+        "search", "look ?up", "google", "web search", "find me",
+        "what does the internet", "latest news", "current price",
+    )
+
     def __init__(self):
         super().__init__(
             agent_id="pqa_agent",

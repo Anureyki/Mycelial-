@@ -143,6 +143,17 @@ FILING_BURST_THRESHOLD = 5
 
 
 class LegalAgent(AgentBase):
+    # Words that claim a request for this agent. Declared here, not in
+    # Boss - the orchestrator holds no domain vocabulary.
+    ROUTING_TERMS = (
+        "contract", "agreement", "clause", "statute", "regulation", "\\bcfr\\b",
+        "\\busc\\b", "case ?law", "precedent", "docket", "plaintiff",
+        "defendant", "court", "judge", "ruling", "opinion", "jurisdiction",
+        "liability", "indemnif", "breach", "enforceab", "unconscionab",
+        "consideration", "covenant", "lien", "easement", "tort", "negligen",
+        "subpoena", "affidavit", "pleading", "motion to", "pro se", "equitable",
+    )
+
     def __init__(self):
         super().__init__(
             agent_id="legal_agent",

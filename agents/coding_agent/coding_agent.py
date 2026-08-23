@@ -21,6 +21,16 @@ except ImportError:
     BUG_PATTERNS = []
 
 class CodingAgent(AgentBase):
+    # Words that claim a request for this agent. Declared here, not in
+    # Boss - the orchestrator holds no domain vocabulary.
+    ROUTING_TERMS = (
+        "lint", "linter", "ruff", "flake8", "type ?check", "mypy",
+        "refactor", "traceback", "stack ?trace", "exception", "syntax error",
+        "unit ?test", "pytest", "test suite", "code quality", "code review",
+        "commit", "diff", "merge conflict", "pull request", "repo",
+        "function", "class", "module", "import error", "dependency",
+    )
+
     def __init__(self):
         super().__init__(
             agent_id="coding_agent",

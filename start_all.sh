@@ -81,53 +81,53 @@ echo "🤖 Starting core agents..."
 # task via check_guard. Guard checks fail open, so a late start is not fatal -
 # but until it is up, no guard rules are being enforced.
 if [ -f "agents/security_agent/security_agent.py" ]; then
-    python3 -m agents.security_agent.security_agent &
+    python3 -u -m agents.security_agent.security_agent >> logs/security_agent.log 2>&1 &
     echo "  ✅ Security Agent (port 9010)"
     sleep 2
 fi
 
-python3 -m agents.boss_agent.boss_agent &
+python3 -u -m agents.boss_agent.boss_agent >> logs/boss_agent.log 2>&1 &
 echo "  ✅ Boss Agent (port 8000)"
 
-python3 -m agents.coding_agent.coding_agent &
+python3 -u -m agents.coding_agent.coding_agent >> logs/coding_agent.log 2>&1 &
 echo "  ✅ Coding Agent (port 8001)"
 
-python3 -m agents.hermes.hermes_interface &
+python3 -u -m agents.hermes.hermes_interface >> logs/hermes.log 2>&1 &
 echo "  ✅ Hermes Agent (port 8002)"
 
-python3 -m agents.maintenance_agent.maintenance_agent &
+python3 -u -m agents.maintenance_agent.maintenance_agent >> logs/maintenance_agent.log 2>&1 &
 echo "  ✅ Maintenance Agent (port 8003)"
 
-python3 -m agents.anansi.Anansi &
+python3 -u -m agents.anansi.Anansi >> logs/anansi.log 2>&1 &
 echo "  ✅ Anansi Interface (port 8081)"
 
 # Optional: Analyzer Agent (if it exists)
 if [ -f "agents/analyzer_agent/analyzer_agent.py" ]; then
-    python3 -m agents.analyzer_agent.analyzer_agent &
+    python3 -u -m agents.analyzer_agent.analyzer_agent >> logs/analyzer_agent.log 2>&1 &
     echo "  ✅ Analyzer Agent (port 9006)"
 fi
 
 # Optional: Grow Agent (if it exists)
 if [ -f "agents/grow_agent/grow_agent.py" ]; then
-    python3 -m agents.grow_agent.grow_agent &
+    python3 -u -m agents.grow_agent.grow_agent >> logs/grow_agent.log 2>&1 &
     echo "  ✅ Grow Agent (port 9009)"
 fi
 
 # Optional: Legal Agent (if it exists)
 if [ -f "agents/legal_agent/legal_agent.py" ]; then
-    python3 -m agents.legal_agent.legal_agent &
+    python3 -u -m agents.legal_agent.legal_agent >> logs/legal_agent.log 2>&1 &
     echo "  ✅ Legal Agent (port 9011)"
 fi
 
 # Optional: Accounting Agent (if it exists)
 if [ -f "agents/accounting_agent/accounting_agent.py" ]; then
-    python3 -m agents.accounting_agent.accounting_agent &
+    python3 -u -m agents.accounting_agent.accounting_agent >> logs/accounting_agent.log 2>&1 &
     echo "  ✅ Accounting Agent (port 9012)"
 fi
 
 # Optional: Trust Agent (if it exists)
 if [ -f "agents/trust_agent/trust_agent.py" ]; then
-    python3 -m agents.trust_agent.trust_agent &
+    python3 -u -m agents.trust_agent.trust_agent >> logs/trust_agent.log 2>&1 &
     echo "  ✅ Trust Agent (port 9013)"
 fi
 
@@ -138,7 +138,7 @@ fi
 
 # Optional: PQA Agent (if it exists) - public web search/browse via SearXNG + Puppeteer
 if [ -f "agents/pqa_agent/pqa_agent.py" ]; then
-    python3 -m agents.pqa_agent.pqa_agent &
+    python3 -u -m agents.pqa_agent.pqa_agent >> logs/pqa_agent.log 2>&1 &
     echo "  ✅ PQA Agent (port 9007)"
 fi
 

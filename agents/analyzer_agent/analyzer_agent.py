@@ -24,6 +24,14 @@ os.makedirs(KNOWLEDGE_DIR, exist_ok=True)
 os.makedirs(REPORTS_DIR, exist_ok=True)
 
 class AnalyzerAgent(AgentBase):
+    # Words that claim a request for this agent. Declared here, not in
+    # Boss - the orchestrator holds no domain vocabulary.
+    ROUTING_TERMS = (
+        "analyze outcomes", "outcome", "outcomes", "recommendation",
+        "recommendations", "trend", "pattern", "what went wrong",
+        "post ?mortem", "retrospective", "why did .* fail", "root cause",
+    )
+
     def __init__(self):
         super().__init__(
             agent_id="analyzer_agent",
