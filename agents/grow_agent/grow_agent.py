@@ -2116,6 +2116,95 @@ class GrowAgent(AgentBase):
                 "fields": sorted({k for s in buf for k in s if k not in ("at", "sensor_id")}),
                 "aggregate_window_hours": SENSOR_AGGREGATE_HOURS}
 
+    def blockers_for_change(self, plant_id="current_plant", target_ppm=None):
+        """What is actually stopping a change right now, and what clears it.
+
+        The grower asked three times why they could not push to 800 and got
+        history, then dose arithmetic, then schedule triggers - none of which is
+        the question. "Why not now" wants the list of things in the way and the
+        condition that removes each one. Anything else reads as evasion.
+
+        Every blocker here names its own exit. A constraint with no stated way
+        out is indistinguishable from a refusal."""
+        out = []
+        now = datetime.now()
+
+        # 1. Attribution. Two changes inside one reading window cannot be told apart.
+        hist = self._get_nutrient_history(plant_id)
+        if hist:
+            last = hist[-1].get("timestamp") or hist[-1].get("changed_at") or ""
+            try:
+                hrs = (now - datetime.fromisoformat(last[:19])).total_seconds() / 3600
+            except Exception:
+                hrs = None
+            if hrs is not None and hrs < 48:
+                out.append({
+                    "blocker": "attribution",
+                    "detail": f"The feed was last changed {hrs:.0f}h ago.",
+                    "why": ("Change strength again before a reading lands and the next number "
+                            "cannot be attributed to either change. You lose the ability to say "
+                            "which one did what."),
+                    "clears_when": "A reading has been taken at the current strength, ideally two.",
+                })
+
+        # 2. Root establishment after a system move.
+        sysraw = (self._unwrap_value(self.retrieve_own_memory(f"grow_system_{plant_id}"))
+                  or (self._unwrap_value(self.retrieve_own_memory("grow_system"))
+                      if plant_id == "current_plant" else None))
+        system = {}
+        try:
+            system = json.loads(sysraw) if sysraw else {}
+        except Exception:
+            pass
+        moved = system.get("changed_at") or system.get("logged_at")
+        if moved:
+            try:
+                days = (now - datetime.fromisoformat(str(moved)[:19])).days
+            except Exception:
+                days = None
+            if days is not None and days <= 7:
+                out.append({
+                    "blocker": "root_establishment",
+                    "detail": f"The system was rebuilt {days} day(s) ago.",
+                    "why": ("Roots disturbed by a move are rebuilding, and a damaged root system "
+                            "cannot take up a full-strength solution - the surplus just raises "
+                            "concentration around tissue that is not drinking."),
+                    "clears_when": "New white water roots are visible in the reservoir.",
+                })
+
+        # 3. Top-fed exposure - the increase reaches the medium roots first.
+        if system.get("system_type") == "top_fed_dwc":
+            out.append({
+                "blocker": "top_fed_exposure",
+                "detail": "The top ring sprays reservoir solution onto the roots in the medium.",
+                "why": ("Raising the reservoir does not hold the increase away from the plant - "
+                        "it delivers it, at full strength, to the root mass in the pebbles, "
+                        "which is the most exposed part of the system rather than the least."),
+                "clears_when": ("Roots are established in the reservoir itself, so there is a "
+                                "second and more forgiving feeding path."),
+            })
+
+        # 4. Is there even a deficiency driving this?
+        drift = self.check_target_drift(plant_id)
+        if drift.get("applicable") and drift.get("status") == "in_band":
+            band = drift.get("target") or []
+            out.append({
+                "blocker": "no_deficiency",
+                "detail": f"{drift.get('ppm'):.0f} is already inside the {band[0]}-{band[1]} band.",
+                "why": ("Nothing is short. Raising strength here is a bet on faster growth, not a "
+                        "correction of a problem - so the downside is real and the upside is "
+                        "speculative."),
+                "clears_when": ("The plant shows it wants more - ppm falling faster than expected "
+                                "between readings, or a stage change moving the band up."),
+            })
+
+        verdict = ("Nothing is blocking it." if not out else
+                   ("Not yet - " + str(len(out)) + " thing(s) in the way."))
+        return {"plant_id": plant_id, "target_ppm": target_ppm,
+                "blockers": out, "verdict": verdict,
+                "note": ("These are reasons to wait, not a refusal. Each one names the condition "
+                         "that clears it, and the grower decides.")}
+
     def explain_decision(self, plant_id="current_plant", topic=""):
         """Why is it the way it is - answered from what was recorded at the time.
 
@@ -4031,6 +4120,11 @@ class GrowAgent(AgentBase):
         elif task == "ingest_sensor_sample":
             return {"result": self.ingest_sensor_sample(
                 args.get("sensor_id", "manual"), args)}
+
+        elif task == "blockers_for_change":
+            return {"result": self.blockers_for_change(
+                args.get("plant_id", "current_plant"),
+                self._parse_numeric(args.get("target_ppm")))}
 
         elif task == "explain_decision":
             return {"result": self.explain_decision(

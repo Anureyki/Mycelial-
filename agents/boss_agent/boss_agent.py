@@ -260,6 +260,13 @@ class BossAgent(AgentBase):
     GROW_INTENTS = (
         # Asked before "schedule" so "how often should I log" is answered with
         # the cadence the analyses need, not with the next reservoir change.
+        # "Why can't I do it NOW" is a different question from "why is it like
+        # this", and answering the second when the first was asked reads as
+        # evasion. Declared first because it is the more specific of the two.
+        ("blockers", r"\bwhy (can'?t|cant|not|no|won'?t|shouldn'?t|couldn'?t)\b|"
+                     r"\bwhat'?s (stopping|blocking|in the way)\b|"
+                     r"\bwhy not (now|yet|today)\b|\bwhy (do|should) i (have to )?wait\b|"
+                     r"\bcan'?t (i|we)\b.*\bnow\b|\bstopping (me|us)\b"),
         # "Why is it like this" is answerable from what was recorded at the
         # time, and is a different question from "what should I do next".
         ("why", r"\bwhy\b|\bwhat made\b|\bhow come\b|\bwhat was the (reason|thinking)\b|"
@@ -395,6 +402,23 @@ class BossAgent(AgentBase):
         lp = (prompt or "").lower()
         bits = []
 
+        # A "why can't I" reaching the composer instead of the blockers intent
+        # still deserves the blocker list. The gate is not reliable enough to be
+        # the only route to an answer this specific.
+        if re.search(r"\bwhy (can'?t|cant|not|won'?t|shouldn'?t)\b|\bwhat'?s (stopping|blocking)\b|"
+                     r"\bwhy not (now|yet)\b|\bwait\b", lp):
+            nums_b = [float(x) for x in re.findall(r'\b(\d{3,4})\b', prompt or "")]
+            b = peel(self.send_a2a("grow_agent", "blockers_for_change",
+                                   {"plant_id": plant_id,
+                                    "target_ppm": max([n for n in nums_b if 300 <= n <= 2000],
+                                                      default=None)}, timeout=45))
+            items = b.get("blockers") or []
+            if items:
+                out = [b.get("verdict") or ""]
+                for x in items:
+                    out.append(f"{x['detail']} {x['why']} Clears when: {x['clears_when']}")
+                return " ".join(v for v in out if v)
+
         drift = peel(self.send_a2a("grow_agent", "check_target_drift",
                                    {"plant_id": plant_id}, timeout=30))
         if drift.get("applicable"):
@@ -522,7 +546,32 @@ class BossAgent(AgentBase):
             bits.append(d.get("action") or "")
             return " ".join(b for b in bits if b)
 
+        if intent == "blockers":
+            nums = [float(x) for x in re.findall(r'\b(\d{3,4})\b', prompt or "")]
+            tgt = max([n for n in nums if 300 <= n <= 2000], default=None)
+            b = peel(self.send_a2a("grow_agent", "blockers_for_change",
+                                   {"plant_id": plant_id, "target_ppm": tgt}, timeout=45))
+            items = b.get("blockers") or []
+            if not items:
+                return (b.get("verdict") or "Nothing is blocking it.") + " Go ahead."
+            bits = [b.get("verdict") or ""]
+            for x in items:
+                bits.append(f"{x['detail']} {x['why']} That clears when: {x['clears_when']}")
+            bits.append(b.get("note") or "")
+            return " ".join(v for v in bits if v)
+
         if intent == "why":
+            # "Why did we stop at 688 instead of 800" is history AND a question
+            # about what is in the way of 800 now. Answer both, blockers first,
+            # because that is the part the grower is actually acting on.
+            nums = [float(x) for x in re.findall(r'\b(\d{3,4})\b', prompt or "")]
+            cand = [n for n in nums if 300 <= n <= 2000]
+            lead = ""
+            if len(cand) >= 2 or (cand and re.search(r"instead of|rather than|not\s+\d", prompt.lower())):
+                b = peel(self.send_a2a("grow_agent", "blockers_for_change",
+                                       {"plant_id": plant_id, "target_ppm": max(cand)}, timeout=45))
+                for x in (b.get("blockers") or [])[:3]:
+                    lead += f"{x['detail']} {x['why']} Clears when: {x['clears_when']} "
             d = peel(self.send_a2a("grow_agent", "explain_decision",
                                    {"plant_id": plant_id, "topic": prompt}, timeout=40))
             if not d.get("found"):
@@ -544,7 +593,7 @@ class BossAgent(AgentBase):
                                        {"plant_id": plant_id}, timeout=30))
             if drift.get("applicable"):
                 bits.append(drift.get("message") or "")
-            return " ".join(b for b in bits if b) or None
+            return (lead + " ".join(b for b in bits if b)).strip() or None
 
         if intent == "cadence":
             c = peel(self.send_a2a("grow_agent", "reading_cadence",
