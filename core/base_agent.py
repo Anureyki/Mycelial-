@@ -289,7 +289,16 @@ class AgentBase:
                                                 "reason": reason})
                     return jsonify({"error": f"Denied: {reason}"}), 403
 
-                result = self.handle_task(task, args, sender)
+                # Answered by every agent, before its own dispatcher sees it,
+                # so declaring a vocabulary costs an agent nothing.
+                if task == "routing_terms":
+                    result = self.routing_terms()
+                elif task == "describe":
+                    result = {"text": self.describe(args.get("task") or "",
+                                                    args.get("payload"))
+                              if isinstance(args, dict) else None}
+                else:
+                    result = self.handle_task(task, args, sender)
 
                 self.log_to_audit(task, str(result), event_type="TASK_COMPLETED",
                                   metadata={"task": task, "sender": sender})
@@ -310,6 +319,33 @@ class AgentBase:
 
     def handle_task(self, task, args, sender):
         return f"Task '{task}' not implemented by {self.agent_id}"
+
+    # Words that mean a request belongs to this agent. Every agent declares its
+    # own; the orchestrator holds none of them.
+    #
+    # Routing used to work off a keyword list kept inside Boss, which made Boss
+    # carry the vocabulary of every domain it routed to - horticulture, law,
+    # accounting - and made adding an agent an edit to the orchestrator. Worse,
+    # the list could only contain what someone thought to type into it: "DWC"
+    # was read as "Direct Water Cooker" and a strain name was explained as
+    # African folklore, because the router did not know they were plant words
+    # and the agent that did know was never asked.
+    #
+    # An agent that knows something the list cannot - the names of the plants it
+    # is currently tracking - overrides this to add them at request time.
+    ROUTING_TERMS = ()
+
+    def routing_terms(self):
+        """Regex fragments that claim a request for this agent."""
+        return {"agent": self.agent_id, "terms": list(self.ROUTING_TERMS)}
+
+    def describe(self, task, payload):
+        """Put this agent's own result into words, or None if it has none.
+
+        An agent owns the vocabulary of its domain, so it owns the sentences
+        too. Orchestrators that formatted domain results themselves ended up
+        holding a second, drifting copy of the domain's language."""
+        return None
 
     # ---------- A2A Client ----------
     def send_a2a(self, target, task, args=None, timeout=120):

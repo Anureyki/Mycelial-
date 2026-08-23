@@ -17,38 +17,6 @@ from core.graph_manager import GraphManager
 from core.schemas import RELATIONSHIP_DOMAINS
 
 # Agents that model relationships and are expected to keep the graph in sync.
-# Vocabulary that routes a request to Grow Agent. Deliberately broad, and
-# matched on word boundaries so short terms ("res", "ec", "veg") don't fire on
-# unrelated words. The narrow original list - plant/grow/garden/reservoir/
-# seedling/nutrient - missed "what's the nutrition in the DWC" entirely
-# ("nutrient" is not a substring of "nutrition", and "dwc" was absent), so a
-# question squarely about the grow fell through to the generic reasoning
-# fallback and a 1.5b model answered about a "Direct Water Cooker".
-GROW_TERMS = (
-    # systems and hardware
-    "dwc", "lwc", "hydro", "hydroponic", "reservoir", "res", "bucket", "tent",
-    "net pot", "clay pebble", "pebbles", "leca", "air stone", "airstone",
-    "top feed", "air pump",
-    # measurements and inputs
-    "ppm", "\bph\b", "\bec\b", "tds", "nutrient", "nutrition", "feed", "feeding",
-    "cal-?mag", "calmag", "flora ?(micro|gro|bloom)", "runoff",
-    # plant and lifecycle
-    "plant", "grow", "garden", "seedling", "germinat", "sprout", "veg\b",
-    "vegetative", "flower", "bloom", "pistil", "calyx", "trichome", "harvest",
-    "leaf", "leaves", "canopy", "node", "root", "roots", "strain",
-    "autoflower", "auto-?flower", "photoperiod", "cultivar",
-    # dosing phrasings that name no plant, no unit and no equipment. "How much
-    # do I add to reach 800" is unambiguous inside a grow assistant and was
-    # being answered by a CODE model as "add 200".
-    "how much.*add", "add.*to reach", "to reach \\d", "reach \\d{3}",
-    "top ?up", "how much more",
-    # the act of keeping the record itself - asking how often to log is a grow
-    # question even when it names no plant, no measurement and no equipment
-    "reading", "readings", "log\b", "logging", "cadence", "how often",
-    # actions
-    "transplant", "defoliat", "lollipop", "topping", "water change", "top ?off",
-)
-
 RELATIONSHIP_AGENTS = ["legal_agent", "accounting_agent", "trust_agent"]
 
 # Soft ACL for update_graph: the `sender` field is self-reported by the calling
@@ -139,669 +107,114 @@ class BossAgent(AgentBase):
             self.log(f"Failed to save uploaded image: {e}")
             return None
 
-    def _extract_reading(self, prompt):
-        """Pull a plain-language reading out of a prompt, or None.
 
-        Factored out because the same numbers can arrive alongside photos, and
-        the image branch used to return before ever reaching the reading parser -
-        so "19.7c 6.15ph 688ppm" sent WITH three photos had its numbers silently
-        discarded while the photos went through. Losing a measurement is worse
-        than losing the photo: the photo can be retaken, the reservoir at that
-        moment cannot."""
-        ppm = re.search(r'(\d+(?:\.\d+)?)\s*ppm', prompt, re.IGNORECASE)
-        ph = re.search(r'(\d+(?:\.\d+)?)\s*ph\b', prompt, re.IGNORECASE) or \
-            re.search(r'\bph\s*(?:of|is|:)?\s*(\d+(?:\.\d+)?)', prompt, re.IGNORECASE)
-        tc = re.search(r'(\d+(?:\.\d+)?)\s*(?:°|deg(?:rees)?)?\s*c\b', prompt, re.IGNORECASE)
-        tf = re.search(r'(\d+(?:\.\d+)?)\s*(?:°|deg(?:rees)?)?\s*f\b', prompt, re.IGNORECASE)
-        if sum(1 for m in (ppm, ph, tc, tf) if m) < 2:
-            return None
-        temp_c = float(tc.group(1)) if tc else ((float(tf.group(1)) - 32) * 5 / 9 if tf else None)
-        out = {}
-        if ppm:
-            out["ppm"] = float(ppm.group(1))
-        if ph:
-            out["ph"] = float(ph.group(1))
-        if temp_c is not None:
-            out["temp"] = round(temp_c, 1)
-        return out or None
 
-    def _log_reading(self, reading_args):
-        status = self.send_a2a("grow_agent", "get_status", {})
-        r = status.get("result", {}) if isinstance(status, dict) else {}
-        r = r.get("result", r) if isinstance(r, dict) else {}
-        stage = r.get("current_stage") or "seedling"
-        reading_args = dict(reading_args, stage="seedling" if stage == "unknown" else stage)
-        return self.send_a2a("grow_agent", "log_reading", reading_args)
 
-    _plant_terms_cache = {"terms": None, "at": 0}
+    @staticmethod
+    def _unwrap(resp, key="text"):
+        """Dig an A2A payload out of however many "result" envelopes it arrived in.
 
-    def _known_plant_terms(self):
-        """Names, ids and strains of the plants Grow Agent is actually tracking.
+        Responses come back wrapped a variable number of times depending on the
+        path taken, and a single .get("result") silently yields the next
+        envelope rather than the payload - which reads as "the agent had
+        nothing to say" and falls through to a status card. Unwrap until the
+        object actually carries what was asked for."""
+        seen = 0
+        while isinstance(resp, dict) and key not in resp and "result" in resp and seen < 6:
+            resp, seen = resp["result"], seen + 1
+        return resp if isinstance(resp, dict) and key in resp else None
 
-        Routing on a fixed keyword list cannot know that "gsc" means a plant
-        here. "Anansi what is my gsc# 1 specs" matched no grow term and was sent
-        to the CODE agent, which replied that Anansi is a character from African
-        folklore. The strain name was in the prompt and in the agent's own
-        records, and the router had no way to connect them.
+    _domain_cache = {"map": None, "at": 0}
 
-        Asking the agent what it is tracking means routing follows the data:
-        register a plant and questions about it route correctly from then on,
-        with no keyword list to remember to update. Cached briefly because this
-        runs on every prompt."""
-        now = time.time()
-        c = self._plant_terms_cache
-        if c["terms"] is not None and now - c["at"] < 300:
-            return c["terms"]
-        terms = {}          # term -> plant_id it identifies
+    def _domain_vocabulary(self):
+        """Ask every registered agent what vocabulary claims a request for it.
+
+        Boss holds no domain words of its own. It asks. An agent that declares
+        nothing simply never matches, and a new domain agent becomes routable
+        by starting up - not by editing this file, which is what made the
+        orchestrator accumulate the vocabulary of every domain beneath it."""
+        c = self._domain_cache
+        if c["map"] is not None and time.time() - c["at"] < 300:
+            return c["map"]
+        vocab = {}
         try:
-            st = self.send_a2a("grow_agent", "get_status", {}, timeout=20)
-            for _ in range(3):
-                st = st.get("result", st) if isinstance(st, dict) else st
-            if isinstance(st, dict):
-                v = st.get("current_strain")
-                if isinstance(v, str) and v.strip():
-                    terms[v.strip().strip('"').lower()] = "current_plant"
-                # A SPECIES is a category, never an identity. "the cannabis
-                # plant" picked gsc_auto_2 purely because current_plant's species
-                # was not in the map to make it ambiguous - so a question about
-                # the main plant was answered about the day-old seedling. Species
-                # names route to the grow domain without choosing a plant.
-                sp = st.get("current_species") or "cannabis"
-                terms[str(sp).strip().lower()] = None
-                for pl in st.get("other_plants") or []:
-                    pid = pl.get("plant_id")
-                    for k in ("plant_id", "strain", "species"):
-                        v = pl.get(k)
-                        if k == "species" and isinstance(v, str) and v.strip():
-                            terms[v.strip().lower()] = None   # category, not identity
-                            continue
-                        if isinstance(v, str) and v.strip():
-                            # A term already claimed by another plant is ambiguous
-                            # (both cannabis plants share a strain), so it routes
-                            # to grow without naming one.
-                            key = v.strip().lower()
-                            terms[key] = None if key in terms and terms[key] != pid else pid
+            resp = requests.post("http://localhost:8004/execute",
+                                 json={"task": "list_agents", "args": [],
+                                       "sender": self.agent_id}, timeout=5)
+            agents = resp.json().get("result", []) if resp.status_code == 200 else []
         except Exception as e:
-            self.log(f"could not fetch plant terms: {e}")
-        # Also index the distinctive words inside a strain name, so "gsc",
-        # "girl scout cookies" and "cookies" all reach the right agent. Short and
-        # generic tokens are dropped - "auto" and "1" would match anything.
-        extra = {}
-        # Words that are common English before they are plant names. "girl" on
-        # its own would match unrelated text, and an initialism built from an id
-        # like "gsc_auto_2" produced "ga2", which means nothing to anyone.
-        STOP = {"the", "and", "auto", "autoflower", "plant", "current", "cannabis",
-                "vera", "girl", "scout", "seed", "seeds", "pot", "mother", "clone"}
-        for t in list(terms):
-            words = [w for w in re.split(r'[^a-z0-9]+', t) if w]
-            for w in words:
-                if len(w) >= 4 and w not in STOP and not w.isdigit():
-                    extra[w] = terms[t] if extra.get(w, terms[t]) == terms[t] else None
-            # Initials only from a multi-word NAME, not from an underscored id -
-            # "girl scout cookies" gives gsc, "gsc_auto_2" gives nothing useful.
-            # Initials from the NAME only. "Girl Scout Cookies (autoflower)"
-            # must give gsc, not gsca - the parenthetical is a qualifier, not
-            # part of what anyone calls the plant.
-            if "_" not in t:
-                base = re.sub(r'\(.*?\)', '', t)
-                bw = [w for w in re.split(r'[^a-z]+', base) if w]
-                if len(bw) >= 2:
-                    initials = "".join(w[0] for w in bw)
-                    if len(initials) >= 3:
-                        extra[initials] = terms[t] if extra.get(initials, terms[t]) == terms[t] else None
-        for k, v in extra.items():
-            terms.setdefault(k, v)
-        c["terms"], c["at"] = terms, now
-        if terms:
-            self.log(f"plant routing terms: {sorted(terms)[:12]}")
-        return terms
-
-    # "plant one", "plant #2", "my first autoflower". People refer to plants by
-    # position at least as often as by name, and a strain shared between two
-    # plants cannot disambiguate them at all - both of these are Girl Scout
-    # Cookies.
-    _ORDINALS = {"one": 1, "first": 1, "1st": 1, "two": 2, "second": 2, "2nd": 2,
-                 "three": 3, "third": 3, "3rd": 3, "four": 4, "fourth": 4}
-
-    # What KIND of grow question this is. Reaching the right agent and the right
-    # plant still leaves the question unanswered if every reply is the same
-    # status card - "when is my next nutrient upgrade", "what is my ppm right
-    # now" and "how is plant one" all returned identical text.
-    GROW_INTENTS = (
-        # Asked before "schedule" so "how often should I log" is answered with
-        # the cadence the analyses need, not with the next reservoir change.
-        # "Why can't I do it NOW" is a different question from "why is it like
-        # this", and answering the second when the first was asked reads as
-        # evasion. Declared first because it is the more specific of the two.
-        # "How long until it drops to X" is a rate question, not a dose one.
-        ("drawdown", r"\bhow long\b.*\b(drop|fall|come down|draw|get (down )?to|use|burn)\b|"
-                     r"\b(drop|fall|come down|draw down)\b.*\bto\s*\d{2,4}\b|"
-                     r"\bhow (long|many days)\b.*\b\d{2,4}\b|"
-                     r"\btake .*\bto (drop|fall|reach|get)\b"),
-        ("blockers", r"\bwhy (can'?t|cant|not|no|won'?t|shouldn'?t|couldn'?t)\b|"
-                     r"\bwhat'?s (stopping|blocking|in the way)\b|"
-                     r"\bwhy not (now|yet|today)\b|\bwhy (do|should) i (have to )?wait\b|"
-                     r"\bcan'?t (i|we)\b.*\bnow\b|\bstopping (me|us)\b"),
-        # "Why is it like this" is answerable from what was recorded at the
-        # time, and is a different question from "what should I do next".
-        ("why", r"\bwhy\b|\bwhat made\b|\bhow come\b|\bwhat was the (reason|thinking)\b|"
-                r"\bdid we (stop|choose|pick|settle|decide)\b|\breasoning behind\b"),
-        ("cadence", r"\bhow often\b.*\b(log|read|check|measure|record|take)\b|"
-                    r"\b(log|reading|readings)\b.*\b(how often|frequency|cadence|expectancy)\b|"
-                    r"\b(reading|logging) (frequency|cadence|schedule|expectancy)\b|"
-                    r"\bhow many (readings|logs)\b"),
-        ("schedule", r"\bwhen\b|\bhow (long|soon|often)\b|\bnext\b|\bdue\b|\bschedule\b|"
-                     r"\bupcoming\b|\bshould i .*(change|feed|water|top ?up)\b"),
-        ("measurement", r"\bwhat('| i)?s? (my|the) (ppm|ph|ec|tds|temp|temperature|humidity|volume)\b|"
-                        r"\b(ppm|ph|ec|temp|humidity) (right now|currently|reading|level)\b|"
-                        r"\bhow (much|many) (ppm|ml)\b"),
-        # "What did that cost me" - asked before "feed" so that a question about
-        # the loss from an underfeed is not answered with the current recipe.
-        # "How much do I add to reach 800" is a dosing calculation, not a status
-        # question. Declared before measurement so a prompt containing "ppm" is
-        # not answered with the current reading.
-        ("dosing", r"\bhow much\b.*\b(add|need|more|raise|reach|get to|bring)\b|"
-                   r"\b(add|raise|bring|get)\b.*\bto (reach|hit|get to)\b|"
-                   r"\breach\s*\d{2,4}\b|\bto\s*\d{3,4}\s*ppm\b|"
-                   r"\btarget\b.*\d{3,4}|\d{3,4}\s*ppm\b.*\b(target|reach|goal)\b"),
-        ("impact", r"\b(loss|lost|cost|impact|damage|set ?back|setback|stagnant|stunted|"
-                   r"behind|deficit|underfed|under-?feed|how bad|make up for|catch up)\b"),
-        ("feed", r"\bfeed\b|\bnutrient|\brecipe\b|\bdose\b|\bhow much .*(cal|flora|nute)"),
-    )
-
-    def _grow_intent(self, prompt):
-        lp = (prompt or "").lower()
-        for name, pattern in self.GROW_INTENTS:
-            if re.search(pattern, lp):
-                # "next nutrient upgrade" is a schedule question even though it
-                # says nutrient, so the first match wins by declaration order.
-                return name
-        return "status"
-
-    def _plant_order(self):
-        """Plants in the order a person would count them. current_plant is #1
-        because it is the one that was here first."""
-        # ACTIVE plants only. A position is not a name: once plant one is
-        # harvested or given away, "plant one" means whatever is still growing
-        # and started earliest. The underlying id never changes and never gets
-        # reused, so the history stays attached to the plant that earned it.
-        order = []
-        try:
-            lp = self.send_a2a("grow_agent", "list_plants", {}, timeout=20)
-            for _ in range(3):
-                lp = lp.get("result", lp) if isinstance(lp, dict) else lp
-            for pl in (lp or {}).get("active") or []:
-                pid = pl.get("plant_id")
-                if pid and pid not in order:
-                    order.append(pid)
-        except Exception:
-            pass
-        if not order:
-            order = ["current_plant"]
-        return order
-
-    def _ordinal_from_prompt(self, prompt):
-        lp = (prompt or "").lower()
-        m = re.search(r'\b(?:plant|grow)\s*#?\s*(\d+)\b', lp) or \
-            re.search(r'#\s*(\d+)\b', lp)
-        n = int(m.group(1)) if m else None
-        if n is None:
-            for word, val in self._ORDINALS.items():
-                if re.search(r'\b(?:plant|grow|auto ?flower)\s+' + word + r'\b', lp) or \
-                   re.search(r'\b' + word + r'\s+(?:plant|grow|auto ?flower)\b', lp) or \
-                   re.search(r'\bmy\s+' + word + r'\b', lp):
-                    n = val
-                    break
-        if not n:
-            return None
-        order = self._plant_order()
-        return order[n - 1] if 1 <= n <= len(order) else None
-
-    # Which facet leads, by what the question actually asked. Every answer
-    # carries the others behind it - the question chooses emphasis, not content.
-    FACET_LEAD = (
-        ("blocked_by", r"\bwhy (can'?t|cant|not|won'?t|shouldn'?t)\b|\bwhat'?s (stopping|blocking)\b|"
-                       r"\bwhy not (now|yet)\b|\bwhy .*wait\b|\bstopping (me|us)\b"),
-        ("why",        r"\bwhy\b|\bhow come\b|\bwhat made\b|\bdid we (stop|choose|pick|decide)\b|"
-                       r"\breasoning\b"),
-        ("how",        r"\bhow (much|do i|would i)\b|\bwhat do i (need|have) to\b|\badd\b|\bget to\b"),
-        ("when",       r"\bwhen\b|\bhow (long|soon)\b|\bwhat point\b|\bready\b|\btiming\b"),
-        ("what",       r"\bwhat (is|are|'?s)\b|\bwhere (is|are|do)\b|\bstatus\b|\bright now\b"),
-    )
-
-    def _answer_from_situation(self, plant_id, prompt):
-        """One situation, ordered by what was asked.
-
-        The grower asked why, how and when about the same reservoir and each one
-        needed its own intent, task and regex. There is one situation - the
-        question only decides which facet leads. This means a phrasing nobody
-        anticipated still gets a complete answer, arranged differently, rather
-        than falling to a status card because no pattern matched."""
-        def peel(x, n=3):
-            for _ in range(n):
-                x = x.get("result", x) if isinstance(x, dict) else x
-            return x if isinstance(x, dict) else {}
-
-        lp = (prompt or "").lower()
-
-        # A drawdown is a calculation, not a facet of current state. Handled
-        # here rather than at one call site, because every route into an answer
-        # must be able to produce it - putting it in the grow branch alone meant
-        # a phrasing that missed the keyword gate got the "when" facet instead,
-        # which is a list of conditions and a different question entirely.
-        if self._grow_intent(prompt) == "drawdown":
-            dd = self._answer_grow_question("drawdown", plant_id, prompt)
-            if dd:
-                return dd
-
-        nums = [float(x) for x in re.findall(r'\b(\d{3,4})\b', prompt or "")]
-        target = max([n for n in nums if 300 <= n <= 2000], default=None)
-
-        sit = peel(self.send_a2a("grow_agent", "situation",
-                                 {"plant_id": plant_id, "target_ppm": target}, timeout=90))
-        facets = sit.get("facets") or {}
-        if not facets:
-            return None
-
-        lead = next((name for name, pat in self.FACET_LEAD
-                     if re.search(pat, lp) and name in facets), "what")
-        # Everything else follows in a fixed, readable order.
-        rest = [f for f in ("what", "blocked_by", "why", "how", "when")
-                if f != lead and f in facets]
-        order = [lead] + rest
-
-        out = []
-        for name in order:
-            f = facets.get(name) or {}
-            summary = f.get("summary")
-            if not summary:
+            self.log(f"routing: registry lookup failed: {e}")
+            agents = []
+        for a in agents:
+            aid, url = a.get("agent_id"), a.get("url")
+            if not aid or not url or aid == self.agent_id:
                 continue
-            if name == "blocked_by" and f.get("items"):
-                out.append(summary)
-                for x in f["items"][:3]:
-                    out.append(f"{x['detail']} {x['why']} Clears when: {x['clears_when']}")
-            elif name == "how" and f.get("caution"):
-                out.append(summary + " " + f["caution"])
-            else:
-                out.append(summary)
-        return " ".join(out) if out else None
+            try:
+                r = requests.post(f"{url}/execute",
+                                  json={"task": "routing_terms", "args": {},
+                                        "sender": self.agent_id}, timeout=4)
+                body = r.json() if r.status_code == 200 else {}
+                while isinstance(body, dict) and "terms" not in body and "result" in body:
+                    body = body["result"]
+                terms = (body or {}).get("terms") or []
+                if terms:
+                    vocab[aid] = [t for t in terms if isinstance(t, str) and t]
+            except Exception:
+                continue        # an agent that is down does not claim anything
+        c["map"], c["at"] = vocab, time.time()
+        self.log(f"routing vocabulary: " +
+                 ", ".join(f"{k}={len(v)}" for k, v in vocab.items()))
+        return vocab
 
-    def _target_note(self, plant_id, prompt):
-        """If the prompt names a ppm target, say where it sits and what it costs.
-
-        Folded into any answer rather than replacing it, because "when do you
-        recommend pushing to 800" is a timing question AND a target question and
-        the grower should not have to ask twice."""
-        nums = [float(x) for x in re.findall(r'\b(\d{3,4})\b', prompt or "")]
-        targets = [n for n in nums if 300 <= n <= 2000]
-        if not targets:
-            return None
-        target = max(targets)
-
-        def peel(x, n=3):
-            for _ in range(n):
-                x = x.get("result", x) if isinstance(x, dict) else x
-            return x if isinstance(x, dict) else {}
-
-        drift = peel(self.send_a2a("grow_agent", "check_target_drift",
-                                   {"plant_id": plant_id}, timeout=30))
-        cur = drift.get("ppm")
-        band = drift.get("target") or []
-        if cur is not None and abs(cur - target) < 15:
-            return None                      # already there; nothing to say
-        dose = peel(self.send_a2a("grow_agent", "adjust_to_target_ppm",
-                                  {"plant_id": plant_id, "target_ppm": target}, timeout=60))
-        add = dose.get("add_now") or {}
-        bits = []
-        if cur is not None and band:
-            where = ("the low end of" if cur < band[0] + (band[1] - band[0]) / 3
-                     else "mid" if cur < band[0] + 2 * (band[1] - band[0]) / 3 else "the top of")
-            bits.append(f"You are at {cur:.0f}, {where} the {band[0]}-{band[1]} band; "
-                        f"{target:.0f} is also inside it.")
-        if add:
-            bits.append("Getting to " + f"{target:.0f}" + " costs "
-                        + ", ".join(f"{k} {v}ml" for k, v in add.items()) + ".")
-        if dose.get("top_fed_caution"):
-            bits.append(dose["top_fed_caution"])
-        return " ".join(bits) or None
-
-    def _compose_grow_answer(self, plant_id, prompt):
-        """Assemble an answer for a grow question that matched no known intent.
-
-        The alternative was the status card, and that is what made five
-        different questions today read as being ignored. Adding a regex per
-        phrasing does not converge - the grower keeps finding wordings nobody
-        thought of, which is the correct outcome for a person talking normally.
-
-        So the fallback stops being a summary and starts being an answer built
-        from whatever the prompt actually touches: a number is treated as a
-        target, timing words pull in how recently things changed, and the
-        in-band check is always relevant because it is the question under most
-        others."""
-        def peel(x, n=3):
-            for _ in range(n):
-                x = x.get("result", x) if isinstance(x, dict) else x
-            return x if isinstance(x, dict) else {}
-
+    def _domain_for(self, prompt):
+        """The agent whose declared vocabulary best claims this request."""
         lp = (prompt or "").lower()
-        bits = []
-
-        # A "why can't I" reaching the composer instead of the blockers intent
-        # still deserves the blocker list. The gate is not reliable enough to be
-        # the only route to an answer this specific.
-        if re.search(r"\bwhy (can'?t|cant|not|won'?t|shouldn'?t)\b|\bwhat'?s (stopping|blocking)\b|"
-                     r"\bwhy not (now|yet)\b|\bwait\b", lp):
-            nums_b = [float(x) for x in re.findall(r'\b(\d{3,4})\b', prompt or "")]
-            b = peel(self.send_a2a("grow_agent", "blockers_for_change",
-                                   {"plant_id": plant_id,
-                                    "target_ppm": max([n for n in nums_b if 300 <= n <= 2000],
-                                                      default=None)}, timeout=45))
-            items = b.get("blockers") or []
-            if items:
-                out = [b.get("verdict") or ""]
-                for x in items:
-                    out.append(f"{x['detail']} {x['why']} Clears when: {x['clears_when']}")
-                return " ".join(v for v in out if v)
-
-        drift = peel(self.send_a2a("grow_agent", "check_target_drift",
-                                   {"plant_id": plant_id}, timeout=30))
-        if drift.get("applicable"):
-            bits.append(drift.get("message") or "")
-
-        # Any three or four digit number in a grow question is almost always a
-        # ppm target being aimed at.
-        nums = [float(x) for x in re.findall(r'\b(\d{3,4})\b', prompt or "")]
-        cand = [n for n in nums if 300 <= n <= 2000]
-        target = max(cand) if cand else None
-        if target:
-            dose = peel(self.send_a2a("grow_agent", "adjust_to_target_ppm",
-                                      {"plant_id": plant_id, "target_ppm": target}, timeout=60))
-            add = dose.get("add_now") or {}
-            band = drift.get("target") or []
-            if band and not (band[0] <= target <= band[1]):
-                bits.append(f"{target:.0f} sits outside the {band[0]}-{band[1]} band this stage "
-                            f"wants, so that is a deliberate push rather than a correction.")
-            if add:
-                bits.append("To get there: "
-                            + ", ".join(f"{k} {v}ml" for k, v in add.items()) + ".")
-            if dose.get("top_fed_caution"):
-                bits.append(dose["top_fed_caution"])
-
-        # "Is now a good time" needs to know what changed recently.
-        if re.search(r"\b(now|today|yet|good time|should i|safe to|ready|after)\b", lp):
-            hist = peel(self.send_a2a("grow_agent", "get_nutrient_history",
-                                      {"plant_id": plant_id}, timeout=40))
-            changes = hist.get("recipe_changes") or []
-            if changes:
-                last = changes[-1].get("changed_at") or ""
+        best, best_n = None, 0
+        for aid, terms in self._domain_vocabulary().items():
+            n = 0
+            for t in terms:
                 try:
-                    hrs = (datetime.now() - datetime.fromisoformat(last[:19])).total_seconds() / 3600
-                except Exception:
-                    hrs = None
-                if hrs is not None and hrs < 72:
-                    bits.append(
-                        f"The feed was last changed {hrs:.0f}h ago. Changing strength again this "
-                        "soon means the next reading cannot tell you which change caused what, "
-                        "and after a system move the roots are still re-establishing - raise it "
-                        "once new white root growth is visible and the current level has held "
-                        "steady for a couple of readings.")
-                elif hrs is not None:
-                    bits.append(f"Last feed change was {hrs/24:.0f} day(s) ago, so a change now "
-                                "is cleanly attributable.")
+                    if re.search(t if ("\\b" in t or "?" in t or "*" in t) else r"\b" + t, lp):
+                        n += 1
+                except re.error:
+                    continue
+            if n > best_n:
+                best, best_n = aid, n
+        return best
 
-        for t in (peel(self.send_a2a("grow_agent", "check_in",
-                                     {"plant_id": plant_id}, timeout=60)).get("triggers") or [])[:2]:
-            bits.append(t)
-        return " ".join(b for b in bits if b) or None
 
-    def _answer_grow_question(self, intent, plant_id, prompt):
-        """Answer the question that was asked. Returns None to fall through to
-        the general status card when this cannot do better."""
-        def peel(x, n=3):
-            for _ in range(n):
-                x = x.get("result", x) if isinstance(x, dict) else x
-            return x if isinstance(x, dict) else {}
 
-        if intent == "measurement":
-            st = peel(self.send_a2a("grow_agent", "get_status", {}, timeout=30))
-            hist = peel(self.send_a2a("grow_agent", "get_grow_history",
-                                      {"plant_id": plant_id}, timeout=30))
-            series = hist.get("ppm_series") or []
-            lp = prompt.lower()
-            drift = peel(self.send_a2a("grow_agent", "check_target_drift",
-                                       {"plant_id": plant_id}, timeout=30))
-            bits = []
-            if series:
-                last = series[-1]
-                if "ppm" in lp or not any(k in lp for k in ("ph", "temp", "humid")):
-                    bits.append(f"Last ppm reading: {last.get('ppm'):.0f}, taken "
-                                f"{str(last.get('at'))[:10]}.")
-            if drift.get("applicable"):
-                bits.append(drift.get("message") or "")
-                if drift.get("action") and drift.get("status") != "in_band":
-                    bits.append(drift["action"])
-            return " ".join(b for b in bits if b) or None
 
-        if intent == "schedule":
-            ci = peel(self.send_a2a("grow_agent", "check_in", {"plant_id": plant_id}, timeout=60))
-            drift = peel(self.send_a2a("grow_agent", "check_target_drift",
-                                       {"plant_id": plant_id}, timeout=30))
-            st = peel(self.send_a2a("grow_agent", "get_status", {}, timeout=30))
-            bits = []
-            # A feed change is not a date - it is triggered by the stage moving
-            # or the reading drifting. Say what the trigger is.
-            if drift.get("applicable") and drift.get("status") != "in_band":
-                bits.append("Now: " + (drift.get("message") or ""))
-                bits.append(drift.get("action") or "")
-            elif drift.get("applicable"):
-                bits.append(drift.get("message") or "")
-                bits.append("No change needed on that front until the stage moves or the "
-                            "reading drifts out of band.")
-            for t in (ci.get("triggers") or [])[:3]:
-                bits.append(t)
-            rem = st.get("pending_reminders") or []
-            if rem:
-                bits.append("Scheduled: " + "; ".join(
-                    f"{r.get('title')} (due {r.get('target_date')})" for r in rem[:3]) + ".")
-            return " ".join(b for b in bits if b) or None
 
-        if intent == "dosing":
-            m = re.search(r'(\d{3,4})\s*(?:ppm)?', prompt or "")
-            if not m:
-                return None
-            target = float(m.group(1))
-            # A prompt can carry several numbers ("800 high 700 low 800"); the
-            # largest three-or-four digit figure is the target being aimed at.
-            nums = [float(x) for x in re.findall(r'\b(\d{3,4})\b', prompt or "")]
-            if nums:
-                target = max(nums)
-            d = peel(self.send_a2a("grow_agent", "adjust_to_target_ppm",
-                                   {"plant_id": plant_id, "target_ppm": target}, timeout=60))
-            if not d or d.get("error"):
-                return None
-            add = d.get("add_now") or {}
-            bits = [d.get("observation") or ""]
-            if add:
-                bits.append("Add: " + ", ".join(f"{k} {v}ml" for k, v in add.items()) + ".")
-            else:
-                bits.append(f"Scale what is already in there by {d.get('factor')}x.")
-            if d.get("top_fed_caution"):
-                bits.append(d["top_fed_caution"])
-            bits.append(d.get("action") or "")
-            return " ".join(b for b in bits if b)
 
-        if intent == "drawdown":
-            nums = sorted({float(x) for x in re.findall(r'\b(\d{2,4})\b', prompt or "")
-                           if 50 <= float(x) <= 3000}, reverse=True)
-            frm = nums[0] if nums else None
-            to = nums[-1] if len(nums) > 1 else None
-            if to is None:
-                return None
-            d = peel(self.send_a2a("grow_agent", "project_drawdown",
-                                   {"plant_id": plant_id, "from_ppm": frm, "to_ppm": to},
-                                   timeout=60))
-            if d.get("error"):
-                return d["error"]
-            bits = [f"From {d['from_ppm']} to {d['to_ppm']} works out at about "
-                    f"{d['days']} day(s), at {d['rate_ppm_per_day']} ppm/day."]
-            bits.append(f"That rate is a {d['rate_source']}.")
-            if d.get("why_not_measured"):
-                bits.append(d["why_not_measured"])
-            if d.get("volume_note"):
-                bits.append(d["volume_note"])
-            return " ".join(bits)
 
-        if intent == "blockers":
-            nums = [float(x) for x in re.findall(r'\b(\d{3,4})\b', prompt or "")]
-            tgt = max([n for n in nums if 300 <= n <= 2000], default=None)
-            b = peel(self.send_a2a("grow_agent", "blockers_for_change",
-                                   {"plant_id": plant_id, "target_ppm": tgt}, timeout=45))
-            items = b.get("blockers") or []
-            if not items:
-                return (b.get("verdict") or "Nothing is blocking it.") + " Go ahead."
-            bits = [b.get("verdict") or ""]
-            for x in items:
-                bits.append(f"{x['detail']} {x['why']} That clears when: {x['clears_when']}")
-            bits.append(b.get("note") or "")
-            return " ".join(v for v in bits if v)
 
-        if intent == "why":
-            # "Why did we stop at 688 instead of 800" is history AND a question
-            # about what is in the way of 800 now. Answer both, blockers first,
-            # because that is the part the grower is actually acting on.
-            nums = [float(x) for x in re.findall(r'\b(\d{3,4})\b', prompt or "")]
-            cand = [n for n in nums if 300 <= n <= 2000]
-            lead = ""
-            if len(cand) >= 2 or (cand and re.search(r"instead of|rather than|not\s+\d", prompt.lower())):
-                b = peel(self.send_a2a("grow_agent", "blockers_for_change",
-                                       {"plant_id": plant_id, "target_ppm": max(cand)}, timeout=45))
-                for x in (b.get("blockers") or [])[:3]:
-                    lead += f"{x['detail']} {x['why']} Clears when: {x['clears_when']} "
-            d = peel(self.send_a2a("grow_agent", "explain_decision",
-                                   {"plant_id": plant_id, "topic": prompt}, timeout=40))
-            if not d.get("found"):
-                return d.get("note")
-            bits = []
-            for e in (d.get("decisions") or [])[-2:]:
-                when = str(e.get("at"))[:10]
-                line = f"On {when}: {e.get('reason')}"
-                if e.get("decision"):
-                    line += f" Decision was: {e['decision']}"
-                if e.get("expected"):
-                    line += f" Expected: {e['expected']}"
-                if e.get("measured_after"):
-                    line += f" Measured afterwards: {e['measured_after']} ppm."
-                bits.append(line)
-            # Where it landed against where it was aimed is the actual answer to
-            # "why are we here rather than there".
-            drift = peel(self.send_a2a("grow_agent", "check_target_drift",
-                                       {"plant_id": plant_id}, timeout=30))
-            if drift.get("applicable"):
-                bits.append(drift.get("message") or "")
-            return (lead + " ".join(b for b in bits if b)).strip() or None
 
-        if intent == "cadence":
-            c = peel(self.send_a2a("grow_agent", "reading_cadence",
-                                   {"plant_id": plant_id}, timeout=40))
-            if not c or c.get("error"):
-                return None
-            bits = [f"Every {c.get('recommended_days')} days at {c.get('stage')} stage.",
-                    c.get("recommended_because") or ""]
-            o = c.get("observed") or {}
-            if o.get("median_gap_days") is not None:
-                bits.append(f"You are averaging one every {o['median_gap_days']} days across "
-                            f"{o['readings']} readings, with a longest gap of "
-                            f"{o['longest_gap_days']} days"
-                            + (f" and {o['gaps_over_target']} gap(s) past target."
-                               if o.get("gaps_over_target") else "."))
-            bits.append(c.get("maximum_because") or "")
-            bits.append(c.get("minimum_because") or "")
-            sens = c.get("sensors") or {}
-            if sens:
-                bits.append("With sensors: " + (sens.get("ph_temp") or "")
-                            + " " + (sens.get("ppm_volume") or ""))
-            return " ".join(b for b in bits if b)
 
-        if intent == "impact":
-            d = peel(self.send_a2a("grow_agent", "analyze_deficit",
-                                   {"plant_id": plant_id}, timeout=90))
-            if d.get("error") or not d.get("deficit_periods"):
-                return d.get("finding") or d.get("error") or None
-            bits = [d.get("consequence") or ""]
-            # The refusal is part of the answer, not a footnote to it.
-            if d.get("why_no_number"):
-                bits.append("No yield figure: " + d["why_no_number"])
-            if d.get("what_would_make_it_answerable"):
-                bits.append(d["what_would_make_it_answerable"])
-            return " ".join(b for b in bits if b)
 
-        if intent == "feed":
-            rec = peel(self.send_a2a("grow_agent", "recommend_feed",
-                                     {"plant_id": plant_id}, timeout=120))
-            if not rec:
-                return None
-            cur, sug = rec.get("current") or {}, rec.get("suggested") or {}
-            unit, litres = rec.get("unit") or "ml", rec.get("reservoir_liters")
-            q = f" per {litres:g}L" if litres else ""
-            bits = []
-            if cur:
-                bits.append("In the reservoir now: "
-                            + ", ".join(f"{k} {v}{unit}" for k, v in cur.items()) + q + ".")
-            if sug and sug != cur:
-                bits.append("Suggested: "
-                            + ", ".join(f"{k} {v}{unit}" for k, v in sug.items()) + q + ".")
-            if rec.get("action"):
-                bits.append(str(rec["action"])[:400])
-            return " ".join(bits) or None
-        return None
 
-    def _plant_from_prompt(self, prompt):
-        """Which plant this prompt is about, or None for "the grow" generally.
-
-        Without this, "how is the aloe" routed to Grow Agent correctly and then
-        asked it about the cannabis, because the branch hardcoded current_plant.
-        Reaching the right agent is only half of routing."""
-        by_ordinal = self._ordinal_from_prompt(prompt)
-        if by_ordinal:
-            return by_ordinal
-        lp = (prompt or "").lower()
-        hit = None
-        for term, pid in self._known_plant_terms().items():
-            if pid and re.search(r"\b" + re.escape(term) + r"\b", lp):
-                # Prefer the most specific term that matched.
-                if hit is None or len(term) > hit[0]:
-                    hit = (len(term), pid)
-        return hit[1] if hit else None
 
     def _format_response(self, task, result, sender):
         if result is None:
             return "The request did not return a result."
         if isinstance(result, str):
             return result
+        # The agent that produced a result says what it means. Boss used to
+        # compose the prose itself, which is how the orchestrator came to hold
+        # 171 lines describing reservoirs, deficiency signs and stage
+        # transitions for domains it does not practise.
+        if sender and sender != self.agent_id:
+            try:
+                said = self._unwrap(self.send_a2a(sender, "describe",
+                                                  {"task": task, "payload": result},
+                                                  timeout=30), key="text")
+                if said and (said.get("text") or "").strip():
+                    return said["text"]
+            except Exception as e:
+                self.log(f"{sender} could not describe {task}: {e}")
         if isinstance(result, dict):
             if "error" in result:
                 return f"Error: {result['error']}"
-            if task == "assess_care":
-                inner = result.get("result", {}) if isinstance(result, dict) else {}
-                inner = inner.get("result", inner) if isinstance(inner, dict) else {}
-                if not isinstance(inner, dict) or not inner:
-                    return "I could not get a reading on that plant."
-                name = inner.get("profile") or inner.get("species") or "that plant"
-                bits = [f"Your {name}:"]
-                if inner.get("signs"):
-                    bits.append(inner.get("assessment") or "")
-                else:
-                    bits.append(f"Nothing flags a care problem right now.")
-                t = inner.get("temperature") or {}
-                if t.get("note"):
-                    bits.append(t["note"])
-                if inner.get("action") and "No urgent" not in inner["action"]:
-                    bits.append(inner["action"])
-                c = inner.get("care") or {}
-                if c.get("water"):
-                    bits.append(f"Watering: {c['water']}")
-                return " ".join(b for b in bits if b)
-
             if task == "resource_reclaim":
                 def _peel(x, depth=3):
                     for _ in range(depth):
@@ -884,48 +297,6 @@ class BossAgent(AgentBase):
                     return "Nothing is waiting on you right now."
                 return "\n".join(lines)
 
-            if task == "evaluate_leaf":
-                inner = result.get("result", {}) if isinstance(result, dict) else {}
-                inner = inner.get("result", inner) if isinstance(inner, dict) else {}
-                if not isinstance(inner, dict) or not inner:
-                    return "I couldn't get a read on that photo right now."
-                classification = inner.get("classification", "unknown")
-                lines = [inner.get("observation", "")]
-                if inner.get("reason"):
-                    lines.append(inner["reason"])
-                if inner.get("action"):
-                    lines.append(inner["action"])
-                text = " ".join(l for l in lines if l)
-                # Narration has to carry the confidence, not just the verdict.
-                # "Looks healthy" was being said over a low-confidence result
-                # reached by detecting nothing - which reads to the grower as a
-                # clean bill of health when the system in fact could not assess
-                # the plant at all.
-                conf = (inner.get("confidence") or "").lower()
-                if classification == "problem":
-                    text = f"Heads up - {text}"
-                elif classification == "productive" and conf == "low":
-                    text = f"I couldn't really assess this one. {text}"
-                elif classification == "productive":
-                    text = f"Looks healthy. {text}"
-                vision_note = inner.get("vision_note")
-                if vision_note and "escalated" in vision_note.lower():
-                    text += " (This one was uncertain enough locally that I double-checked it more carefully.)"
-                return text
-            if task == "log_reading":
-                inner = result.get("result", {}) if isinstance(result, dict) else {}
-                reading = inner.get("reading") if isinstance(inner, dict) else None
-                if not isinstance(reading, dict):
-                    return "I wasn't able to log that reading."
-                parts = []
-                if reading.get("ppm") is not None:
-                    parts.append(f"{reading['ppm']} ppm")
-                if reading.get("temp") is not None:
-                    parts.append(f"{reading['temp']}°C")
-                if reading.get("ph") is not None:
-                    parts.append(f"pH {reading['ph']}")
-                detail = ", ".join(parts) if parts else "that reading"
-                return f"Got it - logged {detail} for the {reading.get('stage', 'current')} stage. I'll factor it into the reservoir trend."
             if task == "evaluate":
                 issues = result.get("issues_found", 0)
                 files = result.get("python_files", 0)
@@ -1002,114 +373,6 @@ class BossAgent(AgentBase):
                     names = ", ".join(img.get("tag", "?") for img in needs_confirmation[:5])
                     lines.append(f"I also found {len(needs_confirmation)} unused item(s) that reference known project infrastructure ({names}) - let me know if you want those removed too, since they're rebuildable but not currently disposable-looking.")
                 return " ".join(lines)
-            elif task == "purchase_recommendation":
-                inner = result.get("result", {}) if isinstance(result, dict) else {}
-                rec = inner.get("result", {}) if isinstance(inner, dict) else {}
-                if not isinstance(rec, dict) or not rec:
-                    return "I couldn't put together a recommendation for that."
-                constraint = rec.get("budget_constraint", {}) or {}
-                item = rec.get("item", "that")
-                cost = rec.get("estimated_cost", 0)
-                if rec.get("requires_escalation"):
-                    if constraint.get("within_budget") is False:
-                        return (
-                            f"I'd recommend picking up {item} (about ${cost:.2f}), but there isn't enough "
-                            f"discretionary budget available right now (${constraint.get('available_discretionary', 0):.2f} free). "
-                            f"Let me know if you want to move funds or go ahead anyway."
-                        )
-                    return f"I'd recommend {item} (about ${cost:.2f}) - that's above the amount I'll auto-approve, so I'm holding it for your go-ahead."
-                if constraint.get("within_budget") is True:
-                    return f"I'd recommend picking up {item} - about ${cost:.2f}, and that's within your discretionary budget."
-                return f"I'd recommend {item} (about ${cost:.2f}). {constraint.get('note', '')}".strip()
-            elif task == "grow_status":
-                status_resp = result.get("status", {}) if isinstance(result, dict) else {}
-                if isinstance(status_resp, dict) and "error" in status_resp:
-                    return "I couldn't reach the grow system right now."
-                status_inner = status_resp.get("result", status_resp) if isinstance(status_resp, dict) else {}
-                r = status_inner.get("result", status_inner) if isinstance(status_inner, dict) else {}
-                if not isinstance(r, dict) or not r:
-                    return "I don't have any grow data yet."
-
-                history_resp = result.get("history", {}) if isinstance(result, dict) else {}
-                history_inner = history_resp.get("result", {}) if isinstance(history_resp, dict) else {}
-                history = history_inner.get("result", {}) if isinstance(history_inner, dict) else {}
-                timeline = history.get("timeline", []) if isinstance(history, dict) else []
-
-                # Lead with an alert only if the MOST RECENT check of that type is
-                # still unresolved - a fresh stable reservoir_eval must supersede an
-                # older warning, not get skipped past while hunting further back in
-                # history for the last time something looked bad. The underlying
-                # observation/reason/action/confidence shape already carries everything
-                # needed to narrate this in plain language, with no agent/task names.
-                alert_line = None
-                latest_by_type = {}
-                for entry in reversed(timeline):
-                    etype = entry.get("type")
-                    if etype in ("reservoir_eval", "leaf_eval", "stage_eval") and etype not in latest_by_type:
-                        latest_by_type[etype] = entry
-
-                reservoir_entry = latest_by_type.get("reservoir_eval")
-                if reservoir_entry:
-                    rec = reservoir_entry.get("data", {}).get("recommendation", {})
-                    if rec.get("stability_band") in ("warning", "critical"):
-                        urgency = "I'd address this now" if rec.get("stability_band") == "critical" else "I recommend addressing it today"
-                        alert_line = f"{rec.get('observation', 'Something in the reservoir needs attention.')} {urgency}."
-
-                if not alert_line:
-                    leaf_entry = latest_by_type.get("leaf_eval")
-                    if leaf_entry:
-                        rec = leaf_entry.get("data", {}).get("recommendation", {})
-                        if rec.get("classification") == "problem":
-                            alert_line = f"{rec.get('observation', 'A leaf issue was spotted.')} {rec.get('action', '')}".strip()
-
-                if not alert_line:
-                    stage_entry = latest_by_type.get("stage_eval")
-                    if stage_entry:
-                        rec = stage_entry.get("data", {}).get("recommendation", {})
-                        if rec.get("classification") in ("decline", "regression"):
-                            alert_line = f"{rec.get('observation', '')} {rec.get('action', '')}".strip()
-
-                if alert_line:
-                    lines = [alert_line]
-                else:
-                    stage = r.get("current_stage", "unknown")
-                    strain = r.get("current_strain")
-                    plant_label = f"Your {strain}" if strain else "Your plant"
-                    lines = [f"{plant_label} is in the {stage} stage and everything looks stable."]
-
-                nutrients = r.get("current_nutrients")
-                if isinstance(nutrients, dict) and nutrients.get("nutrients"):
-                    # Always state the unit and what the dose is measured against -
-                    # a bare "FloraMicro 3.0" is ambiguous by ~3.79x.
-                    unit = nutrients.get("unit") or ""
-                    n_str = ", ".join(f"{k} {v}{unit}" for k, v in nutrients["nutrients"].items())
-                    basis, litres = nutrients.get("basis"), nutrients.get("reservoir_liters")
-                    if basis == "total" and litres:
-                        qualifier = f" per {litres:g}L reservoir"
-                    elif basis == "per_liter":
-                        qualifier = " per litre"
-                    elif basis == "per_gallon":
-                        qualifier = " per gallon"
-                    else:
-                        qualifier = ""
-                    lines.append(f"Current feed: {n_str}{qualifier}.")
-
-                # Only round up the rest of the garden when the question was
-                # about the garden. Asked about one plant, answer about that
-                # plant - a roundup buries the answer that was actually wanted.
-                # The dashboard is where everything lives. In chat, a question
-                # gets an answer - the roundup only appears when the roundup is
-                # what was asked for.
-                if isinstance(result, dict) and result.get("roundup"):
-                    for p in r.get("other_plants") or []:
-                        lines.append(f"Also coming along: {p.get('strain', 'another plant')}, {p.get('stage', 'unknown')} stage.")
-
-                    reminders = r.get("pending_reminders") or []
-                    if reminders:
-                        reminder_str = "; ".join(f"{rem.get('title')} (due {rem.get('target_date')})" for rem in reminders)
-                        lines.append(f"Also on your list: {reminder_str}.")
-
-                return "\n".join(lines)
             elif task == "system_status":
                 alive = result.get("alive", [])
                 dead = result.get("dead", [])
@@ -1524,11 +787,12 @@ class BossAgent(AgentBase):
                 # looked at. Vision is slow and can time out; the numbers must
                 # not be lost with it.
                 reading_text = None
-                reading = self._extract_reading(prompt or "")
-                if reading:
-                    self.log(f"Reading found alongside photos - logging first: {reading}")
-                    rr = self._log_reading(reading)
-                    reading_text = self._format_response("log_reading", rr, "grow_agent")
+                _r = self._unwrap(self.send_a2a("grow_agent", "log_from_text",
+                                                {"prompt": prompt or "",
+                                                 "plant_id": plant_id}), key="logged")
+                if _r and _r.get("logged"):
+                    self.log(f"Reading found alongside photos - logged first: {_r.get('reading')}")
+                    reading_text = self._format_response("log_reading", _r.get("result"), "grow_agent")
 
                 # Vision runs in the BACKGROUND and the upload returns at once.
                 #
@@ -1566,7 +830,7 @@ class BossAgent(AgentBase):
                     text += f"\n({failed} could not be read and were skipped.)"
                 if reading_text:
                     text = reading_text + "\n\n" + text
-                return {"result": text, "evidence": {"photos": results, "reading": reading}}
+                return {"result": text, "evidence": {"photos": results, "reading": (_r or {}).get("reading")}}
 
             # --- README / documentation ---
             if "readme" in prompt.lower() or "documentation" in prompt.lower():
@@ -1746,106 +1010,47 @@ class BossAgent(AgentBase):
                 text = self._format_response("pending_decisions", gathered, "boss_agent")
                 return {"result": text, "evidence": gathered}
 
-            # --- Log a reservoir/plant reading given in plain language ---
-            # e.g. "388 ppm, 21.0c, 6.42 ph are today's average results" - checked
-            # before the generic grow-status branch below since a reading like this
-            # often doesn't contain any of that branch's keywords at all and would
-            # otherwise fall through all the way to the generic reasoning delegate,
-            # silently discarding the reading instead of logging it.
-            ppm_match = re.search(r'(\d+(?:\.\d+)?)\s*ppm', prompt, re.IGNORECASE)
-            ph_match = re.search(r'(\d+(?:\.\d+)?)\s*ph\b', prompt, re.IGNORECASE) or \
-                re.search(r'\bph\s*(?:of|is|:)?\s*(\d+(?:\.\d+)?)', prompt, re.IGNORECASE)
-            temp_c_match = re.search(r'(\d+(?:\.\d+)?)\s*(?:°|deg(?:rees)?)?\s*c\b', prompt, re.IGNORECASE)
-            temp_f_match = re.search(r'(\d+(?:\.\d+)?)\s*(?:°|deg(?:rees)?)?\s*f\b', prompt, re.IGNORECASE)
-            reading_signals = sum(1 for m in (ppm_match, ph_match, temp_c_match, temp_f_match) if m)
-            if reading_signals >= 2:
-                self.log("User reported a reading in plain language - logging to grow_agent")
-                temp_c = None
-                if temp_c_match:
-                    temp_c = float(temp_c_match.group(1))
-                elif temp_f_match:
-                    temp_c = (float(temp_f_match.group(1)) - 32) * 5 / 9
-                status = self.send_a2a("grow_agent", "get_status", {})
-                status_result = status.get("result", {}) if isinstance(status, dict) else {}
-                status_result = status_result.get("result", status_result) if isinstance(status_result, dict) else {}
-                stage = status_result.get("current_stage") or "seedling"
-                if stage == "unknown":
-                    stage = "seedling"
-                reading_args = {"stage": stage}
-                if ppm_match:
-                    reading_args["ppm"] = float(ppm_match.group(1))
-                if ph_match:
-                    reading_args["ph"] = float(ph_match.group(1))
-                if temp_c is not None:
-                    reading_args["temp"] = round(temp_c, 1)
-                response = self.send_a2a("grow_agent", "log_reading", reading_args)
-                text = self._format_response("log_reading", response, "grow_agent")
-                return {"result": text, "evidence": response}
-
             # --- Grow Agent (plant/garden monitoring) ---
             _lp = prompt.lower()
-            if (any(re.search(t if "\\b" in t or "?" in t else r"\b" + t, _lp)
-                    for t in GROW_TERMS)
-                    or any(re.search(r"\b" + re.escape(t) + r"\b", _lp)
-                           for t in self._known_plant_terms())):
-                which = self._plant_from_prompt(prompt)
-                self.log(f"User asking about the grow/plant - delegating to grow_agent"
-                         + (f" (plant: {which})" if which else ""))
-                if which and which != "current_plant":
-                    care = self.send_a2a("grow_agent", "assess_care",
-                                         {"plant_id": which, "description": prompt}, timeout=120)
-                    text = self._format_response("assess_care", care, "grow_agent")
-                    return {"result": text, "evidence": {"plant_id": which, "care": care}}
-                # A drawdown is a CALCULATION the situation does not contain -
-                # "how long until it falls to 238" needs a rate and two numbers,
-                # not a facet of current state. Checked before the situation,
-                # which would otherwise answer it with the "when" facet: a list
-                # of conditions, which is a different question.
-                if self._grow_intent(prompt) == "drawdown":
-                    ans = self._answer_grow_question("drawdown", which or "current_plant", prompt)
-                    if ans:
-                        return {"result": ans, "evidence": {"intent": "drawdown", "plant": which}}
+            if self._domain_for(prompt) == "grow_agent":
+                # Boss decides WHICH AGENT. It does not decide which of that
+                # agent's capabilities apply - that is domain reasoning, and
+                # Boss does not know horticulture. Roughly 600 lines of intent
+                # patterns, facet ordering, plant-name resolution and dosing
+                # composition used to live here, and every failure came from the
+                # same place: a new ability in Grow was reachable from exactly
+                # one branch of this router, and the grower phrased the question
+                # some other way. Patching in another keyword fixed the sentence
+                # and not the class.
+                #
+                # Grow now receives the prompt whole and works out what it needs.
+                # Adding a capability there requires no change here.
+                # A reading stated in plain language is recorded before the
+                # question is answered. Boss does not know what a reading looks
+                # like - it asks, and only a "yes" makes this a logging request.
+                _logged = self._unwrap(self.send_a2a("grow_agent", "log_from_text",
+                                                     {"prompt": prompt}), key="logged")
+                if _logged and _logged.get("logged"):
+                    self.log("Reading found in plain language - logged by grow_agent")
+                    text = self._format_response("log_reading", _logged.get("result"), "grow_agent")
+                    return {"result": text, "evidence": _logged}
 
-                # One situation, ordered by the question. Tried first because
-                # it answers any angle on the reservoir without needing a
-                # pattern per phrasing.
-                if re.search(r"ppm|feed|nutrient|reservoir|raise|increase|\b\d{3,4}\b|"
-                             r"why|when|how much|what'?s stopping|blocked", _lp) and \
-                   re.search(r"\?|\b(why|when|how|what|can|should|do i|is it)\b", _lp):
-                    ans = self._answer_from_situation(which or "current_plant", prompt)
-                    if ans and len(ans) > 60:
-                        return {"result": ans,
-                                "evidence": {"answered_as": "situation", "plant": which}}
+                self.log("Grow question - delegating to grow_agent to answer")
+                ans = self.send_a2a("grow_agent", "answer", {"prompt": prompt}, timeout=120)
+                res = self._unwrap(ans)
+                if res and (res.get("text") or "").strip():
+                    return {"result": res["text"],
+                            "evidence": {"answered_as": res.get("answered_as"),
+                                         "plant": res.get("plant_id"),
+                                         "facts": res.get("facts")}}
 
-                intent = self._grow_intent(prompt)
-                if intent != "status":
-                    ans = self._answer_grow_question(intent, which or "current_plant", prompt)
-                    # A question can be about timing AND about a number. "When do
-                    # you recommend pushing to 800" matched the schedule intent
-                    # and answered without ever mentioning 800, because the
-                    # intents are mutually exclusive and the question was not.
-                    if ans and intent not in ("dosing",):
-                        extra = self._target_note(which or "current_plant", prompt)
-                        if extra:
-                            ans = extra + " " + ans
-                    if ans:
-                        return {"result": ans, "evidence": {"intent": intent, "plant": which}}
-                # A question that matched no intent still deserves an answer
-                # rather than a status card. Only a bare request for status
-                # ("how is plant one") falls through to the summary.
-                elif re.search(r"\?|\b(why|when|should|can|could|do i|did we|did i|is it|is now|"
-                               r"how much|how many|how do|what if|what about|would|recommend|"
-                               r"instead of|rather than)\b",
-                               prompt.lower()):
-                    ans = self._answer_from_situation(which or "current_plant", prompt) \
-                          or self._compose_grow_answer(which or "current_plant", prompt)
-                    if ans:
-                        return {"result": ans, "evidence": {"intent": "composed", "plant": which}}
                 response = self.send_a2a("grow_agent", "get_status", {})
                 history = self.send_a2a("grow_agent", "get_grow_history", {"plant_id": "current_plant"})
                 # Explicitly asking about the whole garden is the only thing
-                # that opens it up.
-                _round = (not which) and bool(re.search(
+                # that opens it up. Which plant a question is about is no
+                # longer decided here - Grow resolves that against its own
+                # roster, so this only asks whether the grower said "all".
+                _round = bool(re.search(
                     r"\b(all|every|everything|each|both|garden|plants|roundup|round-?up|"
                     r"overview|status of (the )?grow|how is (the |my )?grow)\b", prompt.lower()))
                 text = self._format_response("grow_status",
@@ -1883,13 +1088,15 @@ class BossAgent(AgentBase):
                          r"how much|how many|how do|what if|what about|would|recommend|"
                          r"instead of|rather than|is my|are my|my plant)\b", prompt.lower()):
                 try:
-                    which2 = self._plant_from_prompt(prompt)
-                    ans = (self._answer_from_situation(which2 or "current_plant", prompt)
-                           or self._compose_grow_answer(which2 or "current_plant", prompt))
-                    if ans and len(ans) > 40:
+                    ans = self.send_a2a("grow_agent", "answer",
+                                        {"prompt": prompt}, timeout=120)
+                    res = self._unwrap(ans) or {}
+                    text_ = res.get("text") or ""
+                    if len(text_) > 40:
                         self.log("Unmatched question - answered from the grow domain")
-                        return {"result": ans,
-                                "evidence": {"intent": "composed_fallback", "plant": which2}}
+                        return {"result": text_,
+                                "evidence": {"answered_as": res.get("answered_as"),
+                                             "plant": res.get("plant_id")}}
                 except Exception as e:
                     self.log(f"grow fallback failed, using generic model: {e}")
 

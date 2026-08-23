@@ -105,6 +105,38 @@ not a Grow-specific arrangement.
 | **Boss** | Orchestration, routing, cross-domain coordination and threshold escalation |
 | **Anansi** | Narration and translation |
 
+### The orchestrator carries no domain skill
+
+Boss routes to a **domain**. It never decides which of that domain's
+capabilities to use, and it holds no domain vocabulary, parsing or wording of
+its own. Everything it does is orchestration plus what it inherits from
+`AgentBase`.
+
+The failure this prevents is a router guessing on a subject it does not
+practise. Boss once held ~600 lines choosing between Grow's capabilities and
+~170 more composing horticulture prose, and every gap had the same shape: a new
+ability in Grow was reachable from exactly one branch of the router, and the
+grower phrased the question some other way. Adding a keyword fixed the sentence
+and not the class - "how long until it falls to 238" was answered by a code
+model as a physics free-fall problem, "DWC" as "Direct Water Cooker".
+
+Three inversions carry this, all inherited from `core/base_agent.py` so they
+apply to every agent, not just Grow:
+
+| Task | Who answers | Replaces |
+|------|-------------|----------|
+| `routing_terms` | each agent declares the words that claim a request for it | a keyword list inside Boss |
+| `answer(prompt)` | the domain agent picks its own capabilities | Boss's intent patterns and facet ordering |
+| `describe(task, payload)` | the agent puts its own result into words | Boss formatting domain results |
+
+An agent's declared vocabulary can include what no static list could know - Grow
+adds the names of the plants it is currently tracking, so registering a plant
+makes questions about it route correctly from that moment with no edit
+anywhere. A new domain agent becomes routable by starting up.
+
+Adding a capability to a domain agent must never require editing Boss. If it
+does, the capability is in the wrong place.
+
 ### Anansi is a storyteller, not a dispatcher
 
 Named for the trickster-storyteller, and the role is the same: translate between

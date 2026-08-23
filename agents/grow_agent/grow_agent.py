@@ -610,6 +610,10 @@ SENSOR_AGGREGATE_HOURS = 6      # how often raw samples become a logged reading
 SENSOR_BUFFER_MAX = 500         # rolling raw sample cap
 
 
+STOP_TERMS = {"the", "and", "auto", "autoflower", "plant", "current", "cannabis",
+              "test", "vera", "unknown", "none"}
+
+
 class GrowAgent(AgentBase):
     def __init__(self):
         super().__init__(
@@ -2186,6 +2190,488 @@ class GrowAgent(AgentBase):
         return {"plant_id": plant_id, "target_ppm": target_ppm, "facets": facets,
                 "note": ("One situation, several facets. The question decides which leads, not "
                          "which parts exist.")}
+
+    # Vocabulary that claims a request for this agent. It lived in Boss, which
+    # meant the orchestrator carried the vocabulary of a domain it does not
+    # practise, and a word nobody had thought to add went to a code model -
+    # "DWC" answered as "Direct Water Cooker", a strain name as folklore.
+    ROUTING_TERMS = (
+
+    # systems and hardware
+    "dwc", "lwc", "hydro", "hydroponic", "reservoir", "res", "bucket", "tent",
+    "net pot", "clay pebble", "pebbles", "leca", "air stone", "airstone",
+    "top feed", "air pump",
+    # measurements and inputs
+    "ppm", "\bph\b", "\bec\b", "tds", "nutrient", "nutrition", "feed", "feeding",
+    "cal-?mag", "calmag", "flora ?(micro|gro|bloom)", "runoff",
+    # plant and lifecycle
+    "plant", "grow", "garden", "seedling", "germinat", "sprout", "veg\b",
+    "vegetative", "flower", "bloom", "pistil", "calyx", "trichome", "harvest",
+    "leaf", "leaves", "canopy", "node", "root", "roots", "strain",
+    "autoflower", "auto-?flower", "photoperiod", "cultivar",
+    # dosing phrasings that name no plant, no unit and no equipment. "How much
+    # do I add to reach 800" is unambiguous inside a grow assistant and was
+    # being answered by a CODE model as "add 200".
+    "how much.*add", "add.*to reach", "to reach \\d", "reach \\d{3}",
+    "top ?up", "how much more",
+    # the act of keeping the record itself - asking how often to log is a grow
+    # question even when it names no plant, no measurement and no equipment
+    "reading", "readings", "log\b", "logging", "cadence", "how often",
+    # actions
+    "transplant", "defoliat", "lollipop", "topping", "water change", "top ?off",
+    )
+
+    _term_cache = {"terms": None, "at": 0}
+
+    def routing_terms(self):
+        """The fixed vocabulary plus the names of the plants actually being grown.
+
+        A keyword list cannot know that "gsc" is a plant - only the agent
+        holding the roster does. Registering a plant makes questions about it
+        route correctly from that moment, with no edit anywhere else."""
+        c = self._term_cache
+        if c["terms"] is None or time.time() - c["at"] > 300:
+            live = []
+            try:
+                for p in self.active_plants():
+                    for field in ("plant_id", "strain"):
+                        v = str(p.get(field) or "").strip().lower()
+                        if len(v) >= 3 and v not in ("current_plant", "test"):
+                            live.append(re.escape(v))
+                            for w in re.split(r'[^a-z0-9]+', v):
+                                if len(w) >= 4 and w not in STOP_TERMS:
+                                    live.append(re.escape(w))
+            except Exception as e:
+                self.log(f"could not build live plant terms: {e}")
+            c["terms"], c["at"] = sorted(set(live)), time.time()
+        return {"agent": self.agent_id,
+                "terms": list(self.ROUTING_TERMS) + c["terms"]}
+
+    # What this agent can be asked, and what it uses to answer. Kept HERE
+    # because choosing among a domain's own capabilities is domain reasoning -
+    # Boss was making this choice and Boss does not know horticulture. Every
+    # routing failure tonight was the middle layer guessing which of Grow's
+    # tools applied: a drawdown answered with a list of conditions, a species
+    # name picking the wrong plant, a care reading given for a reservoir
+    # question. Boss decides WHICH AGENT. This decides which capability.
+    QUESTION_SHAPES = (
+        ("drawdown",   r"\bhow long\b.*\b(drop|fall|come down|draw|last|get (down )?to)\b|"
+                       r"\b(drop|fall|draw down)\b.*\bto\s*\d{2,4}\b|"
+                       r"\bhow (long|many days)\b.*\b\d{2,4}\b"),
+        ("blockers",   r"\bwhy (can'?t|cant|not|won'?t|shouldn'?t)\b|\bwhat'?s (stopping|blocking)\b|"
+                       r"\bwhy not (now|yet)\b|\bsafe to\b|\bshould i wait\b"),
+        ("why",        r"\bwhy\b|\bhow come\b|\bwhat made\b|\bdid we (stop|choose|pick|decide)\b"),
+        ("dose",       r"\bhow much\b|\bwhat do i (need|have) to add\b|\badd\b.*\bto (reach|hit|get)\b|"
+                       r"\bto\s*\d{3,4}\s*ppm\b|\breach\s*\d{3,4}\b"),
+        ("cadence",    r"\bhow often\b|\b(reading|log|logging) (frequency|cadence|expectancy)\b"),
+        ("deficit",    r"\b(loss|lost|cost|impact|stagnant|behind|deficit|underfed|set ?back)\b"),
+        ("care",       r"\b(wilt|droop|shrivel|yellow|brown|mush|rot|leggy|dry|sick|dying|"
+                       r"limp|flat|soft|curl|crisp|spot|pale|burn)\w*|"
+                       r"\blooks? (bad|off|sad|rough|sick|wrong)\b|\bwhat'?s wrong\b"),
+        ("stage",      r"\bstage\b|\bveg\b|\bflower\b|\bpistil\b|\bharvest\b|\bhow old\b"),
+    )
+
+    def describe(self, task, result):
+        """Put this agent's own result into words.
+
+        These sentences were written inside Boss - the orchestrator was
+        composing horticulture prose about reservoirs, deficiency signs and
+        stage transitions for results it had only passed through. An agent that
+        cannot say what it found in plain language is not finished, and the
+        wording drifts from the reasoning when the two live in different files.
+
+        Returns None for anything this agent has no words for, so the caller
+        can fall back to its own generic rendering."""
+        if task == "assess_care":
+            inner = result.get("result", {}) if isinstance(result, dict) else {}
+            inner = inner.get("result", inner) if isinstance(inner, dict) else {}
+            if not isinstance(inner, dict) or not inner:
+                return "I could not get a reading on that plant."
+            name = inner.get("profile") or inner.get("species") or "that plant"
+            bits = [f"Your {name}:"]
+            if inner.get("signs"):
+                bits.append(inner.get("assessment") or "")
+            else:
+                bits.append(f"Nothing flags a care problem right now.")
+            t = inner.get("temperature") or {}
+            if t.get("note"):
+                bits.append(t["note"])
+            if inner.get("action") and "No urgent" not in inner["action"]:
+                bits.append(inner["action"])
+            c = inner.get("care") or {}
+            if c.get("water"):
+                bits.append(f"Watering: {c['water']}")
+            return " ".join(b for b in bits if b)
+
+
+        if task == "evaluate_leaf":
+            inner = result.get("result", {}) if isinstance(result, dict) else {}
+            inner = inner.get("result", inner) if isinstance(inner, dict) else {}
+            if not isinstance(inner, dict) or not inner:
+                return "I couldn't get a read on that photo right now."
+            classification = inner.get("classification", "unknown")
+            lines = [inner.get("observation", "")]
+            if inner.get("reason"):
+                lines.append(inner["reason"])
+            if inner.get("action"):
+                lines.append(inner["action"])
+            text = " ".join(l for l in lines if l)
+            # Narration has to carry the confidence, not just the verdict.
+            # "Looks healthy" was being said over a low-confidence result
+            # reached by detecting nothing - which reads to the grower as a
+            # clean bill of health when the system in fact could not assess
+            # the plant at all.
+            conf = (inner.get("confidence") or "").lower()
+            if classification == "problem":
+                text = f"Heads up - {text}"
+            elif classification == "productive" and conf == "low":
+                text = f"I couldn't really assess this one. {text}"
+            elif classification == "productive":
+                text = f"Looks healthy. {text}"
+            vision_note = inner.get("vision_note")
+            if vision_note and "escalated" in vision_note.lower():
+                text += " (This one was uncertain enough locally that I double-checked it more carefully.)"
+            return text
+
+        if task == "log_reading":
+            inner = result.get("result", {}) if isinstance(result, dict) else {}
+            reading = inner.get("reading") if isinstance(inner, dict) else None
+            if not isinstance(reading, dict):
+                return "I wasn't able to log that reading."
+            parts = []
+            if reading.get("ppm") is not None:
+                parts.append(f"{reading['ppm']} ppm")
+            if reading.get("temp") is not None:
+                parts.append(f"{reading['temp']}°C")
+            if reading.get("ph") is not None:
+                parts.append(f"pH {reading['ph']}")
+            detail = ", ".join(parts) if parts else "that reading"
+            return f"Got it - logged {detail} for the {reading.get('stage', 'current')} stage. I'll factor it into the reservoir trend."
+
+        if task == "purchase_recommendation":
+            inner = result.get("result", {}) if isinstance(result, dict) else {}
+            rec = inner.get("result", {}) if isinstance(inner, dict) else {}
+            if not isinstance(rec, dict) or not rec:
+                return "I couldn't put together a recommendation for that."
+            constraint = rec.get("budget_constraint", {}) or {}
+            item = rec.get("item", "that")
+            cost = rec.get("estimated_cost", 0)
+            if rec.get("requires_escalation"):
+                if constraint.get("within_budget") is False:
+                    return (
+                        f"I'd recommend picking up {item} (about ${cost:.2f}), but there isn't enough "
+                        f"discretionary budget available right now (${constraint.get('available_discretionary', 0):.2f} free). "
+                        f"Let me know if you want to move funds or go ahead anyway."
+                    )
+                return f"I'd recommend {item} (about ${cost:.2f}) - that's above the amount I'll auto-approve, so I'm holding it for your go-ahead."
+            if constraint.get("within_budget") is True:
+                return f"I'd recommend picking up {item} - about ${cost:.2f}, and that's within your discretionary budget."
+            return f"I'd recommend {item} (about ${cost:.2f}). {constraint.get('note', '')}".strip()
+
+        if task == "grow_status":
+            status_resp = result.get("status", {}) if isinstance(result, dict) else {}
+            if isinstance(status_resp, dict) and "error" in status_resp:
+                return "I couldn't reach the grow system right now."
+            status_inner = status_resp.get("result", status_resp) if isinstance(status_resp, dict) else {}
+            r = status_inner.get("result", status_inner) if isinstance(status_inner, dict) else {}
+            if not isinstance(r, dict) or not r:
+                return "I don't have any grow data yet."
+
+            history_resp = result.get("history", {}) if isinstance(result, dict) else {}
+            history_inner = history_resp.get("result", {}) if isinstance(history_resp, dict) else {}
+            history = history_inner.get("result", {}) if isinstance(history_inner, dict) else {}
+            timeline = history.get("timeline", []) if isinstance(history, dict) else []
+
+            # Lead with an alert only if the MOST RECENT check of that type is
+            # still unresolved - a fresh stable reservoir_eval must supersede an
+            # older warning, not get skipped past while hunting further back in
+            # history for the last time something looked bad. The underlying
+            # observation/reason/action/confidence shape already carries everything
+            # needed to narrate this in plain language, with no agent/task names.
+            alert_line = None
+            latest_by_type = {}
+            for entry in reversed(timeline):
+                etype = entry.get("type")
+                if etype in ("reservoir_eval", "leaf_eval", "stage_eval") and etype not in latest_by_type:
+                    latest_by_type[etype] = entry
+
+            reservoir_entry = latest_by_type.get("reservoir_eval")
+            if reservoir_entry:
+                rec = reservoir_entry.get("data", {}).get("recommendation", {})
+                if rec.get("stability_band") in ("warning", "critical"):
+                    urgency = "I'd address this now" if rec.get("stability_band") == "critical" else "I recommend addressing it today"
+                    alert_line = f"{rec.get('observation', 'Something in the reservoir needs attention.')} {urgency}."
+
+            if not alert_line:
+                leaf_entry = latest_by_type.get("leaf_eval")
+                if leaf_entry:
+                    rec = leaf_entry.get("data", {}).get("recommendation", {})
+                    if rec.get("classification") == "problem":
+                        alert_line = f"{rec.get('observation', 'A leaf issue was spotted.')} {rec.get('action', '')}".strip()
+
+            if not alert_line:
+                stage_entry = latest_by_type.get("stage_eval")
+                if stage_entry:
+                    rec = stage_entry.get("data", {}).get("recommendation", {})
+                    if rec.get("classification") in ("decline", "regression"):
+                        alert_line = f"{rec.get('observation', '')} {rec.get('action', '')}".strip()
+
+            if alert_line:
+                lines = [alert_line]
+            else:
+                stage = r.get("current_stage", "unknown")
+                strain = r.get("current_strain")
+                plant_label = f"Your {strain}" if strain else "Your plant"
+                lines = [f"{plant_label} is in the {stage} stage and everything looks stable."]
+
+            nutrients = r.get("current_nutrients")
+            if isinstance(nutrients, dict) and nutrients.get("nutrients"):
+                # Always state the unit and what the dose is measured against -
+                # a bare "FloraMicro 3.0" is ambiguous by ~3.79x.
+                unit = nutrients.get("unit") or ""
+                n_str = ", ".join(f"{k} {v}{unit}" for k, v in nutrients["nutrients"].items())
+                basis, litres = nutrients.get("basis"), nutrients.get("reservoir_liters")
+                if basis == "total" and litres:
+                    qualifier = f" per {litres:g}L reservoir"
+                elif basis == "per_liter":
+                    qualifier = " per litre"
+                elif basis == "per_gallon":
+                    qualifier = " per gallon"
+                else:
+                    qualifier = ""
+                lines.append(f"Current feed: {n_str}{qualifier}.")
+
+            # Only round up the rest of the garden when the question was
+            # about the garden. Asked about one plant, answer about that
+            # plant - a roundup buries the answer that was actually wanted.
+            # The dashboard is where everything lives. In chat, a question
+            # gets an answer - the roundup only appears when the roundup is
+            # what was asked for.
+            if isinstance(result, dict) and result.get("roundup"):
+                for p in r.get("other_plants") or []:
+                    lines.append(f"Also coming along: {p.get('strain', 'another plant')}, {p.get('stage', 'unknown')} stage.")
+
+                reminders = r.get("pending_reminders") or []
+                if reminders:
+                    reminder_str = "; ".join(f"{rem.get('title')} (due {rem.get('target_date')})" for rem in reminders)
+                    lines.append(f"Also on your list: {reminder_str}.")
+
+            return "\n".join(lines)
+        return None
+
+    def parse_reading(self, text):
+        """Pull a reservoir reading out of plain language, or None.
+
+        Knowing that "6.15ph" is a pH and that an F reading must be converted
+        before it is stored is horticulture, and it lived in the orchestrator -
+        in two separate copies that had already drifted apart. Two independent
+        signals are required so that a bare number in conversation is not
+        recorded as a measurement."""
+        t = text or ""
+        ppm = re.search(r'(\d+(?:\.\d+)?)\s*ppm', t, re.IGNORECASE)
+        ph = re.search(r'(\d+(?:\.\d+)?)\s*ph\b', t, re.IGNORECASE) or \
+            re.search(r'\bph\s*(?:of|is|:)?\s*(\d+(?:\.\d+)?)', t, re.IGNORECASE)
+        tc = re.search(r'(\d+(?:\.\d+)?)\s*(?:°|deg(?:rees)?)?\s*c\b', t, re.IGNORECASE)
+        tf = re.search(r'(\d+(?:\.\d+)?)\s*(?:°|deg(?:rees)?)?\s*f\b', t, re.IGNORECASE)
+        if sum(1 for m in (ppm, ph, tc, tf) if m) < 2:
+            return None
+        out = {}
+        if ppm:
+            out["ppm"] = float(ppm.group(1))
+        if ph:
+            out["ph"] = float(ph.group(1))
+        temp_c = float(tc.group(1)) if tc else ((float(tf.group(1)) - 32) * 5 / 9 if tf else None)
+        if temp_c is not None:
+            out["temp"] = round(temp_c, 1)
+        return out or None
+
+    def log_from_text(self, prompt, plant_id="current_plant"):
+        """Record a reading stated in conversation, stamped with the right stage.
+
+        Which stage an unstamped reading belongs to is this agent's call, not
+        the caller's - it is the one that knows the plant's age and what
+        "unknown" should fall back to."""
+        reading = self.parse_reading(prompt)
+        if not reading:
+            return {"logged": False, "reason": "no reading found in text"}
+        stage = self._unwrap_value(self.retrieve_own_memory("current_stage")) or "seedling"
+        if stage == "unknown":
+            stage = "seedling"
+        args = dict(reading, stage=stage, plant_id=plant_id)
+        return {"logged": True, "reading": reading,
+                "result": self.handle_task("log_reading", args, self.agent_id)}
+
+    def answer(self, prompt, plant_id=None):
+        """Answer a grow question by deciding, here, what this agent needs to do.
+
+        The whole prompt arrives from Boss unparsed. This agent resolves which
+        plant it is about, works out what is being asked, calls its own
+        capabilities, and returns facts. It does not narrate - that is Anansi's
+        job - and it does not decide whether the question belongs to it at all -
+        that is Boss's.
+
+        The point is that adding a capability here does not require a change
+        anywhere else. Every failure tonight came from a new ability being
+        reachable from exactly one route through Boss, and the grower not
+        happening to use that route."""
+        lp = (prompt or "").lower()
+        plant_id = plant_id or self._plant_from_text(prompt) or "current_plant"
+        nums = [float(x) for x in re.findall(r'\b(\d{2,4})\b', prompt or "")
+                if 50 <= float(x) <= 3000]
+
+        shape = next((name for name, pat in self.QUESTION_SHAPES if re.search(pat, lp)), None)
+        parts = []
+
+        if shape == "drawdown":
+            # "how long to fall to 238" names the destination only. The starting
+            # point is not missing - it is the current reading, and refusing to
+            # answer because the grower did not repeat a number the system
+            # already holds is the system's failure, not theirs.
+            if len(nums) >= 2:
+                frm, to = max(nums), min(nums)
+            elif len(nums) == 1:
+                readings = self._get_readings_for_plant(plant_id) or []
+                cur, _age = self._last_known_param("ppm", readings)
+                cur = self._parse_numeric(cur)
+                frm, to = (cur, nums[0]) if cur and cur > nums[0] else (None, None)
+            else:
+                frm = to = None
+            d = self.project_drawdown(plant_id, frm, to) if frm and to else {"error": "no range"}
+            if not d.get("error"):
+                parts.append(f"From {d['from_ppm']} to {d['to_ppm']} is about {d['days']} day(s) "
+                             f"at {d['rate_ppm_per_day']} ppm/day. That rate is a {d['rate_source']}.")
+                for k in ("why_not_measured", "volume_note"):
+                    if d.get(k):
+                        parts.append(d[k])
+                return {"answered_as": "drawdown", "plant_id": plant_id,
+                        "text": " ".join(parts), "facts": d}
+
+        if shape == "care":
+            c = self.assess_care(prompt, plant_id=plant_id)
+            parts.append(c.get("assessment") or "")
+            if c.get("action") and "No urgent" not in c["action"]:
+                parts.append(c["action"])
+            return {"answered_as": "care", "plant_id": plant_id,
+                    "text": " ".join(p for p in parts if p), "facts": c}
+
+        if shape == "cadence":
+            c = self.reading_cadence(plant_id)
+            parts = [f"Every {c.get('recommended_days')} days at {c.get('stage')} stage.",
+                     c.get("recommended_because") or "", c.get("maximum_because") or ""]
+            o = c.get("observed") or {}
+            if o.get("median_gap_days") is not None:
+                parts.insert(1, f"You are averaging one every {o['median_gap_days']} days, "
+                                f"longest gap {o['longest_gap_days']}.")
+            return {"answered_as": "cadence", "plant_id": plant_id,
+                    "text": " ".join(p for p in parts if p), "facts": c}
+
+        if shape == "deficit":
+            d = self.analyze_deficit(plant_id)
+            if not d.get("error"):
+                parts = [d.get("consequence") or "", d.get("why_no_number") or "",
+                         d.get("what_would_make_it_answerable") or ""]
+                return {"answered_as": "deficit", "plant_id": plant_id,
+                        "text": " ".join(p for p in parts if p), "facts": d}
+
+        if shape == "stage":
+            st = self.assess_stage(plant_id)
+            parts.append(st.get("assessment") or "")
+            drift = self.check_target_drift(plant_id)
+            if drift.get("applicable"):
+                parts.append(drift.get("message") or "")
+            return {"answered_as": "stage", "plant_id": plant_id,
+                    "text": " ".join(p for p in parts if p), "facts": st}
+
+        # A situation is a story about a reservoir. A plant that has no
+        # readings of its own has no reservoir story, and answering "how is the
+        # aloe doing" with the cannabis tank's blockers is not a near miss - it
+        # is a different plant. Fall back to what IS known about it: how it
+        # looks and how far along it is.
+        if not (self._get_readings_for_plant(plant_id) or []):
+            care = self.assess_care(prompt, plant_id=plant_id)
+            st = self.assess_stage(plant_id)
+            parts = [care.get("assessment") or "", st.get("assessment") or ""]
+            act = care.get("action") or ""
+            if act and "No urgent" not in act:
+                parts.append(act)
+            text = " ".join(p for p in parts if p)
+            if text:
+                return {"answered_as": "condition", "plant_id": plant_id,
+                        "text": text, "facts": {"care": care, "stage": st}}
+
+        # Everything else is a facet of the current situation - state, cause,
+        # obstacles, cost, timing - ordered by what was asked.
+        target = max([n for n in nums if 300 <= n <= 2000], default=None)
+        sit = self.situation(plant_id, target)
+        facets = sit.get("facets") or {}
+        lead = {"blockers": "blocked_by", "why": "why", "dose": "how"}.get(shape) or (
+            "when" if re.search(r"\bwhen\b|\bhow soon\b", lp) else "what")
+        order = [lead] + [f for f in ("what", "blocked_by", "why", "how", "when") if f != lead]
+        for name in order:
+            f = facets.get(name) or {}
+            if not f.get("summary"):
+                continue
+            parts.append(f["summary"])
+            if name == "blocked_by":
+                for x in (f.get("items") or [])[:3]:
+                    parts.append(f"{x['detail']} {x['why']} Clears when: {x['clears_when']}")
+            elif name == "how" and f.get("caution"):
+                parts.append(f["caution"])
+        return {"answered_as": f"situation:{lead}", "plant_id": plant_id,
+                "text": " ".join(p for p in parts if p), "facts": sit}
+
+    # "plant one", "plant #2", "my first autoflower". People refer to plants by
+    # position at least as often as by name, and a strain shared between two
+    # plants cannot disambiguate them at all - both of these are Girl Scout
+    # Cookies.
+    _ORDINALS = {"one": 1, "first": 1, "1st": 1, "two": 2, "second": 2, "2nd": 2,
+                 "three": 3, "third": 3, "3rd": 3, "four": 4, "fourth": 4}
+
+    def _plant_from_text(self, prompt):
+        """Which of THIS agent's plants the text refers to, or None.
+
+        Lives here because the agent knows its own plants. A species name is a
+        category and never selects one - both cannabis plants share it, and
+        "the cannabis plant" once resolved to a day-old seedling because of it."""
+        lp = (prompt or "").lower()
+        order = ["current_plant"] + [p.get("plant_id") for p in self.active_plants()
+                                     if p.get("plant_id") != "current_plant"]
+        m = re.search(r'\b(?:plant|grow)\s*#?\s*(\d+)\b', lp)
+        idx = int(m.group(1)) if m else None
+        if idx is None:
+            for word, n in self._ORDINALS.items():
+                if re.search(r'\b(?:plant|grow)\s+' + word + r'\b', lp) or \
+                   re.search(r'\b' + word + r'\s+(?:plant|grow)\b', lp):
+                    idx = n
+                    break
+        if idx is not None and 1 <= idx <= len(order):
+            return order[idx - 1]
+        # A species term is ambiguous only when more than one living plant
+        # shares it. "the cannabis plant" must not pick one of two; "the aloe"
+        # is unambiguous and refusing it made the agent look blind to a plant
+        # it was actively tracking.
+        counts, owner = {}, {}
+        for p in self.active_plants():
+            sp = (self._get_species_for_plant(p.get("plant_id")) or "").lower()
+            if not sp:
+                continue
+            counts[sp] = counts.get(sp, 0) + 1
+            owner.setdefault(sp, p.get("plant_id"))
+        for sp, n in counts.items():
+            if n == 1 and re.search(r'\b' + re.escape(sp) + r'\b', lp):
+                return owner[sp]
+        species = {sp for sp, n in counts.items() if n > 1}
+        best = None
+        for p in self.active_plants():
+            for field in ("plant_id", "strain"):
+                v = str(p.get(field) or "").lower()
+                if not v or v in species:
+                    continue
+                for token in [v] + [w for w in re.split(r'[^a-z0-9]+', v) if len(w) >= 4]:
+                    if token and token not in species and re.search(r'\b' + re.escape(token) + r'\b', lp):
+                        if best is None or len(token) > best[0]:
+                            best = (len(token), p.get("plant_id"))
+        return best[1] if best else None
 
     def project_drawdown(self, plant_id="current_plant", from_ppm=None, to_ppm=None):
         """How long to fall from one ppm to another, and how much that is worth.
@@ -4273,6 +4759,24 @@ class GrowAgent(AgentBase):
             return {"result": self.situation(
                 args.get("plant_id", "current_plant"),
                 self._parse_numeric(args.get("target_ppm")))}
+
+        elif task == "describe":
+            return {"result": {"text": self.describe(args.get("task") or "",
+                                                     args.get("payload"))}}
+
+        elif task == "parse_reading":
+            # Read-only: what the agent would extract, without recording it.
+            return {"result": {"reading": self.parse_reading(args.get("prompt") or "")}}
+
+        elif task == "log_from_text":
+            return {"result": self.log_from_text(
+                args.get("prompt") or "", args.get("plant_id") or "current_plant")}
+
+        elif task == "answer":
+            q = args.get("prompt") or args.get("question") or (args[0] if isinstance(args, list) and args else "")
+            if not q:
+                return {"error": "Missing prompt"}
+            return {"result": self.answer(q, args.get("plant_id") if isinstance(args, dict) else None)}
 
         elif task == "project_drawdown":
             return {"result": self.project_drawdown(
