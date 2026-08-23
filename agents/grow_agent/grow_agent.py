@@ -227,9 +227,11 @@ GROW_SYSTEM_TYPES = {
                      "buffering": (
                          "Clay pebbles have almost no cation exchange capacity, so nothing "
                          "moderates what arrives - unlike soil, the roots see exactly what is "
-                         "sprayed. Worse, water evaporates from the pebble surface between "
-                         "sprays and the salts left behind concentrate, so the effective "
-                         "strength at the root surface is HIGHER than the reservoir reads."),
+                         "sprayed. And between sprays the WATER evaporates off the pebble while "
+                         "the dissolved nutrient stays behind, so what is left clinging to the "
+                         "pebble is the same nutrient in less water - a higher concentration at "
+                         "the root surface than the reservoir reads. Nothing is added; only "
+                         "water leaves."),
                      "airlift": True},
     "ebb_flow":     {"label": "ebb and flow", "aerated": False, "roots_in_water": False},
     "coco":         {"label": "coco coir", "aerated": False, "roots_in_water": False},
@@ -3170,7 +3172,9 @@ class GrowAgent(AgentBase):
                 in_range = bool(ppm_target) and ppm_target[0] <= ppm <= ppm_target[1]
                 if consumption is not None and consumption < 0 and abs(consumption) > expected * 2:
                     scores["ppm"] = 0
-                    findings.append(f"PPM rose by {abs(consumption):.0f} instead of declining - possible evaporation or salt buildup.")
+                    findings.append(f"PPM rose by {abs(consumption):.0f} instead of declining. That usually means water left "
+                                    f"and nutrient stayed - evaporation or uptake of water faster than nutrient - "
+                                    f"so the same feed is now sitting in less water.")
                 elif consumption is not None and consumption > expected * 3:
                     scores["ppm"] = 1
                     findings.append(f"PPM dropped {consumption:.0f}, faster than the ~{expected}/day expected for {stage}.")
@@ -4296,9 +4300,11 @@ class GrowAgent(AgentBase):
                     "sprays it straight onto the root mass in the medium. Roots up in the "
                     "pebbles are the most exposed part of the plant, not the least."
                     + (" Clay pebbles have almost no cation exchange capacity, so nothing "
-                       "buffers what arrives, and water evaporating between sprays leaves salts "
-                       "behind - the strength at the root surface runs HIGHER than the reservoir "
-                       "reads." if "pebble" in str(_medium).lower() or "clay" in str(_medium).lower()
+                       "buffers what arrives. And between sprays the water evaporates off the "
+                       "pebble while the dissolved nutrient stays put, so the film left on it is "
+                       "the same nutrient in less water - stronger at the root surface than the "
+                       "reservoir reads. Nothing is added; only water leaves."
+                       if "pebble" in str(_medium).lower() or "clay" in str(_medium).lower()
                        else "")
                     + " A single root reaching the water is the least exposed part of the system; "
                       "raising strength to acclimatise it front-loads the dose onto everything else.")
