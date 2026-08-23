@@ -2116,6 +2116,77 @@ class GrowAgent(AgentBase):
                 "fields": sorted({k for s in buf for k in s if k not in ("at", "sensor_id")}),
                 "aggregate_window_hours": SENSOR_AGGREGATE_HOURS}
 
+    def situation(self, plant_id="current_plant", target_ppm=None):
+        """One coherent picture of where the reservoir stands, with every facet.
+
+        The grower asked why, how and when about the SAME thing, and each one
+        needed a separate intent, a separate task and a separate regex. That is
+        backwards. There is one situation; a question word only chooses which
+        part of it leads.
+
+        So this assembles all of it once - state, cause, obstacles, path, timing
+        - and the caller decides the ordering. A phrasing nobody anticipated
+        still gets a complete answer, just arranged differently, instead of
+        falling through to a status card because no pattern matched.
+
+        Every facet is either measured or read from the record. None of it is
+        generated."""
+        facets = {}
+
+        # WHAT - where things actually stand.
+        drift = self.check_target_drift(plant_id)
+        if drift.get("applicable"):
+            facets["what"] = {
+                "summary": drift.get("message"),
+                "ppm": drift.get("ppm"),
+                "band": drift.get("target"),
+                "status": drift.get("status"),
+            }
+
+        # WHY - the reasoning recorded when it was set this way.
+        why = self.explain_decision(plant_id)
+        if why.get("found"):
+            last = (why.get("decisions") or [])[-1:]
+            facets["why"] = {
+                "summary": (f"{last[0].get('reason')} {last[0].get('decision') or ''}".strip()
+                            if last else None),
+                "expected_at_the_time": last[0].get("expected") if last else None,
+                "history": why.get("decisions"),
+            }
+
+        # WHY NOT NOW - what is in the way of changing it, and what clears each.
+        blockers = self.blockers_for_change(plant_id, target_ppm)
+        facets["blocked_by"] = {
+            "summary": blockers.get("verdict"),
+            "items": blockers.get("blockers"),
+        }
+
+        # HOW - what a change would actually cost, if a target was named.
+        if target_ppm:
+            dose = self.handle_task("adjust_to_target_ppm",
+                                    {"plant_id": plant_id, "target_ppm": target_ppm}, "situation")
+            dose = dose.get("result", dose) if isinstance(dose, dict) else {}
+            if isinstance(dose, dict) and dose.get("add_now"):
+                facets["how"] = {
+                    "summary": ("Add " + ", ".join(f"{k} {v}ml"
+                                                   for k, v in dose["add_now"].items()) + "."),
+                    "factor": dose.get("factor"),
+                    "caution": dose.get("top_fed_caution"),
+                }
+
+        # WHEN - the conditions that would make it the right moment.
+        clears = [b.get("clears_when") for b in (blockers.get("blockers") or [])
+                  if b.get("clears_when")]
+        facets["when"] = {
+            "summary": ("When: " + " And: ".join(clears)) if clears
+                       else "No condition is outstanding - it can be done now.",
+            "conditions": clears,
+        }
+
+        return {"plant_id": plant_id, "target_ppm": target_ppm, "facets": facets,
+                "note": ("One situation, several facets. The question decides which leads, not "
+                         "which parts exist.")}
+
     def blockers_for_change(self, plant_id="current_plant", target_ppm=None):
         """What is actually stopping a change right now, and what clears it.
 
@@ -4120,6 +4191,11 @@ class GrowAgent(AgentBase):
         elif task == "ingest_sensor_sample":
             return {"result": self.ingest_sensor_sample(
                 args.get("sensor_id", "manual"), args)}
+
+        elif task == "situation":
+            return {"result": self.situation(
+                args.get("plant_id", "current_plant"),
+                self._parse_numeric(args.get("target_ppm")))}
 
         elif task == "blockers_for_change":
             return {"result": self.blockers_for_change(

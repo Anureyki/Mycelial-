@@ -342,6 +342,64 @@ class BossAgent(AgentBase):
         order = self._plant_order()
         return order[n - 1] if 1 <= n <= len(order) else None
 
+    # Which facet leads, by what the question actually asked. Every answer
+    # carries the others behind it - the question chooses emphasis, not content.
+    FACET_LEAD = (
+        ("blocked_by", r"\bwhy (can'?t|cant|not|won'?t|shouldn'?t)\b|\bwhat'?s (stopping|blocking)\b|"
+                       r"\bwhy not (now|yet)\b|\bwhy .*wait\b|\bstopping (me|us)\b"),
+        ("why",        r"\bwhy\b|\bhow come\b|\bwhat made\b|\bdid we (stop|choose|pick|decide)\b|"
+                       r"\breasoning\b"),
+        ("how",        r"\bhow (much|do i|would i)\b|\bwhat do i (need|have) to\b|\badd\b|\bget to\b"),
+        ("when",       r"\bwhen\b|\bhow (long|soon)\b|\bwhat point\b|\bready\b|\btiming\b"),
+        ("what",       r"\bwhat (is|are|'?s)\b|\bwhere (is|are|do)\b|\bstatus\b|\bright now\b"),
+    )
+
+    def _answer_from_situation(self, plant_id, prompt):
+        """One situation, ordered by what was asked.
+
+        The grower asked why, how and when about the same reservoir and each one
+        needed its own intent, task and regex. There is one situation - the
+        question only decides which facet leads. This means a phrasing nobody
+        anticipated still gets a complete answer, arranged differently, rather
+        than falling to a status card because no pattern matched."""
+        def peel(x, n=3):
+            for _ in range(n):
+                x = x.get("result", x) if isinstance(x, dict) else x
+            return x if isinstance(x, dict) else {}
+
+        lp = (prompt or "").lower()
+        nums = [float(x) for x in re.findall(r'\b(\d{3,4})\b', prompt or "")]
+        target = max([n for n in nums if 300 <= n <= 2000], default=None)
+
+        sit = peel(self.send_a2a("grow_agent", "situation",
+                                 {"plant_id": plant_id, "target_ppm": target}, timeout=90))
+        facets = sit.get("facets") or {}
+        if not facets:
+            return None
+
+        lead = next((name for name, pat in self.FACET_LEAD
+                     if re.search(pat, lp) and name in facets), "what")
+        # Everything else follows in a fixed, readable order.
+        rest = [f for f in ("what", "blocked_by", "why", "how", "when")
+                if f != lead and f in facets]
+        order = [lead] + rest
+
+        out = []
+        for name in order:
+            f = facets.get(name) or {}
+            summary = f.get("summary")
+            if not summary:
+                continue
+            if name == "blocked_by" and f.get("items"):
+                out.append(summary)
+                for x in f["items"][:3]:
+                    out.append(f"{x['detail']} {x['why']} Clears when: {x['clears_when']}")
+            elif name == "how" and f.get("caution"):
+                out.append(summary + " " + f["caution"])
+            else:
+                out.append(summary)
+        return " ".join(out) if out else None
+
     def _target_note(self, plant_id, prompt):
         """If the prompt names a ppm target, say where it sits and what it costs.
 
@@ -1691,6 +1749,17 @@ class BossAgent(AgentBase):
                                          {"plant_id": which, "description": prompt}, timeout=120)
                     text = self._format_response("assess_care", care, "grow_agent")
                     return {"result": text, "evidence": {"plant_id": which, "care": care}}
+                # One situation, ordered by the question. Tried first because
+                # it answers any angle on the reservoir without needing a
+                # pattern per phrasing.
+                if re.search(r"ppm|feed|nutrient|reservoir|raise|increase|\b\d{3,4}\b|"
+                             r"why|when|how much|what'?s stopping|blocked", _lp) and \
+                   re.search(r"\?|\b(why|when|how|what|can|should|do i|is it)\b", _lp):
+                    ans = self._answer_from_situation(which or "current_plant", prompt)
+                    if ans and len(ans) > 60:
+                        return {"result": ans,
+                                "evidence": {"answered_as": "situation", "plant": which}}
+
                 intent = self._grow_intent(prompt)
                 if intent != "status":
                     ans = self._answer_grow_question(intent, which or "current_plant", prompt)
@@ -1711,7 +1780,8 @@ class BossAgent(AgentBase):
                                r"how much|how many|how do|what if|what about|would|recommend|"
                                r"instead of|rather than)\b",
                                prompt.lower()):
-                    ans = self._compose_grow_answer(which or "current_plant", prompt)
+                    ans = self._answer_from_situation(which or "current_plant", prompt) \
+                          or self._compose_grow_answer(which or "current_plant", prompt)
                     if ans:
                         return {"result": ans, "evidence": {"intent": "composed", "plant": which}}
                 response = self.send_a2a("grow_agent", "get_status", {})
@@ -1757,7 +1827,8 @@ class BossAgent(AgentBase):
                          r"instead of|rather than|is my|are my|my plant)\b", prompt.lower()):
                 try:
                     which2 = self._plant_from_prompt(prompt)
-                    ans = self._compose_grow_answer(which2 or "current_plant", prompt)
+                    ans = (self._answer_from_situation(which2 or "current_plant", prompt)
+                           or self._compose_grow_answer(which2 or "current_plant", prompt))
                     if ans and len(ans) > 40:
                         self.log("Unmatched question - answered from the grow domain")
                         return {"result": ans,
