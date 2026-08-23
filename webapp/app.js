@@ -40,6 +40,107 @@ function addMessage(text, cls) {
 // Anansi crossing the mycelium while she looks something up. The three dots
 // said "waiting"; this says who is waiting and what they are doing.
 // Pure inline SVG so it needs no asset and works offline from the cached shell.
+// --- Voice ------------------------------------------------------------------
+// Two directions, both browser-native so nothing is sent anywhere and no key is
+// needed: dictation instead of typing, and Anansi read aloud.
+//
+// This matters more than a convenience here. The grower does not want to sit
+// typing readings; the same reason the sensors went in applies to the interface.
+const micBtn = document.getElementById('micBtn');
+const speakBtn = document.getElementById('speakBtn');
+const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+let recog = null, listening = false;
+let speakReplies = localStorage.getItem('mycelial.speak') === '1';
+
+function markSpeakBtn() {
+  if (!speakBtn) return;
+  speakBtn.setAttribute('aria-pressed', speakReplies ? 'true' : 'false');
+  speakBtn.classList.toggle('on', speakReplies);
+  speakBtn.title = speakReplies ? 'Replies are read aloud - tap to mute'
+                                : 'Read replies aloud';
+}
+
+function speak(text) {
+  if (!speakReplies || !text || !('speechSynthesis' in window)) return;
+  try {
+    // Strip the ml/ppm shorthand so it is not read letter by letter.
+    const said = String(text)
+      .replace(/(\d)\s*ml\b/gi, '$1 millilitres')
+      .replace(/\bppm\b/gi, 'P P M')
+      .replace(/\bpH\b/g, 'p H')
+      .replace(/\bDWC\b/gi, 'D W C')
+      .slice(0, 1200);
+    window.speechSynthesis.cancel();
+    const u = new SpeechSynthesisUtterance(said);
+    u.rate = 1.0; u.pitch = 1.0;
+    window.speechSynthesis.speak(u);
+  } catch (e) { /* speaking is never worth breaking the page for */ }
+}
+
+if (speakBtn) {
+  markSpeakBtn();
+  speakBtn.addEventListener('click', () => {
+    if (!('speechSynthesis' in window)) {
+      addMessage('This browser has no speech synthesis.', 'error');
+      return;
+    }
+    speakReplies = !speakReplies;
+    localStorage.setItem('mycelial.speak', speakReplies ? '1' : '0');
+    markSpeakBtn();
+    // iOS only permits speech started from a user gesture, so the confirmation
+    // doubles as the unlock - and proves to the user that it works.
+    if (speakReplies) speak('Voice on. Anansi will read replies aloud.');
+  });
+}
+
+// iOS Safari has never shipped Web Speech RECOGNITION - Apple implemented the
+// synthesis half only, so `webkitSpeechRecognition` is absent on iPhone no
+// matter the version. The button should say so rather than look available and
+// then fail, and iOS already has better dictation built into the keyboard.
+if (micBtn && !SR) {
+  micBtn.classList.add('unavailable');
+  micBtn.title = 'Dictation: use the microphone key on your keyboard';
+  micBtn.setAttribute('aria-label', 'Dictation unavailable - use the keyboard microphone');
+}
+
+if (micBtn) {
+  micBtn.addEventListener('click', () => {
+    if (!SR) {
+      // Not an error - a redirection to the thing that does work here.
+      addMessage('Dictation is not available in this browser - iOS never shipped it. '
+               + 'Tap the microphone key on your iPhone keyboard instead and talk; '
+               + 'it types into the box and you can check it before sending.', 'agent');
+      promptInput.focus();
+      return;
+    }
+    if (listening) { try { recog.stop(); } catch (e) {} return; }
+    recog = new SR();
+    recog.lang = 'en-US';
+    recog.interimResults = true;
+    recog.continuous = false;
+    let finalText = '';
+    recog.onstart = () => { listening = true; micBtn.classList.add('on'); };
+    recog.onresult = (ev) => {
+      let interim = '';
+      for (let i = ev.resultIndex; i < ev.results.length; i++) {
+        const t = ev.results[i][0].transcript;
+        if (ev.results[i].isFinal) finalText += t; else interim += t;
+      }
+      promptInput.value = (finalText + interim).trim();
+    };
+    recog.onerror = (ev) => {
+      addMessage(`Microphone: ${ev.error}. Check the browser has mic permission.`, 'error');
+    };
+    recog.onend = () => {
+      listening = false; micBtn.classList.remove('on');
+      // Do NOT auto-send. A misheard reading is worse than a retyped one, and
+      // the grower gets to see what it heard before it becomes a record.
+      promptInput.focus();
+    };
+    try { recog.start(); } catch (e) { addMessage(`Could not start the mic: ${e.message}`, 'error'); }
+  });
+}
+
 function addWaiting() {
   const el = document.createElement('div');
   el.className = 'msg pending';
@@ -114,7 +215,9 @@ async function sendPrompt(text, images) {
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
     const data = await res.json();
     pending.remove();
-    addMessage(extractResult(data), 'agent');
+    const replyText = extractResult(data);
+    addMessage(replyText, 'agent');
+    speak(replyText);
   } catch (err) {
     pending.remove();
     addMessage(`Request failed: ${err.message}`, 'error');

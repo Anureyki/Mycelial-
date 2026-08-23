@@ -9,7 +9,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="theme-color" content="#0f1410">
-<link rel="stylesheet" href="style.css?v=4">
+<link rel="stylesheet" href="style.css?v=6">
 </head>
 <body>
 <header>
@@ -35,6 +35,7 @@
   <div class="card" id="growCard"><h2>Grow</h2><p class="card-body">Loading...</p></div>
   <div class="card" id="progressCard"><h2>Progress</h2><p class="card-body">Loading...</p></div>
   <div class="card" id="decisionsCard"><h2>Needs You</h2><p class="card-body">Loading...</p></div>
+  <div class="card" id="sensorsCard"><h2>Sensors</h2><p class="card-body">Loading...</p></div>
 </section>
 
 <div id="attachPreview" class="hidden">
@@ -46,10 +47,12 @@
        photo library on iOS/Android. multiple allows batch upload. -->
   <input id="imageInput" type="file" accept="image/*" multiple class="hidden">
   <button id="attachBtn" type="button" aria-label="Attach photo">&#128247;</button>
+  <button id="micBtn" type="button" aria-label="Speak instead of typing" title="Hold to talk">&#127908;</button>
+  <button id="speakBtn" type="button" aria-label="Read replies aloud" title="Read replies aloud" aria-pressed="false">&#128266;</button>
   <textarea id="promptInput" placeholder="Ask Mycelial..." rows="1" autocomplete="off"></textarea>
   <button id="sendBtn" type="submit">Send</button>
 </form>
 
-<script src="app.js?v=4"></script>
+<script src="app.js?v=6"></script>
 </body>
 </html>

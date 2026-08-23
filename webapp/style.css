@@ -298,3 +298,11 @@ main#log {
   .anansi .spider, .anansi .legs, .anansi .shrooms, .waiting-text::after { animation: none; }
   .anansi .spider { transform: translate(76px, 30px); }
 }
+
+/* Voice controls. The mic dims where the browser cannot do recognition -
+   iOS Safari has synthesis but never shipped the recognition half. */
+#micBtn.on { color: var(--accent); animation: mic-pulse 1.1s ease-in-out infinite; }
+#micBtn.unavailable { opacity: 0.35; }
+#speakBtn.on { color: var(--accent); }
+@keyframes mic-pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.45; } }
+@media (prefers-reduced-motion: reduce) { #micBtn.on { animation: none; } }
