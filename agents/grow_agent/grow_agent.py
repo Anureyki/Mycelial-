@@ -585,6 +585,31 @@ LEARNABLE = {
 }
 
 
+# Sensor ingestion.
+#
+# The grower is a submarine veteran. Taking readings by hand is the thing this
+# system exists to stop, not a habit to be nagged into. Bursty manual logs are
+# not carelessness - they are what happens when someone makes themselves do a
+# task they left a career to get away from.
+#
+# So the cadence problem gets solved by removing the human from it. Everything
+# the learning layer is starved of - consumption rate, meter noise, gap-free
+# deficit periods - is trivially available from a probe reporting hourly.
+#
+# Topic:   mycelial/sensor/<sensor_id>/reading
+# Payload: {"ppm": 688, "ph": 6.15, "temp_c": 19.7, "volume_liters": 14.9,
+#           "humidity": 54, "plant_id": "current_plant"}
+#
+# Raw samples are kept for the learning layer, which WANTS density - noise is
+# measurable precisely because consecutive samples cannot differ for real
+# reasons. What gets written as a logged reading is an aggregate, because an
+# hourly ppm row is below the resolution of every question asked of it and would
+# bury the record in rows that cannot support a conclusion.
+SENSOR_TOPIC = "mycelial/sensor/+/reading"
+SENSOR_AGGREGATE_HOURS = 6      # how often raw samples become a logged reading
+SENSOR_BUFFER_MAX = 500         # rolling raw sample cap
+
+
 class GrowAgent(AgentBase):
     def __init__(self):
         super().__init__(
@@ -611,6 +636,8 @@ class GrowAgent(AgentBase):
             ],
             role="gardener"
         )
+        # Listen for probe traffic. Costs nothing when no sensor is publishing.
+        self.enable_sensor_ingest()
         self.log("🌱 Grow Agent started with VPD + linear regression.")
 
     # ---------- Helper methods (unchanged) ----------
@@ -1955,6 +1982,139 @@ class GrowAgent(AgentBase):
                              "record, and the same computation on a different grow gives a "
                              "different answer."),
         }
+
+    def enable_sensor_ingest(self):
+        """Subscribe to the sensor topic. Safe to call when no sensor exists -
+        a topic with no publisher costs nothing."""
+        try:
+            self._extra_subscriptions = list(
+                set(getattr(self, "_extra_subscriptions", [])) | {SENSOR_TOPIC})
+            if getattr(self, "mqtt_client", None) and self.mqtt_client.is_connected():
+                self.mqtt_client.subscribe(SENSOR_TOPIC)
+            self.log(f"sensor ingest listening on {SENSOR_TOPIC}")
+            return True
+        except Exception as e:
+            self.log(f"could not subscribe to sensors: {e}")
+            return False
+
+    def on_mqtt_message(self, client, userdata, msg):
+        """Route sensor traffic, defer everything else to the base class."""
+        try:
+            topic = msg.topic
+            if topic.startswith("mycelial/sensor/"):
+                parts = topic.split("/")
+                sensor_id = parts[2] if len(parts) > 2 else "unknown"
+                try:
+                    data = json.loads(msg.payload.decode())
+                except Exception:
+                    self.log(f"sensor {sensor_id}: payload was not JSON, ignored")
+                    return
+                self.ingest_sensor_sample(sensor_id, data)
+                return
+        except Exception as e:
+            self.log(f"sensor ingest error: {e}")
+        super().on_mqtt_message(client, userdata, msg)
+
+    def ingest_sensor_sample(self, sensor_id, data):
+        """One raw sample. Buffered, not logged - see the note above."""
+        if not isinstance(data, dict):
+            return {"error": "sensor payload must be an object"}
+        sample = {"at": datetime.now().isoformat(), "sensor_id": sensor_id}
+        for src, dst in (("ppm", "ppm"), ("tds", "ppm"), ("ph", "ph"),
+                         ("temp_c", "temp"), ("temp", "temp"), ("ec", "ec"),
+                         ("humidity", "humidity"), ("volume_liters", "volume_liters")):
+            v = self._parse_numeric(data.get(src))
+            if v is not None:
+                sample.setdefault(dst, v)
+        if len(sample) <= 2:
+            return {"error": "no recognised measurements in payload"}
+        plant_id = data.get("plant_id", "current_plant")
+
+        key = f"sensor_buffer_{plant_id}"
+        raw = self._unwrap_value(self.retrieve_own_memory(key))
+        try:
+            buf = json.loads(raw) if raw else []
+        except Exception:
+            buf = []
+        buf.append(sample)
+        buf = buf[-SENSOR_BUFFER_MAX:]
+        self.store_own_memory(key, json.dumps(buf))
+
+        aggregated = self._maybe_aggregate(plant_id, buf)
+        return {"buffered": len(buf), "aggregated": aggregated}
+
+    def _maybe_aggregate(self, plant_id, buf):
+        """Turn raw samples into one logged reading per window."""
+        last = self._unwrap_value(self.retrieve_own_memory(f"sensor_last_agg_{plant_id}"))
+        try:
+            since = datetime.fromisoformat(str(last).strip('"')[:19]) if last else None
+        except Exception:
+            since = None
+        now = datetime.now()
+        if since and (now - since).total_seconds() < SENSOR_AGGREGATE_HOURS * 3600:
+            return None
+        window = []
+        for s in buf:
+            try:
+                t = datetime.fromisoformat(s["at"][:19])
+            except Exception:
+                continue
+            if since is None or t > since:
+                window.append(s)
+        if not window:
+            return None
+
+        agg, spread = {}, {}
+        for field in ("ppm", "ph", "temp", "ec", "humidity", "volume_liters"):
+            vals = [s[field] for s in window if field in s]
+            if not vals:
+                continue
+            agg[field] = round(sum(vals) / len(vals), 2)
+            if len(vals) > 1:
+                spread[field] = round(max(vals) - min(vals), 2)
+
+        stage = self._unwrap_value(self.retrieve_own_memory("current_stage")) or "unknown"
+        args = dict(agg)
+        args.update({
+            "plant_id": plant_id,
+            "stage": stage,
+            "source": "sensor",
+            "evidence_kind": "fact",
+            "reason": (f"Automatic: mean of {len(window)} sensor sample(s) over the last "
+                       f"{SENSOR_AGGREGATE_HOURS}h."),
+            "observed_conditions": ("spread across the window: "
+                                    + ", ".join(f"{k} +/-{v}" for k, v in spread.items())
+                                    if spread else "single sample in window"),
+            "confidence_note": "high - instrument reading, no human transcription step",
+        })
+        result = self.handle_task("log_reading", args, "sensor")
+        self.store_own_memory(f"sensor_last_agg_{plant_id}", json.dumps(now.isoformat()))
+        self.log(f"sensor: logged an aggregate of {len(window)} sample(s) for {plant_id}")
+        return {"samples": len(window), "values": agg, "spread": spread,
+                "logged": bool(result)}
+
+    def sensor_status(self, plant_id="current_plant"):
+        raw = self._unwrap_value(self.retrieve_own_memory(f"sensor_buffer_{plant_id}"))
+        try:
+            buf = json.loads(raw) if raw else []
+        except Exception:
+            buf = []
+        if not buf:
+            return {"connected": False,
+                    "topic": SENSOR_TOPIC,
+                    "note": ("No sensor samples received. Publish JSON to "
+                             "mycelial/sensor/<id>/reading with any of ppm, ph, temp_c, ec, "
+                             "humidity, volume_liters and it will be ingested automatically.")}
+        last = buf[-1]
+        try:
+            age_min = (datetime.now() - datetime.fromisoformat(last["at"][:19])).total_seconds() / 60
+        except Exception:
+            age_min = None
+        return {"connected": True, "samples_buffered": len(buf),
+                "last_sample_minutes_ago": round(age_min) if age_min is not None else None,
+                "sensors_seen": sorted({s.get("sensor_id") for s in buf if s.get("sensor_id")}),
+                "fields": sorted({k for s in buf for k in s if k not in ("at", "sensor_id")}),
+                "aggregate_window_hours": SENSOR_AGGREGATE_HOURS}
 
     def reading_cadence(self, plant_id="current_plant"):
         """How often this system needs a reading, derived from what its own
@@ -3806,6 +3966,14 @@ class GrowAgent(AgentBase):
         elif task == "learn_from_observations":
             return {"result": self.learn_from_observations(
                 args.get("plant_id", "current_plant") if isinstance(args, dict) else "current_plant")}
+
+        elif task == "sensor_status":
+            return {"result": self.sensor_status(
+                args.get("plant_id", "current_plant") if isinstance(args, dict) else "current_plant")}
+
+        elif task == "ingest_sensor_sample":
+            return {"result": self.ingest_sensor_sample(
+                args.get("sensor_id", "manual"), args)}
 
         elif task == "reading_cadence":
             return {"result": self.reading_cadence(
