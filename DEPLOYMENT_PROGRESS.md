@@ -343,8 +343,6 @@ Blocked on Phase 7.
 
 ---
 
----
-
 ## Deferred track — Multi-tenancy — NOT SCHEDULED
 
 **Not a numbered phase.** It is a rewrite of the trust model, not a step on
