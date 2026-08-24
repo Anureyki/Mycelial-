@@ -2196,6 +2196,8 @@ class GrowAgent(AgentBase):
     # practise, and a word nobody had thought to add went to a code model -
     # "DWC" answered as "Direct Water Cooker", a strain name as folklore.
     ROUTING_TERMS = (
+    # lifecycle questions that name no plant and no measurement
+    "stage", "how old", "days old", "taproot", "cotyledon", "true leaves",
 
     # systems and hardware
     "dwc", "lwc", "hydro", "hydroponic", "reservoir", "res", "bucket", "tent",
@@ -2228,7 +2230,14 @@ class GrowAgent(AgentBase):
 
         A keyword list cannot know that "gsc" is a plant - only the agent
         holding the roster does. Registering a plant makes questions about it
-        route correctly from that moment, with no edit anywhere else."""
+        route correctly from that moment, with no edit anywhere else.
+
+        The threshold here must match what _plant_from_text will accept. It did
+        not: the resolver understood "gsc" but this dropped any token under four
+        characters, so "what stage is gsc 2 at" was never claimed by this agent
+        and reached a general code model, which refused it as a sensitive
+        subject. Two places deriving plant identity by different rules is the
+        bug; they use the same floor now."""
         c = self._term_cache
         if c["terms"] is None or time.time() - c["at"] > 300:
             live = []
@@ -2238,9 +2247,16 @@ class GrowAgent(AgentBase):
                         v = str(p.get(field) or "").strip().lower()
                         if len(v) >= 3 and v not in ("current_plant", "test"):
                             live.append(re.escape(v))
-                            for w in re.split(r'[^a-z0-9]+', v):
-                                if len(w) >= 4 and w not in STOP_TERMS:
-                                    live.append(re.escape(w))
+                            parts = [w for w in re.split(r'[^a-z0-9]+', v) if w]
+                            tail = parts[-1] if parts and parts[-1].isdigit() else None
+                            for w in parts:
+                                if len(w) < 3 or w.isdigit() or w in STOP_TERMS:
+                                    continue
+                                live.append(re.escape(w))
+                                # "gsc 2", "gsc2", "gsc #2" - how the grower
+                                # actually writes a numbered plant.
+                                if tail:
+                                    live.append(re.escape(w) + r'\s*#?\s*' + tail)
             except Exception as e:
                 self.log(f"could not build live plant terms: {e}")
             c["terms"], c["at"] = sorted(set(live)), time.time()
@@ -2789,27 +2805,34 @@ class GrowAgent(AgentBase):
         """Which of THIS agent's plants the text refers to, or None.
 
         Lives here because the agent knows its own plants. A species name is a
-        category and never selects one - both cannabis plants share it, and
-        "the cannabis plant" once resolved to a day-old seedling because of it."""
+        category and never selects one on its own - both cannabis plants share
+        it, and "the cannabis plant" once resolved to a day-old seedling.
+
+        An id like gsc_auto_2 is never how the grower says it. They say "Gsc 2",
+        "GSC number two", "the second GSC". So the id is decomposed into the
+        words in it and the number on the end, and a word shared by two plants
+        needs the number with it - "gsc" alone cannot choose between them."""
         lp = (prompt or "").lower()
-        order = ["current_plant"] + [p.get("plant_id") for p in self.active_plants()
+
+        # "number two" / "two" -> 2, so a spoken ordinal reaches the same path
+        # as a digit.
+        for word, n in sorted(self._ORDINALS.items(), key=lambda kv: -len(kv[0])):
+            lp = re.sub(r'\b(?:number\s+)?' + word + r'\b', str(n), lp)
+
+        plants = self.active_plants()
+        order = ["current_plant"] + [p.get("plant_id") for p in plants
                                      if p.get("plant_id") != "current_plant"]
+
+        # "plant 2", "grow #2", "plant two" - position in the roster.
         m = re.search(r'\b(?:plant|grow)\s*#?\s*(\d+)\b', lp)
-        idx = int(m.group(1)) if m else None
-        if idx is None:
-            for word, n in self._ORDINALS.items():
-                if re.search(r'\b(?:plant|grow)\s+' + word + r'\b', lp) or \
-                   re.search(r'\b' + word + r'\s+(?:plant|grow)\b', lp):
-                    idx = n
-                    break
-        if idx is not None and 1 <= idx <= len(order):
-            return order[idx - 1]
-        # A species term is ambiguous only when more than one living plant
-        # shares it. "the cannabis plant" must not pick one of two; "the aloe"
-        # is unambiguous and refusing it made the agent look blind to a plant
-        # it was actively tracking.
+        if m:
+            i = int(m.group(1))
+            if 1 <= i <= len(order):
+                return order[i - 1]
+
+        # A species names a plant only when one living plant IS that species.
         counts, owner = {}, {}
-        for p in self.active_plants():
+        for p in plants:
             sp = (self._get_species_for_plant(p.get("plant_id")) or "").lower()
             if not sp:
                 continue
@@ -2819,16 +2842,39 @@ class GrowAgent(AgentBase):
             if n == 1 and re.search(r'\b' + re.escape(sp) + r'\b', lp):
                 return owner[sp]
         species = {sp for sp, n in counts.items() if n > 1}
+
+        def tokens(value):
+            return [w for w in re.split(r'[^a-z0-9]+', str(value or "").lower()) if w]
+
         best = None
-        for p in self.active_plants():
+        for p in plants:
+            pid = p.get("plant_id")
             for field in ("plant_id", "strain"):
-                v = str(p.get(field) or "").lower()
+                v = str(p.get(field) or "").lower().strip()
                 if not v or v in species:
                     continue
-                for token in [v] + [w for w in re.split(r'[^a-z0-9]+', v) if len(w) >= 4]:
-                    if token and token not in species and re.search(r'\b' + re.escape(token) + r'\b', lp):
-                        if best is None or len(token) > best[0]:
-                            best = (len(token), p.get("plant_id"))
+                if re.search(r'\b' + re.escape(v) + r'\b', lp):
+                    if best is None or len(v) > best[0]:
+                        best = (len(v), pid)
+                    continue
+                parts = tokens(v)
+                tail = parts[-1] if parts and parts[-1].isdigit() else None
+                for w in parts:
+                    if len(w) < 3 or w.isdigit() or w in STOP_TERMS or w in species:
+                        continue
+                    if not re.search(r'\b' + re.escape(w) + r'\b', lp):
+                        continue
+                    shared = sum(1 for q in plants if w in tokens(q.get(field)))
+                    if shared > 1:
+                        # Ambiguous on its own - the number has to be there too.
+                        if not tail or not re.search(r'\b' + re.escape(tail) + r'\b', lp):
+                            continue
+                        score = len(w) + len(tail)
+                    else:
+                        score = len(w) + (len(tail) if tail and
+                                          re.search(r'\b' + re.escape(tail) + r'\b', lp) else 0)
+                    if best is None or score > best[0]:
+                        best = (score, pid)
         return best[1] if best else None
 
     def project_drawdown(self, plant_id="current_plant", from_ppm=None, to_ppm=None):
@@ -4921,6 +4967,12 @@ class GrowAgent(AgentBase):
         elif task == "describe":
             return {"result": {"text": self.describe(args.get("task") or "",
                                                      args.get("payload"))}}
+
+        elif task == "resolve_plant":
+            # Which plant a prompt is about. Only this agent holds the roster,
+            # so only it can answer - a caller defaulting to "current_plant"
+            # files a photo of one plant against another.
+            return {"result": {"plant_id": self._plant_from_text(args.get("prompt") or "")}}
 
         elif task == "amend_grow_system":
             fields = {k: v for k, v in (args or {}).items() if k != "plant_id"}

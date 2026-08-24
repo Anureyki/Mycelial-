@@ -755,7 +755,17 @@ class BossAgent(AgentBase):
                 if not saved:
                     return {"result": "I couldn't process those images - they may be corrupted, empty, or over the 15MB limit."}
 
-                plant_id = metadata.get("plant_id", "current_plant")
+                # Which plant the photo is of is Grow's to decide - it holds
+                # the roster. Defaulting to current_plant filed a photo the
+                # grower labelled "Gsc 2" against a different, older plant, and
+                # then assessed a 3-day seedling against a 26-day veg record.
+                plant_id = metadata.get("plant_id")
+                if not plant_id:
+                    _r = self._unwrap(self.send_a2a("grow_agent", "resolve_plant",
+                                                    {"prompt": prompt or ""}),
+                                      key="plant_id")
+                    plant_id = (_r or {}).get("plant_id") or "current_plant"
+                    self.log(f"photo attributed to {plant_id} (resolved by grow_agent)")
 
                 # A measurement sent with the photos is logged BEFORE they are
                 # looked at. Vision is slow and can time out; the numbers must
@@ -817,6 +827,51 @@ class BossAgent(AgentBase):
                     return {"result": text}
                 else:
                     return {"result": "Could not read README."}
+
+            # Runs BEFORE the task branches below, because an agent's own
+            # declared vocabulary outranks a word Boss happens to recognise.
+            # "What's your analysis on GSC number two plant with the photo I
+            # just uploaded" contains "analyze", so it matched the code-review
+            # branch and spent 120s in a 1.5b code model before timing out -
+            # while grow_agent, which declares "gsc_auto_2" and "plant" and had
+            # the photo, was never asked. Those branches still catch what no
+            # domain claims.
+            # --- The domain that claims this request answers it ---
+            #
+            # Boss decides WHICH AGENT. It does not decide which of that agent's
+            # capabilities apply - that is domain reasoning, and Boss practises
+            # no domain. Roughly 600 lines of horticulture intent patterns and
+            # 171 of horticulture prose used to live here, and every failure had
+            # the same shape: a new ability in the domain agent was reachable
+            # from exactly one branch of this router, and the user phrased the
+            # question some other way. Patching in another keyword fixed the
+            # sentence and never the class.
+            #
+            # No agent is named below. The domain is whichever agent's own
+            # declared vocabulary claims the request, and adding a capability
+            # there requires no change here.
+            _domain = self._domain_for(prompt)
+            if _domain:
+                # Anything recordable in the raw input is captured first - only
+                # the domain agent knows what counts as data.
+                _got = self._unwrap(self.send_a2a(_domain, "ingest",
+                                                  {"prompt": prompt}), key="logged")
+                if _got and _got.get("logged"):
+                    self.log(f"{_domain} recorded something from the raw request")
+                    text = self._format_response("log_reading", _got.get("result"), _domain)
+                    return {"result": text, "evidence": _got}
+
+                self.log(f"{_domain} claims this request - asking it to answer")
+                res = self._unwrap(self.send_a2a(_domain, "answer",
+                                                 {"prompt": prompt}, timeout=120))
+                if res and (res.get("text") or "").strip():
+                    return {"result": res["text"],
+                            "evidence": {"agent": _domain,
+                                         "answered_as": res.get("answered_as"),
+                                         "facts": res.get("facts")}}
+                # An agent that has not implemented answer() yet falls through
+                # to the branches below rather than failing the request.
+                self.log(f"{_domain} had no answer - continuing")
 
             # --- GitHub repo ---
             if "github" in prompt.lower() or "repo" in prompt.lower() or "repository" in prompt.lower():
@@ -937,43 +992,6 @@ class BossAgent(AgentBase):
                 gathered = {"pending_approvals": pend, "memory": mem}
                 text = self._format_response("pending_decisions", gathered, "boss_agent")
                 return {"result": text, "evidence": gathered}
-
-            # --- The domain that claims this request answers it ---
-            #
-            # Boss decides WHICH AGENT. It does not decide which of that agent's
-            # capabilities apply - that is domain reasoning, and Boss practises
-            # no domain. Roughly 600 lines of horticulture intent patterns and
-            # 171 of horticulture prose used to live here, and every failure had
-            # the same shape: a new ability in the domain agent was reachable
-            # from exactly one branch of this router, and the user phrased the
-            # question some other way. Patching in another keyword fixed the
-            # sentence and never the class.
-            #
-            # No agent is named below. The domain is whichever agent's own
-            # declared vocabulary claims the request, and adding a capability
-            # there requires no change here.
-            _domain = self._domain_for(prompt)
-            if _domain:
-                # Anything recordable in the raw input is captured first - only
-                # the domain agent knows what counts as data.
-                _got = self._unwrap(self.send_a2a(_domain, "ingest",
-                                                  {"prompt": prompt}), key="logged")
-                if _got and _got.get("logged"):
-                    self.log(f"{_domain} recorded something from the raw request")
-                    text = self._format_response("log_reading", _got.get("result"), _domain)
-                    return {"result": text, "evidence": _got}
-
-                self.log(f"{_domain} claims this request - asking it to answer")
-                res = self._unwrap(self.send_a2a(_domain, "answer",
-                                                 {"prompt": prompt}, timeout=120))
-                if res and (res.get("text") or "").strip():
-                    return {"result": res["text"],
-                            "evidence": {"agent": _domain,
-                                         "answered_as": res.get("answered_as"),
-                                         "facts": res.get("facts")}}
-                # An agent that has not implemented answer() yet falls through
-                # to the branches below rather than failing the request.
-                self.log(f"{_domain} had no answer - continuing")
 
             # --- Web search ---
             if any(keyword in prompt.lower() for keyword in ("search", "find", "look up", "google")):
