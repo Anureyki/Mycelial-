@@ -21,7 +21,14 @@ let pendingImages = []; // [{ base64, name }]
 const STORAGE_KEY = 'mycelial.serverUrl';
 
 function getServerUrl() {
-  return localStorage.getItem(STORAGE_KEY) || '';
+  const saved = localStorage.getItem(STORAGE_KEY);
+  if (saved) return saved;
+  // Served over TLS from the reverse proxy, the API is on the same origin, so
+  // "" resolves /execute relatively and there is nothing to configure on the
+  // phone. Opened from file:// there is no origin to borrow and the settings
+  // panel is still needed.
+  if (location.protocol === 'http:' || location.protocol === 'https:') return '';
+  return null;
 }
 
 function setServerUrl(url) {
@@ -183,7 +190,7 @@ function extractResult(payload) {
 
 async function sendPrompt(text, images) {
   const serverUrl = getServerUrl();
-  if (!serverUrl) {
+  if (serverUrl === null) {
     addMessage('No server URL set. Open settings (gear icon) and set your Anansi server URL first.', 'error');
     openSettings();
     return;
@@ -228,7 +235,7 @@ async function sendPrompt(text, images) {
 
 async function fetchNarration(promptText) {
   const serverUrl = getServerUrl();
-  if (!serverUrl) return 'No server URL set - open settings first.';
+  if (serverUrl === null) return 'No server URL set - open settings first.';
   try {
     const res = await fetch(`${serverUrl}/execute`, {
       method: 'POST',

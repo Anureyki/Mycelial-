@@ -169,6 +169,24 @@ for port in 8004 8007 8008 8009 8005 8006 8010 8011 8012 8014 8015 8016 8017 800
 done
 
 echo ""
+# ----------------------------------------------------------------------
+# TLS reverse proxy (Phase 6) - the only thing meant to face the LAN.
+# ----------------------------------------------------------------------
+# Unprivileged nginx on 8443, serving the webapp and proxying /execute to
+# Anansi behind TLS and basic auth. Everything it writes lives under state/,
+# so this needs no sudo and does not touch the system nginx on :80.
+if [ -f config/nginx/mycelial.conf ] && command -v nginx >/dev/null 2>&1; then
+    if [ -f state/nginx/nginx.pid ] && kill -0 "$(cat state/nginx/nginx.pid)" 2>/dev/null; then
+        echo "  ✅ TLS proxy already running (port 8443)"
+    elif nginx -t -c "$PWD/config/nginx/mycelial.conf" -p "$PWD" >/dev/null 2>&1; then
+        nginx -c "$PWD/config/nginx/mycelial.conf" -p "$PWD" && \
+            echo "  ✅ TLS proxy (port 8443, https)" || \
+            echo "  ⚠️  TLS proxy failed to start - see logs/nginx_error.log"
+    else
+        echo "  ⚠️  TLS proxy config invalid - see: nginx -t -c $PWD/config/nginx/mycelial.conf -p $PWD"
+    fi
+fi
+
 echo "🎉 All services and agents started."
 echo "   Interact via Anansi: curl -X POST http://localhost:8081/execute -H 'Content-Type: application/json' -d '{\"task\":\"process_request\",\"args\":[\"SUTEN XAAT RAA Xephri!\"]}'"
 echo "   Grow Agent: curl -X POST http://localhost:9009/execute -H 'Content-Type: application/json' -d '{\"task\":\"log_reading\",\"args\":{\"ph\":5.9,\"ppm\":366,\"temp\":23.4,\"humidity\":68,\"stage\":\"seedling\"}}'"
