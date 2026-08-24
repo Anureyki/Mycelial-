@@ -1,7 +1,37 @@
-# Mycelial Dedicated-Device Migration — Progress
+# Mycelial — Roadmap and Progress
 
-Tracking doc for the "move Mycelial off the daily-driver machine" work.
+Ordered work for MycOS. It began as the "move off the daily-driver machine"
+plan, which is why the deployment phases carry the most detail.
 Full plan/rationale: `/home/anureyki/.claude/plans/based-on-the-system-tidy-valiant.md`
+
+## Order
+
+**Deployment is last.** Provisioning a device and cutting over to it is the
+step that ends the sequence, not one in the middle - everything shipped to a
+dedicated machine should already be correct, lean and authorized. Phases were
+appended in the order they were discovered rather than the order they should
+run, which put retention and maintenance work *after* cutover. Renumbered
+2026-08-24 to reflect dependency instead of discovery.
+
+| # | Phase | Status |
+|---|-------|--------|
+| 0 | Remove orphaned crash-looping systemd units | ✅ done |
+| 1 | Containerize for portability | ✅ done (smoke-tested) |
+| 2 | Retention: what to keep, and on what evidence | not started |
+| 3 | Reduce A2A read amplification inside a single answer | not started |
+| 4 | Grow captures spoken facts itself | not started |
+| 5 | Identity and authorization (DID / verifiable claims) | not started |
+| 6 | Harden network exposure | not started |
+| 7 | Provision dedicated device | not started |
+| 8 | Migrate and cut over | not started |
+| — | *Deferred track:* multi-tenancy | not scheduled |
+
+2-4 are internal: they make the system cheaper, leaner and more truthful about
+what it knows, and none of them need hardware. 5 must precede any exposure -
+multi-user without strong identity is an apartment block with one key on the
+front door. 6-8 are the deployment chain, in dependency order. Multi-tenancy
+is a rewrite of the trust model rather than a deployment step, so it is a
+deferred track and not a numbered phase.
 
 ## Phase 0 — Remove orphaned crash-looping systemd units ✅ DONE
 Five stale units (`mycelial-boss_agent`, `mycelial-codingagent`,
@@ -39,7 +69,7 @@ follow-up, not part of this pass.
 uncommitted, in-flight changes unrelated to this containerization work —
 notably most services already flipped from `0.0.0.0` to `127.0.0.1` binds
 (`git diff --stat` shows the list). That looks like independent progress on
-what would be Phase 2 (hardening) below. Left untouched to avoid collisions
+what is now Phase 6 (hardening) below. Left untouched to avoid collisions
 — check `git status`/`git diff` before assuming it's stale.
 
 ### Build history / bugs hit and fixed so far
@@ -59,31 +89,158 @@ what would be Phase 2 (hardening) below. Left untouched to avoid collisions
 ### Remaining before calling Phase 1 fully closed
 - [ ] Re-test `/execute` with a real `.env` (`cp .env.example .env`, fill in `ANTHROPIC_API_KEY` or pull an Ollama model) to confirm actual reasoning works end-to-end, not just health checks
 - [x] Decide whether to `git add`/commit the new Docker files — done. Committed and pushed alongside the platform-service `0.0.0.0`→`127.0.0.1` bind hardening (that turned out to be exactly the 11 platform services in `services/*/service.py` — mechanical, consistent, self-contained; `docker-compose.yml` already only exposes Anansi via the in-container `socat` forwarder regardless). Two *other* uncommitted diff clusters found in the same `git status` sweep were reviewed and deliberately left out of this commit as unrelated: (1) `core/graph_manager.py` + `core/schemas.py` — an in-progress KAG relationship-archive table, orthogonal to deployment; (2) four new `config/agent_cards/*.json` files — runtime-generated agent cards, not authored code.
-- [ ] When ready to actually cut over host port 8081 to the container, stop the live tmux/`start_all.sh` instance first (they'll conflict on the port) — this is Phase 4, not needed until the dedicated device exists
+- [ ] When ready to actually cut over host port 8081 to the container, stop the live tmux/`start_all.sh` instance first (they'll conflict on the port) — this is Phase 8, not needed until the dedicated device exists
 
-## Phase 2 — Harden network exposure — NOT STARTED
-Reverse proxy + TLS + auth in front of Anansi only; wire Security Agent
-(9010) to actually gate requests to Boss. Checked `core/base_agent.py`:
-every agent (including Anansi) has *always* bound to `127.0.0.1` in
-committed code — that's not an in-flight change, it's the existing
-baseline, which is why the Docker `socat` forwarder was the right fix
-rather than a workaround for someone else's WIP. No reverse-proxy/TLS/auth
-code exists yet anywhere in the repo. Still fully unstarted.
+## Phase 2 — Retention: decide what to keep, and on what evidence — NOT STARTED
 
-## Phase 3 — Provision dedicated device — NOT STARTED
-User decision pending: mini PC (Intel N100/N305 class, 16-32GB RAM, no GPU
-needed) recommended in the plan. Not yet purchased/chosen.
+**Independent of every other phase. Owner: Maintenance Agent, which already
+runs `analyze_memory_usage` and `run_cleanup_routine` and is the only agent
+whose domain is the machine itself.**
 
-## Phase 4 — Migrate and cut over — NOT STARTED
-Blocked on Phase 3.
+### What the stores actually look like (measured 2026-08-24)
 
----
+| Store | Holds | Size |
+|-------|-------|------|
+| Memory Service (8007, via Hermes) | evidence and state | **0.6 MB, zero image rows** |
+| Logging Service (8009) | operational history | `audit.log` 210 MB + `audit.db` 24 MB |
+| `knowledge_base/grow_agent/photos` | 20 uploaded photos | 56 MB |
 
----
+The separation is working as designed - domain memory is small and clean, and
+Hermes is not the problem. The bloat was 24 log lines carrying base64 image
+payloads, 196 MB of the 210 MB. Those are redacted at the source now
+(`AgentBase.log` scrubs base64 runs and caps line length), so this phase is
+about **policy**, not that leak.
+
+### The question
+
+Photos are the obvious candidate for deletion once a finding has been
+extracted - the finding is what matters, not the pixels. But "already analysed"
+is not the same as "safe to drop", and the system currently cannot tell the
+difference:
+
+- **18 of 21 leaf evaluations produced a finding.** Those photos are
+  genuinely redundant with what was extracted.
+- **3 could not be read at all** - the local disease models cover pepper,
+  potato and tomato and carry no cannabis class, so no classification was made.
+  Deleting those destroys the only copy of data nothing has extracted yet, and
+  they become readable the moment a model that covers the species exists.
+
+So the rule cannot be "delete after analysis". It has to be **delete once a
+finding was actually produced, and keep anything the pipeline could not read.**
+
+### Trained-on is a second, separate test
+
+An artifact can also be dropped once it is represented in a dataset the
+weights were trained on - the information survives in the model. That test
+cannot be applied yet: `datasets/` is empty and `weights/` holds nothing, so
+**nothing has been trained on anything**. Wire the test now and it silently
+approves every deletion.
+
+### Likely shape (not designed yet)
+
+The Provenance Service (8016) already exists to track artifact lineage and
+origin. It is the right place to answer "what was derived from this photo, and
+does that derivation still stand" - which is exactly the retention question.
+Maintenance should ask Provenance, not guess from filenames or mtimes.
+
+Rotation is a separate, smaller gap worth fixing alongside: CLAUDE.md claims
+logs are "rotated daily" and they are not - `audit.log` had entries going back
+to 2026-08-13 in a single file, and every agent appends to that one file.
+
+### Do not start this by
+
+Deleting on age or size. Both are proxies for "probably worthless" and neither
+is evidence. The three unreadable photos are among the oldest.
+## Phase 3 — Reduce A2A read amplification inside a single answer — NOT STARTED
+
+**Independent of the deployment chain (Phases 6-8) and of identity (Phase 5).
+Comes before the deferred multi-tenancy track, which would multiply it by the
+number of tenants.** Nothing is broken today; this is cost, not correctness.
+
+### The observation
+
+Measured 2026-08-23 from a live call graph, last 500 log lines per agent, while
+answering ordinary grow questions:
+
+| Call | Count |
+|------|-------|
+| `grow_agent -> hermes (retrieve_memory)` | 166 |
+| `hermes -> security_agent (check_guard)` | 229 |
+| `grow_agent -> security_agent (check_guard)` | 7 |
+
+One question can cost well over a hundred memory round trips. `answer()` picks
+several of its own capabilities, and each one re-reads the plant record, the
+reading index and the readings independently over A2A. Every one of those
+reads is a JSON-RPC POST that Hermes then re-authorizes against the Security
+Agent, so the guard traffic is larger than the memory traffic it protects.
+
+### Why it is worth doing, and why not yet
+
+It is not a correctness bug and no answer is wrong because of it. It is the
+reason reasoning feels slow on this hardware (i5-4570T, 4 threads, no GPU),
+and it is the first thing that will hurt under load - a second tenant doubles
+it, a probe reporting hourly multiplies it again.
+
+### Likely shape (not designed yet)
+
+- A per-request read cache inside `answer()`, so the capabilities it calls
+  share one read of the plant record and one of the readings rather than each
+  fetching their own.
+- Decide whether an agent reading **its own** memory needs a full guard round
+  trip per read, or whether the guard belongs at the request boundary. That is
+  a security decision, not a performance one, and must not be made casually -
+  `check_guard` failing open already means an outage does not halt the swarm.
+
+### Do not start this by
+
+Caching across requests, or holding state in the agent between calls. The
+platform is stateless by design and that property is worth more than the
+round trips. The cache should live for one `answer()` and die with it.
+
+## Phase 4 — Grow captures spoken facts itself — NOT STARTED
+
+**Independent of every other phase. Small, and it removes a standing failure
+mode rather than adding a feature.**
+
+### The gap
+
+Grow already captures one class of spoken input: `ingest()` recognises a
+reservoir reading stated in passing ("19.7c 6.15ph 688ppm") and records it
+before anything slow runs. It captures no other kind of fact.
+
+Everything else the grower says about the physical system - a net pot
+clearance, a pump change, a light height, a medium swap - reaches Claude and
+stops there. Claude is currently the only path from a spoken fact to the
+agent's record, and that path is a habit, not a mechanism.
+
+### What it cost, concretely
+
+On 2026-08-21 the grower said the water sits about two inches below the
+basket. Claude agreed with it in the same turn and never wrote it down. On
+2026-08-23 a volume measurement was analysed assuming the medium was submerged
+- concluding the reservoir could not be sized and the grower's measurement was
+distorted by displacement that does not exist. The grower had supplied the
+deciding fact two days earlier and been agreed with.
+
+### Likely shape (not designed yet)
+
+Extend `ingest()` beyond readings: recognise statements of system fact and
+route them to `amend_grow_system`, which already merges without clobbering.
+The hard part is not extraction, it is **refusing to guess** - a
+misremembered clearance written confidently into the record is worse than no
+clearance at all, because the reasoning layer trusts the record. Anything
+below confident extraction should be surfaced for confirmation, not stored.
+
+### Do not start this by
+
+Letting a model rewrite the system record freely. The record is what dosing
+and stage reasoning read; it needs the same "assert the anchor before writing"
+discipline as any other substitution.
 
 ## Phase 5 — Identity and authorization (DID / verifiable claims) — NOT STARTED
 
-**Comes BEFORE multi-tenancy, which is now Phase 6.** The ordering matters:
+**Comes BEFORE multi-tenancy, which is now a deferred track rather than a
+numbered phase.** The ordering matters:
 multi-user tenancy without strong identity and authorization is an apartment
 block with one key on the front door. Tenancy answers "whose data is this";
 authorization answers "what may this requester actually do". Building the second
@@ -168,9 +325,33 @@ rather than a swarm accumulating permission slips.
 
 ---
 
-## Phase 6 — Multi-tenancy — NOT STARTED, DELIBERATELY DEFERRED
+## Phase 6 — Harden network exposure — NOT STARTED
+Reverse proxy + TLS + auth in front of Anansi only; wire Security Agent
+(9010) to actually gate requests to Boss. Checked `core/base_agent.py`:
+every agent (including Anansi) has *always* bound to `127.0.0.1` in
+committed code — that's not an in-flight change, it's the existing
+baseline, which is why the Docker `socat` forwarder was the right fix
+rather than a workaround for someone else's WIP. No reverse-proxy/TLS/auth
+code exists yet anywhere in the repo. Still fully unstarted.
 
-**Do not start this before Phase 5 (identity/authorization) is done and the single-user system has been
+## Phase 7 — Provision dedicated device — NOT STARTED
+User decision pending: mini PC (Intel N100/N305 class, 16-32GB RAM, no GPU
+needed) recommended in the plan. Not yet purchased/chosen.
+
+## Phase 8 — Migrate and cut over — NOT STARTED
+Blocked on Phase 7.
+
+---
+
+---
+
+## Deferred track — Multi-tenancy — NOT SCHEDULED
+
+**Not a numbered phase.** It is a rewrite of the trust model, not a step on
+the way to deployment, and it is deliberately deferred until the single-user
+system is deployed and proven.
+
+**Do not start this before Phase 5 (identity/authorization) is done, the single-user system is deployed (Phase 8), and it has been
 running on its own device for a while.** It is written down here so it stops
 occupying attention, not because it is next. Nothing above depends on it, and
 starting it early would destabilise a system that currently works.
@@ -240,7 +421,7 @@ deadlocks on a Security Agent blip). Token validation on `/execute`, wired to
 the Security Agent's existing `issue_token`/`authenticate`.
 
 **Also required before exposure, and not otherwise in any phase:** TLS and a
-reverse proxy (Phase 2), per-tenant rate limits and quotas, provisioning and
+reverse proxy (Phase 6), per-tenant rate limits and quotas, provisioning and
 onboarding, OTA updates, and fleet observability — `logs/` is local files per
 process today.
 
@@ -259,149 +440,3 @@ already proves the thin-client pattern, and the socat forwarder already exposes
 Anansi to the LAN. That de-risks the whole UX question without touching the
 trust model.
 
-## Phase 7 — Reduce A2A read amplification inside a single answer — NOT STARTED
-
-**Independent of the deployment chain (Phases 2-4) and of identity (Phase 5).
-Sits before Phase 6, because multi-tenancy multiplies it by the number of
-tenants.** Nothing is broken today; this is cost, not correctness.
-
-### The observation
-
-Measured 2026-08-23 from a live call graph, last 500 log lines per agent, while
-answering ordinary grow questions:
-
-| Call | Count |
-|------|-------|
-| `grow_agent -> hermes (retrieve_memory)` | 166 |
-| `hermes -> security_agent (check_guard)` | 229 |
-| `grow_agent -> security_agent (check_guard)` | 7 |
-
-One question can cost well over a hundred memory round trips. `answer()` picks
-several of its own capabilities, and each one re-reads the plant record, the
-reading index and the readings independently over A2A. Every one of those
-reads is a JSON-RPC POST that Hermes then re-authorizes against the Security
-Agent, so the guard traffic is larger than the memory traffic it protects.
-
-### Why it is worth doing, and why not yet
-
-It is not a correctness bug and no answer is wrong because of it. It is the
-reason reasoning feels slow on this hardware (i5-4570T, 4 threads, no GPU),
-and it is the first thing that will hurt under load - a second tenant doubles
-it, a probe reporting hourly multiplies it again.
-
-### Likely shape (not designed yet)
-
-- A per-request read cache inside `answer()`, so the capabilities it calls
-  share one read of the plant record and one of the readings rather than each
-  fetching their own.
-- Decide whether an agent reading **its own** memory needs a full guard round
-  trip per read, or whether the guard belongs at the request boundary. That is
-  a security decision, not a performance one, and must not be made casually -
-  `check_guard` failing open already means an outage does not halt the swarm.
-
-### Do not start this by
-
-Caching across requests, or holding state in the agent between calls. The
-platform is stateless by design and that property is worth more than the
-round trips. The cache should live for one `answer()` and die with it.
-
-## Phase 8 — Grow captures spoken facts itself — NOT STARTED
-
-**Independent of every other phase. Small, and it removes a standing failure
-mode rather than adding a feature.**
-
-### The gap
-
-Grow already captures one class of spoken input: `ingest()` recognises a
-reservoir reading stated in passing ("19.7c 6.15ph 688ppm") and records it
-before anything slow runs. It captures no other kind of fact.
-
-Everything else the grower says about the physical system - a net pot
-clearance, a pump change, a light height, a medium swap - reaches Claude and
-stops there. Claude is currently the only path from a spoken fact to the
-agent's record, and that path is a habit, not a mechanism.
-
-### What it cost, concretely
-
-On 2026-08-21 the grower said the water sits about two inches below the
-basket. Claude agreed with it in the same turn and never wrote it down. On
-2026-08-23 a volume measurement was analysed assuming the medium was submerged
-- concluding the reservoir could not be sized and the grower's measurement was
-distorted by displacement that does not exist. The grower had supplied the
-deciding fact two days earlier and been agreed with.
-
-### Likely shape (not designed yet)
-
-Extend `ingest()` beyond readings: recognise statements of system fact and
-route them to `amend_grow_system`, which already merges without clobbering.
-The hard part is not extraction, it is **refusing to guess** - a
-misremembered clearance written confidently into the record is worse than no
-clearance at all, because the reasoning layer trusts the record. Anything
-below confident extraction should be surfaced for confirmation, not stored.
-
-### Do not start this by
-
-Letting a model rewrite the system record freely. The record is what dosing
-and stage reasoning read; it needs the same "assert the anchor before writing"
-discipline as any other substitution.
-
-## Phase 9 — Retention: decide what to keep, and on what evidence — NOT STARTED
-
-**Independent of every other phase. Owner: Maintenance Agent, which already
-runs `analyze_memory_usage` and `run_cleanup_routine` and is the only agent
-whose domain is the machine itself.**
-
-### What the stores actually look like (measured 2026-08-24)
-
-| Store | Holds | Size |
-|-------|-------|------|
-| Memory Service (8007, via Hermes) | evidence and state | **0.6 MB, zero image rows** |
-| Logging Service (8009) | operational history | `audit.log` 210 MB + `audit.db` 24 MB |
-| `knowledge_base/grow_agent/photos` | 20 uploaded photos | 56 MB |
-
-The separation is working as designed - domain memory is small and clean, and
-Hermes is not the problem. The bloat was 24 log lines carrying base64 image
-payloads, 196 MB of the 210 MB. Those are redacted at the source now
-(`AgentBase.log` scrubs base64 runs and caps line length), so this phase is
-about **policy**, not that leak.
-
-### The question
-
-Photos are the obvious candidate for deletion once a finding has been
-extracted - the finding is what matters, not the pixels. But "already analysed"
-is not the same as "safe to drop", and the system currently cannot tell the
-difference:
-
-- **18 of 21 leaf evaluations produced a finding.** Those photos are
-  genuinely redundant with what was extracted.
-- **3 could not be read at all** - the local disease models cover pepper,
-  potato and tomato and carry no cannabis class, so no classification was made.
-  Deleting those destroys the only copy of data nothing has extracted yet, and
-  they become readable the moment a model that covers the species exists.
-
-So the rule cannot be "delete after analysis". It has to be **delete once a
-finding was actually produced, and keep anything the pipeline could not read.**
-
-### Trained-on is a second, separate test
-
-An artifact can also be dropped once it is represented in a dataset the
-weights were trained on - the information survives in the model. That test
-cannot be applied yet: `datasets/` is empty and `weights/` holds nothing, so
-**nothing has been trained on anything**. Wire the test now and it silently
-approves every deletion.
-
-### Likely shape (not designed yet)
-
-The Provenance Service (8016) already exists to track artifact lineage and
-origin. It is the right place to answer "what was derived from this photo, and
-does that derivation still stand" - which is exactly the retention question.
-Maintenance should ask Provenance, not guess from filenames or mtimes.
-
-Rotation is a separate, smaller gap worth fixing alongside: CLAUDE.md claims
-logs are "rotated daily" and they are not - `audit.log` had entries going back
-to 2026-08-13 in a single file, and every agent appends to that one file.
-
-### Do not start this by
-
-Deleting on age or size. Both are proxies for "probably worthless" and neither
-is evidence. The three unreadable photos are among the oldest.
