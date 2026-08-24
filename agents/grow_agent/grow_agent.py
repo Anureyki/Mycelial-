@@ -2198,6 +2198,8 @@ class GrowAgent(AgentBase):
     ROUTING_TERMS = (
     # lifecycle questions that name no plant and no measurement
     "stage", "how old", "days old", "taproot", "cotyledon", "true leaves",
+    # photographs - what they buy and how often to take them
+    "photo", "photos", "picture", "pictures", "\\bpics?\\b", "camera", "upload",
 
     # systems and hardware
     "dwc", "lwc", "hydro", "hydroponic", "reservoir", "res", "bucket", "tent",
@@ -2279,6 +2281,7 @@ class GrowAgent(AgentBase):
         ("why",        r"\bwhy\b|\bhow come\b|\bwhat made\b|\bdid we (stop|choose|pick|decide)\b"),
         ("dose",       r"\bhow much\b|\bwhat do i (need|have) to add\b|\badd\b.*\bto (reach|hit|get)\b|"
                        r"\bto\s*\d{3,4}\s*ppm\b|\breach\s*\d{3,4}\b"),
+        ("photos",     r"\b(photo|photos|picture|pictures|pic|pics|image|images|camera)\b"),
         ("cadence",    r"\bhow often\b|\b(reading|log|logging) (frequency|cadence|expectancy)\b"),
         ("deficit",    r"\b(loss|lost|cost|impact|stagnant|behind|deficit|underfed|set ?back)\b"),
         ("care",       r"\b(wilt|droop|shrivel|yellow|brown|mush|rot|leggy|dry|sick|dying|"
@@ -2728,6 +2731,18 @@ class GrowAgent(AgentBase):
             return {"answered_as": "care", "plant_id": plant_id,
                     "text": " ".join(p for p in parts if p), "facts": c}
 
+        if shape == "photos":
+            pc = self.photo_cadence(plant_id)
+            parts = [pc.get("recommended") or "", pc.get("why") or "",
+                     pc.get("what_a_photo_buys_now") or "",
+                     pc.get("limit") or "",
+                     pc.get("what_a_photo_does_NOT_feed") or "",
+                     pc.get("training_status") or "",
+                     pc.get("what_would_change_that") or "",
+                     pc.get("applies_to") or ""]
+            return {"answered_as": "photo_cadence", "plant_id": plant_id,
+                    "text": " ".join(x for x in parts if x), "facts": pc}
+
         if shape == "cadence":
             c = self.reading_cadence(plant_id)
             parts = [f"Every {c.get('recommended_days')} days at {c.get('stage')} stage.",
@@ -3099,6 +3114,97 @@ class GrowAgent(AgentBase):
                        if "TEST" not in (e.get("reason") or "")[:8]
                        and "VOIDS" not in (e.get("reason") or "")[:8]]
         return {"found": True, "decisions": entries[-4:], "total_recorded": len(entries)}
+
+    # Species the local disease models carry a class for. Mirrors
+    # services/vision/plant_perception.py SUPPORTED_SPECIES - a photo of
+    # anything else can still be DESCRIBED, it just cannot have a pathogen
+    # named, which are two different questions.
+    PATHOGEN_MODEL_SPECIES = ("pepper", "potato", "tomato")
+
+    def photo_cadence(self, plant_id="current_plant"):
+        """How often a photo is worth taking, and what it actually buys.
+
+        Asked as "how often should I post pictures to help train you". The
+        honest answer needs three separate facts that are easy to conflate:
+        what a photo feeds today, what it does NOT feed, and whether anything
+        is learning from it. Answering with a number alone would imply a
+        training loop that does not exist."""
+        species = (self._get_species_for_plant(plant_id) or "unknown").lower()
+        stage = self._unwrap_value(self.retrieve_own_memory("current_stage")) or "unknown"
+        if plant_id != "current_plant":
+            p = next((x for x in self._get_all_plants()
+                      if x.get("plant_id") == plant_id), None)
+            stage = (p or {}).get("stage", "unknown")
+
+        # What this plant's photos have actually produced.
+        evals = read = 0
+        try:
+            for e in self._get_all_leaf_evals():
+                if e.get("plant_id") != plant_id:
+                    continue
+                evals += 1
+                rec = e.get("recommendation") or {}
+                blob = f"{rec.get('observation','')}{rec.get('reason','')}"
+                if "No reliable read" not in blob and "no class" not in blob:
+                    read += 1
+        except Exception as exc:
+            self.log(f"photo_cadence: could not count evals: {exc}")
+
+        corrections = len(self._get_all_vision_corrections() or [])
+        pathogen_named = species in self.PATHOGEN_MODEL_SPECIES
+
+        out = {
+            "plant_id": plant_id, "species": species, "stage": stage,
+            "photos_assessed": evals, "produced_a_finding": read,
+            "retraining_cases_logged": corrections,
+            "pathogen_naming_available": pathogen_named,
+        }
+
+        out["what_a_photo_buys_now"] = (
+            "A care read: visible symptoms - browning, wilting, stretch, curl - "
+            "described and matched against what is normal for this species. "
+            + (f"{read} of {evals} photos of this plant produced one."
+               if evals else "No photos of this plant have been assessed yet."))
+
+        if not pathogen_named:
+            out["limit"] = (
+                f"No pathogen can be NAMED for {species}: the local disease models carry "
+                f"classes for {', '.join(self.PATHOGEN_MODEL_SPECIES)} only. That does not "
+                "block a symptom description - those are visible on any plant - but it does "
+                "mean a photo will not come back with a disease name.")
+
+        # The part that answers "to help predictions".
+        out["what_a_photo_does_NOT_feed"] = (
+            "Stage assessment and prediction scoring do not read photos. Stage is derived "
+            "from age and reading history; predictions are scored against measured ppm, pH "
+            "and temperature. So more photos will not sharpen a stage call or a drawdown "
+            "projection - only readings and time do that.")
+
+        out["recommended"] = (
+            "Symptom-driven, not calendar-driven: photograph when something LOOKS different, "
+            "and once at each stage transition as a baseline. A weekly frame of a plant that "
+            "looks the same as last week adds a duplicate, not evidence.")
+        out["why"] = (
+            "A care read is a comparison against normal, so its value comes from catching "
+            "change. Photos taken on a schedule while nothing changes produce near-identical "
+            "assessments, and 20 photos of one healthy plant teach less than 5 taken at "
+            "moments that differ.")
+
+        # "To help train" - say plainly whether that loop exists.
+        out["training_status"] = (
+            f"{corrections} low-confidence case(s) have been logged for future retraining, "
+            "but nothing consumes them: datasets/ and weights/ are empty and no training run "
+            "has happened. So photos are not currently improving the model for this or any "
+            "other cannabis plant - they are being kept so that they can.")
+        out["what_would_change_that"] = (
+            "Variety is what a training corpus needs, not volume: different stages, "
+            "different symptoms, consistent framing and light. If the aim is a cannabis-aware "
+            "model, photographs of a DEFICIENCY or a pest are worth many of a healthy plant, "
+            "because a corpus of healthy frames teaches a model to say 'fine'.")
+        out["applies_to"] = (
+            "This holds for any cannabis plant, not just this one - the pathogen models cover "
+            "no cultivar, and the stage clock is per plant but photo-blind either way.")
+        return out
 
     def reading_cadence(self, plant_id="current_plant"):
         """How often this system needs a reading, derived from what its own
@@ -4967,6 +5073,9 @@ class GrowAgent(AgentBase):
         elif task == "describe":
             return {"result": {"text": self.describe(args.get("task") or "",
                                                      args.get("payload"))}}
+
+        elif task == "photo_cadence":
+            return {"result": self.photo_cadence(args.get("plant_id", "current_plant"))}
 
         elif task == "resolve_plant":
             # Which plant a prompt is about. Only this agent holds the roster,
