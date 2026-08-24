@@ -79,8 +79,26 @@ class AgentBase:
                 json.dump(card, f, indent=2)
             return card
 
+    # A single base64 image pasted into a log line is megabytes. Every agent
+    # writes to the same audit.log, and 24 lines carrying photo payloads grew
+    # it to 201MB - 196MB of which was base64 that also exists on disk as the
+    # actual .jpg. It made the log unusable for diagnosis long before it made
+    # the disk a problem: grepping it returned megabytes of encoded pixels.
+    _B64_RUN = re.compile(r'[A-Za-z0-9+/]{200,}={0,2}')
+    LOG_LINE_MAX = 4000
+
+    @classmethod
+    def _scrub(cls, message):
+        """Strip payloads that carry no diagnostic information."""
+        text = message if isinstance(message, str) else str(message)
+        text = cls._B64_RUN.sub(lambda m: f"<{len(m.group(0))} bytes elided>", text)
+        if len(text) > cls.LOG_LINE_MAX:
+            text = text[:cls.LOG_LINE_MAX] + f"... [truncated, {len(text)} chars]"
+        return text
+
     def log(self, message):
         timestamp = datetime.now().isoformat()
+        message = self._scrub(message)
         with open(LOG_FILE, "a") as f:
             f.write(f"{timestamp} | {self.agent_id} | {message}\n")
         print(f"[{self.agent_id}] {message}")

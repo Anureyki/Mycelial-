@@ -344,3 +344,64 @@ below confident extraction should be surfaced for confirmation, not stored.
 Letting a model rewrite the system record freely. The record is what dosing
 and stage reasoning read; it needs the same "assert the anchor before writing"
 discipline as any other substitution.
+
+## Phase 9 — Retention: decide what to keep, and on what evidence — NOT STARTED
+
+**Independent of every other phase. Owner: Maintenance Agent, which already
+runs `analyze_memory_usage` and `run_cleanup_routine` and is the only agent
+whose domain is the machine itself.**
+
+### What the stores actually look like (measured 2026-08-24)
+
+| Store | Holds | Size |
+|-------|-------|------|
+| Memory Service (8007, via Hermes) | evidence and state | **0.6 MB, zero image rows** |
+| Logging Service (8009) | operational history | `audit.log` 210 MB + `audit.db` 24 MB |
+| `knowledge_base/grow_agent/photos` | 20 uploaded photos | 56 MB |
+
+The separation is working as designed - domain memory is small and clean, and
+Hermes is not the problem. The bloat was 24 log lines carrying base64 image
+payloads, 196 MB of the 210 MB. Those are redacted at the source now
+(`AgentBase.log` scrubs base64 runs and caps line length), so this phase is
+about **policy**, not that leak.
+
+### The question
+
+Photos are the obvious candidate for deletion once a finding has been
+extracted - the finding is what matters, not the pixels. But "already analysed"
+is not the same as "safe to drop", and the system currently cannot tell the
+difference:
+
+- **18 of 21 leaf evaluations produced a finding.** Those photos are
+  genuinely redundant with what was extracted.
+- **3 could not be read at all** - the local disease models cover pepper,
+  potato and tomato and carry no cannabis class, so no classification was made.
+  Deleting those destroys the only copy of data nothing has extracted yet, and
+  they become readable the moment a model that covers the species exists.
+
+So the rule cannot be "delete after analysis". It has to be **delete once a
+finding was actually produced, and keep anything the pipeline could not read.**
+
+### Trained-on is a second, separate test
+
+An artifact can also be dropped once it is represented in a dataset the
+weights were trained on - the information survives in the model. That test
+cannot be applied yet: `datasets/` is empty and `weights/` holds nothing, so
+**nothing has been trained on anything**. Wire the test now and it silently
+approves every deletion.
+
+### Likely shape (not designed yet)
+
+The Provenance Service (8016) already exists to track artifact lineage and
+origin. It is the right place to answer "what was derived from this photo, and
+does that derivation still stand" - which is exactly the retention question.
+Maintenance should ask Provenance, not guess from filenames or mtimes.
+
+Rotation is a separate, smaller gap worth fixing alongside: CLAUDE.md claims
+logs are "rotated daily" and they are not - `audit.log` had entries going back
+to 2026-08-13 in a single file, and every agent appends to that one file.
+
+### Do not start this by
+
+Deleting on age or size. Both are proxies for "probably worthless" and neither
+is evidence. The three unreadable photos are among the oldest.
