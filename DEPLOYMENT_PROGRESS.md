@@ -24,6 +24,7 @@ run, which put retention and maintenance work *after* cutover. Renumbered
 | 6 | Harden network exposure | not started |
 | 7 | Provision dedicated device | not started |
 | 8 | Migrate and cut over | not started |
+| — | Training-data loop: source, review, count | ✅ done 2026-08-25 |
 | — | *Deferred track:* multi-tenancy | not scheduled |
 
 2-4 are internal: they make the system cheaper, leaner and more truthful about
@@ -342,6 +343,41 @@ needed) recommended in the plan. Not yet purchased/chosen.
 Blocked on Phase 7.
 
 ---
+
+## Training-data loop — ✅ DONE 2026-08-25
+
+Not numbered: it was asked for and finished in one pass, and does not gate
+deployment. Recorded because it changed how the agent acquires knowledge.
+
+A well-run grow cannot supply most of what a vision model needs. The grower
+prevents pests, so their plants will never photograph a spider-mite
+infestation - 9 of the campaign's 10 labels were unobtainable from their own
+data by construction, and only `healthy` was.
+
+Every piece already existed and nothing connected them: the campaign knew it
+needed 10 labels, `source_training_candidates` could search the web,
+`review_training_candidate` could accept. Three breaks, all fixed:
+
+- **No driver.** Nothing ever decided to source. `advance_training_campaign`
+  now reads which labels are short and goes and gets candidates - on demand,
+  never on a timer.
+- **No gate the grower could operate.** Candidates sat `awaiting_review` for
+  days with no interface. A Training tab now shows each proposal with its
+  image and source, and accepts or rejects it.
+- **Accepting did nothing.** It set a status and printed "download the image
+  yourself to have it counted". Accepting now fetches the image into the label
+  folder with its provenance beside it, and says so if the fetch fails rather
+  than reporting an accept that counted nothing.
+
+And the counter had never worked: `from dataset_inventory import ...` was a
+bare import that always raised, so `DATASET_TOOLS_AVAILABLE` was always False
+and every label read 0 however many images were on disk. Campaign progress
+could not move. It read as "nothing collected yet" rather than "the counter is
+broken", which is the same failure shape as any other silent zero.
+
+Invariants held throughout (`config/skills.json`): search proposes, a human
+disposes; provenance travels with every accepted file; nothing counts until a
+person decides.
 
 ## Deferred track — Multi-tenancy — NOT SCHEDULED
 

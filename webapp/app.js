@@ -271,17 +271,123 @@ async function refreshDashboard() {
   }
 }
 
+// --- Training review ---------------------------------------------------------
+// The gate the sourcing loop never had. Candidates were being proposed into a
+// queue with no way to judge them, so 3 spider-mite images sat awaiting review
+// for days while every label stayed empty. Search proposes; this is where a
+// human disposes.
+const trainingTabBtn = document.getElementById('trainingTabBtn');
+const training = document.getElementById('training');
+const candidateList = document.getElementById('candidateList');
+const questCard = document.getElementById('questCard');
+
+async function callTask(task, args) {
+  const base = getServerUrl();
+  if (base === null) return { error: 'No server URL set' };
+  const res = await fetch(`${base}/execute`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ task, args: args || {} }),
+  });
+  if (!res.ok) return { error: `HTTP ${res.status}` };
+  return res.json();
+}
+
+function unwrap(d, key) {
+  let n = 0;
+  while (d && typeof d === 'object' && !(key in d) && 'result' in d && n++ < 6) d = d.result;
+  return d;
+}
+
+async function refreshTraining() {
+  questCard.querySelector('.card-body').textContent = 'Loading...';
+  candidateList.textContent = '';
+  const q = unwrap(await callTask('training_quest_status'), 'per_label');
+  if (q && q.per_label) {
+    const short = q.per_label.filter(p => !p.complete)
+      .map(p => `${p.label} ${p.have}/${p.have + p.need}`).join(' · ');
+    questCard.querySelector('.card-body').textContent =
+      `Level ${q.level} · ${q.labels_complete}/${q.labels_total} labels complete · ${q.overall_percent}%\n${short}`;
+  } else {
+    questCard.querySelector('.card-body').textContent = 'Campaign status unavailable.';
+  }
+
+  let items = unwrap(await callTask('training_candidates'), 'length');
+  if (!Array.isArray(items)) items = (items && items.candidates) || [];
+  if (!items.length) {
+    candidateList.textContent = 'Nothing waiting for review.';
+    return;
+  }
+  for (const c of items) {
+    const row = document.createElement('div');
+    row.className = 'card';
+    const img = document.createElement('img');
+    img.src = c.image_url || '';
+    img.alt = c.label || 'candidate';
+    img.loading = 'lazy';
+    img.style.maxWidth = '100%';
+    img.style.borderRadius = '6px';
+    // A broken image must not look like a valid one to accept.
+    img.onerror = () => { img.replaceWith(Object.assign(document.createElement('p'),
+      { className: 'hint', textContent: 'Image would not load — reject this one.' })); };
+    const meta = document.createElement('p');
+    meta.className = 'hint';
+    meta.textContent = `${c.label} — ${c.source_title || 'untitled'}`;
+    const src = document.createElement('a');
+    src.href = c.source_url || '#'; src.target = '_blank'; src.rel = 'noreferrer noopener';
+    src.textContent = 'source'; src.className = 'hint';
+    const accept = document.createElement('button');
+    accept.type = 'button'; accept.textContent = 'Accept';
+    const reject = document.createElement('button');
+    reject.type = 'button'; reject.textContent = 'Reject';
+    const verdict = document.createElement('span');
+    verdict.className = 'hint';
+
+    async function decide(decision) {
+      accept.disabled = reject.disabled = true;
+      verdict.textContent = ' working...';
+      const r = unwrap(await callTask('review_candidate',
+        { candidate_id: c.id, decision }), 'status');
+      // Report what actually happened. An accept whose download failed is not
+      // an accept.
+      verdict.textContent = r && r.note ? ` ${r.note}` : ' done';
+      if (r && r.status === 'accept_failed') row.style.opacity = '1';
+      else row.style.opacity = '0.55';
+    }
+    accept.addEventListener('click', () => decide('accept'));
+    reject.addEventListener('click', () => decide('reject'));
+
+    row.append(img, meta, src, document.createElement('br'), accept, reject, verdict);
+    candidateList.appendChild(row);
+  }
+}
+
+function showTraining() {
+  trainingTabBtn.classList.add('active');
+  chatTabBtn.classList.remove('active');
+  dashboardTabBtn.classList.remove('active');
+  training.classList.remove('hidden');
+  dashboard.classList.add('hidden');
+  log.classList.add('hidden');
+  form.classList.add('hidden');
+  refreshTraining();
+}
+
 function showChat() {
   chatTabBtn.classList.add('active');
   dashboardTabBtn.classList.remove('active');
+  trainingTabBtn.classList.remove('active');
   log.classList.remove('hidden');
   dashboard.classList.add('hidden');
+  training.classList.add('hidden');
   form.classList.remove('hidden');
 }
 
 function showDashboard() {
   dashboardTabBtn.classList.add('active');
   chatTabBtn.classList.remove('active');
+  trainingTabBtn.classList.remove('active');
+  training.classList.add('hidden');
   dashboard.classList.remove('hidden');
   log.classList.add('hidden');
   form.classList.add('hidden');
@@ -290,6 +396,15 @@ function showDashboard() {
 
 chatTabBtn.addEventListener('click', showChat);
 dashboardTabBtn.addEventListener('click', showDashboard);
+trainingTabBtn.addEventListener('click', showTraining);
+document.getElementById('refreshTraining').addEventListener('click', refreshTraining);
+document.getElementById('sourceMoreBtn').addEventListener('click', async () => {
+  const btn = document.getElementById('sourceMoreBtn');
+  btn.disabled = true; btn.textContent = 'Searching...';
+  await callTask('advance_campaign', { per_label: 3, max_labels: 2 });
+  btn.disabled = false; btn.textContent = 'Find more';
+  refreshTraining();
+});
 refreshDashboardBtn.addEventListener('click', refreshDashboard);
 
 function openSettings() {

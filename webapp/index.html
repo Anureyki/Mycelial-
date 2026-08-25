@@ -17,6 +17,7 @@
   <nav id="tabs">
     <button id="chatTabBtn" class="tab active" type="button">Chat</button>
     <button id="dashboardTabBtn" class="tab" type="button">Dashboard</button>
+    <button id="trainingTabBtn" class="tab" type="button">Training</button>
   </nav>
   <button id="settingsBtn" aria-label="Settings">&#9881;</button>
 </header>
@@ -36,6 +37,18 @@
   <div class="card" id="progressCard"><h2>Progress</h2><p class="card-body">Loading...</p></div>
   <div class="card" id="decisionsCard"><h2>Needs You</h2><p class="card-body">Loading...</p></div>
   <div class="card" id="sensorsCard"><h2>Sensors</h2><p class="card-body">Loading...</p></div>
+</section>
+
+<section id="training" class="hidden" aria-live="polite">
+  <button id="refreshTraining" type="button">Refresh</button>
+  <button id="sourceMoreBtn" type="button">Find more</button>
+  <div class="card" id="questCard"><h2>Campaign</h2><p class="card-body">Loading...</p></div>
+  <p id="reviewIntro" class="hint">
+    These are proposals from the web, not training data. Accepting downloads the
+    image into its label folder and counts it; rejecting discards it. Nothing
+    counts until you decide.
+  </p>
+  <div id="candidateList"></div>
 </section>
 
 <div id="attachPreview" class="hidden">

@@ -38,10 +38,18 @@ VISION_TIMEOUT = int(os.getenv("VISION_TIMEOUT", "300"))
 LOW_CONFIDENCE_THRESHOLD = 0.55
 
 try:
-    from dataset_inventory import scan as scan_training_set, MIN_PER_CLASS, TRAINING_DIR
+    # Full package path. This was a bare "from dataset_inventory import ..."
+    # and only project_root is on sys.path, so it always raised ImportError and
+    # DATASET_TOOLS_AVAILABLE was always False. The counter that decides
+    # campaign progress therefore returned {} forever: every label read as 0
+    # however many images were on disk, and the status looked like "nothing
+    # collected yet" rather than "the counter is broken".
+    from services.vision.dataset_inventory import (
+        scan as scan_training_set, MIN_PER_CLASS, TRAINING_DIR)
     DATASET_TOOLS_AVAILABLE = True
-except ImportError:
+except ImportError as _e:
     DATASET_TOOLS_AVAILABLE = False
+    _DATASET_IMPORT_ERROR = str(_e)
     MIN_PER_CLASS = 100
     TRAINING_DIR = os.path.expanduser("~/mycelial/knowledge_base/grow_agent/training")
 
@@ -633,6 +641,7 @@ class GrowAgent(AgentBase):
                 "set_inventory", "get_inventory",
                 "check_in", "analyze_consumption", "adjust_to_target_ppm",
                 "training_quest_status", "source_training_candidates",
+                "advance_training_campaign",
                 "review_training_candidate", "list_training_candidates",
                 "remove_plant", "list_vision_corrections", "recommend_purchase",
                 "web_search",
@@ -1410,6 +1419,8 @@ class GrowAgent(AgentBase):
         images sit in each label folder. Only real files on disk count - this is
         what makes campaign progress mean 'trainable' rather than 'clicked a lot'."""
         if not DATASET_TOOLS_AVAILABLE:
+            # A counter that cannot count must say so, not report zero.
+            self.log(f"training counts unavailable: {globals().get('_DATASET_IMPORT_ERROR')}")
             return {}, []
         scanned = scan_training_set()
         if not scanned:
@@ -3120,6 +3131,138 @@ class GrowAgent(AgentBase):
     # anything else can still be DESCRIBED, it just cannot have a pathogen
     # named, which are two different questions.
     PATHOGEN_MODEL_SPECIES = ("pepper", "potato", "tomato")
+
+    def _source_candidates(self, label, limit=5, query=None):
+        """Propose candidate images for one label. Proposals only.
+
+        config/skills.json states the invariant plainly: search PROPOSES, a
+        human DISPOSES. Nothing here is training data - every item lands
+        awaiting_review with its provenance attached, because a training set of
+        unknown-origin images is a licensing and label-noise problem, not an
+        asset."""
+        query = query or f"cannabis leaf {label.replace('_', ' ')} photo"
+        # Image category: the plain "search" tool returns one text snippet with
+        # no URLs at all, which is useless for sourcing images.
+        search_result = self.call_tool("searxng", "search_structured", {
+            "query": query, "categories": "images", "max_results": limit * 3
+        })
+        seen = {c.get("image_url") for c in (self._get_pending_candidates() or [])}
+        candidates = []
+        for item in self._extract_search_items(search_result):
+            if len(candidates) >= limit:
+                break
+            img = item.get("img_src")
+            if not img or img in seen:
+                continue          # don't queue the same image twice
+            seen.add(img)
+            candidates.append({
+                "id": f"candidate_{int(time.time() * 1000)}_{len(candidates)}",
+                "label": label,
+                "query": query,
+                "source_url": item.get("url"),
+                "image_url": img,
+                "source_title": item.get("title"),
+                "retrieved_at": datetime.now().isoformat(),
+                "status": "awaiting_review",
+            })
+        for c in candidates:
+            self.store_own_memory(c["id"], json.dumps(c))
+        if candidates:
+            index = self._get_candidate_index()
+            index.extend(c["id"] for c in candidates)
+            self.store_own_memory("training_candidate_index", json.dumps(index))
+        return candidates
+
+    def advance_training_campaign(self, per_label=5, max_labels=2, labels=None):
+        """Decide which labels the campaign is short on, and go get candidates.
+
+        This is the part that was missing. Every piece of the loop already
+        existed - the campaign knew it needed 10 labels, sourcing could fetch
+        proposals, review could accept them - but nothing ever decided to run
+        it. Capability without initiative: 3 candidates sat awaiting review for
+        days while 9 labels stayed empty.
+
+        Deliberately on demand. Nothing in this system runs on a timer, for the
+        same reason the supervisor stopped doing so.
+
+        A well-run grow cannot supply most of these labels - that is the point.
+        The grower prevents pests, so their own plants will never photograph a
+        spider mite infestation, and the only honest source is elsewhere."""
+        qm = QuestManager(self, VISION_CAMPAIGN_ID)
+        counts, label_set = self._training_counts()
+        if not qm._load():
+            qm.start_campaign(
+                labels=label_set, threshold_per_label=MIN_PER_CLASS,
+                description="Collect labelled cannabis leaf photos until a vision model can actually be trained.")
+        wanted = labels or [q["label"] for q in qm.next_quests(counts, limit=max_labels)]
+        if not wanted:
+            return {"sourced": [], "note": "No incomplete labels - nothing to source."}
+
+        sourced, failed = [], []
+        for label in wanted[:max_labels]:
+            try:
+                got = self._source_candidates(label, limit=per_label)
+                sourced.append({"label": label, "queued": len(got),
+                                "ids": [c["id"] for c in got]})
+                if not got:
+                    failed.append(f"{label}: search returned nothing usable")
+            except Exception as e:
+                failed.append(f"{label}: {e}")
+        pending = len(self._get_pending_candidates() or [])
+        out = {"sourced": sourced, "awaiting_review": pending,
+               "training_dir": TRAINING_DIR}
+        if failed:
+            # A sourcing run that found nothing must say so, distinctly from
+            # one that found things to be fine.
+            out["failures"] = failed
+        out["next_step"] = (
+            f"{pending} candidate(s) are proposals, not training data. Review them - "
+            "accept downloads the image into the label's folder and counts it, reject "
+            "discards it. Nothing is counted until a human decides.")
+        return out
+
+    def _fetch_candidate_image(self, candidate):
+        """Download an ACCEPTED candidate into its label folder.
+
+        Accepting used to only set a status and print "download the image
+        yourself to have it counted" - so an accepted candidate changed
+        nothing, and the campaign counter never moved. The loop had a human
+        gate with no door behind it."""
+        url = candidate.get("image_url")
+        if not url:
+            return {"fetched": False, "why": "candidate carries no image url"}
+        label = candidate.get("label") or "unlabelled"
+        dest_dir = os.path.join(TRAINING_DIR, label)
+        try:
+            os.makedirs(dest_dir, exist_ok=True)
+            resp = requests.get(url, timeout=20, stream=True,
+                                headers={"User-Agent": "Mycelial/grow_agent"})
+            if resp.status_code != 200:
+                return {"fetched": False, "why": f"HTTP {resp.status_code}"}
+            ctype = (resp.headers.get("Content-Type") or "").lower()
+            if not ctype.startswith("image/"):
+                return {"fetched": False, "why": f"not an image ({ctype or 'no content-type'})"}
+            ext = {"image/jpeg": ".jpg", "image/png": ".png",
+                   "image/webp": ".webp"}.get(ctype.split(";")[0], ".img")
+            body = b""
+            for chunk in resp.iter_content(65536):
+                body += chunk
+                if len(body) > 8 * 1024 * 1024:
+                    return {"fetched": False, "why": "image larger than 8MB"}
+            if len(body) < 1024:
+                return {"fetched": False, "why": f"only {len(body)} bytes - not a usable image"}
+            path = os.path.join(dest_dir, f"{candidate['id']}{ext}")
+            with open(path, "wb") as f:
+                f.write(body)
+            # Provenance travels with the file. A folder of images whose origin
+            # is unknown cannot be licensed, audited, or trusted as labels.
+            with open(path + ".provenance.json", "w") as f:
+                json.dump({k: candidate.get(k) for k in
+                           ("id", "label", "query", "source_url", "image_url",
+                            "source_title", "retrieved_at", "reviewed_at")}, f, indent=2)
+            return {"fetched": True, "path": path, "bytes": len(body)}
+        except Exception as e:
+            return {"fetched": False, "why": str(e)}
 
     def photo_cadence(self, plant_id="current_plant"):
         """How often a photo is worth taking, and what it actually buys.
@@ -6376,6 +6519,11 @@ class GrowAgent(AgentBase):
             self.store_own_memory(record["id"], json.dumps(record))
             return {"result": record}
 
+        elif task == "advance_training_campaign":
+            return {"result": self.advance_training_campaign(
+                int(args.get("per_label", 5)), int(args.get("max_labels", 2)),
+                args.get("labels"))}
+
         elif task == "training_quest_status":
             # Gamified view of the cannabis-vision data campaign. Uses the
             # generic core.quest_manager skill - the only cannabis-specific part
@@ -6404,35 +6552,11 @@ class GrowAgent(AgentBase):
             label = args.get("label")
             if not label:
                 return {"error": "Missing label (e.g. nitrogen_deficiency)"}
-            limit = int(args.get("limit", 5))
-            query = args.get("query") or f"cannabis leaf {label.replace('_', ' ')} photo"
-
-            # Image category - the plain "search" tool returns a single text
-            # snippet with no URLs at all, which is useless for sourcing images.
-            search_result = self.call_tool("searxng", "search_structured", {
-                "query": query, "categories": "images", "max_results": limit * 3
-            })
-            candidates = []
-            for item in self._extract_search_items(search_result)[:limit]:
-                candidates.append({
-                    "id": f"candidate_{int(time.time() * 1000)}_{len(candidates)}",
-                    "label": label,
-                    "query": query,
-                    "source_url": item.get("url"),
-                    "image_url": item.get("img_src"),
-                    "source_title": item.get("title"),
-                    "retrieved_at": datetime.now().isoformat(),
-                    "status": "awaiting_review",
-                })
-            for c in candidates:
-                self.store_own_memory(c["id"], json.dumps(c))
-            index = self._get_candidate_index()
-            index.extend(c["id"] for c in candidates)
-            self.store_own_memory("training_candidate_index", json.dumps(index))
-
+            candidates = self._source_candidates(
+                label, int(args.get("limit", 5)), args.get("query"))
             return {"result": {
                 "label": label,
-                "query": query,
+                "query": candidates[0]["query"] if candidates else args.get("query"),
                 "proposed": len(candidates),
                 "candidates": candidates,
                 "note": (
@@ -6453,18 +6577,36 @@ class GrowAgent(AgentBase):
             candidate = json.loads(raw)
             candidate["status"] = "accepted" if decision == "accept" else "rejected"
             candidate["reviewed_at"] = datetime.now().isoformat()
+
+            fetch = {"fetched": False}
+            if decision == "accept":
+                fetch = self._fetch_candidate_image(candidate)
+                candidate["local_path"] = fetch.get("path")
+                if not fetch.get("fetched"):
+                    # Say so. An accept that silently failed to fetch would
+                    # report success while the label folder stayed empty.
+                    candidate["status"] = "accept_failed"
+                    candidate["fetch_error"] = fetch.get("why")
             self.store_own_memory(candidate_id, json.dumps(candidate))
 
             # Reviewing earns XP either way - the goal is a clean set, and
             # rejecting noise is as valuable as accepting a good example.
             QuestManager(self, VISION_CAMPAIGN_ID).award(reviews=1)
+            if decision != "accept":
+                note = "Rejected, not counted."
+            elif fetch.get("fetched"):
+                note = (f"Accepted and downloaded to {fetch['path']} "
+                        f"({fetch['bytes'] // 1024} KB), with its provenance beside it. "
+                        "It counts toward the campaign now.")
+            else:
+                note = (f"Accepted, but the image could not be downloaded: "
+                        f"{fetch.get('why')}. Nothing was counted.")
             return {"result": {
                 "candidate_id": candidate_id,
                 "status": candidate["status"],
-                "note": (
-                    f"Accepted - download the image into {TRAINING_DIR}/{candidate['label']}/ "
-                    "to have it counted." if decision == "accept" else "Rejected, not counted."
-                ),
+                "fetched": fetch.get("fetched", False),
+                "local_path": candidate.get("local_path"),
+                "note": note,
             }}
 
         elif task == "list_training_candidates":

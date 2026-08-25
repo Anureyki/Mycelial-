@@ -187,6 +187,36 @@ class Anansi(AgentBase):
     def handle_task(self, task, args, sender):
         self.log(f"Received task: {task}, args: {args}, sender: {sender}")
 
+        # A narrow passthrough for the training review panel. The webapp
+        # reaches this agent and nothing else - Phase 6 put one TLS front door
+        # in place deliberately - but a review UI cannot work through
+        # natural-language round trips: it needs a list of images and two
+        # verbs. So exactly three grow tasks are forwarded, by name. Anything
+        # else still has to come in as a request and be routed.
+        if task == "training_candidates":
+            return self.send_a2a("grow_agent", "list_training_candidates", {})
+
+        if task == "training_quest_status":
+            return self.send_a2a("grow_agent", "training_quest_status", {})
+
+        if task == "advance_campaign":
+            payload = args if isinstance(args, dict) else {}
+            return self.send_a2a("grow_agent", "advance_training_campaign",
+                                 {"per_label": int(payload.get("per_label", 3)),
+                                  "max_labels": int(payload.get("max_labels", 2))},
+                                 timeout=180)
+
+        if task == "review_candidate":
+            payload = args if isinstance(args, dict) else (
+                json.loads(args[0]) if args and isinstance(args[0], str)
+                and args[0].startswith('{') else {})
+            cid = payload.get("candidate_id")
+            decision = (payload.get("decision") or "").lower()
+            if not cid or decision not in ("accept", "reject"):
+                return {"error": "Usage: {candidate_id, decision: accept|reject}"}
+            return self.send_a2a("grow_agent", "review_training_candidate",
+                                 {"candidate_id": cid, "decision": decision})
+
         if task == "process_request" or task == "process":
             if len(args) == 0:
                 return {"error": "Missing prompt"}
