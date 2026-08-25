@@ -88,6 +88,59 @@ ROOT_HEALTH_STABLE_KEYWORDS = ("white", "cream", "healthy", "tan")
 ROOT_HEALTH_CRITICAL_KEYWORDS = ("brown", "slimy", "mushy", "rot", "black")
 ODOR_STABLE_KEYWORDS = ("none", "no odor", "earthy", "neutral")
 ODOR_CRITICAL_KEYWORDS = ("sour", "rotten", "ammonia", "sulfur", "sewage")
+# How a symptom is DISTRIBUTED across a leaf is what separates its causes.
+# The keyword buckets below classify on naming instead: any mention of "yellow"
+# read as senescence, and a pest was only found if the describer already used
+# the word "pest". So "fine pale-yellow stippling scattered across the blade" -
+# the textbook early sign of spider mites, and one of this campaign's own
+# labels - came back as "yellowing consistent with natural senescence; plant
+# reallocating resources", which is the opposite of the right answer and would
+# have cost the grower the window in which mites are cheap to stop.
+#
+# Pattern is checked BEFORE the buckets. None of these assert a cause: each
+# names what the pattern is consistent with and the one observation that would
+# settle it, because a leaf photo cannot distinguish mites from thrips and
+# should not pretend to.
+LEAF_PATTERNS = (
+    ("stippling",
+     r"stipple|stippl\w*|speckl\w*|tiny (pale|white|yellow|light)? ?(dots|spots|specks)|"
+     r"pinprick|pin-?head|flecking|silvering|bronz\w+|sand-?blasted",
+     "spider mites or thrips feeding on the underside and puncturing cells one at a time",
+     "Turn the leaf over and look at the underside with a loupe or a phone macro: mites "
+     "show as moving specks and fine webbing in the vein junctions, thrips as black "
+     "frass and silvery scarring. Check the newest growth too.",
+     "problem"),
+    ("interveinal",
+     r"interveinal|between the veins|veins? (stay|remain|still) green|green veins",
+     "a mobile-nutrient deficiency - magnesium and iron present this way, and this grow "
+     "runs distilled water with no calcium or magnesium of its own",
+     "Which leaves: mobile nutrients pull from the OLDEST growth first, immobile ones "
+     "show on the newest. Note where it started before dosing.",
+     "problem"),
+    ("margin_burn",
+     r"tip burn|burnt tips|crispy (tips|edges|margins)|margins? (browning|burn|scorch)|"
+     r"edges? (curl|burn|brown)",
+     "too much salt at the root or too much light at the canopy - nutrient burn works "
+     "inward from the tip, light burn shows on whatever sits closest to the fixture",
+     "Compare a leaf under the light with one in shade at the same height. If only the "
+     "top ones are affected it is the light, not the feed.",
+     "problem"),
+    ("powder",
+     r"powder\w*|white (dust|film|coating|patches)|fuzzy (white|grey|gray)",
+     "powdery mildew, which spreads on humidity and still air rather than on contact",
+     "Try to wipe it off. Mildew smears and returns; mineral residue from spray or hard "
+     "water comes away and does not.",
+     "problem"),
+    ("uniform_lower_yellow",
+     r"(lower|bottom|oldest) leaves? (yellow|fading|pale)|whole leaf (yellow|pale)|"
+     r"uniform\w* yellow",
+     "natural senescence or a nitrogen draw, both of which start on the oldest growth",
+     "If it is confined to the lowest leaves and the top is deep green, it is the plant "
+     "reallocating and needs nothing.",
+     "senescent"),
+)
+
+
 LEAF_PROBLEM_KEYWORDS = ("rot", "pest", "mold", "mildew", "disease", "infestation")
 LEAF_SENESCENT_KEYWORDS = ("yellow", "yellowing")
 LEAF_PRODUCTIVE_KEYWORDS = ("green", "vigorous", "healthy")
@@ -3264,6 +3317,27 @@ class GrowAgent(AgentBase):
         except Exception as e:
             return {"fetched": False, "why": str(e)}
 
+    def _leaf_pattern_hit(self, text):
+        """Match how a symptom is distributed, not what it was called.
+
+        Returns the first pattern whose shape the description matches, or None.
+        Ordered so that a specific distribution beats a general colour word - a
+        description mentioning both stippling and yellowing is about the stippling."""
+        low = (text or "").lower()
+        for name, rx, consistent_with, settle_it, klass in LEAF_PATTERNS:
+            m = re.search(rx, low)
+            if m:
+                # A negated mention ("no stippling", "no burnt tips") is not a
+                # sign. Test the text that actually matched - testing the
+                # pattern's NAME silently skipped every pattern whose name was
+                # not itself a word in the description, which was all of them
+                # except stippling.
+                if not self._negation_aware_hit(low, (m.group(0),)):
+                    continue
+                return {"pattern": name, "consistent_with": consistent_with,
+                        "what_would_settle_it": settle_it, "classification": klass}
+        return None
+
     def photo_cadence(self, plant_id="current_plant"):
         """How often a photo is worth taking, and what it actually buys.
 
@@ -4938,8 +5012,14 @@ class GrowAgent(AgentBase):
                 self.store_own_memory("leaf_eval_index", json.dumps(index))
                 return {"result": recommendation, "record": record}
 
+            # Distribution first. "Yellow" alone cannot separate a mite
+            # stipple from an ageing fan leaf, and reading it as senescence
+            # spends the window in which mites are still cheap to stop.
+            pattern = self._leaf_pattern_hit(symptom_text)
             if disease_flag or airflow_flag or self._negation_aware_hit(symptom_text, LEAF_PROBLEM_KEYWORDS):
                 classification = "problem"
+            elif pattern:
+                classification = pattern["classification"]
             elif self._negation_aware_hit(symptom_text, LEAF_SENESCENT_KEYWORDS):
                 classification = "senescent"
             elif self._negation_aware_hit(symptom_text, LEAF_PRODUCTIVE_KEYWORDS):
@@ -4978,6 +5058,14 @@ class GrowAgent(AgentBase):
                     reason = "Nothing was reported and nothing was detected - there is no evidence either way."
                 else:
                     confidence = "high" if symptom_text_from_user else "medium"
+            elif pattern and classification == "problem":
+                observation = (f"Leaf symptoms described as: \"{symptom_text}\". "
+                               f"Distribution reads as {pattern['pattern'].replace('_', ' ')}.")
+                reason = f"The pattern is what decides this: {pattern['consistent_with']}."
+                action = pattern["what_would_settle_it"]
+                # A photo cannot separate mites from thrips, so this names a
+                # candidate and the check that settles it - never a diagnosis.
+                confidence = "medium" if symptom_text_from_user else "low"
             elif classification == "senescent":
                 observation = f"Leaf symptoms described as: \"{symptom_text}\"."
                 reason = "Yellowing consistent with natural senescence; plant reallocating resources."
