@@ -4843,19 +4843,39 @@ class GrowAgent(AgentBase):
             if reservoir_temp is None:
                 scores["temp"] = 1
                 findings.append("No reservoir temperature provided.")
-            elif 64 <= reservoir_temp <= 72:
-                scores["temp"] = 2
-            elif 60 <= reservoir_temp < 64 or 72 < reservoir_temp <= 78:
-                scores["temp"] = 1
-                findings.append(
-                    f"Reservoir temperature {reservoir_temp}F is outside the 64-72F (18-22C) band. "
-                    "Where roots sit in solution this is a root-health parameter, not comfort - "
-                    "warm water holds less dissolved oxygen, and the risk of root pathogens rises "
-                    "above roughly 22C, more so as EC climbs."
-                )
             else:
-                scores["temp"] = 0
-                findings.append(f"Reservoir temperature {reservoir_temp} is well outside the safe range.")
+                # This compared a CELSIUS reading against a FAHRENHEIT band.
+                # Every reading this system stores is in Celsius - log_reading
+                # stores temp in C and the plain-language parser converts F to C
+                # before storing - so 18.7C fell below the 60F floor and scored
+                # 0/2, "well outside the safe range", when 18.7C is 65.7F and
+                # sits dead centre of the band. A healthy reservoir was being
+                # reported as critical, for every reading ever evaluated.
+                #
+                # Celsius is the canonical unit. A value above 45 is taken as
+                # Fahrenheit because no reservoir runs at 45C - that is lethal -
+                # and an explicit temp_unit overrides the guess.
+                unit = str(args.get("temp_unit") or "").strip().lower()[:1]
+                temp_c = reservoir_temp
+                if unit == "f" or (not unit and reservoir_temp > 45):
+                    temp_c = (reservoir_temp - 32) * 5 / 9
+                temp_f = temp_c * 9 / 5 + 32
+                shown = f"{temp_c:.1f}C ({temp_f:.0f}F)"
+                if 18 <= temp_c <= 22:
+                    scores["temp"] = 2
+                elif 15.5 <= temp_c < 18 or 22 < temp_c <= 25.5:
+                    scores["temp"] = 1
+                    findings.append(
+                        f"Reservoir temperature {shown} is outside the 18-22C (64-72F) band. "
+                        "Where roots sit in solution this is a root-health parameter, not comfort - "
+                        "warm water holds less dissolved oxygen, and the risk of root pathogens rises "
+                        "above roughly 22C, more so as EC climbs."
+                    )
+                else:
+                    scores["temp"] = 0
+                    findings.append(
+                        f"Reservoir temperature {shown} is well outside the safe range "
+                        "(18-22C / 64-72F).")
 
             root_verdict, root_method = self._classify_qualitative(
                 root_health_text, ROOT_HEALTH_STABLE_KEYWORDS, ROOT_HEALTH_CRITICAL_KEYWORDS, "root health"
