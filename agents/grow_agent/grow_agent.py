@@ -2264,6 +2264,8 @@ class GrowAgent(AgentBase):
     "stage", "how old", "days old", "taproot", "cotyledon", "true leaves",
     # photographs - what they buy and how often to take them
     "photo", "photos", "picture", "pictures", "\\bpics?\\b", "camera", "upload",
+    # root establishment after a system change
+    "roots?", "coloni[sz]", "establish", "transition", "transplant", "net ?pot",
 
     # systems and hardware
     "dwc", "lwc", "hydro", "hydroponic", "reservoir", "res", "bucket", "tent",
@@ -2345,6 +2347,9 @@ class GrowAgent(AgentBase):
         ("why",        r"\bwhy\b|\bhow come\b|\bwhat made\b|\bdid we (stop|choose|pick|decide)\b"),
         ("dose",       r"\bhow much\b|\bwhat do i (need|have) to add\b|\badd\b.*\bto (reach|hit|get)\b|"
                        r"\bto\s*\d{3,4}\s*ppm\b|\breach\s*\d{3,4}\b"),
+        ("roots",      r"\broots?\b[^.]{0,50}(coloni[sz]|establish|reach|into the|down into|"
+                       r"take hold|fill)|(coloni[sz]|establish)\w*[^.]{0,30}\b(root|pellet|"
+                       r"pebble|medium|net ?pot)|after (the )?(transition|transplant|move)"),
         ("photos",     r"\b(photo|photos|picture|pictures|pic|pics|image|images|camera)\b"),
         ("cadence",    r"\bhow often\b|\b(reading|log|logging) (frequency|cadence|expectancy)\b"),
         ("deficit",    r"\b(loss|lost|cost|impact|stagnant|behind|deficit|underfed|set ?back)\b"),
@@ -2807,6 +2812,14 @@ class GrowAgent(AgentBase):
                 parts.append(c["action"])
             return {"answered_as": "care", "plant_id": plant_id,
                     "text": " ".join(p for p in parts if p), "facts": c}
+
+        if shape == "roots":
+            r = self.estimate_root_establishment(plant_id)
+            parts = [r.get("assessment") or "", r.get("what_carries_it") or "",
+                     r.get("what_confirms_it") or "", r.get("why_not_measured") or "",
+                     r.get("missing") or ""]
+            return {"answered_as": "root_establishment", "plant_id": plant_id,
+                    "text": " ".join(x for x in parts if x), "facts": r}
 
         if shape == "photos":
             pc = self.photo_cadence(plant_id)
@@ -3506,6 +3519,112 @@ class GrowAgent(AgentBase):
         out["limit"] = ("Judged from a description, not from the plant. Which end of a "
                         "seedling is root and which is shoot is the one thing worth "
                         "confirming by eye before acting on it.")
+        return out
+
+    # Root extension in aerated solution, veg, healthy plant. A GENERIC figure -
+    # this grow has never measured its own, and the honest use of it is a
+    # bracket, not a date.
+    ROOT_EXTENSION_CM_PER_DAY = (1.0, 3.0)
+
+    def estimate_root_establishment(self, plant_id="current_plant", transitioned_on=None):
+        """How long until roots bridge the medium and reach the reservoir.
+
+        The question after a system change is not "did it survive" but "when is
+        it drinking from the new vessel", and those are different dates. Two
+        facts decide it and both are already on the record: how far the roots
+        have to travel, and whether anything keeps the medium wet while they do.
+
+        A plant whose roots were ALREADY free-hanging in solution is not
+        colonising anything - it moved with its root mass intact and the gap is
+        already bridged. That is a different answer from a plant starting in dry
+        medium, and conflating them is how a grower gets told to wait a week for
+        something that already happened."""
+        sysraw = (self._unwrap_value(self.retrieve_own_memory(f"grow_system_{plant_id}"))
+                  or (self._unwrap_value(self.retrieve_own_memory("grow_system"))
+                      if plant_id == "current_plant" else None))
+        try:
+            sysrec = json.loads(sysraw) if sysraw else {}
+        except Exception:
+            sysrec = {}
+
+        gap_cm = self._parse_numeric(sysrec.get("net_pot_water_gap_cm"))
+        contacts = sysrec.get("medium_contacts_water")
+        top_feed = (sysrec.get("equipment") or {}).get("top_feed_ring")
+        system = sysrec.get("system_label") or sysrec.get("system_type") or "unknown"
+
+        out = {"plant_id": plant_id, "system": system,
+               "net_pot_water_gap_cm": gap_cm,
+               "medium_contacts_water": contacts,
+               "top_feed": top_feed}
+
+        # Was the root mass already in solution before the move?
+        prior_free_hanging = None
+        for key in self._load_note_index() or []:
+            raw = self._unwrap_value(self.retrieve_own_memory(key))
+            if raw and "free-hanging" in str(raw).lower():
+                prior_free_hanging = True
+                break
+        plans = [k for k in ("transition_plan",) if k]
+        out["roots_were_free_hanging_before_move"] = prior_free_hanging
+
+        # Days since the move, if the record holds one.
+        days = None
+        if transitioned_on:
+            try:
+                days = (datetime.now() - datetime.fromisoformat(str(transitioned_on)[:19])).days
+            except Exception:
+                days = None
+        out["days_since_transition"] = days
+        if days is None:
+            out["missing"] = (
+                "The transition date is not on the record. A plan was written "
+                "(plan_system_transition) but no event says the move happened, so nothing "
+                "here can count days from it. Tell me the date and it gets written down.")
+
+        lo, hi = self.ROOT_EXTENSION_CM_PER_DAY
+        if gap_cm:
+            out["travel_cm"] = gap_cm
+            out["days_to_reach_solution"] = [round(gap_cm / hi, 1), round(gap_cm / lo, 1)]
+            out["rate_used"] = (f"{lo}-{hi} cm/day, a generic figure for veg in aerated "
+                                "solution - NOT measured from this plant")
+            out["confidence"] = "low"
+
+        if prior_free_hanging:
+            out["assessment"] = (
+                "Roots were already free-hanging in solution before the move, so this is not "
+                "colonisation from scratch. An intact root mass transferred with its net pot "
+                "is drinking from the new reservoir immediately; what takes time is filling "
+                "the larger volume, not reaching it.")
+        elif gap_cm:
+            out["assessment"] = (
+                f"Roots have roughly {gap_cm:g} cm to travel from the base of the net pot to "
+                f"the water line. At {lo}-{hi} cm/day that is "
+                f"{round(gap_cm / hi, 1)}-{round(gap_cm / lo, 1)} days, faster at the warm end "
+                "of the 18-22C band and slower below it.")
+        else:
+            out["assessment"] = (
+                "The gap between the net pot and the water line is not recorded, and that "
+                "distance is the whole of this question.")
+
+        if top_feed:
+            out["what_carries_it"] = (
+                f"The {top_feed} top feed is what keeps the pebbles wet until the roots arrive. "
+                "Its critical property: an airlift's lift depends on how deep the intake sits, "
+                "so the feed WEAKENS AND STOPS WHILE THE RESERVOIR STILL HAS WATER IN IT. For a "
+                "plant already drinking from solution that is cosmetic. For roots still crossing "
+                "the gap it is fatal - the medium dries while the bucket still looks part full. "
+                "Treat 'the top feed has gone quiet' as a refill trigger, not the water level.")
+
+        out["what_confirms_it"] = (
+            "Two independent signs, and the second is the one that does not lie: roots visible "
+            "below the net pot when you lift the lid, and consumption climbing. A plant that has "
+            "reached the reservoir drinks measurably faster - analyze_consumption separates the "
+            "plant feeding from the solution concentrating, so a rising uptake against steady "
+            "volume is the root mass arriving.")
+        out["why_not_measured"] = (
+            "No root-growth rate has ever been measured on this grow, so the bracket above is "
+            "generic. A photo of the root zone at the same angle every few days would give this "
+            "plant its own number within a week.")
         return out
 
     def photo_cadence(self, plant_id="current_plant"):
@@ -5535,6 +5654,10 @@ class GrowAgent(AgentBase):
             return {"result": self.assess_germination(
                 args.get("plant_id", "current_plant"),
                 args.get("description") or args.get("symptom_text") or "")}
+
+        elif task == "estimate_root_establishment":
+            return {"result": self.estimate_root_establishment(
+                args.get("plant_id", "current_plant"), args.get("transitioned_on"))}
 
         elif task == "photo_cadence":
             return {"result": self.photo_cadence(args.get("plant_id", "current_plant"))}
