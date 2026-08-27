@@ -3374,6 +3374,25 @@ class GrowAgent(AgentBase):
     # the observation that confirms it, because none can be settled from a
     # photo alone.
     GERMINATION_SIGNS = (
+        ("etiolated",
+         # The commonest way a seedling is lost, and it was missing from this
+         # list entirely - so a stretched, unpigmented seedling was matched
+         # against husk and orientation instead. A seedling reaches for light
+         # it cannot find by spending its seed reserves on stem, and it only
+         # gets one set of reserves.
+         r"light ?starv\w*|etiolat\w*|leggy|stretch\w*|long (white|pale) (stem|hypocotyl)|"
+         r"(pale|yellow|white|unpigmented|colourless|colorless)[^.]{0,30}"
+         r"(cotyledon|seed ?leaves|leaves)|"
+         r"(cotyledon|seed ?leaves)[^.]{0,25}(pale|yellow|never green\w*|not green)",
+         "the seedling is spending its seed reserves reaching for light it is not "
+         "getting. Cotyledons stay pale because they never got enough light to make "
+         "chlorophyll, and the stem stretches - which is why a starved seedling is "
+         "both taller and weaker than a healthy one of the same age",
+         "Get light on it today, close - a seedling wants a bright source within "
+         "reach, not a distant one. Then bury the stretched stem: the hypocotyl will "
+         "root along its length, which shortens the plant back to a stable height and "
+         "recovers the leverage it lost. Reserves are finite and are being spent now.",
+         "urgent"),
         ("inverted",
          r"(cotyledon|hypocotyl|shoot|seed ?leaves|sprout)\w*[^.]{0,40}"
          r"(below|beneath|under|out of the bottom|hanging down|pointing down)|"
