@@ -3317,13 +3317,18 @@ class GrowAgent(AgentBase):
         except Exception as e:
             return {"fetched": False, "why": str(e)}
 
-    def _leaf_pattern_hit(self, text):
-        """Match how a symptom is distributed, not what it was called.
+    def _leaf_patterns_in(self, text):
+        """Every distribution the description matches, most specific first.
 
-        Returns the first pattern whose shape the description matches, or None.
-        Ordered so that a specific distribution beats a general colour word - a
-        description mentioning both stippling and yellowing is about the stippling."""
+        Returning only the FIRST match dropped real evidence the moment a grower
+        reported two things at once - "crispy burnt tips on that one leaf and
+        the spots on the other" is two different causes on one plant, and
+        carrying only one of them turns a complete report into a partial
+        diagnosis. Two signs together also mean something a single sign does
+        not: salt or light stress alongside a pest is a plant under two loads,
+        and the pest is the one that multiplies."""
         low = (text or "").lower()
+        found = []
         for name, rx, consistent_with, settle_it, klass in LEAF_PATTERNS:
             m = re.search(rx, low)
             if m:
@@ -3334,9 +3339,20 @@ class GrowAgent(AgentBase):
                 # except stippling.
                 if not self._negation_aware_hit(low, (m.group(0),)):
                     continue
-                return {"pattern": name, "consistent_with": consistent_with,
-                        "what_would_settle_it": settle_it, "classification": klass}
-        return None
+                found.append({"pattern": name, "consistent_with": consistent_with,
+                              "what_would_settle_it": settle_it, "classification": klass})
+        return found
+
+    def _leaf_pattern_hit(self, text):
+        """The single most significant distribution, or None. A problem outranks
+        senescence: an ageing lower leaf is not the headline when something is
+        also feeding on the plant."""
+        found = self._leaf_patterns_in(text)
+        if not found:
+            return None
+        problems = [f for f in found if f["classification"] == "problem"]
+        lead = problems[0] if problems else found[0]
+        return dict(lead, also=[f for f in found if f is not lead])
 
     def photo_cadence(self, plant_id="current_plant"):
         """How often a photo is worth taking, and what it actually buys.
@@ -4689,6 +4705,33 @@ class GrowAgent(AgentBase):
         elif task == "list_vision_corrections":
             return {"result": self._get_all_vision_corrections()}
 
+        elif task == "refer_equipment_purchase":
+            # The grower shows Grow an invoice because the hardware matters to
+            # the grow. The spend is Accounting's, and a purchase recorded only
+            # in a plant's notes is invisible to every question about what this
+            # grow cost. Minimal payload: what was bought, from whom, how much.
+            # The order email also carried a name, address and phone - none of
+            # which belong in a ledger entry, so none of which are sent.
+            if not isinstance(args, dict) or args.get("amount") is None:
+                return {"error": "Usage: {item, amount, [payee], [date], [documentation_ref]}"}
+            payload = {k: args.get(k) for k in
+                       ("item", "amount", "payee", "date", "documentation_ref",
+                        "category", "project_id") if args.get(k) is not None}
+            payload.setdefault("category", "grow_equipment")
+            out = self.refer_finding(
+                "accounting_agent", "equipment_purchase", payload,
+                why=args.get("why") or "grow hardware bought for the current plant")
+            # Grow keeps its own note of the hardware; Accounting keeps the money.
+            if out.get("accepted") and args.get("item"):
+                self.handle_task("add_note", {
+                    "plant_id": args.get("plant_id", "current_plant"),
+                    "category": "equipment",
+                    "source": "referred to accounting_agent",
+                    "text": f"{args['item']} purchased. Ledger holds the cost; "
+                            f"this note holds that the hardware exists.",
+                }, self.agent_id)
+            return {"result": out}
+
         elif task == "recommend_purchase":
             # Direct A2A consultation with Accounting Agent - no Boss mediation
             # needed for the consult itself, only for the threshold decision
@@ -5059,10 +5102,19 @@ class GrowAgent(AgentBase):
                 else:
                     confidence = "high" if symptom_text_from_user else "medium"
             elif pattern and classification == "problem":
+                shapes = [pattern["pattern"]] + [a["pattern"] for a in pattern.get("also", [])]
                 observation = (f"Leaf symptoms described as: \"{symptom_text}\". "
-                               f"Distribution reads as {pattern['pattern'].replace('_', ' ')}.")
+                               f"Distribution reads as "
+                               f"{', '.join(x.replace('_', ' ') for x in shapes)}.")
                 reason = f"The pattern is what decides this: {pattern['consistent_with']}."
                 action = pattern["what_would_settle_it"]
+                for extra in pattern.get("also", []):
+                    reason += (f" Separately, {extra['pattern'].replace('_', ' ')} is "
+                               f"consistent with {extra['consistent_with']}.")
+                    action += " " + extra["what_would_settle_it"]
+                if pattern.get("also"):
+                    reason += (" Two signs at once is itself the finding: they are "
+                               "different causes, and only one of them spreads.")
                 # A photo cannot separate mites from thrips, so this names a
                 # candidate and the check that settles it - never a diagnosis.
                 confidence = "medium" if symptom_text_from_user else "low"

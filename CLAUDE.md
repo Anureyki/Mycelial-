@@ -290,8 +290,29 @@ spotting a payment obligation inside a contract that Accounting needs, or
 Accounting seeing a disbursement that implies a legal instrument. The finding
 travels agent-to-agent as a minimal structured payload (never a raw document
 dump), and Boss gates on thresholds rather than mediating the consultation
-itself. See `recommend_purchase` in `agents/grow_agent/grow_agent.py` for the
-established shape.
+itself.
+
+Two directions, both inherited from `core/base_agent.py`:
+
+| Direction | Task | Example |
+|-----------|------|---------|
+| **Ask** another domain a question | direct A2A, e.g. `check_budget_constraint` | `recommend_purchase` asks Accounting whether a purchase fits, and gets back a constraint, never the ledger |
+| **Hand** another domain a finding | `refer_finding` / `receive_finding` | Grow reads an equipment invoice and refers the spend to Accounting, which logs it |
+
+`receive_finding` defaults to recording the finding and **saying that it only
+recorded it** - an agent that silently dropped a referral would look identical
+to one that filed it. An agent that owns the finding overrides it and acts:
+Accounting turns an `equipment_purchase` into a real ledger entry.
+
+**Only what the receiving domain needs crosses the boundary.** The Mars Hydro
+order email carried a name, a street address and a phone number alongside the
+price. A ledger entry needs the vendor, the amount, the date and a document
+reference; personal data has no business in a transaction record just because
+it appeared in the same screenshot. The sending agent decides what to send, and
+sends the minimum.
+
+A referral whose `amount` exceeds `REFERRAL_THRESHOLD` is flagged
+`requires_signoff` for the principal rather than acted on quietly.
 
 ### Hardware is behind an authorization boundary
 

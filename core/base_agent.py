@@ -316,6 +316,10 @@ class AgentBase:
                               if isinstance(args, dict)
                               else (args[0] if isinstance(args, list) and args else ""))
                     result = self.answer(prompt) if prompt else None
+                elif task == "receive_finding":
+                    result = self.receive_finding(
+                        (args or {}).get("kind"), (args or {}).get("payload") or {},
+                        sender) if isinstance(args, dict) else None
                 elif task == "ingest":
                     result = self.ingest(args.get("prompt") or ""
                                          if isinstance(args, dict) else "")
@@ -374,6 +378,61 @@ class AgentBase:
         capabilities it did not understand - and every new capability was
         reachable from exactly one branch of it."""
         return None
+
+    # A domain agent will see things that belong to another domain: Grow
+    # reading an equipment invoice that Accounting owns, Legal spotting a
+    # payment obligation inside a contract. The finding travels agent to agent
+    # as a MINIMAL STRUCTURED PAYLOAD - never a raw document dump, because the
+    # receiving agent should not have to parse someone else's evidence, and the
+    # sending agent should not be shipping a shipping address into a ledger.
+    #
+    # Boss is not in the middle of the consultation. It gates on thresholds,
+    # which is orchestration; the consultation itself is between the two
+    # domains that understand it.
+    REFERRAL_THRESHOLD = 500.0        # value above which a human signs off
+
+    def refer_finding(self, to_agent, kind, payload, why=""):
+        """Hand another domain something this one noticed but does not own."""
+        if not to_agent or not kind:
+            return {"error": "refer_finding needs a target agent and a kind"}
+        envelope = {"kind": kind, "payload": payload or {},
+                    "from": self.agent_id, "why": why,
+                    "referred_at": datetime.now().isoformat()}
+        amount = payload.get("amount") if isinstance(payload, dict) else None
+        try:
+            amount = float(amount) if amount is not None else None
+        except (TypeError, ValueError):
+            amount = None
+        envelope["requires_signoff"] = (
+            amount is not None and amount > self.REFERRAL_THRESHOLD)
+        reply = self.send_a2a(to_agent, "receive_finding", envelope, timeout=60)
+        # Report what the other side actually said, not that the call returned.
+        inner = reply
+        seen = 0
+        while isinstance(inner, dict) and "recorded" not in inner and "result" in inner and seen < 6:
+            inner, seen = inner["result"], seen + 1
+        accepted = isinstance(inner, dict) and inner.get("recorded")
+        self.log(f"referred {kind} to {to_agent}: "
+                 + ("accepted" if accepted else f"NOT recorded ({inner})"))
+        return {"referred_to": to_agent, "kind": kind,
+                "accepted": bool(accepted), "response": inner,
+                "requires_signoff": envelope["requires_signoff"]}
+
+    def receive_finding(self, kind, payload, sender):
+        """Take a finding from another domain. Override to act on it.
+
+        The default records it and says plainly that it only recorded it. An
+        agent that silently dropped a referral would look identical to one that
+        filed it, which is the false-success shape this codebase keeps hunting."""
+        if not kind:
+            return {"recorded": False, "why": "no kind given"}
+        fid = f"finding_{int(time.time() * 1000)}"
+        self.store_own_memory(fid, json.dumps(
+            {"id": fid, "kind": kind, "payload": payload, "from": sender,
+             "received_at": datetime.now().isoformat(), "acted": False}))
+        return {"recorded": fid, "acted": False,
+                "note": f"{self.agent_id} recorded this {kind} but has no handler "
+                        "for it yet - it is stored, not acted on."}
 
     def ingest(self, prompt):
         """Absorb anything recordable in raw user input, or return None.

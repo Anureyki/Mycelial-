@@ -361,6 +361,43 @@ class AccountingAgent(AgentBase):
         return transactions
 
     # ---------- Task handling ----------
+    def receive_finding(self, kind, payload, sender):
+        """Act on a finding another domain surfaced.
+
+        Grow reads an equipment invoice because the grower shows it one - the
+        light matters to the grow. The money side is not Grow's to hold, and a
+        purchase that lives only in a plant's notes is invisible to every
+        question about what was spent on this grow.
+
+        Only the fields a ledger needs cross the boundary. The referral carries
+        no shipping address, no phone number and no order email; personal data
+        has no business in a transaction record just because it appeared in the
+        same screenshot."""
+        if kind not in ("equipment_purchase", "expense"):
+            return super().receive_finding(kind, payload, sender)
+
+        amount = payload.get("amount")
+        item = payload.get("item") or "unspecified item"
+        if amount is None:
+            return {"recorded": False,
+                    "why": f"a {kind} referral needs an amount; got {sorted(payload)}"}
+        txn = self.handle_task("log_transaction", {
+            "payor": payload.get("payor") or "principal",
+            "payee": payload.get("payee") or "unknown vendor",
+            "amount": amount,
+            "date": payload.get("date", ""),
+            "purpose": f"{kind}: {item}",
+            "documentation_ref": payload.get("documentation_ref", ""),
+            "category": payload.get("category") or "grow_equipment",
+            "project_id": payload.get("project_id", ""),
+        }, sender)
+        inner = txn.get("transaction") if isinstance(txn, dict) else None
+        if not inner:
+            return {"recorded": False, "why": f"ledger rejected it: {txn}"}
+        return {"recorded": inner["id"], "acted": True,
+                "note": f"Logged to the ledger as {inner['id']}: "
+                        f"{payload.get('payee') or 'vendor'} ${amount} for {item}."}
+
     def handle_task(self, task, args, sender):
         self.log(f"Task {task} from {sender}")
 
