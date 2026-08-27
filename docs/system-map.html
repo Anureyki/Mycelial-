@@ -1,0 +1,592 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="Architecture map of MycOS: the request path, the five inherited capabilities, the agent roster, the three stores, and what is actually exposed.">
+<title>MycOS System Map</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Public+Sans:ital,wght@0,400;0,500;0,600;1,400&family=JetBrains+Mono:wght@400;600&display=swap">
+
+<style>
+  /* Light palette on bare :root — the complete set. Dark redefines tokens only. */
+  :root {
+    --ground:    #EBE7DE;
+    --surface:   #F6F4EE;
+    --sunken:    #E1DCD0;
+    --ink:       #201D18;
+    --ink-soft:  #4A443A;
+    --muted:     #756D60;
+    --line:      #D2CBBC;
+    --line-soft: #E0DACC;
+    --accent:    #8A5E0F;
+    --accent-dim:#B8913F;
+    --ok:        #4E7346;
+    --warn:      #9A6B22;
+    --crit:      #9B4030;
+
+    --f-display: "Bricolage Grotesque", "Trebuchet MS", sans-serif;
+    --f-body:    "Public Sans", -apple-system, "Segoe UI", sans-serif;
+    --f-mono:    "JetBrains Mono", ui-monospace, "SF Mono", Menlo, monospace;
+
+    --measure: 68ch;
+    --pad: clamp(1.15rem, 4vw, 3rem);
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --ground:    #15120E;
+      --surface:   #1E1A14;
+      --sunken:    #0F0D0A;
+      --ink:       #EFE8DB;
+      --ink-soft:  #CDC4B4;
+      --muted:     #9C9285;
+      --line:      #3A3228;
+      --line-soft: #2A241C;
+      --accent:    #D9A441;
+      --accent-dim:#8A6D31;
+      --ok:        #7FA36C;
+      --warn:      #C98A3E;
+      --crit:      #C4614B;
+    }
+  }
+
+  :root[data-theme="dark"] {
+    --ground:    #15120E;
+    --surface:   #1E1A14;
+    --sunken:    #0F0D0A;
+    --ink:       #EFE8DB;
+    --ink-soft:  #CDC4B4;
+    --muted:     #9C9285;
+    --line:      #3A3228;
+    --line-soft: #2A241C;
+    --accent:    #D9A441;
+    --accent-dim:#8A6D31;
+    --ok:        #7FA36C;
+    --warn:      #C98A3E;
+    --crit:      #C4614B;
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    background: var(--ground);
+    color: var(--ink);
+    font-family: var(--f-body);
+    font-size: 16.5px;
+    line-height: 1.62;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .wrap {
+    max-width: 78rem;
+    margin: 0 auto;
+    padding: var(--pad);
+    display: flex;
+    flex-direction: column;
+    gap: clamp(2.6rem, 5vw, 4.2rem);
+  }
+
+  /* ---------- masthead ---------- */
+  .masthead { display: flex; flex-direction: column; gap: 1.1rem; }
+
+  .eyebrow {
+    font-family: var(--f-mono);
+    font-size: 0.72rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+
+  h1 {
+    font-family: var(--f-display);
+    font-weight: 800;
+    font-size: clamp(2.4rem, 7vw, 4.1rem);
+    line-height: 0.98;
+    letter-spacing: -0.025em;
+    margin: 0;
+    text-wrap: balance;
+  }
+
+  .standfirst {
+    max-width: var(--measure);
+    font-size: 1.08rem;
+    color: var(--ink-soft);
+    margin: 0;
+  }
+
+  .vitals {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0 2.2rem;
+    padding-top: 0.9rem;
+    border-top: 1px solid var(--line);
+    font-family: var(--f-mono);
+    font-size: 0.78rem;
+    color: var(--muted);
+  }
+  .vitals b { color: var(--ink); font-weight: 600; }
+
+  /* ---------- sections ---------- */
+  section { display: flex; flex-direction: column; gap: 1.15rem; }
+
+  h2 {
+    font-family: var(--f-display);
+    font-weight: 700;
+    font-size: clamp(1.5rem, 3.4vw, 2.05rem);
+    line-height: 1.12;
+    letter-spacing: -0.015em;
+    margin: 0;
+    text-wrap: balance;
+    padding-top: 1.5rem;
+    border-top: 2px solid var(--ink);
+  }
+
+  h3 {
+    font-family: var(--f-display);
+    font-weight: 600;
+    font-size: 1.02rem;
+    letter-spacing: 0.01em;
+    margin: 0.5rem 0 0;
+  }
+
+  p { margin: 0; max-width: var(--measure); }
+  p + p { margin-top: 0.75em; }
+
+  .lede { font-size: 1.05rem; color: var(--ink-soft); }
+
+  code, .mono { font-family: var(--f-mono); font-size: 0.86em; }
+  code {
+    background: var(--sunken);
+    border: 1px solid var(--line-soft);
+    padding: 0.08em 0.36em;
+    border-radius: 3px;
+  }
+
+  em.key { font-style: normal; color: var(--accent); font-weight: 600; }
+
+  /* ---------- figures ---------- */
+  figure {
+    margin: 0.6rem 0 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.85rem;
+  }
+  .canvas {
+    overflow-x: auto;
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 2px;
+    padding: clamp(0.8rem, 2.5vw, 1.6rem);
+  }
+  svg { max-width: 100%; height: auto; display: block; color: var(--ink); }
+  figcaption {
+    font-size: 0.9rem;
+    color: var(--muted);
+    max-width: var(--measure);
+    border-left: 2px solid var(--accent-dim);
+    padding-left: 0.8rem;
+  }
+
+  /* ---------- tables ---------- */
+  .scroller { overflow-x: auto; }
+  table {
+    border-collapse: collapse;
+    width: 100%;
+    min-width: 34rem;
+    font-size: 0.9rem;
+  }
+  caption {
+    text-align: left;
+    font-family: var(--f-mono);
+    font-size: 0.72rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--muted);
+    padding-bottom: 0.6rem;
+  }
+  th {
+    text-align: left;
+    font-family: var(--f-display);
+    font-weight: 600;
+    font-size: 0.8rem;
+    letter-spacing: 0.03em;
+    color: var(--ink);
+    border-bottom: 1.5px solid var(--ink);
+    padding: 0.45rem 0.7rem 0.45rem 0;
+  }
+  td {
+    border-bottom: 1px solid var(--line-soft);
+    padding: 0.5rem 0.7rem 0.5rem 0;
+    vertical-align: top;
+    color: var(--ink-soft);
+  }
+  td:first-child { color: var(--ink); }
+  .num { font-family: var(--f-mono); font-variant-numeric: tabular-nums; white-space: nowrap; }
+  .dim { color: var(--muted); }
+
+  .pill {
+    display: inline-block;
+    font-family: var(--f-mono);
+    font-size: 0.68rem;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    padding: 0.12em 0.5em;
+    border-radius: 2px;
+    border: 1px solid currentColor;
+    white-space: nowrap;
+  }
+  .p-ok   { color: var(--ok); }
+  .p-warn { color: var(--warn); }
+  .p-crit { color: var(--crit); }
+  .p-mute { color: var(--muted); }
+
+  /* ---------- callout ---------- */
+  .note {
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-left: 3px solid var(--accent);
+    padding: 1rem 1.15rem;
+    max-width: var(--measure);
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+  .note .tag {
+    font-family: var(--f-mono);
+    font-size: 0.7rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--accent);
+  }
+
+  /* ---------- capability grid ---------- */
+  .caps { display: grid; grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr)); gap: 1px; background: var(--line); border: 1px solid var(--line); }
+  .cap { background: var(--surface); padding: 1rem 1.1rem; display: flex; flex-direction: column; gap: 0.4rem; }
+  .cap .name { font-family: var(--f-mono); font-size: 0.85rem; color: var(--accent); font-weight: 600; }
+  .cap .what { font-size: 0.92rem; color: var(--ink); }
+  .cap .was { font-size: 0.84rem; color: var(--muted); }
+
+  footer {
+    border-top: 1px solid var(--line);
+    padding-top: 1.2rem;
+    font-family: var(--f-mono);
+    font-size: 0.74rem;
+    color: var(--muted);
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.3rem 1.6rem;
+  }
+
+  a { color: var(--accent); }
+  :focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+  @media (prefers-reduced-motion: reduce) { * { animation: none !important; transition: none !important; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header class="masthead">
+    <div class="eyebrow">Mycelial · self-hosted agent operating system</div>
+    <h1>MycOS System Map</h1>
+    <p class="standfirst">Twelve agents and thirteen platform services on one machine. The organising rule is that
+      the orchestrator practises no domain: it decides <em class="key">which agent</em>, and the agent decides
+      everything after that.</p>
+    <div class="vitals">
+      <span><b>25</b> ports live</span>
+      <span><b>12</b> agents</span>
+      <span><b>13</b> services</span>
+      <span><b>264</b> declared routing terms</span>
+      <span><b>394</b> reference sections</span>
+      <span>state captured 2026-08-27</span>
+    </div>
+  </header>
+
+  <!-- ============ REQUEST PATH ============ -->
+  <section>
+    <h2>What happens when you ask it something</h2>
+    <p class="lede">One question from the phone touches four layers and the guard. Nothing in this path knows
+      horticulture except the agent that practises it.</p>
+
+    <figure>
+      <div class="canvas">
+        <svg viewBox="0 0 900 585" role="img"
+             aria-label="A question enters over TLS, Anansi translates it, Boss asks every agent which claims it, the winning domain agent answers using its own capabilities, and Anansi narrates the reply. The Security Agent authorises every hop.">
+          <defs>
+            <marker id="ar" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+              <path d="M 0 0 L 10 5 L 0 10 z" fill="currentColor"/>
+            </marker>
+            <marker id="ar-a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+              <path d="M 0 0 L 10 5 L 0 10 z" fill="#D9A441"/>
+            </marker>
+          </defs>
+
+          <!-- edge -->
+          <rect x="300" y="20" width="230" height="54" rx="2" fill="none" stroke="currentColor" stroke-width="1.5"/>
+          <text x="415" y="42" text-anchor="middle" font-size="13" font-weight="600" fill="currentColor">Phone · nginx TLS</text>
+          <text x="415" y="60" text-anchor="middle" font-size="11" fill="currentColor" opacity="0.65">:8443 · TLS 1.3 + basic auth</text>
+
+          <line x1="415" y1="74" x2="415" y2="126" stroke="currentColor" stroke-width="1.5" marker-end="url(#ar)"/>
+          <text x="426" y="104" font-size="11" fill="currentColor" opacity="0.75">POST /execute</text>
+
+          <!-- anansi -->
+          <rect x="300" y="126" width="230" height="54" rx="2" fill="none" stroke="currentColor" stroke-width="1.5"/>
+          <text x="415" y="148" text-anchor="middle" font-size="13" font-weight="600" fill="currentColor">Anansi · :8081</text>
+          <text x="415" y="166" text-anchor="middle" font-size="11" fill="currentColor" opacity="0.65">storyteller — declares 0 terms</text>
+
+          <line x1="415" y1="180" x2="415" y2="232" stroke="currentColor" stroke-width="1.5" marker-end="url(#ar)"/>
+          <text x="426" y="210" font-size="11" fill="currentColor" opacity="0.75">process_request</text>
+
+          <!-- boss -->
+          <rect x="272" y="232" width="286" height="62" rx="2" fill="none" stroke="#D9A441" stroke-width="2"/>
+          <text x="415" y="256" text-anchor="middle" font-size="13" font-weight="600" fill="currentColor">Boss · :8000</text>
+          <text x="415" y="274" text-anchor="middle" font-size="11" fill="#D9A441">routes to a domain · holds no vocabulary</text>
+
+          <!-- registry -->
+          <rect x="20" y="238" width="150" height="50" rx="2" fill="none" stroke="currentColor" stroke-width="1" opacity="0.75"/>
+          <text x="95" y="258" text-anchor="middle" font-size="12" fill="currentColor">Registry :8004</text>
+          <text x="95" y="274" text-anchor="middle" font-size="10.5" fill="currentColor" opacity="0.6">who exists</text>
+          <line x1="170" y1="263" x2="270" y2="263" stroke="currentColor" stroke-width="1" stroke-dasharray="4 3" marker-end="url(#ar)"/>
+
+          <!-- ask -->
+          <line x1="415" y1="294" x2="415" y2="330" stroke="#D9A441" stroke-width="2" marker-end="url(#ar-a)"/>
+          <text x="426" y="316" font-size="11" fill="#D9A441" font-weight="600">routing_terms → who claims this?</text>
+
+          <!-- fan to agents -->
+          <line x1="415" y1="330" x2="120" y2="330" stroke="currentColor" stroke-width="1.2"/>
+          <line x1="415" y1="330" x2="710" y2="330" stroke="currentColor" stroke-width="1.2"/>
+          <line x1="120" y1="330" x2="120" y2="376" stroke="currentColor" stroke-width="1.2" marker-end="url(#ar)"/>
+          <line x1="415" y1="330" x2="415" y2="376" stroke="#D9A441" stroke-width="2" marker-end="url(#ar-a)"/>
+          <line x1="710" y1="330" x2="710" y2="376" stroke="currentColor" stroke-width="1.2" marker-end="url(#ar)"/>
+
+          <!-- agents -->
+          <rect x="35" y="376" width="170" height="66" rx="2" fill="none" stroke="currentColor" stroke-width="1.2" opacity="0.8"/>
+          <text x="120" y="398" text-anchor="middle" font-size="12" fill="currentColor">legal_agent</text>
+          <text x="120" y="415" text-anchor="middle" font-size="10.5" fill="currentColor" opacity="0.6">34 terms · no match</text>
+          <text x="120" y="431" text-anchor="middle" font-size="10.5" fill="currentColor" opacity="0.6">:9011</text>
+
+          <rect x="330" y="376" width="170" height="66" rx="2" fill="none" stroke="#D9A441" stroke-width="2"/>
+          <text x="415" y="398" text-anchor="middle" font-size="12" font-weight="600" fill="currentColor">grow_agent</text>
+          <text x="415" y="415" text-anchor="middle" font-size="10.5" fill="#D9A441">95 terms · claims it</text>
+          <text x="415" y="431" text-anchor="middle" font-size="10.5" fill="currentColor" opacity="0.6">:9009</text>
+
+          <rect x="625" y="376" width="170" height="66" rx="2" fill="none" stroke="currentColor" stroke-width="1.2" opacity="0.8"/>
+          <text x="710" y="398" text-anchor="middle" font-size="12" fill="currentColor">maintenance_agent</text>
+          <text x="710" y="415" text-anchor="middle" font-size="10.5" fill="currentColor" opacity="0.6">42 terms · no match</text>
+          <text x="710" y="431" text-anchor="middle" font-size="10.5" fill="currentColor" opacity="0.6">:8003</text>
+
+          <!-- domain work -->
+          <line x1="415" y1="442" x2="415" y2="486" stroke="#D9A441" stroke-width="2" marker-end="url(#ar-a)"/>
+          <text x="426" y="468" font-size="11" fill="#D9A441" font-weight="600">ingest → answer → describe</text>
+
+          <rect x="272" y="486" width="286" height="56" rx="2" fill="none" stroke="#D9A441" stroke-width="2"/>
+          <text x="415" y="508" text-anchor="middle" font-size="12.5" font-weight="600" fill="currentColor">Grow picks its own capabilities</text>
+          <text x="415" y="526" text-anchor="middle" font-size="10.5" fill="currentColor" opacity="0.7">drawdown · dosing · stage · care · cadence</text>
+
+          <!-- reply -->
+          <path d="M 272 514 L 210 514 L 210 153 L 298 153" fill="none" stroke="currentColor" stroke-width="1.5" stroke-dasharray="5 4" marker-end="url(#ar)"/>
+          <text x="222" y="336" font-size="11" fill="currentColor" opacity="0.75" transform="rotate(-90 222 336)">facts → Anansi narrates</text>
+
+          <!-- security rail -->
+          <line x1="838" y1="150" x2="838" y2="520" stroke="currentColor" stroke-width="1" stroke-dasharray="3 4" opacity="0.7"/>
+          <rect x="800" y="238" width="78" height="50" rx="2" fill="none" stroke="currentColor" stroke-width="1" opacity="0.75"/>
+          <text x="839" y="258" text-anchor="middle" font-size="11" fill="currentColor">Security</text>
+          <text x="839" y="274" text-anchor="middle" font-size="10.5" fill="currentColor" opacity="0.6">:9010</text>
+          <line x1="838" y1="153" x2="558" y2="153" stroke="currentColor" stroke-width="1" stroke-dasharray="3 4" opacity="0.7"/>
+          <line x1="838" y1="263" x2="560" y2="263" stroke="currentColor" stroke-width="1" stroke-dasharray="3 4" opacity="0.7"/>
+          <line x1="838" y1="409" x2="797" y2="409" stroke="currentColor" stroke-width="1" stroke-dasharray="3 4" opacity="0.7"/>
+          <line x1="838" y1="514" x2="560" y2="514" stroke="currentColor" stroke-width="1" stroke-dasharray="3 4" opacity="0.7"/>
+          <text x="866" y="360" font-size="10.5" fill="currentColor" opacity="0.7" transform="rotate(-90 866 360)">check_guard on every /execute</text>
+        </svg>
+      </div>
+      <figcaption>Boss never picks a capability. It asks who claims the request, hands the prompt over whole, and
+        the domain agent chooses among its own tools — which is why adding a capability to Grow requires no edit
+        to Boss.</figcaption>
+    </figure>
+
+    <div class="note">
+      <span class="tag">Why it is shaped this way</span>
+      <p>Boss once held roughly 600 lines choosing between Grow's capabilities and 170 more writing horticulture
+        prose. Every gap had one shape: a new ability was reachable from exactly one branch, and the question got
+        phrased another way. <code>"how long until it falls to 238"</code> reached a code model and came back as a
+        physics free-fall problem; <code>DWC</code> came back as "Direct Water Cooker".</p>
+    </div>
+  </section>
+
+  <!-- ============ CAPABILITIES ============ -->
+  <section>
+    <h2>Five verbs every agent inherits</h2>
+    <p class="lede">All defined once in <code>core/base_agent.py</code>. A new domain agent becomes routable,
+      answerable and narratable by starting up.</p>
+
+    <div class="caps">
+      <div class="cap">
+        <span class="name">routing_terms</span>
+        <span class="what">Declares the words that claim a request for me.</span>
+        <span class="was">Replaced a keyword list inside Boss. Grow appends the names of the plants it is
+          currently tracking, so registering a plant makes questions about it route from that moment.</span>
+      </div>
+      <div class="cap">
+        <span class="name">answer</span>
+        <span class="what">I receive the prompt whole and pick my own capabilities.</span>
+        <span class="was">Replaced Boss's intent patterns and facet ordering.</span>
+      </div>
+      <div class="cap">
+        <span class="name">ingest</span>
+        <span class="what">Anything recordable in the raw input, captured before anything slow runs.</span>
+        <span class="was">Grow recognises a reservoir reading stated in passing. Boss cannot — it does not know
+          what a reading looks like.</span>
+      </div>
+      <div class="cap">
+        <span class="name">describe</span>
+        <span class="what">I put my own result into words.</span>
+        <span class="was">Replaced 171 lines of Boss composing prose for domains it does not practise.</span>
+      </div>
+      <div class="cap">
+        <span class="name">refer_finding<br>receive_finding</span>
+        <span class="what">Hand another domain something I noticed but do not own.</span>
+        <span class="was">Grow reads an equipment invoice; the spend goes to Accounting as a minimal payload.
+          The default records it and <em>says</em> it only recorded it.</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ ROSTER ============ -->
+  <section>
+    <h2>Who declares what</h2>
+    <p class="lede">A request goes to whichever agent's own vocabulary matches it best. Three agents declare
+      nothing, on purpose.</p>
+
+    <div class="scroller">
+      <table>
+        <caption>Agents · live counts</caption>
+        <thead>
+          <tr><th>Agent</th><th>Port</th><th>Terms</th><th>Owns</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>grow_agent</td><td class="num">9009</td><td class="num">95</td><td>Plants, reservoir, stages, germination, dosing</td></tr>
+          <tr><td>maintenance_agent</td><td class="num">8003</td><td class="num">42</td><td>The machine itself — RAM, disk, reclaim</td></tr>
+          <tr><td>legal_agent</td><td class="num">9011</td><td class="num">34</td><td>Instruments, statutes, dockets, authorities</td></tr>
+          <tr><td>coding_agent</td><td class="num">8001</td><td class="num">26</td><td>Code, tests, lint, tracebacks</td></tr>
+          <tr><td>accounting_agent</td><td class="num">9012</td><td class="num">24</td><td>Ledger, equitable interest, control</td></tr>
+          <tr><td>security_agent</td><td class="num">9010</td><td class="num">13</td><td>Guards, authorisation, kill switch</td></tr>
+          <tr><td>analyzer_agent</td><td class="num">9006</td><td class="num">12</td><td>Outcomes, patterns, recommendations</td></tr>
+          <tr><td>trust_agent</td><td class="num">9013</td><td class="num">10</td><td>Trusts, beneficiaries, fiduciary roles</td></tr>
+          <tr><td>pqa_agent</td><td class="num">9007</td><td class="num">8</td><td>Public web search</td></tr>
+          <tr><td>boss_agent</td><td class="num">8000</td><td class="num dim">0</td><td class="dim">Orchestration only — routing, thresholds, escalation</td></tr>
+          <tr><td>anansi</td><td class="num">8081</td><td class="num dim">0</td><td class="dim">Narration. Translates both directions, names no agents</td></tr>
+          <tr><td>hermes</td><td class="num">8002</td><td class="num dim">0</td><td class="dim">Memory transport. A broker — it does not interpret</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="dim" style="font-size:0.9rem">Boss distinguishes <em>claims nothing</em> from <em>did not answer</em>:
+      a silent agent is retried in 30 seconds, a deliberate abstainer is not.</p>
+  </section>
+
+  <!-- ============ MEMORY ============ -->
+  <section>
+    <h2>Three stores, deliberately separate</h2>
+    <p class="lede">Domain memory stays small because only findings go in it. The operational log is forty times
+      larger and holds none of the reasoning.</p>
+
+    <div class="scroller">
+      <table>
+        <caption>Persistence</caption>
+        <thead><tr><th>Store</th><th>Size</th><th>Holds</th><th>Retrieved by</th></tr></thead>
+        <tbody>
+          <tr><td>Memory Service <span class="mono dim">:8007</span></td><td class="num">640 KB</td><td>Evidence and state — readings, notes, findings, system records</td><td>Exact key, via Hermes</td></tr>
+          <tr><td>Logging / Audit <span class="mono dim">:8009</span></td><td class="num">26 MB</td><td>Operational execution history. Every <code>/execute</code>, every guard decision</td><td>Never by a domain agent</td></tr>
+          <tr><td>Graph <span class="mono dim">core</span></td><td class="num">96 KB</td><td>Relationships between entities and projects</td><td>Query</td></tr>
+          <tr><td><code>reference/</code></td><td class="num">10 MB</td><td>Codified rules — Black's 1910, FRCP, Delaware Statutory Trust Act, Chandler 1912, Securities Acts, Reg S-X/S-K</td><td>Exact headword or citation</td></tr>
+          <tr><td><code>knowledge_base/</code></td><td class="num">63 files</td><td>This principal's own documents, lessons, working notes</td><td>CAG similarity</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="note">
+      <span class="tag">The rule that keeps them apart</span>
+      <p>Reference material is looked up by <em class="key">exact headword or citation</em>, never by bag-of-words
+        similarity — the CAG cache scores overlap with no stopword filter, so a long passage of boilerplate
+        outranks a short passage that is exactly on point. Measured on a real case at 0.040 against 0.030.</p>
+    </div>
+  </section>
+
+  <!-- ============ THE EDGE ============ -->
+  <section>
+    <h2>What is actually reachable</h2>
+    <p class="lede">One door is locked. Two are still open.</p>
+
+    <div class="scroller">
+      <table>
+        <caption>Listeners on 0.0.0.0 · 2026-08-27</caption>
+        <thead><tr><th>Port</th><th>Serves</th><th>Protection</th><th>State</th></tr></thead>
+        <tbody>
+          <tr><td class="num">8443</td><td>Webapp + <code>/execute</code> proxy to Anansi</td><td>TLS 1.3 · basic auth · 25 MB body cap</td><td><span class="pill p-ok">hardened</span></td></tr>
+          <tr><td class="num">9081</td><td>socat → Anansi <span class="mono dim">127.0.0.1:8081</span></td><td>none</td><td><span class="pill p-crit">plaintext</span></td></tr>
+          <tr><td class="num">8090</td><td><code>python3 -m http.server</code> serving the webapp</td><td>none</td><td><span class="pill p-crit">plaintext</span></td></tr>
+          <tr><td class="num">80</td><td>Unrelated WordPress site</td><td>system nginx</td><td><span class="pill p-mute">not MycOS</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p>Every agent binds <code>127.0.0.1</code>. Nothing but the proxy and those two legacy listeners faces the
+      network at all — which is why retiring 9081 and 8090 is the whole of what remains in the hardening phase.</p>
+  </section>
+
+  <!-- ============ SUPERVISION ============ -->
+  <section>
+    <h2>Supervision is on demand, and narrow</h2>
+    <p class="lede">Nothing runs on a timer. <code>POST :8014/heal</code> checks five core agents and restarts only
+      the ones that are actually down.</p>
+    <p>Health is read from the port, never from the supervisor's own bookkeeping — it used to check only agents it
+      believed were running, so one it had lost track of was never checked while one it wrongly believed alive was
+      restarted forever. A restart is abandoned after three failures in ten minutes, with a reason and a log hint.
+      Before that rule: <span class="mono">ag_agent 484 restarts, quantum_agent 485, maintenance_agent 488</span>.</p>
+    <p>Supervised: <code>anansi</code> · <code>boss_agent</code> · <code>coding_agent</code> ·
+      <code>maintenance_agent</code> · <code>security_agent</code>. Every other agent id is refused — an on-demand
+      agent is not broken when it is down, it is off.</p>
+  </section>
+
+  <!-- ============ PRINCIPLES ============ -->
+  <section>
+    <h2>The four rules the shape comes from</h2>
+    <div class="caps">
+      <div class="cap">
+        <span class="name">Agents are the students</span>
+        <span class="what">Domain work goes to the domain agent. If it cannot do it yet, build the capability —
+          that is the teaching.</span>
+        <span class="was">Substituting your own arithmetic leaves the agent exactly as capable as it was.</span>
+      </div>
+      <div class="cap">
+        <span class="name">Lived data outranks documentation</span>
+        <span class="what">A label, a spec sheet, a statute as published is reference. What was measured is
+          evidence.</span>
+        <span class="was">Where the two disagree the recorded outcome wins, and the disagreement is itself worth
+          logging.</span>
+      </div>
+      <div class="cap">
+        <span class="name">Hearing is not recording</span>
+        <span class="what">A fact spoken in conversation must reach the agent's record that turn, or it dies with
+          the context.</span>
+        <span class="was">A 2-inch net-pot clearance was stated, agreed with, never written down — and two days
+          later a volume measurement was analysed against the opposite assumption.</span>
+      </div>
+      <div class="cap">
+        <span class="name">False success is the failure to hunt</span>
+        <span class="what">A command that reports success while doing nothing is worse than one that errors.</span>
+        <span class="was">Verify the effect, not the exit code. A check that found nothing must say so, distinctly
+          from a check that found the thing to be fine.</span>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    <span>MycOS · Mycelial</span>
+    <span>single machine · i5-4570T · 7 GB · no GPU</span>
+    <span>state captured 2026-08-27</span>
+  </footer>
+
+</div>
+</body>
+</html>

@@ -13,6 +13,15 @@ Mycelial is a self‑hosted, stateless, agent‑based operating system for auton
 - `datasets/` – training/distillation datasets
 - `weights/` – local model weights
 
+## The map
+
+`docs/system-map.html` is the architecture drawn from live state - the request
+path, the five inherited capabilities, the roster with declared term counts,
+the three stores, and what is actually exposed. Open it in a browser. When the
+shape of the system changes, that file and `README.md` change with it; both
+describe what IS, while `CHANGELOG.md` holds what happened and
+`DEPLOYMENT_PROGRESS.md` holds what is planned.
+
 ## Essential Commands
 - **Start everything:** `./start_all.sh`
 - **Stop everything:** `pkill -f "registry_service|memory/service|policy/service|logging_auditing|inference/service|model/service|training|evaluation|data_engineering|service_manager|tool/service|boss_agent|coding_agent|hermes_interface|maintenance_agent|Anansi|analyzer_agent|grow_agent"`
