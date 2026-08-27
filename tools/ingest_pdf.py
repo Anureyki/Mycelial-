@@ -39,7 +39,30 @@ SECTION_PATTERNS = [
 MIN_SECTION, MAX_SECTION = 80, 4000
 
 
+def spacing_looks_broken(pages):
+    """True when the extraction produced text with no word breaks.
+
+    Some scans carry a text layer whose font encoding defeats pypdf's spacing,
+    and it returns "Everykindofvaluablepropertybothrealandpersonal". That is
+    not a partial result, it is unusable - a citation index built on it cannot
+    be searched and a model reading it sees one enormous word. It also looks
+    like a success: pages are non-empty and the character count is healthy.
+    Mean token length is the tell; real prose sits near 5."""
+    text = " ".join(pages)
+    tokens = text.split()
+    if len(tokens) < 50:
+        return False
+    return sum(len(t) for t in tokens) / len(tokens) > 14
+
+
 def extract_text(path):
+    """Pages of text. A .txt input is treated as OCR output already extracted -
+    Archive.org's _djvu.txt, for instance, which is often spaced correctly
+    where the PDF's own text layer is not."""
+    if path.lower().endswith(".txt"):
+        raw = open(path, errors="replace").read()
+        pages = raw.split("\f") if "\f" in raw else [raw]
+        return pages, sum(1 for p in pages if not p.strip())
     from pypdf import PdfReader
     reader = PdfReader(path)
     pages, empty = [], 0
@@ -101,14 +124,59 @@ def split_sections(pages):
     return sections
 
 
+CASE_RX = re.compile(r'\b([A-Z][A-Za-z&.\' ]{2,34}?)\s+v\.\s+([A-Z][A-Za-z&.\' ]{2,34}?)[,.\s]')
+
+
+def split_treatise(pages):
+    """Segment a work that has no numbered sections.
+
+    A statute or a rule set carries its own addresses; a treatise does not, so
+    the citation splitter returns nothing and the document indexes as zero
+    sections - honest, and useless. What a treatise IS addressable by is the
+    authorities it discusses: you look up Paul v. Virginia and want the passage
+    where this author reasons about it.
+
+    So each chunk is keyed by the book's own printed page where one is visible,
+    and carries the cases it cites as lookup terms. That keeps retrieval on
+    exact headwords rather than bag-of-words similarity."""
+    text = "\n".join(pages)
+    lines = text.splitlines()
+    # The OCR puts a bare page number on its own line between pages.
+    breaks = [i for i, l in enumerate(lines) if re.fullmatch(r'\s*\d{1,3}\s*', l)]
+    chunks, start, page_no = [], 0, None
+    for b in breaks + [len(lines)]:
+        body = "\n".join(lines[start:b]).strip()
+        if body:
+            chunks.append((page_no, body))
+        page_no = lines[b].strip() if b < len(lines) else None
+        start = b + 1
+    sections = []
+    for page_no, body in chunks:
+        flat = dehyphenate(re.sub(r'\s+', ' ', body).strip())
+        if len(flat) < MIN_SECTION:
+            continue
+        cases = sorted({f"{a.strip()} v. {b.strip()}" for a, b in CASE_RX.findall(body)})
+        sections.append({
+            "citation": f"p. {page_no}" if page_no else f"part {len(sections) + 1}",
+            "kind": "treatise",
+            "page": int(page_no) if (page_no or "").isdigit() else None,
+            "authorities": cases,
+            "text": flat[:MAX_SECTION],
+        })
+    return sections
+
+
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument("pdf")
+    ap.add_argument("pdf", help="a PDF, or a .txt of already-extracted OCR text")
     ap.add_argument("--agent", required=True, help="e.g. accounting_agent, legal_agent")
     ap.add_argument("--title", required=True)
     ap.add_argument("--source", required=True,
                     help="Provenance and rights, recorded with every section and shown to the model")
     ap.add_argument("--out-dir", default=None)
+    ap.add_argument("--treatise", action="store_true",
+                    help="Work has no numbered sections: key by printed page and "
+                         "index the authorities each passage cites")
     args = ap.parse_args()
 
     if not os.path.exists(args.pdf):
@@ -124,20 +192,35 @@ def main():
         if chars < 500:
             sys.exit("  nothing to index - aborting rather than writing an empty index")
 
-    sections = split_sections(pages)
+    if spacing_looks_broken(pages):
+        sys.exit(
+            "  ABORTING: the extracted text has no word breaks - this scan's text layer\n"
+            "  defeats pypdf's spacing. It would index as one unsearchable word.\n"
+            "  Use the OCR text instead, which is usually spaced correctly:\n"
+            "    curl -sL -o book.txt https://archive.org/download/<id>/<id>_djvu.txt\n"
+            "    ingest_pdf.py book.txt --agent ... --title ... --source ...")
+
+    sections = split_treatise(pages) if args.treatise else split_sections(pages)
+    if not args.treatise and not sections:
+        print("  no citation structure found - retry with --treatise to key by page "
+              "and cited authority instead")
     root = args.out_dir or os.path.join(os.path.dirname(os.path.dirname(
         os.path.abspath(__file__))), "reference", args.agent)
     os.makedirs(root, exist_ok=True)
     slug = re.sub(r'[^a-z0-9]+', '_', args.title.lower()).strip('_')[:60]
     out = os.path.join(root, f"{slug}.json")
 
+    authorities = sorted({a for s_ in sections for a in s_.get("authorities", [])})
     doc = {"title": args.title, "source": args.source,
+           "authorities_cited": authorities,
            "origin_pdf": os.path.basename(args.pdf),
            "pages": total, "sections": sections}
     with open(out, "w") as fh:
         json.dump(doc, fh, indent=0)
 
     print(f"  {len(sections)} citation-addressable sections -> {out}")
+    if authorities:
+        print(f"  {len(authorities)} distinct authorities indexed as lookup terms")
     if not sections:
         print("  No citations matched. The document may not use a recognised citation")
         print("  format; it is stored with zero sections rather than as one unusable blob.")
@@ -147,7 +230,7 @@ def main():
             kinds[s["kind"]] = kinds.get(s["kind"], 0) + 1
         print("  by kind:", ", ".join(f"{k}={v}" for k, v in sorted(kinds.items())))
         for s in sections[:3]:
-            print(f"    {s['citation'][:28]:30} p{s['page']:<4} {s['text'][:60]}...")
+            print(f"    {s['citation'][:28]:30} p{str(s['page'] or '-'):<4} {s['text'][:60]}...")
 
 
 if __name__ == "__main__":

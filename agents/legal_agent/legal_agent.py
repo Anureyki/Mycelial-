@@ -202,6 +202,7 @@ class LegalAgent(AgentBase):
     # index costs memory this box does not have to spare.
     DICTIONARY_FILES = ("blacks_1910.json", "modern_supplement.json")
     _dictionary = None
+    _aliases = None
 
     def _load_dictionary(self):
         if self._dictionary is not None:
@@ -225,9 +226,124 @@ class LegalAgent(AgentBase):
         self.log(f"dictionary: {len(merged)} terms indexed")
         return merged
 
+    # Reference files that carry `sections` - a treatise, a rule set - as
+    # opposed to the term->definition dictionaries above. Both live in
+    # reference/legal, and until now only the dictionaries were ever read:
+    # federal_rules_of_civil_procedure.json sat there for five days and
+    # express_trusts_..._chandler_1912.json arrived to join it, neither
+    # reachable by anything. A corpus nothing loads is decoration.
+    _refdocs = None
+
+    def _load_reference_docs(self):
+        """Index every section-bearing reference file by citation and by the
+        authorities it cites. Exact keys only - CLAUDE.md is explicit that
+        reference material is retrieved by headword or citation, never by
+        bag-of-words similarity, because a long passage of boilerplate
+        outscores a short passage that is exactly on point."""
+        if self._refdocs is not None:
+            return self._refdocs
+        ref_dir = os.path.join(os.path.dirname(os.path.dirname(
+            os.path.dirname(os.path.abspath(__file__)))), "reference", "legal")
+        by_citation, by_authority, titles = {}, {}, []
+        try:
+            names = sorted(os.listdir(ref_dir))
+        except FileNotFoundError:
+            names = []
+        for fname in names:
+            if not fname.endswith(".json") or fname in self.DICTIONARY_FILES:
+                continue
+            try:
+                with open(os.path.join(ref_dir, fname)) as fh:
+                    doc = json.load(fh)
+            except Exception as e:
+                self.log(f"reference: could not load {fname}: {e}")
+                continue
+            sections = doc.get("sections") if isinstance(doc, dict) else None
+            if not sections:
+                continue
+            title, source = doc.get("title", fname), doc.get("source", "")
+            titles.append(f"{title} ({len(sections)} sections)")
+            for s in sections:
+                entry = {"title": title, "source": source,
+                         "citation": s.get("citation"), "page": s.get("page"),
+                         "text": s.get("text", "")}
+                cit = str(s.get("citation") or "").strip().lower()
+                if cit:
+                    by_citation.setdefault(cit, entry)
+                for a in s.get("authorities", []) or []:
+                    by_authority.setdefault(a.strip().lower(), []).append(entry)
+        self._refdocs = {"by_citation": by_citation, "by_authority": by_authority}
+        self.log(f"reference: {len(by_citation)} sections, "
+                 f"{len(by_authority)} authorities from {len(titles)} work(s): "
+                 + "; ".join(titles))
+        return self._refdocs
+
+    def lookup_reference(self, term):
+        """A citation or a case name, matched exactly, then as a contained name.
+
+        Returns [] rather than a loose match. A wrong passage presented as
+        authority is worse than none, because the reasoning layer trusts it."""
+        idx = self._load_reference_docs()
+        key = (term or "").strip().lower().rstrip(".")
+        if not key:
+            return []
+        # The FRCP index is keyed as the rules cite themselves - "9(h)",
+        # "16(e)" - so a person asking for "Rule 12" matched nothing.
+        key = re.sub(r'^(fed\.? ?r\.? ?civ\.? ?p\.?|frcp|rule)\s+', '', key).strip()
+        if key in idx["by_citation"]:
+            return [idx["by_citation"][key]]
+        if key in idx["by_authority"]:
+            return idx["by_authority"][key]
+        # A case is often cited with extra words around it ("as the tax
+        # considered in Gleason v. McKay"), so match on containment in either
+        # direction - but only for names that look like a case.
+        # "Rule 12" normalises to "12", but the rules are indexed as they cite
+        # themselves - 12(b), 12(d) - so a bare rule number has to gather its
+        # subsections rather than miss.
+        if re.fullmatch(r'\d{1,4}', key):
+            subs = [e for c, e in idx["by_citation"].items()
+                    if c == key or c.startswith(key + "(")]
+            if subs:
+                return subs[:6]
+        if " v. " in key or " v " in key:
+            out = []
+            for name, entries in idx["by_authority"].items():
+                if key in name or name in key:
+                    out.extend(entries)
+            return out[:4]
+        return []
+
     def lookup_term(self, term):
+        """A headword, matched exactly - then by its parts.
+
+        Black's runs compound headwords: "Cestui, Cestuy" is one key covering
+        two spellings, so an exact-key lookup of "cestui" missed a term the
+        dictionary plainly holds. Aliases are built once, and only from the
+        commas the editor already used - this splits an existing headword, it
+        does not invent one."""
         d = self._load_dictionary()
-        return d.get((term or "").strip().lower())
+        key = (term or "").strip().lower()
+        if not key:
+            return None
+        hit = d.get(key)
+        if hit:
+            return hit
+        if self._aliases is None:
+            aliases = {}
+            for k, v in d.items():
+                if "," in k:
+                    for part in k.split(","):
+                        part = part.strip()
+                        if len(part) > 2:
+                            aliases.setdefault(part, v)
+            self._aliases = aliases
+            self.log(f"dictionary: {len(aliases)} compound-headword aliases")
+        hit = self._aliases.get(key)
+        if hit:
+            return hit
+        # "cestui que trust" - a phrase whose first word is the headword.
+        first = key.split()[0]
+        return d.get(first) or self._aliases.get(first)
 
     def _definitions_for(self, text, terms, limit=6):
         """Definitions for the terms this extraction actually turns on, and only
@@ -873,6 +989,18 @@ class LegalAgent(AgentBase):
             if not args or not args[0]:
                 return {"error": "Usage: lookup <term_or_citation>", "disclaimer": DISCLAIMER}
             term = args[0]
+            # The corpus comes first. It was consulted nowhere in this path:
+            # lookup went cache -> web -> model, so a term defined in Black's
+            # and a case discussed in a treatise on the shelf both reached the
+            # open web before they reached the books this agent owns.
+            defined = self.lookup_term(term)
+            if defined:
+                return {"term": term, "source": "reference/legal dictionary",
+                        "definition": defined, "disclaimer": DISCLAIMER}
+            passages = self.lookup_reference(term)
+            if passages:
+                return {"term": term, "source": "reference/legal corpus",
+                        "results": passages, "disclaimer": DISCLAIMER}
             hits = self.query_cache(term, top_k=3)
             if hits:
                 return {"term": term, "source": "cache", "results": hits, "disclaimer": DISCLAIMER}
