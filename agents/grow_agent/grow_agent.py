@@ -3526,6 +3526,45 @@ class GrowAgent(AgentBase):
     # bracket, not a date.
     ROOT_EXTENSION_CM_PER_DAY = (1.0, 3.0)
 
+    def infer_system_change(self, plant_id="current_plant"):
+        """When the plant actually moved, derived from what it was mixed into.
+
+        A plan is not an event: plan_system_transition writes what to do, and
+        nothing writes that it was done. Reporting "not on the record" from
+        that absence was wrong - the record holds it plainly, in the volume.
+        You do not mix 14.9L of nutrients for a 5L bucket, so the first recipe
+        at the new working volume IS the move, to within one feed.
+
+        Derived, not asserted: it returns the bracket it can defend - the last
+        record at the old volume and the first at the new one."""
+        hist = sorted((self._get_nutrient_history(plant_id) or []),
+                      key=lambda r: r.get("timestamp") or "")
+        seen = []
+        for r in hist:
+            lit = self._parse_numeric(r.get("reservoir_liters"))
+            ts = r.get("timestamp")
+            if lit and ts:
+                seen.append((ts, lit))
+        if len(seen) < 2:
+            return {"inferred": False, "why": "fewer than two recorded volumes"}
+        for (prev_ts, prev_l), (ts, lit) in zip(seen, seen[1:]):
+            if lit >= prev_l * 1.5:
+                try:
+                    days = (datetime.now() - datetime.fromisoformat(ts[:19])).days
+                except Exception:
+                    days = None
+                return {"inferred": True,
+                        "moved_on": ts, "days_since": days,
+                        "from_liters": prev_l, "to_liters": lit,
+                        "last_seen_at_old_volume": prev_ts,
+                        "how": (f"First recipe mixed at {lit:g}L, after one at {prev_l:g}L. "
+                                f"A {lit / prev_l:.1f}x jump in working volume is a change of "
+                                "vessel, not a top-up, so the move is dated to that feed - "
+                                "accurate to within one mixing."),
+                        "confidence": "medium"}
+        return {"inferred": False,
+                "why": "no volume increase of 1.5x or more in the nutrient history"}
+
     def estimate_root_establishment(self, plant_id="current_plant", transitioned_on=None):
         """How long until roots bridge the medium and reach the reservoir.
 
@@ -3568,18 +3607,29 @@ class GrowAgent(AgentBase):
         out["roots_were_free_hanging_before_move"] = prior_free_hanging
 
         # Days since the move, if the record holds one.
-        days = None
+        days, moved_on, how = None, None, None
         if transitioned_on:
             try:
                 days = (datetime.now() - datetime.fromisoformat(str(transitioned_on)[:19])).days
+                moved_on, how = transitioned_on, "supplied by the grower"
             except Exception:
                 days = None
+        if days is None:
+            # Derive it. The volume the plant was last mixed into says when the
+            # vessel changed, and reporting absence without checking that was
+            # the bug here.
+            inf = self.infer_system_change(plant_id)
+            if inf.get("inferred"):
+                days, moved_on, how = inf["days_since"], inf["moved_on"], inf["how"]
+                out["transition_source"] = "derived from the nutrient history"
         out["days_since_transition"] = days
+        out["moved_on"] = moved_on
+        if how:
+            out["how_that_date_was_reached"] = how
         if days is None:
             out["missing"] = (
-                "The transition date is not on the record. A plan was written "
-                "(plan_system_transition) but no event says the move happened, so nothing "
-                "here can count days from it. Tell me the date and it gets written down.")
+                "No move is visible in the record - no plan, and no jump in working volume "
+                "in the nutrient history. Tell me the date and it gets written down.")
 
         lo, hi = self.ROOT_EXTENSION_CM_PER_DAY
         if gap_cm:
@@ -5654,6 +5704,9 @@ class GrowAgent(AgentBase):
             return {"result": self.assess_germination(
                 args.get("plant_id", "current_plant"),
                 args.get("description") or args.get("symptom_text") or "")}
+
+        elif task == "infer_system_change":
+            return {"result": self.infer_system_change(args.get("plant_id", "current_plant"))}
 
         elif task == "estimate_root_establishment":
             return {"result": self.estimate_root_establishment(
