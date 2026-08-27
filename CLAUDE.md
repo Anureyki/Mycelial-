@@ -278,6 +278,23 @@ field. Nothing is presented to a model as authority without its provenance
 attached - the failure this prevents is a placeholder file defining `custodian`
 with an invented meaning and being read as reference.
 
+**A standing field is set from the content, never from the wrapper.** `stance`,
+`source`, `evidence_kind`, `species`, `confidence` - every field whose job is to
+carry how much weight something deserves must be filled by reading the thing.
+Filling one from a title, a channel, a filename or a vendor is worse than
+leaving it blank: a blank field is a known gap, while a guessed one launders an
+assumption into metadata the reasoning layer trusts.
+
+The failure, in full: a 110-minute talk was ingested and tagged `advocacy` from
+its title and channel name. Read, it argues the opposite of what the tag
+implied - that private ordering is *a permission the law grants, not an
+exemption from it*, written expressly against the "declare a status and become
+exempt" error, citing scholarship and disclaiming its own authority. It was
+commentary. The tag would have told Legal to discount the one document in the
+corpus that draws the distinction carefully.
+
+If the content has not been read, the honest value is `unknown`.
+
 ### Domain focus (recorded intent, not yet built)
 
 - **Accounting** should surface **equitable interest and control**, not debit

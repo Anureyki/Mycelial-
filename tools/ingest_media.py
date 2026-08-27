@@ -93,11 +93,24 @@ def main():
     ap.add_argument("--agent", required=True, help="e.g. legal_agent")
     ap.add_argument("--title", required=True)
     ap.add_argument("--stance", required=True, choices=STANCES,
-                    help="What this material IS. Recorded with every chunk and shown to "
-                         "the model. 'commentary' and 'advocacy' are not authority.")
+                    help="What this material IS, judged from its CONTENT. Recorded with "
+                         "every chunk and shown to the model. If you have not read it, "
+                         "the honest value is 'unknown' - see --why-that-stance.")
+    ap.add_argument("--why-that-stance", default="",
+                    help="One line of evidence FROM THE TEXT for the stance you chose. "
+                         "Required for anything other than 'unknown', because a stance set "
+                         "from a title or a channel name launders a guess into metadata the "
+                         "reasoning layer trusts.")
     ap.add_argument("--source", required=True, help="Provenance and rights")
     ap.add_argument("--lang", default="en")
     args = ap.parse_args()
+
+    if args.stance != "unknown" and not args.why_that_stance.strip():
+        sys.exit(
+            f"  --stance {args.stance} needs --why-that-stance: one line of evidence from\n"
+            "  the text itself. A stance taken from the title, the channel or the filename\n"
+            "  is a guess wearing the costume of provenance. If you have not read it, pass\n"
+            "  --stance unknown, which is a known gap rather than a wrong answer.")
 
     info = {}
     if re.match(r"https?://", args.target):
@@ -129,6 +142,9 @@ def main():
                      "unknown": "of unestablished standing."}[args.stance])
     header.append("")
     header.append(f"**Source:** {args.source}")
+    if args.why_that_stance.strip():
+        header.append("")
+        header.append(f"**Why that stance:** {args.why_that_stance.strip()}")
     if info.get("duration"):
         header.append(f"**Runtime:** {round(info['duration']/60)} min")
     if info.get("uploader"):

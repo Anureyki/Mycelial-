@@ -2,7 +2,9 @@
 
 **Stance: COMMENTARY** — this is commentary about the law, not the law.
 
-**Source:** SPC University, YouTube livestream s3bdnGSK0XU, 2026, 110 min. Auto-captions retrieved 2026-08-27 for private study; copyrighted, held locally, not redistributed. Thesis: private ordering is a permission the law grants, not an exemption from it - every private instrument works because a public rule makes it work. Written against the 'declare a status and become exempt' error; names birth-certificate authentication and status-correction as failed theories. Cites Greif on the Maghribi traders (garbled to 'McGriby' in the captions) and self-describes as scholarship, not authority.
+**Source:** SPC University, YouTube livestream s3bdnGSK0XU, 2026, 110 min. Auto-captions retrieved 2026-08-27 for private study; copyrighted, held locally, not redistributed. Written expressly against the 'declare a status and become exempt' error; names birth-certificate authentication and status-correction as failed theories.
+
+**Why that stance:** Reads its own sources as 'scholarship, not authority', and argues against a position rather than asserting law: 'private ordering is a permission the law grants, not an exemption from law'. Cites Greif on the Maghribi traders to argue the historical lesson runs opposite to how it is usually quoted.
 **Runtime:** 110 min
 **Speaker/channel:** SPC University
 
