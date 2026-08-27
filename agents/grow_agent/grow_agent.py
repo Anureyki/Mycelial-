@@ -2707,8 +2707,21 @@ class GrowAgent(AgentBase):
             re.search(r'\bph\s*(?:of|is|:)?\s*(\d+(?:\.\d+)?)', t, re.IGNORECASE)
         tc = re.search(r'(\d+(?:\.\d+)?)\s*(?:°|deg(?:rees)?)?\s*c\b', t, re.IGNORECASE)
         tf = re.search(r'(\d+(?:\.\d+)?)\s*(?:°|deg(?:rees)?)?\s*f\b', t, re.IGNORECASE)
-        if sum(1 for m in (ppm, ph, tc, tf) if m) < 2:
+        signals = sum(1 for m in (ppm, ph, tc, tf) if m)
+        if signals == 0:
             return None
+        if signals == 1:
+            # One unit-labelled value is a measurement unless the sentence is
+            # about where the grower WANTS it. Two signals were required
+            # because "add 200 to reach 800" must not be logged as a reading -
+            # but that is target language, not a question of how many numbers
+            # were said. A follow-up "6.07ph" after correcting pH is a real
+            # measurement and refusing it loses the observation that shows the
+            # correction worked.
+            if re.search(r"\b(raise|lower|set|keep|hold|target|reach|adjust|bring|"
+                         r"push|drop it|get it|should|want|aim|instead of|up to|"
+                         r"down to|add)\b", t, re.IGNORECASE):
+                return None
         out = {}
         if ppm:
             out["ppm"] = float(ppm.group(1))
@@ -3353,6 +3366,128 @@ class GrowAgent(AgentBase):
         problems = [f for f in found if f["classification"] == "problem"]
         lead = problems[0] if problems else found[0]
         return dict(lead, also=[f for f in found if f is not lead])
+
+    # A germinating seed fails in ways a leaf never does, and the care signs
+    # built for leaves answered a seedling with "underwatered, light starved,
+    # no urgent action" - a leaf verdict applied to something with no leaves.
+    # These are the failures that are decidable from a description, each with
+    # the observation that confirms it, because none can be settled from a
+    # photo alone.
+    GERMINATION_SIGNS = (
+        ("inverted",
+         r"(cotyledon|hypocotyl|shoot|seed ?leaves|sprout)\w*[^.]{0,40}"
+         r"(below|beneath|under|out of the bottom|hanging down|pointing down)|"
+         r"(nothing|no)\s+(green|shoot|sprout)[^.]{0,30}(above|up)",
+         "The seed may be oriented the wrong way up. A taproot grows DOWN and a "
+         "shoot grows UP; a pale hooked structure below the net pot with nothing "
+         "green above it is consistent with the seed having been set inverted, or "
+         "with the shoot having been dragged down when the root took hold.",
+         "Look at which end is which before moving anything. The root is white, "
+         "featureless and tapers; the shoot end carries the two seed leaves and is "
+         "thicker and often still wearing the husk. If the shoot is genuinely "
+         "heading down, re-seat the seed with the root pointing down - a seedling "
+         "can recover from this within the first few days and cannot once the "
+         "hypocotyl has hardened.",
+         "urgent"),
+        ("helmet",
+         # The alternation has to be grouped. Written flat, a bare "husk"
+         # matched and "husk released cleanly" was reported as helmet head.
+         r"(husk|shell|casing|helmet)[^.]{0,30}"
+         r"(stuck|still on|clamped|attached|has ?n[o']t (come|released)|won'?t come)|"
+         r"(stuck|still on|clamped|attached)[^.]{0,20}(husk|shell|casing|helmet)",
+         "the seed casing has not released the cotyledons - 'helmet head'. The "
+         "leaves cannot open while it is clamped shut",
+         "Raise humidity around the seedling for a few hours to soften it, then "
+         "ease it off with tweezers. Do not pull it dry; the cotyledons tear.",
+         "soon"),
+        ("root_short_of_water",
+         r"root[^.]{0,40}(not reach|short of|above the water|does not touch|"
+         r"dangl\w+|hanging)|gap[^.]{0,20}water",
+         "the taproot may not be reaching solution yet. In low water culture the "
+         "root has to bridge the gap on its own, and the medium above dries fast",
+         "Keep the plug damp from the top until the root is visibly in the water. "
+         "Raising the level to touch the net pot instead invites rot at the collar.",
+         "soon"),
+        ("damping_off",
+         r"pinched|thin\w* at the (base|collar|soil line)|dark(ened)? at the (base|stem)|"
+         r"collapsed at the (base|soil)|fell over",
+         "damping off - a fungal collapse at the stem base that is fatal once "
+         "established and moves fast in still, wet, warm conditions",
+         "Increase airflow and let the surface dry between waterings. An affected "
+         "seedling rarely recovers; the value of spotting it is protecting the "
+         "others sharing the lid.",
+         "urgent"),
+    )
+
+    def assess_germination(self, plant_id="current_plant", description=""):
+        """Judge a germinating seed on its own terms.
+
+        Everything else in this agent assumes leaves to look at. A seed has a
+        root, a shoot and a husk, and it fails by orientation, by a husk that
+        will not release, by a root that never reaches water, or by collapsing
+        at the collar. None of those are visible to a leaf classifier."""
+        text = (description or "").lower()
+        stage = "unknown"
+        plant = next((p for p in self._get_all_plants()
+                      if p.get("plant_id") == plant_id), None)
+        if plant:
+            stage = plant.get("stage", "unknown")
+
+        age_days = None
+        try:
+            g = (plant or {}).get("germination_date")
+            if g:
+                age_days = (datetime.now() - datetime.fromisoformat(g[:10])).days
+        except Exception:
+            pass
+
+        found = []
+        for name, rx, means, do, urgency in self.GERMINATION_SIGNS:
+            m = re.search(rx, text)
+            if not m:
+                continue
+            # Negation has to be judged on what sits immediately BEFORE the
+            # match, not across the whole clause. Several of these signs are
+            # inherently negative statements - "the root does not reach the
+            # water" REPORTS the problem - and a clause-wide check threw them
+            # away for containing the word "not".
+            before = text[max(0, m.start() - 18):m.start()]
+            if re.search(r"\b(no|not|never|without|free of|clear of)\b\s*$", before) or \
+               re.search(r"\b(no|not|never|without)\b[^.]{0,12}$", before):
+                continue
+            found.append({"sign": name, "means": means,
+                          "what_to_do": do, "urgency": urgency})
+
+        out = {"plant_id": plant_id, "stage": stage, "age_days": age_days,
+               "signs": [f["sign"] for f in found], "findings": found}
+        if not description:
+            out["assessment"] = "Nothing described - there is no evidence either way."
+            out["confidence"] = "low"
+            return out
+
+        urgent = [f for f in found if f["urgency"] == "urgent"]
+        if urgent:
+            lead = urgent[0]
+            out["assessment"] = f"{lead['sign'].replace('_', ' ').title()}: {lead['means']}"
+            out["action"] = lead["what_to_do"]
+            out["urgency"] = "act today"
+        elif found:
+            lead = found[0]
+            out["assessment"] = f"{lead['sign'].replace('_', ' ').title()}: {lead['means']}"
+            out["action"] = lead["what_to_do"]
+            out["urgency"] = "soon"
+        else:
+            out["assessment"] = ("Nothing in the description matches a known germination "
+                                 "failure. That is an absence of findings, not a finding "
+                                 "of health - a seed gives very little to read.")
+            out["urgency"] = "none"
+        # A photo cannot settle which end is which. Say so rather than implying
+        # the agent looked.
+        out["confidence"] = "medium" if found else "low"
+        out["limit"] = ("Judged from a description, not from the plant. Which end of a "
+                        "seedling is root and which is shoot is the one thing worth "
+                        "confirming by eye before acting on it.")
+        return out
 
     def photo_cadence(self, plant_id="current_plant"):
         """How often a photo is worth taking, and what it actually buys.
@@ -5376,6 +5511,11 @@ class GrowAgent(AgentBase):
         elif task == "describe":
             return {"result": {"text": self.describe(args.get("task") or "",
                                                      args.get("payload"))}}
+
+        elif task == "assess_germination":
+            return {"result": self.assess_germination(
+                args.get("plant_id", "current_plant"),
+                args.get("description") or args.get("symptom_text") or "")}
 
         elif task == "photo_cadence":
             return {"result": self.photo_cadence(args.get("plant_id", "current_plant"))}
