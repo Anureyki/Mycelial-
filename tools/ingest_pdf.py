@@ -35,6 +35,12 @@ SECTION_PATTERNS = [
     # collapsing 1-01, 1-02 and 1-03 onto one ambiguous key.
     (re.compile(r'^\s*(§+\s*\d+[A-Za-z0-9.\-\u2010-\u2015]*)'), "section_sign"),
     (re.compile(r'^\s*(SEC(?:TION)?\.\s+\d+[A-Za-z0-9.\-]*)', re.I), "section"),
+    # State codes head a section with its bare number and a period - Delaware's
+    # "3806. Management of statutory trust." - while the § form appears only in
+    # the table of contents at the top. Matching the § form alone captured the
+    # contents listing and left every section body unattached: 4 sections out
+    # of ~50, which looked like a successful ingest.
+    (re.compile(r'^\s*(\d{3,4}[A-Za-z]?)\.\s+[A-Z]'), "code_section"),
 ]
 MIN_SECTION, MAX_SECTION = 80, 4000
 
