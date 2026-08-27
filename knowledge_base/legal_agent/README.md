@@ -36,3 +36,30 @@ curl -X POST http://localhost:9011/execute -H 'Content-Type: application/json' \
 `sample_placeholder.txt` in each folder is NOT real legal content — it only
 exists so `query_cache` / `parse_contract` have something to retrieve during
 testing. Delete it once you've added real sources.
+
+## Transcripts
+
+`transcripts/` holds talks, lectures and recorded streams ingested with
+`tools/ingest_media.py`. Every file opens with a **stance** line, which is the
+point of the directory:
+
+| Stance | Means |
+|--------|-------|
+| `authority` | Binding or persuasive authority |
+| `primary_source` | A primary source document |
+| `commentary` | Commentary *about* the law, not the law |
+| `advocacy` | An argument being made, recorded as an argument — **not** a statement of what the law is |
+| `unknown` | Standing not established |
+
+This tree is searched by CAG similarity. It is **not** `reference/`, which holds
+codified rules retrieved by exact headword or citation. Filing commentary where
+the agent looks for authority is how an opinion gets read back as law.
+
+```bash
+python3 tools/ingest_media.py <url|audio-file> \
+  --agent legal_agent --title "..." --stance advocacy --source "..."
+curl -X POST localhost:9011/execute -d '{"task":"refresh_cache","args":{}}'
+```
+
+Captions are used when a video has them; local Whisper runs only when it does
+not, because a 110-minute transcription on this CPU costs hours.
