@@ -2356,7 +2356,11 @@ class GrowAgent(AgentBase):
         ("care",       r"\b(wilt|droop|shrivel|yellow|brown|mush|rot|leggy|dry|sick|dying|"
                        r"limp|flat|soft|curl|crisp|spot|pale|burn)\w*|"
                        r"\blooks? (bad|off|sad|rough|sick|wrong)\b|\bwhat'?s wrong\b"),
-        ("stage",      r"\bstage\b|\bveg\b|\bflower\b|\bpistil\b|\bharvest\b|\bhow old\b"),
+        # "autoflower" / "auto flower" is a CULTIVAR TYPE, not the flowering
+        # stage, and matching it as a stage question turned "this is plant two
+        # auto flower" into a stage assessment nobody asked for.
+        ("stage",      r"\bstage\b|\bveg\b|(?<!auto )(?<!auto)\bflower(?!ing seed)\b|"
+                       r"\bpistil\b|\bharvest\b|\bhow old\b"),
     )
 
     def amend_grow_system(self, plant_id="current_plant", **fields):
@@ -2781,6 +2785,44 @@ class GrowAgent(AgentBase):
         shape = next((name for name, pat in self.QUESTION_SHAPES if re.search(pat, lp)), None)
         parts = []
 
+        # Is this a question at all?
+        #
+        # "This is plant two, the same one we recorded" is the grower TELLING
+        # the agent something, and it came back with a stage assessment of a
+        # different plant. Answering an unasked question is not a near miss -
+        # it buries the fact being reported and looks like the system failed to
+        # hear it.
+        #
+        # A symptom report is not a question either but SHOULD be assessed -
+        # "my aloe looks shrivelled" invites a care read. So the test is not
+        # grammar, it is whether there is anything here to act on: a question,
+        # a symptom, or a measurement.
+        asks = bool(re.search(
+            r"\?|\b(why|how|when|what|which|where|who|should|shall|can|could|would|"
+            r"do i|did i|did we|is it|is my|are my|am i|tell me|show me|explain|"
+            r"recommend|how much|how many|how long|how often)\b", lp))
+        reports = bool(shape in ("care", "photos") or re.search(
+            r"\b(ppm|\bph\b|\bec\b|degrees|celsius|fahrenheit)\b|\d+\s*(ppm|ml|l\b|c\b|f\b)", lp))
+        if not asks and not reports:
+            noted = {"answered_as": "acknowledged", "plant_id": plant_id,
+                     "asked_a_question": False}
+            named = self._plant_from_text(prompt)
+            if named:
+                p = next((x for x in self._get_all_plants()
+                          if x.get("plant_id") == named), {}) or {}
+                noted["text"] = (
+                    f"Noted - taking that as {named}"
+                    + (f" ({p.get('strain')}, {p.get('stage')})" if p.get("strain") else "")
+                    + ". Nothing was asked, so nothing is being assessed. Say what you want "
+                      "to know about it, or tell me a reading and I will log it.")
+            else:
+                noted["text"] = (
+                    "Noted. That does not name one of the plants I track and it does not ask "
+                    "anything, so I have not assessed anything - tell me which plant and what "
+                    "you want to know.")
+            noted["facts"] = {"named_plant": named}
+            return noted
+
         if shape == "drawdown":
             # "how long to fall to 238" names the destination only. The starting
             # point is not missing - it is the current reading, and refusing to
@@ -2929,11 +2971,30 @@ class GrowAgent(AgentBase):
                                      if p.get("plant_id") != "current_plant"]
 
         # "plant 2", "grow #2", "plant two" - position in the roster.
-        m = re.search(r'\b(?:plant|grow)\s*#?\s*(\d+)\b', lp)
-        if m:
-            i = int(m.group(1))
-            if 1 <= i <= len(order):
-                return order[i - 1]
+        #
+        # Take the one the sentence is ABOUT, not the first one it mentions.
+        # "we only have two plants, plant one and plant two - this is plant
+        # two" names plant one first as context, and taking the first match
+        # answered about the wrong plant with full confidence.
+        hits = [(m.start(), int(m.group(1)))
+                for m in re.finditer(r'\b(?:plant|grow)\s*#?\s*(\d+)\b', lp)]
+        if hits:
+            pick = None
+            if len({n for _, n in hits}) == 1:
+                pick = hits[0][1]
+            else:
+                # A deictic marker points at the referent: "this is plant 2".
+                for pos, n in hits:
+                    if re.search(r'\b(this|that|it|here)(\s+\w+){0,2}\s+(is|are)?\s*$',
+                                 lp[max(0, pos - 24):pos]):
+                        pick = n
+                        break
+            if pick is not None and 1 <= pick <= len(order):
+                return order[pick - 1]
+            if pick is None:
+                # Several different plants named and nothing marks which one is
+                # meant. Refusing beats picking - the caller defaults visibly.
+                return None
 
         # A species names a plant only when one living plant IS that species.
         counts, owner = {}, {}
