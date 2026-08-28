@@ -244,7 +244,7 @@ class LegalAgent(AgentBase):
             return self._refdocs
         ref_dir = os.path.join(os.path.dirname(os.path.dirname(
             os.path.dirname(os.path.abspath(__file__)))), "reference", "legal")
-        by_citation, by_authority, titles = {}, {}, []
+        by_citation, by_authority, by_term, titles = {}, {}, {}, []
         try:
             names = sorted(os.listdir(ref_dir))
         except FileNotFoundError:
@@ -272,8 +272,19 @@ class LegalAgent(AgentBase):
                     by_citation.setdefault(cit, entry)
                 for a in s.get("authorities", []) or []:
                     by_authority.setdefault(a.strip().lower(), []).append(entry)
-        self._refdocs = {"by_citation": by_citation, "by_authority": by_authority}
-        self.log(f"reference: {len(by_citation)} sections, "
+            # Subject terms the work itself repeats, so a doctrine can be asked
+            # for by name instead of by page. Exact keys only - nothing scored.
+            for term, idxs in (doc.get("term_index") or {}).items():
+                for i in idxs:
+                    if i < len(sections):
+                        s = sections[i]
+                        by_term.setdefault(term, []).append(
+                            {"title": title, "source": source,
+                             "citation": s.get("citation"), "page": s.get("page"),
+                             "text": s.get("text", "")})
+        self._refdocs = {"by_citation": by_citation, "by_authority": by_authority,
+                         "by_term": by_term}
+        self.log(f"reference: {len(by_citation)} sections, {len(by_term)} subject terms, "
                  f"{len(by_authority)} authorities from {len(titles)} work(s): "
                  + "; ".join(titles))
         return self._refdocs
@@ -294,6 +305,8 @@ class LegalAgent(AgentBase):
             return [idx["by_citation"][key]]
         if key in idx["by_authority"]:
             return idx["by_authority"][key]
+        if key in idx.get("by_term", {}):
+            return idx["by_term"][key][:4]
         # A case is often cited with extra words around it ("as the tax
         # considered in Gleason v. McKay"), so match on containment in either
         # direction - but only for names that look like a case.
@@ -313,7 +326,7 @@ class LegalAgent(AgentBase):
             return out[:4]
         return []
 
-    def lookup_term(self, term):
+    def lookup_term(self, term, loose=True):
         """A headword, matched exactly - then by its parts.
 
         Black's runs compound headwords: "Cestui, Cestuy" is one key covering
@@ -341,7 +354,13 @@ class LegalAgent(AgentBase):
         hit = self._aliases.get(key)
         if hit:
             return hit
-        # "cestui que trust" - a phrase whose first word is the headword.
+        # "cestui que trust" - a phrase whose first word is the headword. This
+        # is a LAST resort: it turns any multi-word phrase into a single-word
+        # definition, so "exclusive jurisdiction" came back as Black's entry for
+        # "Exclusive" and the treatise sections that actually discuss the
+        # doctrine were never reached. Callers try the corpus in between.
+        if not loose:
+            return None
         first = key.split()[0]
         return d.get(first) or self._aliases.get(first)
 
@@ -993,7 +1012,10 @@ class LegalAgent(AgentBase):
             # lookup went cache -> web -> model, so a term defined in Black's
             # and a case discussed in a treatise on the shelf both reached the
             # open web before they reached the books this agent owns.
-            defined = self.lookup_term(term)
+            # Exact headword first, then the corpus, then the loose
+            # first-word definition. A doctrine phrase must reach the treatises
+            # before it is reduced to a one-word gloss.
+            defined = self.lookup_term(term, loose=False)
             if defined:
                 return {"term": term, "source": "reference/legal dictionary",
                         "definition": defined, "disclaimer": DISCLAIMER}
@@ -1001,6 +1023,10 @@ class LegalAgent(AgentBase):
             if passages:
                 return {"term": term, "source": "reference/legal corpus",
                         "results": passages, "disclaimer": DISCLAIMER}
+            loose_def = self.lookup_term(term, loose=True)
+            if loose_def:
+                return {"term": term, "source": "reference/legal dictionary (nearest headword)",
+                        "definition": loose_def, "disclaimer": DISCLAIMER}
             hits = self.query_cache(term, top_k=3)
             if hits:
                 return {"term": term, "source": "cache", "results": hits, "disclaimer": DISCLAIMER}

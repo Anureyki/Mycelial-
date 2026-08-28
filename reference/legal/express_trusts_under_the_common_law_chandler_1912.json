@@ -1,6 +1,6 @@
 {
 "title": "Express Trusts Under the Common Law (Chandler, 1912)",
-"source": "Alfred D. Chandler, Esq., of the Boston Bar. Two papers submitted to the Tax Commissioner of Massachusetts under Chapter 55 of the Resolves of 1911. Boston: Little, Brown & Co., 1912. Public domain (published 1912, US term expired). Cornell University Library scan; OCR text from Internet Archive item cu31924024932513.",
+"source": "Alfred D. Chandler, Esq., of the Boston Bar. Two papers to the Massachusetts Tax Commissioner under Chapter 55 of the Resolves of 1911. Boston: Little, Brown, 1912. Public domain. Internet Archive cu31924024932513.",
 "authorities_cited": [
 "As the tax considered in Gleason v. McKay",
 "Bank of Topeka v. Eaton",
@@ -41,6 +41,302 @@
 "Warner v. Beers",
 "York in the leading case of Warner v. Beers"
 ],
+"term_index": {
+"express trusts": [
+0,
+1,
+4,
+5,
+6,
+9,
+10,
+12,
+13,
+15,
+16,
+17,
+18,
+20,
+22,
+26,
+27
+],
+"public interest": [
+0,
+7,
+12
+],
+"volun tary": [
+0,
+11,
+12
+],
+"beneficial interest": [
+0,
+6,
+10,
+21,
+26
+],
+"legal status": [
+0,
+6,
+8,
+21
+],
+"transferable certificates": [
+0,
+6,
+12,
+15,
+26
+],
+"further control": [
+0,
+6,
+27
+],
+"voluntary associations": [
+0,
+6,
+7,
+9,
+13,
+27
+],
+"trustees under express": [
+1,
+5,
+12,
+27
+],
+"united states": [
+2,
+6,
+7,
+8,
+18,
+20,
+22
+],
+"last five years": [
+3,
+4,
+6
+],
+"last five": [
+3,
+4,
+6
+],
+"massachusetts corporations": [
+3,
+4,
+6,
+27
+],
+"corporate charters": [
+3,
+4,
+5
+],
+"corporation laws": [
+3,
+7,
+27
+],
+"five years": [
+3,
+4,
+6,
+27
+],
+"certain public": [
+3,
+6,
+27
+],
+"real estate": [
+4,
+5,
+14,
+27
+],
+"transferable shares": [
+4,
+6,
+8,
+9,
+10,
+11,
+12,
+14,
+15,
+26
+],
+"express trust": [
+5,
+6,
+7,
+13,
+18,
+23
+],
+"feels bound": [
+5,
+12,
+14
+],
+"voluntary association": [
+7,
+8,
+9
+],
+"asso ciations": [
+7,
+8,
+9,
+20
+],
+"public policy": [
+7,
+17,
+24,
+25
+],
+"issue transferable": [
+8,
+12,
+26
+],
+"joint stock": [
+9,
+13,
+18,
+20
+],
+"joint stock companies": [
+9,
+13,
+18,
+20
+],
+"stock companies": [
+9,
+13,
+18,
+20
+],
+"constitutional conflict": [
+9,
+13,
+26
+],
+"mckay mass": [
+10,
+11,
+12,
+20,
+21,
+26
+],
+"corpora tions": [
+11,
+13,
+16,
+27
+],
+"corporate creations": [
+11,
+13,
+27
+],
+"beers wendell": [
+11,
+14,
+24
+],
+"natural right": [
+11,
+24,
+27
+],
+"pomeroy mass": [
+12,
+20,
+21
+],
+"natural common": [
+13,
+14,
+19,
+23
+],
+"certain natural": [
+13,
+14,
+19
+],
+"certain natural common": [
+13,
+14,
+19
+],
+"personal responsibility": [
+13,
+16,
+27
+],
+"absolute principals": [
+13,
+18,
+23
+],
+"blatchford mass": [
+13,
+20,
+21
+],
+"strict express": [
+18,
+20,
+22
+],
+"contracts made": [
+19,
+24,
+25
+],
+"stone mercantile": [
+19,
+20,
+21,
+24,
+25
+],
+"wells stone": [
+20,
+24,
+25
+],
+"moritz mass": [
+20,
+21,
+23,
+25
+],
+"wells stone mercantile": [
+20,
+24,
+25
+],
+"chief justice": [
+21,
+24,
+25,
+26
+]
+},
 "origin_pdf": "chandler.txt",
 "pages": 1,
 "sections": [

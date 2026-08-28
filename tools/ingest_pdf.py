@@ -133,6 +133,57 @@ def split_sections(pages):
 CASE_RX = re.compile(r'\b([A-Z][A-Za-z&.\' ]{2,34}?)\s+v\.\s+([A-Z][A-Za-z&.\' ]{2,34}?)[,.\s]')
 
 
+STOP_EDGE = {"the","a","an","of","in","to","and","or","is","are","was","were","be","been",
+             "that","this","these","those","it","its","as","by","for","with","on","at",
+             "from","which","not","but","have","has","had","he","she","they","we","you",
+             "his","her","their","our","such","said","would","may","must","shall","can",
+             "all","any","no","one","two","upon","under","into","when","where","if","so",
+             "there","then","than","also","other","same","own","case","cases","court"}
+
+
+def index_terms(sections, min_freq=None, max_terms=2500):
+    """Doctrine terms a work actually discusses, keyed for exact lookup.
+
+    A treatise is addressable by page and by the cases it cites, which is
+    useless to anyone who does not already know the page - the whole point of
+    having a retrieval layer is to ask by subject. Running heads would be the
+    natural index and this OCR dropped them.
+
+    So the vocabulary comes from the book's own repetition: a phrase Pomeroy
+    uses 78 times is one of his subjects, not an incidental word. That keeps
+    lookup on EXACT KEYS - CLAUDE.md forbids retrieving reference material by
+    bag-of-words similarity, because the cache scores overlap with no stopword
+    filter and a long passage of boilerplate outranks a short one that is
+    exactly on point. Nothing here is scored or ranked; a term either addresses
+    a section or it does not."""
+    from collections import Counter
+    # Scale with the work. A fixed floor of three sections indexes a
+    # 187-section treatise well and a 25-section lecture course barely at all -
+    # Maitland came back with two terms for a whole book on equity.
+    if min_freq is None:
+        min_freq = 3 if len(sections) >= 60 else 2
+    freq, per_section = Counter(), []
+    for s_ in sections:
+        words = re.findall(r"[a-z]+", (s_.get("text") or "").lower())
+        grams = set()
+        for n in (2, 3):
+            for i in range(len(words) - n + 1):
+                g = words[i:i + n]
+                if g[0] in STOP_EDGE or g[-1] in STOP_EDGE:
+                    continue
+                if any(len(w) < 4 for w in g):
+                    continue
+                grams.add(" ".join(g))
+        per_section.append(grams)
+        freq.update(grams)
+    keep = {t for t, c in freq.most_common(max_terms) if c >= min_freq}
+    index = {}
+    for i, grams in enumerate(per_section):
+        for t in grams & keep:
+            index.setdefault(t, []).append(i)
+    return index
+
+
 def split_treatise(pages):
     """Segment a work that has no numbered sections.
 
@@ -217,8 +268,10 @@ def main():
     out = os.path.join(root, f"{slug}.json")
 
     authorities = sorted({a for s_ in sections for a in s_.get("authorities", [])})
+    terms = index_terms(sections) if args.treatise else {}
     doc = {"title": args.title, "source": args.source,
            "authorities_cited": authorities,
+           "term_index": terms,
            "origin_pdf": os.path.basename(args.pdf),
            "pages": total, "sections": sections}
     with open(out, "w") as fh:
@@ -227,6 +280,8 @@ def main():
     print(f"  {len(sections)} citation-addressable sections -> {out}")
     if authorities:
         print(f"  {len(authorities)} distinct authorities indexed as lookup terms")
+    if terms:
+        print(f"  {len(terms)} doctrine terms indexed by subject")
     if not sections:
         print("  No citations matched. The document may not use a recognised citation")
         print("  format; it is stored with zero sections rather than as one unusable blob.")
