@@ -105,10 +105,17 @@ LEAF_PATTERNS = (
     ("stippling",
      r"stipple|stippl\w*|speckl\w*|tiny (pale|white|yellow|light)? ?(dots|spots|specks)|"
      r"pinprick|pin-?head|flecking|silvering|bronz\w+|sand-?blasted",
-     "spider mites or thrips feeding on the underside and puncturing cells one at a time",
-     "Turn the leaf over and look at the underside with a loupe or a phone macro: mites "
-     "show as moving specks and fine webbing in the vein junctions, thrips as black "
-     "frass and silvery scarring. Check the newest growth too.",
+     "either sap-feeding pests puncturing cells one at a time - mites or thrips - OR "
+     "calcium/magnesium starvation, which spots the leaves that expanded while the "
+     "plant was short. The two look alike on the upper surface and are told apart by "
+     "WHERE the damage is, not what it looks like",
+     "Two checks, in this order. First the record: if ppm sat below target while these "
+     "leaves were forming, the spotting is the deficit written into tissue and it does "
+     "NOT reverse when the feed is fixed - only new growth comes in clean. Then the "
+     "leaf: turn it over with a loupe or phone macro. Mites are moving specks with fine "
+     "webbing at the vein junctions, thrips leave black frass and silvery scarring, and "
+     "a deficiency leaves nothing at all underneath. Pests spread to new growth; a "
+     "deficit that has been corrected does not.",
      "problem"),
     ("interveinal",
      r"interveinal|between the veins|veins? (stay|remain|still) green|green veins",
