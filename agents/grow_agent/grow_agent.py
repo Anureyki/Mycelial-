@@ -3461,7 +3461,16 @@ class GrowAgent(AgentBase):
          # against husk and orientation instead. A seedling reaches for light
          # it cannot find by spending its seed reserves on stem, and it only
          # gets one set of reserves.
-         r"light ?starv\w*|etiolat\w*|leggy|stretch\w*|long (white|pale) (stem|hypocotyl)|"
+         # Word order was doing the deciding. "long (white|pale) (stem|
+         # hypocotyl)" missed "the hypocotyl is very long, pale" - the same
+         # fact, said the other way round - and a seedling lying flat because
+         # its stem outran its light went unclassified. Match the STATE: the
+         # stem being long, or the seedling unable to hold itself up.
+         r"light ?starv\w*|etiolat\w*|leggy|stretch\w*|"
+         r"(stem|hypocotyl)[^.]{0,40}\b(long|elongated|lanky|thin and pale)\b|"
+         r"\b(long|elongated|lanky)\b[^.]{0,30}(stem|hypocotyl)|"
+         r"(cannot|can'?t|unable to)[^.]{0,24}(hold|support|stand)[^.]{0,16}(itself|up|upright)|"
+         r"(lying|laid|flopp\w*|drap\w*)[^.]{0,20}(horizontal\w*|flat|over|down|sideways)|"
          r"(pale|yellow|white|unpigmented|colourless|colorless)[^.]{0,30}"
          r"(cotyledon|seed ?leaves|leaves)|"
          r"(cotyledon|seed ?leaves)[^.]{0,25}(pale|yellow|never green\w*|not green)",
