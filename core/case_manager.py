@@ -352,6 +352,8 @@ class CaseManager:
             return {"error": f"no such case: {case_id or self.case_id}"}
         out = []
         for ob in case.get("obligations", []):
+            if ob.get("voided"):
+                continue
             pays = ob.get("payments", [])
             undocumented = [p for p in pays if not p["has_evidence"]]
             unauthorised = [p for p in pays if not p["payor_authorized"]]
@@ -373,6 +375,46 @@ class CaseManager:
                          "assessed for authority - that is a gap in the record, not a pass.")
                 if any(not o["authorized_payors"] or o["authorized_payors"] == ["(none recorded)"]
                        for o in out) else ""}
+
+    # ---------- voiding ----------
+    def void_item(self, kind, item_id, reason):
+        """Mark a document, evidence item or obligation void, with a reason.
+
+        Not deleted. A case's history is evidence in its own right, and an item
+        that silently disappears is indistinguishable from one that was never
+        there. Voided items keep their place in the timeline and drop out of
+        every standing calculation.
+
+        This exists because demo data reached a live case: placeholder
+        documents and a fabricated rent figure were written while proving the
+        machinery worked, and leaving them next to a real ledger is how a
+        record stops being trustworthy."""
+        case = self._read()
+        if not case:
+            return {"error": f"no such case: {self.case_id}"}
+        buckets = {"document": ("documents", "doc_id"),
+                   "evidence": ("evidence", "evidence_id"),
+                   "obligation": ("obligations", "obligation_id")}
+        if kind not in buckets:
+            return {"error": f"kind must be one of {sorted(buckets)}"}
+        field, idkey = buckets[kind]
+        item = next((x for x in case.get(field, []) if x.get(idkey) == item_id), None)
+        if not item:
+            return {"error": f"no such {kind}: {item_id}"}
+        item["voided"] = True
+        item["voided_at"] = _now()
+        item["voided_by"] = self.agent.agent_id
+        item["void_reason"] = reason
+        # An element must not still count evidence that has been voided.
+        if kind == "evidence":
+            el = case.get("elements", {}).get(item.get("supports"))
+            if el and item_id in el.get("evidence_ids", []):
+                el["evidence_ids"].remove(item_id)
+        ev = self._append(case, "note_added",
+                          summary=f"VOIDED {kind}: {reason}"[:280], ref=item_id)
+        self._write(case)
+        return {"voided": kind, "id": item_id, "reason": reason, "event": ev,
+                "envelope": self.envelope(case["case_id"], ev)}
 
     # ---------- reading ----------
     def get(self, case_id=None):
@@ -396,9 +438,11 @@ class CaseManager:
             "case_id": case["case_id"], "title": case.get("title"),
             "state": case.get("state"), "opened_at": case.get("opened_at"),
             "participants": len(case.get("participants", [])),
-            "documents": len(case.get("documents", [])),
-            "evidence_items": len(case.get("evidence", [])),
-            "obligations": len(case.get("obligations", [])),
+            "documents": len([d for d in case.get("documents", []) if not d.get("voided")]),
+            "evidence_items": len([e for e in case.get("evidence", []) if not e.get("voided")]),
+            "obligations": len([o for o in case.get("obligations", []) if not o.get("voided")]),
+            "voided_items": len([x for f in ("documents", "evidence", "obligations")
+                                 for x in case.get(f, []) if x.get("voided")]),
             "complaint_numbers": [c["number"] for c in case.get("complaint_numbers", [])],
             "elements": {k: v.get("state") for k, v in el.items()},
             "unestablished": [k for k, v in el.items()

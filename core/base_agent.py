@@ -37,7 +37,7 @@ CORE_CASE_TASKS = {
     "case_open", "case_list", "case_get", "case_summary", "case_timeline",
     "case_add_document", "case_add_evidence", "case_add_participant",
     "case_add_complaint", "case_set_element", "case_set_state",
-    "case_complete_task",
+    "case_complete_task", "case_void",
 }
 
 
@@ -448,6 +448,9 @@ class AgentBase:
                                   args.get("note", ""))
         if task == "case_set_state":
             return cm.set_state(args.get("state", ""), args.get("note", ""))
+        if task == "case_void":
+            return cm.void_item(args.get("kind", ""), args.get("item_id", ""),
+                                args.get("reason", ""))
         if task == "case_complete_task":
             return cm.complete_task(args.get("what", ""), args.get("outcome", ""))
         return {"error": f"unknown case task {task!r}"}
