@@ -340,6 +340,45 @@ sends the minimum.
 A referral whose `amount` exceeds `REFERRAL_THRESHOLD` is flagged
 `requires_signoff` for the principal rather than acted on quietly.
 
+### A case is one object, shared
+
+A real matter has evidence, obligations, participants and a history. Before
+`core/case_manager.py`, each agent kept its own partial view - Legal a note,
+Accounting a transaction, Hermes a memory - and nothing could answer *what is
+the state of this case*, because there was no such thing.
+
+The case lives in ONE namespace (`cases`) and every agent references it **by
+id**. `store_own_memory` namespaces per agent (`agent_<id>`), which is exactly
+the drift this avoids, so the case layer talks to Hermes directly with a shared
+namespace. An agent that learns something appends an event; it does not keep a
+copy.
+
+| Frame | Owns |
+|-------|------|
+| **Legal** | **Elements, not laws.** `barrier`, `requested_accommodation`, `supporting_evidence`, `response`, `current_status` - each `established`, `insufficient_evidence`, `disputed`, `refuted` or `not_applicable` |
+| **Accounting** | **Obligations, not bookkeeping.** What is owed, on what cadence, **who is authorised to pay it**, and whether a payment can be evidenced |
+| **Hermes** | Transport and the shared namespace. It brokers; it does not interpret |
+| **Trust** | Participants and fiduciary roles |
+
+**"Insufficient evidence" is a real outcome, not a failure.** An element with
+nothing attached is a named gap with the thing that would close it. A case tool
+that only records wins tells its principal they are ready when they are not.
+The same rule reaches Accounting: a payment with no evidence reference and a
+payment by an unauthorised payor are both `contestable`, and both look
+identical to good standing if all you keep is the amount.
+
+**Evidence never travels in the event envelope.** An event carries a type, a
+case id, an actor and a **reference**. Boss routes on the type and refuses an
+envelope that carries `evidence`, `content`, `document`, `text` or `body`. The
+refusal is structural rather than a convention: an orchestrator that *can* read
+domain content will eventually reason about it, and this one practises no
+domain.
+
+Event types are a closed set - `case_opened`, `document_added`,
+`evidence_added`, `participant_added`, `element_updated`,
+`obligation_recorded`, `payment_recorded`, `case_state_changed`,
+`task_completed`, `note_added`. An unknown type routes nowhere, deliberately.
+
 ### Hardware is behind an authorization boundary
 
 "The agent believes this should happen" and "the system is authorised to make it

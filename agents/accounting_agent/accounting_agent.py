@@ -600,6 +600,49 @@ class AccountingAgent(AgentBase):
                 "disclaimer": DISCLAIMER,
             }
 
+        elif task == "case_add_obligation":
+            # Beyond bookkeeping. A ledger answers "what was paid"; an
+            # obligation answers what is OWED, on what cadence, and WHO IS
+            # AUTHORISED to pay it. A rent obligation met by the wrong payor,
+            # or met with no receipt, looks identical to one in good standing
+            # if all you keep is the amount.
+            if not args.get("case_id") or not args.get("name") or args.get("amount") is None:
+                return {"error": "Usage: {case_id, name, amount, [cadence], [due_day], "
+                                 "[authorized_payors], [note]}", "disclaimer": DISCLAIMER}
+            out = self.case(args["case_id"]).add_obligation(
+                args["name"], args["amount"], args.get("cadence", "monthly"),
+                args.get("due_day"), args.get("authorized_payors"), args.get("note", ""))
+            out["disclaimer"] = DISCLAIMER
+            return out
+
+        elif task == "case_record_payment":
+            if not args.get("case_id") or not args.get("obligation_id"):
+                return {"error": "Usage: {case_id, obligation_id, amount, paid_on, payor, "
+                                 "[evidence_ref]}", "disclaimer": DISCLAIMER}
+            out = self.case(args["case_id"]).record_payment(
+                args["obligation_id"], args.get("amount"), args.get("paid_on", ""),
+                args.get("payor", ""), args.get("evidence_ref", ""), args.get("note", ""))
+            if isinstance(out, dict) and out.get("payment"):
+                p = out["payment"]
+                if not p["has_evidence"]:
+                    out["warning"] = ("Recorded with NO evidence reference. A payment that "
+                                      "cannot be evidenced is contestable - attach the "
+                                      "receipt, statement line or ledger entry.")
+                if not p["payor_authorized"]:
+                    out["warning"] = ((out.get("warning", "") + " ").strip() +
+                                      f" Payor {p['payor']!r} is not on this obligation's "
+                                      "authorised list.").strip()
+            out["disclaimer"] = DISCLAIMER
+            return out
+
+        elif task == "case_obligation_status":
+            if not args.get("case_id"):
+                return {"error": "case_obligation_status needs a case_id",
+                        "disclaimer": DISCLAIMER}
+            out = self.case(args["case_id"]).obligation_status()
+            out["disclaimer"] = DISCLAIMER
+            return out
+
         elif task == "log_transaction":
             if not isinstance(args, dict) or not args.get("payor") or not args.get("payee") or args.get("amount") is None:
                 return {"error": "Usage: {payor, payee, amount, [date], [purpose], [documentation_ref], [category], [project_id]}", "disclaimer": DISCLAIMER}

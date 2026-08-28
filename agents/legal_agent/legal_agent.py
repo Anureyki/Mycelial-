@@ -166,7 +166,7 @@ class LegalAgent(AgentBase):
                 "refresh_cache", "query_cache", "cache_stats", "cache_manifest",
                 "search_cases", "monitor_user", "monitor_docket", "check_docket",
                 "log_lesson", "query_lessons", "list_lessons",
-                "analyze_case", "list_cases", "get_case",
+                "analyze_case", "list_cases", "get_case", "assess_case_elements",
                 "open_matter", "map_issues", "get_matter_view",
                 "add_to_notebook", "add_to_evidence_binder", "add_to_filing_layer",
                 "review_filing_draft", "compress_matter", "check_filing_frequency",
@@ -325,6 +325,69 @@ class LegalAgent(AgentBase):
                     out.extend(entries)
             return out[:4]
         return []
+
+    def assess_case_elements(self, case_id):
+        """Which elements are established by the evidence the case actually holds.
+
+        The shift is from "which law applies" to "which elements are made out".
+        A statute is not a finding - a claim stands or falls on its elements
+        one at a time, and each one is short enough to answer honestly.
+
+        INSUFFICIENT EVIDENCE IS A REAL OUTCOME. An element with nothing
+        attached is not pending, not weak, and not a failure of the tool - it
+        is a gap, named, with the thing that would close it. A case tool that
+        cannot say "you have not shown this yet" tells its principal they are
+        ready when they are not, which is the expensive way to find out."""
+        cm = self.case(case_id)
+        case = cm.get()
+        if case.get("error"):
+            return case
+
+        by_id = {e["evidence_id"]: e for e in case.get("evidence", [])}
+        findings, gaps = {}, []
+        for name, el in (case.get("elements") or {}).items():
+            items = [by_id[i] for i in el.get("evidence_ids", []) if i in by_id]
+            documented = [e for e in items if e.get("doc_id")]
+            state = el.get("state", "open")
+            if state in ("disputed", "refuted", "not_applicable"):
+                verdict = state
+            elif not items:
+                verdict = "insufficient_evidence"
+            elif not documented:
+                verdict = "insufficient_evidence"
+            else:
+                verdict = "established" if state == "established" else "supportable"
+            entry = {"state_on_record": state, "verdict": verdict,
+                     "evidence_count": len(items),
+                     "documented": len(documented),
+                     "evidence_kinds": sorted({e.get("kind", "?") for e in items})}
+            if verdict == "insufficient_evidence":
+                entry["what_would_close_it"] = (
+                    "Nothing is attached to this element yet - add evidence with "
+                    f"supports='{name}' and a doc_id pointing at the document that carries it."
+                    if not items else
+                    "Evidence is attached but none of it references a document. An "
+                    "assertion with no document behind it is testimony, not proof.")
+                gaps.append(name)
+            findings[name] = entry
+
+        ready = not gaps
+        return {
+            "case_id": case["case_id"], "title": case.get("title"),
+            "case_state": case.get("state"),
+            "elements": findings,
+            "unestablished": gaps,
+            "ready_to_advance": ready,
+            "assessment": (
+                "Every element has documented evidence attached. That is not a "
+                "judgement that the claim succeeds - it is that nothing is missing "
+                "on its face."
+                if ready else
+                f"{len(gaps)} element(s) are not established on what the case holds: "
+                + ", ".join(gaps) + ". Insufficient evidence is the finding here, not "
+                "an error - these are the gaps to close before advancing."),
+            "disclaimer": DISCLAIMER,
+        }
 
     def lookup_term(self, term, loose=True):
         """A headword, matched exactly - then by its parts.
@@ -1003,6 +1066,12 @@ class LegalAgent(AgentBase):
         cag_result = self.try_handle_cag_task(task, args)
         if cag_result is not None:
             return cag_result
+
+        if task == "assess_case_elements":
+            cid = args.get("case_id") if isinstance(args, dict) else (args[0] if args else None)
+            if not cid:
+                return {"error": "assess_case_elements needs a case_id", "disclaimer": DISCLAIMER}
+            return self.assess_case_elements(cid)
 
         if task == "lookup":
             if not args or not args[0]:

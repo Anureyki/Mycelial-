@@ -124,6 +124,55 @@ class BossAgent(AgentBase):
             resp, seen = resp["result"], seen + 1
         return resp if isinstance(resp, dict) and key in resp else None
 
+    # Which domains care about which case events. Types only - Boss matches on
+    # the envelope's `type` field and never opens `ref`.
+    CASE_EVENT_ROUTES = {
+        "evidence_added":      ("legal_agent",),
+        "document_added":      ("legal_agent", "hermes"),
+        "element_updated":     ("legal_agent",),
+        "obligation_recorded": ("accounting_agent",),
+        "payment_recorded":    ("accounting_agent",),
+        "participant_added":   ("trust_agent",),
+        "case_state_changed":  ("legal_agent", "accounting_agent", "trust_agent", "hermes"),
+        "task_completed":      ("hermes",),
+        "case_opened":         ("legal_agent", "accounting_agent", "trust_agent", "hermes"),
+        "note_added":          ("hermes",),
+    }
+
+    def route_case_event(self, envelope):
+        """Forward a case event to the domains that care about its type.
+
+        Deliberately checks the envelope for leakage before forwarding: if a
+        caller has stuffed evidence or document content into it, that is a bug
+        in the caller and the event is refused rather than quietly relayed."""
+        if not isinstance(envelope, dict):
+            return {"error": "case_event must be an envelope object"}
+        leaked = [k for k in ("evidence", "content", "document", "text", "body")
+                  if k in envelope]
+        if leaked:
+            return {"error": "envelope carries domain content and was refused",
+                    "offending_fields": leaked,
+                    "why": ("Boss routes case events on type and must not be handed "
+                            "evidence. Send the reference; the domain agent reads the "
+                            "case itself.")}
+        etype, cid = envelope.get("type"), envelope.get("case_id")
+        if not etype or not cid:
+            return {"error": "envelope needs at least type and case_id"}
+        targets = self.CASE_EVENT_ROUTES.get(etype)
+        if not targets:
+            return {"error": f"no route for event type {etype!r}",
+                    "known": sorted(self.CASE_EVENT_ROUTES)}
+        delivered, failed = [], []
+        for t in targets:
+            try:
+                r = self.send_a2a(t, "case_event_notice", envelope, timeout=30)
+                (delivered if r else failed).append(t)
+            except Exception as e:
+                failed.append(f"{t}: {e}")
+        self.log(f"case event {etype} on {cid} -> {', '.join(delivered) or 'nobody'}")
+        return {"routed": etype, "case_id": cid, "delivered_to": delivered,
+                "not_delivered": failed, "inspected_evidence": False}
+
     _domain_cache = {"map": None, "at": 0, "ttl": 300}
 
     def _domain_vocabulary(self):
@@ -494,6 +543,13 @@ class BossAgent(AgentBase):
 
     def handle_task(self, task, args, sender):
         self.log(f"Task: {task} from {sender} with args: {args}")
+
+        # A case event is a TASK, not a sentence. It sat inside process_request,
+        # which validates a prompt first, so every event was refused with
+        # "Missing prompt" before the router saw it.
+        if task == "case_event":
+            payload = args.get("case_event") if isinstance(args, dict) else None
+            return self.route_case_event(payload if payload is not None else args)
 
         if task == "update_graph":
             authorized, reason = self._authorize_graph_write(sender, args if isinstance(args, dict) else {})

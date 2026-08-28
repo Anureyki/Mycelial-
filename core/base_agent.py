@@ -33,6 +33,14 @@ GUARD_TIMEOUT = 5
 REGISTRY_RETRY_ATTEMPTS = 10
 REGISTRY_RETRY_DELAY = 2
 
+CORE_CASE_TASKS = {
+    "case_open", "case_list", "case_get", "case_summary", "case_timeline",
+    "case_add_document", "case_add_evidence", "case_add_participant",
+    "case_add_complaint", "case_set_element", "case_set_state",
+    "case_complete_task",
+}
+
+
 class AgentBase:
     def __init__(self, agent_id, port, capabilities, role="agent", mqtt_broker="localhost"):
         self.agent_id = agent_id
@@ -316,6 +324,15 @@ class AgentBase:
                               if isinstance(args, dict)
                               else (args[0] if isinstance(args, list) and args else ""))
                     result = self.answer(prompt) if prompt else None
+                elif task == "case_event_notice":
+                    result = self.case_event_notice(args if isinstance(args, dict) else {})
+                elif task in CORE_CASE_TASKS:
+                    # Only the SHARED vocabulary is intercepted here. A domain's
+                    # own case task - accounting's case_add_obligation, legal's
+                    # case_assess_elements - must reach that agent's handler.
+                    # Catching every "case_*" swallowed them into "unknown case
+                    # task" and the domain frames were unreachable.
+                    result = self.handle_case_task(task, args if isinstance(args, dict) else {})
                 elif task == "receive_finding":
                     result = self.receive_finding(
                         (args or {}).get("kind"), (args or {}).get("payload") or {},
@@ -368,6 +385,72 @@ class AgentBase:
     def routing_terms(self):
         """Regex fragments that claim a request for this agent."""
         return {"agent": self.agent_id, "terms": list(self.ROUTING_TERMS)}
+
+    # ---------- Shared case management ----------
+    # A case is ONE object in a shared namespace, referenced by id. Every agent
+    # gets these; none keeps its own copy. store_own_memory namespaces per
+    # agent (agent_<id>), which is exactly the drift this avoids - four partial
+    # views of a matter and no way to ask what its state is.
+    def case(self, case_id=None):
+        from core.case_manager import CaseManager
+        return CaseManager(self, case_id)
+
+    def case_event_notice(self, envelope):  # noqa: D401
+        """Told that something happened on a case. Override to act on it.
+
+        The default records the notice and says it only recorded it - the same
+        rule as receive_finding, for the same reason: an agent that silently
+        dropped a notice would look identical to one that acted on it.
+
+        The notice carries a REFERENCE, not content. An agent that needs the
+        evidence fetches the case; it is not pushed to anyone."""
+        if not isinstance(envelope, dict) or not envelope.get("case_id"):
+            return {"noted": False, "why": "not a case envelope"}
+        return {"noted": True, "acted": False,
+                "case_id": envelope.get("case_id"), "type": envelope.get("type"),
+                "note": (f"{self.agent_id} recorded this {envelope.get('type')} notice but "
+                         "has no handler for it yet - it is not acted on. Read the case "
+                         "by id if the content matters.")}
+
+    def handle_case_task(self, task, args):
+        cm = self.case(args.get("case_id"))
+        if task == "case_open":
+            if not args.get("title"):
+                return {"error": "case_open needs a title"}
+            return cm.open_case(args["title"], args.get("kind", ""),
+                                args.get("participants"), args.get("elements"))
+        if task == "case_list":
+            return {"cases": cm.list_cases()}
+        if not args.get("case_id") and task != "case_open":
+            return {"error": f"{task} needs a case_id"}
+        if task == "case_get":
+            return cm.get()
+        if task == "case_summary":
+            return cm.summary()
+        if task == "case_timeline":
+            return cm.timeline(limit=int(args.get("limit", 100)))
+        if task == "case_add_document":
+            return cm.add_document(args.get("kind", ""), args.get("title", ""),
+                                   args.get("ref", ""), args.get("note", ""))
+        if task == "case_add_evidence":
+            for f in ("supports", "kind", "summary"):
+                if not args.get(f):
+                    return {"error": f"case_add_evidence needs {f}"}
+            return cm.add_evidence(args["supports"], args["kind"], args["summary"],
+                                   args.get("doc_id"), args.get("weight", "unweighted"))
+        if task == "case_add_participant":
+            return cm.add_participant(args.get("role", ""), args.get("name", ""),
+                                      args.get("note", ""))
+        if task == "case_add_complaint":
+            return cm.add_complaint_number(args.get("number", ""), args.get("forum", ""))
+        if task == "case_set_element":
+            return cm.set_element(args.get("element", ""), args.get("state", ""),
+                                  args.get("note", ""))
+        if task == "case_set_state":
+            return cm.set_state(args.get("state", ""), args.get("note", ""))
+        if task == "case_complete_task":
+            return cm.complete_task(args.get("what", ""), args.get("outcome", ""))
+        return {"error": f"unknown case task {task!r}"}
 
     def answer(self, prompt):
         """Answer a question in this agent's domain, or None if it cannot.
