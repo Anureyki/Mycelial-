@@ -394,7 +394,13 @@ class CaseManager:
             return {"error": f"no such case: {self.case_id}"}
         buckets = {"document": ("documents", "doc_id"),
                    "evidence": ("evidence", "evidence_id"),
-                   "obligation": ("obligations", "obligation_id")}
+                   "obligation": ("obligations", "obligation_id"),
+                   # A complaint number had no void path and a fabricated one
+                   # sat in a live fair-housing case. Of everything in a case
+                   # object this is the field least tolerant of an invented
+                   # value: it addresses a real docket at a real agency.
+                   "complaint": ("complaint_numbers", "number"),
+                   "participant": ("participants", "name")}
         if kind not in buckets:
             return {"error": f"kind must be one of {sorted(buckets)}"}
         field, idkey = buckets[kind]
@@ -443,7 +449,8 @@ class CaseManager:
             "obligations": len([o for o in case.get("obligations", []) if not o.get("voided")]),
             "voided_items": len([x for f in ("documents", "evidence", "obligations")
                                  for x in case.get(f, []) if x.get("voided")]),
-            "complaint_numbers": [c["number"] for c in case.get("complaint_numbers", [])],
+            "complaint_numbers": [c["number"] for c in case.get("complaint_numbers", [])
+                                  if not c.get("voided")],
             "elements": {k: v.get("state") for k, v in el.items()},
             "unestablished": [k for k, v in el.items()
                               if v.get("state") in ("open", "insufficient_evidence")],
