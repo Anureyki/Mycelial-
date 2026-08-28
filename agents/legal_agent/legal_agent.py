@@ -301,6 +301,14 @@ class LegalAgent(AgentBase):
         # The FRCP index is keyed as the rules cite themselves - "9(h)",
         # "16(e)" - so a person asking for "Rule 12" matched nothing.
         key = re.sub(r'^(fed\.? ?r\.? ?civ\.? ?p\.?|frcp|rule)\s+', '', key).strip()
+        # Regulations are keyed as they cite themselves - "§ 8.4", "§ 100.204" -
+        # so a person typing "8.4" or "24 CFR 8.4" matched nothing and fell
+        # through to public web search for a rule sitting in the corpus.
+        key = re.sub(r'^\d+\s*c\.?f\.?r\.?\s*(part\s*)?', '', key).strip()
+        if key not in idx["by_citation"]:
+            for variant in (f"§ {key}", f"§{key}", key.lstrip("§ ").strip()):
+                if variant in idx["by_citation"]:
+                    return [idx["by_citation"][variant]]
         if key in idx["by_citation"]:
             return [idx["by_citation"][key]]
         if key in idx["by_authority"]:

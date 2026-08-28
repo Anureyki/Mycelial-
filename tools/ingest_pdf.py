@@ -268,7 +268,13 @@ def main():
     out = os.path.join(root, f"{slug}.json")
 
     authorities = sorted({a for s_ in sections for a in s_.get("authorities", [])})
-    terms = index_terms(sections) if args.treatise else {}
+    # Doctrine terms index every work, not just treatises. Restricting it to
+    # --treatise left three CFR parts with term_index: 0, so "reasonable
+    # accommodation" could not reach the regulation that defines it while it
+    # could reach an 1886 equity treatise. A regulation is MORE worth indexing
+    # by subject, not less - nobody looks a duty up by section number they do
+    # not already know.
+    terms = index_terms(sections)
     doc = {"title": args.title, "source": args.source,
            "authorities_cited": authorities,
            "term_index": terms,
