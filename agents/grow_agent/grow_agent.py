@@ -3,6 +3,7 @@ import sys
 import os
 import time
 import subprocess
+import hashlib
 import json
 import math
 import re
@@ -3413,6 +3414,109 @@ class GrowAgent(AgentBase):
             "discards it. Nothing is counted until a human decides.")
         return out
 
+    # ---- duplicate detection for the training set -------------------------
+    #
+    # Two candidate records from two search runs pointed at the same image, and
+    # both were downloaded. A duplicate inside one label is wasted count: the
+    # campaign says 6 examples where the model will only ever see 3, so the
+    # threshold is reached on paper before it is reached in fact.
+    #
+    # The same image under TWO DIFFERENT labels is worse than waste. It is a
+    # direct contradiction in the training data - the identical pixels taught as
+    # nutrient_burn and as thrips - and a model trained on it learns that the
+    # feature does not discriminate. That is precisely how a classifier acquires
+    # false positives and false negatives, so a cross-label collision is refused
+    # loudly rather than counted quietly.
+    #
+    # Exact bytes catch a re-download. A perceptual hash also catches the same
+    # photograph resized or recompressed, which is what image search actually
+    # serves - the same picture at four sizes from four hosts.
+
+    DUP_MANIFEST = "training_fingerprints.json"
+    AHASH_DISTANCE = 5          # of 64 bits; below this is the same photograph
+
+    @staticmethod
+    def _ahash(body):
+        """64-bit average hash. None if the bytes will not open as an image."""
+        try:
+            from PIL import Image
+            import io
+            im = Image.open(io.BytesIO(body)).convert("L").resize((8, 8))
+            px = list(im.getdata())
+            avg = sum(px) / len(px)
+            bits = 0
+            for i, v in enumerate(px):
+                if v > avg:
+                    bits |= (1 << i)
+            return bits
+        except Exception:
+            return None
+
+    def _fingerprint_index(self, rebuild=False):
+        """{sha: {path,label}} plus a list of (ahash, path, label).
+
+        Cached by path+mtime+size so an accept does not re-hash the whole set,
+        and self-healing: a file that vanished drops out on the next pass."""
+        root = TRAINING_DIR
+        man = os.path.join(root, self.DUP_MANIFEST)
+        cache = {}
+        if not rebuild:
+            try:
+                with open(man) as fh:
+                    cache = json.load(fh)
+            except Exception:
+                cache = {}
+        by_sha, by_ahash, files = {}, [], {}
+        for label in sorted(os.listdir(root)) if os.path.isdir(root) else []:
+            d = os.path.join(root, label)
+            if not os.path.isdir(d):
+                continue
+            for fn in sorted(os.listdir(d)):
+                if not fn.lower().endswith((".jpg", ".png", ".webp", ".gif", ".avif")):
+                    continue
+                path = os.path.join(d, fn)
+                try:
+                    st = os.stat(path)
+                except OSError:
+                    continue
+                key = f"{path}:{int(st.st_mtime)}:{st.st_size}"
+                ent = (cache.get("files") or {}).get(key)
+                if not ent:
+                    try:
+                        body = open(path, "rb").read()
+                    except OSError:
+                        continue
+                    ah = self._ahash(body)
+                    ent = {"sha": hashlib.sha256(body).hexdigest(),
+                           "ahash": ah, "label": label, "path": path}
+                files[key] = ent
+                by_sha.setdefault(ent["sha"], ent)
+                if ent.get("ahash") is not None:
+                    by_ahash.append(ent)
+        try:
+            with open(man, "w") as fh:
+                json.dump({"files": files}, fh)
+        except OSError:
+            pass
+        return by_sha, by_ahash
+
+    def _duplicate_of(self, body, label):
+        """What this image already is in the set, if anything."""
+        sha = hashlib.sha256(body).hexdigest()
+        by_sha, by_ahash = self._fingerprint_index()
+        hit = by_sha.get(sha)
+        if hit:
+            return {"kind": "exact", "path": hit["path"], "label": hit["label"],
+                    "cross_label": hit["label"] != label}
+        ah = self._ahash(body)
+        if ah is None:
+            return None
+        for ent in by_ahash:
+            if bin(ah ^ ent["ahash"]).count("1") <= self.AHASH_DISTANCE:
+                return {"kind": "near", "path": ent["path"], "label": ent["label"],
+                        "cross_label": ent["label"] != label}
+        return None
+
     def _fetch_candidate_image(self, candidate):
         """Download an ACCEPTED candidate into its label folder.
 
@@ -3473,6 +3577,21 @@ class GrowAgent(AgentBase):
                                 f"{sig[:8].hex()})")}
             if len(body) < 1024:
                 return {"fetched": False, "why": f"only {len(body)} bytes - not a usable image"}
+            dup = self._duplicate_of(body, label)
+            if dup:
+                if dup["cross_label"]:
+                    return {"fetched": False, "duplicate": dup,
+                            "why": (f"LABEL CONFLICT - this exact image is already "
+                                    f"in the set under '{dup['label']}', and you are "
+                                    f"filing it as '{label}'. The same pixels taught "
+                                    f"as two things is what produces false positives "
+                                    f"and false negatives. Kept out; decide which "
+                                    f"label is right before adding it.")}
+                return {"fetched": False, "duplicate": dup,
+                        "why": (f"already in the set as {os.path.basename(dup['path'])} "
+                                f"({'identical bytes' if dup['kind'] == 'exact' else 'the same photograph, resized or recompressed'}). "
+                                f"Not added - a second copy inflates the count "
+                                f"without teaching the model anything new.")}
             path = os.path.join(dest_dir, f"{candidate['id']}{ext}")
             with open(path, "wb") as f:
                 f.write(body)
@@ -7432,11 +7551,27 @@ class GrowAgent(AgentBase):
                         f"({fetch['bytes'] // 1024} KB), with its provenance beside it. "
                         "It counts toward the campaign now.")
             else:
-                note = (f"NOT COUNTED - the image could not be downloaded: "
-                        f"{fetch.get('why')}. Your accept was recorded, but no "
-                        f"file reached the label folder, so this adds nothing to "
-                        f"the campaign. Nothing to redo unless you find another "
-                        f"copy of the same image.")
+                # A duplicate is not a download failure. The image arrived
+                # fine and was deliberately kept out, and telling the grower it
+                # "could not be downloaded" sends them looking for a network
+                # problem that does not exist.
+                if fetch.get("duplicate"):
+                    _d = fetch["duplicate"]
+                    if _d.get("cross_label"):
+                        note = (f"NOT COUNTED - {fetch.get('why')}")
+                        candidate["status"] = "label_conflict"
+                    else:
+                        note = (f"NOT COUNTED - the image downloaded fine, but it "
+                                f"is {fetch.get('why')} The campaign count is "
+                                f"unchanged, which is correct: you already have "
+                                f"this example.")
+                        candidate["status"] = "duplicate"
+                else:
+                    note = (f"NOT COUNTED - the image could not be downloaded: "
+                            f"{fetch.get('why')}. Your accept was recorded, but no "
+                            f"file reached the label folder, so this adds nothing to "
+                            f"the campaign. Nothing to redo unless you find another "
+                            f"copy of the same image.")
             return {"result": {
                 "candidate_id": candidate_id,
                 "status": candidate["status"],

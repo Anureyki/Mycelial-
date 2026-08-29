@@ -533,3 +533,34 @@ label folder, and there is nothing to redo.
 
 Noted and not fixed: 3 of the 31 files are byte-identical duplicates, so
 distinct candidate records can point at the same image.
+
+### 2026-08-29 — The training set refuses duplicates, and refuses contradictions louder
+
+Two candidate records from two search runs pointed at the same image and both
+were downloaded. A duplicate inside one label is wasted count - the campaign
+reads 6 examples where the model will only ever see 3, so the threshold is
+reached on paper before it is reached in fact.
+
+The same image under TWO DIFFERENT labels is worse than waste. Identical pixels
+taught as `nutrient_burn` and as `thrips` teach a model that the feature does
+not discriminate, which is exactly how a classifier acquires false positives and
+false negatives. That case is refused as a LABEL CONFLICT and named as one.
+
+Detection runs on the bytes before the file is written: sha256 for an exact
+re-download, and a 64-bit average hash for the same photograph resized or
+recompressed - which is what image search actually serves, one picture at four
+sizes from four hosts. Fingerprints are cached by path+mtime+size so an accept
+does not re-hash the whole set.
+
+Verified on four cases: identical bytes same label caught, identical bytes
+across labels flagged as a conflict, a half-size 70%-quality re-encode caught by
+perceptual hash, and a genuinely different image correctly allowed - no false
+positive.
+
+Three existing duplicates removed; the set is 28 files and 28 unique.
+
+A duplicate is also no longer reported as a download failure. It said "the image
+could not be downloaded: already in the set", which sends the grower looking for
+a network problem that does not exist. It now says the image downloaded fine and
+was deliberately kept out, with statuses `duplicate` and `label_conflict` to
+match.
