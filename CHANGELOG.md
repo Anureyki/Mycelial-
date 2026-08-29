@@ -313,3 +313,33 @@ Seven registers scale personality by stakes, most serious match winning:
 trickster stands down entirely. `narrate_contradiction` gives the trickster its
 actual job and refuses a one-sided contradiction, which is a guess rather than
 a finding.
+
+### 2026-08-29 — "How's the system today" reached a code model
+
+Asked from a phone, that question came back as *"As a language model, I don't
+have feelings, so I can't say how the system is today."* Three faults stacked.
+
+**Boss's default was the code model.** Every request no agent claimed went to
+`coding_agent`, whose model is `deepseek-coder`. That is the same route that
+turned "how long until it falls to 238" into a physics free-fall problem and
+"DWC" into "Direct Water Cooker" — the failures CLAUDE.md opens with, still
+wired in as the fallback. A code model is a specialist; handing it everything
+unclaimed is a misroute with a default attached. It now asks the Inference
+Service for the `reasoning` capability, and if that returns assistant
+boilerplate — "as a language model", "I don't have feelings" — the answer is
+discarded in favour of saying plainly that nothing claimed the question.
+
+**The status capability existed and was unreachable.** `_get_system_status()`
+was gated behind six exact strings: "system status", "all agents", "how is
+everything"… "How's the system today" matched none. Adding that sentence would
+have fixed the sentence and not the class, so it now matches the *shape* — a
+subject word plus a state word, or a standalone like "is anything broken".
+
+**The answer was a roster dump.** It opened "12 of 12 registered agents are up:"
+and then listed every internal agent id. Nobody asking how their system is doing
+wants to read `pqa_agent`. It now leads with whether anything needs the grower
+and names departments in human terms: *"Nothing needs you - all 12 departments
+are answering"*, or *"1 of 12 is down and that needs you: the grow."*
+
+Found because the grower asked from their phone and got the boilerplate, which
+is the only reason any of it surfaced.

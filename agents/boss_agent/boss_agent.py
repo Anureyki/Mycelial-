@@ -401,14 +401,31 @@ class BossAgent(AgentBase):
                 dead = result.get("dead", [])
                 total = result.get("total_registered", 0)
                 projects = result.get("projects", [])
-                lines = [f"{len(alive)} of {total} registered agents are up: {', '.join(alive) if alive else 'none'}."]
+                # Lead with whether anything needs the grower. This used to
+                # open with "12 of 12 registered agents are up:" followed by
+                # every internal agent id - a roster dump with no judgement in
+                # it, in answer to "how's the system today". Nobody asking that
+                # wants to read "pqa_agent".
+                human = {"grow_agent": "the grow", "legal_agent": "legal",
+                         "accounting_agent": "accounting", "trust_agent": "trust",
+                         "security_agent": "security", "coding_agent": "engineering",
+                         "maintenance_agent": "the machine itself",
+                         "analyzer_agent": "analysis", "pqa_agent": "web search",
+                         "hermes": "memory", "anansi": "the front desk",
+                         "boss_agent": "orchestration"}
+                say = lambda ids: ", ".join(human.get(i, i) for i in ids)
+                lines = []
                 if dead:
-                    lines.append(f"Not responding: {', '.join(dead)}.")
-                if projects:
-                    lines.append(f"Active projects tracked: {', '.join(projects)}.")
+                    _is = "is" if len(dead) == 1 else "are"
+                    lines.append(f"{len(dead)} of {total} {_is} down and that "
+                                 f"needs you: {say(dead)}.")
+                    lines.append(f"The other {len(alive)} are up.")
                 else:
-                    lines.append("No projects currently tracked in the relationship graph.")
-                return "\n".join(lines)
+                    lines.append(f"Nothing needs you - all {total} departments "
+                                 f"are answering.")
+                if projects:
+                    lines.append(f"Active projects: {', '.join(projects)}.")
+                return " ".join(lines)
             elif task == "analyze_relationship_document":
                 legal_resp = result.get("legal_result", {}) if isinstance(result, dict) else {}
                 legal_doc = legal_resp.get("result", {}) if isinstance(legal_resp, dict) else {}
@@ -953,9 +970,29 @@ class BossAgent(AgentBase):
                 return {"result": text, "evidence": summary_resp}
 
             # --- System status (all agents + active projects) ---
-            if any(keyword in prompt.lower() for keyword in
-                   ("system status", "all agents", "agent status", "everything running", "how is everything", "status update")) \
-                    or prompt.lower().strip() in ("status", "status?"):
+            # Match the SHAPE of a status question, not a list of phrasings.
+            # The list used to be six exact strings, so "How's the system
+            # today" matched none of them and fell all the way through to a
+            # code model, which answered "As a language model, I don't have
+            # feelings." Adding that sentence to the list would have fixed the
+            # sentence and not the class - which is the failure CLAUDE.md
+            # opens with. A subject word plus a state word is the class.
+            _p = prompt.lower()
+            _subject = ("system", "mycos", "mycelial", "agents", "everything",
+                        "services", "stack", "swarm", "platform", "things",
+                        "anything", "departments")
+            _state = ("status", "health", "healthy", "running", "up", "down",
+                      "ok", "okay", "alright", "doing", "how is", "how's",
+                      "hows", "look", "going", "wrong", "broken", "issues")
+            # Some state words carry the subject on their own: "is anything
+            # broken" names no system but is unmistakably about one.
+            _standalone = ("anything broken", "anything down", "anything wrong",
+                           "something broken", "something wrong", "all good",
+                           "everything ok", "everything okay", "any issues",
+                           "anything need", "anything i need")
+            if ((any(w in _p for w in _subject) and any(w in _p for w in _state))
+                    or any(w in _p for w in _standalone)
+                    or _p.strip() in ("status", "status?")):
                 self.log("User asking for system-wide status – aggregating agent health + graph projects")
                 status = self._get_system_status()
                 text = self._format_response("system_status", status, "boss_agent")
@@ -1091,10 +1128,47 @@ class BossAgent(AgentBase):
                 except Exception as e:
                     self.log(f"grow fallback failed, using generic model: {e}")
 
-            # --- Default: delegate to Coding Agent for reasoning ---
-            self.log("Delegating to coding_agent for reasoning...")
-            response = self.send_a2a("coding_agent", "reason", {"prompt": prompt})
-            text = self._format_response("reason", response, "coding_agent")
+            # --- Default: a GENERAL model, never the code model ---
+            #
+            # This used to send every unclaimed request to coding_agent, whose
+            # model is deepseek-coder. That is how "how long until it falls to
+            # 238" came back as a physics free-fall problem, how "DWC" became
+            # "Direct Water Cooker", and how "How's the system today" reached
+            # the grower as "As a language model, I don't have feelings."
+            #
+            # A code model is a specialist. Handing it every question nobody
+            # claimed is not a fallback, it is a misroute with a default
+            # attached. Ask for the `reasoning` capability instead and let the
+            # Inference Service resolve it.
+            self.log("Nothing claimed this - answering with the general reasoning model")
+            text = ""
+            try:
+                r = requests.post("http://localhost:8005/reason",
+                                  json={"prompt": prompt, "capability": "reasoning"},
+                                  timeout=120)
+                data = r.json() if r.ok else {}
+                if data.get("success"):
+                    text = (data.get("result") or "").strip()
+            except Exception as e:
+                self.log(f"general reasoning model unreachable: {e}")
+
+            # Assistant boilerplate is not an answer. "As a language model I
+            # don't have feelings" reached the grower on a phone in response to
+            # "How's the system today" - a deflection about the model's own
+            # nature, standing in for the status of their system. If that is
+            # what came back, throw it away and say plainly that nothing
+            # claimed the question.
+            _boiler = ("as a language model", "as an ai", "i don't have feelings",
+                       "i do not have feelings", "i'm just a", "i am just a",
+                       "i don't have personal", "i cannot feel")
+            if text and any(b in text.lower() for b in _boiler):
+                self.log("Discarded assistant boilerplate from the general model")
+                text = ""
+            if not text or len(str(text).strip()) < 2:
+                text = ("Nothing in the system claimed that one, and I would "
+                        "rather say so than guess at it. Try naming the thing "
+                        "you mean - a plant, a case, the ledger, the machine "
+                        "itself - and it will reach whoever actually owns it.")
             self.store_own_memory(f"request_{int(time.time())}", prompt)
             self.store_own_memory(f"response_{int(time.time())}", text)
             return {"result": text}
