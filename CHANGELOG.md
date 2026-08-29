@@ -564,3 +564,42 @@ could not be downloaded: already in the set", which sends the grower looking for
 a network problem that does not exist. It now says the image downloaded fine and
 was deliberately kept out, with statuses `duplicate` and `label_conflict` to
 match.
+
+### 2026-08-29 — Plants hold measurements; the agent holds understanding
+
+Asked whether the system knew GSC2 was in 1 L of plain DI water, the answer was
+no - and worse. `current_stage`, `germination_date`, `current_strain` and
+`current_nutrients` were stored under GLOBAL keys with no plant in them, so
+asking for gsc_auto_2 returned current_plant's veg stage, its germination date
+and its full nutrient mix. A seedling in plain water reported Cal-Mag 8.6 and
+FloraGro 15.5, and anything reasoning from that was reasoning about the wrong
+plant.
+
+Those fields are per-plant now, read from the record the system already keeps
+rather than a second namespace, and a plant with no value of its own reports
+the gap instead of borrowing one.
+
+**The first fix for lessons was wrong and the grower caught it.** It had plant
+two reading plant one's notes - the same coupling wearing a different hat, with
+data still flowing plant to plant. The reasoner is the AGENT. A lesson is
+something Grow Agent learned, stored against the agent with an explicit
+`applies_to`, and applied to whatever plant is in front of it. Nothing crosses
+between plants in either direction.
+
+`applies_to.species` is mandatory: unscoped knowledge gets applied to a tomato.
+Filters refuse to generalise across species, across system types, and across
+stages a lesson was not written for. Verified - the DWC plant gets all three
+cannabis lessons, the LWC seedling gets two and not the DWC-specific one, and
+the aloe gets only its own, with no mention of cannabis, ppm or Cal-Mag
+reaching it.
+
+Two matching bugs found by that test. The default plant carries no species in
+the per-plant index, so the agent applied none of its own knowledge to the very
+plant that taught it; species now falls back to the system record. And exact
+matching on `system_type` denied the DWC plant its DWC lesson, because the
+system is recorded as `top_fed_dwc` - matched by containment now, which still
+keeps lwc and dwc apart.
+
+Three lessons recorded from the first grow: ramp the feed from the start, on
+DI or distilled water Cal-Mag is not optional, and in top-fed clay pebbles
+nothing buffers a dose so raise ppm in small steps.

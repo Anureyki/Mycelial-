@@ -736,6 +736,7 @@ class GrowAgent(AgentBase):
                 "training_quest_status", "source_training_candidates",
                 "advance_training_campaign",
                 "review_training_candidate", "list_training_candidates",
+                "record_knowledge", "what_i_know",
                 "remove_plant", "list_vision_corrections", "recommend_purchase",
                 "web_search",
                 "prepare_dataset", "fit_linear_model", "predict_linear"
@@ -3517,6 +3518,169 @@ class GrowAgent(AgentBase):
                         "cross_label": ent["label"] != label}
         return None
 
+    # ---- per-plant state --------------------------------------------------
+    #
+    # current_stage, germination_date, current_strain and current_nutrients were
+    # stored under GLOBAL keys with no plant in them. Asked for gsc_auto_2's
+    # status, the agent returned current_plant's stage, its germination date and
+    # its full nutrient mix - so a seedling sitting in 1 L of plain DI water
+    # reported Cal-Mag 8.6 and FloraGro 15.5, and anything reasoning from that
+    # was reasoning about the wrong plant.
+    #
+    # The default plant keeps the bare key so nothing already written is
+    # stranded; every other plant gets its own namespace, and a plant with no
+    # value of its own falls back to the shared one rather than inventing a
+    # blank.
+
+    DEFAULT_PLANT = "current_plant"
+    PER_PLANT_KEYS = ("current_stage", "germination_date", "current_strain",
+                      "current_nutrients")
+
+    def _pkey(self, key, plant_id=None):
+        pid = plant_id or self.DEFAULT_PLANT
+        return key if pid == self.DEFAULT_PLANT else f"{pid}::{key}"
+
+    def _plant_state(self, key, plant_id=None):
+        """This plant's value, or NOTHING.
+
+        There is no fallback to another plant. A younger plant is not a stale
+        copy of an older one: its stage, its germination date and the recipe
+        actually mixed for it are facts about IT, and borrowing them made a
+        seedling in 1 L of plain DI water report Cal-Mag 8.6 and FloraGro 15.5.
+
+        What DOES carry across is what the first plant taught - see
+        _lessons_for(). Measurements are per plant; lessons are per strain.
+        A missing value is a gap to fill, and saying so is the honest answer."""
+        pid = plant_id or self.DEFAULT_PLANT
+        # The per-plant record that set_germination_date and transition_stage
+        # already write is the source of truth. Introducing a second namespace
+        # created an empty parallel store and reported real values as missing -
+        # read what the system actually keeps.
+        if pid != self.DEFAULT_PLANT:
+            rec = next((x for x in (self._get_all_plants() or [])
+                        if x.get("plant_id") == pid), None)
+            if rec:
+                field = {"current_stage": "stage",
+                         "current_strain": "strain",
+                         "germination_date": "germination_date",
+                         "current_nutrients": "nutrients"}.get(key, key)
+                val = rec.get(field)
+                if val not in (None, ""):
+                    return val, "own"
+        own = self._unwrap_value(self.retrieve_own_memory(self._pkey(key, pid)))
+        if own not in (None, ""):
+            return own, "own"
+        return None, "missing"
+
+    # ---- what the AGENT knows ----------------------------------------------
+    #
+    # An earlier attempt had plant two read plant one's notes. That is the same
+    # coupling as before wearing a different hat: data still flows plant to
+    # plant, and the next bug looks exactly like the last one.
+    #
+    # The reasoner is this agent. A lesson is something GROW AGENT learned, not
+    # something a plant owns, and it is stored against the agent with an
+    # explicit statement of what it applies to. Grow then applies its own
+    # knowledge to whatever plant is in front of it - and applies none of it to
+    # a plant the lesson does not cover. The aloe gets no cannabis DWC lesson,
+    # a tomato gets none of either, and a seedling gets none written for flower.
+    #
+    # Plants hold measurements. The agent holds understanding. Nothing crosses
+    # between plants in either direction.
+
+    KNOWLEDGE_KEY = "grow_agent_knowledge"
+
+    def _load_knowledge(self):
+        raw = self._unwrap_value(self.retrieve_own_memory(self.KNOWLEDGE_KEY))
+        try:
+            k = json.loads(raw) if raw else []
+        except Exception:
+            k = []
+        return k if isinstance(k, list) else []
+
+    def record_knowledge(self, args):
+        """Something this agent has learned, with the scope it holds within.
+
+        `applies_to` is mandatory and is not a formality: knowledge with no
+        stated scope is knowledge that will be applied to a tomato."""
+        text = (args.get("text") or "").strip()
+        applies = args.get("applies_to") or {}
+        if not text:
+            return {"error": "record_knowledge needs text"}
+        if not applies.get("species"):
+            return {"error": "record_knowledge needs applies_to.species - "
+                             "unscoped knowledge gets applied to the wrong plant"}
+        entry = {
+            "id": f"kn_{self._uid()}",
+            "text": text,
+            "applies_to": {
+                "species": str(applies["species"]).lower(),
+                "strain": (applies.get("strain") or "").lower() or None,
+                "system_type": (applies.get("system_type") or "").lower() or None,
+                "stages": [str(x).lower() for x in (applies.get("stages") or [])] or None,
+            },
+            "learned_from": args.get("learned_from"),
+            "recorded": datetime.now().isoformat(),
+        }
+        k = self._load_knowledge()
+        k.append(entry)
+        self.store_own_memory(self.KNOWLEDGE_KEY, json.dumps(k), pin=True)
+        return {"recorded": entry["id"], "applies_to": entry["applies_to"],
+                "total_known": len(k)}
+
+    def _knowledge_for(self, plant_id):
+        """What this agent knows THAT APPLIES to this plant.
+
+        Every filter here is a refusal to generalise: wrong species, wrong
+        system, wrong stage - the lesson stays out. `learned_from` is carried so
+        the grower can see which grow paid for it, but the knowledge is the
+        agent's and is not being copied from one plant to another."""
+        plant = next((p for p in (self._get_all_plants() or [])
+                      if p.get("plant_id") == plant_id), None) or {}
+        species = (plant.get("species") or "").lower()
+        strain = (plant.get("strain") or "").lower()
+        stage = (plant.get("stage") or "").lower()
+        sysrec = {}
+        try:
+            raw = self._unwrap_value(self.retrieve_own_memory(f"grow_system_{plant_id}"))
+            sysrec = json.loads(raw) if raw else {}
+        except Exception:
+            sysrec = {}
+        system_type = (sysrec.get("system_type") or "").lower()
+        # The default plant predates the per-plant index and carries no species
+        # there, so it matched nothing and the agent applied none of its own
+        # knowledge to the very plant that taught it. Fall back to the system
+        # record, and to the species helper, before giving up.
+        if not species:
+            species = (sysrec.get("species") or "").lower()
+        if not species:
+            try:
+                species = (self._get_species_for_plant(plant_id) or "").lower()
+            except Exception:
+                species = ""
+        if not stage:
+            stage = str(self._plant_state("current_stage", plant_id)[0] or "").lower()
+
+        out = []
+        for e in self._load_knowledge():
+            a = e.get("applies_to") or {}
+            if not species or a.get("species") != species:
+                continue                       # never across species
+            # Containment, not equality: a lesson tagged "dwc" belongs to a
+            # system recorded as "top_fed_dwc". Exact matching silently denied
+            # the DWC plant its own DWC lesson. Still keeps lwc and dwc apart,
+            # because neither contains the other.
+            if a.get("system_type") and system_type and not (
+                    a["system_type"] in system_type or system_type in a["system_type"]):
+                continue                       # never across system types
+            if a.get("stages") and stage and stage not in a["stages"]:
+                continue                       # not for this stage yet
+            out.append({"text": e["text"], "learned_from": e.get("learned_from"),
+                        "specific_to_strain": bool(a.get("strain")
+                                                   and a["strain"] == strain)})
+        out.sort(key=lambda x: not x["specific_to_strain"])
+        return out
+
     def _fetch_candidate_image(self, candidate):
         """Download an ACCEPTED candidate into its label folder.
 
@@ -5124,7 +5288,7 @@ class GrowAgent(AgentBase):
                 "notes": notes,
                 "previous_stage": self._unwrap_value(self.retrieve_own_memory("current_stage")) or "unknown"
             }
-            self.store_own_memory("current_stage", new_stage)
+            self.store_own_memory(self._pkey("current_stage", plant_id), new_stage)
             self.store_own_memory(f"stage_transition_{self._uid()}", json.dumps(transition))
             return {"result": f"Stage transitioned to {new_stage}", "transition": transition}
 
@@ -5153,10 +5317,17 @@ class GrowAgent(AgentBase):
             return {"result": "Water change logged", "change": change}
 
         elif task == "get_status":
-            stage = self._unwrap_value(self.retrieve_own_memory("current_stage")) or "unknown"
-            germination_date = self._unwrap_value(self.retrieve_own_memory("germination_date"))
-            strain = self._unwrap_value(self.retrieve_own_memory("current_strain"))
-            nutrients_raw = self._unwrap_value(self.retrieve_own_memory("current_nutrients"))
+            _pid = args.get("plant_id") if isinstance(args, dict) else None
+            stage, _s_src = self._plant_state("current_stage", _pid)
+            stage = stage or "unknown"
+            germination_date, _g_src = self._plant_state("germination_date", _pid)
+            strain, _st_src = self._plant_state("current_strain", _pid)
+            nutrients_raw, _n_src = self._plant_state("current_nutrients", _pid)
+            _missing = sorted({k for k, src in
+                               (("stage", _s_src), ("germination_date", _g_src),
+                                ("strain", _st_src), ("nutrients", _n_src))
+                               if src == "missing"})
+            _lessons = self._knowledge_for(_pid or self.DEFAULT_PLANT)
             current_nutrients = None
             if nutrients_raw:
                 try:
@@ -5175,6 +5346,16 @@ class GrowAgent(AgentBase):
                     # is judged against the wrong nutrient band.
                     **({"stage_conflict": stage_conflict} if stage_conflict else {}),
                     "germination_date": germination_date,
+                    # Say when a field is not this plant's own. Presenting
+                    # another plant's nutrients as this one's is how a seedling
+                    # in plain water reads as fully fed.
+                    **({"not_recorded_for_this_plant": _missing,
+                        "gap_note": (
+                            f"No value of its own for: {', '.join(_missing)}. "
+                            f"Nothing has been borrowed from another plant - "
+                            f"these are gaps to fill, not measurements.")}
+                       if _missing else {}),
+                    **({"agent_knowledge_applied": _lessons} if _lessons else {}),
                     "current_strain": strain,
                     "current_nutrients": current_nutrients,
                     "other_plants": self._get_all_plants(),
@@ -5209,10 +5390,10 @@ class GrowAgent(AgentBase):
                     index.append(plant_id)
                 self.store_own_memory("plant_index", json.dumps(index))
                 return {"result": f"Germination date set for {plant_id}", "plant": record}
-            self.store_own_memory("germination_date", date_str)
+            self.store_own_memory(self._pkey("germination_date", plant_id), date_str)
             self.store_own_memory("current_species", species)
             if strain:
-                self.store_own_memory("current_strain", strain)
+                self.store_own_memory(self._pkey("current_strain", plant_id), strain)
             return {"result": f"Germination date set to {date_str}", "strain": strain}
 
         elif task == "set_current_nutrients":
@@ -7579,6 +7760,16 @@ class GrowAgent(AgentBase):
                 "local_path": candidate.get("local_path"),
                 "note": note,
             }}
+
+        elif task == "record_knowledge":
+            return self.record_knowledge(args if isinstance(args, dict) else {})
+
+        elif task == "what_i_know":
+            a = args if isinstance(args, dict) else {}
+            pid = a.get("plant_id")
+            if pid:
+                return {"plant_id": pid, "applicable": self._knowledge_for(pid)}
+            return {"all_knowledge": self._load_knowledge()}
 
         elif task == "list_training_candidates":
             return {"result": self._get_pending_candidates()}
