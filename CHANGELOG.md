@@ -700,3 +700,50 @@ Also fixed: `lookup` returned a dictionary headword and stopped, so for every
 term Black's happens to carry - most of them - the fuller doctrinal entry was
 unreachable. It returns both now. The definition says what the words mean; the
 entry says what the doctrine requires.
+
+### 2026-08-29 — Paolozzi, and the difference between a term and an assurance
+
+A trust-law handout supplied by the principal, built on *Paolozzi v.
+Commissioner*, 23 T.C. 182 (1954). The case is routinely cited backwards: the
+taxpayer did not win because the trust protected her assets, she won by
+**proving it did not**. Massachusetts creditors could reach the maximum the
+trustees could distribute, so she had retained beneficial enjoyment and the 1938
+gift was incomplete.
+
+`reference/legal_agent/self_settled_trust_problem.json` - 25 entries: the
+doctrine, the five equitable principles from the handout, and thirteen
+authorities each carrying its own standing (binding SCOTUS, controlling state,
+persuasive federal, limiting, secondary, statutory text).
+
+The distinction the principal paused on, and the reason the file exists: at
+execution the trustees TOLD her they would pay income on request unless they
+believed she was acting under compulsion. That is the operative logic of a
+modern anti-duress clause sitting in a 1938 Massachusetts trust as a
+CONVERSATION rather than a PROVISION. The instrument held absolute discretion,
+an accumulation power, remainders over and a spendthrift clause - and no duress
+term at all. **A drafted clause binds the trustee and can be construed; an oral
+assurance binds nobody.** The understanding became evidence of retained
+enjoyment rather than protection from it.
+
+Also recorded: creditors reach the CEILING of the power, not the record of its
+exercise - non-exercise is no defence, and the operative fact is capacity rather
+than conduct. And that a duress provision protects the res while exposing the
+person, since equity acts in personam and the settlor is the one in the
+courtroom - FTC v. Affordable Media, In re Lawrence, In re Huber, Toni 1 Trust
+v. Wacker.
+
+**26 CFR Part 20** ingested (205 sections), so Treas. Reg. 20.2036-1(c) -
+retained enjoyment includes express or implied understandings - is now readable
+rather than merely cited. Legal's corpus: 18 works, 1,729 sections, 6,528
+subject terms.
+
+Cross-domain, through the referral pipeline rather than by copying: Accounting
+received the creditor-access/transfer-tax symmetry, because valuing a position
+by what the holder can actually obtain is its frame. Trust received the
+term-versus-assurance test, because instrument construction is its frame. Both
+recorded and both said plainly they have no handler for it yet.
+
+And a corpus rule into CLAUDE.md: **a dictionary from 1910 is a floor, not a
+boundary.** Black's 2nd is held because its term expired, not because it is
+current. A doctrine it lacks or states differently is not thereby unsupported -
+the absence of a headword is a fact about the 1910 edition and nothing else.

@@ -353,6 +353,16 @@ field. Nothing is presented to a model as authority without its provenance
 attached - the failure this prevents is a placeholder file defining `custodian`
 with an invented meaning and being read as reference.
 
+**A dictionary from 1910 is a floor, not a boundary.** Black's 2nd edition is in
+the corpus because its term expired, not because it is current. A doctrine it
+does not carry, or carries differently, is not thereby unsupported - `laches`
+gets a sentence there and two elements in the doctrine index, and terms coined
+after 1910 are simply absent. The absence of a headword is a fact about the
+1910 edition and about nothing else; the question is then answered from statute,
+regulation or case law, and where those disagree with the dictionary they win.
+The same reasoning as *lived data outranks documentation*, applied to the age of
+a reference work.
+
 **A standing field is set from the content, never from the wrapper.** `stance`,
 `source`, `evidence_kind`, `species`, `confidence` - every field whose job is to
 carry how much weight something deserves must be filled by reading the thing.
