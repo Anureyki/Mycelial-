@@ -156,6 +156,45 @@ the user's world and the system's. Two directions -
   agents or tasks. "Your reservoir pH has been drifting - I'd adjust it today,"
   never "Grow Agent reported a warning."
 
+**The personality is a policy layer, not code.** It lives in
+`config/anansi_voice.json` and is applied by `agents/anansi/voice.py`. It used
+to be constants and a method inside the agent, which meant the voice could not
+change without editing the agent - and a voice edit that can reach an agent is
+one refactor away from being an authority edit. Editing the config takes effect
+on the next telling with no restart.
+
+**Voice cannot touch evidence, and that is enforced rather than intended.**
+Every number, date, unit, currency amount and citation in the payload is
+extracted before the telling and checked after it. If one is lost, altered or
+invented, the telling is **discarded** and the plain text ships. Verified
+against a deliberately hostile config: an opener asserting "All 7 of your
+readings are perfect" was refused, because the 7 was not in the payload.
+Nothing here calls a model - every fabrication this system has produced came
+from giving a small model a gap and room to fill it.
+
+**Seven registers control how much personality a situation gets**, most serious
+match winning: `low_stakes` 1.0, `technical` 0.6, `security` 0.4, `legal` and
+`financial` 0.35, `sensitive` 0.25, `safety_critical` 0.1. Anansi is allowed to
+be funny. He is not allowed to be careless.
+
+**An opener that asserts a state must be earned.** "All quiet" and "Everything
+is sitting where it should" are findings, not decoration, and Anansi has no
+authority to make one. They were being applied by default to anything
+unclassified - including a contestable $550 obligation - so the default is now
+no opener at all, and `steady` requires the payload itself to say nothing is
+needed.
+
+**The trickster names contradictions, and only real ones.**
+`narrate_contradiction` takes a claim and an observation and refuses when either
+is missing: a contradiction with one side absent is not a contradiction, it is a
+guess. *"The registry said the Security Agent was active on port 9010. Port 9010
+answered nothing. Between a record and a measurement, the measurement wins."*
+
+**Naming departments depends on what the subject is.** Relaying a domain answer,
+Anansi names no agent - the person asked about their reservoir, not the org
+chart. Explaining MycOS itself, the departments *are* the story and hiding them
+makes it unintelligible.
+
 ### Not every message is a task
 
 Some inputs are simply conversation. Those do not need an agent, a task, or a

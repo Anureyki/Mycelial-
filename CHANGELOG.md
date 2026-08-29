@@ -280,3 +280,36 @@ and `ingest_pdf.py` correctly refused to store the result rather than filing an
 unusable blob, which is how it was caught. The section splitter now recognises
 IRM dotted citations (`5.1.1.4.2`), requiring three or more components so it
 cannot swallow CFR citations like `210.1-01`.
+
+### 2026-08-29 — Anansi's voice becomes a policy layer that cannot reach the facts
+
+The personality was constants and a method inside `Anansi.py`, written for one
+grow. It could not change without editing the agent — and a voice edit that can
+reach an agent is one refactor away from being an authority edit. Moved to
+`config/anansi_voice.json` + `agents/anansi/voice.py`; the agent drops from 317
+lines to 224 and hot-reloads the policy with no restart.
+
+**The guarantee is enforced, not intended.** Every number, date, unit, currency
+amount and citation is extracted before the telling and checked after. Lost,
+altered or invented, and the telling is discarded and the plain text ships.
+Tested against a deliberately hostile config — an opener reading "All 7 of your
+readings are perfect" was refused because the 7 was not in the payload. Nothing
+calls a model; there is no gap to fill.
+
+Writing the check immediately caught two defects in the voice it replaced:
+
+- **It was dropping facts.** The "Not yet - 2 thing(s) in the way" lead was
+  discarded whenever an opener covered it, taking the count with it. A
+  fact-bearing sentence is now never dropped.
+- **It was making determinations.** The `steady` openers — "All quiet",
+  "Everything is sitting where it should" — assert a state, and they were the
+  default for anything unclassified. A contestable $550 obligation was narrated
+  as everything sitting where it should. That is not a tone problem, it is
+  Anansi exercising authority he does not have. `steady` must now be earned by
+  the payload saying so; the default is no opener.
+
+Seven registers scale personality by stakes, most serious match winning:
+`low_stakes` 1.0 → `safety_critical` 0.1, with `sensitive` at 0.25 where the
+trickster stands down entirely. `narrate_contradiction` gives the trickster its
+actual job and refuses a one-sided contradiction, which is a guess rather than
+a finding.
