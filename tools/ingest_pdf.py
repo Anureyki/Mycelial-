@@ -30,6 +30,10 @@ SECTION_PATTERNS = [
     (re.compile(r'^\s*(IFRS\s+\d+|IAS\s+\d+)\b', re.I), "ifrs"),
     (re.compile(r'^\s*(?:SEC(?:TION)?\.?\s*)?(\d+[A-Za-z]?\([a-z0-9]+\))', re.I), "subsection"),
     (re.compile(r'^\s*(Rule\s+\d+[A-Za-z]?-\d+)', re.I), "rule"),
+    # IRM sections head themselves as bare dotted numbers - "5.1.1", "5.1.1.4.2"
+    # - on their own line. Requiring THREE or more components keeps this off
+    # CFR citations like "210.1-01" and statute subsections like "9.203".
+    (re.compile(r'^\s*(\d{1,2}\.\d{1,2}\.\d{1,3}(?:\.\d{1,3})*)\s*$'), "irm"),
     # Dashes: these documents use EN DASH (U+2013) in citations like
     # "210.1-01", not a hyphen. Omitting it truncated the citation at "210.1",
     # collapsing 1-01, 1-02 and 1-03 onto one ambiguous key.

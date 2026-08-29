@@ -1114,6 +1114,27 @@ class LegalAgent(AgentBase):
                                         f"published text"}
         if e.get("note"):
             out["convention"] = e["note"]
+
+        # If this agent HOLDS the state's enactment and the resolved citation
+        # is in it, that is stronger proof than any external check: the text is
+        # sitting here under that exact key. Verifiable state outranks the
+        # table's own bookkeeping, so the corpus is allowed to promote a
+        # candidate to verified - and to demote nothing, since absence from a
+        # partial corpus proves nothing either way.
+        probe = out.get("citation") or out.get("candidate")
+        if probe:
+            bare = re.search(r'§\s*[\d.\-]+[A-Za-z]?', probe)
+            hit = self.lookup_reference(bare.group(0) if bare else probe)
+            if hit and (hit[0].get("title") or "").strip():
+                out["citation"] = out.pop("candidate", out.get("citation"))
+                out["standing"] = {
+                    "verified": True,
+                    "source": f"held in this agent's corpus: {hit[0]['title']}",
+                    "basis": "the enactment itself is on the shelf under this "
+                             "citation, which is what a citation being correct "
+                             "means",
+                }
+                out["text_available"] = True
         out["disclaimer"] = DISCLAIMER
         return out
 
@@ -1252,12 +1273,32 @@ class LegalAgent(AgentBase):
         cite = (args.get("citation") or "").strip()
         if not cite:
             return {"error": "claim_cite needs a citation", "disclaimer": DISCLAIMER}
+        # A uniform section number is not a citation anywhere. The corpus
+        # holds Texas's enactment keyed as "§ 9.322"; a claim reasons in
+        # "9-322". Resolve through the operating jurisdiction before deciding
+        # the authority is absent - otherwise the agent owns the text and
+        # still reports it cannot be found.
         found = self.lookup_reference(cite)
+        resolved_via = None
+        if not found and re.fullmatch(r'\s*\d+\s*-\s*\d+[A-Za-z]?\s*', cite or ""):
+            r = self.cite_in_jurisdiction(cite)
+            local = r.get("citation") or r.get("candidate")
+            if local:
+                # Strip the code name; the corpus is keyed by the bare section.
+                bare = re.search(r'§\s*[\d.\-]+[A-Za-z]?', local)
+                probe = bare.group(0) if bare else local
+                found = self.lookup_reference(probe)
+                if found:
+                    resolved_via = {"uniform": cite, "local_citation": local,
+                                    "state": r.get("state"),
+                                    "verified": r.get("standing", {}).get("verified")}
         entry = {"citation": cite,
                  "located_in_corpus": bool(found),
                  "governs": args.get("governs"),
                  "governs_basis": args.get("governs_basis", ""),
                  "checked_at": datetime.now().isoformat()}
+        if resolved_via:
+            entry["resolved_via_jurisdiction"] = resolved_via
         if found:
             entry["title"] = found[0].get("title")
             entry["excerpt"] = (found[0].get("text") or "")[:400]

@@ -224,3 +224,59 @@ confidence `0.0` — every provision it rests on (9-322, 9-327, 9-104) came back
 `located_in_corpus: false`. Which surfaced a genuine gap rather than a verdict:
 **Legal reasons about uniform UCC sections but has never read one.** The text is
 not in the corpus. Recorded as the next thing to close, not papered over.
+
+### 2026-08-29 — Legal reads the statute; Accounting reads the manual
+
+The claim pipeline's first run returned `unsupported` on the UCC control claim
+because every provision it rested on — 9-322, 9-327, 9-104 — was absent from
+the corpus. Legal reasoned about uniform section numbers all morning and had
+never read one. Closed.
+
+**Tex. Bus. & Com. Code ch. 9** — 141 of 142 sections (9.521 failed), 655
+subject terms. Texas because Texas is the operating jurisdiction on record.
+The *model* UCC is ALI/ULC copyrighted; a state's **enactment** is public domain
+(edicts of government — *Georgia v. Public.Resource.Org*, 590 U.S. 255 (2020)),
+and the enactment is also the text that actually governs here. So this is the
+correct source, not a workaround for the copyright.
+
+`claim_cite` now resolves a uniform section through the operating jurisdiction
+before concluding an authority is missing — otherwise the agent owns the text
+and still reports it cannot find it. `9-322` → `Tex. Bus. & Com. Code § 9.322`
+→ statute text in hand. The same claim moved from `unsupported / 0.0` to
+`prerequisite_missing`: it now has authority and still has ten questions to
+answer, which is the pipeline behaving correctly rather than being satisfied.
+
+And `cite_in_jurisdiction` now lets the corpus promote a citation to *verified*.
+The jurisdiction table had four states checked against their published text;
+holding the enactment under that exact key is stronger proof than any external
+check, so all 141 Texas sections are now verified rather than projected.
+Verifiable state outranks the table's own bookkeeping.
+
+**`tools/ingest_law.py`** acquires any CFR part, U.S. Code title or IRM part
+from the official source in one command. Deliberately fetch-on-demand rather
+than a bulk mirror: the corpus is retrieved by exact citation, so an unread
+title costs disk, boot and index size while contributing nothing. The full CFR
+plus the full Code is several million sections on a 7 GB machine.
+
+**Internal Revenue Manual Part 5** (Collecting Process) — 20 MB, 10,233
+sections — went to **Accounting, not Legal**, and that placement is a safety
+property rather than tidiness. The IRM is not law: it binds IRS personnel and
+confers no rights. Legal's corpus is *authority*, and the claim pipeline weighs
+whatever it can open as potentially governing — guidance shelved there would be
+scored as though it governs, and nothing downstream could tell. In Accounting it
+is the live column: the Code and 26 CFR are the floor, the IRM is how the floor
+is administered against real books.
+
+Every work now carries `authority_class` and `authority_class_basis`. Writing
+that field caught the exact error CLAUDE.md warns about — the first pass derived
+class from the title and returned `unknown` for the Delaware Statutory Trust
+Act. Corrected, with the basis recorded: for a statute or regulation the title
+*is* the citation and fixes the class; anything else must be read or stay
+unknown.
+
+Two ingest bugs fixed on the way. `fetch_irm` matched chapter URLs on the
+un-padded part number, so it retrieved a 12 KB index page with no law in it —
+and `ingest_pdf.py` correctly refused to store the result rather than filing an
+unusable blob, which is how it was caught. The section splitter now recognises
+IRM dotted citations (`5.1.1.4.2`), requiring three or more components so it
+cannot swallow CFR citations like `210.1-01`.

@@ -277,8 +277,31 @@ Each domain has a live source that supplies exactly that:
 | Domain | Codified (floor) | Live (how it actually operates) |
 |--------|------------------|--------------------------------|
 | Legal | U.S. Code, CFR, canons of construction, Black's | CourtListener - how courts actually rule and what dockets actually do |
-| Accounting | Exchange Act, Reg S-X/S-K, ASC, IFRS | EDGAR filings and SEC comment letters - where the regulator actually pushed back |
+| Accounting | Exchange Act, Reg S-X/S-K, ASC, IFRS | EDGAR filings and SEC comment letters, and the **Internal Revenue Manual** - what the agency will actually do about a set of books |
 | Grow | Product labels, published guidelines | Measured ppm, pH, and observed plant response |
+
+**Guidance is not authority, and where it is shelved decides how it is
+weighed.** The IRM is held by *Accounting*, never Legal. It directs IRS
+personnel, confers no rights on taxpayers, and courts have held it lacks the
+force of a regulation - but Legal's corpus is authority, and the claim pipeline
+weighs whatever it can open as potentially *governing*. Agency guidance shelved
+there would be scored as though it governs, and nothing downstream could tell.
+In Accounting it is the live column: 26 U.S.C. and 26 CFR are the floor, and
+the IRM is how the floor gets administered against real books.
+
+Every work therefore carries `authority_class` - `federal_statute`,
+`state_statute`, `regulation`, `court_rules`, `agency_guidance`, `treatise` -
+alongside `authority_class_basis` saying how that was determined. For a statute
+or regulation the title *is* the citation and fixes the class definitionally;
+anything else must be read, or stay `unknown`.
+
+**Acquiring law is one command.** `tools/ingest_law.py` fetches and ingests any
+CFR part, U.S. Code title, or IRM part from the official source. It is
+deliberately fetch-on-demand rather than a bulk mirror: the corpus is retrieved
+by exact citation, so an unread title costs disk, boot time and index size
+while contributing nothing to an answer. The full CFR plus the full U.S. Code
+is several million sections, and this machine has 7 GB of RAM. The corpus grows
+toward what this principal actually works on.
 
 **Copyright constrains what can be shipped.** Statutes, regulations, court
 opinions and government works are public domain. FASB's ASC and the IFRS
