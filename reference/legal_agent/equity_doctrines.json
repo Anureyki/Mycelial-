@@ -1,0 +1,511 @@
+{
+ "title": "Equity - maxims and substantive doctrines, indexed by name",
+ "source": "AUTHORED for the MycOS Legal Agent 2026-08-29 as a NAMED INDEX, not as authority. These doctrines are judge-made and their application is jurisdiction-dependent; the statements here are summaries written to make each doctrine reachable by its own name and to record how the neighbouring doctrines differ from it. For the underlying text this agent already holds Pomeroy's Equity Jurisprudence vol 1 (1886) and Maitland's Equity: A Course of Lectures (1916), both public domain. The Restatement (Third) of Restitution and Unjust Enrichment is the best modern anchor for the restitution cluster and is NOT included: it is ALI-copyrighted. Nothing here substitutes for the case law of the operating jurisdiction.",
+ "authority_class": "doctrine_summary",
+ "authority_class_basis": "authored index; read and written 2026-08-29, not quoted from a source",
+ "binds": "nobody - a finding aid",
+ "confers_rights": false,
+ "origin_pdf": "authored",
+ "pages": 1,
+ "authorities_cited": [],
+ "families": {
+  "maxim": 11,
+  "estoppel": 5,
+  "restitution": 6,
+  "other": 8
+ },
+ "sections": [
+  {
+   "citation": "equity regards substance over form",
+   "kind": "doctrine",
+   "page": 1,
+   "family": "maxim",
+   "see_also": [
+    "piercing the corporate veil",
+    "constructive trust",
+    "equitable conversion"
+   ],
+   "text": "EQUITY REGARDS SUBSTANCE OVER FORM. Equity looks at what a transaction actually does, not at the label the parties put on it. A conveyance absolute on its face may be treated as a mortgage; an instrument called a lease may operate as a security interest. This is the maxim that lets a court reach the real arrangement, and it is the engine behind veil-piercing, constructive trust, and equitable mortgage. It does not license ignoring form where form was bargained for."
+  },
+  {
+   "citation": "ubi jus ibi remedium",
+   "kind": "doctrine",
+   "page": 1,
+   "family": "maxim",
+   "see_also": [
+    "equity follows the law",
+    "specific performance"
+   ],
+   "text": "UBI JUS IBI REMEDIUM. Equity will not suffer a wrong to be without a remedy. Where a right exists and the law supplies no adequate means of vindicating it, equity may. This is the historical justification for equitable jurisdiction itself, NOT a licence to invent a right - it presupposes a right already recognised and supplies the remedy the law lacks."
+  },
+  {
+   "citation": "he who seeks equity must do equity",
+   "kind": "doctrine",
+   "page": 1,
+   "family": "maxim",
+   "see_also": [
+    "clean hands"
+   ],
+   "text": "HE WHO SEEKS EQUITY MUST DO EQUITY. A party asking for equitable relief must be prepared to act fairly toward the other side, including as to the very matter in suit. Forward-looking: it conditions the relief granted. Distinct from clean hands, which looks BACKWARD at the claimant's past conduct."
+  },
+  {
+   "citation": "clean hands",
+   "kind": "doctrine",
+   "page": 1,
+   "family": "maxim",
+   "see_also": [
+    "he who seeks equity must do equity",
+    "laches"
+   ],
+   "text": "CLEAN HANDS. He who comes into equity must come with clean hands. Misconduct by the claimant BARS equitable relief - but only misconduct with an immediate and necessary relation to the matter in suit. General bad character is not enough, and the misconduct must have injured the party invoking it or the transaction itself. An affirmative defence, and one a court may raise on its own to protect the integrity of the court."
+  },
+  {
+   "citation": "equity aids the vigilant",
+   "kind": "doctrine",
+   "page": 1,
+   "family": "maxim",
+   "see_also": [
+    "laches"
+   ],
+   "text": "EQUITY AIDS THE VIGILANT. Equity aids the vigilant, not those who sleep on their rights - vigilantibus non dormientibus aequitas subvenit. The foundation of laches. Equity will not assist a party who has delayed unreasonably while the other side's position changed."
+  },
+  {
+   "citation": "equity follows the law",
+   "kind": "doctrine",
+   "page": 1,
+   "family": "maxim",
+   "see_also": [
+    "ubi jus ibi remedium"
+   ],
+   "text": "EQUITY FOLLOWS THE LAW. Equity supplements the law; it does not contradict it. Where a legal rule squarely governs, equity applies it rather than displacing it, and an equitable estate follows the incidents of the corresponding legal estate. This is the maxim that keeps equity from becoming discretion: an argument that a statute should simply be set aside as unfair is not an equitable argument."
+  },
+  {
+   "citation": "equity looks on that as done which ought to be done",
+   "kind": "doctrine",
+   "page": 1,
+   "family": "maxim",
+   "see_also": [
+    "equitable conversion",
+    "specific performance"
+   ],
+   "text": "EQUITY LOOKS ON THAT AS DONE WHICH OUGHT TO BE DONE. Where a party is under an obligation to do a thing, equity treats it as done and the consequences as having followed, from the time performance was due. The basis of equitable conversion and of treating a specifically enforceable contract as passing an equitable interest at once."
+  },
+  {
+   "citation": "equity imputes an intent to fulfil an obligation",
+   "kind": "doctrine",
+   "page": 1,
+   "family": "maxim",
+   "see_also": [
+    "resulting trust"
+   ],
+   "text": "EQUITY IMPUTES AN INTENT TO FULFIL AN OBLIGATION. Where a person under an obligation does an act which could be regarded as performance, equity presumes they intended it as such. Underlies satisfaction and ademption, and the presumption in purchase-money resulting trusts."
+  },
+  {
+   "citation": "equity acts in personam",
+   "kind": "doctrine",
+   "page": 1,
+   "family": "maxim",
+   "see_also": [
+    "constructive trust",
+    "specific performance"
+   ],
+   "text": "EQUITY ACTS IN PERSONAM. Equity operates on the conscience of the person, not directly on the res. A decree binds the defendant to act - to convey, to account, to desist - and is enforced by contempt. This is why a court of equity can order a defendant before it to deal with property outside the jurisdiction, and why an equitable interest binds successors who take with notice but not a bona fide purchaser for value without notice."
+  },
+  {
+   "citation": "where equities are equal the law prevails",
+   "kind": "doctrine",
+   "page": 1,
+   "family": "maxim",
+   "see_also": [
+    "equity delights in equality"
+   ],
+   "text": "WHERE EQUITIES ARE EQUAL THE LAW PREVAILS. Where two parties have equally meritorious equitable claims, the one holding the legal title wins; where neither holds legal title, the first in time prevails - qui prior est tempore potior est jure. Priority in equity turns on time and on notice, not on filing, which is what distinguishes it from an Article 9 priority contest."
+  },
+  {
+   "citation": "equity delights in equality",
+   "kind": "doctrine",
+   "page": 1,
+   "family": "maxim",
+   "see_also": [
+    "marshaling of assets",
+    "equitable subrogation"
+   ],
+   "text": "EQUITY DELIGHTS IN EQUALITY. Where several parties stand in the same relation to a fund or a burden, equity distributes rateably rather than by accident of position. The basis of contribution among co-sureties, marshaling, and pro rata abatement of legacies."
+  },
+  {
+   "citation": "equitable estoppel",
+   "kind": "doctrine",
+   "page": 1,
+   "family": "estoppel",
+   "see_also": [
+    "promissory estoppel",
+    "estoppel by acquiescence",
+    "clean hands"
+   ],
+   "text": "EQUITABLE ESTOPPEL. Also estoppel in pais. ELEMENTS: (1) a representation or concealment of MATERIAL EXISTING FACT by words, conduct, or silence where there was a duty to speak; (2) made to a party without knowledge of the truth; (3) intended or reasonably expected to be acted on; (4) actual and REASONABLE reliance; (5) DETRIMENT from that reliance. EFFECT: the representor is precluded from asserting the contrary. It is a SHIELD - defensive - and does not itself create a cause of action. Compare promissory estoppel, which runs on a PROMISE about future conduct and can found a claim."
+  },
+  {
+   "citation": "promissory estoppel",
+   "kind": "doctrine",
+   "page": 1,
+   "family": "estoppel",
+   "see_also": [
+    "equitable estoppel",
+    "unjust enrichment"
+   ],
+   "text": "PROMISSORY ESTOPPEL. ELEMENTS (Restatement (Second) of Contracts s 90): (1) a clear and definite PROMISE; (2) which the promisor should reasonably expect to induce action or forbearance; (3) which does induce such action or forbearance; (4) injustice avoidable only by enforcement. EFFECT: the promise is binding despite the absence of consideration, and the remedy MAY BE LIMITED as justice requires - often reliance rather than expectation damages. Unlike equitable estoppel this is a SWORD: it can be the cause of action. The load-bearing distinction is fact versus promise, and defence versus claim."
+  },
+  {
+   "citation": "estoppel by acquiescence",
+   "kind": "doctrine",
+   "page": 1,
+   "family": "estoppel",
+   "see_also": [
+    "equitable estoppel",
+    "laches"
+   ],
+   "text": "ESTOPPEL BY ACQUIESCENCE. Estoppel by silence. Silence estops only where there was a DUTY TO SPEAK - a relationship, a statutory obligation, or knowledge that the other party is acting on a mistaken belief the silent party could correct. Absent that duty, silence is not a representation and no estoppel arises. Where the duty exists and the other side has changed position, the silent party is precluded from asserting the truth they withheld."
+  },
+  {
+   "citation": "judicial estoppel",
+   "kind": "doctrine",
+   "page": 1,
+   "family": "estoppel",
+   "see_also": [
+    "equitable estoppel"
+   ],
+   "text": "JUDICIAL ESTOPPEL. Prevents a party from asserting a position contrary to one it SUCCESSFULLY maintained in an earlier proceeding. Protects the integrity of the courts rather than any reliance interest, so no detrimental reliance by the opponent need be shown - which is precisely what distinguishes it from equitable estoppel. Usually requires that the earlier position was actually adopted by the tribunal."
+  },
+  {
+   "citation": "estoppel by deed",
+   "kind": "doctrine",
+   "page": 1,
+   "family": "estoppel",
+   "see_also": [
+    "equitable estoppel"
+   ],
+   "text": "ESTOPPEL BY DEED. A party to a deed, and those claiming under them, are precluded from denying the truth of the material facts it recites. Legal rather than equitable in origin, listed here because it is routinely confused with estoppel in pais - the operative difference is that this one binds by the INSTRUMENT, with no reliance element at all."
+  },
+  {
+   "citation": "unjust enrichment",
+   "kind": "doctrine",
+   "page": 1,
+   "family": "restitution",
+   "see_also": [
+    "quantum meruit",
+    "constructive trust",
+    "equitable subrogation"
+   ],
+   "text": "UNJUST ENRICHMENT. ELEMENTS: (1) the defendant was ENRICHED - received a benefit; (2) AT THE CLAIMANT'S EXPENSE; (3) in circumstances that make retention UNJUST; and (4) no applicable defence or justifying ground (a valid contract, a gift, an intended volunteer payment). It is a cause of action in its own right, not merely a remedy, and it does NOT require a wrong: a benefit conferred by mistake is recoverable though nobody misbehaved. Where a valid enforceable contract governs the same subject matter, it displaces the claim - restitution fills gaps, it does not rewrite bargains."
+  },
+  {
+   "citation": "quantum meruit",
+   "kind": "doctrine",
+   "page": 1,
+   "family": "restitution",
+   "see_also": [
+    "unjust enrichment"
+   ],
+   "text": "QUANTUM MERUIT. 'As much as he deserves.' The measure of recovery for the REASONABLE VALUE of services or goods conferred where there is no enforceable contract price - either because no contract was formed, or one is unenforceable, or the work fell outside it. Often pleaded as a count in its own right. Distinguish quantum valebant, the same idea for goods. It measures the benefit, not the claimant's loss and not the contract rate."
+  },
+  {
+   "citation": "constructive trust",
+   "kind": "doctrine",
+   "page": 1,
+   "family": "restitution",
+   "see_also": [
+    "resulting trust",
+    "unjust enrichment",
+    "equity acts in personam"
+   ],
+   "text": "CONSTRUCTIVE TRUST. NOT a trust at all - a REMEDY. Equity declares that a person holding legal title which they cannot in good conscience retain holds it for the claimant, and orders conveyance. Arises from fraud, duress, undue influence, breach of fiduciary duty, mistake, or any wrongful acquisition or retention. Requires NO intention by anyone to create a trust; it is imposed against the holder's will. Its practical power is TRACING - it follows the property and its identifiable proceeds into substituted assets - and PRIORITY, since the claimant takes the asset itself rather than ranking as a general creditor. Cut off by a bona fide purchaser for value without notice."
+  },
+  {
+   "citation": "resulting trust",
+   "kind": "doctrine",
+   "page": 1,
+   "family": "restitution",
+   "see_also": [
+    "constructive trust",
+    "equity imputes an intent to fulfil an obligation"
+   ],
+   "text": "RESULTING TRUST. Arises by PRESUMED INTENTION, which is what separates it from a constructive trust. Two classic cases: (1) PURCHASE-MONEY - A pays the price and title is taken in B's name, so equity presumes B holds for A, unless the relationship raises a presumption of advancement; (2) FAILING TRUST - an express trust fails, is void, or does not exhaust the beneficial interest, and what is left results back to the settlor or their estate. It restores an interest the parties are presumed to have intended; a constructive trust takes an interest away from someone who cannot conscientiously keep it. Rebuttable by evidence of actual contrary intent."
+  },
+  {
+   "citation": "equitable subrogation",
+   "kind": "doctrine",
+   "page": 1,
+   "family": "restitution",
+   "see_also": [
+    "unjust enrichment",
+    "marshaling of assets"
+   ],
+   "text": "EQUITABLE SUBROGATION. One who pays a debt owed by another, NOT AS A VOLUNTEER and not as a mere stranger, may be substituted to the creditor's rights, including the creditor's security and its PRIORITY. Turns on whether payment was made to protect an interest of the payor or under legal compulsion. Central in title-insurance and refinancing disputes, where a refinancing lender seeks the priority of the mortgage it discharged."
+  },
+  {
+   "citation": "marshaling of assets",
+   "kind": "doctrine",
+   "page": 1,
+   "family": "restitution",
+   "see_also": [
+    "equity delights in equality",
+    "equitable subrogation"
+   ],
+   "text": "MARSHALING OF ASSETS. Where a senior creditor may satisfy its claim out of EITHER of two funds and a junior creditor may reach only one, equity compels the senior to resort first to the fund the junior cannot touch - so long as the senior is not prejudiced. An application of equity delights in equality; it reorders recourse, it does not enlarge anyone's claim."
+  },
+  {
+   "citation": "laches",
+   "kind": "doctrine",
+   "page": 1,
+   "family": "defence",
+   "see_also": [
+    "equity aids the vigilant",
+    "estoppel by acquiescence"
+   ],
+   "text": "LACHES. ELEMENTS: (1) UNREASONABLE DELAY in asserting a known right, and (2) PREJUDICE to the other party from that delay - lost evidence, dead witnesses, changed position, intervening rights. Both are required: delay alone is not laches. Distinct from a statute of limitations, which is a fixed legal period; laches is equitable, fact-dependent, and can bar a claim brought well inside the statutory period or, rarely, fail to bar one brought outside it."
+  },
+  {
+   "citation": "specific performance",
+   "kind": "doctrine",
+   "page": 1,
+   "family": "remedy",
+   "see_also": [
+    "equity looks on that as done which ought to be done",
+    "clean hands",
+    "laches"
+   ],
+   "text": "SPECIFIC PERFORMANCE. A decree compelling a party to perform rather than pay damages. Granted where the legal remedy is INADEQUATE - classically land, which equity treats as unique, and unique chattels - and refused where the contract terms are uncertain, where performance would require continuous supervision, for personal services, or where the claimant lacks clean hands or has delayed. Discretionary: an enforceable contract does not entitle a party to it as of right."
+  },
+  {
+   "citation": "rescission",
+   "kind": "doctrine",
+   "page": 1,
+   "family": "remedy",
+   "see_also": [
+    "reformation",
+    "unjust enrichment"
+   ],
+   "text": "RESCISSION. Unwinding a contract and restoring the parties to their pre-contract positions, for mistake, misrepresentation, fraud, duress, undue influence, or failure of consideration. Requires COUNTER-RESTITUTION - the rescinding party must return what it received - and is lost by affirmation, by delay, or where third-party rights have intervened."
+  },
+  {
+   "citation": "reformation",
+   "kind": "doctrine",
+   "page": 1,
+   "family": "remedy",
+   "see_also": [
+    "rescission",
+    "equity regards substance over form"
+   ],
+   "text": "REFORMATION. Correcting a written instrument so it expresses what the parties ACTUALLY agreed, where a mutual mistake, or a unilateral mistake coupled with the other side's inequitable conduct, made the writing diverge from the bargain. It does not make a new agreement and does not cure a bad bargain - it fixes the record of one. Proof is typically held to a clear and convincing standard."
+  },
+  {
+   "citation": "unconscionability",
+   "kind": "doctrine",
+   "page": 1,
+   "family": "defence",
+   "see_also": [
+    "equity regards substance over form",
+    "rescission"
+   ],
+   "text": "UNCONSCIONABILITY. Two components, usually both required though on a sliding scale: PROCEDURAL - absence of meaningful choice, unequal bargaining power, surprise, adhesion - and SUBSTANTIVE - terms unreasonably favourable to the stronger party. Assessed as at the time of contracting. A court may refuse to enforce the contract, sever the offending clause, or limit its application."
+  },
+  {
+   "citation": "piercing the corporate veil",
+   "kind": "doctrine",
+   "page": 1,
+   "family": "doctrine",
+   "see_also": [
+    "equity regards substance over form"
+   ],
+   "text": "PIERCING THE CORPORATE VEIL. Disregarding separate corporate personality to reach a shareholder, where the entity was used to work fraud or injustice. Usual factors: undercapitalisation, failure to observe corporate formalities, commingling of funds, domination such that the entity has no separate will, and use of the form to evade an existing obligation. Substance over form is the animating principle. Jurisdiction-dependent and, in most courts, applied sparingly."
+  },
+  {
+   "citation": "equitable conversion",
+   "kind": "doctrine",
+   "page": 1,
+   "family": "doctrine",
+   "see_also": [
+    "equity looks on that as done which ought to be done",
+    "specific performance"
+   ],
+   "text": "EQUITABLE CONVERSION. From the moment a contract for the sale of land becomes specifically enforceable, equity treats the buyer as owner of the LAND and the seller as owner of the PURCHASE MONEY, holding legal title as security. Determines who bears risk of loss, and how each interest passes on death, before closing. A direct application of equity looks on that as done which ought to be done."
+  },
+  {
+   "citation": "bona fide purchaser",
+   "kind": "doctrine",
+   "page": 1,
+   "family": "doctrine",
+   "see_also": [
+    "constructive trust",
+    "resulting trust",
+    "equity acts in personam"
+   ],
+   "text": "BONA FIDE PURCHASER. A purchaser FOR VALUE, of a LEGAL interest, WITHOUT NOTICE - actual, constructive or inquiry - of the prior equity. Takes free of it. This is the outer boundary of every equitable interest in this file: a constructive trust, a resulting trust, an equitable lien and an unrecorded equity are all cut off by such a purchaser, which is why notice does so much work in equity."
+  }
+ ],
+ "term_index": {
+  "constructive trust": [
+   0,
+   18,
+   19,
+   29
+  ],
+  "substance over form": [
+   0,
+   27
+  ],
+  "equity looks": [
+   0,
+   6,
+   28
+  ],
+  "substance over": [
+   0,
+   27
+  ],
+  "over form": [
+   0,
+   27
+  ],
+  "equity will": [
+   1,
+   4
+  ],
+  "clean hands": [
+   2,
+   3,
+   23
+  ],
+  "equitable relief": [
+   2,
+   3
+  ],
+  "equitable conversion": [
+   6,
+   28
+  ],
+  "equity treats": [
+   6,
+   23,
+   28
+  ],
+  "equitable interest": [
+   6,
+   8,
+   29
+  ],
+  "done which ought": [
+   6,
+   28
+  ],
+  "enforceable contract": [
+   6,
+   16,
+   17,
+   23
+  ],
+  "specifically enforceable": [
+   6,
+   28
+  ],
+  "purchase money": [
+   7,
+   19,
+   28
+  ],
+  "equity presumes": [
+   7,
+   19
+  ],
+  "fide purchaser": [
+   8,
+   18,
+   29
+  ],
+  "value without notice": [
+   8,
+   18
+  ],
+  "bona fide": [
+   8,
+   18,
+   29
+  ],
+  "bona fide purchaser": [
+   8,
+   18,
+   29
+  ],
+  "without notice": [
+   8,
+   18,
+   29
+  ],
+  "value without": [
+   8,
+   18
+  ],
+  "legal title": [
+   9,
+   18,
+   28
+  ],
+  "what distinguishes": [
+   9,
+   14
+  ],
+  "equity delights": [
+   10,
+   21
+  ],
+  "promissory estoppel": [
+   11,
+   12
+  ],
+  "equitable estoppel": [
+   11,
+   12,
+   14
+  ],
+  "precluded from asserting": [
+   11,
+   13
+  ],
+  "changed position": [
+   13,
+   22
+  ],
+  "undue influence": [
+   18,
+   24
+  ],
+  "fraud duress": [
+   18,
+   24
+  ],
+  "fraud duress undue": [
+   18,
+   24
+  ],
+  "holding legal": [
+   18,
+   28
+  ],
+  "holding legal title": [
+   18,
+   28
+  ],
+  "duress undue influence": [
+   18,
+   24
+  ],
+  "duress undue": [
+   18,
+   24
+  ],
+  "resulting trust": [
+   19,
+   29
+  ]
+ }
+}

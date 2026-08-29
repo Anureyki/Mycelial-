@@ -664,3 +664,39 @@ down to 968, with the conditions stated once.
 as "There are 2 of them", which only reads correctly directly after the opener
 that gave "them" a referent. On the dashboard it landed straight after a ppm
 figure. It is self-contained now: "There are 2 things in the way."
+
+### 2026-08-29 — Equity, reachable by the name of the doctrine
+
+Legal held Pomeroy (1886) and Maitland (1916) and could not find "unjust
+enrichment", "constructive trust" or "promissory estoppel". "Clean hands" and
+"specific performance" reached Pomeroy; "laches" and "estoppel" got only a
+Black's 1910 sentence; the restitution cluster fell through to a nearest-headword
+guess. The doctrines were on the shelf and not addressable.
+
+`reference/legal_agent/equity_doctrines.json` - 30 doctrines indexed by their own
+names across four families: 11 maxims, 5 in the estoppel family, 6 in
+restitution, 8 remedies, defences and related doctrines.
+
+Each entry carries ELEMENTS and, more usefully, how it differs from its
+neighbour - because the neighbouring doctrine is what a real argument turns on:
+
+- equitable estoppel runs on a representation of EXISTING FACT and is a shield;
+  promissory estoppel runs on a PROMISE about future conduct and is a sword.
+- a constructive trust is a REMEDY imposed against the holder's will; a
+  resulting trust arises by PRESUMED INTENTION.
+- clean hands looks BACKWARD at the claimant's conduct and bars relief; he who
+  seeks equity must do equity looks FORWARD and conditions it.
+- laches needs delay AND prejudice, and is not a limitation period.
+- every equitable interest here ends at a bona fide purchaser for value without
+  notice, which is why notice does so much work in equity.
+
+`authority_class: doctrine_summary`, and the source field says plainly that these
+are authored summaries written to make each doctrine reachable, not authority.
+The Restatement (Third) of Restitution is named as the best modern anchor for
+the restitution cluster and deliberately NOT included: it is ALI-copyrighted,
+the same reason the model UCC is absent.
+
+Also fixed: `lookup` returned a dictionary headword and stopped, so for every
+term Black's happens to carry - most of them - the fuller doctrinal entry was
+unreachable. It returns both now. The definition says what the words mean; the
+entry says what the doctrine requires.

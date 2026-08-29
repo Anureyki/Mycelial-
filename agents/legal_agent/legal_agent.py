@@ -1525,8 +1525,23 @@ class LegalAgent(AgentBase):
             # before it is reduced to a one-word gloss.
             defined = self.lookup_term(term, loose=False)
             if defined:
-                return {"term": term, "source": "reference/legal_agent dictionary",
-                        "definition": defined, "disclaimer": DISCLAIMER}
+                # A dictionary headword and a doctrinal entry are not competing
+                # answers. Black's 1910 defines "laches" in a sentence; the
+                # doctrine file gives its two elements and how it differs from a
+                # limitation period. Returning only the first meant the fuller
+                # entry was unreachable for every term the dictionary happens to
+                # carry - which is most of them.
+                both = self.lookup_reference(term)
+                out = {"term": term, "source": "reference/legal_agent dictionary",
+                       "definition": defined, "disclaimer": DISCLAIMER}
+                if both:
+                    out["source"] = ("reference/legal_agent dictionary + corpus")
+                    out["results"] = both
+                    out["note"] = ("Both a dictionary definition and a fuller "
+                                   "entry exist for this term. The definition "
+                                   "says what the words mean; the entry says "
+                                   "what the doctrine requires.")
+                return out
             passages = self.lookup_reference(term)
             if passages:
                 return {"term": term, "source": "reference/legal_agent corpus",
