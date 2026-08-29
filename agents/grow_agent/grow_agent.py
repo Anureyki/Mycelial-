@@ -2357,6 +2357,11 @@ class GrowAgent(AgentBase):
         ("roots",      r"\broots?\b[^.]{0,50}(coloni[sz]|establish|reach|into the|down into|"
                        r"take hold|fill)|(coloni[sz]|establish)\w*[^.]{0,30}\b(root|pellet|"
                        r"pebble|medium|net ?pot)|after (the )?(transition|transplant|move)"),
+        ("light",      r"\b(dimmer|brightness|percent\w*|%)\b[^.]{0,30}\b(light|lamp|fixture)\b|"
+                       r"\b(light|lamp|fixture)\b[^.]{0,30}\b(dimmer|brightness|percent\w*|%|"
+                       r"how (high|bright|much))\b|\bppfd\b|\bpar\b|\bhow bright\b|"
+                       r"what percentage[^.]{0,24}(light|on)",
+         ),
         ("photos",     r"\b(photo|photos|picture|pictures|pic|pics|image|images|camera)\b"),
         ("cadence",    r"\bhow often\b|\b(reading|log|logging) (frequency|cadence|expectancy)\b"),
         ("deficit",    r"\b(loss|lost|cost|impact|stagnant|behind|deficit|underfed|set ?back)\b"),
@@ -2869,6 +2874,14 @@ class GrowAgent(AgentBase):
                      r.get("missing") or ""]
             return {"answered_as": "root_establishment", "plant_id": plant_id,
                     "text": " ".join(x for x in parts if x), "facts": r}
+
+        if shape == "light":
+            ls = self.light_setting(plant_id)
+            parts = [ls.get("assessment") or ls.get("error") or "",
+                     ls.get("at_your_current_setting") or "",
+                     ls.get("acclimation") or "", ls.get("what_would_replace_this") or ""]
+            return {"answered_as": "light_setting", "plant_id": plant_id,
+                    "text": " ".join(x for x in parts if x), "facts": ls}
 
         if shape == "photos":
             pc = self.photo_cadence(plant_id)
@@ -3752,6 +3765,111 @@ class GrowAgent(AgentBase):
             "No root-growth rate has ever been measured on this grow, so the bracket above is "
             "generic. A photo of the root zone at the same angle every few days would give this "
             "plant its own number within a week.")
+        return out
+
+    # Canopy PPFD bands by stage, umol/m2/s. GENERIC published guidance, not
+    # measured on this grow - the same standing as the drawdown rate, and
+    # labelled so wherever it is used.
+    STAGE_PPFD = {
+        "germination": (100, 250),
+        "seedling":    (150, 300),
+        "early_veg":   (250, 450),
+        "veg":         (400, 600),
+        "flower":      (600, 900),
+    }
+
+    # A fixture's footprint decides PPFD entirely and nobody has measured this
+    # one. Both bracket assumptions are carried through rather than one being
+    # chosen, because choosing would invent precision the tent has not earned.
+    FOOTPRINT_M2 = {"tight (2ft x 2ft)": 0.37, "spread (3ft x 3ft)": 0.83}
+
+    def light_setting(self, plant_id="current_plant"):
+        """What dimmer percentage the recorded fixture needs for this stage.
+
+        Every input is on the system record: wattage, photon efficacy, height,
+        mounting and the current setting. The one thing that is NOT on it is
+        the footprint, and it is the term that decides the answer - so this
+        returns a range and says why, rather than a number that would be right
+        only if an unmeasured assumption happened to hold."""
+        sysraw = (self._unwrap_value(self.retrieve_own_memory(f"grow_system_{plant_id}"))
+                  or (self._unwrap_value(self.retrieve_own_memory("grow_system"))
+                      if plant_id == "current_plant" else None))
+        try:
+            rec = json.loads(sysraw) if sysraw else {}
+        except Exception:
+            rec = {}
+
+        watts = self._parse_numeric(rec.get("light_wattage"))
+        ppe = self._parse_numeric(rec.get("light_ppe_umol_per_joule"))
+        height = self._parse_numeric(rec.get("light_height_cm"))
+        current = str(rec.get("light_dimmer_setting") or "").strip()
+        installed = rec.get("light_installed_on")
+
+        stage = self._unwrap_value(self.retrieve_own_memory("current_stage")) or "unknown"
+        if plant_id != "current_plant":
+            p = next((x for x in self._get_all_plants()
+                      if x.get("plant_id") == plant_id), None)
+            stage = (p or {}).get("stage", "unknown")
+
+        out = {"plant_id": plant_id, "stage": stage, "watts": watts,
+               "ppe_umol_per_joule": ppe, "height_cm": height,
+               "current_setting": current or None, "installed_on": installed}
+
+        band = self.STAGE_PPFD.get(stage)
+        if not (watts and ppe and band):
+            out["error"] = ("Need light_wattage, light_ppe_umol_per_joule and a known stage. "
+                            f"Have watts={watts}, ppe={ppe}, stage={stage!r}.")
+            return out
+        lo, hi = band
+        out["target_ppfd"] = [lo, hi]
+        out["target_source"] = f"generic published band for {stage} - NOT measured on this grow"
+
+        rows = []
+        for name, area in self.FOOTPRINT_M2.items():
+            # percent = target_ppfd * area / (watts * ppe)
+            pct_lo = lo * area / (watts * ppe) * 100
+            pct_hi = hi * area / (watts * ppe) * 100
+            rows.append({"footprint": name, "area_m2": area,
+                         "percent_for_band": [round(min(100, pct_lo)), round(min(100, pct_hi))],
+                         "ppfd_at_current": (round(watts * ppe * float(current) / 100 / area)
+                                             if current.replace(".", "").isdigit() else None)})
+        out["by_footprint"] = rows
+
+        overlap_lo = max(r["percent_for_band"][0] for r in rows)
+        overlap_hi = min(r["percent_for_band"][1] for r in rows)
+        if overlap_lo <= overlap_hi:
+            out["setting_that_works_either_way"] = [overlap_lo, overlap_hi]
+            out["assessment"] = (
+                f"{overlap_lo}-{overlap_hi}% lands inside the {lo}-{hi} band for {stage} "
+                "whichever footprint is real. Below that you are under-lit on the tight "
+                "assumption; above it you are over the band on the tight one while still "
+                "fine on the wide one.")
+        else:
+            out["assessment"] = (
+                f"No single setting is inside the {lo}-{hi} band under both footprint "
+                f"assumptions: the tight one wants {rows[0]['percent_for_band']}%, the wide "
+                f"one {rows[1]['percent_for_band']}%. Which is right decides the answer, and "
+                "only a meter at the canopy settles it.")
+        if current.replace(".", "").isdigit():
+            cur = float(current)
+            got = [r["ppfd_at_current"] for r in rows]
+            out["at_your_current_setting"] = (
+                f"At {current}% you are putting roughly {min(got)}-{max(got)} umol/m2/s on the "
+                f"canopy depending on footprint, against a {lo}-{hi} target.")
+
+        # The history that matters more than the arithmetic.
+        out["acclimation"] = (
+            "Intensity is only half of it. This plant ran under 15W of USB bars until the "
+            "TS-1000 went in, so the step to a real fixture is large however the dimmer is "
+            "set, and it landed four days after a 52% jump in reservoir concentration. A "
+            "plant recovering from one stress acclimates poorly to a second. Raising in "
+            "steps over several days, watching the newest growth, costs a few days of "
+            "growth; getting it wrong costs the top of the plant.")
+        out["what_would_replace_this"] = (
+            "A PAR reading at canopy height. Every number above is arithmetic on a label "
+            "and an assumed footprint - the meter is the only thing that turns it into a "
+            "measurement.")
+        out["confidence"] = "low"
         return out
 
     def photo_cadence(self, plant_id="current_plant"):
@@ -5788,6 +5906,9 @@ class GrowAgent(AgentBase):
         elif task == "estimate_root_establishment":
             return {"result": self.estimate_root_establishment(
                 args.get("plant_id", "current_plant"), args.get("transitioned_on"))}
+
+        elif task == "light_setting":
+            return {"result": self.light_setting(args.get("plant_id", "current_plant"))}
 
         elif task == "photo_cadence":
             return {"result": self.photo_cadence(args.get("plant_id", "current_plant"))}
