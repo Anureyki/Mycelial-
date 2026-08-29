@@ -3482,6 +3482,30 @@ class GrowAgent(AgentBase):
                               "what_would_settle_it": settle_it, "classification": klass})
         return found
 
+    def _pests_ruled_out(self, plant_id="current_plant"):
+        """Has an underside inspection already come back negative?
+
+        The grower turned the leaves over, looked, and found nothing. Asking
+        them again is not thoroughness - it is failing to record an answer they
+        already gave, and it is the same fault as hearing a fact and not
+        writing it down. A negative inspection is EVIDENCE, and it stays
+        evidence until a new sign appears.
+        """
+        try:
+            notes = self._get_all_notes() or []
+        except Exception:
+            return None
+        best = None
+        for n in notes:
+            if n.get("plant_id") not in (plant_id, None):
+                continue
+            txt = (n.get("text") or n.get("note") or "")
+            if "pests ruled out" in txt.lower() or n.get("category") == "pest_inspection":
+                ts = n.get("created") or n.get("logged_at") or n.get("timestamp") or ""
+                if best is None or str(ts) > str(best.get("ts") or ""):
+                    best = {"ts": str(ts)[:10], "text": txt}
+        return best
+
     def _leaf_pattern_hit(self, text):
         """The single most significant distribution, or None. A problem outranks
         senescence: an ageing lower leaf is not the headline when something is
@@ -5685,6 +5709,32 @@ class GrowAgent(AgentBase):
                 if pattern.get("also"):
                     reason += (" Two signs at once is itself the finding: they are "
                                "different causes, and only one of them spreads.")
+                # An inspection that already came back negative closes the pest
+                # half of any differential that offers one. Re-asking a grower
+                # to check for mites they have already checked for wastes the
+                # one thing they did right.
+                _ruled = self._pests_ruled_out(plant_id)
+                if _ruled:
+                    # STRIP the pest sentences rather than appending a
+                    # correction after them. Printing the whole "turn the leaf
+                    # over and look for mites" procedure and then saying to
+                    # ignore it still asks the question, and the grower has
+                    # already answered it.
+                    _pest = re.compile(r"mite|thrip|webbing|frass|sap-feeding|"
+                                       r"silvery scarring|turn it over", re.I)
+                    def _drop(text):
+                        parts = re.split(r'(?<=[.]) +', text or "")
+                        kept = [x for x in parts if x and not _pest.search(x)]
+                        return " ".join(kept).strip()
+                    reason, action = _drop(reason), _drop(action)
+                    reason = (reason + f" Pests were ruled out by an underside "
+                              f"inspection on {_ruled['ts']}, so the pest "
+                              f"explanation is closed and what remains is the "
+                              f"nutrient and root-zone side.").strip()
+                    if not action:
+                        action = ("Work the root zone and the feed: lift the "
+                                  "roots, and read pH and water temperature "
+                                  "rather than ppm alone.")
                 # A photo cannot separate mites from thrips, so this names a
                 # candidate and the check that settles it - never a diagnosis.
                 confidence = "medium" if symptom_text_from_user else "low"
@@ -7208,11 +7258,28 @@ class GrowAgent(AgentBase):
                     f"'{stage}' stage grown in {medium}?\n\n"
                     f"Web search reference (noisy - weigh it, don't trust blindly):\n{snippet}\n\n"
                     f"Our system currently uses these built-in targets for this stage: {json.dumps(builtin)}\n"
-                    f"Latest logged reading: {json.dumps({k: latest.get(k) for k in ('ph','ppm','temp','humidity')})}\n\n"
-                    "Reply in exactly two lines.\n"
-                    "Line 1: the recommended range as a concise value (e.g. '5.5-6.5' or '600-800 ppm').\n"
-                    "Line 2: one sentence - does our current reading fall in that range, and if not what to change?"
                 )
+                # ONE reading, the one this metric is about. Passing all four
+                # let the model answer a temperature question with the ppm
+                # figure - twice - and, worse, assert "our current reading of
+                # 80%" for humidity when the humidity field was null. A model
+                # handed a null and asked whether the reading is in range will
+                # supply a reading.
+                _key = {"ph": "ph", "ppm": "ppm", "ec": "ec",
+                        "water temperature": "temp", "temperature": "temp",
+                        "humidity": "humidity"}.get(str(metric).lower())
+                _val = latest.get(_key) if _key else None
+                if _val is None:
+                    prompt += (f"WE HAVE NO MEASUREMENT of {metric} for this plant. "
+                               f"Do not state or guess a current value.\n\n"
+                               "Reply with ONE line: the recommended range as a "
+                               "concise value. Do not assess anything.")
+                else:
+                    prompt += (f"Our latest measured {metric} is {_val}.\n\n"
+                               "Reply in exactly two lines.\n"
+                               "Line 1: the recommended range as a concise value.\n"
+                               "Line 2: one sentence - does that measured value fall "
+                               "in the range, and if not what to change?")
                 answer = self._call_inference(prompt, timeout=45)
                 # Small local models often echo the "Line 1:"/"Line 2:" scaffolding
                 # from the prompt back into the answer - strip it so the stored
@@ -7222,10 +7289,21 @@ class GrowAgent(AgentBase):
                     for l in (answer or "").splitlines() if l.strip()
                 ]
                 lines = [l for l in lines if l]
+                _assessment = " ".join(lines[1:]) if len(lines) > 1 else None
+                # The instruction is not the guarantee. If there is no
+                # measurement, no assessment survives - whatever the model
+                # decided to write.
+                if _val is None:
+                    _assessment = None
                 findings.append({
                     "metric": metric,
+                    "measured": _val,
                     "researched_range": lines[0] if lines else None,
-                    "assessment": " ".join(lines[1:]) if len(lines) > 1 else None,
+                    "assessment": _assessment,
+                    "not_measured": _val is None,
+                    "note": (f"No {metric} reading exists for this plant, so the "
+                             f"range below is reference only and nothing has been "
+                             f"assessed against it." if _val is None else None),
                     "query": query,
                     "resolved": bool(lines),
                 })

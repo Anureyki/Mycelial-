@@ -474,3 +474,31 @@ Also recorded this session: ppm corrected to 687-700 (logged at 687, the lower
 bound, with the range in the note), reservoir down to 13 L, pellets wet with new
 roots emerging, and `current_plant` given the species it was missing while both
 other plants had one.
+
+### 2026-08-29 — A fabricated humidity reading, and a pest question already answered
+
+**`validate_environment_targets` was inventing measurements.** Asked about
+humidity it replied "our current reading of 80% is within this range" while the
+humidity field on the latest reading was `null`. It also answered the water
+temperature and light questions with the ppm figure, and called pH 5.92
+"slightly outside" a 5.8-6.2 band that contains it.
+
+Cause: every metric's prompt received all four readings and the instruction
+"does our current reading fall in that range". A model handed a null and asked
+whether the reading is in range will supply a reading. Now each metric receives
+only its own value; where there is none the prompt says so and asks for the
+range alone - and the assessment is discarded regardless of what the model
+writes, because the instruction is not the guarantee.
+
+**A negative pest inspection is now evidence that persists.** The grower turned
+the leaves over, found nothing, and said plainly not to be asked again. A
+`pest_inspection` note recording that is read by `evaluate_leaf`, which strips
+the mite-and-thrip sentences out of its differential rather than printing the
+whole procedure and appending a correction after it. Printing "turn the leaf
+over and look for webbing" and then saying to ignore it still asks the question.
+
+Recorded alongside: pH 5.92, ppm 693, water 21.7-22.2C logged at the high end
+because the warm end is what matters for dissolved oxygen. `evaluate_reservoir`
+puts 22.2C outside its 18-22C band and calls it a root-health parameter rather
+than comfort - while the aggregate still reports "stable, no reservoir change
+needed" at 9/10. That masking is noted and not yet fixed.
