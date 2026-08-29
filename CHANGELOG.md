@@ -636,3 +636,31 @@ confidence is low. Nothing is invented to fill those.
 Naming: an earlier draft called the rounding "quantise", which in a system that
 also runs a quantum_agent reads as a domain claim it is not making. It is
 `_to_measurable_dose` now.
+
+### 2026-08-29 — I broke the dashboard, and the SENSORS card never loaded
+
+Three of the four dashboard cards were wrong, and two of them were showing a
+third card's answer.
+
+**System and Progress filled with Grow's refusal.** Adding capability names to
+the routing briefs improved intent resolution generally - and made grow_agent
+claim anything containing "status", because it declares a `get_status`
+capability. Domain routing sits ABOVE Boss's own status and progress branches,
+so those branches were never reached, and both cards read "that does not name
+one of the plants I track".
+
+Orchestration questions are settled before anything is offered to a domain now.
+A department cannot own a question about the departments; that is not domain
+vocabulary in the orchestrator, it is the orchestrator recognising its own
+subject.
+
+**The Grow card said everything twice.** Each blocker already carries its own
+"clears when" inline, and the `when` facet restated all of them as a trailing
+summary - so the same two conditions appeared once attached to the blocker that
+produced them and once stranded at the end with no context. 1,186 characters
+down to 968, with the conditions stated once.
+
+**And a dangling sentence.** Anansi rewrote "Not yet - 2 thing(s) in the way"
+as "There are 2 of them", which only reads correctly directly after the opener
+that gave "them" a referent. On the dashboard it landed straight after a ppm
+figure. It is self-contained now: "There are 2 things in the way."

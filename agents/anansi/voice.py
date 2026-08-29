@@ -193,8 +193,15 @@ class Voice:
         told = re.sub(r'\.\s+and ', ', and ', told)
         told = told.replace("Clears when:", "That lifts once")
         told = told.replace("clears when:", "which lifts once")
+        # Self-contained, because this sentence does not always follow the
+        # opener that gave "them" a referent. Mid-paragraph, "There are 2 of
+        # them." dangles - it read as a non-sequitur straight after a ppm
+        # figure on the dashboard.
         told = re.sub(r'\bNot yet - (\d+) thing\(s\) in the way\.',
-                      lambda m: f"There are {m.group(1)} of them.", told)
+                      lambda m: (f"There is {m.group(1)} thing in the way."
+                                 if m.group(1) == "1" else
+                                 f"There are {m.group(1)} things in the way."),
+                      told)
         return told.replace(" thing(s)", " things")
 
     # -- the trickster ----------------------------------------------------

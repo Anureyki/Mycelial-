@@ -981,7 +981,31 @@ class BossAgent(AgentBase):
             # No agent is named below. The domain is whichever agent's own
             # declared vocabulary claims the request, and adding a capability
             # there requires no change here.
-            _domain = self._domain_for(prompt)
+            # ORCHESTRATION QUESTIONS ARE BOSS'S OWN, and are settled before
+            # anything is offered to a domain.
+            #
+            # The dashboard asks "system status" and "catch me up on progress".
+            # Domain routing sits above those branches, and grow_agent declares
+            # a get_status capability - so once capability names went into the
+            # routing briefs, "status" read as a grow question and the System
+            # and Progress cards both filled with "that does not name one of the
+            # plants I track". Two cards showing a third card's refusal.
+            #
+            # A department cannot own a question about the departments. This is
+            # not domain vocabulary in the orchestrator; it is the orchestrator
+            # recognising its own subject.
+            _lp = (prompt or "").lower()
+            _orchestration = (
+                any(w in _lp for w in
+                    ("system status", "agent status", "all agents", "everything running",
+                     "how is everything", "status update", "progress",
+                     "catch me up", "recap", "what have you done",
+                     "what's been done", "what needs my approval",
+                     "needs my approval", "awaiting approval"))
+                or _lp.strip() in ("status", "status?"))
+            _domain = None if _orchestration else self._domain_for(prompt)
+            if _orchestration:
+                self.log(f"orchestration question - not offered to any domain: {prompt[:60]}")
             if _domain:
                 # Anything recordable in the raw input is captured first - only
                 # the domain agent knows what counts as data.

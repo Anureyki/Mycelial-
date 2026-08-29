@@ -2286,10 +2286,19 @@ class GrowAgent(AgentBase):
         # WHEN - the conditions that would make it the right moment.
         clears = [b.get("clears_when") for b in (blockers.get("blockers") or [])
                   if b.get("clears_when")]
+        # Each blocker already carries its own "clears when" inline, so
+        # restating them here made the narration say the same two conditions
+        # twice - once attached to the blocker that produced it, once as a
+        # trailing summary with no context. The composer skips a facet with no
+        # summary, so this stays as structured data and contributes no prose
+        # when the blockers are already telling the grower the same thing.
+        _already_said = bool(clears) and bool(blockers.get("blockers"))
         facets["when"] = {
-            "summary": ("When: " + " And: ".join(clears)) if clears
-                       else "No condition is outstanding - it can be done now.",
+            "summary": (None if _already_said else
+                        ("When: " + " And: ".join(clears)) if clears
+                        else "No condition is outstanding - it can be done now."),
             "conditions": clears,
+            "stated_with_each_blocker": _already_said,
         }
 
         return {"plant_id": plant_id, "target_ppm": target_ppm, "facets": facets,
