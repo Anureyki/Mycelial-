@@ -3681,6 +3681,181 @@ class GrowAgent(AgentBase):
         out.sort(key=lambda x: not x["specific_to_strain"])
         return out
 
+    # ---- what the instrument can actually measure ---------------------------
+    #
+    # Named for the dropper, deliberately. An earlier draft called this
+    # "quantise", which in a system that also runs a quantum_agent reads as a
+    # domain claim it is not making - this is rounding to the steps a dropper
+    # can draw, nothing more.
+    #
+    # A dose is a number the grower has to draw with a dropper graduated in
+    # 0.25 mL steps to a 1 mL maximum. "Cal-Mag 1.3, FloraGro 2.4, FloraBloom
+    # 0.9" is not a dose, it is arithmetic - none of those can be drawn, so the
+    # grower rounds by eye and the recorded recipe stops matching the reservoir.
+    # Then every later calculation scales from a figure that was never in the
+    # water.
+    #
+    # So the agent rounds to the instrument and says what it moved. It never
+    # hides the rounding: on a 1 mL dose a single 0.25 step is 25%, which is a
+    # real change and the grower is told, not spared.
+
+    DEFAULT_INSTRUMENT = {"type": "dropper", "increment_ml": 0.25,
+                          "max_single_draw_ml": 1.0}
+
+    def _instrument_for(self, plant_id=None):
+        try:
+            raw = self._unwrap_value(self.retrieve_own_memory(
+                f"grow_system_{plant_id or self.DEFAULT_PLANT}"))
+            inst = (json.loads(raw) or {}).get("dosing_instrument") if raw else None
+        except Exception:
+            inst = None
+        return inst or dict(self.DEFAULT_INSTRUMENT)
+
+    LABEL_STAGE_KEYS = {
+        "germination": "seedlings_clones_wk1",
+        "seedling": "seedlings_clones_wk1",
+        "early_veg": "vegetative_wk1_3",
+        "veg": "vegetative_wk1_3",
+        "late_veg": "vegetative_wk1_3",
+        "pre_flower": "bloom_transition",
+        "flower": "flowering_fruiting_wk4_7",
+        "ripening": "ripening_wk8",
+        "flush": "flush_wk9",
+    }
+    ML_PER_GALLON = 3.78541
+
+    def _bootstrap_recipe(self, stage, plant_id, args=None):
+        """A first dose for a plant with no recipe, from the product label.
+
+        This exists because scaling a recipe of zeros produces zeros, so a
+        fresh plant got an empty answer. The figures here are the LABEL's, read
+        out of inventory and converted from mL/gal to this reservoir - the
+        label is reference, the floor to start from, and the agent says so
+        rather than presenting it as an operating rate. A product with no label
+        figure recorded is reported as unknown; nothing is invented to fill it.
+        """
+        args = args or {}
+        litres = self._parse_numeric(args.get("reservoir_liters")
+                                     or args.get("volume_liters"))
+        if not litres:
+            try:
+                raw = self._unwrap_value(self.retrieve_own_memory(f"grow_system_{plant_id}"))
+                sysrec = json.loads(raw) if raw else {}
+                litres = self._parse_numeric(sysrec.get("reservoir_liters")
+                                             or sysrec.get("typical_working_liters"))
+            except Exception:
+                litres = None
+        if not litres:
+            return {"error": "bootstrap needs the reservoir volume in litres"}
+
+        key = self.LABEL_STAGE_KEYS.get((stage or "").lower())
+        if not key:
+            return {"error": f"no label stage mapping for '{stage}'"}
+
+        try:
+            inv = self.handle_task("get_inventory", {}, "self").get("result") or []
+        except Exception:
+            inv = []
+        # get_inventory returns {"items": [...], "note": ...}. Taking .values()
+        # of that yields a list-of-lists and a string, both skipped silently -
+        # which is how this returned an empty recipe while the label figure was
+        # sitting right there.
+        if isinstance(inv, dict):
+            inv = inv.get("items") or inv.get("inventory") or list(inv.values())
+        if not isinstance(inv, list):
+            inv = []
+
+        doses, unknown, sources = {}, [], {}
+        for item in inv:
+            if not isinstance(item, dict):
+                continue
+            name = item.get("name") or item.get("product") or ""
+            if not any(t in name.lower() for t in
+                       ("cal-mag", "calmag", "floramicro", "floragro", "florabloom")):
+                continue
+            short = ("Cal-Mag" if "mag" in name.lower() else
+                     "FloraMicro" if "micro" in name.lower() else
+                     "FloraGro" if "gro" in name.lower() else "FloraBloom")
+            guide = (item.get("label_guidance") or {}).get(key)
+            if not guide:
+                unknown.append(short)
+                continue
+            m = re.search(r"(\d+(?:\.\d+)?)\s*(?:-\s*(\d+(?:\.\d+)?))?\s*m?L?\s*/\s*gal", str(guide), re.I)
+            if not m:
+                unknown.append(short)
+                continue
+            low = float(m.group(1))
+            per_l = low / self.ML_PER_GALLON        # the LOW end of the label range
+            doses[short] = round(per_l * litres, 3)
+            sources[short] = f"label {guide} (low end), for {litres} L"
+
+        drawable, detail = self._to_measurable_recipe(doses, plant_id)
+        known = self._knowledge_for(plant_id)
+        return {
+            "classification": "feed_bootstrap",
+            "observation": (f"First dose for {stage} in {litres} L. No recipe "
+                            f"existed to scale from, so this comes from the "
+                            f"product labels in inventory."),
+            "reservoir_liters": litres,
+            "suggested": drawable,
+            "as_measured": detail,
+            "unit": "ml",
+            "label_basis": sources,
+            "no_label_figure_for": sorted(set(unknown)) or None,
+            "reason": ("The label is the floor, not the operating rate. Start "
+                       "here, circulate, measure, and let the meter set what "
+                       "comes next."),
+            "action": ("Mix, circulate, then read ppm and pH before adding "
+                       "anything else."),
+            "confidence": "low" if unknown else "medium",
+            "agent_knowledge_applied": known or None,
+        }
+
+    def _to_measurable_dose(self, ml, plant_id=None):
+        """A figure the dropper can draw, with the rounding stated."""
+        inst = self._instrument_for(plant_id)
+        inc = float(inst.get("increment_ml") or 0.25)
+        maxdraw = float(inst.get("max_single_draw_ml") or 1.0)
+        try:
+            want = float(ml)
+        except (TypeError, ValueError):
+            return None
+        if want <= 0:
+            return {"ml": 0.0, "requested": want, "draws": 0}
+        steps = round(want / inc)
+        # Never round a real dose away to nothing - the smallest thing the
+        # instrument can measure is the floor, not zero.
+        q = round(max(steps, 1) * inc, 4)
+        delta = round(q - want, 4)
+        out = {"ml": q, "requested": round(want, 3), "adjusted_by": delta,
+               "increment_ml": inc}
+        if q > maxdraw:
+            full = int(q // maxdraw)
+            rest = round(q - full * maxdraw, 4)
+            out["draws"] = f"{full} x {maxdraw} mL" + (f" + {rest} mL" if rest else "")
+        else:
+            out["draws"] = f"1 x {q} mL"
+        if want and abs(delta) / want >= 0.10:
+            out["note"] = (f"rounded {'up' if delta > 0 else 'down'} by "
+                           f"{abs(delta)} mL, which is "
+                           f"{abs(delta) / want * 100:.0f}% of the calculated "
+                           f"figure - the dropper cannot draw {round(want, 3)}")
+        return out
+
+    def _to_measurable_recipe(self, doses, plant_id=None):
+        """Every line of a recipe, as the dropper can draw it."""
+        if not isinstance(doses, dict):
+            return doses, {}
+        drawable, detail = {}, {}
+        for name, ml in doses.items():
+            q = self._to_measurable_dose(ml, plant_id)
+            if q is None:
+                drawable[name] = ml
+                continue
+            drawable[name] = q["ml"]
+            detail[name] = q
+        return drawable, detail
+
     def _fetch_candidate_image(self, candidate):
         """Download an ACCEPTED candidate into its label folder.
 
@@ -6603,8 +6778,18 @@ class GrowAgent(AgentBase):
             raw = self._unwrap_value(self.retrieve_own_memory(cur_key))
             current = json.loads(raw) if raw else {}
             base = current.get("nutrients") or {}
-            if not base:
-                return {"error": "No current recipe recorded - set_current_nutrients first"}
+            if not base or not any(self._parse_numeric(v) for v in base.values()):
+                # A fresh plant has nothing to scale FROM, and scaling zero by
+                # any multiplier is still zero - which is why this returned an
+                # empty recipe for a seedling in plain water. Bootstrap instead,
+                # from the product's OWN label guidance recorded in inventory.
+                # The number comes from the label, not from this agent's
+                # imagination, and where a product has no label figure it is
+                # named as missing rather than guessed.
+                boot = self._bootstrap_recipe(stage, plant_id, args)
+                if boot.get("error"):
+                    return {"error": boot["error"]}
+                return {"result": boot}
 
             emphasis = STAGE_FEED_EMPHASIS.get(stage, {})
             if "note" in emphasis and len(emphasis) == 1:
@@ -6640,7 +6825,7 @@ class GrowAgent(AgentBase):
                     mult *= REGROWTH_N_BOOST
                 if name in lagging:
                     mult *= lagging[name]["catchup_multiplier"]
-                suggested[name] = round(v * mult, 1)
+                suggested[name] = round(v * mult, 1)   # rounded to the dropper below
 
             for name, info in lagging.items():
                 if info.get("whole_recipe_regressed"):
@@ -7002,7 +7187,11 @@ class GrowAgent(AgentBase):
             )
             recommendation["classification"] = "ppm_adjustment"
             recommendation["factor"] = round(factor, 3)
-            recommendation["add_now"] = top_up if factor > 1 else {}
+            _tu, _tud = self._to_measurable_recipe(top_up, plant_id) if factor > 1 else ({}, {})
+            recommendation["add_now"] = _tu
+            if _tud:
+                recommendation["as_measured"] = _tud
+                recommendation["instrument"] = self._instrument_for(plant_id)
             recommendation["implied_volume_liters"] = implied_volume
             # The distinction that separates a top-fed system from a plain DWC,
             # said when the grower is deciding rather than after they dosed.

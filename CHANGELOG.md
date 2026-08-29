@@ -603,3 +603,36 @@ keeps lwc and dwc apart.
 Three lessons recorded from the first grow: ramp the feed from the start, on
 DI or distilled water Cal-Mag is not optional, and in top-fed clay pebbles
 nothing buffers a dose so raise ppm in small steps.
+
+### 2026-08-29 — A dose the dropper cannot draw is not a dose
+
+The agent was answering with figures like Cal-Mag 1.3, FloraGro 2.4,
+FloraBloom 0.9. The grower's dropper is graduated in 0.25 mL steps to a 1 mL
+maximum, so none of those can be drawn. The grower rounds by eye, the recorded
+recipe stops matching what is actually in the reservoir, and every later
+calculation scales from a figure that was never in the water.
+
+The instrument is recorded on the plant now, and every dose is expressed in
+steps it can measure, as draws:
+
+    Cal-Mag     calculated 1.3  -> draw 1.25  (1 x 1.0 mL + 0.25 mL)
+    FloraBloom  calculated 0.9  -> draw 1.0   (1 x 1.0 mL)
+                rounded up by 0.1 mL, 11% of the calculated figure
+
+The rounding is never hidden. Above 10% it says which way it moved and by how
+much, because on a 1 mL dose a single 0.25 step is 25% and that is a real
+change to a plant, not a presentation detail. A real dose is never rounded away
+to zero either - the smallest measurable step is the floor.
+
+**And recommend_feed can now start a plant from nothing.** It scaled the
+current recipe by a stage multiplier, so a fresh plant whose recipe is all
+zeros got zeros back - an empty answer for the one case that most needs one.
+It bootstraps from the product's OWN label guidance in inventory, converting
+mL/gal to the actual reservoir. GSC2 in 1 L of DI water gets Cal-Mag 0.5 mL,
+from the label's 2 mL/gal for seedlings, and the answer says plainly that
+FloraGro, FloraMicro and FloraBloom have no label figure recorded, so
+confidence is low. Nothing is invented to fill those.
+
+Naming: an earlier draft called the rounding "quantise", which in a system that
+also runs a quantum_agent reads as a domain claim it is not making. It is
+`_to_measurable_dose` now.
