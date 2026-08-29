@@ -14,6 +14,7 @@ sys.path.insert(0, project_root)
 
 from core.base_agent import AgentBase
 from core.schemas import from_legacy_fields
+from core import claim_assessment
 
 INFERENCE_SERVICE_URL = "http://localhost:8005/reason"
 # Capability routing: this agent names the KIND of thinking it needs and
@@ -177,7 +178,10 @@ class LegalAgent(AgentBase):
                 "review_filing_draft", "compress_matter", "check_filing_frequency",
                 "scan_for_pii", "reflect_on_matter", "map_authority",
                 "set_operating_jurisdiction", "get_operating_jurisdiction",
-                "cite_in_jurisdiction", "transaction_layers"
+                "cite_in_jurisdiction", "transaction_layers",
+                "claim_open", "claim_cite", "claim_answer", "claim_set_right",
+                "claim_evidence", "claim_observe", "claim_reproducibility",
+                "claim_corroborate", "claim_get", "claim_list", "claim_ontology"
             ],
             role="agent"
         )
@@ -1184,6 +1188,206 @@ class LegalAgent(AgentBase):
                 "evaluation": doc.get("evaluation"),
                 "stages": resolved, "disclaimer": DISCLAIMER}
 
+
+    # ---- Claim assessment -------------------------------------------------
+    #
+    # A claim that quotes a real statute is still a claim. The pipeline is
+    # claim -> source -> evidence -> observation -> analysis -> conclusion ->
+    # confidence, and the default conclusion is "unsupported" at every step
+    # that has not actually been filled in.
+    #
+    # Two rules keep this from becoming a confirmation engine:
+    #   1. `located_in_corpus` is decided by LOOKING, never by the caller
+    #      saying so. A citation nobody can open is not an authority.
+    #   2. `asserted_by` is recorded and never scored. The principal's own
+    #      claims run the identical gauntlet as a stranger's.
+
+    CLAIM_INDEX_KEY = "claim_index"
+
+    def _claim_key(self, claim_id):
+        return f"claim::{claim_id}"
+
+    def _load_claim(self, claim_id):
+        raw = self._get_stored_value(self.retrieve_own_memory(self._claim_key(claim_id)))
+        try:
+            return json.loads(raw) if raw else None
+        except Exception:
+            return None
+
+    def _save_claim(self, claim):
+        self.store_own_memory(self._claim_key(claim["claim_id"]),
+                              json.dumps(claim), pin=True)
+        idx = self._load_index_key(self.CLAIM_INDEX_KEY)
+        if claim["claim_id"] not in idx:
+            self._append_to_index_key(self.CLAIM_INDEX_KEY, claim["claim_id"])
+        return claim
+
+    def claim_open(self, args):
+        stmt = (args.get("statement") or "").strip()
+        if not stmt:
+            return {"error": "claim_open needs a statement", "disclaimer": DISCLAIMER}
+        bad = [r for r in (args.get("rights_asserted") or []) if r not in claim_assessment.RIGHTS]
+        if bad:
+            return {"error": f"unknown right(s): {bad}. Known: "
+                             f"{sorted(claim_assessment.RIGHTS)}",
+                    "disclaimer": DISCLAIMER}
+        c = claim_assessment.new_claim(
+            stmt, asserted_by=args.get("asserted_by", "unknown"),
+            rights_asserted=args.get("rights_asserted"),
+            source_of_claim=args.get("source_of_claim", ""))
+        claim_assessment.assess(c)
+        self._save_claim(c)
+        return {"claim_id": c["claim_id"], "conclusion": c["conclusion"],
+                "confidence": c["confidence"], "why": c["why"],
+                "open_questions": c["open_questions"], "disclaimer": DISCLAIMER}
+
+    def claim_cite(self, args):
+        """Add an authority - and check whether this agent can actually open it.
+
+        The caller does not get to declare that a citation exists. That is the
+        whole difference between testing a claim and dressing one up."""
+        c = self._load_claim(args.get("claim_id") or "")
+        if not c:
+            return {"error": "no such claim", "disclaimer": DISCLAIMER}
+        cite = (args.get("citation") or "").strip()
+        if not cite:
+            return {"error": "claim_cite needs a citation", "disclaimer": DISCLAIMER}
+        found = self.lookup_reference(cite)
+        entry = {"citation": cite,
+                 "located_in_corpus": bool(found),
+                 "governs": args.get("governs"),
+                 "governs_basis": args.get("governs_basis", ""),
+                 "checked_at": datetime.now().isoformat()}
+        if found:
+            entry["title"] = found[0].get("title")
+            entry["excerpt"] = (found[0].get("text") or "")[:400]
+        c["authorities"].append(entry)
+        claim_assessment.assess(c); self._save_claim(c)
+        return {"claim_id": c["claim_id"], "citation": cite,
+                "located_in_corpus": entry["located_in_corpus"],
+                "note": ("Text is in hand." if found else
+                         "NOT in this agent's corpus - so it has not been read, "
+                         "and cannot support the claim until it is."),
+                "conclusion": c["conclusion"], "confidence": c["confidence"],
+                "disclaimer": DISCLAIMER}
+
+    def claim_answer(self, args):
+        c = self._load_claim(args.get("claim_id") or "")
+        if not c:
+            return {"error": "no such claim", "disclaimer": DISCLAIMER}
+        key, detail = args.get("prerequisite"), (args.get("detail") or "").strip()
+        if key not in c["prerequisites"]:
+            return {"error": f"unknown prerequisite {key!r}. Known: "
+                             f"{[k for k, _ in claim_assessment.PREREQUISITES]}",
+                    "disclaimer": DISCLAIMER}
+        if not detail:
+            return {"error": "answering a prerequisite requires a detail - an "
+                             "empty answer is not an answer",
+                    "disclaimer": DISCLAIMER}
+        c["prerequisites"][key] = {"state": "answered", "detail": detail,
+                                   "answered_at": datetime.now().isoformat()}
+        claim_assessment.assess(c); self._save_claim(c)
+        return {"claim_id": c["claim_id"], "answered": key,
+                "conclusion": c["conclusion"], "confidence": c["confidence"],
+                "still_open": c["open_questions"], "disclaimer": DISCLAIMER}
+
+    def claim_set_right(self, args):
+        c = self._load_claim(args.get("claim_id") or "")
+        if not c:
+            return {"error": "no such claim", "disclaimer": DISCLAIMER}
+        right, state = args.get("right"), args.get("state")
+        if right not in claim_assessment.RIGHTS:
+            return {"error": f"unknown right {right!r}. Known: "
+                             f"{sorted(claim_assessment.RIGHTS)}",
+                    "disclaimer": DISCLAIMER}
+        if state not in claim_assessment.RIGHT_STATES:
+            return {"error": f"state must be one of {list(claim_assessment.RIGHT_STATES)}",
+                    "disclaimer": DISCLAIMER}
+        c["rights"][right] = state
+        c.setdefault("rights_basis", {})[right] = args.get("basis", "")
+        claim_assessment.assess(c); self._save_claim(c)
+        return {"claim_id": c["claim_id"], "right": right, "state": state,
+                "definition": claim_assessment.RIGHTS[right],
+                "conclusion": c["conclusion"], "confidence": c["confidence"],
+                "disclaimer": DISCLAIMER}
+
+    def claim_record(self, args, field):
+        """Evidence and observations - what is held, and what happened."""
+        c = self._load_claim(args.get("claim_id") or "")
+        if not c:
+            return {"error": "no such claim", "disclaimer": DISCLAIMER}
+        item = {k: v for k, v in args.items() if k != "claim_id"}
+        item["recorded_at"] = datetime.now().isoformat()
+        c[field].append(item)
+        claim_assessment.assess(c); self._save_claim(c)
+        return {"claim_id": c["claim_id"], field: len(c[field]),
+                "conclusion": c["conclusion"], "confidence": c["confidence"],
+                "disclaimer": DISCLAIMER}
+
+    def claim_reproducibility(self, args):
+        c = self._load_claim(args.get("claim_id") or "")
+        if not c:
+            return {"error": "no such claim", "disclaimer": DISCLAIMER}
+        state = args.get("state")
+        if state not in claim_assessment.REPRODUCIBILITY:
+            return {"error": f"state must be one of {list(claim_assessment.REPRODUCIBILITY)}",
+                    "disclaimer": DISCLAIMER}
+        r = c["reproducibility"]
+        r["state"] = state
+        if args.get("procedure"):
+            r["procedure"] = args["procedure"]
+        if args.get("attempt"):
+            r["attempts"].append({"note": args["attempt"], "by": args.get("by", "unknown"),
+                                  "at": datetime.now().isoformat()})
+        claim_assessment.assess(c); self._save_claim(c)
+        return {"claim_id": c["claim_id"], "reproducibility": r,
+                "conclusion": c["conclusion"], "confidence": c["confidence"],
+                "disclaimer": DISCLAIMER}
+
+    def claim_corroborate(self, args):
+        """Ask another domain whether its records agree - and keep the answer
+        whichever way it falls.
+
+        Disagreement is the valuable outcome and is never reconciled here. If
+        Legal reads an instrument as establishing something and Accounting's
+        transaction records do not show it, that conflict IS the finding;
+        collapsing it into a consensus would destroy the only signal that
+        actually distinguishes analysis from agreement."""
+        c = self._load_claim(args.get("claim_id") or "")
+        if not c:
+            return {"error": "no such claim", "disclaimer": DISCLAIMER}
+        peer = args.get("agent") or "accounting_agent"
+        question = args.get("question") or c["statement"]
+        reply = self.send_a2a(peer, "assess_assertion",
+                              {"assertion": question,
+                               "claim_id": c["claim_id"]}, timeout=45)
+        inner, seen = reply, 0
+        while isinstance(inner, dict) and "agrees" not in inner and "result" in inner and seen < 6:
+            inner, seen = inner["result"], seen + 1
+        agrees = inner.get("agrees") if isinstance(inner, dict) else None
+        rec = {"agent": peer, "question": question, "agrees": agrees,
+               "basis": (inner or {}).get("basis") if isinstance(inner, dict) else None,
+               "at": datetime.now().isoformat()}
+        c["corroboration"].append(rec)
+        claim_assessment.assess(c); self._save_claim(c)
+        return {"claim_id": c["claim_id"], "corroboration": rec,
+                "conflict": agrees is False,
+                "note": ("CONFLICT recorded and left unresolved - two domains "
+                         "disagree, which is a finding, not an error."
+                         if agrees is False else
+                         "Recorded." if agrees is True else
+                         "The peer could not determine it either way."),
+                "conclusion": c["conclusion"], "confidence": c["confidence"],
+                "disclaimer": DISCLAIMER}
+
+    def claim_get(self, claim_id):
+        c = self._load_claim(claim_id or "")
+        if not c:
+            return {"error": "no such claim", "disclaimer": DISCLAIMER}
+        c = claim_assessment.assess(c)
+        c["disclaimer"] = DISCLAIMER
+        return c
+
     def handle_task(self, task, args, sender):
         self.log(f"Task {task} from {sender}")
 
@@ -1196,6 +1400,45 @@ class LegalAgent(AgentBase):
             if not cid:
                 return {"error": "assess_case_elements needs a case_id", "disclaimer": DISCLAIMER}
             return self.assess_case_elements(cid)
+
+        if task in ("claim_open", "claim_cite", "claim_answer", "claim_set_right",
+                    "claim_evidence", "claim_observe", "claim_reproducibility",
+                    "claim_corroborate"):
+            a = args if isinstance(args, dict) else {}
+            if task == "claim_open":            return self.claim_open(a)
+            if task == "claim_cite":            return self.claim_cite(a)
+            if task == "claim_answer":          return self.claim_answer(a)
+            if task == "claim_set_right":       return self.claim_set_right(a)
+            if task == "claim_evidence":        return self.claim_record(a, "evidence")
+            if task == "claim_observe":         return self.claim_record(a, "observations")
+            if task == "claim_reproducibility": return self.claim_reproducibility(a)
+            return self.claim_corroborate(a)
+
+        if task == "claim_get":
+            a = args if isinstance(args, dict) else {}
+            cid = a.get("claim_id") or (args[0] if isinstance(args, list) and args else "")
+            return self.claim_get(cid)
+
+        if task == "claim_list":
+            ids = self._load_index_key(self.CLAIM_INDEX_KEY)
+            out = []
+            for cid in ids:
+                c = self._load_claim(cid)
+                if c:
+                    out.append({"claim_id": cid, "statement": c["statement"][:110],
+                                "conclusion": c["conclusion"],
+                                "confidence": c["confidence"],
+                                "asserted_by": c.get("asserted_by")})
+            return {"claims": out, "disclaimer": DISCLAIMER}
+
+        if task == "claim_ontology":
+            return {"rights": claim_assessment.RIGHTS,
+                    "right_states": list(claim_assessment.RIGHT_STATES),
+                    "prerequisites": [{"key": k, "question": q}
+                                      for k, q in claim_assessment.PREREQUISITES],
+                    "conclusions": list(claim_assessment.CONCLUSIONS),
+                    "reproducibility": list(claim_assessment.REPRODUCIBILITY),
+                    "disclaimer": DISCLAIMER}
 
         if task == "set_operating_jurisdiction":
             payload = args if isinstance(args, dict) else {}

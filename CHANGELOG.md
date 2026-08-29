@@ -179,3 +179,48 @@ container and publishes it to the host as loopback-only.
 
 Also: the 13 platform services launched buffered, so their logs lagged behind
 reality — `python3 -u` now, matching how the agents were already started.
+
+### 2026-08-29 — Legal tests a claim instead of believing it
+
+A claim that quotes a real statute is still a claim. The failure mode in this
+area always has the same shape: a genuine provision is cited, the words in it
+resemble the outcome somebody wanted, and the resemblance is treated as the
+holding. `core/claim_assessment.py` walks one path and only one —
+claim → source → evidence → observation → analysis → conclusion → confidence —
+and the default conclusion is `unsupported` at every stage not actually filled.
+
+Three rules make it a test rather than a ratification:
+
+- **A citation is not an authority until the text is in hand.** `claim_cite`
+  decides `located_in_corpus` by looking it up, never by the caller saying so.
+- **Reproducibility is its own axis** — `reproduced` / `not_reproduced` /
+  `untested` / `untestable`. A claim with no specified procedure is reported as
+  uncheckable-by-anyone, which is a reason for suspicion rather than a neutral
+  gap.
+- **`asserted_by` is recorded and never scored.** Verified: the same statement
+  returns `unsupported / 0.0` whether attributed to an Instagram reel or to the
+  principal.
+
+An eight-part rights ontology replaces the habit of collapsing everything into
+ownership — `ownership`, `possession`, `control`, `custody`, `security_interest`,
+`priority`, `authority`, `enforcement_right` — each naming the uniform provision
+that defines it, so the agent can conclude *ownership is established but the
+claimed control is not*.
+
+Legal and Accounting are allowed to disagree. `claim_corroborate` asks;
+Accounting's `assess_assertion` answers from its own records and defaults to
+`undetermined`, never `agrees` — an agent that concurs with nothing to check is
+worse than one that abstains. An unresolved conflict makes the claim
+**`contested`**.
+
+That last state came out of testing this module against itself: a fully
+established claim plus an active cross-domain disagreement still concluded
+`supported`, with the conflict demoted to a quieter confidence number. That is
+forced consensus by another route, and it is exactly what this was built to
+prevent. Fixed before commit.
+
+First real run, on the UCC control claim recorded earlier: `unsupported`,
+confidence `0.0` — every provision it rests on (9-322, 9-327, 9-104) came back
+`located_in_corpus: false`. Which surfaced a genuine gap rather than a verdict:
+**Legal reasons about uniform UCC sections but has never read one.** The text is
+not in the corpus. Recorded as the next thing to close, not papered over.

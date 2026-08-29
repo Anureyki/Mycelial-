@@ -72,7 +72,7 @@ class AccountingAgent(AgentBase):
             agent_id="accounting_agent",
             port=9012,
             capabilities=[
-                "parse_financial_instrument", "assess_tax_liability", "track_account_balance",
+                "assess_assertion", "parse_financial_instrument", "assess_tax_liability", "track_account_balance",
                 "lookup", "list_relationships", "get_relationship", "find_relationships",
                 "find_relationships_by_project",
                 "refresh_cache", "query_cache", "cache_stats", "cache_manifest",
@@ -404,6 +404,38 @@ class AccountingAgent(AgentBase):
         cag_result = self.try_handle_cag_task(task, args)
         if cag_result is not None:
             return cag_result
+
+        if task == "assess_assertion":
+            # Legal asks whether the books bear out something it read in an
+            # instrument. Accounting answers from its OWN records and is
+            # expected to say no when they do not.
+            #
+            # The default is `null` - could not determine - not `true`. An
+            # agent that agrees when it has nothing to check is worse than an
+            # agent that abstains, because the agreement is indistinguishable
+            # from corroboration and it is not corroboration.
+            a = args if isinstance(args, dict) else {}
+            assertion = (a.get("assertion") or "").strip()
+            if not assertion:
+                return {"agrees": None, "basis": "no assertion supplied",
+                        "disclaimer": DISCLAIMER}
+            ledger = self._load_index_key("transaction_index") \
+                if hasattr(self, "_load_index_key") else []
+            if not ledger:
+                return {"agrees": None,
+                        "basis": "Accounting holds no transaction records that "
+                                 "bear on this, so it can neither corroborate "
+                                 "nor contradict it. Not agreement.",
+                        "records_examined": 0, "disclaimer": DISCLAIMER}
+            return {"agrees": None,
+                    "basis": f"Examined {len(ledger)} transaction record(s). "
+                             f"Accounting has no automated test that maps this "
+                             f"assertion onto them, so it declines to agree. "
+                             f"A human must state which records would evidence "
+                             f"it.",
+                    "records_examined": len(ledger),
+                    "undetermined_is_not_agreement": True,
+                    "disclaimer": DISCLAIMER}
 
         if task == "lookup":
             if not args or not args[0]:

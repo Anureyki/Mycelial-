@@ -308,6 +308,57 @@ corpus that draws the distinction carefully.
 
 If the content has not been read, the honest value is `unknown`.
 
+### Verifiable state outranks narrative
+
+The Registry said the Security Agent was `active`. The port said nothing was
+listening. The system believed the port.
+
+That is the whole philosophy, and it generalises past process supervision. An
+administrative claim about state - a registry row, a title on a document, a
+statute quoted confidently, a label on a bottle - is a claim. What can be
+observed is evidence. Where they diverge, the observation wins and **the
+divergence is itself the finding**.
+
+Applied to law, this becomes a pipeline rather than a lookup:
+
+```
+CLAIM -> SOURCE -> EVIDENCE -> OBSERVATION -> ANALYSIS -> CONCLUSION -> CONFIDENCE
+```
+
+`core/claim_assessment.py` implements it. The default conclusion is
+**`unsupported`**, and a claim earns anything better only by having each of ten
+prerequisites answered with something checkable. Three rules make it a test
+rather than a ratification:
+
+- **A citation is not an authority until the text is in hand.** `claim_cite`
+  decides `located_in_corpus` by *looking*, never by the caller asserting it.
+  A provision the agent cannot open cannot support anything.
+- **Reproducibility is a first-class axis.** "Can an independent person run the
+  same procedure and get the same result?" A claim with no specified procedure
+  is `untestable`, which is reported as a reason for suspicion. Fifty thousand
+  repetitions of a theory are not one reproduction of it.
+- **`asserted_by` is recorded and never scored.** The principal's own claims run
+  the identical gauntlet as a stranger's. Verified: the same statement scored
+  `unsupported / 0.0` whether attributed to an Instagram reel or to the
+  principal. A pipeline that validates its owner faster than a stranger is a
+  confirmation engine with extra steps.
+
+**Rights are not one thing.** Collapsing every question into "who owns it" is
+the standard error, because Article 9 is not an ownership machine. The ontology
+separates `ownership`, `possession`, `control`, `custody`, `security_interest`,
+`priority`, `authority` and `enforcement_right`, so the agent can say *ownership
+is established but the claimed control is not* rather than blurring them.
+
+**Domains are allowed to disagree, and disagreement is not resolved by
+outranking.** If Legal reads an instrument as establishing something and
+Accounting's records do not bear it out, the claim becomes **`contested`** -
+not `supported` with a quieter confidence number, which would bury the conflict
+in a field nobody reads. Both readings are kept and the conflict is surfaced.
+Accounting's default answer is `undetermined`, never `agrees`: an agent that
+concurs when it has nothing to check is worse than one that abstains, because
+the concurrence is indistinguishable from corroboration and is not
+corroboration.
+
 ### Domain focus (recorded intent, not yet built)
 
 - **Accounting** should surface **equitable interest and control**, not debit
