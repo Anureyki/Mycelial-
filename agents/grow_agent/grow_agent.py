@@ -3427,20 +3427,50 @@ class GrowAgent(AgentBase):
         dest_dir = os.path.join(TRAINING_DIR, label)
         try:
             os.makedirs(dest_dir, exist_ok=True)
-            resp = requests.get(url, timeout=20, stream=True,
-                                headers={"User-Agent": "Mycelial/grow_agent"})
+            # A browser-shaped request, with the page it came from as Referer.
+            # Plain hotlink protection returns 403 to anything else, and that
+            # cost one candidate outright.
+            headers = {"User-Agent": ("Mozilla/5.0 (X11; Linux x86_64) "
+                                      "AppleWebKit/537.36 (KHTML, like Gecko) "
+                                      "Chrome/120 Safari/537.36"),
+                       "Accept": "image/avif,image/webp,image/*,*/*;q=0.8"}
+            if candidate.get("source_url"):
+                headers["Referer"] = candidate["source_url"]
+            resp = requests.get(url, timeout=30, stream=True, headers=headers)
             if resp.status_code != 200:
                 return {"fetched": False, "why": f"HTTP {resp.status_code}"}
-            ctype = (resp.headers.get("Content-Type") or "").lower()
-            if not ctype.startswith("image/"):
-                return {"fetched": False, "why": f"not an image ({ctype or 'no content-type'})"}
-            ext = {"image/jpeg": ".jpg", "image/png": ".png",
-                   "image/webp": ".webp"}.get(ctype.split(";")[0], ".img")
+
             body = b""
             for chunk in resp.iter_content(65536):
                 body += chunk
-                if len(body) > 8 * 1024 * 1024:
-                    return {"fetched": False, "why": "image larger than 8MB"}
+                # 8MB rejected three good candidates. For a training set a big
+                # photograph is MORE useful, not less - it downscales, and the
+                # detail is the point. Bounded, but bounded where a real photo
+                # is not the thing being excluded.
+                if len(body) > 40 * 1024 * 1024:
+                    return {"fetched": False, "why": "image larger than 40MB"}
+
+            # WHAT IT IS, not what the server called it. Three candidates were
+            # refused as "not an image (application/octet-stream)" - which is
+            # what a great many CDNs label a perfectly good JPEG. The bytes
+            # cannot lie about their own format; the header routinely does.
+            sig = body[:16]
+            if sig.startswith(b"\xff\xd8\xff"):
+                ext = ".jpg"
+            elif sig.startswith(b"\x89PNG\r\n\x1a\n"):
+                ext = ".png"
+            elif sig[:4] == b"RIFF" and sig[8:12] == b"WEBP":
+                ext = ".webp"
+            elif sig[:6] in (b"GIF87a", b"GIF89a"):
+                ext = ".gif"
+            elif sig[4:12] in (b"ftypavif", b"ftypheic", b"ftypmif1"):
+                ext = ".avif"
+            else:
+                ctype = (resp.headers.get("Content-Type") or "").lower()
+                return {"fetched": False,
+                        "why": (f"bytes are not a recognised image format "
+                                f"(server said {ctype or 'nothing'}, first bytes "
+                                f"{sig[:8].hex()})")}
             if len(body) < 1024:
                 return {"fetched": False, "why": f"only {len(body)} bytes - not a usable image"}
             path = os.path.join(dest_dir, f"{candidate['id']}{ext}")
@@ -7402,8 +7432,11 @@ class GrowAgent(AgentBase):
                         f"({fetch['bytes'] // 1024} KB), with its provenance beside it. "
                         "It counts toward the campaign now.")
             else:
-                note = (f"Accepted, but the image could not be downloaded: "
-                        f"{fetch.get('why')}. Nothing was counted.")
+                note = (f"NOT COUNTED - the image could not be downloaded: "
+                        f"{fetch.get('why')}. Your accept was recorded, but no "
+                        f"file reached the label folder, so this adds nothing to "
+                        f"the campaign. Nothing to redo unless you find another "
+                        f"copy of the same image.")
             return {"result": {
                 "candidate_id": candidate_id,
                 "status": candidate["status"],

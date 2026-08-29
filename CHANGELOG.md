@@ -502,3 +502,34 @@ because the warm end is what matters for dissolved oxygen. `evaluate_reservoir`
 puts 22.2C outside its 18-22C band and calls it a root-health parameter rather
 than comfort - while the aggregate still reports "stable, no reservoir change
 needed" at 9/10. That masking is noted and not yet fixed.
+
+### 2026-08-29 — Six of seven rejected training images were ours to reject
+
+The grower reported that some accepts in the Training tab came back saying the
+image could not be downloaded. 25 candidates had downloaded cleanly and 7 had
+failed, for three reasons - and two of the three were our fault, not the
+internet's.
+
+- **`not an image (application/octet-stream)`, 3 candidates.** The fetcher
+  trusted the `Content-Type` header, which a great many CDNs set to
+  octet-stream for a perfectly good JPEG. It now sniffs the leading bytes -
+  JPEG, PNG, WebP, GIF, AVIF - because the bytes cannot lie about their own
+  format and the header routinely does. Same rule as reading health from the
+  port rather than the registry.
+- **`image larger than 8MB`, 3 candidates.** For a training set a large
+  photograph is MORE useful, not less: it downscales, and the detail is the
+  point. Raised to 40MB. One recovered file is a 23.9MB PNG.
+- **`HTTP 403`, 1 candidate.** Requests now carry a browser User-Agent and the
+  source page as Referer, which defeats ordinary hotlink protection. This one
+  still 403s, so it is genuinely blocked rather than mishandled.
+
+Re-running the seven recovered six. The set goes from 25 to 31 images across
+all ten labels.
+
+Also, the message. A failed accept said "Accepted, but the image could not be
+downloaded" - leading with the word that reads as success. It now leads with
+NOT COUNTED and says plainly that the accept was recorded, no file reached the
+label folder, and there is nothing to redo.
+
+Noted and not fixed: 3 of the 31 files are byte-identical duplicates, so
+distinct candidate records can point at the same image.
