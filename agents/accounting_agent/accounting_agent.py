@@ -72,7 +72,7 @@ class AccountingAgent(AgentBase):
             agent_id="accounting_agent",
             port=9012,
             capabilities=[
-                "assess_assertion", "parse_financial_instrument", "assess_tax_liability", "track_account_balance",
+                "assess_assertion", "set_lease_terms", "reconcile", "parse_financial_instrument", "assess_tax_liability", "track_account_balance",
                 "lookup", "list_relationships", "get_relationship", "find_relationships",
                 "find_relationships_by_project",
                 "refresh_cache", "query_cache", "cache_stats", "cache_manifest",
@@ -433,6 +433,91 @@ class AccountingAgent(AgentBase):
                 out.append({"case_id": cid, "case_title": case.get("title", ""), **o})
         return out
 
+    LEASE_KEY = "lease_terms"
+
+    def set_lease_terms(self, args):
+        """The two facts answer() said it was missing: when the tenancy starts
+        and what the periodic amount is. Merges, never rebuilds."""
+        cid = args.get("case_id")
+        if not cid:
+            return {"error": "set_lease_terms needs a case_id", "disclaimer": DISCLAIMER}
+        raw = self._get_stored_value(self.retrieve_own_memory(f"{self.LEASE_KEY}::{cid}"))
+        try:
+            rec = json.loads(raw) if raw else {}
+        except Exception:
+            rec = {}
+        for f in ("lease_start", "lease_end", "base_rent", "prorated_first",
+                  "prorated_period", "due_day", "grace_day", "late_fee_percent",
+                  "document_ref", "note"):
+            if args.get(f) not in (None, ""):
+                rec[f] = args[f]
+        rec["updated"] = datetime.now().isoformat()
+        self.store_own_memory(f"{self.LEASE_KEY}::{cid}", json.dumps(rec), pin=True)
+        return {"case_id": cid, "lease_terms": rec, "disclaimer": DISCLAIMER}
+
+    def _lease_terms(self, case_id):
+        raw = self._get_stored_value(self.retrieve_own_memory(f"{self.LEASE_KEY}::{case_id}"))
+        try:
+            return json.loads(raw) if raw else {}
+        except Exception:
+            return {}
+
+    def reconcile(self, case_id, as_of=None):
+        """Charged against paid, period by period. Arithmetic done HERE, in the
+        department that owns the ledger - not handed to it by someone else."""
+        terms = self._lease_terms(case_id)
+        if not terms.get("lease_start") or not terms.get("base_rent"):
+            return {"reconcilable": False,
+                    "missing": [f for f in ("lease_start", "base_rent")
+                                if not terms.get(f)],
+                    "why": "A balance needs a start date and a periodic amount."}
+        try:
+            full = self.handle_case_task("case_get", {"case_id": case_id}) or {}
+        except Exception as e:
+            return {"reconcilable": False, "why": f"case unreadable: {e}"}
+        case = full.get("case", full)
+
+        start = datetime.fromisoformat(str(terms["lease_start"])[:10])
+        today = datetime.fromisoformat(str(as_of)[:10]) if as_of else datetime.now()
+        base = float(terms["base_rent"])
+        prorated = float(terms.get("prorated_first") or 0)
+
+        # Periods charged: the part-month at the start (if a prorated figure was
+        # given) plus one full month for every 1st-of-month that has arrived.
+        charges = []
+        if prorated:
+            charges.append({"period": start.strftime("%Y-%m"),
+                            "amount": prorated, "basis": "prorated first period"})
+        y, m = start.year, start.month
+        while True:
+            m += 1
+            if m > 12:
+                m, y = 1, y + 1
+            if datetime(y, m, 1) > today:
+                break
+            charges.append({"period": f"{y:04d}-{m:02d}", "amount": base,
+                            "basis": "full month"})
+        charged = round(sum(c["amount"] for c in charges), 2)
+
+        paid, by_ob = 0.0, []
+        for o in case.get("obligations", []) or []:
+            if o.get("voided"):
+                continue
+            ps = [x for x in (o.get("payments") or []) if not x.get("voided")]
+            amt = round(sum(float(x.get("amount") or 0) for x in ps), 2)
+            paid += amt
+            by_ob.append({"name": o.get("name"), "paid": amt, "payments": len(ps)})
+        paid = round(paid, 2)
+        balance = round(charged - paid, 2)
+        return {"reconcilable": True, "as_of": today.strftime("%Y-%m-%d"),
+                "lease_start": terms["lease_start"], "base_rent": base,
+                "periods_charged": len(charges), "charged": charged,
+                "paid": paid, "by_obligation": by_ob,
+                "balance": balance,
+                "position": ("in credit" if balance < 0 else
+                             "square" if balance == 0 else "owing"),
+                "charges": charges}
+
     def answer(self, prompt):
         """Questions this department owns, answered from its own records."""
         p = (prompt or "").lower()
@@ -474,12 +559,23 @@ class AccountingAgent(AgentBase):
         # The number NOT stated, and why. A running balance needs the periods
         # the tenancy actually covers, and that is not in the record - so the
         # arithmetic would be an assumption wearing a decimal point.
-        lines.append(
-            f"Together that is {total} a month across {len(obs)} obligation(s). "
-            f"I am not giving you an outstanding balance: that needs the periods "
-            f"the tenancy covers and a starting position, and neither is in the "
-            f"ledger I hold. What I can say is that every payment recorded is "
-            f"evidenced and made by an authorised payor.")
+        lines.append(f"Together that is {total} a month across {len(obs)} obligation(s).")
+        cids = sorted({o["case_id"] for o in obs})
+        for cid in cids:
+            rec = self.reconcile(cid)
+            if not rec.get("reconcilable"):
+                lines.append(
+                    f"I still cannot give you an outstanding balance: that needs "
+                    f"{' and '.join(rec.get('missing') or ['more of the record'])}, "
+                    f"which I do not hold. Every payment recorded is evidenced "
+                    f"and made by an authorised payor.")
+                continue
+            lines.append(
+                f"Against the lease from {rec['lease_start']}: "
+                f"{rec['periods_charged']} period(s) charged totalling "
+                f"{rec['charged']}, {rec['paid']} paid, so you are "
+                f"{rec['balance'] if rec['balance'] >= 0 else abs(rec['balance'])} "
+                f"{rec['position']} as of {rec['as_of']}.")
         return {"text": " ".join(lines), "answered_as": "obligation_status",
                 "obligations": len(obs)}
 
@@ -489,6 +585,17 @@ class AccountingAgent(AgentBase):
         cag_result = self.try_handle_cag_task(task, args)
         if cag_result is not None:
             return cag_result
+
+        if task == "set_lease_terms":
+            return self.set_lease_terms(args if isinstance(args, dict) else {})
+
+        if task == "reconcile":
+            a = args if isinstance(args, dict) else {}
+            if not a.get("case_id"):
+                return {"error": "reconcile needs a case_id", "disclaimer": DISCLAIMER}
+            r = self.reconcile(a["case_id"], a.get("as_of"))
+            r["disclaimer"] = DISCLAIMER
+            return r
 
         if task == "assess_assertion":
             # Legal asks whether the books bear out something it read in an

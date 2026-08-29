@@ -417,3 +417,30 @@ payment evidenced, every payor authorised.
 
 The voided $1,450 obligation — fabricated demo data from 2026-08-28 — stays
 excluded, as does its payment.
+
+### 2026-08-29 — The lease arrives and Accounting can reconcile
+
+Page 1 of the lease supplied the two facts `answer()` had named as missing: the
+tenancy start (2026-05-04) and the periodic amount ($1,250.00 base rent). Also
+prorated first period $1,138.06, security deposit $99.00, late fee 10% after the
+5th, and a set of fee terms recorded with it.
+
+**The base rent reconciles exactly with what was already on file.** $459
+resident portion plus $791 HAP subsidy is $1,250 — two independent sources
+agreeing, which is worth more than either alone. It also confirms the $1,450
+obligation voided on 2026-08-28 as the fabrication it was.
+
+`set_lease_terms` and `reconcile` built, and the arithmetic is done **in
+Accounting**, not handed to it: charged 4,888.06 over four periods (prorated May
+plus three full months), paid 4,985.00, leaving **96.94 in credit** as of
+2026-08-29. `answer()` now reports it rather than declining.
+
+Two things deliberately NOT folded in, because including them silently would be
+the more dangerous error:
+
+- **Animal rent $10.00/month** is listed on the lease as additional recurring
+  rent. It is not in the reconciliation, because nothing in the record says
+  whether it applies. If it does, four periods of it move the balance.
+- An earlier reading of the rent ledger document put the position at **-332**.
+  This reconciliation says -96.94. Two figures from two sources is a divergence
+  and the divergence is the finding — it is recorded, not averaged away.
