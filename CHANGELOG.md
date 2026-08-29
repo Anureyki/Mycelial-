@@ -444,3 +444,33 @@ the more dangerous error:
 - An earlier reading of the rent ledger document put the position at **-332**.
   This reconciliation says -96.94. Two figures from two sources is a divergence
   and the divergence is the finding — it is recorded, not averaged away.
+
+### 2026-08-29 — Grow could not see symptoms on new growth
+
+The grower did exactly what `evaluate_leaf` asked - turned the leaves over,
+looked underneath, found nothing - and the answer got WORSE. Reporting "no
+webbing, no specks, no frass" fell through every pattern into the generic
+"disease, pest, airflow obstruction, or severe damage signal detected".
+
+Two gaps behind it:
+
+- **`margin_burn` matched "burnt tips" and "crispy tips" but not "necrotic
+  tips", "dead tips" or "brown tips"** - the same leaf described in ordinary
+  words matched nothing.
+- **No pattern existed for symptoms on NEW growth at all.** The `interveinal`
+  entry already states the rule - mobile nutrients pull from the oldest growth
+  first, immobile ones show on the newest - and nothing could detect which was
+  happening. That is the diagnostically loaded half of the distinction, so
+  `new_growth_distress` now carries it: pale, hooked, twisted or dying new
+  growth, and the tell that old fan leaves stay dark.
+
+Its candidates are immobile-nutrient shortfall (calcium above all), root-zone
+uptake failure (warm or under-oxygenated water, pH outside the band, which
+starves new growth while the reservoir reads full), and light too close. Its
+settling check separates them by WHERE, by lifting the roots, and by pH and
+water temperature rather than ppm alone.
+
+Also recorded this session: ppm corrected to 687-700 (logged at 687, the lower
+bound, with the range in the note), reservoir down to 13 L, pellets wet with new
+roots emerging, and `current_plant` given the species it was missing while both
+other plants had one.

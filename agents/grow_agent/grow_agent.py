@@ -125,12 +125,44 @@ LEAF_PATTERNS = (
      "show on the newest. Note where it started before dosing.",
      "problem"),
     ("margin_burn",
+     # "necrotic tips" and "dead tips" described the same thing and matched
+     # nothing, so a leaf with dry brown tips fell through every pattern and
+     # landed in the generic branch.
      r"tip burn|burnt tips|crispy (tips|edges|margins)|margins? (browning|burn|scorch)|"
-     r"edges? (curl|burn|brown)",
+     r"edges? (curl|burn|brown)|necrotic (tips|margins|edges)|(dead|dry|brown) tips",
      "too much salt at the root or too much light at the canopy - nutrient burn works "
      "inward from the tip, light burn shows on whatever sits closest to the fixture",
      "Compare a leaf under the light with one in shade at the same height. If only the "
      "top ones are affected it is the light, not the feed.",
+     "problem"),
+    ("new_growth_distress",
+     # WHERE outranks WHAT. The interveinal entry already says mobile nutrients
+     # pull from the oldest growth and immobile ones show on the newest, and
+     # nothing could detect which was happening - a description of pale, hooked
+     # or dying NEW growth matched no pattern at all and fell through to the
+     # generic "disease, pest or damage" branch. That is the diagnostically
+     # loaded half of the distinction, so it gets its own pattern.
+     r"new(est)? growth (is |looks |seems )?(pale|light|yellow|chloroti\w+|weak|stunted|"
+     r"twisted|distorted|curl\w*|hook\w*|burn\w*|dying|dead)|"
+     r"(pale|light|yellow|chloroti\w+|hooked|clawed|twisted|distorted|necrotic) "
+     r"(new|newest|young|youngest|baby|top) (growth|leaves|leaflets|tips)|"
+     r"(top|upper|youngest|baby) (leaves|leaflets|growth) .{0,24}"
+     r"(pale|yellow|curl\w*|hook\w*|brown|dying)|"
+     r"older (fan )?leaves? (stay|remain|are still|look) (dark|fine|healthy|green)",
+     "something reaching the newest tissue first. Immobile nutrients - calcium "
+     "above all - cannot be moved out of old leaves to feed new ones, so a "
+     "shortfall shows at the growing tip while the old fan leaves stay dark. "
+     "The same picture comes from the root zone failing to take anything up at "
+     "all: warm or under-oxygenated water, or pH outside the band, starves new "
+     "growth while the reservoir reads full. Light too close does it too, "
+     "because the newest growth is nearest the fixture",
+     "Three things, and they separate cleanly. WHERE: if the old fan leaves are "
+     "dark and only the top is affected, it is immobile - calcium, or uptake "
+     "failing - not nitrogen or magnesium, which strip the bottom first. THE "
+     "ROOTS: lift them. White and firm with no smell rules out the root zone; "
+     "brown, slimy or sour does not, and no dose fixes that. THE NUMBERS: pH "
+     "and water temperature, not just ppm - a full reservoir at the wrong pH "
+     "delivers nothing, and warm water holds too little oxygen to take it up.",
      "problem"),
     ("powder",
      r"powder\w*|white (dust|film|coating|patches)|fuzzy (white|grey|gray)",
