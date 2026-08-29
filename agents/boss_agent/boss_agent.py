@@ -234,7 +234,65 @@ class BossAgent(AgentBase):
         return vocab
 
     def _domain_for(self, prompt):
-        """The agent whose declared vocabulary best claims this request."""
+        """Which department owns this request.
+
+        Intent is RESOLVED first and word-matched only as a fallback. Counting
+        regex hits is why "How's the system today" reached a code model and why
+        "my water is two inches below the net pot" matched nothing about the
+        grow: the terms were written to be matched, not to describe a
+        department. A person should be able to speak plainly.
+
+        The resolver picks from the live registry and can return nothing but an
+        id that exists, so a wrong answer is a wrong ROUTE - recoverable,
+        because the department says it does not own the question - never a
+        wrong fact. See core/intent.py."""
+        pick = self._resolve_intent(prompt)
+        keyword = self._domain_by_terms(prompt)
+        if pick and pick != "UNCLEAR":
+            if keyword and keyword != pick:
+                self.log(f"routing: intent={pick} keywords={keyword} - took intent")
+            return pick
+        return keyword
+
+    def _resolve_intent(self, prompt):
+        try:
+            from core.intent import IntentResolver
+        except Exception:
+            return None
+        if not hasattr(self, "_intent"):
+            self._intent = IntentResolver(log=self.log, roster_fn=self._roster)
+        try:
+            pick, why = self._intent.resolve(prompt)
+            if pick == "UNCLEAR":
+                self.log(f"routing: intent unresolved ({why})")
+            return pick
+        except Exception as e:
+            self.log(f"routing: intent resolver failed, using terms: {e}")
+            return None
+
+    def _roster(self):
+        """Departments as they describe THEMSELVES - declared terms plus the
+        capability names they registered. Nothing about any domain is written
+        down here; a new agent becomes routable by starting up."""
+        out = {}
+        caps = {}
+        try:
+            r = requests.post("http://localhost:8004/execute",
+                              json={"task": "list_agents", "args": [],
+                                    "sender": self.agent_id}, timeout=5)
+            for a in (r.json().get("result", []) if r.ok else []):
+                if a.get("agent_id"):
+                    caps[a["agent_id"]] = a.get("capabilities") or []
+        except Exception as e:
+            self.log(f"routing: registry unreachable for roster: {e}")
+        for aid, terms in self._domain_vocabulary().items():
+            if terms:
+                out[aid] = {"terms": terms, "capabilities": caps.get(aid, [])}
+        return out
+
+    def _domain_by_terms(self, prompt):
+        """The old word count, kept as the fallback for when inference is
+        down. A degraded route beats no route."""
         lp = (prompt or "").lower()
         best, best_n = None, 0
         for aid, terms in self._domain_vocabulary().items():
@@ -1099,34 +1157,22 @@ class BossAgent(AgentBase):
 
             # --- Before the generic model: try the domain agent ---
             #
-            # The keyword gate above was the actual fault five separate times
-            # today - DWC read as "Direct Water Cooker", a memory-reclaim request
-            # sent to a code model, a strain name explained as African folklore,
-            # a logging-cadence question answered with log rotation, and "how
-            # much do I add to reach 800" answered as "add 200". Each time the
-            # fix was another keyword, and each time the grower found a phrasing
-            # nobody had thought of - which is what people talking normally do.
+            # There used to be a grow fallback here: any unmatched QUESTION was
+            # sent to grow_agent before the generic model. It was a reasonable
+            # patch when word-counting was the only routing mechanism and this
+            # was a grow assistant - the comment it carried listed five real
+            # failures it fixed.
             #
-            # So the default inverts. This is a grow assistant: an unmatched
-            # QUESTION goes to the domain agent first, and only reaches the
-            # generic model if the domain has nothing to say. A composed answer
-            # that turns out not to fit is recoverable; a code model confidently
-            # doing arithmetic on a number it does not understand is not.
-            if re.search(r"\?|\b(why|when|should|can|could|do i|did we|did i|is it|is now|"
-                         r"how much|how many|how do|what if|what about|would|recommend|"
-                         r"instead of|rather than|is my|are my|my plant)\b", prompt.lower()):
-                try:
-                    ans = self.send_a2a("grow_agent", "answer",
-                                        {"prompt": prompt}, timeout=120)
-                    res = self._unwrap(ans) or {}
-                    text_ = res.get("text") or ""
-                    if len(text_) > 40:
-                        self.log("Unmatched question - answered from the grow domain")
-                        return {"result": text_,
-                                "evidence": {"answered_as": res.get("answered_as"),
-                                             "plant": res.get("plant_id")}}
-                except Exception as e:
-                    self.log(f"grow fallback failed, using generic model: {e}")
+            # It is removed because intent is resolved now, and because it had
+            # started causing the thing it was meant to prevent: "how much do I
+            # still owe on rent" routed correctly to accounting, accounting had
+            # no answer, and this caught it and replied about ppm and veg
+            # bands. A domain-specific default inside the orchestrator is the
+            # violation this architecture exists to remove - Boss practises no
+            # domain, so it has no business having a favourite one.
+            #
+            # If the department that claimed a request cannot answer it, that
+            # is the finding. Say it.
 
             # --- Default: a GENERAL model, never the code model ---
             #
@@ -1140,6 +1186,31 @@ class BossAgent(AgentBase):
             # claimed is not a fallback, it is a misroute with a default
             # attached. Ask for the `reasoning` capability instead and let the
             # Inference Service resolve it.
+            # If a department CLAIMED this and simply had no answer, no model
+            # speaks on its behalf. A generic model answering a question that a
+            # domain owns is the two-sources-of-truth failure in miniature: the
+            # grower cannot tell whether they heard from the department that
+            # holds the evidence or from a 1.5B model improvising around it.
+            # "Is the disk filling up" came back as a numbered essay on why
+            # disks fill up, from a model with no access to the disk.
+            _claimed_but_silent = locals().get("_domain")
+            if _claimed_but_silent:
+                _h = {"grow_agent": "the grow", "legal_agent": "legal",
+                      "accounting_agent": "accounting",
+                      "maintenance_agent": "the machine itself",
+                      "trust_agent": "trust", "security_agent": "security",
+                      "coding_agent": "engineering"}.get(_claimed_but_silent,
+                                                        _claimed_but_silent)
+                self.log(f"{_claimed_but_silent} claimed it and had no answer - "
+                         f"not substituting a model")
+                return {"result": f"That one belongs to {_h}, which took the "
+                                  f"question and had no answer for it. The "
+                                  f"routing is right and the capability is "
+                                  f"missing - worth building rather than "
+                                  f"rephrasing.",
+                        "evidence": {"claimed_by": _claimed_but_silent,
+                                     "answered": False}}
+
             self.log("Nothing claimed this - answering with the general reasoning model")
             text = ""
             try:
@@ -1165,10 +1236,28 @@ class BossAgent(AgentBase):
                 self.log("Discarded assistant boilerplate from the general model")
                 text = ""
             if not text or len(str(text).strip()) < 2:
-                text = ("Nothing in the system claimed that one, and I would "
-                        "rather say so than guess at it. Try naming the thing "
-                        "you mean - a plant, a case, the ledger, the machine "
-                        "itself - and it will reach whoever actually owns it.")
+                # Two different findings, and collapsing them is a lie. Nobody
+                # claiming a request is a routing gap; a department claiming it
+                # and having nothing to say is a CAPABILITY gap, and the person
+                # deserves to know which one they hit - it tells them whether
+                # to rephrase or to stop asking.
+                _claimed = locals().get("_domain")
+                if _claimed:
+                    _human = {"grow_agent": "the grow", "legal_agent": "legal",
+                              "accounting_agent": "accounting",
+                              "maintenance_agent": "the machine itself",
+                              "trust_agent": "trust", "security_agent": "security",
+                              "coding_agent": "engineering"}.get(_claimed, _claimed)
+                    text = (f"That one belongs to {_human}, which took the "
+                            f"question and had no answer for it. So the routing "
+                            f"is right and the capability is missing - worth "
+                            f"building rather than rephrasing.")
+                else:
+                    text = ("Nothing in the system claimed that one, and I "
+                            "would rather say so than guess at it. Try naming "
+                            "the thing you mean - a plant, a case, the ledger, "
+                            "the machine itself - and it will reach whoever "
+                            "actually owns it.")
             self.store_own_memory(f"request_{int(time.time())}", prompt)
             self.store_own_memory(f"response_{int(time.time())}", text)
             return {"result": text}

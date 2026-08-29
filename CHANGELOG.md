@@ -343,3 +343,51 @@ are answering"*, or *"1 of 12 is down and that needs you: the grow."*
 
 Found because the grower asked from their phone and got the boilerplate, which
 is the only reason any of it surfaced.
+
+### 2026-08-29 — Routing resolves intent instead of counting keywords
+
+The grower's objection, verbatim: *"I don't understand why it's trying to match
+keywords... I should be able to speak plainly and it already understands my
+intent."* Correct, and the shape-matching fix earlier the same day was still
+keyword matching with a wider net — the mechanism was wrong, not the list.
+
+`core/intent.py` resolves intent by asking the reasoning model which department
+owns a request. **This is the only place in MycOS where a model decides
+anything**, and three properties make it different in kind from letting one
+generate a fact:
+
+- **Closed set.** It chooses from the live registry and anything not in it is
+  discarded as `UNCLEAR`. It cannot invent a department.
+- **Recoverable.** A wrong route means the wrong department is asked and says so.
+  Nobody is told something false — they are told the wrong thing was asked.
+- **No content crosses.** It returns an agent id. The model never sees,
+  summarises or rewrites an answer.
+
+The word count survives as the fallback for when inference is down, and both are
+logged when they disagree, which is the only evidence for whether this is
+actually better.
+
+Two bugs in the first cut, neither the model's fault. Regex anchors leaked into
+the prompt — `\bgaap\b` was shown as `bgaapb` — because backslashes were
+stripped before the `\b`. And the departments were described by their first
+fourteen *routing terms*, which were written to be matched rather than read:
+grow_agent read as "stage, how old, taproot, cotyledon, photo" with nothing
+about water or nutrients, so "my water is two inches below the net pot" routed
+to **legal**. Describing departments by their capability names instead took it
+from 1 of 6 correct to 5 of 6.
+
+**The grow fallback is removed.** Any unmatched question used to go to
+grow_agent before the generic model — a reasonable patch when word-counting was
+all there was, and it carried a comment listing five real failures it fixed. It
+had started causing them instead: "how much do I still owe on rent" routed
+correctly to accounting, accounting had no answer, and this caught it and
+replied about ppm and veg bands. A domain-specific default inside the
+orchestrator is the violation this architecture exists to remove.
+
+**A department that claims a question and cannot answer it now says so, and no
+model speaks on its behalf.** "Is the disk filling up" was answered by a 1.5B
+model with a numbered essay on why disks fill up, having no access to the disk.
+Two findings that were being collapsed into one are now distinct: nobody
+claiming a request is a routing gap, a department claiming it and having nothing
+to say is a capability gap, and the person deserves to know which they hit —
+it tells them whether to rephrase or to stop asking.
