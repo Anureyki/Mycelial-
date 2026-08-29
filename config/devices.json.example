@@ -1,0 +1,63 @@
+{
+  "_comment": "Device configuration. Agents don't know or care about drivers — they just ask the HAL for device state. Copy to devices.json and fill in credentials.",
+
+  "tent_light": {
+    "driver": "marshydro_cloud",
+    "account_email": "your-mars-hydro-account@example.com",
+    "account_password": "$MARSHYDRO_PASSWORD",
+    "device_mac": "38:18:2B:71:9C:18",
+    "channels": {
+      "outlet_1": {
+        "label": "Tent Light",
+        "default_state": "off",
+        "power_limit_w": 600
+      },
+      "outlet_2": {
+        "label": "CO2 Generator",
+        "default_state": "off",
+        "power_limit_w": 1000
+      }
+    }
+  },
+
+  "alternate_tent_light_esphome": {
+    "driver": "esphome",
+    "host": "192.168.1.230",
+    "port": 8266,
+    "api_password": "$ESPHOME_API_PASSWORD",
+    "channels": {
+      "outlet_1": {
+        "label": "Tent Light",
+        "entity_id": "switch.outlet_1"
+      },
+      "outlet_2": {
+        "label": "CO2 Generator",
+        "entity_id": "switch.outlet_2"
+      }
+    }
+  },
+
+  "tent_climate": {
+    "driver": "mqtt",
+    "broker": "localhost",
+    "port": 1883,
+    "username": "mycelial",
+    "password": "$MQTT_PASSWORD",
+    "channels": {
+      "fan_speed": {
+        "label": "Exhaust Fan",
+        "command_topic": "home/tent/fan/cmd",
+        "state_topic": "home/tent/fan/state",
+        "payload_on": "ON",
+        "payload_off": "OFF"
+      },
+      "heater": {
+        "label": "Heater",
+        "command_topic": "home/tent/heat/cmd",
+        "state_topic": "home/tent/heat/state",
+        "payload_on": "ON",
+        "payload_off": "OFF"
+      }
+    }
+  }
+}
