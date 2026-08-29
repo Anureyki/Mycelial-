@@ -176,6 +176,39 @@ class AgentBase:
         with open(REGISTRY_FILE, "w") as f:
             json.dump(registry, f, indent=2)
         self.log(f"Registered {self.agent_id} in JSON registry")
+        self.announce_reference_corpus()
+
+    def announce_reference_corpus(self):
+        """Say at boot what this agent's corpus holds, and warn if it is
+        unreachable.
+
+        The load is lazy, so an agent that owned a corpus said nothing about it
+        until someone happened to look a term up. accounting_agent held 2,108
+        sections of the Securities Acts and Reg S-X/S-K and never logged a word
+        about them, while its lookup went straight past to a web search - and
+        nothing anywhere reported the mismatch. Silence is why that survived.
+
+        So: report the corpus at startup, and if the agent holds one but never
+        calls lookup_reference, say so loudly. A corpus nothing loads is
+        decoration; a corpus nothing CALLS is worse, because it looks present."""
+        try:
+            idx = self._load_reference_docs()
+        except Exception as e:
+            self.log(f"reference: corpus failed to load: {e}")
+            return
+        n_sections = len(idx.get("by_citation", {}))
+        if not n_sections:
+            return
+        try:
+            import inspect
+            src = inspect.getsource(type(self))
+            wired = "lookup_reference" in src
+        except (OSError, TypeError):
+            wired = True          # cannot tell - do not cry wolf
+        if not wired:
+            self.log(f"reference: WARNING - {n_sections} sections in "
+                     f"reference/{self.agent_id}/ are loaded but this agent "
+                     f"never calls lookup_reference, so nothing can reach them")
 
     def _lookup_agent(self, agent_id):
         result = self._call_registry_service("lookup", [agent_id])
@@ -485,6 +518,160 @@ class AgentBase:
     # which is orchestration; the consultation itself is between the two
     # domains that understand it.
     REFERRAL_THRESHOLD = 500.0        # value above which a human signs off
+
+    # ---- Reference corpus -------------------------------------------------
+    #
+    # Every domain agent carries a body of codified rules in
+    # reference/<agent_id>/, retrieved by EXACT headword or citation. This
+    # lived only in the Legal Agent, so accounting_agent's 2,108 sections of
+    # the Securities Acts and Reg S-X/S-K sat on disk reachable by nothing -
+    # its lookup went cache -> web -> model and never opened the books it
+    # owns. A corpus nothing loads is decoration, so the loader belongs here
+    # where every agent inherits it.
+    #
+    # Agents whose corpus includes term->definition dictionaries name them in
+    # DICTIONARY_FILES; those are read separately and skipped here.
+    DICTIONARY_FILES = ()
+    _refdocs = None
+
+    def _load_reference_docs(self):
+        """Index every section-bearing reference file by citation and by the
+        authorities it cites. Exact keys only - CLAUDE.md is explicit that
+        reference material is retrieved by headword or citation, never by
+        bag-of-words similarity, because a long passage of boilerplate
+        outscores a short passage that is exactly on point."""
+        if self._refdocs is not None:
+            return self._refdocs
+        ref_dir = os.path.join(os.path.dirname(os.path.dirname(
+            os.path.abspath(__file__))), "reference", self.agent_id)
+        by_citation, by_authority, by_term, titles = {}, {}, {}, []
+        try:
+            names = sorted(os.listdir(ref_dir))
+        except FileNotFoundError:
+            names = []
+        for fname in names:
+            if not fname.endswith(".json") or fname in self.DICTIONARY_FILES:
+                continue
+            try:
+                with open(os.path.join(ref_dir, fname)) as fh:
+                    doc = json.load(fh)
+            except Exception as e:
+                self.log(f"reference: could not load {fname}: {e}")
+                continue
+            sections = doc.get("sections") if isinstance(doc, dict) else None
+            if not sections:
+                continue
+            title, source = doc.get("title", fname), doc.get("source", "")
+            titles.append(f"{title} ({len(sections)} sections)")
+            for s in sections:
+                entry = {"title": title, "source": source,
+                         "citation": s.get("citation"), "page": s.get("page"),
+                         "text": s.get("text", "")}
+                cit = str(s.get("citation") or "").strip().lower()
+                if cit:
+                    by_citation.setdefault(cit, entry)
+                for a in s.get("authorities", []) or []:
+                    by_authority.setdefault(a.strip().lower(), []).append(entry)
+            # Subject terms the work itself repeats, so a doctrine can be asked
+            # for by name instead of by page. Exact keys only - nothing scored.
+            for term, idxs in (doc.get("term_index") or {}).items():
+                for i in idxs:
+                    if i < len(sections):
+                        s = sections[i]
+                        by_term.setdefault(term, []).append(
+                            {"title": title, "source": source,
+                             "citation": s.get("citation"), "page": s.get("page"),
+                             "text": s.get("text", "")})
+        self._refdocs = {"by_citation": by_citation, "by_authority": by_authority,
+                         "by_term": by_term}
+        self.log(f"reference: {len(by_citation)} sections, {len(by_term)} subject terms, "
+                 f"{len(by_authority)} authorities from {len(titles)} work(s): "
+                 + "; ".join(titles))
+        return self._refdocs
+
+    def lookup_reference(self, term):
+        """A citation or a case name, matched exactly, then as a contained name.
+
+        Returns [] rather than a loose match. A wrong passage presented as
+        authority is worse than none, because the reasoning layer trusts it."""
+        idx = self._load_reference_docs()
+        key = (term or "").strip().lower().rstrip(".")
+        if not key:
+            return []
+        # The FRCP index is keyed as the rules cite themselves - "9(h)",
+        # "16(e)" - so a person asking for "Rule 12" matched nothing.
+        key = re.sub(r'^(fed\.? ?r\.? ?civ\.? ?p\.?|frcp|rule)\s+', '', key).strip()
+        # Regulations are keyed as they cite themselves - "§ 8.4", "§ 100.204" -
+        # so a person typing "8.4" or "24 CFR 8.4" matched nothing and fell
+        # through to public web search for a rule sitting in the corpus.
+        key = re.sub(r'^\d+\s*c\.?f\.?r\.?\s*(part\s*)?', '', key).strip()
+        if key not in idx["by_citation"]:
+            for variant in (f"§ {key}", f"§{key}", key.lstrip("§ ").strip()):
+                if variant in idx["by_citation"]:
+                    return [idx["by_citation"][variant]]
+        if key in idx["by_citation"]:
+            return [idx["by_citation"][key]]
+        if key in idx["by_authority"]:
+            return idx["by_authority"][key]
+        if key in idx.get("by_term", {}):
+            return idx["by_term"][key][:4]
+        # A case is often cited with extra words around it ("as the tax
+        # considered in Gleason v. McKay"), so match on containment in either
+        # direction - but only for names that look like a case.
+        # "Rule 12" normalises to "12", but the rules are indexed as they cite
+        # themselves - 12(b), 12(d) - so a bare rule number has to gather its
+        # subsections rather than miss.
+        if re.fullmatch(r'\d{1,4}', key):
+            subs = [e for c, e in idx["by_citation"].items()
+                    if c == key or c.startswith(key + "(")]
+            if subs:
+                return subs[:6]
+        if " v. " in key or " v " in key:
+            out = []
+            for name, entries in idx["by_authority"].items():
+                if key in name or name in key:
+                    out.extend(entries)
+            return out[:4]
+        return []
+
+    def ask_peer_corpus(self, agent_id, term, timeout=20):
+        """Ask another domain for an authority this one does not hold.
+
+        The third cross-domain direction. `refer_finding` HANDS a finding to
+        another domain; `receive_finding` takes one. This ASKS - a question
+        out, an answer back, no state changed on either side.
+
+        The rule it enforces is that a domain does not keep a copy of another
+        domain's authority. Accounting owns ASC, IFRS and the reporting
+        regulations; Legal owns the statutes, the CFR, the state codes. When
+        Accounting needs a statute it borrows it rather than shelving its own
+        copy, because two copies of an authority is two sources of truth, and
+        the one that drifts is always the copy.
+
+        Returns [] when the peer holds nothing or is unreachable - a question
+        that could not be asked is not an answer, and must never read as one."""
+        if not agent_id or not term or agent_id == self.agent_id:
+            return []
+        try:
+            reply = self.send_a2a(agent_id, "lookup", [term], timeout=timeout)
+        except Exception as e:
+            self.log(f"ask_peer_corpus: {agent_id} unreachable: {e}")
+            return []
+        inner, seen = reply, 0
+        while isinstance(inner, dict) and "results" not in inner and "result" in inner and seen < 6:
+            inner, seen = inner["result"], seen + 1
+        if not isinstance(inner, dict):
+            return []
+        # Only a corpus answer is borrowable. The peer's own cache, its web
+        # fallback and its model output are NOT authority, and passing one of
+        # those back as though it were would launder an unverified answer
+        # across a domain boundary - worse than returning nothing, because the
+        # borrowing agent has no way to tell.
+        src = str(inner.get("source") or "")
+        if "corpus" not in src:
+            return []
+        results = inner.get("results") or []
+        return results if isinstance(results, list) else []
 
     def refer_finding(self, to_agent, kind, payload, why=""):
         """Hand another domain something this one noticed but does not own."""

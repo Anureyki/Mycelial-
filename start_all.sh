@@ -25,47 +25,47 @@ mkdir -p logs
 # ----------------------------------------------------------------------
 echo "🚀 Starting platform services..."
 
-nohup python3 services/registry/registry_service.py > logs/registry.log 2>&1 &
+nohup python3 -u services/registry/registry_service.py > logs/registry.log 2>&1 &
 echo "  ✅ Registry Service (port 8004)"
 
-nohup python3 services/memory/service.py > logs/memory.log 2>&1 &
+nohup python3 -u services/memory/service.py > logs/memory.log 2>&1 &
 echo "  ✅ Memory Service (port 8007)"
 
-nohup python3 services/policy/service.py > logs/policy.log 2>&1 &
+nohup python3 -u services/policy/service.py > logs/policy.log 2>&1 &
 echo "  ✅ Policy Service (port 8008)"
 
-nohup python3 services/logging_auditing/service.py > logs/logging.log 2>&1 &
+nohup python3 -u services/logging_auditing/service.py > logs/logging.log 2>&1 &
 echo "  ✅ Logging Service (port 8009)"
 
-nohup python3 services/inference/service.py > logs/inference.log 2>&1 &
+nohup python3 -u services/inference/service.py > logs/inference.log 2>&1 &
 echo "  ✅ Inference Service (port 8005)"
 
-nohup python3 services/model/service.py > logs/model.log 2>&1 &
+nohup python3 -u services/model/service.py > logs/model.log 2>&1 &
 echo "  ✅ Model Service (port 8006)"
 
-nohup python3 services/training/service.py > logs/training.log 2>&1 &
+nohup python3 -u services/training/service.py > logs/training.log 2>&1 &
 echo "  ✅ Training Service (port 8010)"
 
-nohup python3 services/evaluation/service.py > logs/evaluation.log 2>&1 &
+nohup python3 -u services/evaluation/service.py > logs/evaluation.log 2>&1 &
 echo "  ✅ Evaluation Service (port 8011)"
 
-nohup python3 services/data_engineering/service.py > logs/data_engineering.log 2>&1 &
+nohup python3 -u services/data_engineering/service.py > logs/data_engineering.log 2>&1 &
 echo "  ✅ Data Engineering Service (port 8012)"
 
 # Agent Service is intentionally disabled – it generated stubs
 # nohup python3 services/agent/service.py > logs/agent_service.log 2>&1 &
 # echo "  ⚠️  Agent Service (disabled)"
 
-nohup python3 services/service_manager/service.py > logs/service_manager.log 2>&1 &
+nohup python3 -u services/service_manager/service.py > logs/service_manager.log 2>&1 &
 echo "  ✅ Service Manager (port 8014)"
 
-nohup python3 services/tool/service.py > logs/tool.log 2>&1 &
+nohup python3 -u services/tool/service.py > logs/tool.log 2>&1 &
 echo "  ✅ Tool Service (port 8015)"
 
-nohup python3 services/provenance/service.py > logs/provenance.log 2>&1 &
+nohup python3 -u services/provenance/service.py > logs/provenance.log 2>&1 &
 echo "  ✅ Provenance Service (port 8016)"
 
-nohup python3 services/federated/service.py > logs/federated.log 2>&1 &
+nohup python3 -u services/federated/service.py > logs/federated.log 2>&1 &
 echo "  ✅ Federated Learning Service (port 8017)"
 
 # Wait a moment for services to initialize
@@ -150,15 +150,13 @@ echo ""
 echo "📋 Health check summary:"
 
 # ----------------------------------------------------------------------
-# Web client (static PWA). Was started by hand and supervised by nothing,
-# so it stayed down silently after the last memory-pressure kill.
+# The web client is served by nginx on 8443 over TLS with basic auth - see
+# config/nginx/mycelial.conf. It used to be served here by
+# `python3 -m http.server 8090 --bind 0.0.0.0`, which put the PWA on the LAN
+# in the clear alongside a socat forwarder exposing Anansi on 9081. Both are
+# retired: one authenticated TLS listener replaces two unauthenticated
+# plaintext ones.
 # ----------------------------------------------------------------------
-if ! curl -s -o /dev/null -m 2 http://localhost:8090/; then
-    (cd "$HOME/mycelial/webapp" && nohup python3 -m http.server 8090 --bind 0.0.0.0 > "$HOME/mycelial/logs/webapp.log" 2>&1 &)
-    echo "  ✅ Web client (port 8090)"
-else
-    echo "  ✅ Web client already running (port 8090)"
-fi
 
 for port in 8004 8007 8008 8009 8005 8006 8010 8011 8012 8014 8015 8016 8017 8000 8001 8002 8003 8081 9006 9007 9009 9010 9011 9012 9013; do
     if curl -s -o /dev/null -w "%{http_code}" http://localhost:$port/health | grep -q 200; then
@@ -188,5 +186,6 @@ if [ -f config/nginx/mycelial.conf ] && command -v nginx >/dev/null 2>&1; then
 fi
 
 echo "🎉 All services and agents started."
+echo "   Web client: https://localhost:8443/  (TLS + basic auth - the only LAN door)"
 echo "   Interact via Anansi: curl -X POST http://localhost:8081/execute -H 'Content-Type: application/json' -d '{\"task\":\"process_request\",\"args\":[\"SUTEN XAAT RAA Xephri!\"]}'"
 echo "   Grow Agent: curl -X POST http://localhost:9009/execute -H 'Content-Type: application/json' -d '{\"task\":\"log_reading\",\"args\":{\"ph\":5.9,\"ppm\":366,\"temp\":23.4,\"humidity\":68,\"stage\":\"seedling\"}}'"

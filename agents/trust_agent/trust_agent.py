@@ -303,6 +303,16 @@ class TrustAgent(AgentBase):
             if not args or not args[0]:
                 return {"error": "Usage: lookup <term_or_citation>", "disclaimer": DISCLAIMER}
             term = args[0]
+            # The corpus comes first, before the cache and well before the web.
+            # This agent has no reference/trust_agent/ yet, so today this is a
+            # no-op - which is exactly why it is worth wiring now. The same
+            # omission in accounting_agent left 2,108 sections unreachable for
+            # weeks, because a corpus dropped into an agent that never calls
+            # lookup_reference is silently ignored rather than reported.
+            passages = self.lookup_reference(term)
+            if passages:
+                return {"term": term, "source": "reference/trust_agent corpus",
+                        "results": passages, "disclaimer": DISCLAIMER}
             hits = self.query_cache(term, top_k=3)
             if hits:
                 return {"term": term, "source": "cache", "results": hits, "disclaimer": DISCLAIMER}

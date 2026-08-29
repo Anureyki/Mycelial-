@@ -230,6 +230,19 @@ Each domain agent carries its own body of rules, doctrine and vocabulary in
 that the principal does not have to be specialised in the domain, because the
 agent is - and shows its reasoning, so the principal can check it.
 
+The loader lives in `core/base_agent.py`, so **every** agent inherits it and
+announces its corpus at startup. It used to live only in the Legal Agent, which
+meant the identical bug survived everywhere else: `accounting_agent` held 2,108
+sections of the Securities Acts and Reg S-X/S-K while its `lookup` went cache →
+web → model and never opened the books it owned. Nothing reported the mismatch
+because the load was lazy, so an agent with an unreachable corpus looked exactly
+like an agent with none.
+
+A fix made in one agent for a fault that lives in the base class is not a fix;
+it is a second place for the bug to hide. An agent that holds a corpus but never
+calls `lookup_reference` now logs a warning at boot naming the sections nothing
+can reach.
+
 **Two distinct stores, deliberately separate:**
 
 | Store | Holds | Retrieval |
@@ -323,7 +336,23 @@ Two directions, both inherited from `core/base_agent.py`:
 | Direction | Task | Example |
 |-----------|------|---------|
 | **Ask** another domain a question | direct A2A, e.g. `check_budget_constraint` | `recommend_purchase` asks Accounting whether a purchase fits, and gets back a constraint, never the ledger |
+| **Borrow** another domain's authority | `ask_peer_corpus` | Accounting needs Reg Z, which lives in Legal's corpus. It asks rather than shelving a second copy |
 | **Hand** another domain a finding | `refer_finding` / `receive_finding` | Grow reads an equipment invoice and refers the spend to Accounting, which logs it |
+
+**A domain does not keep a copy of another domain's authority.** Accounting owns
+ASC, IFRS and the reporting regulations; Legal owns the statutes, the CFR, the
+state codes and the canons. A figure in the books is routinely governed by an
+authority that lives in Legal's corpus - so Accounting *borrows* it and says so
+in the provenance, because two copies of an authority is two sources of truth
+and the one that drifts is always the copy.
+
+`ask_peer_corpus` deliberately has **no keyword test** for whether something is
+a legal question. Guessing a subject from vocabulary is the router failure this
+architecture exists to prevent. It simply prefers a sibling's verified corpus
+over an unverified web search, every time, and accepts only an answer whose
+`source` says it came from a corpus - never the peer's cache, web fallback or
+model output, which would launder an unverified answer across a domain
+boundary.
 
 `receive_finding` defaults to recording the finding and **saying that it only
 recorded it** - an agent that silently dropped a referral would look identical

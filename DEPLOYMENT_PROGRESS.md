@@ -326,14 +326,32 @@ rather than a swarm accumulating permission slips.
 
 ---
 
-## Phase 6 — Harden network exposure — NOT STARTED
-Reverse proxy + TLS + auth in front of Anansi only; wire Security Agent
-(9010) to actually gate requests to Boss. Checked `core/base_agent.py`:
-every agent (including Anansi) has *always* bound to `127.0.0.1` in
-committed code — that's not an in-flight change, it's the existing
-baseline, which is why the Docker `socat` forwarder was the right fix
-rather than a workaround for someone else's WIP. No reverse-proxy/TLS/auth
-code exists yet anywhere in the repo. Still fully unstarted.
+## Phase 6 — Harden network exposure — ◐ ONE SUDO COMMAND REMAINING
+
+Done:
+- Unprivileged nginx on **8443** — TLS 1.3, basic auth, 25 MB body cap —
+  serving the webapp and proxying `/execute` to Anansi. Runs as the same
+  user as the agents with every write path under `state/`, so it needs no
+  root and does not touch the system nginx. Config in
+  `config/nginx/mycelial.conf`, started by `start_all.sh`.
+- Security Agent (9010) gates every inbound `/execute` via
+  `AgentBase.check_guard()`, denylist in `config/guards.json`, kill switch
+  at `state/LOCKED`. Fails open by design — verified on 2026-08-29 when the
+  agent was found down and the swarm was correctly still serving.
+- **8090 retired 2026-08-29.** `start_all.sh` no longer starts
+  `python3 -m http.server 8090 --bind 0.0.0.0`, and `webapp/serve.sh` now
+  binds loopback. `mycelial.service`'s ExecStop pattern cleaned up with it.
+
+Remaining — needs root, so it cannot be done from inside the stack:
+- **9081** is `anansi-forward.service`, a systemd unit with
+  `Restart=always` putting socat on `0.0.0.0:9081` in front of Anansi, plus
+  a ufw rule opening it to the LAN. nginx already serves that exact
+  endpoint authenticated on 8443, so it is a second unauthenticated door to
+  the same place. Killing the process is not enough; the unit restarts it.
+  Run: `deploy/systemd/retire_anansi_forward.sh`
+
+  This does NOT affect `docker-entrypoint.sh`, which uses 9081 *inside* the
+  container and publishes it to the host as loopback-only `127.0.0.1:8081`.
 
 ## Phase 7 — Provision dedicated device — NOT STARTED
 User decision pending: mini PC (Intel N100/N305 class, 16-32GB RAM, no GPU

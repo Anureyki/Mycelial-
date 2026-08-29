@@ -409,11 +409,42 @@ class AccountingAgent(AgentBase):
             if not args or not args[0]:
                 return {"error": "Usage: lookup <term_or_form_or_citation>", "disclaimer": DISCLAIMER}
             term = args[0]
+            # The corpus comes first. This path was cache -> web -> model, so
+            # a section of the Exchange Act sitting in this agent's own
+            # reference/ reached the open web before it reached the books the
+            # agent owns - the same fault already corrected in Legal.
+            passages = self.lookup_reference(term)
+            if passages:
+                return {"term": term, "source": "reference/accounting_agent corpus",
+                        "results": passages, "disclaimer": DISCLAIMER}
             hits = self.query_cache(term, top_k=3)
             if hits:
                 return {"term": term, "source": "cache", "results": hits, "disclaimer": DISCLAIMER}
-            # Cache had nothing - try a public web search via PQA Agent before
-            # falling back to raw inference (which can hallucinate).
+            # Ask Legal before asking the open web.
+            #
+            # Accounting owns ASC, IFRS and the reporting regulations. Legal
+            # owns the statutes, the CFR, the state codes and the canons. A
+            # figure in these books is routinely governed by an authority that
+            # lives in Legal's corpus, and Accounting has no business holding a
+            # second copy of it - that is two sources of truth, which is the
+            # failure this whole architecture is built to avoid.
+            #
+            # So Accounting asks. Note there is no keyword test for "is this a
+            # legal question": guessing a subject from vocabulary is the exact
+            # router failure CLAUDE.md documents. It simply prefers a sibling
+            # agent's verified corpus over an unverified web search, every
+            # time. Legal answers [] when it holds nothing, which costs one
+            # local call.
+            borrowed = self.ask_peer_corpus("legal_agent", term)
+            if borrowed:
+                return {"term": term, "source": "legal_agent corpus (cross-domain)",
+                        "note": "Answered from the Legal Agent's reference corpus. "
+                                "Accounting does not hold this authority and did "
+                                "not interpret it - the citation is reproduced as "
+                                "Legal returned it.",
+                        "results": borrowed, "disclaimer": DISCLAIMER}
+            # Nothing local and nothing from a sibling - try a public web search
+            # via PQA Agent before falling back to raw inference.
             web = self.search_public(f"{term} accounting tax IRS GAAP definition")
             web_result = web.get("result") if isinstance(web, dict) else None
             if web_result and not (isinstance(web_result, dict) and web_result.get("error")):

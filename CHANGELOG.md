@@ -114,3 +114,68 @@ Two fixes fell out:
   one to make one. Half a pipeline that `CLAUDE.md` documents in both
   directions. Stage 6 (funding the dealer is a separate event from the buyer's
   obligation) now reaches Accounting through it.
+
+### 2026-08-29 — A corpus every agent can reach, and a third cross-domain direction
+
+Two open items from the capability sweep, plus what they turned out to be
+symptoms of.
+
+**Accounting's corpus was unreachable — and so was everyone else's.** Its
+2,108 sections of the Securities Acts and Reg S-X/S-K had no subject index, and
+underneath that a worse fault: `accounting_agent` had no corpus loader at all.
+Its `lookup` went cache → web → model and never opened the books it owned. The
+identical bug had been found and fixed in the Legal Agent weeks earlier — *in
+the Legal Agent*, where it could not help anybody else.
+
+A fix made in one agent for a fault that lives in the base class is not a fix;
+it is a second place for the bug to hide. So the loader moved to
+`core/base_agent.py`, Legal now inherits it, and the audit that followed found
+`trust_agent` carrying the same latent omission — a `lookup` that would ignore
+any corpus dropped into `reference/trust_agent/`. Fixed before it had anything
+to ignore.
+
+The reason it survived so long is that the load was **lazy**: an agent with an
+unreachable corpus logged exactly what an agent with no corpus logged, which is
+nothing. Agents now announce their corpus at boot, and one holding sections it
+never calls `lookup_reference` on says so loudly. Legal reports 1,353
+citations / 5,190 subject terms / 4,204 authorities across 14 works; Accounting
+1,350 / 3,194 across 3; Trust honestly reports zero.
+
+Subject indexes were rebuilt for all three accounting works from the stored
+sections — no re-ingest, and written atomically so a reader never catches a
+half-written corpus.
+
+**`ask_peer_corpus` — borrowing, not copying.** Accounting owns ASC, IFRS and
+the reporting regulations. Legal owns the statutes, the CFR, the state codes.
+A figure in the books is routinely governed by an authority in Legal's corpus,
+and Accounting has no business shelving a second copy of it — two copies is two
+sources of truth and the one that drifts is always the copy.
+
+So Accounting asks Legal before it asks the open web. Verified end to end:
+`lookup "§ 1026.2"` at Accounting returns Regulation Z out of Legal's corpus,
+labelled `legal_agent corpus (cross-domain)` with a note saying Accounting
+neither holds nor interpreted it. Its own material still resolves locally.
+
+Two deliberate constraints: there is **no keyword test** for "is this a legal
+question" — guessing a subject from vocabulary is the router failure this
+architecture exists to prevent, so it simply prefers a sibling's verified corpus
+over an unverified web search every time. And it accepts **only** an answer
+whose `source` says *corpus* — never the peer's cache, web fallback or model
+output, which would launder an unverified answer across a domain boundary where
+the borrower cannot tell.
+
+**Port 8090 retired.** `start_all.sh` no longer serves the webapp with
+`http.server --bind 0.0.0.0`, `webapp/serve.sh` binds loopback, and
+`mycelial.service`'s stop pattern was cleaned up with it. nginx on 8443 already
+served the same webapp and proxied the same Anansi endpoints behind TLS 1.3 and
+basic auth — verified before removing anything.
+
+**Port 9081 could not be finished from inside the stack.** It is
+`anansi-forward.service`, a systemd unit with `Restart=always` plus a ufw rule
+opening it to the LAN, so killing the process accomplishes nothing.
+`deploy/systemd/retire_anansi_forward.sh` does it in one privileged command.
+Explicitly does not touch `docker-entrypoint.sh`, which uses 9081 *inside* the
+container and publishes it to the host as loopback-only.
+
+Also: the 13 platform services launched buffered, so their logs lagged behind
+reality — `python3 -u` now, matching how the agents were already started.

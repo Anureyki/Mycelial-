@@ -165,10 +165,12 @@ Every agent binds `127.0.0.1`. Only the proxy faces the network.
 | Port | Serves | Protection |
 |------|--------|------------|
 | **8443** | Webapp + `/execute` proxy to Anansi | TLS 1.3, basic auth, 25 MB body cap |
-| 9081 | `socat` → Anansi (legacy) | ⚠️ none — plaintext |
-| 8090 | `python3 -m http.server` serving the webapp (legacy) | ⚠️ none — plaintext |
+| ~~8090~~ | ~~`python3 -m http.server` serving the webapp~~ | ✅ retired 2026-08-29 |
+| 9081 | `socat` → Anansi (legacy) | ⚠️ none — plaintext, **awaiting one sudo command** |
 
-The nginx instance runs **unprivileged** as the same user as the agents, with every path it writes under `state/`, so it needs no sudo and does not touch a system nginx. Retiring 9081 and 8090 is all that remains of the hardening phase.
+The nginx instance runs **unprivileged** as the same user as the agents, with every path it writes under `state/`, so it needs no sudo and does not touch a system nginx.
+
+8090 is gone: `start_all.sh` no longer starts it, and `webapp/serve.sh` binds loopback instead of `0.0.0.0`. 9081 is a systemd unit (`anansi-forward.service`, `Restart=always`), so it cannot be retired without root — run `deploy/systemd/retire_anansi_forward.sh` to disable the unit and drop its ufw rule. That is the last item in the hardening phase.
 
 ---
 
