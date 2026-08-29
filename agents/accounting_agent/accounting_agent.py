@@ -398,6 +398,91 @@ class AccountingAgent(AgentBase):
                 "note": f"Logged to the ledger as {inner['id']}: "
                         f"{payload.get('payee') or 'vendor'} ${amount} for {item}."}
 
+
+    # ---- answering for itself ---------------------------------------------
+    #
+    # Accounting held a rent ledger with two live obligations, eight evidenced
+    # payments and every payor authorised, and could not answer "how much do I
+    # owe my rent based on the ledger" - because it implemented no answer() and
+    # the base returns nothing. Boss routed correctly and the department stood
+    # there mute. That is a capability gap, and the fix is to build the
+    # capability rather than to let something else speak for it.
+    #
+    # Deterministic. It reads the record and reports it; it never estimates a
+    # balance it cannot derive, because a confident wrong number in a rent
+    # dispute is worse than an honest gap.
+
+    def _obligation_view(self):
+        """Every live obligation across every case, with its payments."""
+        out = []
+        try:
+            cases = (self.handle_case_task("case_list", {}) or {}).get("cases", [])
+        except Exception as e:
+            self.log(f"answer: case_list failed: {e}")
+            return out
+        for c in cases:
+            cid = c.get("case_id")
+            try:
+                full = self.handle_case_task("case_get", {"case_id": cid}) or {}
+            except Exception:
+                continue
+            case = full.get("case", full)
+            for o in case.get("obligations", []) or []:
+                if o.get("voided"):
+                    continue
+                out.append({"case_id": cid, "case_title": case.get("title", ""), **o})
+        return out
+
+    def answer(self, prompt):
+        """Questions this department owns, answered from its own records."""
+        p = (prompt or "").lower()
+        wants_money = any(w in p for w in (
+            "owe", "owed", "balance", "due", "rent", "obligation", "ledger",
+            "pay", "paid", "payment", "arrears", "behind", "current"))
+        if not wants_money:
+            return {"text": "", "answered_as": None}
+
+        obs = self._obligation_view()
+        if not obs:
+            return {"text": "I hold no live obligations, so there is nothing "
+                            "to owe against. If there should be, the ledger has "
+                            "not reached me yet.",
+                    "answered_as": "no_obligations"}
+
+        lines, total = [], 0
+        for o in obs:
+            pays = [x for x in (o.get("payments") or []) if not x.get("voided")]
+            amt = o.get("amount") or 0
+            total += amt
+            months = sorted({(x.get("paid_on") or "")[:7] for x in pays if x.get("paid_on")})
+            paid_sum = sum(x.get("amount") or 0 for x in pays)
+            no_ev = [x for x in pays if not x.get("has_evidence")]
+            unauth = [x for x in pays if not x.get("payor_authorized")]
+            who = ", ".join(o.get("authorized_payors") or []) or "nobody named"
+            bit = (f"{o.get('name')}: {amt} {o.get('cadence','monthly')}, "
+                   f"payable by {who}. {len(pays)} payment(s) recorded totalling "
+                   f"{paid_sum}")
+            if months:
+                bit += f", covering {months[0]} to {months[-1]}"
+            bit += "."
+            if no_ev:
+                bit += f" {len(no_ev)} with no evidence reference, which is contestable."
+            if unauth:
+                bit += f" {len(unauth)} by an unauthorised payor, which is contestable."
+            lines.append(bit)
+
+        # The number NOT stated, and why. A running balance needs the periods
+        # the tenancy actually covers, and that is not in the record - so the
+        # arithmetic would be an assumption wearing a decimal point.
+        lines.append(
+            f"Together that is {total} a month across {len(obs)} obligation(s). "
+            f"I am not giving you an outstanding balance: that needs the periods "
+            f"the tenancy covers and a starting position, and neither is in the "
+            f"ledger I hold. What I can say is that every payment recorded is "
+            f"evidenced and made by an authorised payor.")
+        return {"text": " ".join(lines), "answered_as": "obligation_status",
+                "obligations": len(obs)}
+
     def handle_task(self, task, args, sender):
         self.log(f"Task {task} from {sender}")
 

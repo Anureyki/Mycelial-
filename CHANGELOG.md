@@ -391,3 +391,29 @@ Two findings that were being collapsed into one are now distinct: nobody
 claiming a request is a routing gap, a department claiming it and having nothing
 to say is a capability gap, and the person deserves to know which they hit —
 it tells them whether to rephrase or to stop asking.
+
+### 2026-08-29 — Accounting can answer for itself
+
+The honest "the capability is missing" message did its job immediately: asked
+"how much do I owe my rent based on the ledger", routing was correct and
+Accounting stood there mute. It held two live obligations, eight evidenced
+payments and every payor authorised — and implemented no `answer()`, so the
+base returned nothing.
+
+Built. Deterministic, reads the record, no model:
+
+    Rent - resident portion: 459 monthly, payable by Anthony Hanlan. 4 payments
+    recorded totalling 1898, covering 2026-06 to 2026-08. Rent - HAP voucher
+    subsidy: 791 monthly, payable by Housing Authority (HAP). 4 payments
+    totalling 3087, covering 2026-06 to 2026-08. Together that is 1250 a month
+    across 2 obligations.
+
+**And it refuses to state the number it was asked for.** An outstanding balance
+needs the periods the tenancy covers and a starting position, and neither is in
+the ledger — so the arithmetic would be an assumption wearing a decimal point.
+In a rent dispute a confident wrong number is worse than an honest gap, so it
+says which is missing and reports what it can stand behind instead: every
+payment evidenced, every payor authorised.
+
+The voided $1,450 obligation — fabricated demo data from 2026-08-28 — stays
+excluded, as does its payment.
