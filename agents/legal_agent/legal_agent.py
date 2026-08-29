@@ -152,6 +152,11 @@ class LegalAgent(AgentBase):
         "liability", "indemnif", "breach", "enforceab", "unconscionab",
         "consideration", "covenant", "lien", "easement", "tort", "negligen",
         "subpoena", "affidavit", "pleading", "motion to", "pro se", "equitable",
+        "state law", "which state", "\\bucc\\b", "article 9", "blue ?sky",
+        "regulation [tuzb]\\b", "\\breg [tuzb]\\b", "preempt", "national bank",
+        "security interest", "receivable", "chattel paper", "perfect(ed|ion)",
+        "secured party", "collateral", "assign(ment|ee|or)", "promissory note",
+        "truth in lending", "\\btila\\b", "\\becoa\\b", "securitiz",
     )
 
     def __init__(self):
@@ -170,7 +175,9 @@ class LegalAgent(AgentBase):
                 "open_matter", "map_issues", "get_matter_view",
                 "add_to_notebook", "add_to_evidence_binder", "add_to_filing_layer",
                 "review_filing_draft", "compress_matter", "check_filing_frequency",
-                "scan_for_pii", "reflect_on_matter", "map_authority"
+                "scan_for_pii", "reflect_on_matter", "map_authority",
+                "set_operating_jurisdiction", "get_operating_jurisdiction",
+                "cite_in_jurisdiction", "transaction_layers"
             ],
             role="agent"
         )
@@ -209,7 +216,7 @@ class LegalAgent(AgentBase):
             return self._dictionary
         merged = {}
         ref_dir = os.path.join(os.path.dirname(os.path.dirname(
-            os.path.dirname(os.path.abspath(__file__)))), "reference", "legal")
+            os.path.dirname(os.path.abspath(__file__)))), "reference", "legal_agent")
         for fname in self.DICTIONARY_FILES:
             path = os.path.join(ref_dir, fname)
             try:
@@ -243,7 +250,7 @@ class LegalAgent(AgentBase):
         if self._refdocs is not None:
             return self._refdocs
         ref_dir = os.path.join(os.path.dirname(os.path.dirname(
-            os.path.dirname(os.path.abspath(__file__)))), "reference", "legal")
+            os.path.dirname(os.path.abspath(__file__)))), "reference", "legal_agent")
         by_citation, by_authority, by_term, titles = {}, {}, {}, []
         try:
             names = sorted(os.listdir(ref_dir))
@@ -1068,6 +1075,215 @@ class LegalAgent(AgentBase):
             out["disclaimer"] = DISCLAIMER
         return out
 
+
+    # ---- Operating jurisdiction ------------------------------------------
+    #
+    # Every state enacted UCC Article 9 with the SAME uniform section numbers
+    # and then renumbered them into its own code, by conventions that differ:
+    # 9-203 is A.R.S. 47-9203 in Arizona, Bus. & Com. Code 9.203 in Texas,
+    # Com. Code 9203 in California and Fla. Stat. 679.2031 in Florida. So a
+    # concept learned in one state's citations does not travel. The uniform
+    # section number does, and it is what this agent reasons in.
+    #
+    # The principal moves between states. Nothing here hardcodes one.
+
+    JURISDICTION_KEY = "operating_jurisdiction"
+    UNIFORM_SECTION_RE = re.compile(r"(\d+)\s*[-.\u2010-\u2015]?\s*(\d+[A-Za-z]?)")
+
+    def _load_jurisdictions(self):
+        if getattr(self, "_jur", None) is not None:
+            return self._jur
+        path = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(
+            os.path.abspath(__file__)))), "reference", "legal_agent", "jurisdictions.json")
+        try:
+            with open(path) as fh:
+                self._jur = json.load(fh)
+        except Exception as e:
+            self.log(f"jurisdictions: could not load: {e}")
+            self._jur = {"jurisdictions": {}, "uniform_sections_worth_knowing": {}}
+        return self._jur
+
+    def _resolve_state(self, name):
+        """A postal abbreviation or a state name, however cased."""
+        if not name:
+            return None
+        key = str(name).strip()
+        table = self._load_jurisdictions().get("jurisdictions", {})
+        if key.upper() in table:
+            return key.upper()
+        for abbr, e in table.items():
+            if e.get("state", "").lower() == key.lower():
+                return abbr
+        return None
+
+    def get_operating_jurisdiction(self):
+        raw = self._get_stored_value(self.retrieve_own_memory(self.JURISDICTION_KEY))
+        try:
+            rec = json.loads(raw) if raw else {}
+        except Exception:
+            rec = {}
+        return rec if isinstance(rec, dict) else {}
+
+    def set_operating_jurisdiction(self, args):
+        """MERGE, never rebuild. set_grow_system once silently dropped every
+        field not passed; the same mistake here would erase a business state
+        because someone updated a residential one."""
+        rec = self.get_operating_jurisdiction()
+        changed = {}
+        for field in ("residential", "business", "transaction_situs", "note"):
+            val = args.get(field)
+            if val in (None, ""):
+                continue
+            if field == "note":
+                rec.setdefault("notes", []).append(str(val))
+                changed[field] = val
+                continue
+            abbr = self._resolve_state(val)
+            if not abbr:
+                return {"error": f"{val!r} is not a US state or DC I hold a "
+                                 f"jurisdiction record for",
+                        "disclaimer": DISCLAIMER}
+            rec[field] = abbr
+            changed[field] = abbr
+        if not changed:
+            return {"error": "Usage: set_operating_jurisdiction "
+                             "residential=TX business=TX transaction_situs=AZ",
+                    "disclaimer": DISCLAIMER}
+        rec["updated"] = datetime.now().isoformat()
+        self.store_own_memory(self.JURISDICTION_KEY, json.dumps(rec), pin=True)
+        return {"updated": changed, "operating_jurisdiction": rec,
+                "disclaimer": DISCLAIMER}
+
+    def cite_in_jurisdiction(self, section, state=None, role="transaction_situs"):
+        """Uniform section -> the citation the operating state actually uses.
+
+        An unverified entry is returned as a CANDIDATE and says so. A wrong
+        citation presented as authority is worse than none, because the
+        reasoning layer trusts it."""
+        doc = self._load_jurisdictions()
+        table = doc.get("jurisdictions", {})
+        m = self.UNIFORM_SECTION_RE.search(str(section or ""))
+        if not m:
+            return {"error": f"{section!r} is not a uniform section number "
+                             f"(expected a shape like 9-203)",
+                    "disclaimer": DISCLAIMER}
+        uniform = f"{m.group(1)}-{m.group(2)}"
+
+        abbr = self._resolve_state(state) if state else None
+        rec = self.get_operating_jurisdiction()
+        if not abbr:
+            abbr = rec.get(role) or rec.get("business") or rec.get("residential")
+        if not abbr:
+            return {"uniform_section": uniform,
+                    "unresolved": "No operating jurisdiction is on record and "
+                                  "none was named. Set one with "
+                                  "set_operating_jurisdiction, or pass state=.",
+                    "disclaimer": DISCLAIMER}
+
+        e = table.get(abbr, {})
+        out = {"uniform_section": uniform, "state": e.get("state", abbr),
+               "abbr": abbr, "commercial_code": e.get("commercial_code"),
+               "subject": doc.get("uniform_sections_worth_knowing", {}).get(uniform),
+               "resolved_from": "argument" if state else f"operating record ({role})"}
+
+        # Renumbering is per-section, not per-state: Florida's 9-203 is
+        # 679.2031, so the verified exemplar is only a citation when the
+        # section asked for IS the one verified.
+        verified_for = "9-203"
+        if e.get("cite_9_203") and uniform == verified_for:
+            out["citation"] = e["cite_9_203"]
+            out["standing"] = e.get("standing", {})
+        elif e.get("cite_9_203"):
+            out["candidate"] = self._project_cite(e["cite_9_203"], verified_for, uniform)
+            out["standing"] = {"verified": False,
+                               "basis": f"projected from the verified {abbr} "
+                                        f"citation for {verified_for} "
+                                        f"({e['cite_9_203']}) - the renumbering "
+                                        f"convention is confirmed, this "
+                                        f"section is not"}
+        else:
+            out["candidate"] = self._project_cite(e.get("candidate_9_203", ""),
+                                                 verified_for, uniform)
+            out["standing"] = {"verified": False,
+                               "basis": f"pattern only - no {abbr} citation has "
+                                        f"been confirmed against the state's "
+                                        f"published text"}
+        if e.get("note"):
+            out["convention"] = e["note"]
+        out["disclaimer"] = DISCLAIMER
+        return out
+
+    @staticmethod
+    def _project_cite(exemplar, from_uniform, to_uniform):
+        """Carry a known citation's renumbering across to another section.
+
+        Florida is the reason this is separated out and labelled unverified:
+        679.2031 for 9-203 does not imply 679.3221 for 9-322."""
+        if not exemplar:
+            return None
+        fa, fs = from_uniform.split("-")
+        ta, ts = to_uniform.split("-")
+        # Longest first, so "9203" is tried before "203".
+        for probe in sorted({f"{fa}-{fs}", f"{fa}.{fs}", f"{fa}{fs}", fs},
+                            key=len, reverse=True):
+            if probe in exemplar:
+                repl = {f"{fa}-{fs}": f"{ta}-{ts}", f"{fa}.{fs}": f"{ta}.{ts}",
+                        f"{fa}{fs}": f"{ta}{ts}", fs: ts}[probe]
+                return exemplar.replace(probe, repl, 1)
+        return None
+
+    def transaction_layers(self, stage=None, state=None):
+        """Which body of law attaches at which stage of a financed transaction.
+
+        The federal layer is uniform everywhere and sits in this agent's own
+        corpus. The state layer is resolved to whatever jurisdiction is
+        actually operating."""
+        path = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(
+            os.path.abspath(__file__)))), "reference", "legal_agent",
+            "transaction_layers.json")
+        try:
+            with open(path) as fh:
+                doc = json.load(fh)
+        except Exception as e:
+            return {"error": f"transaction_layers not available: {e}",
+                    "disclaimer": DISCLAIMER}
+        rec = self.get_operating_jurisdiction()
+        abbr = self._resolve_state(state) if state else (
+            rec.get("transaction_situs") or rec.get("business") or rec.get("residential"))
+        table = self._load_jurisdictions().get("jurisdictions", {})
+        stages = doc["stages"]
+        if stage is not None:
+            try:
+                n = int(stage)
+            except (TypeError, ValueError):
+                n = None
+            stages = [s for s in stages if s["stage"] == n] or stages
+
+        resolved = []
+        for s in stages:
+            s = dict(s)
+            if abbr:
+                s["state_layer"] = [
+                    re.sub(r"[Uu]niform (\d+-\d+[A-Za-z]?)",
+                           lambda m: (self.cite_in_jurisdiction(m.group(1), abbr)
+                                      .get("citation")
+                                      or self.cite_in_jurisdiction(m.group(1), abbr)
+                                      .get("candidate")
+                                      or m.group(0)) + f" [uniform {m.group(1)}]",
+                           line)
+                    for line in s.get("state_layer", [])
+                ]
+            resolved.append(s)
+        return {"operating_state": (table.get(abbr, {}).get("state") if abbr
+                                    else "not on record - set_operating_jurisdiction"),
+                "state_citations_verified": bool(
+                    table.get(abbr, {}).get("standing", {}).get("verified")),
+                "standing": doc.get("standing"),
+                "source": doc.get("source"),
+                "how_to_use": doc.get("how_to_use"),
+                "evaluation": doc.get("evaluation"),
+                "stages": resolved, "disclaimer": DISCLAIMER}
+
     def handle_task(self, task, args, sender):
         self.log(f"Task {task} from {sender}")
 
@@ -1080,6 +1296,37 @@ class LegalAgent(AgentBase):
             if not cid:
                 return {"error": "assess_case_elements needs a case_id", "disclaimer": DISCLAIMER}
             return self.assess_case_elements(cid)
+
+        if task == "set_operating_jurisdiction":
+            payload = args if isinstance(args, dict) else {}
+            if not payload and isinstance(args, list) and args:
+                payload = {"residential": args[0]}
+            return self.set_operating_jurisdiction(payload)
+
+        if task == "get_operating_jurisdiction":
+            rec = self.get_operating_jurisdiction()
+            if not rec:
+                return {"operating_jurisdiction": None,
+                        "note": "Nothing on record. This agent will not assume "
+                                "a state - set one with set_operating_jurisdiction.",
+                        "disclaimer": DISCLAIMER}
+            return {"operating_jurisdiction": rec, "disclaimer": DISCLAIMER}
+
+        if task == "cite_in_jurisdiction":
+            a = args if isinstance(args, dict) else {}
+            if not a and isinstance(args, list) and args:
+                a = {"section": args[0], "state": args[1] if len(args) > 1 else None}
+            if not a.get("section"):
+                return {"error": "Usage: cite_in_jurisdiction section=9-203 [state=TX]",
+                        "disclaimer": DISCLAIMER}
+            return self.cite_in_jurisdiction(a.get("section"), a.get("state"),
+                                             a.get("role", "transaction_situs"))
+
+        if task == "transaction_layers":
+            a = args if isinstance(args, dict) else {}
+            if not a and isinstance(args, list) and args:
+                a = {"stage": args[0]}
+            return self.transaction_layers(a.get("stage"), a.get("state"))
 
         if task == "lookup":
             if not args or not args[0]:
@@ -1094,15 +1341,15 @@ class LegalAgent(AgentBase):
             # before it is reduced to a one-word gloss.
             defined = self.lookup_term(term, loose=False)
             if defined:
-                return {"term": term, "source": "reference/legal dictionary",
+                return {"term": term, "source": "reference/legal_agent dictionary",
                         "definition": defined, "disclaimer": DISCLAIMER}
             passages = self.lookup_reference(term)
             if passages:
-                return {"term": term, "source": "reference/legal corpus",
+                return {"term": term, "source": "reference/legal_agent corpus",
                         "results": passages, "disclaimer": DISCLAIMER}
             loose_def = self.lookup_term(term, loose=True)
             if loose_def:
-                return {"term": term, "source": "reference/legal dictionary (nearest headword)",
+                return {"term": term, "source": "reference/legal_agent dictionary (nearest headword)",
                         "definition": loose_def, "disclaimer": DISCLAIMER}
             hits = self.query_cache(term, top_k=3)
             if hits:

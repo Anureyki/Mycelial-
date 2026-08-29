@@ -1,0 +1,156 @@
+{
+ "title": "Transaction layer framework - which body of law attaches at which stage",
+ "source": "AUTHORED for MycOS Legal Agent 2026-08-29, adapted from an AI-generated Instagram carousel ('Arizona Transaction to National Bank', 12 slides, account joshua.aaron369719, self-labelled 'AI content'). The STAGE STRUCTURE is taken from that series. The 'applies' and 'caution' fields are this system's own evaluation and are not in the original. Not authority - a checklist for locating authority.",
+ "standing": "commentary - analytical framework, evaluated",
+ "how_to_use": "Walk the stages in order for a financed transaction. The federal layer is uniform in every state and is in reference/legal_agent/. The state layer must be resolved to the jurisdiction actually operating - see jurisdictions.json. Stages 8-11 are conditional and most retail transactions never reach them.",
+ "evaluation": [
+  "Stages 1-7 describe an ordinary financed retail transaction accurately.",
+  "Stages 8-12 are each written conditionally ('may', 'if'), which is correct. But numbering them 1..12 in one sequence invites reading them as a pipeline every transaction traverses. Most do not: Reg T, Reg U and the '33/'34 Acts are not triggered by an ordinary auto or consumer receivable.",
+  "Citations spot-checked and accurate: 12 CFR 1002 = Reg B, 1026 = Reg Z, 220 = Reg T, 221 = Reg U, 12 U.S.C. 25b = the Dodd-Frank preemption standard codifying Barnett Bank.",
+  "The series' state layer is Arizona throughout. Arizona citations do not transfer to any other state - the uniform section numbers do."
+ ],
+ "stages": [
+  {
+   "stage": 1,
+   "name": "Transaction created",
+   "key_inquiry": "What was created on day one, who were the parties, and what terms and rights arose?",
+   "federal_layer": [],
+   "state_layer": [
+    "State contract law",
+    "UCC Art. 1 (general), 2/2A (sale or lease), 9 (security interest)",
+    "State retail installment sales act, if a dealer-financed sale"
+   ],
+   "applies": "always"
+  },
+  {
+   "stage": 2,
+   "name": "Credit application and origination",
+   "key_inquiry": "Who originated the credit, who reviewed the application, and what terms were created?",
+   "federal_layer": [
+    "ECOA / Regulation B - 15 U.S.C. 1691 et seq.; 12 CFR Part 1002",
+    "TILA / Regulation Z - 15 U.S.C. 1601 et seq.; 12 CFR Part 1026 (consumer credit only)"
+   ],
+   "state_layer": [
+    "State credit-application and licensing law"
+   ],
+   "applies": "usually - Reg Z reaches consumer credit; Reg B reaches any applicant for credit"
+  },
+  {
+   "stage": 3,
+   "name": "Receivable created and classified",
+   "key_inquiry": "What payment right was created, how is it classified, and who initially held it?",
+   "federal_layer": [],
+   "state_layer": [
+    "Uniform 9-102 - account / chattel paper / payment intangible / instrument"
+   ],
+   "applies": "always",
+   "caution": "Classification drives everything downstream: perfection method, priority rule and transfer rules all differ by collateral type."
+  },
+  {
+   "stage": 4,
+   "name": "Security interest attaches",
+   "key_inquiry": "What collateral was identified, and what made the interest attach?",
+   "federal_layer": [],
+   "state_layer": [
+    "Uniform 9-203 - value given, debtor rights in collateral, authenticated security agreement"
+   ],
+   "applies": "always",
+   "caution": "Attachment is not perfection, not assignment, and not enforcement. Keep the four separate."
+  },
+  {
+   "stage": 5,
+   "name": "Assignment or sale of the receivable",
+   "key_inquiry": "Who transferred it, to whom, and what rights actually moved?",
+   "federal_layer": [],
+   "state_layer": [
+    "Uniform 9-109(a)(3) (sales of accounts/chattel paper are within Art. 9)",
+    "9-318, 9-322 (priority), 9-330 (purchaser of chattel paper), 9-406 (account assignment)"
+   ],
+   "applies": "always",
+   "caution": "Ownership, servicing, collection rights and collateral rights can move separately. Ask which of them actually moved."
+  },
+  {
+   "stage": 6,
+   "name": "Dealer funded or settled",
+   "key_inquiry": "Who paid or credited the dealer, from what source, and what did the acquiring creditor receive in exchange?",
+   "federal_layer": [],
+   "state_layer": [],
+   "applies": "always - and this is an ACCOUNTING event",
+   "caution": "Funding the dealer is a distinct event from the buyer's repayment obligation. Transaction ledgers and assignment records evidence it; labels do not. This is also the exact point where 'the bank created the money from your signature' arguments enter. The inquiry is legitimate; that conclusion does not follow from it."
+  },
+  {
+   "stage": 7,
+   "name": "State lender or servicer law continues",
+   "key_inquiry": "Which state lending or banking rules still govern, and who is carrying the account now?",
+   "federal_layer": [],
+   "state_layer": [
+    "State licensing, consumer lending, motor vehicle finance, servicing and fraud law"
+   ],
+   "applies": "if the holder is a state-regulated lender, finance company or servicer",
+   "caution": "Preempted for a national bank or its operating subsidiary - see stage 12."
+  },
+  {
+   "stage": 8,
+   "name": "State blue-sky law",
+   "key_inquiry": "Is anything here actually a security under state law?",
+   "federal_layer": [],
+   "state_layer": [
+    "State securities act (see jurisdictions.json)"
+   ],
+   "applies": "ONLY if the receivable enters securities activity",
+   "caution": "A receivable being sold or assigned is not by itself securities activity."
+  },
+  {
+   "stage": 9,
+   "name": "Regulation T",
+   "key_inquiry": "Is a broker-dealer extending credit to finance or carry securities?",
+   "federal_layer": [
+    "12 CFR Part 220, esp. 220.6 (good faith account)"
+   ],
+   "state_layer": [],
+   "applies": "ONLY to credit extended BY a broker-dealer on securities",
+   "caution": "Not triggered by an ordinary retail installment receivable being assigned to a bank. Reg T governs margin credit at a broker-dealer."
+  },
+  {
+   "stage": 10,
+   "name": "Regulation U",
+   "key_inquiry": "Is a covered lender extending purpose credit secured by margin stock?",
+   "federal_layer": [
+    "12 CFR Part 221, esp. 221.125 (credit to finance a purchase)"
+   ],
+   "state_layer": [],
+   "applies": "ONLY if the credit is purpose credit AND secured directly or indirectly by margin stock",
+   "caution": "Both conditions must hold. An auto or consumer receivable secured by a vehicle is neither."
+  },
+  {
+   "stage": 11,
+   "name": "Securitization and federal securities law",
+   "key_inquiry": "Was a pool assembled and were interests in it offered or sold?",
+   "federal_layer": [
+    "Securities Act of 1933 (registration / exemption)",
+    "Securities Exchange Act of 1934 (reporting, antifraud)",
+    "17 CFR Parts 200-239 - Reg S-X / Reg S-K"
+   ],
+   "state_layer": [],
+   "applies": "ONLY if a pool was securitized and interests were offered",
+   "caution": "Securitization operates on the POOL and the certificates issued against it. It does not convert the individual obligor's contract into a security, and it does not by itself extinguish the obligation or the holder's right to enforce it."
+  },
+  {
+   "stage": 12,
+   "name": "National bank and OCC preemption",
+   "key_inquiry": "Is the holder a national bank, and does federal law displace the state rule?",
+   "federal_layer": [
+    "National Bank Act - 12 U.S.C. 21 et seq.",
+    "12 U.S.C. 25b - Dodd-Frank preemption standard",
+    "12 CFR Part 7 - OCC activities and operations",
+    "12 CFR Part 34 - OCC real estate lending",
+    "Barnett Bank v. Nelson, 517 U.S. 25 (1996) - 'prevent or significantly interfere' standard"
+   ],
+   "state_layer": [
+    "Whatever state rule is asserted - preemption is decided rule by rule"
+   ],
+   "applies": "if a national bank or its operating subsidiary holds or services the account",
+   "caution": "25b narrowed preemption after Dodd-Frank: it is case-by-case against the Barnett standard, not categorical. Do not assume a national bank holder displaces all state law."
+  }
+ ]
+}

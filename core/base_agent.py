@@ -333,6 +333,15 @@ class AgentBase:
                     # Catching every "case_*" swallowed them into "unknown case
                     # task" and the domain frames were unreachable.
                     result = self.handle_case_task(task, args if isinstance(args, dict) else {})
+                elif task == "refer_finding":
+                    # The outbound half. receive_finding was dispatched here
+                    # and this was not, so an agent could accept a referral but
+                    # nothing could ask one to make one - half a pipeline that
+                    # CLAUDE.md documents as inherited in both directions.
+                    a = args if isinstance(args, dict) else {}
+                    result = self.refer_finding(a.get("to_agent"), a.get("kind"),
+                                                a.get("payload") or {},
+                                                a.get("why", ""))
                 elif task == "receive_finding":
                     result = self.receive_finding(
                         (args or {}).get("kind"), (args or {}).get("payload") or {},

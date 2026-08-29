@@ -1,0 +1,546 @@
+{
+ "title": "State jurisdiction locator - UCC Article 9 and blue-sky citations",
+ "source": "Authored for MycOS Legal Agent 2026-08-29. Four entries verified against the states' own published text; the rest carry unverified candidates, labelled as such.",
+ "why": "Every state enacted UCC Article 9 with the SAME uniform section numbers but renumbered them into its own code, and the renumbering conventions differ. A concept learned in one state's citations does not travel; the uniform section number does.",
+ "uniform_sections_worth_knowing": {
+  "9-102": "definitions - account, chattel paper, payment intangible, instrument",
+  "9-104": "control of a deposit account",
+  "9-105": "control of electronic chattel paper",
+  "9-106": "control of investment property",
+  "9-203": "attachment and enforceability",
+  "9-308": "perfection, generally",
+  "9-310": "when a financing statement is required",
+  "9-312": "perfection by filing / possession / control, by collateral type",
+  "9-322": "first-to-file-or-perfect priority (the ordinary rule)",
+  "9-327": "priority of control over a deposit account",
+  "9-328": "priority of control over investment property",
+  "9-330": "purchaser of chattel paper or an instrument",
+  "9-406": "assignment of an account; ineffective anti-assignment terms",
+  "9-607": "collection and enforcement by a secured party"
+ },
+ "verified_count": 4,
+ "jurisdictions": {
+  "AZ": {
+   "state": "Arizona",
+   "abbr": "AZ",
+   "commercial_code": "Arizona Revised Statutes Title 47 (UCC)",
+   "cite_9_203": "A.R.S. \u00a7 47-9203",
+   "standing": {
+    "verified": true,
+    "date": "2026-08-29",
+    "source": "azleg.gov ARS 47-9203"
+   },
+   "securities_act": "A.R.S. Title 44, ch. 12 (Arizona Securities Act)",
+   "note": "Article number is fused to the uniform section: 9-203 -> 47-9203."
+  },
+  "TX": {
+   "state": "Texas",
+   "abbr": "TX",
+   "commercial_code": "Tex. Bus. & Com. Code Title 1 (UCC)",
+   "cite_9_203": "Tex. Bus. & Com. Code \u00a7 9.203",
+   "standing": {
+    "verified": true,
+    "date": "2026-08-29",
+    "source": "statutes.capitol.texas.gov / Justia BC ch. 9"
+   },
+   "securities_act": "Tex. Gov't Code ch. 4001 (Texas Securities Act, recodified 2019 from Art. 581)",
+   "note": "Hyphen becomes a period: 9-203 -> 9.203."
+  },
+  "CA": {
+   "state": "California",
+   "abbr": "CA",
+   "commercial_code": "Cal. Commercial Code Division 9",
+   "cite_9_203": "Cal. Com. Code \u00a7 9203",
+   "standing": {
+    "verified": true,
+    "date": "2026-08-29",
+    "source": "california.public.law ca_com_code_section_9203"
+   },
+   "securities_act": "Cal. Corp. Code \u00a7 25000 et seq. (Corporate Securities Law of 1968)",
+   "note": "Separator dropped: 9-203 -> 9203."
+  },
+  "FL": {
+   "state": "Florida",
+   "abbr": "FL",
+   "commercial_code": "Fla. Stat. ch. 679 (UCC Art. 9)",
+   "cite_9_203": "Fla. Stat. \u00a7 679.2031",
+   "standing": {
+    "verified": true,
+    "date": "2026-08-29",
+    "source": "leg.state.fl.us ch. 679"
+   },
+   "securities_act": "Fla. Stat. ch. 517 (Florida Securities and Investor Protection Act)",
+   "note": "Article renumbered to ch. 679 AND a digit appended: 9-203 -> 679.2031. Naive templating gives 679.203, which is wrong - this is the reason unverified entries are labelled candidates."
+  },
+  "AL": {
+   "state": "Alabama",
+   "abbr": "AL",
+   "commercial_code": "Ala. Code Title 7 (UCC)",
+   "candidate_9_203": "Ala. Code \u00a7 7-9A-203",
+   "standing": {
+    "verified": false,
+    "how_to_confirm": "resolve_jurisdiction_cite runs a live lookup and rewrites this entry as verified"
+   }
+  },
+  "AK": {
+   "state": "Alaska",
+   "abbr": "AK",
+   "commercial_code": "Alaska Stat. Title 45 ch. 29",
+   "candidate_9_203": "AS \u00a7 45.29.203",
+   "standing": {
+    "verified": false,
+    "how_to_confirm": "resolve_jurisdiction_cite runs a live lookup and rewrites this entry as verified"
+   }
+  },
+  "AR": {
+   "state": "Arkansas",
+   "abbr": "AR",
+   "commercial_code": "Ark. Code Title 4 (UCC)",
+   "candidate_9_203": "Ark. Code \u00a7 4-9-203",
+   "standing": {
+    "verified": false,
+    "how_to_confirm": "resolve_jurisdiction_cite runs a live lookup and rewrites this entry as verified"
+   }
+  },
+  "CO": {
+   "state": "Colorado",
+   "abbr": "CO",
+   "commercial_code": "C.R.S. Title 4 (UCC)",
+   "candidate_9_203": "C.R.S. \u00a7 4-9-203",
+   "standing": {
+    "verified": false,
+    "how_to_confirm": "resolve_jurisdiction_cite runs a live lookup and rewrites this entry as verified"
+   }
+  },
+  "CT": {
+   "state": "Connecticut",
+   "abbr": "CT",
+   "commercial_code": "Conn. Gen. Stat. Title 42a (UCC)",
+   "candidate_9_203": "Conn. Gen. Stat. \u00a7 42a-9-203",
+   "standing": {
+    "verified": false,
+    "how_to_confirm": "resolve_jurisdiction_cite runs a live lookup and rewrites this entry as verified"
+   }
+  },
+  "DE": {
+   "state": "Delaware",
+   "abbr": "DE",
+   "commercial_code": "6 Del. C. (Commerce and Trade)",
+   "candidate_9_203": "6 Del. C. \u00a7 9-203",
+   "standing": {
+    "verified": false,
+    "how_to_confirm": "resolve_jurisdiction_cite runs a live lookup and rewrites this entry as verified"
+   }
+  },
+  "DC": {
+   "state": "District of Columbia",
+   "abbr": "DC",
+   "commercial_code": "D.C. Code Title 28 (UCC)",
+   "candidate_9_203": "D.C. Code \u00a7 28:9-203",
+   "standing": {
+    "verified": false,
+    "how_to_confirm": "resolve_jurisdiction_cite runs a live lookup and rewrites this entry as verified"
+   }
+  },
+  "GA": {
+   "state": "Georgia",
+   "abbr": "GA",
+   "commercial_code": "O.C.G.A. Title 11 (UCC)",
+   "candidate_9_203": "O.C.G.A. \u00a7 11-9-203",
+   "standing": {
+    "verified": false,
+    "how_to_confirm": "resolve_jurisdiction_cite runs a live lookup and rewrites this entry as verified"
+   }
+  },
+  "HI": {
+   "state": "Hawaii",
+   "abbr": "HI",
+   "commercial_code": "HRS Title 27 ch. 490 (UCC)",
+   "candidate_9_203": "HRS \u00a7 490:9-203",
+   "standing": {
+    "verified": false,
+    "how_to_confirm": "resolve_jurisdiction_cite runs a live lookup and rewrites this entry as verified"
+   }
+  },
+  "ID": {
+   "state": "Idaho",
+   "abbr": "ID",
+   "commercial_code": "Idaho Code Title 28 (UCC)",
+   "candidate_9_203": "Idaho Code \u00a7 28-9-203",
+   "standing": {
+    "verified": false,
+    "how_to_confirm": "resolve_jurisdiction_cite runs a live lookup and rewrites this entry as verified"
+   }
+  },
+  "IL": {
+   "state": "Illinois",
+   "abbr": "IL",
+   "commercial_code": "810 ILCS 5 (UCC)",
+   "candidate_9_203": "810 ILCS 5/9-203",
+   "standing": {
+    "verified": false,
+    "how_to_confirm": "resolve_jurisdiction_cite runs a live lookup and rewrites this entry as verified"
+   }
+  },
+  "IN": {
+   "state": "Indiana",
+   "abbr": "IN",
+   "commercial_code": "Ind. Code Title 26 (UCC)",
+   "candidate_9_203": "Ind. Code \u00a7 26-1-9.1-203",
+   "standing": {
+    "verified": false,
+    "how_to_confirm": "resolve_jurisdiction_cite runs a live lookup and rewrites this entry as verified"
+   }
+  },
+  "IA": {
+   "state": "Iowa",
+   "abbr": "IA",
+   "commercial_code": "Iowa Code ch. 554 (UCC)",
+   "candidate_9_203": "Iowa Code \u00a7 554.9203",
+   "standing": {
+    "verified": false,
+    "how_to_confirm": "resolve_jurisdiction_cite runs a live lookup and rewrites this entry as verified"
+   }
+  },
+  "KS": {
+   "state": "Kansas",
+   "abbr": "KS",
+   "commercial_code": "K.S.A. ch. 84 (UCC)",
+   "candidate_9_203": "K.S.A. \u00a7 84-9-203",
+   "standing": {
+    "verified": false,
+    "how_to_confirm": "resolve_jurisdiction_cite runs a live lookup and rewrites this entry as verified"
+   }
+  },
+  "KY": {
+   "state": "Kentucky",
+   "abbr": "KY",
+   "commercial_code": "KRS ch. 355 (UCC)",
+   "candidate_9_203": "KRS \u00a7 355.9-203",
+   "standing": {
+    "verified": false,
+    "how_to_confirm": "resolve_jurisdiction_cite runs a live lookup and rewrites this entry as verified"
+   }
+  },
+  "LA": {
+   "state": "Louisiana",
+   "abbr": "LA",
+   "commercial_code": "La. R.S. Title 10 (UCC; no Art. 2)",
+   "candidate_9_203": "La. R.S. \u00a7 10:9-203",
+   "standing": {
+    "verified": false,
+    "how_to_confirm": "resolve_jurisdiction_cite runs a live lookup and rewrites this entry as verified"
+   }
+  },
+  "ME": {
+   "state": "Maine",
+   "abbr": "ME",
+   "commercial_code": "11 M.R.S. (UCC)",
+   "candidate_9_203": "11 M.R.S. \u00a7 9-1203",
+   "standing": {
+    "verified": false,
+    "how_to_confirm": "resolve_jurisdiction_cite runs a live lookup and rewrites this entry as verified"
+   }
+  },
+  "MD": {
+   "state": "Maryland",
+   "abbr": "MD",
+   "commercial_code": "Md. Code, Commercial Law",
+   "candidate_9_203": "Md. Code, Com. Law \u00a7 9-203",
+   "standing": {
+    "verified": false,
+    "how_to_confirm": "resolve_jurisdiction_cite runs a live lookup and rewrites this entry as verified"
+   }
+  },
+  "MA": {
+   "state": "Massachusetts",
+   "abbr": "MA",
+   "commercial_code": "Mass. Gen. Laws ch. 106 (UCC)",
+   "candidate_9_203": "Mass. Gen. Laws ch. 106, \u00a7 9-203",
+   "standing": {
+    "verified": false,
+    "how_to_confirm": "resolve_jurisdiction_cite runs a live lookup and rewrites this entry as verified"
+   }
+  },
+  "MI": {
+   "state": "Michigan",
+   "abbr": "MI",
+   "commercial_code": "MCL ch. 440 (UCC)",
+   "candidate_9_203": "MCL \u00a7 440.9203",
+   "standing": {
+    "verified": false,
+    "how_to_confirm": "resolve_jurisdiction_cite runs a live lookup and rewrites this entry as verified"
+   }
+  },
+  "MN": {
+   "state": "Minnesota",
+   "abbr": "MN",
+   "commercial_code": "Minn. Stat. ch. 336 (UCC)",
+   "candidate_9_203": "Minn. Stat. \u00a7 336.9-203",
+   "standing": {
+    "verified": false,
+    "how_to_confirm": "resolve_jurisdiction_cite runs a live lookup and rewrites this entry as verified"
+   }
+  },
+  "MS": {
+   "state": "Mississippi",
+   "abbr": "MS",
+   "commercial_code": "Miss. Code Title 75 (UCC)",
+   "candidate_9_203": "Miss. Code \u00a7 75-9-203",
+   "standing": {
+    "verified": false,
+    "how_to_confirm": "resolve_jurisdiction_cite runs a live lookup and rewrites this entry as verified"
+   }
+  },
+  "MO": {
+   "state": "Missouri",
+   "abbr": "MO",
+   "commercial_code": "Mo. Rev. Stat. ch. 400 (UCC)",
+   "candidate_9_203": "Mo. Rev. Stat. \u00a7 400.9-203",
+   "standing": {
+    "verified": false,
+    "how_to_confirm": "resolve_jurisdiction_cite runs a live lookup and rewrites this entry as verified"
+   }
+  },
+  "MT": {
+   "state": "Montana",
+   "abbr": "MT",
+   "commercial_code": "Mont. Code Title 30 (UCC)",
+   "candidate_9_203": "Mont. Code \u00a7 30-9A-203",
+   "standing": {
+    "verified": false,
+    "how_to_confirm": "resolve_jurisdiction_cite runs a live lookup and rewrites this entry as verified"
+   }
+  },
+  "NE": {
+   "state": "Nebraska",
+   "abbr": "NE",
+   "commercial_code": "Neb. Rev. Stat. U.C.C.",
+   "candidate_9_203": "Neb. Rev. Stat. U.C.C. \u00a7 9-203",
+   "standing": {
+    "verified": false,
+    "how_to_confirm": "resolve_jurisdiction_cite runs a live lookup and rewrites this entry as verified"
+   }
+  },
+  "NV": {
+   "state": "Nevada",
+   "abbr": "NV",
+   "commercial_code": "NRS ch. 104/104A (UCC)",
+   "candidate_9_203": "NRS \u00a7 104.9203",
+   "standing": {
+    "verified": false,
+    "how_to_confirm": "resolve_jurisdiction_cite runs a live lookup and rewrites this entry as verified"
+   }
+  },
+  "NH": {
+   "state": "New Hampshire",
+   "abbr": "NH",
+   "commercial_code": "RSA ch. 382-A (UCC)",
+   "candidate_9_203": "RSA \u00a7 382-A:9-203",
+   "standing": {
+    "verified": false,
+    "how_to_confirm": "resolve_jurisdiction_cite runs a live lookup and rewrites this entry as verified"
+   }
+  },
+  "NJ": {
+   "state": "New Jersey",
+   "abbr": "NJ",
+   "commercial_code": "N.J.S.A. Title 12A (UCC)",
+   "candidate_9_203": "N.J.S.A. \u00a7 12A:9-203",
+   "standing": {
+    "verified": false,
+    "how_to_confirm": "resolve_jurisdiction_cite runs a live lookup and rewrites this entry as verified"
+   }
+  },
+  "NM": {
+   "state": "New Mexico",
+   "abbr": "NM",
+   "commercial_code": "N.M. Stat. ch. 55 (UCC)",
+   "candidate_9_203": "N.M. Stat. \u00a7 55-9-203",
+   "standing": {
+    "verified": false,
+    "how_to_confirm": "resolve_jurisdiction_cite runs a live lookup and rewrites this entry as verified"
+   }
+  },
+  "NY": {
+   "state": "New York",
+   "abbr": "NY",
+   "commercial_code": "N.Y. Uniform Commercial Code",
+   "candidate_9_203": "N.Y. U.C.C. \u00a7 9-203",
+   "standing": {
+    "verified": false,
+    "how_to_confirm": "resolve_jurisdiction_cite runs a live lookup and rewrites this entry as verified"
+   }
+  },
+  "NC": {
+   "state": "North Carolina",
+   "abbr": "NC",
+   "commercial_code": "N.C.G.S. ch. 25 (UCC)",
+   "candidate_9_203": "N.C.G.S. \u00a7 25-9-203",
+   "standing": {
+    "verified": false,
+    "how_to_confirm": "resolve_jurisdiction_cite runs a live lookup and rewrites this entry as verified"
+   }
+  },
+  "ND": {
+   "state": "North Dakota",
+   "abbr": "ND",
+   "commercial_code": "N.D.C.C. Title 41 (UCC)",
+   "candidate_9_203": "N.D.C.C. \u00a7 41-09-203",
+   "standing": {
+    "verified": false,
+    "how_to_confirm": "resolve_jurisdiction_cite runs a live lookup and rewrites this entry as verified"
+   }
+  },
+  "OH": {
+   "state": "Ohio",
+   "abbr": "OH",
+   "commercial_code": "Ohio Rev. Code ch. 1309 (UCC Art. 9)",
+   "candidate_9_203": "Ohio Rev. Code \u00a7 1309.203",
+   "standing": {
+    "verified": false,
+    "how_to_confirm": "resolve_jurisdiction_cite runs a live lookup and rewrites this entry as verified"
+   }
+  },
+  "OK": {
+   "state": "Oklahoma",
+   "abbr": "OK",
+   "commercial_code": "12A Okla. Stat. (UCC)",
+   "candidate_9_203": "12A Okla. Stat. \u00a7 1-9-203",
+   "standing": {
+    "verified": false,
+    "how_to_confirm": "resolve_jurisdiction_cite runs a live lookup and rewrites this entry as verified"
+   }
+  },
+  "OR": {
+   "state": "Oregon",
+   "abbr": "OR",
+   "commercial_code": "ORS ch. 79 (UCC Art. 9)",
+   "candidate_9_203": "ORS \u00a7 79.0203",
+   "standing": {
+    "verified": false,
+    "how_to_confirm": "resolve_jurisdiction_cite runs a live lookup and rewrites this entry as verified"
+   }
+  },
+  "PA": {
+   "state": "Pennsylvania",
+   "abbr": "PA",
+   "commercial_code": "13 Pa.C.S. (UCC)",
+   "candidate_9_203": "13 Pa.C.S. \u00a7 9203",
+   "standing": {
+    "verified": false,
+    "how_to_confirm": "resolve_jurisdiction_cite runs a live lookup and rewrites this entry as verified"
+   }
+  },
+  "RI": {
+   "state": "Rhode Island",
+   "abbr": "RI",
+   "commercial_code": "R.I. Gen. Laws Title 6A (UCC)",
+   "candidate_9_203": "R.I. Gen. Laws \u00a7 6A-9-203",
+   "standing": {
+    "verified": false,
+    "how_to_confirm": "resolve_jurisdiction_cite runs a live lookup and rewrites this entry as verified"
+   }
+  },
+  "SC": {
+   "state": "South Carolina",
+   "abbr": "SC",
+   "commercial_code": "S.C. Code Title 36 (UCC)",
+   "candidate_9_203": "S.C. Code \u00a7 36-9-203",
+   "standing": {
+    "verified": false,
+    "how_to_confirm": "resolve_jurisdiction_cite runs a live lookup and rewrites this entry as verified"
+   }
+  },
+  "SD": {
+   "state": "South Dakota",
+   "abbr": "SD",
+   "commercial_code": "SDCL Title 57A (UCC)",
+   "candidate_9_203": "SDCL \u00a7 57A-9-203",
+   "standing": {
+    "verified": false,
+    "how_to_confirm": "resolve_jurisdiction_cite runs a live lookup and rewrites this entry as verified"
+   }
+  },
+  "TN": {
+   "state": "Tennessee",
+   "abbr": "TN",
+   "commercial_code": "Tenn. Code Title 47 (UCC)",
+   "candidate_9_203": "Tenn. Code \u00a7 47-9-203",
+   "standing": {
+    "verified": false,
+    "how_to_confirm": "resolve_jurisdiction_cite runs a live lookup and rewrites this entry as verified"
+   }
+  },
+  "UT": {
+   "state": "Utah",
+   "abbr": "UT",
+   "commercial_code": "Utah Code Title 70A (UCC)",
+   "candidate_9_203": "Utah Code \u00a7 70A-9a-203",
+   "standing": {
+    "verified": false,
+    "how_to_confirm": "resolve_jurisdiction_cite runs a live lookup and rewrites this entry as verified"
+   }
+  },
+  "VT": {
+   "state": "Vermont",
+   "abbr": "VT",
+   "commercial_code": "9A V.S.A. (UCC)",
+   "candidate_9_203": "9A V.S.A. \u00a7 9-203",
+   "standing": {
+    "verified": false,
+    "how_to_confirm": "resolve_jurisdiction_cite runs a live lookup and rewrites this entry as verified"
+   }
+  },
+  "VA": {
+   "state": "Virginia",
+   "abbr": "VA",
+   "commercial_code": "Va. Code Title 8.9A (UCC Art. 9)",
+   "candidate_9_203": "Va. Code \u00a7 8.9A-203",
+   "standing": {
+    "verified": false,
+    "how_to_confirm": "resolve_jurisdiction_cite runs a live lookup and rewrites this entry as verified"
+   }
+  },
+  "WA": {
+   "state": "Washington",
+   "abbr": "WA",
+   "commercial_code": "RCW Title 62A (UCC)",
+   "candidate_9_203": "RCW \u00a7 62A.9A-203",
+   "standing": {
+    "verified": false,
+    "how_to_confirm": "resolve_jurisdiction_cite runs a live lookup and rewrites this entry as verified"
+   }
+  },
+  "WV": {
+   "state": "West Virginia",
+   "abbr": "WV",
+   "commercial_code": "W. Va. Code ch. 46 (UCC)",
+   "candidate_9_203": "W. Va. Code \u00a7 46-9-203",
+   "standing": {
+    "verified": false,
+    "how_to_confirm": "resolve_jurisdiction_cite runs a live lookup and rewrites this entry as verified"
+   }
+  },
+  "WI": {
+   "state": "Wisconsin",
+   "abbr": "WI",
+   "commercial_code": "Wis. Stat. ch. 409 (UCC Art. 9)",
+   "candidate_9_203": "Wis. Stat. \u00a7 409.203",
+   "standing": {
+    "verified": false,
+    "how_to_confirm": "resolve_jurisdiction_cite runs a live lookup and rewrites this entry as verified"
+   }
+  },
+  "WY": {
+   "state": "Wyoming",
+   "abbr": "WY",
+   "commercial_code": "Wyo. Stat. Title 34.1 (UCC)",
+   "candidate_9_203": "Wyo. Stat. \u00a7 34.1-9-203",
+   "standing": {
+    "verified": false,
+    "how_to_confirm": "resolve_jurisdiction_cite runs a live lookup and rewrites this entry as verified"
+   }
+  }
+ }
+}

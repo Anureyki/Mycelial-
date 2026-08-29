@@ -61,3 +61,56 @@ For what is planned, see `DEPLOYMENT_PROGRESS.md`.
 - 🔎 **Vision is honest about what it cannot do.** The PlantVillage checkpoints cover pepper/potato/tomato only, so cannabis photos were force-fit to the nearest tomato disease; out-of-scope species are now refused. Three failure modes are documented from live use: misclassification, missing a real feature (a visibly cupped leaf called "healthy"), and **confabulation** - inventing a purpose for observed equipment, which propagated into a wrong recommendation. Structured observations instead of keyword-matched prose is the outstanding fix.
 
 ---
+
+### 2026-08-29 — Legal reasons in uniform sections, not one state's citations
+
+A 12-slide AI-generated carousel walking an auto receivable from an Arizona
+dealer to a national bank was offered as teaching material. The framework in it
+is sound — a financed transaction is a *sequence* of legal events, and confusing
+the stages is the standard error in this area. But every state citation in it
+is Arizona's, and the principal operates in Texas and expects to move.
+
+So the framework was taken structurally and the jurisdiction was made a variable:
+
+- **`reference/legal_agent/transaction_layers.json`** — 12 stages, federal layer
+  separated from state layer, reasoning in **uniform** UCC section numbers.
+  `applies` and `caution` fields carry this system's own corrections, which are
+  not in the original: Reg T reaches only broker-dealer securities credit, Reg U
+  needs *both* purpose credit and margin stock, securitization operates on the
+  pool and not on the obligor's contract, and § 25b made preemption rule-by-rule
+  rather than categorical.
+- **`reference/legal_agent/jurisdictions.json`** — 51 jurisdictions. UCC 9-203
+  is `A.R.S. § 47-9203` in Arizona, `Tex. Bus. & Com. Code § 9.203` in Texas,
+  `Cal. Com. Code § 9203` in California and `Fla. Stat. § 679.2031` in Florida.
+  Four states, four renumbering conventions — which is why this is a **verified
+  table and not a format string**. Those four were confirmed against the states'
+  own published text; the other 47 carry candidates labelled unverified, and a
+  projected citation says it was projected.
+- **`cite_in_jurisdiction`, `transaction_layers`, `set/get_operating_jurisdiction`**
+  — the state layer resolves against a stored operating record that merges
+  rather than rebuilds, so updating a residential state cannot erase a business
+  one.
+
+Florida is the reason for the caution: naive templating turns 9-203 into
+`679.203`, which is a different provision. The real answer is `679.2031`.
+
+**Federal corpus, which does not vary by state:** 12 CFR Parts 1002 (Reg B),
+1026 (Reg Z), 220 (Reg T), 221 (Reg U), 7 and 34 (OCC) — 1,283 sections from
+eCFR, public domain. Legal's corpus goes from 8 works / 1,014 sections to
+14 works / 2,297 sections and 5,654 subject terms. `§ 221.125`, the section the
+carousel actually cited, now resolves out of the corpus.
+
+Arizona law was deliberately **not** ingested. It is one state's enactment of
+provisions the agent already reasons about uniformly, and holding it would
+invite citing Arizona at a Texas problem.
+
+Two fixes fell out:
+
+- `--agent legal_agent` wrote to `reference/legal_agent/` while the agent read
+  `reference/legal/`, so six freshly ingested parts were invisible. Standardised
+  on the agent id, matching what accounting already used.
+- `refer_finding` was a method but never a dispatched task, while
+  `receive_finding` was — an agent could accept a referral but nothing could ask
+  one to make one. Half a pipeline that `CLAUDE.md` documents in both
+  directions. Stage 6 (funding the dealer is a separate event from the buyer's
+  obligation) now reaches Accounting through it.
