@@ -904,3 +904,40 @@ prohibition because the gap in the pattern was twenty characters and the phrase
 is twenty-five. And a whereas-clause containing the word "desires" led with
 precatory, because the general test ran before the unambiguous one - a recital
 is a recital even when it contains a wish.
+
+### 2026-08-30 — Document intake: hand it a lease, get back whose clauses are whose
+
+`core/document_intake.py` and `ingest_document` on Boss. The purpose is not
+filing. A lease, an email chain and a trust deed all contain OBLIGATIONS - who
+must do what, by when, and what follows if they do not - and until those are
+addressable one at a time nobody can check whether the other side is adhering.
+
+Three deterministic stages. EXTRACT via pypdf, tesseract, or a plain read.
+SEGMENT by the document's OWN numbering where it has one - articles, decimals,
+lettered paragraphs - because the numbering is the citation and "para 7.1" has
+to reach the same clause every time. ROUTE each clause to the departments with
+an interest, and one clause belonging to three departments is the normal case.
+
+Boss does the routing and nothing else: the referral carries clause REFERENCES,
+never clause text. An orchestrator that ships document content to a department
+is one refactor away from reasoning about it.
+
+**Orientation was the difference between working and looking like it worked.**
+The first lease photograph OCR'd sideways into "4 e vee Me LUE Ne ON ee ee" and
+reported 37 clauses and ZERO obligations - worse than failing, because it looks
+like a result. Tesseract's own OSD pass reports the rotation, and where OSD is
+not confident all four rotations are scored on how word-like the output is and
+the best wins. Same photograph after correction: legibility 0.997, 8 clauses
+segmented by the lease's own lettering, and interest in all three departments -
+6 clauses to Accounting, 4 to Legal, 1 to Trust. Below a legibility of 0.35 the
+result carries a warning that the clauses are unreliable.
+
+A false FAILURE fixed on the way: the first run reported `stored_to_case: false`
+while the document was sitting in the case as `doc_57e161969b6f`. It reports the
+document id now. A false failure sends someone re-uploading a file that is
+already filed.
+
+Known limit, and it matters: OCR reads structure well and NUMBERS badly - the
+$1,250.00 base rent came through as "$7125". Clause routing and obligation
+detection can be trusted from a photograph; a figure cannot, and must be read
+from the document itself before anything depends on it.

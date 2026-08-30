@@ -233,6 +233,76 @@ class BossAgent(AgentBase):
                  (f" | silent: {', '.join(sorted(silent))} (retry in 30s)" if silent else ""))
         return vocab
 
+    def ingest_document(self, args):
+        """Take in a document, cut it into clauses, and tell each department
+        which clauses are theirs.
+
+        Boss does the ROUTING and nothing else - it does not read a clause for
+        meaning, and the referral carries clause REFERENCES rather than clause
+        text. An orchestrator that ships document content to a department is one
+        refactor away from reasoning about it, and this one practises no domain.
+        """
+        path = args.get("path")
+        if not path or not os.path.exists(path):
+            return {"error": f"no such file: {path}"}
+        try:
+            from core.document_intake import analyse
+        except Exception as e:
+            return {"error": f"intake unavailable: {e}"}
+        doc = analyse(path)
+        if doc.get("error"):
+            return doc
+
+        case_id = args.get("case_id")
+        kind = args.get("kind") or "document"
+        title = args.get("title") or doc["source"]
+        stored = None
+        if case_id:
+            # The document itself goes to the shared case, once, by reference.
+            # Report what actually happened, not what _unwrap happened to
+            # surface. This returned stored_to_case false while the document
+            # was sitting in the case - a false FAILURE, which sends someone
+            # re-uploading a file that is already filed.
+            _resp = self.send_a2a("accounting_agent", "case_add_document", {
+                "case_id": case_id, "kind": kind, "title": title,
+                "ref": args.get("ref") or doc["source"],
+                "note": (f"Intake {doc['meta'].get('method')}: {doc['clauses']} clauses, "
+                         f"{doc['obligations']} obligation(s). "
+                         + (doc['meta'].get('warning') or ''))})
+            _inner, _seen = _resp, 0
+            while isinstance(_inner, dict) and "document" not in _inner and "result" in _inner and _seen < 6:
+                _inner, _seen = _inner["result"], _seen + 1
+            stored = (_inner or {}).get("document", {}).get("doc_id") if isinstance(_inner, dict) else None
+
+        referrals = []
+        for domain, refs in (doc.get("clause_refs_by_domain") or {}).items():
+            payload = {"document": title, "case_id": case_id,
+                       "clause_refs": refs[:60],
+                       "clause_count": len(refs),
+                       "obligation_refs": [c["ref"] for c in doc["items"]
+                                           if c["ref"] in refs and
+                                           ("obligation" in c["kinds"] or
+                                            "prohibition" in c["kinds"])][:40],
+                       "deadlines": sorted({d for c in doc["items"] if c["ref"] in refs
+                                            for d in c["deadlines"]})[:12],
+                       "amounts": sorted({a for c in doc["items"] if c["ref"] in refs
+                                          for a in c["amounts"]})[:12]}
+            r = self.refer_finding(domain, "document_clauses", payload,
+                                   why=(f"{len(refs)} clause(s) in {title} carry subject "
+                                        f"matter this department owns."))
+            referrals.append({"domain": domain, "clauses": len(refs),
+                              "accepted": r.get("accepted")})
+        out = {"source": doc["source"], "method": doc["meta"].get("method"),
+               "clauses": doc["clauses"], "obligations": doc["obligations"],
+               "segmented_by": doc.get("segmented_by"),
+               "interested_domains": doc["interested_domains"],
+               "referrals": referrals,
+               "stored_to_case": stored or False}
+        for k in ("warning", "legibility", "applied_rotation", "pages_without_text"):
+            if doc["meta"].get(k) is not None:
+                out[k] = doc["meta"][k]
+        return out
+
     def _domain_for(self, prompt):
         """Which department owns this request.
 
@@ -617,6 +687,9 @@ class BossAgent(AgentBase):
         }
 
     def handle_task(self, task, args, sender):
+        if task == "ingest_document":
+            return self.ingest_document(args if isinstance(args, dict) else {})
+
         self.log(f"Task: {task} from {sender} with args: {args}")
 
         # A case event is a TASK, not a sentence. It sat inside process_request,
