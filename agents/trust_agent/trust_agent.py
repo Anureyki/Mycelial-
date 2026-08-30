@@ -312,7 +312,33 @@ class TrustAgent(AgentBase):
         "accumulation_power", "duress_clause", "trustee_is_settlor",
         "ascertainable_standard", "remainder_over", "revocable",
         "independent_trustee", "situs_state",
+        # Powers the grantor-trust rules attach to. These are not extra detail -
+        # 26 U.S.C. ss 671-679 tax trust income to the GRANTOR however
+        # irrevocable the deed says it is, and each section tests a POWER THE
+        # INSTRUMENT ALLOCATES rather than a label it uses.
+        "grantor_may_amend", "grantor_may_remove_trustee", "grantor_power_of_appointment",
+        "grantor_may_add_beneficiaries", "grantor_may_borrow_without_security",
+        "income_for_grantor_or_spouse", "grantor_may_substitute_assets",
     )
+
+    # section -> (feature, what it does)
+    GRANTOR_POWERS = {
+        "s 674 - power to control beneficial enjoyment": (
+            ("grantor_power_of_appointment", "grantor_may_add_beneficiaries"),
+            "a power to control who benefits makes the grantor the owner of the income"),
+        "s 675 - administrative powers": (
+            ("grantor_may_borrow_without_security", "grantor_may_substitute_assets"),
+            "dealing with the corpus for less than adequate consideration, or borrowing "
+            "without adequate security, is an administrative power that triggers grantor "
+            "trust status"),
+        "s 676 - power to revoke": (
+            ("revocable", "grantor_may_amend"),
+            "a retained power to revest title makes the trust the grantor's for tax"),
+        "s 677 - income for the grantor": (
+            ("income_for_grantor_or_spouse",),
+            "income held or distributable for the grantor or the grantor's spouse is taxed "
+            "to the grantor"),
+    }
 
     def assess_instrument(self, args):
         terms = args.get("terms") or {}
@@ -406,6 +432,37 @@ class TrustAgent(AgentBase):
                              "contempt - FTC v. Affordable Media, In re Lawrence. Present "
                              "this as a trade, never as protection."})
             exposure.append("duress clause shifts risk from the assets to the settlor personally")
+
+        # 5b. GRANTOR TRUST - control the instrument actually allocates.
+        triggered, unexamined = [], []
+        for sec, (feats, effect) in self.GRANTOR_POWERS.items():
+            present = [f for f in feats if terms.get(f)]
+            unstated = [f for f in feats if f not in terms]
+            if present:
+                triggered.append({"section": sec, "powers": present, "effect": effect})
+            elif unstated:
+                unexamined.append({"section": sec, "not_stated": unstated})
+        if triggered:
+            findings.append({
+                "element": "grantor_trust_status", "state": "established",
+                "triggered_by": triggered,
+                "consequence": ("Trust income is taxed to the GRANTOR however irrevocable the "
+                                "deed says it is - 26 U.S.C. ss 671-679. This is substance over "
+                                "form codified for trusts: the sections test powers the "
+                                "instrument allocates, not the label on the front page."),
+                "refer_to": "accounting_agent"})
+            exposure.append("grantor trust status - income taxed to the settlor")
+        elif unexamined:
+            findings.append({
+                "element": "grantor_trust_status", "state": "insufficient_evidence",
+                "unexamined": unexamined,
+                "what_would_close_it": ("State whether the instrument confers each of these "
+                                        "powers. An irrevocable trust that fails ss 674-677 is "
+                                        "taxed to the grantor, and no recital about intent "
+                                        "changes that.")})
+        else:
+            findings.append({"element": "grantor_trust_status", "state": "not_applicable",
+                             "consequence": "None of the tested ss 674-677 powers is present."})
 
         # 6. Transfer-tax symmetry - the other half of the same determination.
         if has("settlor_is_beneficiary"):

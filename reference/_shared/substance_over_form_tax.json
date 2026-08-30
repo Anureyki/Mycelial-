@@ -1,0 +1,141 @@
+{
+ "title": "Substance over form in tax - doctrines and authorities",
+ "source": "AUTHORED for MycOS 2026-08-30. Citations, holdings and statutory text references are matters of public record; the summaries are this system's own words. Held in reference/_shared because it sits between three departments: Legal argues these doctrines, Trust drafts and construes the instruments they test, and Accounting meets them in an examination. Not authority - read the section and the case in the operating jurisdiction.",
+ "authority_class": "doctrine_summary",
+ "authority_class_basis": "authored 2026-08-30 from statute and reported cases; not quoted",
+ "binds": "nobody - a finding aid",
+ "confers_rights": false,
+ "origin_pdf": "authored",
+ "pages": 1,
+ "authorities_cited": [],
+ "sections": [
+  {
+   "citation": "substance over form (tax)",
+   "kind": "doctrine",
+   "page": 1,
+   "text": "substance over form (tax). The same maxim equity applies to instruments, applied by the Commissioner and the courts to transactions: the tax consequence follows what a transaction DOES, not what it is called. The IRS invokes it constantly, and the Internal Revenue Manual directs examiners to look past the form of an arrangement. NOTE THE ASYMMETRY - the Commissioner may generally assert substance over form against a taxpayer, while a taxpayer who chose a form is usually held to it. Drafting a structure and then arguing its substance differs is the weaker side of this doctrine, not the stronger one."
+  },
+  {
+   "citation": "economic substance doctrine",
+   "kind": "doctrine",
+   "page": 1,
+   "text": "economic substance doctrine. CODIFIED at 26 U.S.C. s 7701(o) in 2010, having been judge-made since Gregory. A transaction has economic substance only if BOTH prongs are met - the test is CONJUNCTIVE: (1) it changes in a meaningful way, apart from federal income tax effects, the taxpayer's economic position; AND (2) the taxpayer has a substantial purpose, apart from federal income tax effects, for entering into it. Failing either prong fails the doctrine. The penalty is s 6662(b)(6) at 20%, rising to 40% under s 6662(i) if the transaction was not adequately disclosed - and it is STRICT LIABILITY: s 6664(c)(2) removes the reasonable-cause defence. There is no opinion letter that cures a transaction lacking economic substance.",
+   "standing": "statute - federal"
+  },
+  {
+   "citation": "Gregory v. Helvering, 293 U.S. 465 (1935)",
+   "kind": "doctrine",
+   "page": 1,
+   "text": "Gregory v. Helvering, 293 U.S. 465 (1935). The foundational case. The reorganisation complied with the literal words of the statute and was still disregarded, because it served no business purpose beyond tax avoidance. Also the source of the other half of the rule, which is often forgotten: a taxpayer's legal right to decrease taxes by means the law permits is not doubted. The doctrine polices transactions without substance; it does not tax people for choosing an efficient lawful route.",
+   "standing": "binding - Supreme Court"
+  },
+  {
+   "citation": "Helvering v. Clifford, 309 U.S. 331 (1940)",
+   "kind": "doctrine",
+   "page": 1,
+   "text": "Helvering v. Clifford, 309 U.S. 331 (1940). A grantor who retained substantial control over a short-term trust remained the owner of its income for tax purposes despite the trust's form. The origin of the grantor-trust rules and the direct ancestor of every argument that retained control defeats a transfer.",
+   "standing": "binding - Supreme Court"
+  },
+  {
+   "citation": "Lucas v. Earl, 281 U.S. 111 (1930)",
+   "kind": "doctrine",
+   "page": 1,
+   "text": "Lucas v. Earl, 281 U.S. 111 (1930). Assignment of income. The fruit cannot be attributed to a different tree from that on which it grew - income is taxed to the person who earns it, whatever contract redirects the payment.",
+   "standing": "binding - Supreme Court"
+  },
+  {
+   "citation": "Commissioner v. Court Holding Co., 324 U.S. 331 (1945)",
+   "kind": "doctrine",
+   "page": 1,
+   "text": "Commissioner v. Court Holding Co., 324 U.S. 331 (1945). The incidence of taxation depends on the substance of a transaction, and the whole transaction is examined rather than each formally separate step. The step-transaction doctrine's ancestor.",
+   "standing": "binding - Supreme Court"
+  },
+  {
+   "citation": "Frank Lyon Co. v. United States, 435 U.S. 561 (1978)",
+   "kind": "doctrine",
+   "page": 1,
+   "text": "Frank Lyon Co. v. United States, 435 U.S. 561 (1978). THE LIMITING CASE, and the one to cite when the doctrine is being over-read. Where there is a genuine multi-party transaction with economic substance, compelled or encouraged by business realities, imbued with tax-independent considerations, and not shaped solely by tax-avoidance features, the form the parties chose is respected. Substance over form is not a licence to recharacterise every arrangement the Commissioner dislikes.",
+   "standing": "binding - Supreme Court"
+  },
+  {
+   "citation": "grantor trust rules",
+   "kind": "doctrine",
+   "page": 1,
+   "text": "grantor trust rules. 26 U.S.C. ss 671-679. SUBSTANCE OVER FORM, CODIFIED FOR TRUSTS. Where the grantor retains specified powers, trust income is taxed to the GRANTOR however irrevocable the instrument says it is. The operative sections are a checklist for reading an indenture: s 674 power to control beneficial enjoyment; s 675 administrative powers, including dealing with the corpus for less than adequate consideration and borrowing without adequate security; s 676 power to revoke; s 677 income held or distributable for the grantor or the grantor's spouse; s 678 a person other than the grantor holding a power of withdrawal. Note what these sections test: POWERS THE INSTRUMENT ALLOCATES, not labels it uses.",
+   "standing": "statute - federal"
+  },
+  {
+   "citation": "control is allocated by the instrument",
+   "kind": "principle",
+   "page": 1,
+   "text": "control is allocated by the instrument. For an irrevocable trust, control is decided by what the indenture actually confers - who may amend, who may remove and replace the trustee, who holds powers of appointment, whether distributions run to an ascertainable standard or to absolute discretion, and who may add beneficiaries. Each of those is a term a court can read and a section of ss 671-679 can attach to. An intention stated in a recital, or a purpose described to the settlor at execution, allocates nothing."
+  },
+  {
+   "citation": "administration is evidence",
+   "kind": "principle",
+   "page": 1,
+   "text": "administration is evidence. How a trust is actually administered for the beneficiary is evidence of what the arrangement really is - distributions actually made, requests actually honoured, whether the trustee ever exercised independent judgment, whether trust and personal funds stayed separate. Treas. Reg. 20.2036-1(c) reaches EXPRESS OR IMPLIED understandings, and an implied understanding is proved by conduct. A well-drafted instrument administered as the settlor's chequebook is a self-settled arrangement whatever the deed says. Conduct over labels."
+  },
+  {
+   "citation": "step transaction doctrine",
+   "kind": "doctrine",
+   "page": 1,
+   "text": "step transaction doctrine. Formally separate steps that are components of a single integrated plan are collapsed and taxed as one transaction. Three tests are used - binding commitment, mutual interdependence, and end result - and courts differ on which applies. Relevant to any structure whose protection depends on the sequence of transfers rather than on their substance."
+  },
+  {
+   "citation": "assignment of income",
+   "kind": "doctrine",
+   "page": 1,
+   "text": "assignment of income. Income is taxed to whoever earns it or owns the property producing it. Redirecting the payment by contract or by trust does not move the tax unless the underlying income-producing PROPERTY has genuinely been transferred. Lucas v. Earl for services; Helvering v. Horst for property income."
+  }
+ ],
+ "term_index": {
+  "substance over form": [
+   0,
+   6,
+   7
+  ],
+  "substance over": [
+   0,
+   6,
+   7
+  ],
+  "over form": [
+   0,
+   6,
+   7
+  ],
+  "economic substance": [
+   1,
+   6
+  ],
+  "trust rules": [
+   3,
+   7
+  ],
+  "grantor trust rules": [
+   3,
+   7
+  ],
+  "grantor trust": [
+   3,
+   7
+  ],
+  "formally separate": [
+   5,
+   10
+  ],
+  "step transaction doctrine": [
+   5,
+   10
+  ],
+  "transaction doctrine": [
+   5,
+   10
+  ],
+  "step transaction": [
+   5,
+   10
+  ]
+ }
+}

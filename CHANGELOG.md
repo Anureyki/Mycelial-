@@ -793,3 +793,43 @@ Four bugs found while recording one feed event - 2.0 ml Cal-Mag Plus into GSC2's
 
 And `get_status` reported a real recipe as a gap, because nutrients have their
 own per-plant namespace and it was looking on the plant record.
+
+### 2026-08-30 — Substance over form is the IRS's doctrine too
+
+The principal's observation: the IRS invokes substance over form, so Accounting
+needs it as much as Legal does. It is in `reference/_shared/` for that reason -
+Legal argues these doctrines, Trust drafts the instruments they test, and
+Accounting meets them in an examination.
+
+Twelve entries. The ones that change how a structure should be read:
+
+- **Economic substance is CODIFIED** at 26 U.S.C. s 7701(o), and the test is
+  CONJUNCTIVE: the transaction must change the taxpayer's economic position in
+  a meaningful way apart from tax, AND there must be a substantial non-tax
+  purpose. Failing either fails the doctrine. The penalty is STRICT LIABILITY -
+  s 6664(c)(2) removes the reasonable-cause defence, so no opinion letter cures
+  a transaction that lacks substance.
+- **The doctrine is asymmetric.** The Commissioner may generally assert
+  substance over form against a taxpayer; a taxpayer who chose a form is usually
+  held to it. Drafting a structure and then arguing its substance differs is the
+  weaker side of this doctrine.
+- **Gregory v. Helvering carries both halves**, and the second is usually
+  dropped: a taxpayer's legal right to decrease taxes by permitted means is not
+  doubted. The doctrine polices transactions without substance; it does not tax
+  people for choosing an efficient lawful route.
+- **Frank Lyon** is the limiting case for when the doctrine is over-read.
+
+**Control is allocated by the instrument, and the assessor now tests it.**
+`assess_instrument` walks the grantor-trust powers of 26 U.S.C. ss 674-677 -
+power to control beneficial enjoyment, administrative powers, power to revoke,
+income for the grantor or spouse. Given a trust marked irrevocable whose settlor
+kept a power of appointment and the right to substitute assets, it returns
+`grantor_trust_status: established` and names the two sections: income is taxed
+to the grantor however irrevocable the deed says it is. Where a power is simply
+not stated it returns `insufficient_evidence` and names what would close it,
+rather than assuming absence.
+
+**And administration is evidence.** Treas. Reg. 20.2036-1(c) reaches express OR
+IMPLIED understandings, and an implied understanding is proved by conduct - so a
+well-drafted instrument administered as the settlor's chequebook is a
+self-settled arrangement whatever the deed says.
