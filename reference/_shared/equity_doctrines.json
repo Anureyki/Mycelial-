@@ -341,18 +341,34 @@
     "equity acts in personam"
    ],
    "text": "BONA FIDE PURCHASER. A purchaser FOR VALUE, of a LEGAL interest, WITHOUT NOTICE - actual, constructive or inquiry - of the prior equity. Takes free of it. This is the outer boundary of every equitable interest in this file: a constructive trust, a resulting trust, an equitable lien and an unrecorded equity are all cut off by such a purchaser, which is why notice does so much work in equity."
+  },
+  {
+   "citation": "public trust doctrine",
+   "kind": "doctrine",
+   "page": 1,
+   "text": "public trust doctrine. The sovereign holds certain resources - navigable waters, the beds beneath them, tidelands and the foreshore - IN TRUST for the public, and cannot freely alienate them into private hands free of that trust. Illinois Central R.R. Co. v. Illinois, 146 U.S. 387 (1892) is the American anchor: a grant of the Chicago lakebed was revocable because the state could not abdicate its trust over lands under navigable waters. The lineage runs back through the common law to the Institutes of Justinian. It is STATE law and its scope varies considerably; some states extend it to wildlife or to water quality, others read it narrowly. A genuine trust doctrine, and one of the few where the trustee is a government and the beneficiary is the public at large."
+  },
+  {
+   "citation": "Illinois Central R.R. Co. v. Illinois, 146 U.S. 387 (1892)",
+   "kind": "authority",
+   "page": 1,
+   "text": "Illinois Central R.R. Co. v. Illinois, 146 U.S. 387 (1892). The state's title to lands under navigable waters is held in trust for the people, and a legislature cannot abdicate that trust by conveying the whole of it away. The foundation of the American public trust doctrine."
   }
  ],
  "term_index": {
+  "over form": [
+   0,
+   27
+  ],
+  "substance over form": [
+   0,
+   27
+  ],
   "constructive trust": [
    0,
    18,
    19,
    29
-  ],
-  "substance over form": [
-   0,
-   27
   ],
   "equity looks": [
    0,
@@ -363,31 +379,18 @@
    0,
    27
   ],
-  "over form": [
-   0,
-   27
-  ],
   "equity will": [
    1,
    4
-  ],
-  "clean hands": [
-   2,
-   3,
-   23
   ],
   "equitable relief": [
    2,
    3
   ],
-  "equitable conversion": [
-   6,
-   28
-  ],
-  "equity treats": [
-   6,
-   23,
-   28
+  "clean hands": [
+   2,
+   3,
+   23
   ],
   "equitable interest": [
    6,
@@ -395,6 +398,10 @@
    29
   ],
   "done which ought": [
+   6,
+   28
+  ],
+  "equitable conversion": [
    6,
    28
   ],
@@ -408,6 +415,11 @@
    6,
    28
   ],
+  "equity treats": [
+   6,
+   23,
+   28
+  ],
   "purchase money": [
    7,
    19,
@@ -417,16 +429,25 @@
    7,
    19
   ],
+  "bona fide": [
+   8,
+   18,
+   29
+  ],
   "fide purchaser": [
    8,
    18,
    29
   ],
+  "value without": [
+   8,
+   18
+  ],
   "value without notice": [
    8,
    18
   ],
-  "bona fide": [
+  "without notice": [
    8,
    18,
    29
@@ -436,23 +457,14 @@
    18,
    29
   ],
-  "without notice": [
-   8,
-   18,
-   29
-  ],
-  "value without": [
-   8,
-   18
+  "what distinguishes": [
+   9,
+   14
   ],
   "legal title": [
    9,
    18,
    28
-  ],
-  "what distinguishes": [
-   9,
-   14
   ],
   "equity delights": [
    10,
@@ -462,26 +474,22 @@
    11,
    12
   ],
+  "precluded from asserting": [
+   11,
+   13
+  ],
   "equitable estoppel": [
    11,
    12,
    14
   ],
-  "precluded from asserting": [
-   11,
-   13
-  ],
   "changed position": [
    13,
    22
   ],
-  "undue influence": [
+  "holding legal title": [
    18,
-   24
-  ],
-  "fraud duress": [
-   18,
-   24
+   28
   ],
   "fraud duress undue": [
    18,
@@ -491,11 +499,15 @@
    18,
    28
   ],
-  "holding legal title": [
-   18,
-   28
-  ],
   "duress undue influence": [
+   18,
+   24
+  ],
+  "undue influence": [
+   18,
+   24
+  ],
+  "fraud duress": [
    18,
    24
   ],
@@ -506,6 +518,30 @@
   "resulting trust": [
    19,
    29
+  ],
+  "public trust doctrine": [
+   30,
+   31
+  ],
+  "trust doctrine": [
+   30,
+   31
+  ],
+  "public trust": [
+   30,
+   31
+  ],
+  "navigable waters": [
+   30,
+   31
+  ],
+  "lands under navigable": [
+   30,
+   31
+  ],
+  "illinois central": [
+   30,
+   31
   ]
  }
 }

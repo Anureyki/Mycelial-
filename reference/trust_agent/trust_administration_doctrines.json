@@ -1,0 +1,65 @@
+{
+ "title": "Trust administration - doctrines of construction and duty",
+ "source": "AUTHORED for the MycOS Trust Agent 2026-08-30, in this system's words. Statutory references are to the Texas Trust Code held in this same corpus. Not authority - a finding aid for reading and administering an instrument.",
+ "authority_class": "doctrine_summary",
+ "authority_class_basis": "authored 2026-08-30; not quoted",
+ "binds": "nobody - a finding aid",
+ "confers_rights": false,
+ "origin_pdf": "authored",
+ "pages": 1,
+ "authorities_cited": [],
+ "sections": [
+  {
+   "citation": "precatory language",
+   "kind": "doctrine",
+   "page": 1,
+   "text": "precatory language. Words of WISH, HOPE, DESIRE, REQUEST or RECOMMENDATION. They express what the settlor would like and impose no enforceable duty - 'it is my wish that', 'I request that', 'I would hope the trustee will'. Mandatory words impose one: SHALL, MUST, IS DIRECTED TO, ON CONDITION THAT. A precatory expression creates NO TRUST and NO OBLIGATION, and a trustee who ignores it breaches nothing. Courts read the whole instrument for intent rather than one phrase, but the presumption runs against the wish. THIS IS THE SAME FAILURE AS AN ORAL ASSURANCE, moved inside the document: the protection appears to be written down, and still binds nobody. When reading any instrument, sort every protective sentence into MANDATORY or PRECATORY before relying on it."
+  },
+  {
+   "citation": "administration is where the duties live",
+   "kind": "doctrine",
+   "page": 1,
+   "text": "administration is where the duties live. Creating a trust settles what it IS. Administering it is where the fiduciary obligations actually operate and where nearly every dispute happens - what the trustee may distribute, what they must account for, whom they must inform, and whether they exercised independent judgment at all. Paolozzi turned on administration, not on drafting: the operative facts were the CEILING of what the trustees could pay and what they in fact told and gave the beneficiary. A deed can be impeccable and the administration fatal."
+  },
+  {
+   "citation": "testamentary trust",
+   "kind": "doctrine",
+   "page": 1,
+   "text": "testamentary trust. A trust created BY WILL, taking effect only on the testator's death - the will converts into a trust at that moment. Because it is created by a will it passes through PROBATE and is subject to the probate court's supervision, unlike an inter vivos trust which operates immediately and outside probate. It is revocable in substance until death, because the testator can revoke the will; it becomes irrevocable when they die."
+  },
+  {
+   "citation": "no hole in the instrument",
+   "kind": "doctrine",
+   "page": 1,
+   "text": "no hole in the instrument. A gap in a trust instrument is not neutral - something fills it. Where the beneficial interest is not wholly disposed of, what is left RESULTS BACK to the settlor or the estate by resulting trust. Where administrative machinery is missing, the state's default rules supply it, and those defaults may be the opposite of what was intended. Where a successor trustee is not named, a court appoints one. Drafting silence therefore hands the decision to someone else, which is why an omission is a choice made by default rather than an absence."
+  },
+  {
+   "citation": "appointment of a receiver",
+   "kind": "doctrine",
+   "page": 1,
+   "text": "appointment of a receiver. An equitable remedy: the court puts a neutral in custody of the property to preserve it and to carry out obligations a fiduciary has not. It is a PRESERVATION device rather than a punishment, and it is available where a trustee cannot or will not complete the fiduciary duty - so the beneficiary's interest does not fail for want of a functioning trustee. In Texas it sits among the remedies for breach of trust at Tex. Prop. Code s 114.008, alongside compelling performance, enjoining a breach, compelling redress, and removing the trustee. Equity acts in personam, and a receiver is how it acts when the person will not."
+  },
+  {
+   "citation": "duty to account and inform",
+   "kind": "doctrine",
+   "page": 1,
+   "text": "duty to account and inform. A trustee must keep the beneficiary informed and render an accounting. This is the duty that makes every other one enforceable - a beneficiary who cannot see what was done cannot show a breach. It is also the practical answer to a trustee hiding behind absolute discretion: discretion is about WHAT may be decided, never about whether the beneficiary is entitled to know what was decided."
+  },
+  {
+   "citation": "independent judgment",
+   "kind": "doctrine",
+   "page": 1,
+   "text": "independent judgment. A trustee must actually exercise discretion, and exercise their own. A trustee who rubber-stamps the settlor's instructions has not administered the trust - they have held the pen for someone else, and the arrangement is what the conduct shows it to be rather than what the deed recites. This is the administrative counterpart of substance over form, and the fact pattern that most often collapses an otherwise well-drafted trust."
+  }
+ ],
+ "term_index": {
+  "independent judgment": [
+   1,
+   6
+  ],
+  "someone else": [
+   3,
+   6
+  ]
+ }
+}

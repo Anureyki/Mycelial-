@@ -833,3 +833,42 @@ rather than assuming absence.
 IMPLIED understandings, and an implied understanding is proved by conduct - so a
 well-drafted instrument administered as the settlor's chequebook is a
 self-settled arrangement whatever the deed says.
+
+### 2026-08-30 — Precatory language, and administration as the place duties live
+
+Two corrections from the principal, both worth taking as stated.
+
+**These doctrines are about ADMINISTRATION, not creation.** Creating a trust
+settles what it is; administering it is where the fiduciary obligations operate
+and where nearly every dispute happens. Paolozzi turned on administration - the
+CEILING of what the trustees could pay, and what they in fact told and gave the
+beneficiary. A deed can be impeccable and the administration fatal. Recorded as
+its own entry so the framing does not drift back.
+
+**Precatory language** - the term for the failure, and the sharpest addition
+here. Words of WISH, HOPE, DESIRE, REQUEST or RECOMMENDATION impose no
+enforceable duty and create no trust; a trustee who disregards them breaches
+nothing. Mandatory words - shall, must, is directed to, on condition that - do.
+This is the oral-assurance failure moved INSIDE the document, and it reads as
+stronger for being written down.
+
+`assess_instrument` now sorts every supplied clause into mandatory, precatory,
+mixed, or undetermined. Given "It is my wish that the trustee provide for the
+education and support of my daughter" beside "The trustee shall distribute
+income quarterly", it marks the first refuted and the second established.
+
+Also recorded in Trust: **testamentary trust** (a will that converts to a trust
+at death, and therefore passes through probate); **no hole in the instrument** -
+a gap is not neutral, something fills it, and drafting silence hands the
+decision to a default rule or a court; **appointment of a receiver** as the
+preservation remedy when a fiduciary will not complete the duty, sitting among
+the Texas remedies at Tex. Prop. Code s 114.008; **duty to account and inform**,
+which is what makes every other duty enforceable; and **independent judgment** -
+a trustee who rubber-stamps the settlor has held the pen for someone else.
+
+And into the shared corpus, **the public trust doctrine** with Illinois Central
+R.R. v. Illinois, 146 U.S. 387 (1892) - a genuine trust doctrine where the
+trustee is a government and the beneficiary is the public. Reachable now from
+Legal, Trust and Accounting alike.
+
+Trust's corpus: 9 works, 511 sections.

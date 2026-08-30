@@ -433,6 +433,42 @@ class TrustAgent(AgentBase):
                              "this as a trade, never as protection."})
             exposure.append("duress clause shifts risk from the assets to the settlor personally")
 
+        # 5a. PRECATORY OR MANDATORY - the assurance failure, moved inside the
+        # document. A protective sentence written as a wish binds nobody, and it
+        # looks more protective than an oral promise precisely because it is on
+        # the page.
+        for clause in (args.get("clauses") or []):
+            txt = clause if isinstance(clause, str) else (clause.get("text") or "")
+            label = (clause.get("name") if isinstance(clause, dict) else None) or txt[:44]
+            low = txt.lower()
+            precatory = re.search(r"\b(wish(es)?|hope|desire|request|recommend|"
+                                  r"would like|it is my (wish|hope|desire)|"
+                                  r"expect(s|ation)?|trust that|suggest)\b", low)
+            mandatory = re.search(r"\b(shall|must|is directed|are directed|will be "
+                                  r"required|on condition that|may not|shall not)\b", low)
+            if mandatory and not precatory:
+                findings.append({"element": f"clause:{label}", "state": "established",
+                                 "consequence": "Mandatory wording. It imposes a duty a "
+                                 "trustee can be compelled to perform."})
+            elif precatory and not mandatory:
+                findings.append({"element": f"clause:{label}", "state": "refuted",
+                                 "consequence": "PRECATORY. Words of wish or request impose no "
+                                 "enforceable duty and create no trust - a trustee who "
+                                 "disregards this breaches nothing. It is the oral-assurance "
+                                 "failure moved inside the document, and it reads as stronger "
+                                 "for being written down."})
+                exposure.append(f"'{label}' is precatory, not mandatory")
+            elif precatory and mandatory:
+                findings.append({"element": f"clause:{label}", "state": "disputed",
+                                 "consequence": "Mixed wording - both mandatory and precatory "
+                                 "terms appear. Which governs is a construction question for a "
+                                 "court reading the whole instrument, so it cannot be relied on "
+                                 "as settled."})
+            else:
+                findings.append({"element": f"clause:{label}", "state": "insufficient_evidence",
+                                 "what_would_close_it": "Neither mandatory nor precatory wording "
+                                 "detected. Quote the operative sentence."})
+
         # 5b. GRANTOR TRUST - control the instrument actually allocates.
         triggered, unexamined = [], []
         for sec, (feats, effect) in self.GRANTOR_POWERS.items():
