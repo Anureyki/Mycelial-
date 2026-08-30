@@ -1059,3 +1059,37 @@ zero sections rather than storing an unusable blob, because DoD paragraph
 numbering is not a citation format it knows. `document_intake` segmented it
 cleanly by that numbering instead - which is what it was built for.
 Legal: 20 works, 1,727 sections.
+
+### 2026-08-30 — Does DoDI 1000.30 reach the VA? No - and 38 CFR 1.575 does
+
+Asked whether the VA must adhere to DoDI 1000.30 and produce a Sample SSN
+Justification Memorandum. The instruction's own applicability clause answers it:
+it applies to OSD, the Military Departments, the Joint Staff, the Combatant
+Commands, IG DoD, the Defense Agencies, the DoD Field Activities "and all other
+organizational entities within the Department of Defense". The VA is a separate
+Cabinet department and is not among them. The justification memorandum is a DoD
+artifact; the VA owes no such document.
+
+The underlying obligation does reach the VA, because Privacy Act s 7 binds every
+federal agency - and the VA has implemented it in its own regulation. **38 CFR
+Part 1 ingested** so Legal holds it.
+
+**38 CFR 1.575** is the analogue and is far more specific than the DoD
+instruction in the ways that matter to a veteran:
+
+- (a) mirrors s 7(a)(1) - no right, benefit or privilege denied for refusing.
+- (b) BUT disclosure IS mandatory for compensation or pension under chapters 11,
+  13 and 15 of title 38, on authority of section 4 of Pub. L. 97-365. So for VA
+  disability compensation the demand is lawful, and an argument that it is not
+  will fail on the face of the regulation.
+- (c) the notice duty: VA must state whether disclosure is voluntary or
+  mandatory, cite the authority, and list the uses.
+- (d) **the auditable one.** A document VA sends BY MAIL may not carry a full
+  SSN. It must be truncated to the last four digits - and where truncation is
+  not feasible, three named officials must JOINTLY determine it is necessary,
+  the document must be listed on a PUBLICLY AVAILABLE website (the Complete
+  Social Security Number Mailed Documents Listing), and no portion may be
+  visible on the outside of the mailing. Amended 87 FR 53381, 31 August 2022.
+
+That last provision is checkable rather than arguable: either the document type
+is on the published list or it is not.
