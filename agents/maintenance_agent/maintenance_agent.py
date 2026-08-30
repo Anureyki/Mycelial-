@@ -841,9 +841,13 @@ class MaintenanceAgent(AgentBase):
                 continue
             num, name, status = cells[0], cells[1], cells[2]
             low = status.lower()
+            # "blocked on hardware" is not "unknown" - it is a known state
+            # with a known cause, and the difference is the whole point of
+            # pulling the hardware track out of the numbered list.
             state = ("done" if ("done" in low or "\u2705" in status)
                      else "in_progress" if ("\u25d0" in status or "remaining" in low
                                             or "progress" in low)
+                     else "blocked" if ("blocked" in low or "waiting on" in low)
                      else "not_started" if "not started" in low
                      else "not_scheduled" if "not scheduled" in low
                      else "unknown")
@@ -886,8 +890,12 @@ class MaintenanceAgent(AgentBase):
         active = [p for p in numbered if p["state"] == "in_progress"]
         # The NEXT phase is the lowest-numbered one not finished. Reporting a
         # count of completions without it answers "how much" and not "what now".
-        nxt = next((p for p in numbered if p["state"] not in ("done",)), None)
+        # The next phase is the lowest-numbered one not finished AND not
+        # blocked - pointing at something nobody can start is not guidance.
+        nxt = next((p for p in numbered
+                    if p["state"] not in ("done", "blocked", "not_scheduled")), None)
         return {"phases": phases, "table_section_conflicts": conflicts,
+                "tracks": [p for p in phases if not p["number"].isdigit()],
                 "done": len(done), "total_numbered": len(numbered),
                 "in_progress": [p["name"] for p in active],
                 "next": ({"number": nxt["number"], "name": nxt["name"],

@@ -469,3 +469,8 @@ main#log {
    called it. */
 .card-body .gnode-boundary { fill: none; stroke: #6b7d74; stroke-width: 1.5; stroke-dasharray: 3 2; }
 .card-body .gnode-idle { fill: none; stroke: #4a9d6e; stroke-width: 2; }
+
+/* A blocked track is not an unstarted phase - it has a known cause. */
+.card-body .phases li.ph-blocked::before { content: "\25A0"; color: #8a7d5a; }
+.card-body .phases li.ph-not_scheduled::before { content: "\25CB"; color: #5a5a5a; }
+.card-body .phases li.ph-blocked { color: var(--muted); }

@@ -417,6 +417,26 @@ async function renderProgressCard(body) {
     // Two places in one file said different things about phase 6 and the
     // stale one would have had this work repeated. Surfaced, never resolved
     // silently.
+    // The unnumbered tracks are what the grower most needs visible: a hardware
+    // gate nothing can be scheduled around, and a deferred rewrite. Filtering
+    // the list to numbered phases hid both.
+    const tracks = (ph.phases || []).filter(p => !/^\d+$/.test(p.number));
+    if (tracks.length) {
+      const th = document.createElement('p');
+      th.className = 'phase-hdr';
+      th.textContent = 'Tracks (not sequenced)';
+      body.append(th);
+      const tl = document.createElement('ol');
+      tl.className = 'phases';
+      for (const p of tracks) {
+        const li = document.createElement('li');
+        li.className = `ph-${p.state}`;
+        li.textContent = `${p.name.replace(/\*/g, '')} — ${p.status_text}`;
+        tl.append(li);
+      }
+      body.append(tl);
+    }
+
     if (ph.table_section_conflicts && ph.table_section_conflicts.length) {
       const w = document.createElement('p');
       w.className = 'concern';

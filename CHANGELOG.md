@@ -2249,3 +2249,55 @@ capture layer is a human relaying by hand, it fails the way humans fail: quietly
 and only discoverable by grepping a 101 MB transcript nine days later. Phase 4 is
 *Grow captures spoken facts itself*, and this is the argument for it moving up
 the list.
+
+### 2026-08-30 — The roadmap reordered by capability, with hardware taken out of the list
+
+Three corrections from the principal, each sharper than the last.
+
+**Move Phase 4 up.** Grow capturing its own spoken facts goes first. Today's
+evidence: a lollipop and a leaf removal reported on 2026-08-21 were still
+missing from the record on 2026-08-30, because the only path from a spoken fact
+to an agent runs through a human relaying it by hand.
+
+**Drop completed phases from the list.** 0, 1 and 3 are done and no longer
+numbered. They sit under *Completed*; the active list is only what is left. A
+`was` column keeps the old numbers so anything written before today can still be
+traced.
+
+**Hardware is not a phase.** *"Device hardware is going to always be a hard
+coded thing that needs to be done. You can't get around needing a new
+hardware."* Provisioning and cutover had been numbered as though they were work
+to be sequenced against everything else. They are a **constraint** - and a
+constraint that cannot be reordered has no business in a list whose only purpose
+is ordering. They are now a **track**, unnumbered, and nothing above them waits
+on it.
+
+**And RAM is the test for what can go first.** *"Anything software related, if
+the RAM allows, can be done ahead of hardware."* Every numbered phase now
+carries whether it fits in what is actually here - 7 GB total, ~4.8 GB free -
+and all five do.
+
+```
+| # | Phase                                      | Fits current RAM?              |
+| 1 | Grow captures spoken facts itself          | yes, if capture stays deterministic
+| 2 | Conversations that persist, answers arrive | yes - a table and a queue
+| 3 | Retention: what to keep, on what evidence  | yes, and it REDUCES the footprint
+| 4 | Harden network exposure                    | yes - one command
+| 5 | Identity and authorization (DID)           | yes - crypto, no model
+| — | Hardware track: provision, migrate         | n/a - blocked on hardware
+```
+
+The one that could stop being true is Phase 1, and it is written down rather
+than left to be discovered: capturing a spoken fact deterministically costs
+nothing, but handing every conversational turn to a language model is a
+different phase with a different budget - and on 4.8 GB free that means the 1.5B
+model, which is the model that has produced every fabrication this system has
+made. If Phase 1 starts needing a bigger model, that is the signal it has become
+hardware-blocked.
+
+**`blocked` is now a state, distinct from `unknown`.** A hardware gate has a
+known cause; reporting it as unknown loses exactly the information that pulling
+it out of the list was meant to preserve. `next` also skips blocked and
+unscheduled work - pointing at something nobody can start is not guidance. The
+dashboard shows the tracks below the numbered phases instead of filtering them
+out.

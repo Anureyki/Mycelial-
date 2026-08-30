@@ -6,94 +6,170 @@ Full plan/rationale: `/home/anureyki/.claude/plans/based-on-the-system-tidy-vali
 
 ## Order
 
-**Deployment is last.** Provisioning a device and cutting over to it is the
-step that ends the sequence, not one in the middle - everything shipped to a
-dedicated machine should already be correct, lean and authorized. Phases were
-appended in the order they were discovered rather than the order they should
-run, which put retention and maintenance work *after* cutover. Renumbered
-2026-08-24 to reflect dependency instead of discovery.
+**Reordered 2026-08-30 by capability and necessity**, at the principal's
+instruction. Completed phases are no longer numbered - they sit under
+*Completed* below, and the active list is only what is left. `was` keeps the old
+number so anything written before today can still be traced.
 
-| # | Phase | Status |
-|---|-------|--------|
-| 0 | Remove orphaned crash-looping systemd units | ✅ done |
-| 1 | Containerize for portability | ✅ done (smoke-tested) |
-| 2 | Retention: what to keep, and on what evidence | not started |
-| 3 | Reduce A2A read amplification inside a single answer | ✅ done 2026-08-30 |
-| 4 | Grow captures spoken facts itself | not started |
-| 5 | Identity and authorization (DID / verifiable claims) | not started |
-| 6 | Harden network exposure | ◐ one sudo command remaining |
-| 7 | Provision dedicated device | not started |
-| 8 | Migrate and cut over | not started |
-| — | Training-data loop: source, review, count | ✅ done 2026-08-25 |
-| 9 | Conversations that persist, and answers that arrive | not started |
-| — | *Deferred track:* multi-tenancy | not scheduled |
+**Hardware is not a phase.** Provisioning a device and cutting over to it were
+numbered as though they were work to be sequenced against everything else, and
+they are not - they are a **constraint**. The principal's point: *"device
+hardware is going to always be a hard coded thing that needs to be done. You
+can't get around needing a new hardware."* Correct, and a constraint that cannot
+be reordered does not belong in a list whose whole purpose is ordering. They are
+a track that opens when a machine exists, and nothing above them waits on it.
 
-2-4 are internal: they make the system cheaper, leaner and more truthful about
-what it knows, and none of them need hardware. 5 must precede any exposure -
-multi-user without strong identity is an apartment block with one key on the
-front door. 6-8 are the deployment chain, in dependency order. Multi-tenancy
-is a rewrite of the trust model rather than a deployment step, so it is a
-deferred track and not a numbered phase.
+So the numbered phases are now **only work that can be done on the hardware that
+is already here**, ordered by necessity:
 
-## Phase 0 — Remove orphaned crash-looping systemd units ✅ DONE
-Five stale units (`mycelial-boss_agent`, `mycelial-codingagent`,
-`mycelial-security_agent`, `mycelial-datagatherer`, `mycelial-dashboard`)
-were leftover from the `AgNetworking/mycelial-snapshot` era — their
-`ExecStart` pointed at flat file paths like `agents/boss_agent.py` that no
-longer exist after the repo moved to per-agent subdirectories
-(`agents/boss_agent/boss_agent.py`). They had racked up 22,000+ restarts
-before being caught. All 5 are now confirmed **inactive**, all unit files
-and symlinks removed from `/etc/systemd/system/`. No further action needed.
+**1-2 — what the system cannot do, and that costs something every day.** Both
+are the same seam: information crossing between the principal and the system. A
+lollipop and a leaf removal reported on 2026-08-21 were still missing from the
+record on 2026-08-30, because the only path from a spoken fact to an agent runs
+through a human relaying it by hand. And a question Anansi cannot yet answer is
+a dead end rather than something that arrives later. Neither needs hardware, and
+both are being paid for now.
 
-## Phase 1 — Containerize for portability ✅ DONE (smoke-tested)
-New files added to this repo (all untracked/uncommitted so far — not yet
-`git add`ed or committed):
-- `Dockerfile` — single image containing the full stack + Ollama CLI
-- `docker-entrypoint.sh` — starts `ollama serve`, then `start_all.sh`, then a `socat` forwarder for Anansi, then tails logs to keep the container alive
-- `docker-compose.yml` — publishes **only** Anansi to `127.0.0.1:8081` on the host (via the in-container forwarder on 9081); everything else stays inside the container, matching how `core/base_agent.py` already talks to peers over `localhost`
-- `requirements.txt` — generated via `pip freeze` from the live venv (93 packages, no torch/tensorflow)
-- `.dockerignore`, `.env.example` — `.env` itself is gitignored (added that line to `.gitignore`)
-- One-line edit to `start_all.sh`: `source venv/bin/activate` now only runs `if [ -f venv/bin/activate ]` — backward compatible, still works on the host, lets the container skip it since deps are installed globally there
+**3-4 — cleanup, and finishing what is nearly finished.** Retention decides what
+is worth carrying to a new machine, so doing it after a migration means
+migrating what would have been deleted. Hardening is one `sudo` command from
+complete and should not sit at 95% indefinitely.
 
-**Deliberate scope decision:** the original plan sketch implied one
-container per agent/service. That was dropped after checking
-`core/base_agent.py` — inter-service calls are hardcoded to
-`http://localhost:PORT`, and `services/inference/service.py` shells out to
-the `ollama` CLI binary directly (not HTTP). Splitting into per-service
-containers would mean rewriting networking across ~30 files, too risky to
-do blind. Current approach is a single container running the whole stack
-(mirrors `start_all.sh` as-is), which still delivers the portability win —
-`git clone && docker compose up` reproduces the platform anywhere — without
-touching live service code. Per-service splitting is a valid future
-follow-up, not part of this pass.
+**5 — the prerequisite for exposure.** Identity must precede any multi-user or
+public surface. Multi-user without strong identity is an apartment block with
+one key on the front door.
 
-**Also found (not yet acted on):** this repo already has ~15 files with
-uncommitted, in-flight changes unrelated to this containerization work —
-notably most services already flipped from `0.0.0.0` to `127.0.0.1` binds
-(`git diff --stat` shows the list). That looks like independent progress on
-what is now Phase 6 (hardening) below. Left untouched to avoid collisions
-— check `git status`/`git diff` before assuming it's stale.
+**Hardware track — opens when a machine exists.** Everything shipped to it
+should already be correct, lean and authorized, which is what 1-5 are for.
 
-### Build history / bugs hit and fixed so far
-1. `curl ... ollama.com/install.sh | sh` failed — needed `zstd` installed first (not in `python:3.14-slim`). Fixed: added `zstd` to the `apt-get install` list.
-2. `start_all.sh` does `cd ~/mycelial`, but root's `$HOME` is `/root` while the app was at `/app` → `cd: /root/mycelial: No such file or directory`. Fixed: changed `WORKDIR` to `/root/mycelial` (not `/app`) so `~/mycelial` resolves correctly without touching `start_all.sh` further. Updated `docker-entrypoint.sh` and the volume mount paths in `docker-compose.yml` to match.
-3. Anansi didn't respond on the published host port even though the container was up and platform services all passed their internal health checks. Root cause: `core/base_agent.py` has an **uncommitted, in-flight change** (not made by this work) that flipped every agent's Flask bind from `host="0.0.0.0"` to `host="127.0.0.1"` — including Anansi, the one agent meant to be reachable from outside. Docker's port publishing NATs to the container's external interface, which can't reach a loopback-only socket. Rather than touch that file (someone else's in-progress hardening), added a tiny `socat` forwarder inside the container: `socat TCP-LISTEN:9081 -> 127.0.0.1:8081`, published as `127.0.0.1:8081:9081` in compose. (First attempt tried forwarding on the *same* port 8081 on the wildcard address — the kernel refused with "Address already in use" even though Anansi was only on 127.0.0.1:8081; had to use a distinct port, 9081, for the forwarder.)
+**And RAM is the test for whether software work can go first.** The principal:
+*"anything software related, if the RAM allows, can be done ahead of hardware."*
+So every numbered phase carries whether it fits in what is here - **7 GB total,
+about 4 GB free** - and all five do. None of them is waiting on a machine.
 
-### Verified working (smoke-tested via `docker run`, then `docker compose config`/`build`)
-- Image builds clean: `mycelial:latest`, ~2.45GB.
-- All 12 agents (boss, coding, hermes, maintenance, anansi, analyzer, grow, legal, accounting, trust, security, pqa) and all platform services start inside the container and pass their internal `/health` checks — confirmed via `/proc/<pid>/cmdline` and the per-service log files.
-- Ollama server starts inside the container (no models pulled yet — that's expected, not part of this test).
-- Anansi is reachable from the **host** through the published port and returns `HTTP 200` on `/health`.
-- `docker compose config` and `docker compose build` both succeed against the compose file as committed here.
-- A POST to `/execute` (`process_request`) through the published port didn't return a result within 30s — almost certainly because no Ollama model is pulled and no `ANTHROPIC_API_KEY` was set for this throwaway test container (no `.env` was used). Not investigated further since it's not a packaging/networking issue — the same path (health check) that exercises the identical socat→Anansi hop already round-trips fine. Re-test with a real `.env` and a pulled model before trusting end-to-end reasoning.
-- Test container (`mycelial-test`) was removed after each test; no stray containers left running; `.env` created only transiently for the compose validation and deleted after.
+The one that could stop being true is Phase 1. Capturing a spoken fact
+deterministically - the grower says a number and a unit and it is written - costs
+nothing. Doing it by handing every conversational turn to a language model is a
+different phase with a different budget, and on 4 GB free it would mean the
+1.5B model already loaded, which is the model that has produced every
+fabrication this system has made. If Phase 1 starts to need a bigger model to
+work, that is the signal it has become hardware-blocked, and it should be said
+out loud rather than discovered by watching it get worse.
 
-### Remaining before calling Phase 1 fully closed
-- [ ] Re-test `/execute` with a real `.env` (`cp .env.example .env`, fill in `ANTHROPIC_API_KEY` or pull an Ollama model) to confirm actual reasoning works end-to-end, not just health checks
-- [x] Decide whether to `git add`/commit the new Docker files — done. Committed and pushed alongside the platform-service `0.0.0.0`→`127.0.0.1` bind hardening (that turned out to be exactly the 11 platform services in `services/*/service.py` — mechanical, consistent, self-contained; `docker-compose.yml` already only exposes Anansi via the in-container `socat` forwarder regardless). Two *other* uncommitted diff clusters found in the same `git status` sweep were reviewed and deliberately left out of this commit as unrelated: (1) `core/graph_manager.py` + `core/schemas.py` — an in-progress KAG relationship-archive table, orthogonal to deployment; (2) four new `config/agent_cards/*.json` files — runtime-generated agent cards, not authored code.
-- [ ] When ready to actually cut over host port 8081 to the container, stop the live tmux/`start_all.sh` instance first (they'll conflict on the port) — this is Phase 8, not needed until the dedicated device exists
+| # | Phase | Status | Fits current RAM? | was |
+|---|-------|--------|-------------------|-----|
+| 1 | Grow captures spoken facts itself | not started | yes, if capture stays deterministic | Phase 4 |
+| 2 | Conversations that persist, and answers that arrive | not started | yes - a table and a queue | Phase 9 |
+| 3 | Retention: decide what to keep, and on what evidence | not started | yes, and it REDUCES the footprint | Phase 2 |
+| 4 | Harden network exposure | ◐ one sudo command remaining | yes - one command | Phase 6 |
+| 5 | Identity and authorization (DID / verifiable claims) | not started | yes - crypto, no model | Phase 5 |
+| — | *Hardware track:* provision dedicated device | blocked on hardware | n/a | Phase 7 |
+| — | *Hardware track:* migrate and cut over | blocked on hardware | n/a | Phase 8 |
+| — | *Deferred track:* multi-tenancy | not scheduled | unknown - not designed | — |
 
-## Phase 2 — Retention: decide what to keep, and on what evidence — NOT STARTED
+---
+
+## Phase 1 — Grow captures spoken facts itself — NOT STARTED
+
+*(was Phase 4)*
+
+*(was Phase 4)*
+
+**Independent of every other phase. Small, and it removes a standing failure
+mode rather than adding a feature.**
+
+### The gap
+
+Grow already captures one class of spoken input: `ingest()` recognises a
+reservoir reading stated in passing ("19.7c 6.15ph 688ppm") and records it
+before anything slow runs. It captures no other kind of fact.
+
+Everything else the grower says about the physical system - a net pot
+clearance, a pump change, a light height, a medium swap - reaches Claude and
+stops there. Claude is currently the only path from a spoken fact to the
+agent's record, and that path is a habit, not a mechanism.
+
+### What it cost, concretely
+
+On 2026-08-21 the grower said the water sits about two inches below the
+basket. Claude agreed with it in the same turn and never wrote it down. On
+2026-08-23 a volume measurement was analysed assuming the medium was submerged
+- concluding the reservoir could not be sized and the grower's measurement was
+distorted by displacement that does not exist. The grower had supplied the
+deciding fact two days earlier and been agreed with.
+
+### Likely shape (not designed yet)
+
+Extend `ingest()` beyond readings: recognise statements of system fact and
+route them to `amend_grow_system`, which already merges without clobbering.
+The hard part is not extraction, it is **refusing to guess** - a
+misremembered clearance written confidently into the record is worse than no
+clearance at all, because the reasoning layer trusts the record. Anything
+below confident extraction should be surfaced for confirmation, not stored.
+
+### Do not start this by
+
+Letting a model rewrite the system record freely. The record is what dosing
+and stage reasoning read; it needs the same "assert the anchor before writing"
+discipline as any other substitution.
+
+## Phase 2 — Conversations that persist, and answers that arrive — NOT STARTED
+
+*(was Phase 9)*
+
+*(was Phase 9)*
+
+Recorded 2026-08-30 at the principal's request, for the same reason Phase 3
+existed to be found again: *"if we did not write this into the phases, I would
+have forgotten... just continue architecting a different feature instead of
+finding ways to move forward."*
+
+### The gap
+
+Asking Anansi something it cannot answer yet ends the exchange. The principal
+waits, the capability gets built, and then they have to **come back and ask the
+same question again** — the system never tells them the answer exists now.
+
+Today's session is the example: *"What is legal tender"* returned *"the routing
+is right and the capability is missing."* That was the correct answer and it was
+a dead end. Legal's `answer()` was built twenty minutes later and nothing told
+the person who asked.
+
+Two separate things are missing, and they are worth separating because one is
+much smaller than the other:
+
+**9a. A question can outlive the request that asked it.** When an agent reports
+a missing capability, the question should be *recorded as open* against the
+agent that claimed it. When that agent later gains the capability, the open
+question is retried and the answer posted into the chat unprompted. This does
+not need conversation storage — it needs a queue of unanswered questions with
+the agent and prompt that produced them.
+
+**9b. Conversations persist at all.** There are no sessions: the chat is a
+transcript in the browser that dies on reload, and nothing on the server knows
+what was discussed. This is the larger piece and it is what makes 9a *feel* like
+a conversation rather than a notification.
+
+### Why it is not a performance-shaped phase
+
+Phase 3 was arithmetic — measure, cache, measure again. This one changes what a
+request IS: a thing that can be answered later, by a different process, into a
+channel the asker is not currently waiting on. That is closer to Phase 5
+(identity — *who* is the answer for) than to a performance fix, and it should
+probably follow it.
+
+### Do not start this by
+
+Building chat history storage first. The history is the bigger half and the
+smaller half is worth more: a queue of open questions retried when a capability
+appears would have caught today's legal-tender case with no session storage at
+all.
+
+## Phase 3 — Retention: decide what to keep, and on what evidence — NOT STARTED
+
+*(was Phase 2)*
+
+*(was Phase 2)*
 
 **Independent of every other phase. Owner: Maintenance Agent, which already
 runs `analyze_memory_usage` and `run_cleanup_routine` and is the only agent
@@ -153,129 +229,43 @@ to 2026-08-13 in a single file, and every agent appends to that one file.
 
 Deleting on age or size. Both are proxies for "probably worthless" and neither
 is evidence. The three unreadable photos are among the oldest.
-## Phase 3 — Reduce A2A read amplification inside a single answer — ✅ DONE 2026-08-30
 
-**Measured before:** "how is my plant" produced 282 audited events in 22.04s —
-137 memory reads, 141 guard checks, for 5 calls of actual work. 87 of the 137
-reads returned data already fetched inside the same request; 108 were individual
-`reading_*` keys pulled one at a time.
+## Phase 4 — Harden network exposure — ◐ ONE SUDO COMMAND REMAINING
 
-**Measured after: 22 events, 1.05s.**
+*(was Phase 6)*
 
-| | before | after |
-|---|---|---|
-| wall clock | 22.04s | **1.05s** |
-| audited events | 282 | **22** |
-| memory reads | 137 | **15** |
-| batched reads | 0 | **1** (replacing ~108) |
-| guard checks | 141 | **2** |
+*(was Phase 6)*
 
-Three fixes, all in `core/base_agent.py` so every agent inherits them:
+Done:
+- Unprivileged nginx on **8443** — TLS 1.3, basic auth, 25 MB body cap —
+  serving the webapp and proxying `/execute` to Anansi. Runs as the same
+  user as the agents with every write path under `state/`, so it needs no
+  root and does not touch the system nginx. Config in
+  `config/nginx/mycelial.conf`, started by `start_all.sh`.
+- Security Agent (9010) gates every inbound `/execute` via
+  `AgentBase.check_guard()`, denylist in `config/guards.json`, kill switch
+  at `state/LOCKED`. Fails open by design — verified on 2026-08-29 when the
+  agent was found down and the swarm was correctly still serving.
+- **8090 retired 2026-08-29.** `start_all.sh` no longer starts
+  `python3 -m http.server 8090 --bind 0.0.0.0`, and `webapp/serve.sh` now
+  binds loopback. `mycelial.service`'s ExecStop pattern cleaned up with it.
 
-1. **Request-scoped read cache.** Keyed per inbound request and destroyed when
-   it ends — a cache that outlived the request would serve a stale reading to
-   the next question, and dosing off a stale volume is the failure this project
-   keeps finding. Writes invalidate their key, so a read-after-write inside one
-   request cannot return the pre-write value.
-2. **`retrieve_many`** on Hermes, `retrieve_own_memories` on the base. One round
-   trip for many keys. Falls back to individual reads if the batch verb is
-   unavailable — a performance fix that can lose data is not one.
-3. **Guard decision cache, ALLOW only, 30s.** Denials are re-evaluated every
-   time so a removed rule takes effect at once, and `state/LOCKED` is checked
-   from local disk on every call before the cache is consulted — verified: the
-   kill switch still returns 403 instantly.
+Remaining — needs root, so it cannot be done from inside the stack:
+- **9081** is `anansi-forward.service`, a systemd unit with
+  `Restart=always` putting socat on `0.0.0.0:9081` in front of Anansi, plus
+  a ufw rule opening it to the LAN. nginx already serves that exact
+  endpoint authenticated on 8443, so it is a second unauthenticated door to
+  the same place. Killing the process is not enough; the unit restarts it.
+  Run: `deploy/systemd/retire_anansi_forward.sh`
 
-**A regression was introduced and caught by checking correctness before
-performance.** The batch returned entries one nesting level shallower than the
-single read, so `_unwrap_value` looked too deep, every reading read as absent,
-and the grow reported having no readings at all. A faster path that returns a
-different shape is not a faster path — it is a second API nobody was told about.
-
-**Independent of the deployment chain (Phases 6-8) and of identity (Phase 5).
-Comes before the deferred multi-tenancy track, which would multiply it by the
-number of tenants.** Nothing is broken today; this is cost, not correctness.
-
-### The observation
-
-Measured 2026-08-23 from a live call graph, last 500 log lines per agent, while
-answering ordinary grow questions:
-
-| Call | Count |
-|------|-------|
-| `grow_agent -> hermes (retrieve_memory)` | 166 |
-| `hermes -> security_agent (check_guard)` | 229 |
-| `grow_agent -> security_agent (check_guard)` | 7 |
-
-One question can cost well over a hundred memory round trips. `answer()` picks
-several of its own capabilities, and each one re-reads the plant record, the
-reading index and the readings independently over A2A. Every one of those
-reads is a JSON-RPC POST that Hermes then re-authorizes against the Security
-Agent, so the guard traffic is larger than the memory traffic it protects.
-
-### Why it is worth doing, and why not yet
-
-It is not a correctness bug and no answer is wrong because of it. It is the
-reason reasoning feels slow on this hardware (i5-4570T, 4 threads, no GPU),
-and it is the first thing that will hurt under load - a second tenant doubles
-it, a probe reporting hourly multiplies it again.
-
-### Likely shape (not designed yet)
-
-- A per-request read cache inside `answer()`, so the capabilities it calls
-  share one read of the plant record and one of the readings rather than each
-  fetching their own.
-- Decide whether an agent reading **its own** memory needs a full guard round
-  trip per read, or whether the guard belongs at the request boundary. That is
-  a security decision, not a performance one, and must not be made casually -
-  `check_guard` failing open already means an outage does not halt the swarm.
-
-### Do not start this by
-
-Caching across requests, or holding state in the agent between calls. The
-platform is stateless by design and that property is worth more than the
-round trips. The cache should live for one `answer()` and die with it.
-
-## Phase 4 — Grow captures spoken facts itself — NOT STARTED
-
-**Independent of every other phase. Small, and it removes a standing failure
-mode rather than adding a feature.**
-
-### The gap
-
-Grow already captures one class of spoken input: `ingest()` recognises a
-reservoir reading stated in passing ("19.7c 6.15ph 688ppm") and records it
-before anything slow runs. It captures no other kind of fact.
-
-Everything else the grower says about the physical system - a net pot
-clearance, a pump change, a light height, a medium swap - reaches Claude and
-stops there. Claude is currently the only path from a spoken fact to the
-agent's record, and that path is a habit, not a mechanism.
-
-### What it cost, concretely
-
-On 2026-08-21 the grower said the water sits about two inches below the
-basket. Claude agreed with it in the same turn and never wrote it down. On
-2026-08-23 a volume measurement was analysed assuming the medium was submerged
-- concluding the reservoir could not be sized and the grower's measurement was
-distorted by displacement that does not exist. The grower had supplied the
-deciding fact two days earlier and been agreed with.
-
-### Likely shape (not designed yet)
-
-Extend `ingest()` beyond readings: recognise statements of system fact and
-route them to `amend_grow_system`, which already merges without clobbering.
-The hard part is not extraction, it is **refusing to guess** - a
-misremembered clearance written confidently into the record is worse than no
-clearance at all, because the reasoning layer trusts the record. Anything
-below confident extraction should be surfaced for confirmation, not stored.
-
-### Do not start this by
-
-Letting a model rewrite the system record freely. The record is what dosing
-and stage reasoning read; it needs the same "assert the anchor before writing"
-discipline as any other substitution.
+  This does NOT affect `docker-entrypoint.sh`, which uses 9081 *inside* the
+  container and publishes it to the host as loopback-only `127.0.0.1:8081`.
 
 ## Phase 5 — Identity and authorization (DID / verifiable claims) — NOT STARTED
+
+*(was Phase 5)*
+
+*(was Phase 5)*
 
 **Comes BEFORE multi-tenancy, which is now a deferred track rather than a
 numbered phase.** The ordering matters:
@@ -363,38 +353,21 @@ rather than a swarm accumulating permission slips.
 
 ---
 
-## Phase 6 — Harden network exposure — ◐ ONE SUDO COMMAND REMAINING
+---
 
-Done:
-- Unprivileged nginx on **8443** — TLS 1.3, basic auth, 25 MB body cap —
-  serving the webapp and proxying `/execute` to Anansi. Runs as the same
-  user as the agents with every write path under `state/`, so it needs no
-  root and does not touch the system nginx. Config in
-  `config/nginx/mycelial.conf`, started by `start_all.sh`.
-- Security Agent (9010) gates every inbound `/execute` via
-  `AgentBase.check_guard()`, denylist in `config/guards.json`, kill switch
-  at `state/LOCKED`. Fails open by design — verified on 2026-08-29 when the
-  agent was found down and the swarm was correctly still serving.
-- **8090 retired 2026-08-29.** `start_all.sh` no longer starts
-  `python3 -m http.server 8090 --bind 0.0.0.0`, and `webapp/serve.sh` now
-  binds loopback. `mycelial.service`'s ExecStop pattern cleaned up with it.
+## Hardware track
 
-Remaining — needs root, so it cannot be done from inside the stack:
-- **9081** is `anansi-forward.service`, a systemd unit with
-  `Restart=always` putting socat on `0.0.0.0:9081` in front of Anansi, plus
-  a ufw rule opening it to the LAN. nginx already serves that exact
-  endpoint authenticated on 8443, so it is a second unauthenticated door to
-  the same place. Killing the process is not enough; the unit restarts it.
-  Run: `deploy/systemd/retire_anansi_forward.sh`
+Not numbered: a machine either exists or it does not, and no ordering decision changes that. Nothing in phases 1-5 waits on this.
 
-  This does NOT affect `docker-entrypoint.sh`, which uses 9081 *inside* the
-  container and publishes it to the host as loopback-only `127.0.0.1:8081`.
+### Provision dedicated device — blocked on hardware *(was Phase 7)*
 
-## Phase 7 — Provision dedicated device — NOT STARTED
+*(was Phase 7)*
 User decision pending: mini PC (Intel N100/N305 class, 16-32GB RAM, no GPU
 needed) recommended in the plan. Not yet purchased/chosen.
 
-## Phase 8 — Migrate and cut over — NOT STARTED
+### Migrate and cut over — blocked on hardware *(was Phase 8)*
+
+*(was Phase 8)*
 Blocked on Phase 7.
 
 ---
@@ -529,52 +502,150 @@ already proves the thin-client pattern, and the socat forwarder already exposes
 Anansi to the LAN. That de-risks the whole UX question without touching the
 trust model.
 
+---
 
+## Completed
 
-## Phase 9 — Conversations that persist, and answers that arrive — NOT STARTED
+Kept for the record; no longer in the active list.
 
-Recorded 2026-08-30 at the principal's request, for the same reason Phase 3
-existed to be found again: *"if we did not write this into the phases, I would
-have forgotten... just continue architecting a different feature instead of
-finding ways to move forward."*
+### Remove orphaned crash-looping systemd units ✅ DONE — done *(was Phase 0)*
+Five stale units (`mycelial-boss_agent`, `mycelial-codingagent`,
+`mycelial-security_agent`, `mycelial-datagatherer`, `mycelial-dashboard`)
+were leftover from the `AgNetworking/mycelial-snapshot` era — their
+`ExecStart` pointed at flat file paths like `agents/boss_agent.py` that no
+longer exist after the repo moved to per-agent subdirectories
+(`agents/boss_agent/boss_agent.py`). They had racked up 22,000+ restarts
+before being caught. All 5 are now confirmed **inactive**, all unit files
+and symlinks removed from `/etc/systemd/system/`. No further action needed.
 
-### The gap
+### Containerize for portability ✅ DONE (smoke-tested) — done *(was Phase 1)*
+New files added to this repo (all untracked/uncommitted so far — not yet
+`git add`ed or committed):
+- `Dockerfile` — single image containing the full stack + Ollama CLI
+- `docker-entrypoint.sh` — starts `ollama serve`, then `start_all.sh`, then a `socat` forwarder for Anansi, then tails logs to keep the container alive
+- `docker-compose.yml` — publishes **only** Anansi to `127.0.0.1:8081` on the host (via the in-container forwarder on 9081); everything else stays inside the container, matching how `core/base_agent.py` already talks to peers over `localhost`
+- `requirements.txt` — generated via `pip freeze` from the live venv (93 packages, no torch/tensorflow)
+- `.dockerignore`, `.env.example` — `.env` itself is gitignored (added that line to `.gitignore`)
+- One-line edit to `start_all.sh`: `source venv/bin/activate` now only runs `if [ -f venv/bin/activate ]` — backward compatible, still works on the host, lets the container skip it since deps are installed globally there
 
-Asking Anansi something it cannot answer yet ends the exchange. The principal
-waits, the capability gets built, and then they have to **come back and ask the
-same question again** — the system never tells them the answer exists now.
+**Deliberate scope decision:** the original plan sketch implied one
+container per agent/service. That was dropped after checking
+`core/base_agent.py` — inter-service calls are hardcoded to
+`http://localhost:PORT`, and `services/inference/service.py` shells out to
+the `ollama` CLI binary directly (not HTTP). Splitting into per-service
+containers would mean rewriting networking across ~30 files, too risky to
+do blind. Current approach is a single container running the whole stack
+(mirrors `start_all.sh` as-is), which still delivers the portability win —
+`git clone && docker compose up` reproduces the platform anywhere — without
+touching live service code. Per-service splitting is a valid future
+follow-up, not part of this pass.
 
-Today's session is the example: *"What is legal tender"* returned *"the routing
-is right and the capability is missing."* That was the correct answer and it was
-a dead end. Legal's `answer()` was built twenty minutes later and nothing told
-the person who asked.
+**Also found (not yet acted on):** this repo already has ~15 files with
+uncommitted, in-flight changes unrelated to this containerization work —
+notably most services already flipped from `0.0.0.0` to `127.0.0.1` binds
+(`git diff --stat` shows the list). That looks like independent progress on
+what is now Phase 6 (hardening) below. Left untouched to avoid collisions
+— check `git status`/`git diff` before assuming it's stale.
 
-Two separate things are missing, and they are worth separating because one is
-much smaller than the other:
+### Build history / bugs hit and fixed so far
+1. `curl ... ollama.com/install.sh | sh` failed — needed `zstd` installed first (not in `python:3.14-slim`). Fixed: added `zstd` to the `apt-get install` list.
+2. `start_all.sh` does `cd ~/mycelial`, but root's `$HOME` is `/root` while the app was at `/app` → `cd: /root/mycelial: No such file or directory`. Fixed: changed `WORKDIR` to `/root/mycelial` (not `/app`) so `~/mycelial` resolves correctly without touching `start_all.sh` further. Updated `docker-entrypoint.sh` and the volume mount paths in `docker-compose.yml` to match.
+3. Anansi didn't respond on the published host port even though the container was up and platform services all passed their internal health checks. Root cause: `core/base_agent.py` has an **uncommitted, in-flight change** (not made by this work) that flipped every agent's Flask bind from `host="0.0.0.0"` to `host="127.0.0.1"` — including Anansi, the one agent meant to be reachable from outside. Docker's port publishing NATs to the container's external interface, which can't reach a loopback-only socket. Rather than touch that file (someone else's in-progress hardening), added a tiny `socat` forwarder inside the container: `socat TCP-LISTEN:9081 -> 127.0.0.1:8081`, published as `127.0.0.1:8081:9081` in compose. (First attempt tried forwarding on the *same* port 8081 on the wildcard address — the kernel refused with "Address already in use" even though Anansi was only on 127.0.0.1:8081; had to use a distinct port, 9081, for the forwarder.)
 
-**9a. A question can outlive the request that asked it.** When an agent reports
-a missing capability, the question should be *recorded as open* against the
-agent that claimed it. When that agent later gains the capability, the open
-question is retried and the answer posted into the chat unprompted. This does
-not need conversation storage — it needs a queue of unanswered questions with
-the agent and prompt that produced them.
+### Verified working (smoke-tested via `docker run`, then `docker compose config`/`build`)
+- Image builds clean: `mycelial:latest`, ~2.45GB.
+- All 12 agents (boss, coding, hermes, maintenance, anansi, analyzer, grow, legal, accounting, trust, security, pqa) and all platform services start inside the container and pass their internal `/health` checks — confirmed via `/proc/<pid>/cmdline` and the per-service log files.
+- Ollama server starts inside the container (no models pulled yet — that's expected, not part of this test).
+- Anansi is reachable from the **host** through the published port and returns `HTTP 200` on `/health`.
+- `docker compose config` and `docker compose build` both succeed against the compose file as committed here.
+- A POST to `/execute` (`process_request`) through the published port didn't return a result within 30s — almost certainly because no Ollama model is pulled and no `ANTHROPIC_API_KEY` was set for this throwaway test container (no `.env` was used). Not investigated further since it's not a packaging/networking issue — the same path (health check) that exercises the identical socat→Anansi hop already round-trips fine. Re-test with a real `.env` and a pulled model before trusting end-to-end reasoning.
+- Test container (`mycelial-test`) was removed after each test; no stray containers left running; `.env` created only transiently for the compose validation and deleted after.
 
-**9b. Conversations persist at all.** There are no sessions: the chat is a
-transcript in the browser that dies on reload, and nothing on the server knows
-what was discussed. This is the larger piece and it is what makes 9a *feel* like
-a conversation rather than a notification.
+### Remaining before calling Phase 1 fully closed
+- [ ] Re-test `/execute` with a real `.env` (`cp .env.example .env`, fill in `ANTHROPIC_API_KEY` or pull an Ollama model) to confirm actual reasoning works end-to-end, not just health checks
+- [x] Decide whether to `git add`/commit the new Docker files — done. Committed and pushed alongside the platform-service `0.0.0.0`→`127.0.0.1` bind hardening (that turned out to be exactly the 11 platform services in `services/*/service.py` — mechanical, consistent, self-contained; `docker-compose.yml` already only exposes Anansi via the in-container `socat` forwarder regardless). Two *other* uncommitted diff clusters found in the same `git status` sweep were reviewed and deliberately left out of this commit as unrelated: (1) `core/graph_manager.py` + `core/schemas.py` — an in-progress KAG relationship-archive table, orthogonal to deployment; (2) four new `config/agent_cards/*.json` files — runtime-generated agent cards, not authored code.
+- [ ] When ready to actually cut over host port 8081 to the container, stop the live tmux/`start_all.sh` instance first (they'll conflict on the port) — this is Phase 8, not needed until the dedicated device exists
 
-### Why it is not Phase 3-shaped
+### Reduce A2A read amplification inside a single answer — done *(was Phase 3)*
 
-Phase 3 was arithmetic — measure, cache, measure again. This one changes what a
-request IS: a thing that can be answered later, by a different process, into a
-channel the asker is not currently waiting on. That is closer to Phase 5
-(identity — *who* is the answer for) than to a performance fix, and it should
-probably follow it.
+**Measured before:** "how is my plant" produced 282 audited events in 22.04s —
+137 memory reads, 141 guard checks, for 5 calls of actual work. 87 of the 137
+reads returned data already fetched inside the same request; 108 were individual
+`reading_*` keys pulled one at a time.
+
+**Measured after: 22 events, 1.05s.**
+
+| | before | after |
+|---|---|---|
+| wall clock | 22.04s | **1.05s** |
+| audited events | 282 | **22** |
+| memory reads | 137 | **15** |
+| batched reads | 0 | **1** (replacing ~108) |
+| guard checks | 141 | **2** |
+
+Three fixes, all in `core/base_agent.py` so every agent inherits them:
+
+1. **Request-scoped read cache.** Keyed per inbound request and destroyed when
+   it ends — a cache that outlived the request would serve a stale reading to
+   the next question, and dosing off a stale volume is the failure this project
+   keeps finding. Writes invalidate their key, so a read-after-write inside one
+   request cannot return the pre-write value.
+2. **`retrieve_many`** on Hermes, `retrieve_own_memories` on the base. One round
+   trip for many keys. Falls back to individual reads if the batch verb is
+   unavailable — a performance fix that can lose data is not one.
+3. **Guard decision cache, ALLOW only, 30s.** Denials are re-evaluated every
+   time so a removed rule takes effect at once, and `state/LOCKED` is checked
+   from local disk on every call before the cache is consulted — verified: the
+   kill switch still returns 403 instantly.
+
+**A regression was introduced and caught by checking correctness before
+performance.** The batch returned entries one nesting level shallower than the
+single read, so `_unwrap_value` looked too deep, every reading read as absent,
+and the grow reported having no readings at all. A faster path that returns a
+different shape is not a faster path — it is a second API nobody was told about.
+
+**Independent of the deployment chain (Phases 6-8) and of identity (Phase 5).
+Comes before the deferred multi-tenancy track, which would multiply it by the
+number of tenants.** Nothing is broken today; this is cost, not correctness.
+
+### The observation
+
+Measured 2026-08-23 from a live call graph, last 500 log lines per agent, while
+answering ordinary grow questions:
+
+| Call | Count |
+|------|-------|
+| `grow_agent -> hermes (retrieve_memory)` | 166 |
+| `hermes -> security_agent (check_guard)` | 229 |
+| `grow_agent -> security_agent (check_guard)` | 7 |
+
+One question can cost well over a hundred memory round trips. `answer()` picks
+several of its own capabilities, and each one re-reads the plant record, the
+reading index and the readings independently over A2A. Every one of those
+reads is a JSON-RPC POST that Hermes then re-authorizes against the Security
+Agent, so the guard traffic is larger than the memory traffic it protects.
+
+### Why it is worth doing, and why not yet
+
+It is not a correctness bug and no answer is wrong because of it. It is the
+reason reasoning feels slow on this hardware (i5-4570T, 4 threads, no GPU),
+and it is the first thing that will hurt under load - a second tenant doubles
+it, a probe reporting hourly multiplies it again.
+
+### Likely shape (not designed yet)
+
+- A per-request read cache inside `answer()`, so the capabilities it calls
+  share one read of the plant record and one of the readings rather than each
+  fetching their own.
+- Decide whether an agent reading **its own** memory needs a full guard round
+  trip per read, or whether the guard belongs at the request boundary. That is
+  a security decision, not a performance one, and must not be made casually -
+  `check_guard` failing open already means an outage does not halt the swarm.
 
 ### Do not start this by
 
-Building chat history storage first. The history is the bigger half and the
-smaller half is worth more: a queue of open questions retried when a capability
-appears would have caught today's legal-tender case with no session storage at
-all.
+Caching across requests, or holding state in the agent between calls. The
+platform is stateless by design and that property is worth more than the
+round trips. The cache should live for one `answer()` and die with it.
+
+### Training-data loop: source, review, count — done 2026-08-25
