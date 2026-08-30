@@ -308,50 +308,192 @@ class MaintenanceAgent(AgentBase):
             return None
         return {"answered_as": "resource_reclaim", "text": text, "facts": gathered}
 
-    def recent_changes(self, limit=10):
-        """The last N things that actually changed, as headlines.
+    # Where a change LANDED decides what kind of change it was. Classifying by
+    # the words in a commit subject would be the same keyword-guessing this
+    # architecture exists to avoid - "fix the reservoir volume field" reads
+    # domain and touches core. The files are evidence; the subject is a claim.
+    SCOPE_PATHS = (
+        ("platform", ("core/", "services/", "start_all.sh", "Dockerfile",
+                      "docker-compose", "requirements", "config/guards.json")),
+        ("interface", ("webapp/", "agents/anansi/")),
+        ("corpus", ("reference/", "knowledge_base/", "tools/ingest")),
+        ("docs", ("README.md", "CHANGELOG.md", "DEPLOYMENT_PROGRESS.md", "CLAUDE.md",
+                  "docs/")),
+    )
 
-        The dashboard was showing a narrated paragraph built from three session
-        log entries - prose about work, at the moment the grower wanted a list
-        of what changed. CHANGELOG.md already holds exactly that, one dated
-        headline per change, and it is the file this project treats as the
-        record of what happened. Read it rather than re-describing it.
+    def _scope_of(self, paths):
+        """The scopes a commit touched, widest first. A commit is 'platform' if
+        it changed anything under core/ or services/ - those are inherited by
+        every agent, so a change there is a change to all of them."""
+        scopes = []
+        for name, prefixes in self.SCOPE_PATHS:
+            if any(pp in f for f in paths for pp in prefixes):
+                scopes.append(name)
+        agents = sorted({f.split("/")[1] for f in paths
+                         if f.startswith("agents/") and len(f.split("/")) > 2
+                         and not f.startswith("agents/anansi/")})
+        for a in agents:
+            scopes.append(f"agent:{a}")
+        return scopes or ["other"]
 
-        Headlines only. The body of an entry explains WHY a change was made,
-        which is worth having and is not what a status card is for."""
-        path = os.path.join(os.path.dirname(os.path.dirname(
-            os.path.dirname(os.path.abspath(__file__)))), "CHANGELOG.md")
-        if not os.path.exists(path):
-            return {"error": f"No changelog at {path}", "entries": []}
-        try:
-            with open(path, encoding="utf-8") as fh:
-                lines = fh.readlines()
-        except Exception as exc:
-            return {"error": f"Could not read the changelog: {exc}", "entries": []}
+    def recent_changes(self, limit=10, scope=None, include_domain=False):
+        """What changed, classified by where it landed.
 
-        entries = []
-        for line in lines:
-            m = re.match(r"^###\s+(\d{4}-\d{2}-\d{2})\s*[-\u2014:]*\s*(.+?)\s*$", line)
-            if m:
-                entries.append({"date": m.group(1), "headline": m.group(2)})
-        if not entries:
-            return {"error": "The changelog has no dated ### entries to read.",
-                    "entries": [], "source": path}
+        Reads git rather than the changelog prose. Every commit carries the
+        files it touched, and that is what decides whether a change was to the
+        PLATFORM - core/ and services/, inherited by every agent - or to one
+        agent's own domain work. The changelog headline is a claim about a
+        change; the paths are evidence of it.
+
+        The distinction matters because the two answer different questions.
+        'How is the system evolving' is the platform and interface story. A
+        week of Grow bugfixes is real work and belongs in the plant's history,
+        not in the answer to what the system now does that it could not before.
+        Mixing them buries the second under the volume of the first."""
+        repo = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
         try:
             n = max(1, min(int(limit), 50))
         except (TypeError, ValueError):
             n = 10
-        # Newest first: a status card is read from the top.
-        recent = list(reversed(entries[-n:]))
-        return {"entries": recent, "count": len(recent),
-                "total_recorded": len(entries), "source": "CHANGELOG.md"}
+        try:
+            raw = subprocess.run(
+                ["git", "-C", repo, "log", "-n", "300", "--no-merges",
+                 "--date=short", "--name-only",
+                 "--pretty=format:%x00%H%x1f%ad%x1f%s"],
+                capture_output=True, text=True, timeout=30)
+        except Exception as exc:
+            return {"error": f"Could not read git history: {exc}", "entries": []}
+        if raw.returncode != 0:
+            return {"error": f"git log failed: {raw.stderr.strip()[:200]}", "entries": []}
+
+        commits = []
+        for block in raw.stdout.split("\x00"):
+            if not block.strip():
+                continue
+            head, _, rest = block.partition("\n")
+            parts = head.split("\x1f")
+            if len(parts) < 3:
+                continue
+            files = [ln.strip() for ln in rest.splitlines() if ln.strip()]
+            commits.append({"sha": parts[0][:7], "date": parts[1], "headline": parts[2],
+                            "scopes": self._scope_of(files), "files_changed": len(files)})
+
+        wanted = scope if isinstance(scope, list) else ([scope] if scope else None)
+        if wanted:
+            sel = [c for c in commits
+                   if any(w in sc for sc in c["scopes"] for w in wanted)]
+        elif include_domain:
+            sel = commits
+        else:
+            # The default question is how the SYSTEM is evolving, so a commit
+            # that only touched one agent's own domain work is left out - and
+            # the count of what was left out is reported, because silently
+            # filtered history is indistinguishable from history that does not
+            # exist.
+            sel = [c for c in commits
+                   if any(sc in ("platform", "interface", "corpus") for sc in c["scopes"])]
+        omitted = len(commits) - len(sel)
+        return {"entries": sel[:n], "count": len(sel[:n]),
+                "domain_only_omitted": omitted if not (wanted or include_domain) else 0,
+                "total_scanned": len(commits), "source": "git log"}
+
+    def phase_status(self):
+        """Where the roadmap actually stands, read from its own table.
+
+        DEPLOYMENT_PROGRESS.md holds what is planned, and its table is the one
+        place that says which phase is done. Kept as a read of that file rather
+        than a second copy, because a duplicated status is a status that drifts
+        - and the one that drifts is always the copy nothing edits."""
+        path = os.path.join(os.path.dirname(os.path.dirname(
+            os.path.dirname(os.path.abspath(__file__)))), "DEPLOYMENT_PROGRESS.md")
+        if not os.path.exists(path):
+            return {"error": f"No roadmap at {path}", "phases": []}
+        try:
+            with open(path, encoding="utf-8") as fh:
+                text = fh.read()
+        except Exception as exc:
+            return {"error": f"Could not read the roadmap: {exc}", "phases": []}
+
+        phases, seen_header = [], False
+        for line in text.splitlines():
+            if not line.strip().startswith("|"):
+                if seen_header and phases:
+                    break
+                continue
+            cells = [c.strip() for c in line.strip().strip("|").split("|")]
+            if len(cells) < 3:
+                continue
+            if cells[0] == "#" or set(cells[0]) <= {"-", ":"}:
+                seen_header = True
+                continue
+            if not seen_header:
+                continue
+            num, name, status = cells[0], cells[1], cells[2]
+            low = status.lower()
+            state = ("done" if ("done" in low or "\u2705" in status)
+                     else "in_progress" if ("\u25d0" in status or "remaining" in low
+                                            or "progress" in low)
+                     else "not_started" if "not started" in low
+                     else "not_scheduled" if "not scheduled" in low
+                     else "unknown")
+            phases.append({"number": num, "name": name, "status_text": status,
+                           "state": state})
+        if not phases:
+            return {"error": "The roadmap table could not be parsed.", "phases": []}
+
+        # The table is a summary of the sections below it, and a summary drifts.
+        # Phase 6 sat at "not started" in the table while its own section
+        # recorded nginx TLS, the Security Agent and the retirement of port 8090
+        # as done - which is exactly how work gets repeated. So the table is
+        # checked against the headings rather than trusted, and any disagreement
+        # is reported instead of one side silently winning.
+        heads = {}
+        for line in text.splitlines():
+            m = re.match(r"^##\s+Phase\s+(\d+)\s*[-\u2014]\s*(.+?)\s*$", line)
+            if m:
+                heads[m.group(1)] = m.group(2)
+        conflicts = []
+        for ph in phases:
+            head = heads.get(ph["number"])
+            if not head:
+                continue
+            hl = head.lower()
+            hstate = ("done" if ("\u2705" in head or " done" in hl)
+                      else "in_progress" if ("\u25d0" in head or "remaining" in hl)
+                      else "not_started" if "not started" in hl
+                      else "unknown")
+            if hstate != "unknown" and hstate != ph["state"]:
+                conflicts.append({"number": ph["number"], "name": ph["name"],
+                                  "table_says": ph["state"], "section_says": hstate})
+                # The detailed section is the one that gets edited while work is
+                # happening, so where they disagree it is the better evidence.
+                ph["state"] = hstate
+                ph["state_source"] = "section heading (disagreed with table)"
+
+        numbered = [p for p in phases if p["number"].isdigit()]
+        done = [p for p in numbered if p["state"] == "done"]
+        active = [p for p in numbered if p["state"] == "in_progress"]
+        # The NEXT phase is the lowest-numbered one not finished. Reporting a
+        # count of completions without it answers "how much" and not "what now".
+        nxt = next((p for p in numbered if p["state"] not in ("done",)), None)
+        return {"phases": phases, "table_section_conflicts": conflicts,
+                "done": len(done), "total_numbered": len(numbered),
+                "in_progress": [p["name"] for p in active],
+                "next": ({"number": nxt["number"], "name": nxt["name"],
+                          "status_text": nxt["status_text"]} if nxt else None),
+                "source": "DEPLOYMENT_PROGRESS.md"}
 
     def handle_task(self, task, args, sender):
         self.log(f"Task: {task} from {sender}")
 
         if task == "recent_changes":
             payload = args if isinstance(args, dict) else {}
-            return self.recent_changes(limit=payload.get("limit", 10))
+            return self.recent_changes(limit=payload.get("limit", 10),
+                                       scope=payload.get("scope"),
+                                       include_domain=bool(payload.get("include_domain")))
+
+        if task == "phase_status":
+            return self.phase_status()
 
         if task == "check_disk":
             path = args.get("path", "/")

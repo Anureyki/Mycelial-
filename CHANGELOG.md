@@ -1380,3 +1380,43 @@ returned "unknown" for a plant whose stage and strain are both recorded.
 Markup: `.card-body` was a `<p>`, which cannot legally contain the lists these
 cards render - browsers auto-close it. Now a `<div>`. The orphan
 `.candidate-note` CSS was removed; it had zero references.
+
+### 2026-08-30 — Progress means the roadmap, not a week of Grow bugfixes
+
+The Progress card listed the last ten changelog headlines and they were almost
+all plant work - a stopped pump, a reservoir volume, a voided reading. Real
+work, and the wrong answer to *how is the system evolving*. The grower's reason
+for asking is to avoid redoing something already done, and 110 domain commits
+bury the handful that changed what the system can do.
+
+**Scope is decided by where a change LANDED, not by what its subject says.**
+Classifying commit subjects by keyword would be the same guessing this
+architecture exists to avoid - "fix the reservoir volume field" reads domain and
+touches core. So `recent_changes` reads git, takes the files each commit
+touched, and classifies: `core/` and `services/` are **platform** (inherited by
+every agent, so a change there changes all of them), `webapp/` and Anansi are
+**interface**, `reference/` and the ingest tools are **corpus**, and anything
+under one agent's own directory is that agent's domain. Domain-only commits are
+excluded by default and **the number excluded is reported**, because silently
+filtered history is indistinguishable from history that does not exist.
+
+`docs` is dropped from the display: the changelog is updated with every change,
+so it rides along on nearly everything and carries no signal.
+
+**The phase tracker reads the roadmap rather than restating it.**
+`phase_status` parses the table in `DEPLOYMENT_PROGRESS.md` - kept as a read of
+that file because a duplicated status is one that drifts, and the copy that
+drifts is always the one nothing edits.
+
+**It caught a drift immediately, in the file itself.** The table said Phase 6
+was `not started`. Its own section three hundred lines below recorded nginx TLS
+on 8443, the Security Agent gating every inbound `/execute`, and the retirement
+of port 8090 - with one sudo command outstanding. Exactly the "redo something
+already done" this card exists to prevent, and it was sitting in the document
+meant to prevent it.
+
+So the table is now **checked against the section headings rather than trusted**.
+Where they disagree the section wins - it is the part edited while work is
+actually happening - and the conflict is surfaced on the card instead of one
+side quietly winning. Verified by re-introducing the drift: the conflict is
+reported and the corrected state still shows.

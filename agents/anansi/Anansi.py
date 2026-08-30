@@ -112,8 +112,15 @@ class Anansi(AgentBase):
 
         if task == "recent_changes":
             payload = args if isinstance(args, dict) else {}
-            return self.send_a2a("maintenance_agent", "recent_changes",
-                                 {"limit": int(payload.get("limit", 10))})
+            fwd = {"limit": int(payload.get("limit", 10))}
+            if payload.get("scope"):
+                fwd["scope"] = payload["scope"]
+            if payload.get("include_domain"):
+                fwd["include_domain"] = True
+            return self.send_a2a("maintenance_agent", "recent_changes", fwd)
+
+        if task == "phase_status":
+            return self.send_a2a("maintenance_agent", "phase_status", {})
 
         if task == "training_candidates":
             return self.send_a2a("grow_agent", "list_training_candidates", {})

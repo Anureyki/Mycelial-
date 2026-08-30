@@ -21,7 +21,7 @@ run, which put retention and maintenance work *after* cutover. Renumbered
 | 3 | Reduce A2A read amplification inside a single answer | not started |
 | 4 | Grow captures spoken facts itself | not started |
 | 5 | Identity and authorization (DID / verifiable claims) | not started |
-| 6 | Harden network exposure | not started |
+| 6 | Harden network exposure | ◐ one sudo command remaining |
 | 7 | Provision dedicated device | not started |
 | 8 | Migrate and cut over | not started |
 | — | Training-data loop: source, review, count | ✅ done 2026-08-25 |

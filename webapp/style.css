@@ -360,3 +360,46 @@ main#log {
   color: var(--muted);
   font-size: 0.9rem;
 }
+
+/* Progress card: roadmap position, then what the system changed. */
+.card-body .phase-hdr {
+  margin: 12px 0 6px;
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--muted);
+  white-space: normal;
+}
+.card-body .phase-hdr:first-child { margin-top: 0; }
+.card-body .phases {
+  margin: 0;
+  padding-left: 0;
+  list-style: none;
+  white-space: normal;
+}
+.card-body .phases li {
+  padding: 2px 0 2px 20px;
+  position: relative;
+  font-size: 0.9rem;
+}
+.card-body .phases li::before {
+  position: absolute;
+  left: 0;
+  /* State is carried by shape as well as colour, so the track still reads
+     when the colours do not survive the display. */
+  content: "\25CB";
+  color: var(--muted);
+}
+.card-body .phases li.ph-done::before { content: "\25CF"; color: #4a9d6e; }
+.card-body .phases li.ph-in_progress::before { content: "\25D0"; color: #c8863c; }
+.card-body .phases li.ph-done { color: var(--muted); }
+.card-body .changes .scope {
+  display: inline-block;
+  margin-right: 6px;
+  padding: 0 5px;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  font-size: 0.72rem;
+  color: var(--muted);
+  vertical-align: 1px;
+}

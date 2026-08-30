@@ -314,26 +314,85 @@ async function renderGrowCard(body) {
   }
 }
 
-// Progress is a list of what changed, newest first, read from CHANGELOG.md -
-// the file this project already treats as the record of what happened. It was
-// a narrated paragraph built from three session-log entries.
+// Progress answers two questions the grower kept having to hold in their head:
+// where the roadmap stands, and what the SYSTEM has changed lately. It used to
+// be a narrated paragraph, and then a changelog list dominated by domain
+// bugfixes - real work, but not an answer to how the system is evolving.
 async function renderProgressCard(body) {
-  const d = unwrap(await callTask('recent_changes', { limit: 10 }), 'entries');
+  body.textContent = '';
+
+  const ph = unwrap(await callTask('phase_status', {}), 'phases');
+  if (ph && ph.phases) {
+    const done = ph.phases.filter(p => /^\d+$/.test(p.number) && p.state === 'done').length;
+    const hdr = document.createElement('p');
+    hdr.className = 'phase-hdr';
+    hdr.textContent = `Phase ${done}/${ph.total_numbered} complete`
+      + (ph.next ? ` · next: ${ph.next.number}. ${ph.next.name}` : '');
+    body.append(hdr);
+
+    const track = document.createElement('ol');
+    track.className = 'phases';
+    for (const p of ph.phases) {
+      if (!/^\d+$/.test(p.number)) continue;
+      const li = document.createElement('li');
+      li.className = `ph-${p.state}`;
+      li.textContent = `${p.number}. ${p.name}`;
+      track.append(li);
+    }
+    body.append(track);
+
+    // Two places in one file said different things about phase 6 and the
+    // stale one would have had this work repeated. Surfaced, never resolved
+    // silently.
+    if (ph.table_section_conflicts && ph.table_section_conflicts.length) {
+      const w = document.createElement('p');
+      w.className = 'concern';
+      w.textContent = 'Roadmap disagrees with itself: '
+        + ph.table_section_conflicts
+            .map(c => `phase ${c.number} (table: ${c.table_says}, section: ${c.section_says})`)
+            .join('; ');
+      body.append(w);
+    }
+  }
+
+  const d = unwrap(await callTask('recent_changes', { limit: 8 }), 'entries');
   if (!d || d.error || !d.entries) {
-    body.textContent = d && d.error ? d.error : 'No change history.';
+    const p = document.createElement('p');
+    p.className = 'muted';
+    p.textContent = d && d.error ? d.error : 'No change history.';
+    body.append(p);
     return;
   }
-  body.textContent = '';
+  const h = document.createElement('p');
+  h.className = 'phase-hdr';
+  h.textContent = 'Recent system changes';
+  body.append(h);
   const ul = document.createElement('ul');
   ul.className = 'changes';
   for (const e of d.entries) {
     const li = document.createElement('li');
     const t = document.createElement('time');
     t.textContent = e.date;
-    li.append(t, document.createTextNode(' ' + e.headline));
+    // "docs" rides along on nearly every commit because the changelog is
+    // updated with the change, so it carries no signal and is dropped.
+    const scopes = (e.scopes || []).filter(x => x !== 'docs' && x !== 'other');
+    li.append(t);
+    if (scopes.length) {
+      const sp = document.createElement('span');
+      sp.className = 'scope';
+      sp.textContent = scopes.join(' ');
+      li.append(sp);
+    }
+    li.append(document.createTextNode(' ' + e.headline));
     ul.append(li);
   }
   body.append(ul);
+  if (d.domain_only_omitted) {
+    const p = document.createElement('p');
+    p.className = 'muted';
+    p.textContent = `${d.domain_only_omitted} domain-only commits not shown (agent bugfixes and grow work).`;
+    body.append(p);
+  }
 }
 
 async function refreshDashboard() {
