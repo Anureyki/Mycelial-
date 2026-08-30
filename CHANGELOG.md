@@ -1420,3 +1420,64 @@ Where they disagree the section wins - it is the part edited while work is
 actually happening - and the conflict is surfaced on the card instead of one
 side quietly winning. Verified by re-introducing the drift: the conflict is
 reported and the corrected state still shows.
+
+### 2026-08-30 — Competing explanations, held open until evidence separates them
+
+`core/differential.py`. Sibling to `claim_assessment.py`: that one tests an
+assertion somebody MADE, this one handles something OBSERVED, where nobody has
+asserted anything and the failure mode is the opposite - not accepting a bad
+claim but collapsing a symptom straight into a treatment.
+
+```
+OBSERVATION -> EVIDENCE -> HYPOTHESES -> CONFIDENCE -> DECISION
+                  ^                                       |
+                  |                                       v
+              NEW EVIDENCE <------ OUTCOME <--------- ACTION
+```
+
+The value is the gap between HYPOTHESES and DECISION. "Leaves are yellow, add
+Cal-Mag" fuses observation and action, and once fused there is nowhere to be
+wrong out loud - the treatment IS the diagnosis, so a wrong diagnosis stays
+invisible until the subject is worse.
+
+Four rules make it an engine rather than a formatted opinion:
+
+- **One hypothesis is not a differential.** Refused. A single explanation
+  measures how hard anyone looked, not what is happening - and the rival it
+  usually omits is the boring one, that nothing is wrong.
+- **No discriminator means `untestable`**, barred from ever leading however
+  well it fits. Fitting the evidence already in hand is what every wrong theory
+  also does; what separates them is predicting something not yet seen. Verified:
+  an outcome that "supports" two hypotheses promotes only the one carrying a
+  discriminator.
+- **Time is evidence.** A discriminator names what to look for AND when the
+  looking becomes meaningful. `hold` is a decision with a basis.
+- **Acting on an open differential destroys it.** Changing several variables
+  while explanations compete means the outcome attributes to none of them.
+  Refused by default - this is the commonest way a diagnostic loop breaks, and
+  it breaks quietly, because the subject does respond to something and the wrong
+  lesson gets filed as learned.
+
+Confidence attaches to CONCLUSIONS, not only measurements: pH 5.93 is
+`measured`, "root uptake is impaired" is inferred, and one number for both lies
+about one of them.
+
+**Inherited by every agent** via `handle_differential_task` in
+`core/base_agent.py`. The failure it addresses is not horticultural - collapsing
+a symptom into a treatment is the same move as reading a statute's title as its
+holding, or a registry row as a running process.
+
+**First live case, recorded rather than resolved.** Pale new growth with greener
+veins, mature leaves green. Four hypotheses: iron-uptake impairment
+(`plausible`, 3 supports), calcium (`weakened` - pallor without distortion),
+normal new-growth pallor (`plausible`), magnesium (`weakened` - Mg is MOBILE, so
+it would strip the oldest leaves first and those are green). Decision: `hold`,
+reassess in 144h. An attempt to change three variables at once was refused.
+
+**A base-class helper that lived in one agent.** `core/` code calls
+`_unwrap_value` - `quest_manager` already did, and the differential verbs do -
+but `AgentBase` defined only `_unwrap_memory_value`. It worked because Grow and
+Maintenance each happened to define their own copy; the other **twelve** agents
+would have raised `AttributeError` the first time any shared code ran on them.
+`_uid` had the identical shape: defined in Grow, called from the base. Both are
+on `AgentBase` now.

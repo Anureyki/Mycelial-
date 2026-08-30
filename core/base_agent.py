@@ -366,6 +366,11 @@ class AgentBase:
                     # Catching every "case_*" swallowed them into "unknown case
                     # task" and the domain frames were unreachable.
                     result = self.handle_case_task(task, args if isinstance(args, dict) else {})
+                elif task in ("open_differential", "add_hypothesis", "weigh_evidence",
+                              "assess_differential", "decide_differential",
+                              "record_differential_outcome", "list_differentials"):
+                    result = self.handle_differential_task(
+                        task, args if isinstance(args, dict) else {})
                 elif task == "corpus_currency":
                     result = self.corpus_currency(args if isinstance(args, dict) else {})
                 elif task == "refer_finding":
@@ -647,6 +652,142 @@ class AgentBase:
                     out.extend(entries)
             return out[:4]
         return []
+
+    def _unwrap_value(self, retrieval_result):
+        """Canonical name for unwrapping a memory read.
+
+        The base class defined `_unwrap_memory_value`, but shared code in
+        `core/` calls `_unwrap_value` - quest_manager did, and the differential
+        verbs below do. That worked only because Grow and Maintenance each
+        happened to define their own copy; the other twelve agents would have
+        raised AttributeError the first time any of that shared code ran on
+        them. A helper that shared code depends on belongs on the base, not in
+        whichever agent needed it first."""
+        return self._unwrap_memory_value(retrieval_result)
+
+    def _uid(self):
+        """A unique suffix for a memory key.
+
+        Lived in Grow only, so every base-class helper that used it worked for
+        exactly one agent and raised AttributeError everywhere else - the
+        differential verbs are inherited by all of them, so the first non-Grow
+        caller found it. Microsecond precision because a second-granularity id
+        let two writes in the same second collide."""
+        return f"{int(time.time() * 1_000_000)}"
+
+    # ---- Differential diagnosis -------------------------------------------
+    # Inherited by every agent, deliberately. Collapsing an observation
+    # straight into a treatment is not a horticulture mistake - it is the same
+    # move as reading a statute's title as its holding, or a registry row as a
+    # running process. The domain differs; the failure does not.
+
+    def _differential_index(self):
+        raw = self._unwrap_value(self.retrieve_own_memory("differential_index"))
+        try:
+            idx = json.loads(raw) if raw else []
+            return idx if isinstance(idx, list) else []
+        except Exception:
+            return []
+
+    def _load_differential(self, diff_id):
+        raw = self._unwrap_value(self.retrieve_own_memory(diff_id))
+        if not raw:
+            return None
+        try:
+            return json.loads(raw)
+        except Exception:
+            return None
+
+    def _save_differential(self, diff_id, diff):
+        self.store_own_memory(diff_id, json.dumps(diff))
+        idx = self._differential_index()
+        if diff_id not in idx:
+            idx.append(diff_id)
+            self.store_own_memory("differential_index", json.dumps(idx))
+
+    def handle_differential_task(self, task, args):
+        try:
+            from core import differential as dx
+        except Exception as exc:
+            return {"error": f"differential module unavailable: {exc}"}
+
+        if task == "list_differentials":
+            out = []
+            for did in self._differential_index():
+                d = self._load_differential(did)
+                if not d:
+                    continue
+                if args.get("open_only") and d.get("status") != "open":
+                    continue
+                out.append({"id": did, "subject": d.get("subject"),
+                            "observation": d.get("observation"),
+                            "status": d.get("status"),
+                            "opened_at": d.get("opened_at"),
+                            "hypotheses": [h["name"] for h in d.get("hypotheses", [])]})
+            return {"differentials": out, "count": len(out)}
+
+        if task == "open_differential":
+            if not args.get("observation"):
+                return {"error": "A differential starts from an observation. "
+                                 "Pass what was actually seen."}
+            d = dx.new_differential(args.get("subject", "unspecified"),
+                                    args["observation"],
+                                    observed_by=args.get("observed_by", "principal"),
+                                    domain=self.agent_id)
+            for e in args.get("evidence", []) or []:
+                if isinstance(e, dict):
+                    dx.add_evidence(d, e.get("fact", ""), kind=e.get("kind", "observed"),
+                                    value=e.get("value"), note=e.get("note", ""))
+            did = f"differential_{self._uid()}"
+            self._save_differential(did, d)
+            return {"id": did, "state": dx.assess(d)}
+
+        did = args.get("id")
+        if not did:
+            return {"error": "Pass the differential id."}
+        d = self._load_differential(did)
+        if d is None:
+            return {"error": f"No differential {did}."}
+
+        if task == "add_hypothesis":
+            r = dx.add_hypothesis(d, args.get("name", ""), args.get("mechanism", ""),
+                                  discriminator=args.get("discriminator"),
+                                  discriminator_ready_in_hours=args.get(
+                                      "discriminator_ready_in_hours"))
+            if isinstance(r, dict) and r.get("error"):
+                return r
+            self._save_differential(did, d)
+            return {"id": did, "state": dx.assess(d)}
+
+        if task == "weigh_evidence":
+            r = dx.weigh(d, args.get("hypothesis", ""), args.get("fact", ""),
+                         args.get("stance", "neutral"))
+            if isinstance(r, dict) and r.get("error"):
+                return r
+            self._save_differential(did, d)
+            return {"id": did, "state": dx.assess(d)}
+
+        if task == "assess_differential":
+            return {"id": did, "state": dx.assess(d), "decision": d.get("decision")}
+
+        if task == "decide_differential":
+            rec = dx.propose_decision(d, args.get("decision", "hold"),
+                                      basis=args.get("basis", ""),
+                                      changes=args.get("changes"),
+                                      reassess_in_hours=args.get("reassess_in_hours"))
+            self._save_differential(did, d)
+            return {"id": did, "decision": rec}
+
+        if task == "record_differential_outcome":
+            if not args.get("observation"):
+                return {"error": "An outcome is an observation. Pass what happened."}
+            dx.record_outcome(d, args["observation"],
+                              supports=args.get("supports"),
+                              contradicts=args.get("contradicts"),
+                              closes=bool(args.get("closes")))
+            self._save_differential(did, d)
+            return {"id": did, "state": dx.assess(d)}
+        return {"error": f"Unhandled differential task {task}"}
 
     def ask_peer_corpus(self, agent_id, term, timeout=20):
         """Ask another domain for an authority this one does not hold.
