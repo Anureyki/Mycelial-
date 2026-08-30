@@ -73,8 +73,6 @@ out loud rather than discovered by watching it get worse.
 
 *(was Phase 4)*
 
-*(was Phase 4)*
-
 **Independent of every other phase. Small, and it removes a standing failure
 mode rather than adding a feature.**
 
@@ -114,8 +112,6 @@ and stage reasoning read; it needs the same "assert the anchor before writing"
 discipline as any other substitution.
 
 ## Phase 2 — Conversations that persist, and answers that arrive — NOT STARTED
-
-*(was Phase 9)*
 
 *(was Phase 9)*
 
@@ -166,8 +162,6 @@ appears would have caught today's legal-tender case with no session storage at
 all.
 
 ## Phase 3 — Retention: decide what to keep, and on what evidence — NOT STARTED
-
-*(was Phase 2)*
 
 *(was Phase 2)*
 
@@ -234,8 +228,6 @@ is evidence. The three unreadable photos are among the oldest.
 
 *(was Phase 6)*
 
-*(was Phase 6)*
-
 Done:
 - Unprivileged nginx on **8443** — TLS 1.3, basic auth, 25 MB body cap —
   serving the webapp and proxying `/execute` to Anansi. Runs as the same
@@ -262,8 +254,6 @@ Remaining — needs root, so it cannot be done from inside the stack:
   container and publishes it to the host as loopback-only `127.0.0.1:8081`.
 
 ## Phase 5 — Identity and authorization (DID / verifiable claims) — NOT STARTED
-
-*(was Phase 5)*
 
 *(was Phase 5)*
 
