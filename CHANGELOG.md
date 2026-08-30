@@ -1703,3 +1703,30 @@ one, which is the argument for running both.
 Cadence, asked and answered from the agent: **every 3 days** in veg, minimum 24h
 (below that, uptake is under the noise floor), maximum 6 days (a longer gap
 contains no measurement and nothing inside it can be attributed).
+
+### 2026-08-30 — Read whichever mode the pen is in; the agent fills in the other
+
+The grower asked the practical question: EC from now on, or ppm? Checking rather
+than answering from preference settled it - **47 places in this agent read ppm
+against 2 that read EC.** Demanding EC would have broken every dose.
+
+But ppm is the pen's restatement of a conductivity reading through a conversion
+factor, and it stops meaning anything the moment that factor changes. So neither
+unit alone is the right answer.
+
+`log_reading` now accepts **either** and derives the other from the **recorded**
+`tds_factor`. µS/cm and mS/cm are both accepted (a value under 20 is read as
+mS/cm). The derived field is marked `derived_unit` so a computed number is never
+mistaken for a measured one. Verified across all four paths: EC in µS/cm, EC in
+mS/cm, ppm alone, and both supplied (nothing derived).
+
+Deriving from the **recorded** factor rather than a hardcoded 0.5 is the whole
+point. A literal there would be the same class of bug as a default volume - it
+would work silently until the day the pen was switched to another scale, and
+then be wrong with nothing able to notice. Where no scale has been recorded,
+`derived_unit` says `unavailable_no_scale_recorded` rather than converting at a
+guess.
+
+Four test readings created while verifying this were voided with a reason. That
+is the second time today debugging has put fabricated rows into a real series,
+which is the argument for `void_reading` having been built.

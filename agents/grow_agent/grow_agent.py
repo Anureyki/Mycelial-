@@ -6189,6 +6189,47 @@ class GrowAgent(AgentBase):
             # forward so a reading is interpretable, and it is marked as
             # CARRIED rather than MEASURED so nothing downstream mistakes an
             # assumption for an observation.
+            # EITHER UNIT IS ACCEPTED AND THE OTHER IS DERIVED.
+            #
+            # The decision code in this agent is written almost entirely in ppm
+            # - 47 places read it against 2 that read EC - so demanding EC would
+            # break every dose. But ppm is the pen's restatement of a
+            # conductivity reading through a conversion factor, and it stops
+            # meaning anything if that factor changes.
+            #
+            # So the grower reads whichever mode the pen happens to be in, and
+            # the missing one is filled in from the RECORDED scale rather than
+            # from a default. A hardcoded 0.5 here would be the same class of
+            # bug as a default volume: it would quietly work until the day the
+            # pen was switched, and then be wrong with no way to notice.
+            _ppm = self._parse_numeric(args.get("ppm"))
+            _ec = self._parse_numeric(args.get("ec"))
+            _derived = None
+            if (_ppm is None) != (_ec is None):
+                _f = None
+                try:
+                    _sr = json.loads(self._unwrap_value(self.retrieve_own_memory(
+                        f"grow_system_{args.get('plant_id', 'current_plant')}"))
+                        or self._unwrap_value(self.retrieve_own_memory("grow_system")) or "{}")
+                    _f = self._parse_numeric(_sr.get("tds_factor"))
+                except Exception:
+                    _f = None
+                if _f:
+                    if _ec is None:
+                        _ec = round((_ppm / _f) / 1000.0, 3)
+                        _derived = "ec"
+                    else:
+                        _ec_us = _ec * 1000.0 if _ec < 20 else _ec
+                        _ppm = round(_ec_us * _f)
+                        _derived = "ppm"
+                        _ec = round(_ec_us / 1000.0, 3)
+                elif _ppm is not None:
+                    # No scale on record, so ppm cannot be converted. Recorded
+                    # as the gap it is instead of being converted at a guess.
+                    _derived = "unavailable_no_scale_recorded"
+            elif _ec is not None and _ec >= 20:
+                _ec = round(_ec / 1000.0, 3)   # entered in uS/cm
+
             _vol = self._parse_numeric(args.get("volume_liters")
                                        or args.get("reservoir_liters"))
             _vol_src, _vol_age = ("measured", None)
@@ -6209,8 +6250,9 @@ class GrowAgent(AgentBase):
                 "volume_measured_on": _vol_age,
                 "plant_id": args.get("plant_id", "current_plant"),
                 "ph": args.get("ph"),
-                "ppm": args.get("ppm"),
-                "ec": args.get("ec"),
+                "ppm": _ppm,
+                "ec": _ec,
+                "derived_unit": _derived,
                 # The reservoir temperature arrives under whichever name the
                 # caller thinks it has. It was read from "temp" alone, so every
                 # reading sent as reservoir_temp recorded a null temperature and
