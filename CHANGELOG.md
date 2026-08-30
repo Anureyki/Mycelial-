@@ -1819,3 +1819,52 @@ each marked `derived_unit: ec` and stamped with the factor and the assumption -
 the scale was verified today and is *assumed* to have applied earlier. Likely,
 and not evidence. The stamp is what makes it recoverable if the pen was ever
 switched.
+
+### 2026-08-30 — The knowledge graph was wired up and held nothing real
+
+The grower wanted a visual of the system's interactions and knew the KAG was
+wired. It is - `core/graph_manager.py` works, and Boss, Security and Provenance
+all write to it. What it contains is the problem.
+
+**38 nodes, and they are entirely test fixtures.** John Doe, Alice Corp, Bob LLC,
+XYZ Inc, ACME. Projects named `determinism_test`, `det3`, `harris_trust_test`.
+Written 2026-08-07 and 08-22 while the legal and accounting pipelines were being
+built. Nothing from the housing case, the grow, the lease or the differential is
+in it - that work lives in `cases`, in Grow's own memory, and in the audit log.
+
+Drawing it would have been worse than drawing nothing: a graph of unit-test data
+on a dashboard is indistinguishable from a system map, and the principal would
+have been looking at a picture of a fixture believing it was their system. So it
+is **summarised with a `looks_like_test_data` flag and deliberately not drawn**
+until real work is written into it.
+
+**The real interaction record is the audit log**, where every completed task
+carries the agent that ran it and the `sender` that asked. That is an
+*observation of what the system did*, which outranks a stored assertion about
+what it contains - the same rule as a port outranking a registry row.
+`system_graph` builds it: 13 participants, 45 paths over 48h.
+
+```
+hermes     -> security_agent   12516   check_guard
+grow_agent -> hermes           12118   retrieve_memory, store_memory
+grow_agent -> security_agent     494   check_guard
+external   -> grow_agent         294   log_reading, evaluate_leaf
+```
+
+Claim and observation are kept apart inside it: the port comes from
+`config/agent_configs/*.json`, which is what each agent *declares*, and liveness
+is then read by hitting that port. Ten answering, and `analyzer_agent` and
+`pqa_agent` shown as having no declared port rather than being quietly assumed
+down.
+
+Two rendering decisions with reasons. Edge width is **logarithmic** because one
+path carries 12,516 calls and another carries 3 - linear width makes every
+honest edge invisible beside the loud one. Layout is **fixed** (busiest at the
+centre, the rest on a ring) rather than force-directed, because a simulation on
+13 nodes buys motion instead of clarity and a stable layout stays recognisable
+between refreshes.
+
+The `check_guard` traffic dominating the graph is itself the finding: every
+inbound call pays a round trip to the Security Agent, and Hermes alone accounts
+for 12,516 of them in two days. That is Phase 3 - *reduce A2A read amplification*
+- showing up as a picture for the first time.

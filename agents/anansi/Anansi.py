@@ -122,6 +122,13 @@ class Anansi(AgentBase):
         if task == "phase_status":
             return self.send_a2a("maintenance_agent", "phase_status", {})
 
+        if task == "system_graph":
+            payload = args if isinstance(args, dict) else {}
+            return self.send_a2a("maintenance_agent", "system_graph",
+                                 {"hours": int(payload.get("hours", 24)),
+                                  "min_calls": int(payload.get("min_calls", 2))},
+                                 timeout=60)
+
         if task == "training_candidates":
             return self.send_a2a("grow_agent", "list_training_candidates", {})
 

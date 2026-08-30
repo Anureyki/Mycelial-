@@ -468,6 +468,108 @@ async function renderProgressCard(body) {
   }
 }
 
+// The system drawn from what it DID, not from what a registry says it contains.
+// Node fill is liveness read from the port; edge weight is observed call volume.
+async function renderGraphCard(body) {
+  const g = unwrap(await callTask('system_graph', { hours: 48, min_calls: 2 }), 'nodes');
+  if (!g || g.error || !g.nodes) {
+    body.textContent = g && g.error ? g.error : 'No interaction data.';
+    return;
+  }
+  body.textContent = '';
+  const hdr = document.createElement('p');
+  hdr.className = 'phase-hdr';
+  hdr.textContent = `${g.nodes.length} participants · ${g.edges.length} paths · last ${g.window_hours}h`;
+  body.append(hdr);
+
+  const W = 520, H = 340, R = 130;
+  const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+  svg.setAttribute('viewBox', `0 0 ${W} ${H}`);
+  svg.setAttribute('class', 'graph');
+  svg.setAttribute('role', 'img');
+  svg.setAttribute('aria-label', 'Agent interaction graph');
+
+  // Busiest at the centre, everything else on a ring. A force simulation on 13
+  // nodes buys motion and not clarity, and a fixed layout is stable between
+  // refreshes so the shape stays recognisable.
+  const byTraffic = [...g.nodes].sort((a, b) =>
+    (b.handled + b.asked) - (a.handled + a.asked));
+  const hub = byTraffic[0];
+  const ring = byTraffic.slice(1);
+  const pos = {};
+  pos[hub.id] = { x: W / 2, y: H / 2 };
+  ring.forEach((n, i) => {
+    const a = (i / ring.length) * Math.PI * 2 - Math.PI / 2;
+    pos[n.id] = { x: W / 2 + R * Math.cos(a), y: H / 2 + R * 0.86 * Math.sin(a) };
+  });
+
+  const max = Math.max(...g.edges.map(e => e.calls), 1);
+  for (const e of g.edges) {
+    const a = pos[e.from], b = pos[e.to];
+    if (!a || !b) continue;
+    const ln = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+    ln.setAttribute('x1', a.x); ln.setAttribute('y1', a.y);
+    ln.setAttribute('x2', b.x); ln.setAttribute('y2', b.y);
+    // Log scale: one path carries 12k calls and another carries 3, and a linear
+    // width makes every honest edge invisible next to the loud one.
+    ln.setAttribute('stroke-width', (0.4 + 2.6 * (Math.log(e.calls) / Math.log(max))).toFixed(2));
+    ln.setAttribute('class', 'gedge');
+    const t = document.createElementNS('http://www.w3.org/2000/svg', 'title');
+    t.textContent = `${e.from} → ${e.to}: ${e.calls} calls · `
+      + e.top_tasks.map(([k, v]) => `${k} ×${v}`).join(', ');
+    ln.append(t);
+    svg.append(ln);
+  }
+  for (const n of g.nodes) {
+    const p = pos[n.id];
+    if (!p) continue;
+    const total = n.handled + n.asked;
+    const r = 5 + 7 * Math.min(1, Math.log(total + 1) / Math.log(30000));
+    const c = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+    c.setAttribute('cx', p.x); c.setAttribute('cy', p.y);
+    c.setAttribute('r', r.toFixed(1));
+    c.setAttribute('class', `gnode gnode-${n.live === true ? 'up' : n.live === false ? 'down' : 'unknown'}`);
+    const t = document.createElementNS('http://www.w3.org/2000/svg', 'title');
+    t.textContent = `${n.id}${n.port ? ' :' + n.port : ''} — `
+      + (n.live === true ? 'answering' : n.live === false ? 'NOT answering' : 'no declared port')
+      + ` · handled ${n.handled}, asked ${n.asked}`;
+    c.append(t);
+    svg.append(c);
+    const lb = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+    lb.setAttribute('x', p.x); lb.setAttribute('y', p.y - r - 4);
+    lb.setAttribute('class', 'glabel');
+    lb.textContent = n.id.replace(/_agent$/, '');
+    svg.append(lb);
+  }
+  body.append(svg);
+
+  const busiest = document.createElement('dl');
+  busiest.className = 'rows';
+  for (const e of g.edges.slice(0, 4)) {
+    const dt = document.createElement('dt');
+    dt.textContent = `${e.from.replace(/_agent$/, '')} → ${e.to.replace(/_agent$/, '')}`;
+    const dd = document.createElement('dd');
+    dd.textContent = `${e.calls} · ${e.top_tasks.map(([k]) => k).join(', ')}`;
+    busiest.append(dt, dd);
+  }
+  body.append(busiest);
+
+  // The knowledge graph is summarised, never drawn, while it holds fixtures. A
+  // picture of unit-test data is indistinguishable from a system map.
+  const k = g.knowledge_graph;
+  if (k && k.present) {
+    const p = document.createElement('p');
+    p.className = k.looks_like_test_data ? 'concern' : 'muted';
+    const counts = Object.entries(k.node_types || {}).map(([t, c]) => `${c} ${t}`).join(', ');
+    p.textContent = k.looks_like_test_data
+      ? `Knowledge graph holds ${counts} — but the named entities are test fixtures `
+        + `(${(k.fixture_matches || []).slice(0, 3).join(', ')}), newest ${String(k.newest_node).slice(0, 10)}. `
+        + `Not drawn: a graph of unit-test data looks exactly like a system map.`
+      : `Knowledge graph: ${counts}, newest ${String(k.newest_node).slice(0, 10)}.`;
+    body.append(p);
+  }
+}
+
 async function refreshDashboard() {
   const narrated = [
     { id: 'systemCard', prompt: 'system status' },
@@ -476,6 +578,7 @@ async function refreshDashboard() {
   const structured = [
     { id: 'growCard', render: renderGrowCard },
     { id: 'progressCard', render: renderProgressCard },
+    { id: 'graphCard', render: renderGraphCard },
   ];
   for (const { id } of [...narrated, ...structured]) {
     const body = document.querySelector(`#${id} .card-body`);

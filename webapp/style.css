@@ -438,3 +438,28 @@ main#log {
 .card-body .due-due_soon { border-left-color: #c8a03c; color: inherit; }
 .card-body .due-due_now  { border-left-color: #4a9d6e; color: inherit; font-weight: 600; }
 .card-body .due-overdue  { border-left-color: #c8563c; color: inherit; font-weight: 600; }
+
+/* Interaction graph. Node fill is liveness read from the port; edge weight is
+   observed call volume on a log scale, since one path carries 12k calls and
+   another carries 3. */
+.card.wide { grid-column: 1 / -1; }
+.card-body .graph {
+  width: 100%;
+  height: auto;
+  max-height: 62vh;
+  display: block;
+  margin: 4px 0 10px;
+}
+.card-body .gedge { stroke: var(--border); opacity: 0.75; }
+.card-body .gnode { stroke: var(--panel); stroke-width: 1.5; }
+.card-body .gnode-up { fill: #4a9d6e; }
+.card-body .gnode-down { fill: #c8563c; }
+.card-body .gnode-unknown { fill: #6b7d74; }
+.card-body .glabel {
+  fill: var(--muted);
+  font-size: 9px;
+  text-anchor: middle;
+  paint-order: stroke;
+  stroke: var(--panel);
+  stroke-width: 2.5px;
+}

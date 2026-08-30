@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 import sys
 import os
+import sqlite3
 import re
 import time
 import json
@@ -397,6 +398,167 @@ class MaintenanceAgent(AgentBase):
                 "domain_only_omitted": omitted if not (wanted or include_domain) else 0,
                 "total_scanned": len(commits), "source": "git log"}
 
+    def _declared_ports(self):
+        """Port per agent, from the configs that declare them.
+
+        This is the CLAIM half. A config saying an agent listens on 9012 is an
+        assertion; whether anything answers there is the observation, and
+        system_graph checks it separately. Keeping them apart is the point -
+        conflating them is how a registry row got believed over a silent port."""
+        repo = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+        out = {}
+        cfg_dir = os.path.join(repo, "config", "agent_configs")
+        if not os.path.isdir(cfg_dir):
+            return out
+        for fn in os.listdir(cfg_dir):
+            if not fn.endswith(".json"):
+                continue
+            try:
+                with open(os.path.join(cfg_dir, fn), encoding="utf-8") as fh:
+                    d = json.load(fh)
+            except Exception:
+                continue
+            aid, port = d.get("agent_id"), d.get("port")
+            if aid and isinstance(port, int):
+                out[aid] = port
+        return out
+
+    def system_graph(self, hours=24, min_calls=1, include_knowledge=True):
+        """Who actually talked to whom, drawn from the audit log.
+
+        The knowledge graph in `state/graph.db` was wired up and is not this.
+        It holds 38 nodes that are entirely TEST FIXTURES - John Doe, Alice
+        Corp, `determinism_test` - written on 2026-08-07 and 08-22 while the
+        legal and accounting pipelines were being built. Drawing those on a
+        dashboard would show the principal a picture of nothing that happened,
+        which is worse than showing no picture: it looks like a system map and
+        is a screenshot of a unit test.
+
+        The real interaction record is the audit log, where every completed task
+        carries the agent that ran it and the `sender` that asked. That is an
+        observation of what the system DID, which outranks a stored assertion
+        about what it contains - the same rule as a port outranking a registry
+        row."""
+        repo = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+        audit = os.path.join(repo, "state", "audit.db")
+        if not os.path.exists(audit):
+            return {"error": f"No audit log at {audit}", "nodes": [], "edges": []}
+        try:
+            h = max(1, min(int(hours), 24 * 90))
+        except (TypeError, ValueError):
+            h = 24
+        since = (datetime.now() - timedelta(hours=h)).isoformat()
+
+        nodes, edges = {}, {}
+        try:
+            conn = sqlite3.connect(f"file:{audit}?mode=ro", uri=True, timeout=10)
+            rows = conn.execute(
+                "SELECT agent_id, task, metadata FROM logs "
+                "WHERE event_type='TASK_COMPLETED' AND timestamp >= ? "
+                "AND metadata IS NOT NULL AND metadata != ''", (since,)).fetchall()
+            conn.close()
+        except Exception as exc:
+            return {"error": f"Could not read the audit log: {exc}", "nodes": [], "edges": []}
+
+        for agent_id, task, meta in rows:
+            try:
+                m = json.loads(meta)
+            except Exception:
+                continue
+            sender = m.get("sender")
+            if not agent_id:
+                continue
+            nodes.setdefault(agent_id, {"id": agent_id, "handled": 0, "asked": 0})
+            nodes[agent_id]["handled"] += 1
+            # "unknown" is an inbound call with no named caller - the webapp and
+            # curl both arrive that way. Kept as a node rather than dropped,
+            # because traffic entering from outside is part of the picture.
+            src = sender or "external"
+            nodes.setdefault(src, {"id": src, "handled": 0, "asked": 0})
+            nodes[src]["asked"] += 1
+            if src == agent_id:
+                continue
+            key = f"{src}->{agent_id}"
+            e = edges.setdefault(key, {"from": src, "to": agent_id, "calls": 0, "tasks": {}})
+            e["calls"] += 1
+            if task:
+                e["tasks"][task] = e["tasks"].get(task, 0) + 1
+
+        try:
+            floor = max(1, int(min_calls))
+        except (TypeError, ValueError):
+            floor = 1
+        kept = [e for e in edges.values() if e["calls"] >= floor]
+        for e in kept:
+            e["top_tasks"] = sorted(e["tasks"].items(), key=lambda kv: -kv[1])[:3]
+            del e["tasks"]
+        seen = {e["from"] for e in kept} | {e["to"] for e in kept}
+
+        # Liveness is read from the port, never from the log. An agent can be
+        # all over the history and not be running now, and that difference is
+        # the single most useful thing a system map can show.
+        ports = self._declared_ports()
+        live = {}
+        for nid in seen:
+            port = ports.get(nid)
+            if port is None:
+                live[nid] = None
+                continue
+            try:
+                r = requests.get(f"http://127.0.0.1:{port}/health", timeout=1.5)
+                live[nid] = (r.status_code == 200)
+            except Exception:
+                live[nid] = False
+
+        out_nodes = []
+        for nid in sorted(seen):
+            n = dict(nodes[nid])
+            n["port"] = ports.get(nid)
+            n["live"] = live.get(nid)
+            n["kind"] = ("external" if nid == "external"
+                         else "service" if (n["port"] or 0) and n["port"] < 8080
+                         else "agent")
+            out_nodes.append(n)
+
+        return {"nodes": out_nodes,
+                "edges": sorted(kept, key=lambda e: -e["calls"]),
+                "window_hours": h, "min_calls": floor,
+                "edges_below_threshold": len(edges) - len(kept),
+                "source": "audit log (observed traffic)",
+                "knowledge_graph": self._knowledge_graph_summary() if include_knowledge else None}
+
+    def _knowledge_graph_summary(self):
+        """What the KAG holds, and whether any of it is real.
+
+        Reported as a summary with a `looks_like_test_data` flag rather than
+        drawn, because a graph of fixtures rendered beside real traffic would be
+        indistinguishable from real content."""
+        repo = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+        gdb = os.path.join(repo, "state", "graph.db")
+        if not os.path.exists(gdb):
+            return {"present": False}
+        try:
+            conn = sqlite3.connect(f"file:{gdb}?mode=ro", uri=True, timeout=10)
+            types = dict(conn.execute("SELECT type, COUNT(*) FROM nodes GROUP BY type").fetchall())
+            rels = dict(conn.execute(
+                "SELECT rel_type, COUNT(*) FROM edges GROUP BY rel_type").fetchall())
+            names = [r[0] for r in conn.execute(
+                "SELECT id FROM nodes WHERE type IN ('entity','project')").fetchall()]
+            newest = conn.execute("SELECT MAX(created_at) FROM nodes").fetchone()[0]
+            conn.close()
+        except Exception as exc:
+            return {"present": True, "error": str(exc)}
+        FIXTURES = ("john doe", "alice corp", "bob llc", "xyz inc", "abc corp", "acme")
+        hits = [n for n in names
+                if any(f in n.lower() for f in FIXTURES) or "test" in n.lower()]
+        return {"present": True, "node_types": types, "edge_types": rels,
+                "newest_node": newest, "named_entities": len(names),
+                "fixture_matches": hits[:8],
+                "looks_like_test_data": len(hits) >= max(2, len(names) // 3),
+                "note": ("Named entities matching known fixtures or containing 'test'. "
+                         "Drawn nowhere until real work is written into it - a graph of "
+                         "unit-test data on a dashboard looks exactly like a system map.")}
+
     def phase_status(self):
         """Where the roadmap actually stands, read from its own table.
 
@@ -491,6 +653,12 @@ class MaintenanceAgent(AgentBase):
             return self.recent_changes(limit=payload.get("limit", 10),
                                        scope=payload.get("scope"),
                                        include_domain=bool(payload.get("include_domain")))
+
+        if task == "system_graph":
+            payload = args if isinstance(args, dict) else {}
+            return self.system_graph(hours=payload.get("hours", 24),
+                                     min_calls=payload.get("min_calls", 1),
+                                     include_knowledge=payload.get("include_knowledge", True))
 
         if task == "phase_status":
             return self.phase_status()
