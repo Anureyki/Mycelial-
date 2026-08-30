@@ -2143,3 +2143,61 @@ and the deployment phases are built on it.
 Where nothing was observed either way, the package says so rather than being
 assigned a priority - `"no observed dependency either way"` is a real answer and
 a guessed severity is not.
+
+### 2026-08-30 — "What date will gsc 1 begin flowering" was wrong three ways
+
+One question on the phone, three separate faults beneath it.
+
+**1. The wrong plant.** "gsc 1" resolved to `gsc_auto_2`. The second plant's id
+literally contains "gsc", nothing else did, and a term matching only one plant
+skipped the number check entirely - so "gsc 1" and "gsc 2" both returned plant
+two. The first plant never matched because its strain is spelled out, and the
+initialism of "Girl Scout Cookies (autoflower)" came to "gsca", which nobody
+types.
+
+Fixed by deriving initialisms of every LEADING run of the name - gs, gsc, gsca -
+so "gsc" becomes genuinely ambiguous, which it is, and a number after an
+ambiguous term selects among the plants it matches in roster order. That is what
+"gsc 1" means when a person says it. Separately, a number that CONTRADICTS a
+plant's own number now disqualifies it outright, in both the alias pass and the
+scoring loop below it - a refusal upstream is worth nothing if a later scorer
+ignores it.
+
+**2. The wrong capability.** A question about a DATE was answered by the care
+classifier: *"Nothing in the description flags a care problem for a Cannabis."*
+`predict_flowering` now exists and `QUESTION_SHAPES` matches flowering first,
+because that phrasing contains no care vocabulary at all and had nothing else to
+fall into.
+
+It answers with a WINDOW and its basis, never a date, and splits on what the
+plant is rather than how the question was worded: an autoflower runs on a
+genetic clock and can be predicted; a photoperiod plant flowers when the light is
+cut, which is a decision, and forecasting a date for it would be inventing one.
+It reuses `STAGE_AGE_BOUNDS` rather than adding a second table - one number in
+one place. Every answer carries the caveat that the figure is strain-generic,
+because no flowering transition has ever been observed in this grow.
+
+**3. The answer existed and was invisible.** `describe()` had no `flowering`
+case, so Grow computed a correct result, returned empty text, and Boss reported
+the capability as missing - a capability that exists, runs, and says nothing.
+
+**Then a fourth, found by testing the fix.** "when will gsc 2 flower" routed to
+the **Security Agent** and "when will the aloe flower" to **PQA** - departments
+that had matched zero routing terms, while Grow sat there having declared
+`flower`, `gsc`, `gsc\s*#?\s*2` and `aloe` as its own.
+
+Intent resolution won every disagreement, and on a 1.5B model it loses badly. The
+rule now: **an agent that has declared none of the vocabulary in front of it has
+said, in the only way this architecture allows, that the request is not its own -
+and that silence outranks a model's guess.** A declared term is a verifiable
+statement by the department that practises the domain; a small model's pick is
+not checkable against anything. Same rule as the port outranking the registry
+row. The model keeps the cases it is actually good at: nobody matching, or two
+matching equally.
+
+**And a fifth.** Trust declared a bare `\bwill\b` - the commonest future-tense
+auxiliary in English - so it claimed "when WILL the aloe flower". A testamentary
+will arrives with testamentary company: `will and testament`, `my/your/their
+will`, or `will` within thirty characters of executor, probate, bequest, devise
+or beneficiary. Verified both directions: it no longer claims the flowering
+questions and still claims "what is in my will" and "read my will".

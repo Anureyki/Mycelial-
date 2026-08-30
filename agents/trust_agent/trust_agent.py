@@ -63,7 +63,13 @@ class TrustAgent(AgentBase):
     # Boss - the orchestrator holds no domain vocabulary.
     ROUTING_TERMS = (
         "trust", "beneficiar", "settlor", "grantor", "corpus", "fiduciary",
-        "estate", "probate", "\\bwill\\b", "testament",
+        "estate", "probate", "testament",
+        # NOT a bare \bwill\b - it is the commonest future-tense auxiliary in
+        # English and claimed "when will the aloe flower" for this department.
+        # A testamentary will arrives with testamentary company.
+        r"\b(last )?will and testament\b", r"\b(my|your|our|his|her|their|the) will\b",
+        r"\bwill\b[^.]{0,30}\b(executor|probate|bequest|devise|estate|beneficiar)",
+        r"\b(execute|contest|probate|read)\w*\s+(the|a|my|your|his|her|their)\s+will\b",
     )
 
     def __init__(self):

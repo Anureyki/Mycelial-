@@ -1266,6 +1266,112 @@ class GrowAgent(AgentBase):
     # Stage progression order. A stage is never skipped backwards automatically.
     STAGE_ORDER = ("germination", "seedling", "early_veg", "veg", "flower")
 
+    def predict_flowering(self, plant_id="current_plant"):
+        """When flowering starts - as a window with its basis, not a date.
+
+        A date question was falling through to the care classifier, which
+        answered "nothing flags a care problem" to "what date will it flower".
+        Wrong capability, and it read as an answer.
+
+        Two different questions hide behind one phrasing, and which one applies
+        is decided by the plant, not the wording:
+
+        - An AUTOFLOWER runs on a genetic clock. Flowering is a prediction, and
+          the honest form of it is a window from germination, labelled as a
+          strain-generic figure because this grow has never observed a flowering
+          transition and therefore has no measured one.
+        - A PHOTOPERIOD plant flowers when the light schedule is cut, which is a
+          DECISION the grower makes. Predicting a date for it would be inventing
+          one; the answer is what schedule is running and what changing it does.
+
+        `STAGE_AGE_BOUNDS` already carries flower at (35, 130) days from
+        germination for autoflowers - the same figures the stage checker uses to
+        spot a contradiction. Reusing them keeps one number in one place; a
+        second table for prediction is a second thing to drift."""
+        germ, _ = self._plant_state("germination_date", plant_id)
+        strain, _ = self._plant_state("current_strain", plant_id)
+        stage, _ = self._plant_state("current_stage", plant_id)
+        species = (self._get_species_for_plant(plant_id) or "").lower()
+
+        out = {"plant_id": plant_id, "strain": strain, "stage": stage,
+               "species": species or "unknown"}
+        if species and species != "cannabis":
+            out.update({"classification": "not_applicable", "confidence": "low",
+                        "reason": f"Flowering timing here is a cannabis question; "
+                                  f"{plant_id} is recorded as {species}."})
+            return out
+        if not germ:
+            out.update({"classification": "insufficient_evidence", "confidence": "low",
+                        "reason": "No germination date on record, and every figure below "
+                                  "is counted from it.",
+                        "action": "Record it with set_germination_date."})
+            return out
+        try:
+            g = datetime.fromisoformat(str(germ)[:19])
+        except Exception:
+            out.update({"classification": "insufficient_evidence", "confidence": "low",
+                        "reason": f"Germination date '{germ}' is not readable."})
+            return out
+        day = (datetime.now() - g).days
+        out["germination_date"] = str(germ)[:10]
+        out["day"] = day
+
+        autoflower = "auto" in str(strain or "").lower()
+        out["type"] = "autoflower" if autoflower else "photoperiod_or_unknown"
+        if not autoflower:
+            out.update({
+                "classification": "grower_decides", "confidence": "medium",
+                "light_schedule_hours": None,
+                "reason": ("Nothing in the strain says autoflower, so this is treated as "
+                           "photoperiod - and a photoperiod plant does not flower on a date. "
+                           "It flowers when the light is cut to 12/12, which is a decision, "
+                           "not a forecast. Predicting a date would be inventing one."),
+                "action": "Say when you intend to flip the light and the window follows from "
+                          "that - pistils typically within 7-14 days of the change.",
+            })
+            return out
+
+        lo, hi = self.STAGE_AGE_BOUNDS.get("flower", (35, 130))
+        start_lo, start_hi = g + timedelta(days=lo), g + timedelta(days=lo + 14)
+        out.update({
+            "window_start": start_lo.strftime("%Y-%m-%d"),
+            "window_end": start_hi.strftime("%Y-%m-%d"),
+            "days_from_now": [(start_lo - datetime.now()).days,
+                              (start_hi - datetime.now()).days],
+            "basis": f"STAGE_AGE_BOUNDS flower lower bound ({lo} days from germination), "
+                     f"plus a two-week spread",
+            "basis_kind": "strain_generic_reference",
+        })
+        if stage == "flower":
+            out.update({"classification": "already_flowering", "confidence": "medium",
+                        "reason": f"Stage is already recorded as flower on day {day}."})
+        elif day >= lo:
+            out.update({
+                "classification": "window_open_now", "confidence": "low",
+                "reason": (f"Day {day}, and the reference window opens at day {lo}. On an "
+                           f"autoflower this is when preflowers appear at the nodes - so the "
+                           f"answer is not a future date, it is that this plant is IN the "
+                           f"window and the transition should be visible rather than "
+                           f"predicted."),
+                "action": ("Look at the nodes for pistils - two white hairs from a bud site. "
+                           "Photograph one and evaluate_leaf will read it. What the plant "
+                           "shows outranks the calendar; the calendar only says when to "
+                           "start looking."),
+            })
+        else:
+            out.update({
+                "classification": "predicted", "confidence": "low",
+                "reason": (f"Day {day}. On the reference timing, preflowers between "
+                           f"{out['window_start']} and {out['window_end']} - "
+                           f"{out['days_from_now'][0]} to {out['days_from_now'][1]} days "
+                           f"away."),
+            })
+        out["caveat"] = ("This is a strain-GENERIC figure, not this plant's. No flowering "
+                         "transition has ever been observed in this grow, so there is no "
+                         "measured timing to reason from - and light, temperature and the "
+                         "delivery interruption on day 33 all move it.")
+        return out
+
     def assess_stage(self, plant_id="current_plant"):
         """Decide the stage from evidence, without waiting to be asked.
 
@@ -2486,6 +2592,12 @@ class GrowAgent(AgentBase):
     # name picking the wrong plant, a care reading given for a reservoir
     # question. Boss decides WHICH AGENT. This decides which capability.
     QUESTION_SHAPES = (
+        # Asked FIRST: "what date will it flower" contains no care vocabulary,
+        # and was falling through to the condition classifier, which answered
+        # "nothing flags a care problem" to a question about a date.
+        ("flowering",  r"\b(when|what date|how long (until|till|before)|how many (days|weeks))\b"
+                       r"[^.]{0,40}\b(flower|flowering|bloom|budding|preflower|pistil)\b|"
+                       r"\b(flower|flowering|bloom)\b[^.]{0,20}\b(date|when|start|begin)\b"),
         ("drawdown",   r"\bhow long\b.*\b(drop|fall|come down|draw|last|get (down )?to)\b|"
                        r"\b(drop|fall|draw down)\b.*\bto\s*\d{2,4}\b|"
                        r"\bhow (long|many days)\b.*\b\d{2,4}\b"),
@@ -2873,6 +2985,31 @@ class GrowAgent(AgentBase):
 
         Returns None for anything this agent has no words for, so the caller
         can fall back to its own generic rendering."""
+        if task == "flowering":
+            # Without this the agent computed a correct answer and returned no
+            # TEXT for it, so Boss saw an empty string and reported the
+            # capability as missing - a capability that exists, runs, and is
+            # invisible because nothing put it into words.
+            r = result if isinstance(result, dict) else {}
+            cls = r.get("classification")
+            if cls in ("insufficient_evidence", "not_applicable"):
+                return r.get("reason", "")
+            if cls == "grower_decides":
+                return " ".join(x for x in (r.get("reason"), r.get("action")) if x)
+            if cls == "already_flowering":
+                return r.get("reason", "")
+            head = (f"Day {r.get('day')} from germination on "
+                    f"{r.get('germination_date')}.")
+            if cls == "window_open_now":
+                body = (f"The reference window for an autoflower has already opened, so this "
+                        f"is a thing to look for rather than a date to wait for.")
+            else:
+                body = (f"Preflowers between {r.get('window_start')} and "
+                        f"{r.get('window_end')} - {(r.get('days_from_now') or ['?'])[0]} to "
+                        f"{(r.get('days_from_now') or ['?', '?'])[1]} days away.")
+            return " ".join(x for x in (head, body, r.get("action"),
+                                        r.get("caveat")) if x)
+
         if task == "assess_care":
             inner = result.get("result", {}) if isinstance(result, dict) else {}
             inner = inner.get("result", inner) if isinstance(inner, dict) else {}
@@ -3171,6 +3308,11 @@ class GrowAgent(AgentBase):
             noted["facts"] = {"named_plant": named}
             return noted
 
+        if shape == "flowering":
+            r = self.predict_flowering(plant_id)
+            return {"answered_as": "flowering", "plant_id": plant_id,
+                    "text": self.describe("flowering", r), "facts": r}
+
         if shape == "drawdown":
             # "how long to fall to 238" names the destination only. The starting
             # point is not missing - it is the current reading, and refusing to
@@ -3368,6 +3510,59 @@ class GrowAgent(AgentBase):
         def tokens(value):
             return [w for w in re.split(r'[^a-z0-9]+', str(value or "").lower()) if w]
 
+        # AN INITIALISM IS HOW PEOPLE SAY A MULTI-WORD STRAIN.
+        #
+        # "Girl Scout Cookies" is said "GSC", and the id of the second plant is
+        # literally gsc_auto_2 - so "gsc" matched that one and nothing else,
+        # which meant "gsc 1" and "gsc 2" BOTH resolved to plant two. The number
+        # was ignored because the word was unique, and the wrong plant was
+        # answered about with full confidence.
+        #
+        # Deriving the initialism makes "gsc" ambiguous, which it truthfully is,
+        # and an ambiguous term with a number becomes an ORDINAL over the plants
+        # it matches - which is what "gsc 1" means when a person says it.
+        def initialisms(value):
+            """Every leading run of the name, because people abbreviate the
+            front of it. "Girl Scout Cookies (autoflower)" gives gs, gsc, gsca -
+            and the one actually said is "gsc". Taking only the full initialism
+            produced "gsca", which matched nothing anyone types."""
+            parts = [w for w in tokens(value) if len(w) > 2 and not w.isdigit()]
+            return {"".join(w[0] for w in parts[:k]) for k in range(2, len(parts) + 1)}
+
+        alias = {}
+        for p in plants:
+            pid = p.get("plant_id")
+            for field in ("strain", "plant_id"):
+                for ini in initialisms(p.get(field)):
+                    if len(ini) >= 2:
+                        alias.setdefault(ini, []).append(pid)
+                for w in tokens(p.get(field)):
+                    if len(w) >= 3 and not w.isdigit() and w not in STOP_TERMS \
+                            and w not in species:
+                        alias.setdefault(w, []).append(pid)
+        for term, owners in alias.items():
+            owners = list(dict.fromkeys(owners))
+            if not re.search(r'\b' + re.escape(term) + r'\b', lp):
+                continue
+            if len(owners) == 1:
+                # Unique term. A number in the sentence must still not
+                # CONTRADICT the plant it names - "gsc 1" naming gsc_auto_2 is
+                # the caller meaning a different plant, not a loose match.
+                only = owners[0]
+                tail = next((t for t in reversed(tokens(only)) if t.isdigit()), None)
+                m = re.search(re.escape(term) + r'[^a-z0-9]{0,6}(\d+)\b', lp)
+                if tail and m and m.group(1) != tail:
+                    continue
+                return only
+            # Ambiguous term. The number selects among the plants it matches,
+            # in roster order, which is what "gsc 1" means.
+            m = re.search(re.escape(term) + r'[^a-z0-9]{0,6}(\d+)\b', lp)
+            if m:
+                idx = int(m.group(1))
+                ranked = [pid for pid in order if pid in owners]
+                if 1 <= idx <= len(ranked):
+                    return ranked[idx - 1]
+
         best = None
         for p in plants:
             pid = p.get("plant_id")
@@ -3381,6 +3576,17 @@ class GrowAgent(AgentBase):
                     continue
                 parts = tokens(v)
                 tail = parts[-1] if parts and parts[-1].isdigit() else None
+                # A number in the sentence that contradicts this plant's own
+                # number disqualifies it outright. Without this the pass above
+                # correctly refused "gsc 1" for gsc_auto_2 and this one matched
+                # it anyway on the word alone - a refusal upstream is worth
+                # nothing if a later scorer ignores it.
+                if tail:
+                    contra = re.search(r'\b(\d+)\b', lp)
+                    if contra and contra.group(1) != tail and \
+                            re.search(r'[a-z]{2,}[^a-z0-9]{0,6}' + re.escape(contra.group(1)),
+                                      lp):
+                        continue
                 for w in parts:
                     if len(w) < 3 or w.isdigit() or w in STOP_TERMS or w in species:
                         continue

@@ -317,7 +317,44 @@ class BossAgent(AgentBase):
         because the department says it does not own the question - never a
         wrong fact. See core/intent.py."""
         pick = self._resolve_intent(prompt)
-        keyword = self._domain_by_terms(prompt)
+        keyword, margin, scores = self._domain_by_terms(prompt, with_margin=True)
+
+        # A DECLARED TERM IS EVIDENCE; A MODEL'S PICK IS A GUESS.
+        #
+        # Intent resolution used to win every disagreement, and on a 1.5B model
+        # it loses badly: "when will gsc 2 flower" went to the SECURITY agent
+        # and "when will the aloe flower" to PQA, while Grow was sitting there
+        # having declared `flower`, `gsc`, `gsc\s*#?\s*2` and `aloe` as its own
+        # routing terms. Neither of the agents chosen claimed anything at all.
+        #
+        # An agent declaring a term is a verifiable statement by the department
+        # that practises the domain. A small model's answer is not checkable
+        # against anything. So where the words point DECISIVELY at one
+        # department - it claims, and by a clear margin over the next - that
+        # wins, and the model is used for what it is actually good at: the
+        # cases where nobody's vocabulary matches, or two match equally.
+        #
+        # This is the same rule as the port outranking the registry row.
+        # A margin threshold was the wrong test - "when will the aloe flower"
+        # gave Grow 2 hits against Trust's 1, a margin of 1, and PQA still won
+        # on the model's say-so. The sharper question is not how much the winner
+        # led by; it is whether the agent the MODEL chose claimed anything at
+        # all. Security and PQA had matched zero terms in requests they were
+        # handed.
+        #
+        # An agent that has not declared one word of the vocabulary in front of
+        # it has said, in the only way this architecture lets it, that the
+        # request is not its own. That silence outranks a guess.
+        if pick and pick != "UNCLEAR" and pick != keyword and keyword \
+                and not scores.get(pick):
+            self.log(f"routing: intent={pick} claimed nothing; keywords={keyword} "
+                     f"matched {scores.get(keyword)} of its own declared terms - "
+                     f"took keywords")
+            return keyword
+        if keyword and margin >= 2 and pick and pick != "UNCLEAR" and pick != keyword:
+            self.log(f"routing: intent={pick} keywords={keyword} (margin {margin}) - "
+                     f"took keywords; a declared term outranks a model guess")
+            return keyword
         if pick and pick != "UNCLEAR":
             if keyword and keyword != pick:
                 self.log(f"routing: intent={pick} keywords={keyword} - took intent")
@@ -360,11 +397,16 @@ class BossAgent(AgentBase):
                 out[aid] = {"terms": terms, "capabilities": caps.get(aid, [])}
         return out
 
-    def _domain_by_terms(self, prompt):
-        """The old word count, kept as the fallback for when inference is
-        down. A degraded route beats no route."""
+    def _domain_by_terms(self, prompt, with_margin=False):
+        """Which department's declared vocabulary the words point at, and by
+        how much.
+
+        The MARGIN is what makes this usable as evidence rather than a tiebreak.
+        One agent matching three of its own declared terms while the next
+        matches one generic word is a decisive signal; two agents matching once
+        each is not, and the difference has to be visible to the caller."""
         lp = (prompt or "").lower()
-        best, best_n = None, 0
+        scores = {}
         for aid, terms in self._domain_vocabulary().items():
             n = 0
             for t in terms:
@@ -373,9 +415,14 @@ class BossAgent(AgentBase):
                         n += 1
                 except re.error:
                     continue
-            if n > best_n:
-                best, best_n = aid, n
-        return best
+            if n:
+                scores[aid] = n
+        if not scores:
+            return (None, 0, {}) if with_margin else None
+        ranked = sorted(scores.items(), key=lambda kv: -kv[1])
+        best, best_n = ranked[0]
+        runner = ranked[1][1] if len(ranked) > 1 else 0
+        return (best, best_n - runner, scores) if with_margin else best
 
 
 
