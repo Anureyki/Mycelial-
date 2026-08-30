@@ -47,6 +47,30 @@
    "kind": "doctrine",
    "page": 1,
    "text": "SSN - what the remedy actually is. A caution against overreach, because the strength of the underlying point invites it. The civil remedy in 5 U.S.C. 552a(g) attaches to specified failures by an AGENCY as to records in a system of records, with actual damages and a wilful-or-intentional standard for the statutory minimum. Section 7 creates duties without spelling out its own damages remedy, and courts have divided on what follows from a bare s 7(b) notice failure - some treat it as supporting relief, others find no private right of action for section 7 alone. So: a missing justification memo is a real, auditable compliance failure and good leverage in a complaint to the agency or an IG; it is not automatically a damages claim. State it as the compliance gap it is."
+  },
+  {
+   "citation": "disclosure to a third party - the test",
+   "kind": "doctrine",
+   "page": 1,
+   "text": "disclosure to a third party - the test. SSN FORMAT AND DISCLOSURE AUTHORITY ARE TWO DIFFERENT QUESTIONS, and running them together weakens the strong one. Whether a record carries a full SSN or a truncated one goes to 38 CFR 1.575(d). Whether the agency could hand the record over AT ALL goes to 5 U.S.C. 552a(b), which prohibits disclosure of a record from a system of records without the individual's PRIOR WRITTEN CONSENT unless one of the enumerated exceptions applies. The exception that carries almost all real traffic is (b)(3), ROUTINE USE - a use compatible with the purpose for which the record was collected AND PUBLISHED IN THE SYSTEM OF RECORDS NOTICE in the Federal Register. So the question to ask is never 'was this a violation'. It is: WHICH ROUTINE USE, PUBLISHED WHERE, or what consent, and when was it given."
+  },
+  {
+   "citation": "accounting of disclosures",
+   "kind": "doctrine",
+   "page": 1,
+   "text": "accounting of disclosures. 5 U.S.C. 552a(c). The agency must keep an accurate accounting of the DATE, NATURE AND PURPOSE of each disclosure and the NAME AND ADDRESS of the person or agency it went to, retained for five years or the life of the record, whichever is longer - and under (c)(3) it must MAKE THAT ACCOUNTING AVAILABLE TO THE INDIVIDUAL ON REQUEST. This is the single most useful move available to a person who suspects their record was passed around: it converts a suspicion into a list of names, dates and stated purposes, produced by the agency itself. If the agency cannot produce an accounting, that is itself a (c) failure. If it produces one naming recipients with no matching published routine use, that is a (b) failure. Ask for it in writing and cite 552a(c)(3)."
+  },
+  {
+   "citation": "Privacy Act remedy and its limits",
+   "kind": "doctrine",
+   "page": 1,
+   "text": "Privacy Act remedy and its limits. 5 U.S.C. 552a(g). Civil action lies for refusal to amend, refusal of access, failure to maintain records with accuracy sufficient to assure fairness where a determination is adverse, and any other failure to comply that has an ADVERSE EFFECT. For damages the standard is INTENTIONAL OR WILFUL, with actual damages required and a 1,000 dollar statutory floor once they are shown; costs and attorney fees on substantial prevailing. Two years to sue, from discovery of the violation. Note the shape: access and amendment claims are comparatively easy, damages claims are hard, and the wilfulness standard is where most well-founded complaints stop."
+  },
+  {
+   "citation": "a private company is not bound by the Privacy Act",
+   "kind": "doctrine",
+   "page": 1,
+   "text": "a private company is not bound by the Privacy Act. The Privacy Act and its section 7 bind FEDERAL AGENCIES, and section 7 also reaches state and local agencies. A private employer, lender, landlord or verification vendor demanding a DD-214 or an SSN violates neither, and a demand letter aimed at them under the Privacy Act will be correctly ignored. What the individual controls is WHAT THEY HAND OVER: a company may ask for anything, and the answer to 'we require the DD-214' is to offer an adequate substitute - a VA-issued verification-of-service letter, a Veteran Identification Card, or a redacted copy - and to make the refusal of a substitute their documented choice rather than your problem. THE EXCEPTION THAT MATTERS HERE: a public housing authority is a governmental agency. Section 7 reaches it, and 7(a)(1) forbids denying a benefit for refusing to disclose an SSN unless a federal statute requires the disclosure."
   }
  ],
  "term_index": {
@@ -60,6 +84,15 @@
    3,
    4
   ],
+  "federal statute": [
+   1,
+   4,
+   9
+  ],
+  "right benefit": [
+   1,
+   4
+  ],
   "statutory authority": [
    1,
    2
@@ -68,17 +101,25 @@
    1,
    4
   ],
-  "right benefit": [
-   1,
-   4
-  ],
-  "federal statute": [
-   1,
-   4
-  ],
   "social security": [
    1,
    3
+  ],
+  "federal agencies": [
+   2,
+   9
+  ],
+  "local agencies": [
+   4,
+   9
+  ],
+  "private company": [
+   4,
+   9
+  ],
+  "actual damages": [
+   5,
+   8
   ]
  }
 }
