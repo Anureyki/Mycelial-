@@ -171,6 +171,30 @@ LEAF_PATTERNS = (
      "Try to wipe it off. Mildew smears and returns; mineral residue from spray or hard "
      "water comes away and does not.",
      "problem"),
+    ("delivery_interruption",
+     # A top-fed system where the medium sits CLEAR of the water has exactly
+     # one delivery path. When the pump stops, the roots in the medium do not
+     # get less - they get NOTHING, and they are the part of the plant with no
+     # reservoir to fall back on. This is a different failure from underfeeding
+     # and it was being read as one. Matched first because the timing of an
+     # interruption outranks any inference from the leaves.
+     r"(pump|ring|spray|feed|timer|power)[^.]{0,60}(off|failed|stopped|unplugged|"
+     r"not (running|working|spraying)|died)|"
+     r"(off|failed|stopped)[^.]{0,40}(pump|top feed|spray)|"
+     r"(medium|pellets|pebbles|top layer)[^.]{0,40}(dry|dried|drying out)",
+     "an interruption in DELIVERY rather than a problem with what was being "
+     "delivered. In a top-fed system whose medium does not touch the water, the "
+     "spray is the only route to the roots in the medium - so a stopped pump is not "
+     "a reduced feed, it is no feed at all to that root mass, and clay pebbles hold "
+     "almost no water to buffer the gap. Roots that dry do not recover; the plant "
+     "regrows below the damage and pales while it does",
+     "TIMING SETTLES IT, not the leaf. Put the interruption and the symptom on one "
+     "line: if the paling appeared within a day or two AFTER the pump stopped, that "
+     "is the cause and no dose fixes it. Then check the medium at depth - the top "
+     "drying first is expected, and how far down it went is how much root was lost. "
+     "And check the pump has not simply been undersized or the line blocked, because "
+     "an interruption that happened once by accident happens again by wear.",
+     "problem"),
     ("whole_canopy_pale",
      # The classifier knew bottom-up (mobile nutrient) and top-first (immobile
      # or uptake failing) and had nothing for ALL OVER, which is a different

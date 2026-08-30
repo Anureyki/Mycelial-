@@ -1237,3 +1237,34 @@ not need it and are not being asked for."
 With measured-only readings the window reads 7.7h and the verdict is still a
 correct refusal. The tool was never the problem; the demand was in the wrong
 place.
+
+### 2026-08-30 — The pump was off, and nothing could read that as a cause
+
+The grower reported three things while asking whether evaporation should
+concentrate the reservoir: salt building up on the lid where spray droplets dry,
+and - buried at the end - that the air pump driving the top feed had been OFF
+for about two hours after the last reading, leaving the top layer of clay
+pellets dry.
+
+That last one is the material fact and nothing in the classifier could see it.
+`delivery_interruption` now carries it, matched BEFORE the feed-strength
+patterns because the timing of an interruption outranks any inference drawn from
+a leaf.
+
+Why it is a different failure and not a variation of underfeeding: this system
+records `medium_contacts_water: False`. The spray is the ONLY route to the roots
+in the medium, so a stopped pump is not a reduced feed - it is no feed at all to
+that root mass, and clay pebbles hold almost no water to buffer the gap. Roots
+that dry do not recover; the plant regrows below the damage and pales while it
+does. No dose fixes that, which is exactly the wrong conclusion the
+feed-strength reading would have led to.
+
+Its settling test is timing rather than appearance: put the interruption and the
+symptom on one line, check how far down the medium dried, and check whether the
+pump is undersized or the line blocked - because an interruption that happened
+once by accident happens again by wear.
+
+The salt deposits are recorded as physical confirmation of the concentration
+mechanism: water leaving as vapour while dissolved salts stay behind, which is
+the same reason the reservoir fell from above 15 L to 12.5 L while ppm rose from
+693 to 769 with no feed added.
