@@ -2201,3 +2201,51 @@ will arrives with testamentary company: `will and testament`, `my/your/their
 will`, or `will` within thirty characters of executor, probate, bequest, devise
 or beneficiary. Verified both directions: it no longer claims the flowering
 questions and still claims "what is in my will" and "read my will".
+
+### 2026-08-30 — Nine days of missing record, and it was mine to write
+
+The grower: *"I did tell you that I lollipopped it. I even showed you that I
+lollipopped it. If you didn't record it with the Grow agent... that was your
+translation that didn't go through."*
+
+Correct. Found in the transcript at **2026-08-21T15:29:41**, nine days ago, day
+24 of this plant:
+
+> *"because I did lollipop it. At the top, And I cut off its biggest leaves. So
+> energy conservation is going to be... it's gonna need to work around a bit. To
+> clean up the airflow it's receiving"*
+
+That is **two** capacity-removing events and a stated purpose, and none of it
+reached the agent. CLAUDE.md assigns this explicitly - *"Until an agent can
+capture its own domain facts from conversation, Claude is the capture layer, and
+anything the principal says about the grow must be written into the agent's
+record in the same turn it is heard."* It was heard, agreed with, and not
+written. Exactly the failure the section was written about.
+
+**It changes the open differential**, which is the cost of losing it. The biggest
+fan leaves are the plant's nitrogen reserve AND its highest-transpiring tissue -
+and calcium rides the transpiration stream to whatever moves the most water.
+Removing them on day 24 is a mechanism for calcium starvation in new growth that
+was invisible while the record said nothing had been cut.
+
+```
+                              before   after
+calcium_deficiency            +3 -0    +4 -0
+vpd_calcium_maldistribution   +3 -0    +4 -0
+normal_new_growth_pallor      +1 -1    +1 -2
+```
+
+**And `log_training_event` could not have recorded it correctly anyway.** It
+stamped `datetime.now()` and had no date parameter, so a cut made on day 24 and
+typed on day 33 was recorded as happening on day 33 - in a record whose entire
+purpose is relating a cut to what the plant did afterwards. `log_reading` was
+fixed for precisely this earlier today; the training path had the same bug and
+nobody looked. It now takes `occurred_at`, keeps `recorded_at` separately, and
+marks the row `backfilled` so a late entry is visible as one.
+
+**The grower's structural point stands and is Phase 4.** *"Anansi's not capable
+of doing that just yet. That's why I'm talking to you."* Right - and while the
+capture layer is a human relaying by hand, it fails the way humans fail: quietly,
+and only discoverable by grepping a 101 MB transcript nine days later. Phase 4 is
+*Grow captures spoken facts itself*, and this is the argument for it moving up
+the list.

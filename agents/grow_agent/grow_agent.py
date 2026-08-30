@@ -8332,9 +8332,22 @@ class GrowAgent(AgentBase):
                 "airflow at the price of photosynthetic capacity."
             )
 
+            # A CUT MADE ON DAY 24 IS A CUT MADE ON DAY 24.
+            #
+            # Only now() was recorded, so an event reported late was stamped
+            # with the day it was TYPED. This grow's lollipop and leaf removal
+            # happened 2026-08-21 and were written down on 2026-08-30 - nine
+            # days adrift, in a record whose whole purpose is relating a cut to
+            # what the plant did afterwards. `log_reading` was fixed for exactly
+            # this earlier today; the training path had the same bug and nobody
+            # looked.
+            _occurred = (args.get("occurred_at") or args.get("taken_at") or "").strip() \
+                if isinstance(args.get("occurred_at") or args.get("taken_at"), str) else ""
             record = {
                 "id": f"training_event_{self._uid()}",
-                "timestamp": datetime.now().isoformat(),
+                "timestamp": _occurred or datetime.now().isoformat(),
+                "recorded_at": datetime.now().isoformat(),
+                "backfilled": bool(_occurred),
                 "plant_id": plant_id,
                 "event_type": event_type,
                 "severity": profile["severity"],
