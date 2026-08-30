@@ -747,3 +747,49 @@ And a corpus rule into CLAUDE.md: **a dictionary from 1910 is a floor, not a
 boundary.** Black's 2nd is held because its term expired, not because it is
 current. A doctrine it lacks or states differently is not thereby unsupported -
 the absence of a headword is a fact about the 1910 edition and nothing else.
+
+### 2026-08-30 — Trust reads an instrument; the corpus splits by whose question it is
+
+**`assess_instrument`** in the Trust Agent. The corpus could say what a
+self-settled trust IS and nothing could test one. This walks an instrument's
+terms and reports, clause by clause, what is drafted, what is merely asserted,
+and what follows. Run against Paolozzi's own instrument as the findings describe
+it, it returns: self-settled `established`, discretion-as-shelter `refuted`,
+spendthrift-effective `refuted`, and the oral assurance `refuted` with the
+reason that it is not a term, binds nobody, and is worse than useless because
+Treas. Reg. 20.2036-1(c) reaches implied understandings.
+
+It never returns "protected". The strongest thing it says is which features are
+present and what each does and does not do, because the question a court answers
+is not whether a document contains reassuring words.
+
+**The corpus now splits by whose question it is**, on the principal's division:
+Legal keeps contracts and courts; Trust takes trusts and estates; Accounting
+takes tax; and equity maxims, equitable doctrine and trust doctrine backed by
+case law live in `reference/_shared/`, which all three read and none owns. Three
+copies would be three sources of truth and two would drift - the same reason a
+case is one object.
+
+Moved: Pomeroy, Maitland, the equity doctrine index and the self-settled trust
+file to `_shared`; the Delaware Statutory Trust Act and Chandler's *Express
+Trusts* to Trust. **Texas Trust Code** (Tex. Prop. Code ch. 111-117, 183
+sections, none failed) ingested into Trust - the law that actually governs a
+trust sited here, as against the UTC, which is a ULC model and copyrighted.
+Legal 16 works, Trust 7, Accounting 8.
+
+Four bugs found while recording one feed event - 2.0 ml Cal-Mag Plus into GSC2's
+1 L LWC:
+
+- **A false-success of my own.** I printed "recorded" without reading the
+  response. The write had been refused and I reported it as done.
+- **The duplicate guard compared two absences.** `prior.per_liter == per_liter`
+  with both `None` is `True`, so the first real feed into a plant with an empty
+  baseline was refused as "identical to the recipe already in force".
+- **`set_current_nutrients` takes nutrient names as top-level args**, so a
+  caller passing them under a `nutrients` key created a nutrient literally
+  called "nutrients" holding a dict. It accepts both shapes now.
+- **`note` and `allow_duplicate` were being stored as nutrients** - one holding
+  a sentence, one holding 1.0 - and fed into per-litre arithmetic as doses.
+
+And `get_status` reported a real recipe as a gap, because nutrients have their
+own per-plant namespace and it was looking on the plant record.

@@ -542,14 +542,26 @@ class AgentBase:
         outscores a short passage that is exactly on point."""
         if self._refdocs is not None:
             return self._refdocs
-        ref_dir = os.path.join(os.path.dirname(os.path.dirname(
-            os.path.abspath(__file__))), "reference", self.agent_id)
+        root = os.path.join(os.path.dirname(os.path.dirname(
+            os.path.abspath(__file__))), "reference")
+        # An agent reads its OWN corpus plus any it shares.
+        #
+        # Equity maxims, equitable doctrine and trust doctrine backed by case
+        # law do not belong to one department: Legal argues them in court,
+        # Trust construes instruments under them, and Accounting values
+        # positions by them. Giving each a copy would be three sources of truth
+        # and two of them would drift. So they live in reference/_shared/ and
+        # nobody owns them - the same reason a case is one object.
+        ref_dirs = [os.path.join(root, self.agent_id)] + [
+            os.path.join(root, d) for d in getattr(self, "SHARED_CORPORA", ())]
         by_citation, by_authority, by_term, titles = {}, {}, {}, []
-        try:
-            names = sorted(os.listdir(ref_dir))
-        except FileNotFoundError:
-            names = []
-        for fname in names:
+        names = []
+        for d in ref_dirs:
+            try:
+                names += [(d, n) for n in sorted(os.listdir(d))]
+            except FileNotFoundError:
+                continue
+        for ref_dir, fname in names:
             if not fname.endswith(".json") or fname in self.DICTIONARY_FILES:
                 continue
             try:

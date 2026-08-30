@@ -144,6 +144,10 @@ FILING_BURST_THRESHOLD = 5
 
 
 class LegalAgent(AgentBase):
+    # Equity and trust doctrine are argued by Legal, applied to instruments
+    # by Trust, and used to value positions by Accounting. Shared, not copied.
+    SHARED_CORPORA = ("_shared",)
+
     # Words that claim a request for this agent. Declared here, not in
     # Boss - the orchestrator holds no domain vocabulary.
     ROUTING_TERMS = (

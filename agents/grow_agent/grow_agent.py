@@ -3565,6 +3565,18 @@ class GrowAgent(AgentBase):
         # already write is the source of truth. Introducing a second namespace
         # created an empty parallel store and reported real values as missing -
         # read what the system actually keeps.
+        # Nutrients have their own per-plant namespace already (_nutrient_keys)
+        # and are not a field on the plant record - looking for them there
+        # reported a real recipe as a gap.
+        if key == "current_nutrients":
+            cur_key, _ = self._nutrient_keys(pid)
+            raw = self._unwrap_value(self.retrieve_own_memory(cur_key))
+            if raw:
+                try:
+                    return json.loads(raw), "own"
+                except Exception:
+                    return raw, "own"
+            return None, "missing"
         if pid != self.DEFAULT_PLANT:
             rec = next((x for x in (self._get_all_plants() or [])
                         if x.get("plant_id") == pid), None)
@@ -5616,8 +5628,21 @@ class GrowAgent(AgentBase):
                 "reason", "observed_conditions", "decision", "expected_effect",
                 "confidence_note", "context_confidence", "related_events",
                 "corrects", "supersedes", "evidence_kind", "source",
+                # Control and prose args, not nutrients. Without these, "note"
+                # was stored as a nutrient holding a sentence and
+                # "allow_duplicate" as one holding 1.0 - both then fed into
+                # per-litre arithmetic as though they were doses.
+                "note", "notes", "nutrients", "allow_duplicate", "backfilled",
             }
-            nutrients = {k: v for k, v in args.items() if k not in reserved}
+            # Nutrient names are top-level args. A caller passing them nested
+            # under "nutrients" - a natural shape, and one this system's own
+            # tooling reached for twice - would otherwise create a nutrient
+            # literally called "nutrients" whose value is a dict, which then
+            # fails every numeric check downstream while looking recorded.
+            if isinstance(args.get("nutrients"), dict):
+                nutrients = dict(args["nutrients"])
+            else:
+                nutrients = {k: v for k, v in args.items() if k not in reserved}
             if not nutrients:
                 return {"error": "No nutrient values provided"}
 
@@ -5649,7 +5674,13 @@ class GrowAgent(AgentBase):
             # for the case where the same recipe genuinely was re-mixed.
             if not args.get("allow_duplicate"):
                 prior = self._get_nutrient_history(nut_plant_id)
-                if prior and prior[-1].get("per_liter") == per_liter:
+                # Both sides must actually HAVE a recipe. When per_liter could
+                # not be computed on either side the comparison was None == None,
+                # which is True - so a first real feed into a plant with an
+                # empty baseline was refused as "identical to the recipe already
+                # in force". Two absences are not a match.
+                _prev = prior[-1].get("per_liter") if prior else None
+                if prior and _prev and per_liter and _prev == per_liter:
                     return {"result": {
                         "recorded": False,
                         "reason": ("Identical to the recipe already in force, so nothing was "

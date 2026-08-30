@@ -57,6 +57,10 @@ FORM_CITATION_RE = re.compile(r"\b(?:Form\s*)?(1099(?:-[A-Z]+)?|W-?2|W-?9|1040(?
 
 
 class AccountingAgent(AgentBase):
+    # Equity and trust doctrine are argued by Legal, applied to instruments
+    # by Trust, and used to value positions by Accounting. Shared, not copied.
+    SHARED_CORPORA = ("_shared",)
+
     # Words that claim a request for this agent. Declared here, not in
     # Boss - the orchestrator holds no domain vocabulary.
     ROUTING_TERMS = (

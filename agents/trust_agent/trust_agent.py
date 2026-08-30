@@ -55,6 +55,10 @@ STATUTE_CITATION_RE = re.compile(r"\b\d+\s*U\.?S\.?C\.?\s*§*\s*\d+[a-zA-Z0-9\-]
 
 
 class TrustAgent(AgentBase):
+    # Equity and trust doctrine are argued by Legal, applied to instruments
+    # by Trust, and used to value positions by Accounting. Shared, not copied.
+    SHARED_CORPORA = ("_shared",)
+
     # Words that claim a request for this agent. Declared here, not in
     # Boss - the orchestrator holds no domain vocabulary.
     ROUTING_TERMS = (
@@ -67,7 +71,7 @@ class TrustAgent(AgentBase):
             agent_id="trust_agent",
             port=9013,
             capabilities=[
-                "parse_trust_document", "model_trust_relationship", "lookup",
+                "parse_trust_document", "assess_instrument", "model_trust_relationship", "lookup",
                 "list_relationships", "get_relationship", "find_relationships",
                 "find_relationships_by_project", "compare_relationships",
                 "refresh_cache", "query_cache", "cache_stats", "cache_manifest"
@@ -292,7 +296,149 @@ class TrustAgent(AgentBase):
             self.log(f"Graph push failed for {doc.get('id')}: {e}")
 
     # ---------- Task handling ----------
+    # ---- reading an instrument for what it actually does --------------------
+    #
+    # The corpus could say what a self-settled trust is and nothing could TEST
+    # one. This walks an instrument's terms and reports, clause by clause, what
+    # is drafted, what is merely asserted, and what follows.
+    #
+    # It never returns "protected". The strongest thing it can say is which
+    # features are present and what each one does and does not do, because the
+    # question a court answers is not whether a document contains reassuring
+    # words - it is what the arrangement leaves the settlor able to obtain.
+
+    INSTRUMENT_FEATURES = (
+        "settlor_is_beneficiary", "absolute_discretion", "spendthrift_clause",
+        "accumulation_power", "duress_clause", "trustee_is_settlor",
+        "ascertainable_standard", "remainder_over", "revocable",
+        "independent_trustee", "situs_state",
+    )
+
+    def assess_instrument(self, args):
+        terms = args.get("terms") or {}
+        asserted = args.get("asserted_protections") or []
+        jurisdiction = (args.get("jurisdiction") or terms.get("situs_state") or "").upper()
+        unknown = [k for k in self.INSTRUMENT_FEATURES
+                   if k not in terms and k != "situs_state"]
+
+        def has(k):
+            return bool(terms.get(k))
+
+        findings, exposure, drafted, not_drafted = [], [], [], []
+
+        for k in self.INSTRUMENT_FEATURES:
+            if k == "situs_state":
+                continue
+            if k not in terms:
+                continue
+            (drafted if terms[k] else not_drafted).append(k)
+
+        # 1. Self-settled - the question that decides most of the rest.
+        if "settlor_is_beneficiary" not in terms:
+            findings.append({"element": "self_settled", "state": "insufficient_evidence",
+                             "what_would_close_it": "State whether the settlor is also a "
+                             "beneficiary. Nothing else about creditor exposure can be "
+                             "assessed until this is answered."})
+        elif has("settlor_is_beneficiary"):
+            findings.append({"element": "self_settled", "state": "established",
+                             "consequence": "Spendthrift protection is a third-party doctrine. "
+                             "Self-settled it collapses as to the settlor's own interest, and "
+                             "creditors reach the maximum the trustee COULD distribute - "
+                             "non-exercise is no defence. Restatement s 156(2), UTC s 505(a)(2)."})
+            exposure.append("creditors reach the ceiling of the distributive power")
+        else:
+            findings.append({"element": "self_settled", "state": "not_applicable",
+                             "consequence": "Third-party trust. A spendthrift clause can "
+                             "operate here in a way it cannot for a settlor-beneficiary."})
+
+        # 2. Absolute discretion - protective in the abstract, exposing when merged.
+        if has("absolute_discretion") and has("settlor_is_beneficiary"):
+            findings.append({"element": "discretion_as_shelter", "state": "refuted",
+                             "consequence": "A discretionary fiduciary power is not an "
+                             "immunity. Where settlor and beneficiary merge, equity treats "
+                             "the power as exercised to its maximum rather than letting "
+                             "trustee inaction build a shelter the settlor could not build "
+                             "directly."})
+            exposure.append("absolute discretion raises the creditor ceiling rather than lowering it")
+        elif has("absolute_discretion"):
+            findings.append({"element": "discretion_as_shelter", "state": "established",
+                             "consequence": "Discretion in a third-party trust genuinely "
+                             "limits what a beneficiary's creditor can compel."})
+
+        # 3. Spendthrift - present is not the same as effective.
+        if has("spendthrift_clause") and has("settlor_is_beneficiary"):
+            findings.append({"element": "spendthrift_effective", "state": "refuted",
+                             "consequence": "Present but INEFFECTIVE AS TO THE SETTLOR. Note "
+                             "the mechanism: a court does not construe the clause away, it "
+                             "holds it inoperative. Paolozzi's trust carried an express "
+                             "spendthrift clause and it was worth nothing against her own "
+                             "creditors."})
+        elif has("spendthrift_clause"):
+            findings.append({"element": "spendthrift_effective", "state": "established"})
+
+        # 4. THE CENTRAL TEST - drafted, or merely said.
+        for a in asserted:
+            name = a if isinstance(a, str) else (a.get("protection") or "")
+            src = "" if isinstance(a, str) else (a.get("source") or "")
+            key = re.sub(r"[^a-z_]", "_", name.lower().strip())
+            is_term = any(key.startswith(k[:6]) for k in drafted) or terms.get(key) is True
+            if is_term:
+                findings.append({"element": f"asserted:{name}", "state": "established",
+                                 "consequence": "Drafted. It binds the trustee, a court can "
+                                 "construe it, and a fiduciary can defend it."})
+            else:
+                findings.append({"element": f"asserted:{name}", "state": "refuted",
+                                 "consequence": (f"NOT A TERM OF THE INSTRUMENT"
+                                 + (f" - source given as: {src}." if src else ".") +
+                                 " An oral assurance binds nobody and does not cut down "
+                                 "absolute discretion. Worse, it is evidence of an "
+                                 "understanding: Treas. Reg. 20.2036-1(c) reaches express OR "
+                                 "IMPLIED understandings, so a promise that protects nothing "
+                                 "can still establish retained enjoyment.")})
+                exposure.append(f"'{name}' is asserted but not drafted")
+
+        # 5. A duress clause is a trade, and is named as one.
+        if has("duress_clause"):
+            findings.append({"element": "duress_clause", "state": "established",
+                             "consequence": "Protects the RES while exposing the PERSON. "
+                             "Equity acts in personam and the settlor is the one in the "
+                             "courtroom; self-created impossibility is no defence to civil "
+                             "contempt - FTC v. Affordable Media, In re Lawrence. Present "
+                             "this as a trade, never as protection."})
+            exposure.append("duress clause shifts risk from the assets to the settlor personally")
+
+        # 6. Transfer-tax symmetry - the other half of the same determination.
+        if has("settlor_is_beneficiary"):
+            findings.append({"element": "transfer_tax_symmetry", "state": "established",
+                             "consequence": "Creditor access and transfer-tax treatment are two "
+                             "phases of ONE determination. Reachable means retained enjoyment "
+                             "means the gift is incomplete; unreachable means the gift is "
+                             "complete and taxable. The same facts cannot deliver both.",
+                             "refer_to": "accounting_agent"})
+
+        verdict = ("exposed" if exposure else
+                   "no exposure identified from the terms supplied"
+                   if not unknown else "undetermined")
+        return {
+            "verdict": verdict,
+            "jurisdiction": jurisdiction or "NOT STATED - creditor rules are state law, and the "
+                                            "outcome moves with them (Herzog reached the "
+                                            "opposite result on New York law)",
+            "drafted_terms": drafted,
+            "expressly_absent": not_drafted,
+            "not_stated": unknown,
+            "findings": findings,
+            "exposure": exposure,
+            "note": ("This reports what the instrument does and does not do. It does not say "
+                     "the arrangement is protected - no reading of a document can, because "
+                     "the question is what the settlor can actually obtain."),
+            "disclaimer": DISCLAIMER,
+        }
+
     def handle_task(self, task, args, sender):
+        if task == "assess_instrument":
+            return self.assess_instrument(args if isinstance(args, dict) else {})
+
         self.log(f"Task {task} from {sender}")
 
         cag_result = self.try_handle_cag_task(task, args)
