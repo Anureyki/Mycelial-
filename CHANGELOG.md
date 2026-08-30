@@ -1913,3 +1913,64 @@ deliberately narrow (resource reclamation only, verified working on "free up
 some disk space" and correctly returning None otherwise). Incomplete rollout,
 not a defect - but it is the gap between the documented architecture and the
 running one.
+
+### 2026-08-30 — Legal held the books and had no way to be asked a question
+
+*"How did I build a legal agent that doesn't have the capability to answer
+questions like this? But it has the whole UCC, CFR, and whatnot available to
+it."* The corpus was never the problem. Nothing connected a plain question to it.
+
+**`answer()` on Legal.** Boss holds no legal vocabulary and must not, so this is
+where "What is legal tender" becomes a corpus lookup. It returns `None` for
+anything outside the domain so Boss falls through rather than getting a
+confident non-answer - verified on "how do I fix my pump".
+
+**What it refuses is the important part.** `lookup_term` falls back to the first
+word of a phrase, so "legal tender" returned the dictionary entry for *Legal* -
+"conforming to the law" - a real definition of a different thing, presented as
+though it answered. A term of art is not the sum of its words. For a multi-word
+term this takes the exact headword or reports holding nothing, and a one-word
+gloss standing in for a phrase is treated as no answer at all.
+
+**And then it uses the tools it has.** Stopping at "not in my corpus" while
+holding a working web search is an agent declining a capability it owns. The
+corpus is authority; the web is DISCOVERY, and the distinction is carried in the
+`source` field rather than in phrasing. The useful part of a web result is not
+its summary but the CITATION inside it:
+
+> 'legal tender' is not in this agent's corpus. A public search suggests it is
+> governed by: 31 U.S.C. 5103 ... it can be fetched with tools/ingest_law.py and
+> the question re-asked against the actual text. This paragraph is an unverified
+> web result and is NOT authority; it is a pointer to where the authority lives.
+
+**Then the loop closes.** `ingest_law.py usc-section --title 31 --section 5103`,
+and the same question now answers from the statute:
+
+> **31 U.S.C. § 5103** — United States coins and currency (including Federal
+> reserve notes and circulating notes of Federal reserve banks and national
+> banks) are legal tender for all debts, public charges, taxes, and dues.
+> Foreign gold or silver coins are not legal tender for debts.
+
+Search finds where the law lives; the corpus is what gets to speak.
+
+**Four bugs found on the way there:**
+
+- **`lookup` returned `{"error": "0"}`.** It took positional args only, so a
+  dict payload raised `KeyError(0)` and the bare number surfaced as the whole
+  message - indistinguishable from a real failure.
+- **`ingest_law.py` wrote a hollow corpus file.** govinfo answers a bad bulkdata
+  path with **HTTP 200 and an HTML error page**, so `31_u_s_c_2024_edition.json`
+  was written containing the words "Govinfo Bulkdata Service Error" and zero
+  sections - a file sitting on the shelf looking like law. It checks the BODY
+  now and refuses; a status check was never going to catch it.
+- **`usc-section` was needed at all** because govinfo serves whole titles and
+  uscode.house.gov renders in JavaScript. Cornell mirrors the Code as HTML that
+  is actually in the response. Only the operative text between "prev | next" and
+  the enacting credits is taken - the first attempt anchored on the section
+  number, matched the HTML `<title>`, and put *"Please help us improve our site!
+  x No thank you"* into the corpus as statute.
+- **Nothing wrote `authority_class`.** CLAUDE.md requires it on every work and
+  the existing files were classified by hand, so anything this tool acquired
+  arrived unclassified and the claim pipeline could not weigh it. Now stamped
+  with its basis: for a statute or regulation the title IS the citation and
+  fixes the class definitionally.

@@ -64,10 +64,45 @@ def fetch_cfr(title, part, date="2026-08-01"):
         f"from ecfr.gov. Federal regulation - public domain.")
 
 
+# govinfo answers a bad bulkdata path with HTTP 200 and an HTML error page. A
+# status check therefore passes, `_strip` reduces the page to its navigation
+# text, no citations match, and a corpus file is written claiming to hold a
+# title of the U.S. Code while containing zero sections. That file then looks
+# exactly like a real one on the shelf.
+#
+# It happened twice in one session and again today for Title 31, which produced
+# `31_u_s_c_2024_edition.json` with 0 sections and the words "Govinfo Bulkdata
+# Service Error" inside it. Checking the BODY is the fix; checking the status
+# was never going to find it.
+_ERROR_PAGE_MARKERS = (
+    "bulkdata service error", "service error", "page not found",
+    "404 not found", "an error occurred", "browse by category",
+)
+
+
+def _reject_error_page(body, url):
+    head = (body or "")[:4000].lower()
+    hit = next((m for m in _ERROR_PAGE_MARKERS if m in head), None)
+    if hit:
+        raise SystemExit(
+            f"REFUSED: {url}\n"
+            f"  The server returned a page containing '{hit}' rather than the document.\n"
+            f"  This arrives as HTTP 200, so only the body reveals it. Nothing was\n"
+            f"  written - a corpus file with zero sections is worse than no file,\n"
+            f"  because it sits on the shelf looking like law.")
+    if len((body or "").strip()) < 20000:
+        raise SystemExit(
+            f"REFUSED: {url}\n"
+            f"  Only {len((body or '').strip()):,} characters came back. A title of the\n"
+            f"  U.S. Code is megabytes; this is an index or an error page.\n"
+            f"  Nothing was written.")
+    return body
+
+
 def fetch_usc(title, year="2024"):
     url = (f"https://www.govinfo.gov/bulkdata/USCODE/{year}/title{title}/"
            f"USCODE-{year}-title{title}.xml")
-    body = _strip(_get(url, timeout=600))
+    body = _reject_error_page(_strip(_get(url, timeout=600)), url)
     return body, f"{title} U.S.C. ({year} edition)", (
         f"United States Code title {title}, {year} edition, retrieved from "
         f"govinfo.gov bulk data. Federal statute - public domain.")
@@ -108,10 +143,64 @@ def fetch_irm(part):
         f"IRM directs IRS personnel and confers no rights on taxpayers.")
 
 
+def fetch_usc_section(title, section):
+    """One section of the U.S. Code, from Cornell LII.
+
+    govinfo's bulk endpoint serves whole titles and is currently answering with
+    an error page, and uscode.house.gov renders its text in JavaScript, so
+    neither is usable from a script today. Cornell mirrors the Code as HTML that
+    is actually in the response body.
+
+    Fetching ONE section is also the better unit for this corpus. The whole of
+    Title 31 is megabytes of law nobody here has asked about; 31 U.S.C. 5103 is
+    the sentence that answers the question. Fetch-on-demand was already the
+    design - this makes the demand as small as the question.
+
+    On copyright: the statutory text is a United States government work and is
+    public domain wherever it is mirrored. Cornell's own annotations and notes
+    are theirs, so only the operative text between the section heading and the
+    enacting credits is taken, and the source records that it came via Cornell
+    rather than pretending it was fetched from the government directly."""
+    url = f"https://www.law.cornell.edu/uscode/text/{title}/{section}"
+    raw = _get(url, timeout=60)
+    body = _strip(raw)
+    low = body[:3000].lower()
+    if "page not found" in low or "we couldn't find" in low:
+        raise SystemExit(f"REFUSED: {url} returned a not-found page. Nothing written.")
+
+    # Operative text only. Anchoring on the section number alone matched the
+    # HTML <title> first and dragged the page chrome in with it - "Please help
+    # us improve our site! x No thank you Quick search by citation" landed in
+    # the corpus as though it were statute. The content is bracketed by
+    # "prev | next" before and the enacting credits after, so anchor on those.
+    heading = ""
+    hm = re.search(r"U\.?S\.? Code\s*\u00a7\s*" + re.escape(str(section))
+                   + r"\s*[-\u2013\u2014]\s*([^|]{2,80}?)\s+U\.?S\.? Code",
+                   body, re.I)
+    if hm:
+        heading = hm.group(1).strip()
+    m = re.search(r"prev\s*\|\s*next\s*(.+?)(?:\(\s*Pub\.?\s*L\.?|Historical and Revision|"
+                  r"Editorial Notes|U\.S\. Code Toolbox|Statutory Notes)",
+                  body, re.S | re.I)
+    if not m or len(m.group(1).strip()) < 30:
+        raise SystemExit(
+            f"REFUSED: could not isolate the operative text of {title} U.S.C. {section} "
+            f"from {url}.\n  Storing the whole page would put Cornell's navigation and "
+            f"annotations into the corpus as though they were statute. Nothing written.")
+    operative = re.sub(r"\s+", " ", m.group(1)).strip()
+    text = f"\u00a7 {section}. {heading}. {operative}" if heading else f"\u00a7 {section}. {operative}"
+    return (text,
+            f"{title} U.S.C. \u00a7 {section}",
+            f"United States Code title {title} section {section}, retrieved from Cornell LII "
+            f"(law.cornell.edu). The statutory text is a U.S. government work and is public "
+            f"domain; Cornell's annotations are excluded.")
+
+
 def main():
     ap = argparse.ArgumentParser(description=__doc__,
                                  formatter_class=argparse.RawDescriptionHelpFormatter)
-    ap.add_argument("source", choices=["cfr", "usc", "irm"])
+    ap.add_argument("source", choices=["cfr", "usc", "usc-section", "irm"])
+    ap.add_argument("--section", help="single U.S.C. section, e.g. 5103")
     ap.add_argument("--title")
     ap.add_argument("--part")
     ap.add_argument("--year", default="2024")
@@ -125,6 +214,11 @@ def main():
             ap.error("cfr needs --title and --part")
         body, title, source = fetch_cfr(a.title, a.part, a.date)
         stem = f"{a.title}cfr{a.part}"
+    elif a.source == "usc-section":
+        if not (a.title and a.section):
+            ap.error("usc-section needs --title and --section")
+        body, title, source = fetch_usc_section(a.title, a.section)
+        stem = f"usc{a.title}_{a.section}"
     elif a.source == "usc":
         if not a.title:
             ap.error("usc needs --title")
@@ -136,7 +230,7 @@ def main():
         body, title, source = fetch_irm(a.part)
         stem = f"irm{a.part}"
 
-    if len(body) < 2000:
+    if a.source != "usc-section" and len(body) < 2000:
         print(f"REFUSING: retrieved only {len(body)} characters - that is not a "
               f"body of law, it is an error page.", file=sys.stderr)
         return 2
@@ -145,10 +239,56 @@ def main():
     with open(txt, "w") as fh:
         fh.write(body)
     print(f"  fetched {len(body):,} characters -> {txt}")
-    return subprocess.call([sys.executable,
-                            os.path.join(ROOT, "tools", "ingest_pdf.py"),
-                            txt, "--agent", a.agent, "--title", title,
-                            "--source", source])
+    rc = subprocess.call([sys.executable,
+                          os.path.join(ROOT, "tools", "ingest_pdf.py"),
+                          txt, "--agent", a.agent, "--title", title,
+                          "--source", source])
+    if rc != 0:
+        return rc
+
+    # CLAUDE.md requires every work to carry `authority_class` alongside the
+    # basis for it, and nothing was writing either - the existing files were
+    # classified by hand, so anything acquired by this tool arrived unclassified
+    # and the claim pipeline could not weigh it. For a statute or a regulation
+    # the title IS the citation and fixes the class definitionally, which is the
+    # one case where it can be set without reading the text.
+    klass, basis = {
+        "cfr": ("regulation",
+                "Title of the work is a CFR part citation, which fixes the class"),
+        "usc": ("federal_statute",
+                "Title of the work is a U.S. Code title citation, which fixes the class"),
+        "usc-section": ("federal_statute",
+                        "Title of the work is a U.S. Code section citation, which fixes "
+                        "the class"),
+        "irm": ("agency_guidance",
+                "Internal Revenue Manual - directs IRS personnel, confers no rights on "
+                "taxpayers, and courts have held it lacks the force of a regulation"),
+    }[a.source]
+    out = _written_path(a.agent, title)
+    if out and os.path.exists(out):
+        try:
+            with open(out, encoding="utf-8") as fh:
+                doc = json.load(fh)
+            doc["authority_class"] = klass
+            doc["authority_class_basis"] = basis
+            with open(out, "w", encoding="utf-8") as fh:
+                json.dump(doc, fh, indent=2)
+            print(f"  authority_class: {klass}")
+        except Exception as exc:
+            print(f"  WARNING: could not stamp authority_class on {out}: {exc}",
+                  file=sys.stderr)
+            return 1
+    else:
+        print(f"  WARNING: could not locate the written file to stamp authority_class",
+              file=sys.stderr)
+        return 1
+    return 0
+
+
+def _written_path(agent, title):
+    """Where ingest_pdf puts a work, derived the same way it derives it."""
+    slug = re.sub(r"[^a-z0-9]+", "_", title.lower()).strip("_")[:60]
+    return os.path.join(ROOT, "reference", agent, slug + ".json")
 
 
 if __name__ == "__main__":

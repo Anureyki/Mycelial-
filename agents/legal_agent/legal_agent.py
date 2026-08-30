@@ -1433,6 +1433,184 @@ class LegalAgent(AgentBase):
         c["disclaimer"] = DISCLAIMER
         return c
 
+    # Phrases that ask for a meaning. A question is definitional or it is not,
+    # and that is decided by shape rather than by a topic keyword - "what is X"
+    # is the same request whether X is a lien or a light schedule.
+    _DEFINITION_ASK = (
+        r"^what (?:is|are|does .* mean)\b", r"^define\b", r"^definition of\b",
+        r"^meaning of\b", r"\bwhat does\b.*\bmean\b", r"^who (?:is|are) a\b",
+    )
+    _CITATION = re.compile(
+        r"\b\d+\s*(?:u\.?s\.?c\.?|c\.?f\.?r\.?)\s*(?:§+\s*)?[\d.\-()a-z]+",
+        re.I)
+
+    def answer(self, prompt):
+        """Pick this agent's own capability for a legal question.
+
+        Boss holds no legal vocabulary and must not; this is where a plain
+        question becomes a corpus lookup. Returns None for anything outside the
+        domain, so Boss falls through rather than receiving a confident
+        non-answer.
+
+        The rule that matters most here is what it REFUSES. `lookup_term` falls
+        back to the first word of a phrase, so "legal tender" returned the
+        dictionary entry for "Legal" - *conforming to the law* - which is a
+        real definition of a different thing, presented as though it answered.
+        A term of art is not the sum of its words. For a multi-word term this
+        takes the exact headword or reports that it holds nothing, and a
+        one-word gloss standing in for a phrase is treated as no answer at
+        all."""
+        text = (prompt or "").strip()
+        if not text:
+            return None
+
+        cite = self._CITATION.search(text)
+        if cite:
+            found = self.lookup_reference(cite.group(0))
+            if found:
+                return {"answered_as": "citation_lookup",
+                        "text": self.describe("citation_lookup", {"citation": cite.group(0),
+                                                                  "sections": found}),
+                        "facts": {"citation": cite.group(0), "sections": found[:3]}}
+            return {"answered_as": "citation_not_held",
+                    "text": (f"{cite.group(0)} is not in this agent's corpus. The corpus is "
+                             f"fetch-on-demand rather than a mirror, so an uncited title is "
+                             f"absent by design, not by failure. It can be acquired with "
+                             f"tools/ingest_law.py."),
+                    "facts": {"citation": cite.group(0), "in_corpus": False}}
+
+        if not any(re.search(p, text.lower()) for p in self._DEFINITION_ASK):
+            return None
+
+        term = re.sub(r"^(what (is|are)|define|definition of|meaning of)\s+", "",
+                      text.lower()).strip().rstrip("?.").strip()
+        term = re.sub(r"^(a|an|the)\s+", "", term)
+        if not term:
+            return None
+        words = term.split()
+
+        exact = self.lookup_term(term, loose=False)
+        if exact:
+            return {"answered_as": "definition",
+                    "text": self.describe("definition", {"term": term, "entry": exact}),
+                    "facts": {"term": term, "source": "corpus headword", "entry": exact}}
+
+        # Not a headword. Look for the PHRASE in the text this agent actually
+        # holds - that is evidence about the corpus rather than a guess about
+        # the term, and it names the authority that uses it.
+        hits = self._phrase_in_corpus(term)
+        if hits:
+            top = hits[0]
+            body = top.get("text") or ""
+            return {"answered_as": "term_in_authority",
+                    "text": (f"{top['work']}, {top['section']}\n\n{body}"
+                             + (f"\n\nAlso appears in: "
+                                + "; ".join(f"{h['work']} {h['section']}" for h in hits[1:4])
+                                if len(hits) > 1 else "")
+                             + f"\n\n('{term}' is not a headword in the 1910 dictionary; this "
+                               f"is the passage in the corpus that uses it.)"),
+                    "facts": {"term": term, "source": "corpus full-text",
+                              "authority": True,
+                              "work": top["work"], "citation": top["section"],
+                              "hits": [{k: v for k, v in h.items() if k != "text"}
+                                       for h in hits[:5]]}}
+
+        # THE CORPUS IS THE FLOOR, NOT THE BOUNDARY.
+        #
+        # Stopping at "not in my corpus" while holding a working web search is
+        # the agent declining to use a capability it has. The corpus is
+        # authority; the web is DISCOVERY - and the distinction is carried in
+        # the `source` field rather than in the phrasing, so nothing downstream
+        # can mistake one for the other.
+        #
+        # The useful part is not the web summary. It is the CITATION inside it:
+        # once the web says a term is defined at 31 U.S.C. 5103, that title can
+        # be ingested and the question re-asked against real authority. Search
+        # finds where the law lives; the corpus is what gets to speak.
+        web = None
+        try:
+            web = self.search_public(f"{term} legal definition statute United States Code")
+        except Exception as exc:
+            self.log(f"answer: web search failed for '{term}': {exc}")
+        wr = (web or {}).get("result")
+        if wr and not (isinstance(wr, dict) and wr.get("error")):
+            blob = json.dumps(wr) if not isinstance(wr, str) else wr
+            cites = []
+            for m in self._CITATION.finditer(blob):
+                c = re.sub(r"\s+", " ", m.group(0)).strip()
+                if c.lower() not in [x.lower() for x in cites]:
+                    cites.append(c)
+            held = [c for c in cites if self.lookup_reference(c)]
+            missing = [c for c in cites if c not in held]
+            return {
+                "answered_as": "web_discovery",
+                "text": (f"'{term}' is not in this agent's corpus. A public search suggests it "
+                         f"is governed by: {', '.join(cites[:4]) if cites else 'no clear citation'}. "
+                         + (f"Of those, {', '.join(held[:3])} IS held here. "
+                            if held else "")
+                         + (f"{', '.join(missing[:3])} is not - it can be fetched with "
+                            f"tools/ingest_law.py and the question re-asked against the "
+                            f"actual text. " if missing else "")
+                         + "This paragraph is an unverified web result and is NOT authority; "
+                           "it is a pointer to where the authority lives."),
+                "facts": {"term": term, "source": "web_unverified",
+                          "authority": False,
+                          "search_via": (web or {}).get("source"),
+                          "citations_found": cites[:6],
+                          "citations_held": held, "citations_missing": missing,
+                          "next": (f"python3 tools/ingest_law.py usc --title "
+                                   f"{missing[0].split()[0]} --agent legal_agent"
+                                   if missing and missing[0].split()[0].isdigit() else None)},
+            }
+
+        gloss = self.lookup_term(words[0], loose=False) if len(words) > 1 else None
+        return {"answered_as": "term_not_held",
+                "text": (f"This agent holds no definition of '{term}'."
+                         + (f" The dictionary defines '{words[0]}' alone, but a term of art is "
+                            f"not the sum of its words and that entry is not an answer to this "
+                            f"question - so it is not offered as one."
+                            if gloss else "")
+                         + " The corpus is fetch-on-demand: whichever title or part defines it "
+                           "can be acquired with tools/ingest_law.py and the question re-asked."),
+                "facts": {"term": term, "in_corpus": False,
+                          "single_word_gloss_available": bool(gloss),
+                          "single_word_gloss_refused": bool(gloss)}}
+
+    def _phrase_in_corpus(self, phrase, limit=8):
+        """Where this exact phrase appears in the works on the shelf."""
+        needle = (phrase or "").strip().lower()
+        if len(needle) < 4:
+            return []
+        out = []
+        try:
+            idx = self._load_reference_docs()
+        except Exception:
+            return []
+        # The index is by_citation -> [entry], each entry carrying its work,
+        # citation and text. Scanning it is a full-text pass over exactly what
+        # this agent holds - slow-ish and honest, and only reached when the
+        # exact headword has already missed.
+        seen = set()
+        for entries in (idx.get("by_citation") or {}).values():
+            for e in (entries if isinstance(entries, list) else [entries]):
+                if not isinstance(e, dict):
+                    continue
+                if needle in str(e.get("text", "")).lower():
+                    key = (e.get("title") or e.get("work"), e.get("citation"))
+                    if key in seen:
+                        continue
+                    seen.add(key)
+                    # The index entry keys the work as `title`; reading `work`
+                    # returned "?" for every hit. And a pointer is not an
+                    # answer to "what is X" - the passage that defines it has
+                    # to come back with it.
+                    out.append({"work": e.get("title") or e.get("work") or "?",
+                                "section": e.get("citation") or e.get("page") or "?",
+                                "text": re.sub(r"\s+", " ", str(e.get("text", ""))).strip()})
+                    if len(out) >= limit:
+                        return out
+        return out
+
     def handle_task(self, task, args, sender):
         self.log(f"Task {task} from {sender}")
 
@@ -1517,9 +1695,20 @@ class LegalAgent(AgentBase):
             return self.transaction_layers(a.get("stage"), a.get("state"))
 
         if task == "lookup":
-            if not args or not args[0]:
-                return {"error": "Usage: lookup <term_or_citation>", "disclaimer": DISCLAIMER}
-            term = args[0]
+            # Positional-only meant a dict payload raised KeyError(0), which
+            # surfaced to the caller as the entire message {"error": "0"} - a
+            # cryptic number where a usage line belonged, and indistinguishable
+            # from a real failure. Both shapes are accepted now.
+            if isinstance(args, dict):
+                term = (args.get("term") or args.get("query")
+                        or args.get("citation") or args.get("prompt") or "")
+            elif isinstance(args, (list, tuple)):
+                term = args[0] if args else ""
+            else:
+                term = str(args or "")
+            if not str(term).strip():
+                return {"error": "Usage: lookup <term_or_citation>, or {term: ...}",
+                        "disclaimer": DISCLAIMER}
             # The corpus comes first. It was consulted nowhere in this path:
             # lookup went cache -> web -> model, so a term defined in Black's
             # and a case discussed in a treatise on the shelf both reached the
