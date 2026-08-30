@@ -2526,6 +2526,202 @@ class GrowAgent(AgentBase):
         self.store_own_memory(key, json.dumps(record))
         return {"changed": changed, "record": record}
 
+    def reconcile_topup(self, plant_id="current_plant", ppm_before=None, ppm_after=None,
+                        volume_after=None, volume_added=None, topup_ppm=0.0,
+                        nutrients_added=False, meter_tolerance_pct=2.0, note="",
+                        persist=True):
+        """Read a top-up as the measurement it already is.
+
+        Adding plain water to a reservoir is a CONTROLLED DILUTION. The salt
+        that was dissolved is still dissolved - none of it left with the pour -
+        so the mass is conserved across the event:
+
+            ppm_before * V_before  +  ppm_topup * V_added
+                                        =  ppm_after * (V_before + V_added)
+
+        Everything in that equation is measured at the moment of the top-up
+        except V_before, which is the quantity the grow never actually knows.
+        So it can be solved for, and the answer arrives free with a chore that
+        was being done anyway.
+
+        This matters because the alternative is an eyeball against a moulded
+        mark, and every dose is computed against that number. It also settles
+        the question a single ppm reading cannot: ppm rising tells you the
+        ratio moved, never whether water left or nutrient did. With V_before in
+        hand the dissolved MASS can be compared across readings, and mass only
+        falls when the plant actually takes nutrient up.
+
+        Two things void the arithmetic and are refused rather than absorbed:
+        nutrients poured in alongside the water (mass was added, so the
+        equation no longer describes the event), and a top-up that did not
+        dilute (which means the water was not what it was believed to be)."""
+        pb = self._parse_numeric(ppm_before)
+        pa = self._parse_numeric(ppm_after)
+        tp = self._parse_numeric(topup_ppm)
+        va = self._parse_numeric(volume_after)
+        vadd = self._parse_numeric(volume_added)
+        tol = self._parse_numeric(meter_tolerance_pct) or 2.0
+
+        out = {"plant_id": plant_id, "ppm_before": pb, "ppm_after": pa,
+               "topup_ppm": tp, "method": "conservation_of_dissolved_mass"}
+
+        if pb is None or pa is None:
+            out.update({"classification": "insufficient_evidence", "confidence": "low",
+                        "reason": "A dilution is read from the ppm on both sides of it. "
+                                  "Without the before AND after reading there is nothing to solve.",
+                        "action": "Take ppm immediately before topping up and again once the "
+                                  "reservoir has mixed, and this becomes a volume measurement."})
+            return out
+        if va is None and vadd is None:
+            out.update({"classification": "insufficient_evidence", "confidence": "low",
+                        "reason": "Conservation fixes the RATIO of the volumes. Turning that "
+                                  "into litres needs one of them known - either the level "
+                                  "topped up to, or how much was poured in.",
+                        "action": "Record the mark you filled to, or measure the water added."})
+            return out
+
+        # Nutrients alongside the water add mass the equation assumes stayed
+        # constant. Solving anyway would silently return a wrong volume that
+        # then looks like a measurement, which is worse than no answer.
+        if nutrients_added:
+            out.update({"classification": "not_applicable", "confidence": "low",
+                        "reason": "Nutrients went in with the water, so dissolved mass was ADDED "
+                                  "during the event. Conservation no longer describes it and the "
+                                  "volume it would return would be wrong while looking measured.",
+                        "action": "This reconciliation needs a plain-water top-up. Feed as a "
+                                  "separate step from topping up and both stay readable."})
+            return out
+
+        if tp is None:
+            tp = 0.0
+            out["topup_ppm_assumed"] = True
+
+        # A plain-water top-up must lower concentration. If it did not, the
+        # premise is wrong somewhere - and that is the finding, not an error.
+        if pa >= pb:
+            out.update({"classification": "contradicted", "confidence": "medium",
+                        "reason": f"ppm did not fall ({pb} -> {pa}). Adding water weaker than the "
+                                  f"reservoir can only dilute it, so one of the inputs is not what "
+                                  f"it is believed to be: the top-up water carries dissolved solids "
+                                  f"of its own, something was fed, or the reservoir had not mixed "
+                                  f"when the second reading was taken.",
+                        "action": "Check the top-up water's own ppm directly - that is one reading "
+                                  "and it settles which of the three it was. Let a top-up circulate "
+                                  "before reading; the top of an unmixed reservoir is not the "
+                                  "reservoir."})
+            return out
+        if tp >= pa:
+            out.update({"classification": "contradicted", "confidence": "medium",
+                        "reason": f"The top-up water is quoted at {tp} ppm, at or above the "
+                                  f"reservoir after mixing ({pa}). Water that strong cannot have "
+                                  f"produced this dilution.",
+                        "action": "Re-check the source water's ppm."})
+            return out
+
+        if va is not None:
+            v_before = va * (pa - tp) / (pb - tp)
+            v_added = va - v_before
+        else:
+            v_before = vadd * (pa - tp) / (pb - pa)
+            va = v_before + vadd
+            v_added = vadd
+
+        # Meter tolerance dominates here: the volume is a ratio of two ppm
+        # readings, so both tolerances propagate into it. Quoting the bare
+        # quotient would imply a precision the instrument does not have.
+        rel = (tol / 100.0) * (2 ** 0.5)
+        out.update({
+            "volume_before_liters": round(v_before, 2),
+            "volume_before_range": [round(v_before * (1 - rel), 2), round(v_before * (1 + rel), 2)],
+            "volume_after_liters": round(va, 2),
+            "volume_added_liters": round(v_added, 2),
+            "meter_tolerance_pct": tol,
+            "dissolved_mass_before_ppm_l": round(pb * v_before, 0),
+            "dissolved_mass_after_ppm_l": round(pa * va, 0),
+            "volume_source": "dilution",
+            "classification": "measured",
+            "confidence": "medium",
+        })
+
+        # Compare against whatever the grow believed it was running, because a
+        # standing figure that is wrong is wrong in every dose computed from it.
+        stored = None
+        sysraw = (self._unwrap_value(self.retrieve_own_memory(f"grow_system_{plant_id}"))
+                  or (self._unwrap_value(self.retrieve_own_memory("grow_system"))
+                      if plant_id == "current_plant" else None))
+        try:
+            sysrec = json.loads(sysraw) if sysraw else {}
+            stored = self._parse_numeric(sysrec.get("typical_working_liters"))
+            cap = self._parse_numeric(sysrec.get("reservoir_capacity_liters"))
+        except Exception:
+            sysrec, cap = {}, None
+        if stored is not None:
+            gap = v_before - stored
+            out["stored_working_liters"] = stored
+            out["difference_from_stored"] = round(gap, 2)
+            out["stored_agrees"] = abs(gap) <= v_before * rel
+        if cap is not None and va > cap:
+            out["overfill_warning"] = (f"Filled to {round(va,1)} L against a recorded capacity of "
+                                       f"{cap} L.")
+
+        reason = (f"Conservation of dissolved mass across the top-up puts the reservoir at "
+                  f"{round(v_before,1)} L before the pour and {round(v_added,1)} L added. This is "
+                  f"a measurement, not an estimate: nothing but water went in, so the salt that "
+                  f"was in solution stayed in solution, and the ppm on either side of the event "
+                  f"fixes the ratio of the volumes.")
+        if out.get("stored_agrees") is True:
+            reason += (f" It agrees with the {stored} L the system was already running, which is "
+                       f"the useful outcome - the standing figure is confirmed by something other "
+                       f"than the eye that set it.")
+        elif out.get("stored_agrees") is False:
+            reason += (f" It does NOT agree with the {stored} L on record ("
+                       f"{out['difference_from_stored']:+} L). Every dose is computed against that "
+                       f"number, so the disagreement is worth more than the reading that found it.")
+        out["reason"] = reason
+        out["action"] = (
+            "Carry the measured volume forward rather than re-estimating it - it only changes when "
+            "water moves, and now it is known. The dissolved-mass figures are the ones to watch "
+            "across readings: ppm alone moves when EITHER water or nutrient leaves, and cannot "
+            "say which. Mass falls only when the plant actually takes nutrient up.")
+        if note:
+            out["note"] = note
+
+        # A top-up CHANGES the volume, and the carry-forward that saves the
+        # grower from re-measuring every reading has no way to know that
+        # happened. Left alone it keeps handing the pre-top-up figure to every
+        # subsequent dose - which is the carry-forward turning from a
+        # convenience into a stale number nothing flags. The event that moved
+        # the water is the right place to write the new value, and it writes it
+        # as MEASURED because that is what conservation just made it.
+        if persist:
+            try:
+                sysrec = json.loads(sysraw) if sysraw else {}
+            except Exception:
+                sysrec = {}
+            if isinstance(sysrec, dict):
+                # BOTH standing volume fields, deliberately. `reservoir_liters`
+                # is what the dosing path reads and `typical_working_liters` is
+                # what the volume checks read; updating one and not the other
+                # leaves the grow with two answers to "how much water is in
+                # there", and the one that drifts is always the copy that
+                # nothing writes. Verified live: this record held 15.0 and 12.5
+                # simultaneously, and every dose would have been computed
+                # against the smaller - roughly 17% short.
+                sysrec["typical_working_liters"] = round(va, 1)
+                sysrec["reservoir_liters"] = round(va, 1)
+                sysrec.pop("reservoir_volume_l", None)   # invented field, nothing reads it
+                sysrec["volume_source"] = "dilution"
+                sysrec["volume_measured_on"] = datetime.now().isoformat()
+                sysrec["volume_before_last_topup_liters"] = round(v_before, 2)
+                key = (f"grow_system_{plant_id}"
+                       if self._unwrap_value(self.retrieve_own_memory(f"grow_system_{plant_id}"))
+                       else "grow_system")
+                self.store_own_memory(key, json.dumps(sysrec))
+                out["persisted"] = {"key": key, "typical_working_liters": round(va, 1),
+                                    "reservoir_liters": round(va, 1),
+                                    "volume_source": "dilution"}
+        return out
+
     def measure_working_volume(self, plant_id="current_plant", reference_liters=None,
                                verdict="above", method="side_by_side_level",
                                solids_submerged=None, upper_hint=None, note="",
@@ -5651,8 +5847,14 @@ class GrowAgent(AgentBase):
             self.store_own_memory(f"stage_transition_{self._uid()}", json.dumps(transition))
             return {"result": f"Stage transitioned to {new_stage}", "transition": transition}
 
+        elif task == "reconcile_topup":
+            return {"result": self.reconcile_topup(**(args if isinstance(args, dict) else {}))}
         elif task == "log_water_change":
-            volume = args.get("volume")
+            # A top-up is described by what was ADDED; a full change by what the
+            # reservoir now holds. Accepting only one name made the other look
+            # like a missing field.
+            volume = (args.get("volume") or args.get("volume_liters")
+                      or args.get("liters_added") or args.get("liters"))
             ph = args.get("ph")
             ppm = args.get("ppm")
             notes = args.get("notes", "")

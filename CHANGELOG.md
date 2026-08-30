@@ -1268,3 +1268,47 @@ The salt deposits are recorded as physical confirmation of the concentration
 mechanism: water leaving as vapour while dissolved salts stay behind, which is
 the same reason the reservoir fell from above 15 L to 12.5 L while ppm rose from
 693 to 769 with no feed added.
+
+### 2026-08-30 — A top-up is a measurement, and the reservoir was never 12.5 L
+
+Topping up is a chore. It is also a **controlled dilution**, and dissolved mass
+is conserved across it: nothing but water went in, so the salt that was in
+solution stayed in solution. That makes the pre-top-up volume - the one number
+this grow has only ever eyeballed against a moulded mark - solvable from two ppm
+readings that were being taken anyway.
+
+`reconcile_topup` solves it. On today's event (769 ppm -> 667 ppm, filled to the
+15 L mark) it returns **13.0 L before the pour, 2.0 L added**, against 12.5 L on
+record. It quotes a range rather than the bare quotient because the answer is a
+ratio of two meter readings and both tolerances propagate into it.
+
+This also answers what a single ppm reading structurally cannot. ppm rising says
+the ratio moved; it never says whether water left or nutrient did. With volume
+known on both sides, dissolved MASS can be compared across readings, and mass
+falls only when the plant actually takes nutrient up.
+
+Four things void the arithmetic and are refused rather than absorbed: nutrients
+poured in alongside the water (mass was ADDED, so the equation no longer
+describes the event), a top-up that did not dilute (the water was not what it
+was believed to be, or the reservoir had not mixed), source water quoted
+stronger than the mixed result, and no volume anchor at all. Each returns a
+named classification - `not_applicable`, `contradicted`, `insufficient_evidence`
+- never a number that would look measured while being wrong.
+
+**Two standing volume fields, and only one was being written.** The system
+record held `typical_working_liters` AND `reservoir_liters`, both live:
+`reservoir_liters` is what the dosing path reads. Writing the new volume to one
+of them left the record holding 15.0 and 12.5 simultaneously, and every dose
+would have been computed against the smaller - roughly 17% short. Both are
+written now. `reservoir_volume_l` was removed: an invented field with zero code
+references, which is the same failure in its other form - a number that looks
+authoritative and reaches nothing.
+
+The carry-forward that spares the grower re-measuring every reading had no way
+to know a top-up moved the water, so it kept handing the stale figure forward.
+The event that moved the water now writes the new value, as `measured`.
+
+`log_water_change` accepts `liters_added` / `volume_liters` / `liters`, not only
+`volume` - a top-up is described by what went in, a full change by what the
+reservoir now holds, and accepting one name made the other look like a missing
+field.
