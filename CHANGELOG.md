@@ -2106,3 +2106,40 @@ bare "Failed", which reads as a broken package rather than as a boundary. This
 agent runs unprivileged by design - the Phase 6 posture, where no agent holds
 root so none can be talked into using it. It reports the 42 upgradable packages,
 names the command to run by hand, and states that nothing was changed.
+
+### 2026-08-30 — 42 pending updates, and which four actually matter here
+
+*"At least tell me which ones need to be updated right now to ensure that the
+system's capabilities are up to par."* Fair - 42 package names is a list, not an
+answer.
+
+`assess_updates` decides relevance by **looking at what this machine is running**
+rather than ranking package names against a general idea of importance. What is
+listening, which units are active, which interpreter the venv is built on.
+
+**The first thing it found is the argument for doing it that way.** Eighteen of
+the forty-two are `python3.11` and `libpython3.11`. This stack's venv is built on
+**Python 3.14.4**. A generic priority list would have put "18 Python updates" at
+the top of the report; they are for an interpreter nothing here uses.
+
+```
+observed: venv Python 3.14.4 · headless, no GPU · tor active · snapd active
+          packagekit inactive · docker active, 2 containers
+
+ACT NOW (4)
+  containerd.io          container runtime; 2 containers running, Phases 7-8 deploy on it
+  docker-compose-plugin  same
+  tor / tor-geoipdb      network-facing daemon, active, 0.4.9.6 -> 0.4.9.11
+
+WORTH DOING (17)   base system, takes effect on reboot; no observed dependency either way
+NOT RELEVANT (21)  18x python3.11 (wrong interpreter), mesa/libGL (headless),
+                   console-setup (no console), packagekit (inactive)
+```
+
+The two that matter are **tor**, because it is network-facing, running, and five
+point releases behind, and **containerd/docker**, because two containers are up
+and the deployment phases are built on it.
+
+Where nothing was observed either way, the package says so rather than being
+assigned a priority - `"no observed dependency either way"` is a real answer and
+a guessed severity is not.

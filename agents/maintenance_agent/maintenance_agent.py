@@ -423,6 +423,106 @@ class MaintenanceAgent(AgentBase):
                 out[aid] = port
         return out
 
+    def assess_updates(self):
+        """Which pending updates this system actually depends on.
+
+        `check_updates` returns 42 package names, which is a list rather than an
+        answer. The question is which of them touch something this machine is
+        running, and that is decided by LOOKING - what is listening, what is
+        active, which interpreter the venv is built on - not by ranking package
+        names against a general idea of importance.
+
+        The first thing it found is the argument for doing it this way: 18 of
+        the 42 are `python3.11`, and this stack's venv is built on Python 3.14.
+        A generic priority list would have put "18 Python security updates" at
+        the top of the report. They are for an interpreter nothing here uses."""
+        pending = self.handle_task("check_updates", {}, self.agent_id)
+        pkgs = pending.get("packages") or []
+        if not pkgs:
+            return {"upgradable_count": 0, "note": "nothing pending"}
+
+        # What is actually running, observed rather than assumed.
+        facts = {}
+        try:
+            facts["venv_python"] = subprocess.run(
+                [os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(
+                    os.path.abspath(__file__)))), "venv", "bin", "python3"), "-V"],
+                capture_output=True, text=True, timeout=10).stdout.strip()
+        except Exception:
+            facts["venv_python"] = "unknown"
+        for unit in ("tor", "snapd", "packagekit", "docker"):
+            try:
+                facts[f"unit_{unit}"] = subprocess.run(
+                    ["systemctl", "is-active", unit], capture_output=True,
+                    text=True, timeout=8).stdout.strip()
+            except Exception:
+                facts[f"unit_{unit}"] = "unknown"
+        facts["headless"] = not os.environ.get("DISPLAY")
+        try:
+            facts["containers_running"] = int(subprocess.run(
+                ["docker", "ps", "-q"], capture_output=True, text=True,
+                timeout=10).stdout.count("\n"))
+        except Exception:
+            facts["containers_running"] = None
+
+        py_minor = ""
+        if "Python 3." in facts.get("venv_python", ""):
+            py_minor = facts["venv_python"].split("Python ")[-1].rsplit(".", 1)[0]
+
+        buckets = {"act_now": [], "worth_doing": [], "not_relevant": []}
+        for line in pkgs:
+            name = line.split("/")[0]
+            low = name.lower()
+
+            # Python packages for an interpreter this stack does not use.
+            if low.startswith(("python3.", "libpython3.")):
+                ver = low.split("python3.")[-1].split("-")[0]
+                if py_minor and not py_minor.endswith(ver):
+                    buckets["not_relevant"].append(
+                        (name, f"Python 3.{ver}; this stack's venv is {facts['venv_python']}"))
+                    continue
+                buckets["act_now"].append((name, "the interpreter this stack runs on"))
+                continue
+
+            if low.startswith(("mesa", "libgl", "libgbm", "libglx")):
+                buckets["not_relevant"].append(
+                    (name, "graphics stack; this machine is headless with no GPU"))
+            elif low.startswith(("console-setup", "keyboard-configuration")):
+                buckets["not_relevant"].append((name, "console/keyboard on a headless server"))
+            elif low.startswith(("packagekit", "gir1.2-packagekit", "libpackagekit")):
+                buckets["not_relevant"].append(
+                    (name, f"packagekit is {facts.get('unit_packagekit')}"))
+            elif low.startswith("tor"):
+                # Network-facing and running. 0.4.9.6 -> 0.4.9.11 is five point
+                # releases on a daemon holding open sockets.
+                buckets["act_now"].append(
+                    (name, f"network-facing daemon, systemd says "
+                           f"{facts.get('unit_tor')}, several point releases behind"))
+            elif low.startswith(("containerd", "docker")):
+                buckets["act_now"].append(
+                    (name, f"container runtime; {facts.get('containers_running')} containers "
+                           f"running and Phases 7-8 deploy on it"))
+            elif low.startswith(("grub", "ubuntu-kernel", "base-files", "ubuntu-minimal",
+                                 "ubuntu-server", "ubuntu-standard", "motd")):
+                buckets["worth_doing"].append((name, "base system; takes effect on reboot"))
+            elif low.startswith("snapd"):
+                buckets["worth_doing"].append(
+                    (name, f"snapd is {facts.get('unit_snapd')} but nothing here is a snap"))
+            else:
+                buckets["worth_doing"].append((name, "no observed dependency either way"))
+
+        return {
+            "upgradable_count": len(pkgs),
+            "observed": facts,
+            "act_now": [{"package": n, "because": w} for n, w in buckets["act_now"]],
+            "worth_doing": [{"package": n, "because": w} for n, w in buckets["worth_doing"]],
+            "not_relevant": [{"package": n, "because": w} for n, w in buckets["not_relevant"]],
+            "basis": ("Relevance decided by what this machine is observed to be running, "
+                      "not by a general ranking of package names. Where nothing was "
+                      "observed either way the package is listed as such rather than "
+                      "guessed at."),
+        }
+
     def system_graph(self, hours=24, min_calls=1, include_knowledge=True):
         """Who actually talked to whom, drawn from the audit log.
 
@@ -806,6 +906,9 @@ class MaintenanceAgent(AgentBase):
         if task == "sync_graph_from_cases":
             payload = args if isinstance(args, dict) else {}
             return self.sync_graph_from_cases(apply=bool(payload.get("apply")))
+
+        if task == "assess_updates":
+            return self.assess_updates()
 
         if task == "system_graph":
             payload = args if isinstance(args, dict) else {}
