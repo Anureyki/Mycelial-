@@ -23,3 +23,10 @@ jobs:
         run: |
           pip install ruff
           ruff check --select=E9,F63,F7,F82 --exclude backup_20260621_053644,quarantine .
+
+      - name: Webapp shell cache version
+        # A shell file edited without a version bump ships to nobody: the URL
+        # index.html requests is unchanged, so an installed client keeps
+        # serving the copy it already has. It looks deployed from the server
+        # side and is invisible on the device.
+        run: python tools/check_shell_version.py

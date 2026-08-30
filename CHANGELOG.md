@@ -1578,3 +1578,38 @@ leaf set comes in clean it supports VPD; if paling continues in tissue formed
 after the correction, it does not. The engine allowed it and still attached its
 caution, that a differential with five live explanations cannot say which one an
 improvement confirmed.
+
+### 2026-08-30 — Shipped to the server, invisible on the device
+
+The Grow and Progress cards were rewritten, verified against the agents, and
+committed. The grower's dashboard kept rendering the old narrated paragraphs.
+
+Nothing was wrong with the code or the server. `index.html` requests
+`app.js?v=6`, the service worker caches by URL, and the edit left the version at
+6 - so the URL never changed and an already-installed client went on serving the
+copy it had. On a phone launched from the home screen there is no hard-refresh
+gesture to escape that. The change was complete from this side and absent from
+the only side that mattered.
+
+The service worker's own first line says *"Bump CACHE on every shell change."*
+Three shell files were changed and it was not bumped. Telling the grower to
+"hard-refresh" was advice, not a fix, and it was given without checking what the
+device would actually receive.
+
+Bumped to **v7** across `service-worker.js` and `index.html`, so the asset URL
+changes and a cache hit is impossible.
+
+**`tools/check_shell_version.py`** records a fingerprint of every shell file
+beside the version and fails when one moved while the version did not. Verified
+both directions: it passes when consistent and catches a one-line silent edit.
+Added to CI, because a check that does not get tired outranks remembering - the
+same reason the compile and lint steps are there.
+
+Verification chain now stated rather than assumed: the file on disk carries the
+new renderers, nginx's root points at that directory, the config has zero
+caching directives that could serve stale bytes, and the asset URL changed.
+
+Separately confirmed while tracing this, so it is not mistaken for a fault
+later: every agent binding `127.0.0.1` is **deliberate** - the Phase 6 hardening
+that made nginx on 8443 the single authenticated TLS front door. The LAN reaches
+the dashboard at `https://192.168.1.139:8443`, not at any agent port directly.
