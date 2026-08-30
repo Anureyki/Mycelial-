@@ -1121,3 +1121,27 @@ arrived.
 
 The Cal-Mag image the grower saved is in: `calmag_deficiency` now holds 4, the
 set is 31 files and 31 unique.
+
+### 2026-08-30 — Two counters that looked like one
+
+The grower asked what clicking Accept actually adds, and the honest answer was
+that it depends which number you were watching.
+
+There are two, and they mean different things. **reviews_done** counts the act
+of reviewing and moves on every click, accept or reject, because rejecting noise
+is as valuable as accepting a good example. **per_label have/need** counts
+images actually on disk and moves only when a file lands - not when the host
+blocked the download, and not when the image was already in the set.
+
+Both going up together read as one number going up, so an accept that achieved
+nothing looked identical to one that worked. `training_quest_status` now says
+which is which, and gives the gap: **56 reviews, 31 images, 25 that produced
+nothing.**
+
+That gap is itself a finding, and the status now says so rather than leaving it
+to be inferred: 25 of 56 is the SEARCH returning duplicates and blocked hosts,
+not the grower reviewing badly. Clicking through more of the same queries will
+not fix it. The warning fires above 40%.
+
+Verified against disk: `have` totals 31 and there are 31 files, label by label.
+The counter is not an accounting of intentions.

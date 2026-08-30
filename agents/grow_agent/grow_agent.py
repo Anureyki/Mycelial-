@@ -7947,6 +7947,35 @@ class GrowAgent(AgentBase):
             status["training_dir"] = TRAINING_DIR
             pending = self._get_pending_candidates()
             status["candidates_awaiting_review"] = len(pending)
+
+            # TWO COUNTERS, AND THEY MEAN DIFFERENT THINGS. Clicking accept
+            # always moves the review count, because reviewing is the work and
+            # rejecting noise is as valuable as accepting a good example. It
+            # moves the LABEL count only when an image actually landed on disk -
+            # not when the download was blocked, and not when the image was
+            # already in the set. Both numbers going up together looked like one
+            # number going up, and the grower reasonably could not tell whether
+            # an accept had achieved anything.
+            _have = sum(counts.values()) if isinstance(counts, dict) else 0
+            _reviews = status.get("reviews_done") or 0
+            status["counters_explained"] = {
+                "images_on_disk": _have,
+                "reviews_done": _reviews,
+                "reviews_that_produced_an_image": _have,
+                "reviews_that_produced_nothing": max(_reviews - _have, 0),
+                "why_they_differ": ("A review that rejects, hits a blocked host, or "
+                                    "finds the image already in the set still counts as "
+                                    "a review - it is work done - but adds no training "
+                                    "data. Only the label counts below decide whether a "
+                                    "model can be trained."),
+                "the_one_that_matters": "per_label have/need",
+            }
+            if _reviews and (_reviews - _have) / _reviews > 0.4:
+                status["sourcing_warning"] = (
+                    f"{_reviews - _have} of {_reviews} reviews produced no image. "
+                    f"That is the search returning duplicates and blocked hosts, not "
+                    f"you reviewing badly - worth changing the queries rather than "
+                    f"clicking through more of the same.")
             return {"result": status}
 
         elif task == "source_training_candidates":
