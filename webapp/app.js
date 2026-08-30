@@ -250,21 +250,114 @@ async function fetchNarration(promptText) {
   }
 }
 
+function ago(iso) {
+  if (!iso) return 'never';
+  const mins = Math.round((Date.now() - new Date(iso).getTime()) / 60000);
+  if (!isFinite(mins)) return '?';
+  if (mins < 1) return 'just now';
+  if (mins < 60) return `${mins}m ago`;
+  const h = Math.round(mins / 60);
+  if (h < 48) return `${h}h ago`;
+  return `${Math.round(h / 24)}d ago`;
+}
+
+function renderRows(body, rows) {
+  body.textContent = '';
+  const dl = document.createElement('dl');
+  dl.className = 'rows';
+  for (const [k, v] of rows) {
+    const dt = document.createElement('dt');
+    dt.textContent = k;
+    const dd = document.createElement('dd');
+    dd.textContent = v;
+    dl.append(dt, dd);
+  }
+  body.append(dl);
+}
+
+// The Grow card asks for STATE and renders fields. It used to ask "how is my
+// plant" down the narration path, which answered the question - returning an
+// argument about feed strength while the grower wanted the numbers - and
+// carried no timestamp, so output from an old conversation looked current.
+async function renderGrowCard(body) {
+  const d = unwrap(await callTask('grow_snapshot', {}), 'last_reading');
+  if (!d || d.error) { body.textContent = d && d.error ? d.error : 'No grow data.'; return; }
+  const r = d.last_reading || {};
+  const res = d.reservoir || {};
+  const rows = [
+    ['Plant', `${d.strain || 'unknown'} · ${d.stage || 'unknown'}${d.day != null ? ` · day ${d.day}` : ''}`],
+    ['Last reading', r.at ? ago(r.at) : 'never'],
+    ['ppm', r.ppm != null ? String(r.ppm) : '—'],
+    ['pH', r.ph != null ? String(r.ph) : '—'],
+    ['Temp', r.temp_c != null ? `${r.temp_c} C` : '—'],
+    // Volume says where it came from. A carried-forward level and a measured
+    // one are different kinds of number and every dose is computed from it.
+    ['Volume', r.volume_liters != null
+      ? `${r.volume_liters} L (${r.volume_source || 'unknown'})` : '—'],
+    ['Reservoir', res.liters != null
+      ? `${res.liters} L of ${res.capacity_liters != null ? res.capacity_liters + ' L' : '?'}` : '—'],
+    ['Dissolved', d.dissolved_mass_ppm_l != null ? `${d.dissolved_mass_ppm_l} ppm·L` : '—'],
+  ];
+  renderRows(body, rows);
+  // An open problem is the reason to look at the card at all, so it is shown
+  // rather than left to be inferred from the numbers.
+  if (d.open_concern) {
+    const p = document.createElement('p');
+    p.className = 'concern';
+    p.textContent = `Open concern (${ago(d.open_concern.at)}): ${d.open_concern.summary}`;
+    body.append(p);
+  } else {
+    const p = document.createElement('p');
+    p.className = 'muted';
+    p.textContent = 'No open concern recorded.';
+    body.append(p);
+  }
+}
+
+// Progress is a list of what changed, newest first, read from CHANGELOG.md -
+// the file this project already treats as the record of what happened. It was
+// a narrated paragraph built from three session-log entries.
+async function renderProgressCard(body) {
+  const d = unwrap(await callTask('recent_changes', { limit: 10 }), 'entries');
+  if (!d || d.error || !d.entries) {
+    body.textContent = d && d.error ? d.error : 'No change history.';
+    return;
+  }
+  body.textContent = '';
+  const ul = document.createElement('ul');
+  ul.className = 'changes';
+  for (const e of d.entries) {
+    const li = document.createElement('li');
+    const t = document.createElement('time');
+    t.textContent = e.date;
+    li.append(t, document.createTextNode(' ' + e.headline));
+    ul.append(li);
+  }
+  body.append(ul);
+}
+
 async function refreshDashboard() {
-  const cards = [
+  const narrated = [
     { id: 'systemCard', prompt: 'system status' },
-    { id: 'growCard', prompt: 'how is my plant' },
-    { id: 'progressCard', prompt: 'catch me up on progress' },
     { id: 'decisionsCard', prompt: 'what needs my approval' },
   ];
-  for (const { id, prompt } of cards) {
+  const structured = [
+    { id: 'growCard', render: renderGrowCard },
+    { id: 'progressCard', render: renderProgressCard },
+  ];
+  for (const { id } of [...narrated, ...structured]) {
     const body = document.querySelector(`#${id} .card-body`);
     if (body) body.textContent = 'Loading...';
   }
+  // Structured cards first: they are a single memory read each and land
+  // immediately, so the dashboard is useful before the narrated cards return.
+  for (const { id, render } of structured) {
+    const body = document.querySelector(`#${id} .card-body`);
+    if (body) { try { await render(body); } catch (e) { body.textContent = `Couldn't load (${e.message}).`; } }
+  }
   // Sequential, not parallel - these route through the same shared local
-  // inference backend, so firing all three at once would just make them
-  // queue behind each other anyway.
-  for (const { id, prompt } of cards) {
+  // inference backend, so firing them at once would just make them queue.
+  for (const { id, prompt } of narrated) {
     const body = document.querySelector(`#${id} .card-body`);
     const text = await fetchNarration(prompt);
     if (body) body.textContent = text;

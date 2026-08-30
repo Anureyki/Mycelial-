@@ -1333,3 +1333,50 @@ silently trimmed is not evidence.
 Applied to today: three duplicate/debug rows voided, and the pre-top-up reading
 re-logged with the volume the dilution measured (13.0 L) in place of the 12.5 L
 it had carried forward.
+
+### 2026-08-30 — The dashboard was asking questions when it wanted state
+
+Two cards went through the narration path, and it answered them as questions.
+The Grow card asked *"how is my plant"* and got back an argument about whether
+to raise feed strength - reasoning from an earlier conversation, at the moment
+the grower wanted to see the numbers. The Progress card asked *"catch me up"*
+and got a paragraph assembled from three session-log entries.
+
+Worse than being wrong, both went stale without looking stale: a narrated
+sentence carries no timestamp, so output from hours ago reads exactly like
+output from now.
+
+Both now read structured state and render fields:
+
+- `grow_snapshot` (Grow) returns strain, stage, day, the last reading with its
+  age in hours, volume WITH ITS SOURCE, dissolved mass, and the most recent
+  evaluation that found a problem. Volume shows whether it was measured or
+  carried forward, because every dose is computed from it and the two are
+  different kinds of number.
+- `recent_changes` (Maintenance) returns the last N headlines from
+  `CHANGELOG.md`, newest first - the file this project already treats as the
+  record of what happened. Headlines only; the body of an entry explains why a
+  change was made, which is not what a status card is for.
+
+Three bugs surfaced while wiring it:
+
+**`reservoir_temp` was being silently dropped.** `log_reading` read `temp` and
+nothing else, so a full session of reservoir temperatures recorded null while
+every write reported success. The alias is accepted now - but the general fix is
+that **an unrecognised field is refused and nothing is saved**, naming the field
+and listing what is accepted. A reading written with a field the agent does not
+read looks complete while that measurement is quietly missing, which is the
+false-success shape this project hunts.
+
+**`open_concern` read the verdict from the wrong level.** Leaf evaluations nest
+`classification` under `recommendation`; reading it from the top returned None
+for every evaluation ever recorded, so the card showed no concern on a day with
+several. A clean-looking dashboard produced by looking in the wrong place is
+worse than an empty one.
+
+**The snapshot bypassed `_plant_state`**, reading the memory key directly, and
+returned "unknown" for a plant whose stage and strain are both recorded.
+
+Markup: `.card-body` was a `<p>`, which cannot legally contain the lists these
+cards render - browsers auto-close it. Now a `<div>`. The orphan
+`.candidate-note` CSS was removed; it had zero references.

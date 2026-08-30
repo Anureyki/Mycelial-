@@ -308,14 +308,55 @@ main#log {
 @media (prefers-reduced-motion: reduce) { #micBtn.on { animation: none; } }
 
 /* Reviewer's reason, stored in the provenance beside the training image. */
-.candidate-note {
-  width: 100%;
-  margin: 6px 0;
-  padding: 6px 8px;
-  font-size: 13px;
-  background: #12181a;
-  color: #d8e6dd;
-  border: 1px solid #2b3a33;
-  border-radius: 3px;
+
+/* Dashboard cards that render STATE rather than prose. A narrated paragraph
+   carries no timestamp, so stale output looked current; these show each field
+   with its own age instead. */
+.card-body .rows {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 2px 14px;
+  margin: 0;
+  white-space: normal;
 }
-.candidate-note::placeholder { color: #6b7d74; }
+.card-body .rows dt {
+  color: var(--muted);
+  font-size: 0.85rem;
+}
+.card-body .rows dd {
+  margin: 0;
+  /* Readings are compared down the column, so the digits have to line up. */
+  font-variant-numeric: tabular-nums;
+}
+.card-body .changes {
+  margin: 0;
+  padding-left: 0;
+  list-style: none;
+  white-space: normal;
+}
+.card-body .changes li {
+  padding: 3px 0;
+  border-bottom: 1px solid var(--border);
+  font-size: 0.9rem;
+  line-height: 1.35;
+}
+.card-body .changes li:last-child { border-bottom: 0; }
+.card-body .changes time {
+  color: var(--muted);
+  font-variant-numeric: tabular-nums;
+  margin-right: 8px;
+}
+.card-body .concern {
+  margin: 10px 0 0;
+  padding: 8px 10px;
+  border-left: 3px solid #c8863c;
+  background: rgba(200, 134, 60, 0.09);
+  border-radius: 0 6px 6px 0;
+  font-size: 0.9rem;
+  white-space: normal;
+}
+.card-body .muted {
+  margin: 10px 0 0;
+  color: var(--muted);
+  font-size: 0.9rem;
+}

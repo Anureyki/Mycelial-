@@ -308,8 +308,50 @@ class MaintenanceAgent(AgentBase):
             return None
         return {"answered_as": "resource_reclaim", "text": text, "facts": gathered}
 
+    def recent_changes(self, limit=10):
+        """The last N things that actually changed, as headlines.
+
+        The dashboard was showing a narrated paragraph built from three session
+        log entries - prose about work, at the moment the grower wanted a list
+        of what changed. CHANGELOG.md already holds exactly that, one dated
+        headline per change, and it is the file this project treats as the
+        record of what happened. Read it rather than re-describing it.
+
+        Headlines only. The body of an entry explains WHY a change was made,
+        which is worth having and is not what a status card is for."""
+        path = os.path.join(os.path.dirname(os.path.dirname(
+            os.path.dirname(os.path.abspath(__file__)))), "CHANGELOG.md")
+        if not os.path.exists(path):
+            return {"error": f"No changelog at {path}", "entries": []}
+        try:
+            with open(path, encoding="utf-8") as fh:
+                lines = fh.readlines()
+        except Exception as exc:
+            return {"error": f"Could not read the changelog: {exc}", "entries": []}
+
+        entries = []
+        for line in lines:
+            m = re.match(r"^###\s+(\d{4}-\d{2}-\d{2})\s*[-\u2014:]*\s*(.+?)\s*$", line)
+            if m:
+                entries.append({"date": m.group(1), "headline": m.group(2)})
+        if not entries:
+            return {"error": "The changelog has no dated ### entries to read.",
+                    "entries": [], "source": path}
+        try:
+            n = max(1, min(int(limit), 50))
+        except (TypeError, ValueError):
+            n = 10
+        # Newest first: a status card is read from the top.
+        recent = list(reversed(entries[-n:]))
+        return {"entries": recent, "count": len(recent),
+                "total_recorded": len(entries), "source": "CHANGELOG.md"}
+
     def handle_task(self, task, args, sender):
         self.log(f"Task: {task} from {sender}")
+
+        if task == "recent_changes":
+            payload = args if isinstance(args, dict) else {}
+            return self.recent_changes(limit=payload.get("limit", 10))
 
         if task == "check_disk":
             path = args.get("path", "/")

@@ -100,6 +100,21 @@ class Anansi(AgentBase):
         # natural-language round trips: it needs a list of images and two
         # verbs. So exactly three grow tasks are forwarded, by name. Anything
         # else still has to come in as a request and be routed.
+        # Two dashboard cards that want STATE, not narration. Routing them
+        # through process_request handed a question to the reasoning path,
+        # which answered it - the Grow card returned an argument about feed
+        # strength while the grower was asking what the numbers are, and the
+        # Progress card returned a paragraph assembled from three session-log
+        # entries. Neither carried a timestamp, so stale output looked current.
+        if task == "grow_snapshot":
+            return self.send_a2a("grow_agent", "grow_snapshot",
+                                 args if isinstance(args, dict) else {})
+
+        if task == "recent_changes":
+            payload = args if isinstance(args, dict) else {}
+            return self.send_a2a("maintenance_agent", "recent_changes",
+                                 {"limit": int(payload.get("limit", 10))})
+
         if task == "training_candidates":
             return self.send_a2a("grow_agent", "list_training_candidates", {})
 

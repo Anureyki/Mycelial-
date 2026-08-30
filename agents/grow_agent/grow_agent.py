@@ -5592,6 +5592,112 @@ class GrowAgent(AgentBase):
         readings.sort(key=lambda r: r.get("timestamp", ""))
         return readings
 
+    def grow_snapshot(self, plant_id="current_plant"):
+        """Current facts about the grow, as fields rather than prose.
+
+        The dashboard card was asking "how is my plant" and rendering whatever
+        came back from the narration path. That answers a QUESTION, so it
+        returned an argument - a paragraph reasoning about whether to raise feed
+        strength - while the card was asking for STATE. It also went stale
+        without looking stale, because a narrated sentence carries no timestamp
+        and there is nothing in it that says how old it is.
+
+        So this returns the fields, each with its own age, and lets the card
+        render them. Anything unknown says so rather than being omitted, since
+        a missing row and a fine row look identical once they are both absent."""
+        out = {"plant_id": plant_id, "as_of": datetime.now().isoformat()}
+        readings = self._get_readings_for_plant(plant_id)
+
+        sysraw = (self._unwrap_value(self.retrieve_own_memory(f"grow_system_{plant_id}"))
+                  or (self._unwrap_value(self.retrieve_own_memory("grow_system"))
+                      if plant_id == "current_plant" else None))
+        try:
+            sysrec = json.loads(sysraw) if sysraw else {}
+        except Exception:
+            sysrec = {}
+
+        # _plant_state is the accessor that refuses to borrow another plant's
+        # facts. Reading the memory key directly bypassed that and returned
+        # "unknown" for a plant whose stage and strain are both recorded.
+        stage, _ = self._plant_state("current_stage", plant_id)
+        strain, _ = self._plant_state("current_strain", plant_id)
+        germ, _ = self._plant_state("germination_date", plant_id)
+        out["strain"] = strain or "unknown"
+        out["stage"] = stage or "unknown"
+        if germ:
+            try:
+                d = (datetime.now() - datetime.fromisoformat(str(germ)[:19])).days
+                out["day"] = d
+            except Exception:
+                pass
+
+        if readings:
+            last = readings[-1]
+            age_h = None
+            try:
+                age_h = round((datetime.now() - datetime.fromisoformat(
+                    str(last.get("timestamp"))[:19])).total_seconds() / 3600.0, 1)
+            except Exception:
+                pass
+            out["last_reading"] = {
+                "at": last.get("timestamp"),
+                "hours_ago": age_h,
+                "ppm": last.get("ppm"), "ph": last.get("ph"),
+                "temp_c": last.get("reservoir_temp") or last.get("temp"),
+                "volume_liters": last.get("volume_liters"),
+                "volume_source": last.get("volume_source"),
+            }
+            # Dissolved mass is the figure ppm cannot give on its own, and it
+            # is the one that says whether the plant actually ate.
+            ppm, vol = self._parse_numeric(last.get("ppm")), \
+                self._parse_numeric(last.get("volume_liters"))
+            if ppm is not None and vol is not None:
+                out["dissolved_mass_ppm_l"] = round(ppm * vol, 0)
+        else:
+            out["last_reading"] = None
+
+        out["reservoir"] = {
+            "liters": sysrec.get("reservoir_liters"),
+            "capacity_liters": sysrec.get("reservoir_capacity_liters"),
+            "source": sysrec.get("volume_source", "unknown"),
+            "measured_on": sysrec.get("volume_measured_on"),
+            "system_type": sysrec.get("system_type", "unknown"),
+        }
+
+        # The most recent assessment that found a PROBLEM, with its age. A card
+        # that shows only the latest evaluation hides a standing problem the
+        # moment any later check comes back clean.
+        try:
+            keys = self._load_leaf_eval_index() or []
+        except Exception:
+            keys = []
+        open_concern = None
+        for key in reversed(keys[-40:]):
+            raw = self._unwrap_value(self.retrieve_own_memory(key))
+            if not raw:
+                continue
+            try:
+                ev = json.loads(raw)
+            except Exception:
+                continue
+            if ev.get("plant_id", "current_plant") != plant_id:
+                continue
+            # The verdict lives under "recommendation", not at the top level of
+            # the record. Reading it from the top returned None for every
+            # evaluation ever made, so the card showed no concern on a day with
+            # several - a clean-looking dashboard produced by looking in the
+            # wrong place, which is worse than an empty one.
+            rec = ev.get("recommendation") or {}
+            if str(rec.get("classification")) == "problem":
+                open_concern = {"at": ev.get("timestamp"),
+                                "summary": str(rec.get("reason") or rec.get("issue") or "")[:200],
+                                "action": str(rec.get("action") or "")[:200],
+                                "confidence": rec.get("confidence")}
+                break
+        out["open_concern"] = open_concern
+        out["readings_recorded"] = len(readings)
+        return out
+
     def void_reading(self, timestamp=None, reason="", plant_id="current_plant",
                      voided_by="principal"):
         """Withdraw a reading from analysis without erasing it.
@@ -5728,6 +5834,33 @@ class GrowAgent(AgentBase):
             _taken = (args.get("taken_at") or args.get("timestamp") or "").strip() \
                 if isinstance(args.get("taken_at") or args.get("timestamp"), str) else ""
 
+            # AN ARGUMENT THIS DOES NOT UNDERSTAND IS AN ERROR, NOT A NO-OP.
+            #
+            # Every field below is read by name. A caller who sends a name that
+            # is not on the list gets a reading saved WITHOUT that measurement
+            # and no indication anything was lost - the write succeeds, the
+            # response looks right, and the column is quietly null. That is the
+            # false-success shape this project hunts, and it cost a full session
+            # of reservoir temperatures sent as `reservoir_temp` against a
+            # reader that only looked at `temp`.
+            _known = {
+                "plant_id", "ph", "ppm", "ec", "temp", "reservoir_temp", "temp_c",
+                "humidity", "volume_liters", "reservoir_liters", "stage", "notes",
+                "taken_at", "timestamp",
+                # reasoning context, recorded alongside the numbers
+                "decision", "reason", "expected_effect", "observed_conditions",
+                "context_confidence", "confidence_note",
+            }
+            if isinstance(args, dict):
+                _unknown = sorted(set(args) - _known)
+                if _unknown:
+                    return {"error": (
+                        f"Unrecognised field(s): {', '.join(_unknown)}. Nothing was saved. "
+                        f"A reading written with a field this agent does not read would look "
+                        f"complete while that measurement was silently dropped."),
+                        "unrecognised": _unknown,
+                        "accepted_fields": sorted(_known)}
+
             # VOLUME IS CARRIED FORWARD, NOT DEMANDED.
             #
             # Requiring a level with every ppm/pH/temp reading is the wrong
@@ -5760,7 +5893,13 @@ class GrowAgent(AgentBase):
                 "ph": args.get("ph"),
                 "ppm": args.get("ppm"),
                 "ec": args.get("ec"),
-                "temp": args.get("temp"),
+                # The reservoir temperature arrives under whichever name the
+                # caller thinks it has. It was read from "temp" alone, so every
+                # reading sent as reservoir_temp recorded a null temperature and
+                # said nothing about it - the reading looked complete and the
+                # column was empty.
+                "temp": (args.get("temp") if args.get("temp") is not None else
+                         args.get("reservoir_temp", args.get("temp_c"))),
                 "humidity": args.get("humidity"),
                 # Volume is what makes ppm interpretable. 400ppm in 3L and 400ppm
                 # in 5L are different amounts of nutrient, and without it there is
@@ -5908,6 +6047,8 @@ class GrowAgent(AgentBase):
             self.store_own_memory(f"stage_transition_{self._uid()}", json.dumps(transition))
             return {"result": f"Stage transitioned to {new_stage}", "transition": transition}
 
+        elif task == "grow_snapshot":
+            return {"result": self.grow_snapshot(**(args if isinstance(args, dict) else {}))}
         elif task == "void_reading":
             return {"result": self.void_reading(**(args if isinstance(args, dict) else {}))}
         elif task == "reconcile_topup":
