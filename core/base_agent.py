@@ -368,7 +368,8 @@ class AgentBase:
                     result = self.handle_case_task(task, args if isinstance(args, dict) else {})
                 elif task in ("open_differential", "add_hypothesis", "weigh_evidence",
                               "assess_differential", "decide_differential",
-                              "record_differential_outcome", "list_differentials"):
+                              "record_differential_outcome", "list_differentials",
+                              "retract_stance", "set_discriminator"):
                     result = self.handle_differential_task(
                         task, args if isinstance(args, dict) else {})
                 elif task == "corpus_currency":
@@ -762,6 +763,25 @@ class AgentBase:
         if task == "weigh_evidence":
             r = dx.weigh(d, args.get("hypothesis", ""), args.get("fact", ""),
                          args.get("stance", "neutral"))
+            if isinstance(r, dict) and r.get("error"):
+                return r
+            self._save_differential(did, d)
+            return {"id": did, "state": dx.assess(d)}
+
+        if task == "set_discriminator":
+            r = dx.set_discriminator(d, args.get("hypothesis", ""),
+                                     args.get("discriminator", ""),
+                                     ready_in_hours=args.get("ready_in_hours"),
+                                     supersedes_note=args.get("supersedes_note", ""))
+            if isinstance(r, dict) and r.get("error"):
+                return r
+            self._save_differential(did, d)
+            return {"id": did, "state": dx.assess(d)}
+
+        if task == "retract_stance":
+            r = dx.retract_stance(d, args.get("hypothesis", ""), args.get("fact", ""),
+                                  args.get("reason", ""),
+                                  retracted_by=args.get("retracted_by", "principal"))
             if isinstance(r, dict) and r.get("error"):
                 return r
             self._save_differential(did, d)

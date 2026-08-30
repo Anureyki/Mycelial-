@@ -1481,3 +1481,59 @@ Maintenance each happened to define their own copy; the other **twelve** agents
 would have raised `AttributeError` the first time any shared code ran on them.
 `_uid` had the identical shape: defined in Grow, called from the base. Both are
 on `AgentBase` now.
+
+### 2026-08-30 — A stance entered from a photograph, withdrawn by looking
+
+Direct observation moved the plant differential, and moved it against the
+reading that opened it.
+
+The grower lifted the pebbles and inspected the main root: **white, fine, firm,
+not slimy, actively extending.** And reported what the photographs had not
+shown - **browning at the leaf tips, margins drying and curling, pale areas
+translucent rather than merely light.**
+
+Both cut against my own analysis. Healthy roots weaken *ongoing* uptake
+impairment. Tip necrosis and curling are not what immature-tissue pallor does,
+and they ARE what calcium does. The stance recorded as "pale but not visibly
+distorted or necrotic" - entered from a photo read - asserted the absence of
+exactly what direct observation found.
+
+```
+BEFORE                                  AFTER
+iron_uptake_impairment  plausible  +3   iron_uptake_impairment  weakened   +3 -1
+calcium_deficiency      weakened   -1   calcium_deficiency      plausible  +2 -0
+normal_new_growth       plausible  +1   normal_new_growth       weakened   +1 -1
+magnesium_deficiency    weakened   -1   magnesium_deficiency    weakened   +0 -1
+```
+
+**`retract_stance`** withdraws a weight entered on grounds that did not hold.
+Same fault as a mis-entered reading in a series: it silently weights a
+hypothesis and does so invisibly, because a wrong stance looks exactly like a
+right one once recorded. It requires a reason, keeps the stance rather than
+deleting it, and restores a `weakened` hypothesis only to `plausible` - never
+promotes. **Removing a reason to doubt is not a reason to believe.**
+
+**`set_discriminator`** replaces a test that has fired. Diagnosis narrows in
+rounds; a hypothesis holding a spent discriminator is stuck at whatever that one
+test bought, so the engine could run exactly one round and then had nothing left
+to ask. Superseded tests are kept in `discriminator_history` with a round count,
+because a hypothesis whose test keeps being replaced without ever resolving is
+being protected rather than examined.
+
+Both discriminators were re-cut, because the originals could not separate the
+two live explanations - each leaves the oldest leaves green:
+
+- **calcium**: the NEXT leaf set emerges clean while today's marked tissue stays
+  marked. Calcium damage does not reverse; already-formed tissue cannot be
+  repaired.
+- **iron**: existing pale-but-undamaged tissue RE-GREENS. That reversal is the
+  property only iron has, and it is what distinguishes them.
+
+Decision remains `hold`, reassess 2026-09-06 - now for a sharper reason. Damage
+already formed will not reverse whichever hypothesis is right, so an
+intervention today cannot be judged by whether today's leaves improve. Only
+growth that comes after carries information.
+
+Air temperature recorded as `absent`, not assumed: the 21.7 C on record is
+RESERVOIR temperature, and VPD cannot be computed without air temp. Ambient RH
+49.7%, humidifier off.

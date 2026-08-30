@@ -148,6 +148,85 @@ def weigh(diff, hypothesis_name, fact, stance):
     return {"error": f"No hypothesis named '{hypothesis_name}'."}
 
 
+def set_discriminator(diff, hypothesis_name, discriminator, ready_in_hours=None,
+                      supersedes_note=""):
+    """Replace a hypothesis's discriminator with the next one.
+
+    Diagnosis narrows in rounds. A discriminator that has already fired has
+    done its work and cannot do it twice, so a hypothesis that keeps it is
+    stuck at whatever confidence that one test bought - the engine can run
+    exactly one round and then has nothing left to ask.
+
+    The superseded test is kept in `discriminator_history`, because what a
+    hypothesis was tested against is how it earned its current standing, and a
+    hypothesis whose test keeps being replaced without ever resolving is a
+    hypothesis being protected rather than examined."""
+    if not str(discriminator).strip():
+        return {"error": "A discriminator must name an observation that would be true "
+                         "if this hypothesis is right AND false if a rival is."}
+    for h in diff["hypotheses"]:
+        if h["name"] != hypothesis_name:
+            continue
+        h.setdefault("discriminator_history", [])
+        if h.get("discriminator"):
+            h["discriminator_history"].append({
+                "discriminator": h["discriminator"],
+                "superseded_at": datetime.now().isoformat(),
+                "why": supersedes_note or "replaced",
+            })
+        h["discriminator"] = discriminator
+        h["discriminator_ready_in_hours"] = ready_in_hours
+        if ready_in_hours:
+            h["reassess_after"] = (
+                datetime.now() + timedelta(hours=float(ready_in_hours))).isoformat()
+        if h["confidence"] == "untestable":
+            h["confidence"] = "plausible"
+        h["rounds_tested"] = len(h["discriminator_history"])
+        return diff
+    return {"error": f"No hypothesis named '{hypothesis_name}'."}
+
+
+def retract_stance(diff, hypothesis_name, fact, reason, retracted_by="principal"):
+    """Withdraw a stance that was entered on bad grounds.
+
+    Stances get entered from a photograph, a first impression, or an inference
+    that better observation contradicts. Leaving one in place is the same fault
+    as leaving a mis-entered reading in a series: it silently weights a
+    hypothesis that the evidence no longer supports, and it does so invisibly,
+    because a wrong stance looks exactly like a right one once recorded.
+
+    Retracting REQUIRES a reason, and the stance is kept rather than deleted -
+    that an explanation was once weighed down on grounds that did not hold is
+    part of how the differential reached where it is. A confidence that was
+    lowered by a retracted stance is restored to `plausible`, never promoted:
+    removing a reason to doubt is not a reason to believe."""
+    if not str(reason).strip():
+        return {"error": "Retracting a stance requires a reason. A differential whose "
+                         "weights can be removed silently is not evidence."}
+    for h in diff["hypotheses"]:
+        if h["name"] != hypothesis_name:
+            continue
+        hit = None
+        for st in h["stances"]:
+            if st["fact"] == fact and not st.get("retracted"):
+                st["retracted"] = True
+                st["retracted_reason"] = reason
+                st["retracted_by"] = retracted_by
+                st["retracted_at"] = datetime.now().isoformat()
+                hit = st
+                break
+        if hit is None:
+            return {"error": f"No live stance on '{hypothesis_name}' for that fact."}
+        live_against = [st for st in h["stances"]
+                        if st["stance"] == "contradicts" and not st.get("retracted")]
+        if not live_against and h["confidence"] == "weakened":
+            h["confidence"] = "plausible"
+            h["confidence_note"] = ("restored after a contradicting stance was retracted - "
+                                    "removing a reason to doubt is not a reason to believe")
+        return diff
+    return {"error": f"No hypothesis named '{hypothesis_name}'."}
+
+
 def assess(diff):
     """Read the differential's state without resolving it.
 
@@ -179,8 +258,11 @@ def assess(diff):
     untestable = [h for h in hyps if h["confidence"] == "untestable"]
 
     out["live"] = [{"name": h["name"], "confidence": h["confidence"],
-                    "supports": sum(1 for s in h["stances"] if s["stance"] == "supports"),
-                    "contradicts": sum(1 for s in h["stances"] if s["stance"] == "contradicts")}
+                    "supports": sum(1 for s in h["stances"]
+                                    if s["stance"] == "supports" and not s.get("retracted")),
+                    "contradicts": sum(1 for s in h["stances"]
+                                       if s["stance"] == "contradicts" and not s.get("retracted")),
+                    "retracted": sum(1 for s in h["stances"] if s.get("retracted"))}
                    for h in live]
     out["excluded"] = [h["name"] for h in excluded]
     out["untestable"] = [h["name"] for h in untestable]
