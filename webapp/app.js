@@ -314,6 +314,20 @@ async function renderGrowCard(body) {
     rows.push(['Change', `${sign}${c.delta_g} g`
       + (c.hours ? ` over ${c.hours}h` : '') + ` — ${c.meaning}`]);
   }
+  // The reading schedule, at the top where it is acted on. A "due" state is
+  // the one thing on this card that asks the grower to do something.
+  const rd = d.reading_due;
+  if (rd && rd.status) {
+    const banner = document.createElement('p');
+    banner.className = `due due-${rd.status}`;
+    const when = rd.status === 'not_yet'
+      ? `Next reading ${new Date(rd.due_at).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}`
+      : rd.status === 'due_soon' ? `Reading due in ${Math.round(rd.hours_until_due)}h`
+      : rd.status === 'due_now' ? 'Reading due now'
+      : 'Reading OVERDUE';
+    banner.textContent = `${when} · every ${rd.recommended_days}d`;
+    body.append(banner);
+  }
   renderRows(body, rows);
   // An open problem is the reason to look at the card at all, so it is shown
   // rather than left to be inferred from the numbers. It renders the STATE -

@@ -1,7 +1,7 @@
 // Bump CACHE on every shell change - the activate handler below deletes any
 // cache whose key doesn't match, so a new version is what evicts the old one.
-const CACHE = 'mycelial-shell-v10';
-const SHELL = ['./', './index.html', './style.css?v=10', './app.js?v=10', './manifest.json'];
+const CACHE = 'mycelial-shell-v11';
+const SHELL = ['./', './index.html', './style.css?v=11', './app.js?v=11', './manifest.json'];
 
 self.addEventListener('install', (event) => {
   event.waitUntil(caches.open(CACHE).then((cache) => cache.addAll(SHELL)));

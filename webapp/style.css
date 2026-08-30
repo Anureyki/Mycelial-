@@ -424,3 +424,17 @@ main#log {
   font-size: 0.85rem;
 }
 .card-body .concern-rows dd { font-variant-numeric: normal; }
+
+/* Reading schedule. State is carried by weight and a rule, not colour alone. */
+.card-body .due {
+  margin: 0 0 10px;
+  padding: 5px 9px;
+  border-left: 3px solid var(--border);
+  border-radius: 0 5px 5px 0;
+  font-size: 0.85rem;
+  white-space: normal;
+  color: var(--muted);
+}
+.card-body .due-due_soon { border-left-color: #c8a03c; color: inherit; }
+.card-body .due-due_now  { border-left-color: #4a9d6e; color: inherit; font-weight: 600; }
+.card-body .due-overdue  { border-left-color: #c8563c; color: inherit; font-weight: 600; }

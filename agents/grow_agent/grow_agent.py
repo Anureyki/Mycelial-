@@ -5729,6 +5729,98 @@ class GrowAgent(AgentBase):
                 lo = mid
         return (lo + hi) / 2.0
 
+    # Where in the band to aim. The band is a range, and "inside it" has been
+    # treated as the whole answer - but the bottom and the top of a range are
+    # different operating decisions, and nothing recorded which one this grow
+    # intended. Fractions of the band, not absolute numbers, so the target moves
+    # with the stage instead of being re-decided at every transition.
+    BAND_POSITIONS = {
+        "low":      0.15,
+        "mid_low":  0.35,
+        "mid":      0.50,
+        "mid_high": 0.70,
+        "high":     0.85,
+    }
+
+    def set_target_band_position(self, position="mid", plant_id="current_plant",
+                                 basis=""):
+        """Record WHERE in the stage band this grow intends to run.
+
+        Stored as a fraction rather than a number so it survives a stage change:
+        `mid_high` means 70% of the way up whichever band applies, and veg's
+        1.2-1.8 becoming flower's 1.6-2.4 carries the intent forward without
+        anyone re-deciding it under pressure."""
+        pos = str(position or "").strip().lower()
+        if pos not in self.BAND_POSITIONS:
+            return {"error": f"Unknown position '{position}'. Use one of: "
+                             f"{', '.join(self.BAND_POSITIONS)}."}
+        r = self.amend_grow_system(plant_id, target_band_position=pos,
+                                   target_band_fraction=self.BAND_POSITIONS[pos],
+                                   target_band_basis=basis or "set by the grower")
+        return {"target_band_position": pos, "fraction": self.BAND_POSITIONS[pos],
+                "amended": bool(r.get("changed")),
+                "note": "Applies to whichever band the current stage carries, so it "
+                        "survives a stage transition."}
+
+    def target_for_stage(self, plant_id="current_plant", stage=None, position=None):
+        """The concentration this grow is aiming for, and the gap to it.
+
+        Reports EC as the target and ppm as its restatement, because ppm depends
+        on the pen's conversion factor and EC does not."""
+        stage = stage or (self._plant_state("current_stage", plant_id)[0]) or "veg"
+        band = STAGE_TARGETS.get(stage)
+        if not band or not band.get("ec"):
+            return {"error": f"No band recorded for stage '{stage}'."}
+
+        sysrec = {}
+        try:
+            sysrec = json.loads(self._unwrap_value(self.retrieve_own_memory(
+                f"grow_system_{plant_id}"))
+                or self._unwrap_value(self.retrieve_own_memory("grow_system")) or "{}")
+        except Exception:
+            pass
+        pos = (position or sysrec.get("target_band_position") or "mid").lower()
+        frac = self.BAND_POSITIONS.get(pos, 0.5)
+        factor = self._parse_numeric(sysrec.get("tds_factor"))
+
+        lo, hi = band["ec"]
+        target_ec = lo + frac * (hi - lo)
+        out = {"stage": stage, "position": pos, "fraction": frac,
+               "band_ec_ms_cm": [lo, hi], "target_ec_ms_cm": round(target_ec, 3)}
+        if factor:
+            out["target_ppm"] = round(target_ec * 1000.0 * factor)
+            out["ppm_basis"] = f"EC {target_ec:.3f} x 1000 x {factor} ({sysrec.get('tds_scale')})"
+        else:
+            out["target_ppm"] = None
+            out["ppm_note"] = ("No TDS scale on record, so ppm cannot be derived. "
+                               "EC is the target.")
+
+        readings = self._get_readings_for_plant(plant_id)
+        cur_ec = next((self._parse_numeric(r.get("ec"))
+                       for r in reversed(readings) if r.get("ec") is not None), None)
+        if cur_ec is not None:
+            out["current_ec_ms_cm"] = cur_ec
+            gap = target_ec - cur_ec
+            out["gap_ec"] = round(gap, 3)
+            out["gap_percent"] = round((gap / cur_ec) * 100.0, 1) if cur_ec else None
+            out["direction"] = "raise" if gap > 0.02 else "lower" if gap < -0.02 else "hold"
+
+        # An open differential makes a strength change a SECOND variable, and
+        # the whole value of the current experiment is that only one moved.
+        # Reported, not enforced - the grower decides, but not by accident.
+        conflict = self._concern_from_differential(plant_id)
+        if conflict and conflict.get("decision") == "intervene":
+            out["experiment_conflict"] = {
+                "differential": conflict.get("id"),
+                "already_changing": conflict.get("changes"),
+                "reassess_after": conflict.get("reassess_after"),
+                "why_it_matters": ("A strength change while that one is in flight makes two "
+                                   "variables moving at once, and the next leaf set could not "
+                                   "then be attributed to either. The target below is what to "
+                                   "mix; WHEN to mix it is the decision this flags."),
+            }
+        return out
+
     # A TDS meter does not measure ppm. It measures CONDUCTIVITY and multiplies
     # by a conversion factor chosen by the manufacturer - and there are three in
     # common use. The same water reads 670, 858 or 939 ppm depending only on
@@ -5739,6 +5831,269 @@ class GrowAgent(AgentBase):
         "640_KCl":  0.64,   # "640 scale" / KCl. Common on European meters.
         "700_442":  0.70,   # "700 scale" / Hanna 442. Most US grow guidance.
     }
+
+    def backfill_ec(self, plant_id="current_plant", dry_run=True):
+        """Fill EC on historical readings from their ppm and the recorded factor.
+
+        Every reading before today carries ppm only, so any comparison across
+        the grow's history has to go through the pen's conversion anyway. Making
+        that conversion explicit and storing it is better than leaving each
+        caller to redo it - but only if what was DERIVED stays distinguishable
+        from what was MEASURED, which is why each backfilled row is marked
+        `derived_unit: ec` and stamped with the factor used.
+
+        The assumption is stated rather than buried: the pen's scale was
+        verified on 2026-08-30 and is taken to have been the same for earlier
+        readings. That is likely and it is not evidence. If the pen was ever
+        switched, these values are wrong in a way the ppm figures are not, and
+        the stamp is what makes that recoverable."""
+        sysrec = {}
+        try:
+            sysrec = json.loads(self._unwrap_value(self.retrieve_own_memory(
+                f"grow_system_{plant_id}"))
+                or self._unwrap_value(self.retrieve_own_memory("grow_system")) or "{}")
+        except Exception:
+            pass
+        factor = self._parse_numeric(sysrec.get("tds_factor"))
+        if not factor:
+            return {"error": "No tds_factor on record. Run verify_tds_scale with a paired "
+                             "ppm and EC reading first - deriving EC from a guessed factor "
+                             "would put invented numbers through the whole history."}
+        scale = sysrec.get("tds_scale", "unknown")
+        index = self._unwrap_value(self.retrieve_own_memory("reading_index"))
+        try:
+            keys = json.loads(index) if index else []
+        except Exception:
+            keys = []
+        done, skipped = [], []
+        for key in keys:
+            raw = self._unwrap_value(self.retrieve_own_memory(key))
+            if not raw:
+                continue
+            try:
+                r = json.loads(raw)
+            except Exception:
+                continue
+            if r.get("plant_id", "current_plant") != plant_id or r.get("voided"):
+                continue
+            if r.get("ec") is not None:
+                skipped.append({"at": r.get("timestamp"), "why": "already has EC"})
+                continue
+            ppm = self._parse_numeric(r.get("ppm"))
+            if ppm is None:
+                skipped.append({"at": r.get("timestamp"), "why": "no ppm to convert"})
+                continue
+            ec = round((ppm / factor) / 1000.0, 3)
+            done.append({"at": r.get("timestamp"), "ppm": ppm, "ec": ec})
+            if not dry_run:
+                r["ec"] = ec
+                r["derived_unit"] = "ec"
+                r["ec_derived_from"] = (f"ppm / {factor} ({scale}), scale verified "
+                                        f"2026-08-30 and assumed unchanged earlier")
+                self.store_own_memory(key, json.dumps(r))
+        return {"factor": factor, "scale": scale, "dry_run": dry_run,
+                "would_fill" if dry_run else "filled": done,
+                "count": len(done), "skipped": skipped,
+                "note": ("Derived, not measured - each row is marked so and stamped with "
+                         "the factor. The scale was verified today and is assumed to have "
+                         "applied earlier; that assumption is likely and is not evidence.")}
+
+    def unattended_runtime(self, plant_id="current_plant", water_loss_l_per_day=None,
+                           uptake_g_per_day=None, usable_floor_liters=None,
+                           start_ec=None, start_liters=None):
+        """How long this can be left alone, and WHAT runs out first.
+
+        The grower wants to leave for two weeks. The instinct is to mix stronger
+        so the nutrient lasts - and that is the wrong lever, in a way worth
+        showing rather than asserting.
+
+        Two things deplete on an unattended reservoir and they push EC in
+        OPPOSITE directions. The plant removes nutrient, which lowers EC. Water
+        leaves as vapour and transpiration, which raises it. In a small
+        reservoir under a light, water loss is the far larger term - so an
+        unattended reservoir does not drift DOWN toward starvation, it drifts
+        UP toward toxicity, and then runs dry.
+
+        Starting higher therefore shortens the safe window rather than
+        lengthening it: it begins closer to the ceiling that concentration is
+        already carrying it toward. What actually buys unattended time is more
+        WATER - a larger reservoir, and a lower evaporation rate.
+
+        This projects both curves day by day and names whichever boundary is hit
+        first. It will not invent the rates: without measured ones it says so."""
+        readings = self._get_readings_for_plant(plant_id)
+        sysrec = {}
+        try:
+            sysrec = json.loads(self._unwrap_value(self.retrieve_own_memory(
+                f"grow_system_{plant_id}"))
+                or self._unwrap_value(self.retrieve_own_memory("grow_system")) or "{}")
+        except Exception:
+            pass
+        factor = self._parse_numeric(sysrec.get("tds_factor")) or 0.5
+        cap = self._parse_numeric(sysrec.get("reservoir_capacity_liters"))
+        stage = (self._plant_state("current_stage", plant_id)[0]) or "veg"
+        band = (STAGE_TARGETS.get(stage) or {}).get("ec")
+        if not band:
+            return {"error": f"No EC band for stage '{stage}'."}
+        lo, hi = band
+
+        ec = self._parse_numeric(start_ec)
+        vol = self._parse_numeric(start_liters)
+        if ec is None or vol is None:
+            for r in reversed(readings):
+                e = self._parse_numeric(r.get("ec"))
+                v = self._parse_numeric(r.get("volume_liters"))
+                if e is not None and v is not None:
+                    ec, vol = ec or e, vol or v
+                    break
+        if ec is None or vol is None:
+            return {"classification": "insufficient_evidence", "confidence": "low",
+                    "reason": "Needs a reading carrying BOTH conductivity and volume.",
+                    "action": "Log EC and the water level together once."}
+
+        # Water loss, measured if the history supports it. Two readings with
+        # measured volumes and no top-up between them is the only honest source.
+        wl = self._parse_numeric(water_loss_l_per_day)
+        wl_source = "supplied" if wl else None
+        if wl is None:
+            pair = [r for r in readings
+                    if self._parse_numeric(r.get("volume_liters")) is not None][-2:]
+            if len(pair) == 2:
+                v0 = self._parse_numeric(pair[0]["volume_liters"])
+                v1 = self._parse_numeric(pair[1]["volume_liters"])
+                try:
+                    h = (datetime.fromisoformat(str(pair[1]["timestamp"])[:19])
+                         - datetime.fromisoformat(str(pair[0]["timestamp"])[:19])
+                         ).total_seconds() / 3600.0
+                except Exception:
+                    h = 0
+                if h >= 4 and v1 < v0:
+                    wl = (v0 - v1) / (h / 24.0)
+                    wl_source = f"measured over {h:.1f}h"
+        if wl is None:
+            return {"classification": "insufficient_evidence", "confidence": "low",
+                    "reason": ("No measured water-loss rate. This is the term that decides "
+                               "the answer, and estimating it would produce a confident "
+                               "number about how long the grower can be away - which is "
+                               "exactly the kind of number that must not be guessed."),
+                    "action": ("Record the level at two readings at least a day apart with "
+                               "no top-up between them, or pass water_loss_l_per_day."),
+                    "have": {"ec": ec, "liters": vol}}
+
+        up = self._parse_numeric(uptake_g_per_day)
+        up_source = "supplied" if up else None
+        if up is None:
+            up, up_source = 0.0, ("not yet measured - treated as ZERO, which is the "
+                                  "conservative direction here: uptake would lower EC, so "
+                                  "ignoring it OVERSTATES how fast concentration rises "
+                                  "and understates how soon the floor is reached")
+
+        # Below this the pump loses prime and the roots in the medium lose their
+        # only delivery path, so it is empty in every sense that matters.
+        floor_l = self._parse_numeric(usable_floor_liters)
+        if floor_l is None:
+            floor_l = 6.0
+        mass_mg = ec * 1000.0 * factor * vol
+        out = {"plant_id": plant_id, "stage": stage, "start_ec": ec, "start_liters": vol,
+               "band_ec": [lo, hi], "water_loss_l_per_day": round(wl, 2),
+               "water_loss_source": wl_source, "uptake_g_per_day": round(up, 2),
+               "uptake_source": up_source, "usable_floor_liters": floor_l,
+               "reservoir_capacity_liters": cap, "tds_factor": factor}
+
+        days, hit = [], None
+        for d in range(1, 31):
+            v = vol - wl * d
+            m = mass_mg - up * 1000.0 * d
+            if v <= 0 or m <= 0:
+                hit = hit or {"day": d, "boundary": "reservoir empty"}
+                break
+            e = (m / v) / 1000.0 / factor
+            days.append({"day": d, "liters": round(v, 1), "ec": round(e, 2)})
+            if hit is None:
+                if v <= floor_l:
+                    hit = {"day": d, "boundary": "water below usable floor",
+                           "detail": f"{v:.1f} L left, floor {floor_l} L"}
+                elif e > hi:
+                    hit = {"day": d, "boundary": "EC above band",
+                           "detail": f"EC {e:.2f} against a {hi} ceiling"}
+                elif e < lo:
+                    hit = {"day": d, "boundary": "EC below band",
+                           "detail": f"EC {e:.2f} against a {lo} floor"}
+        out["projection"] = days[:14]
+        out["first_boundary"] = hit
+        if hit:
+            out["safe_days_unattended"] = hit["day"] - 1
+            out.update({
+                "classification": "bounded", "confidence": "low",
+                "reason": (f"At {wl:.1f} L/day of water loss, the binding constraint is "
+                           f"'{hit['boundary']}' on day {hit['day']}, so roughly "
+                           f"{hit['day'] - 1} day(s) unattended. Note the direction: water "
+                           f"leaves faster than nutrient does, so EC RISES while the level "
+                           f"falls. Mixing stronger starts closer to the ceiling and "
+                           f"shortens this, it does not extend it."),
+                "what_actually_extends_it": [
+                    (f"More water. Capacity is {cap} L against {vol} L in use"
+                     if cap and cap > vol else "A larger reservoir."),
+                    "Less evaporation - the salt crust on the lid is water leaving there.",
+                    ("Lower VPD. Cutting transpiration cuts water loss directly, and the "
+                     "humidity increase already decided for the calcium question does "
+                     "exactly that - one change serving both."),
+                ],
+            })
+        else:
+            out.update({"classification": "no_boundary_in_30_days", "confidence": "low",
+                        "reason": "No boundary reached within 30 days at these rates."})
+        return out
+
+    def reading_due(self, plant_id="current_plant"):
+        """When the next reading is actually worth taking.
+
+        The grower asked to stop reading at random. Cadence already knows the
+        interval; nothing was comparing it to the last reading and saying so, so
+        the schedule existed and was invisible."""
+        try:
+            cad = self.reading_cadence(plant_id)
+        except Exception as exc:
+            return {"error": f"cadence unavailable: {exc}"}
+        days = cad.get("recommended_days") or 3
+        readings = self._get_readings_for_plant(plant_id)
+        if not readings:
+            return {"status": "due_now", "reason": "No reading on record at all.",
+                    "recommended_days": days}
+        last = readings[-1]
+        try:
+            last_at = datetime.fromisoformat(str(last.get("timestamp"))[:19])
+        except Exception:
+            return {"error": "Last reading has no usable timestamp."}
+        due_at = last_at + timedelta(days=float(days))
+        now = datetime.now()
+        hours_left = (due_at - now).total_seconds() / 3600.0
+        out = {"plant_id": plant_id, "recommended_days": days,
+               "last_reading_at": last.get("timestamp"),
+               "due_at": due_at.isoformat(),
+               "hours_until_due": round(hours_left, 1),
+               "minimum_spacing_hours": cad.get("minimum_useful_spacing_hours"),
+               "maximum_gap_days": cad.get("maximum_useful_gap_days")}
+        max_gap = cad.get("maximum_useful_gap_days") or 6
+        overdue_at = last_at + timedelta(days=float(max_gap))
+        if now >= overdue_at:
+            out.update({"status": "overdue", "severity": "high",
+                        "reason": (f"{(now - last_at).days} days since the last reading, past "
+                                   f"the {max_gap}-day maximum. A gap contains no measurement, "
+                                   f"so nothing inside it can be attributed to either side.")})
+        elif hours_left <= 0:
+            out.update({"status": "due_now", "severity": "medium",
+                        "reason": f"{days} days since the last reading."})
+        elif hours_left <= 12:
+            out.update({"status": "due_soon", "severity": "low",
+                        "reason": f"Due in {hours_left:.0f}h."})
+        else:
+            out.update({"status": "not_yet", "severity": "none",
+                        "reason": (f"Next reading {due_at.strftime('%b %d')}. Taking one "
+                                   f"sooner is not wrong, it just cannot measure uptake - "
+                                   f"under {cad.get('minimum_useful_spacing_hours')}h the "
+                                   f"change is inside instrument error.")})
+        return out
 
     def verify_tds_scale(self, ppm=None, ec=None, ec_units="uS/cm",
                          plant_id="current_plant", record=False):
@@ -6061,6 +6416,14 @@ class GrowAgent(AgentBase):
         # explanations had moved on.
         out["open_concern"] = (self._concern_from_differential(plant_id)
                                or self._concern_from_leaf_eval(plant_id))
+        # When the next reading is worth taking. The cadence has always known;
+        # nothing surfaced it, so the schedule existed and the grower still had
+        # to guess - which meant readings at random, some too close together to
+        # measure anything.
+        try:
+            out["reading_due"] = self.reading_due(plant_id)
+        except Exception as exc:
+            out["reading_due"] = {"error": str(exc)}
         out["readings_recorded"] = len(readings)
         return out
 
@@ -6455,6 +6818,16 @@ class GrowAgent(AgentBase):
             self.store_own_memory(f"stage_transition_{self._uid()}", json.dumps(transition))
             return {"result": f"Stage transitioned to {new_stage}", "transition": transition}
 
+        elif task == "backfill_ec":
+            return {"result": self.backfill_ec(**(args if isinstance(args, dict) else {}))}
+        elif task == "unattended_runtime":
+            return {"result": self.unattended_runtime(**(args if isinstance(args, dict) else {}))}
+        elif task == "reading_due":
+            return {"result": self.reading_due(**(args if isinstance(args, dict) else {}))}
+        elif task == "set_target_band_position":
+            return {"result": self.set_target_band_position(**(args if isinstance(args, dict) else {}))}
+        elif task == "target_for_stage":
+            return {"result": self.target_for_stage(**(args if isinstance(args, dict) else {}))}
         elif task == "verify_tds_scale":
             return {"result": self.verify_tds_scale(**(args if isinstance(args, dict) else {}))}
         elif task == "assess_vpd":

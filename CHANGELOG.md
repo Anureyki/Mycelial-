@@ -1763,3 +1763,59 @@ finding invented out of rounding.
 and `grow_snapshot` never exposed it, so the card showed only the pen's
 restatement of it. Either figure is labelled `(derived)` when it was computed
 from the other rather than read.
+
+### 2026-08-30 — Mixing stronger shortens the time you can be away
+
+Three requests, and the third answered the second in a way that reversed it.
+
+**Reading schedule on the card.** `reading_due` compares the cadence to the last
+reading and says when the next one is worth taking. The cadence has always known
+the interval - nothing surfaced it, so the schedule existed and the grower still
+had to guess, which meant readings at random and some too close together to
+measure anything. Next: **2026-09-02**, every 3 days.
+
+**A target position in the band, not a number.** "Inside the band" was treated as
+the whole answer, but the bottom and the top of a range are different operating
+decisions and nothing recorded which one was intended. `set_target_band_position`
+stores a FRACTION - `mid_high` is 70% of the way up whichever band the stage
+carries - so veg's 1.2-1.8 becoming flower's 1.6-2.4 carries the intent forward
+without anyone re-deciding it under pressure. For veg that is **EC 1.62 / 810
+ppm** against a current 1.341, a 21% raise.
+
+**Then the reason came out: run long enough to leave for two weeks.** That makes
+`unattended_runtime` the right question, and it says the opposite of the plan.
+
+Two things deplete an unattended reservoir and they move EC in OPPOSITE
+directions. Uptake removes nutrient and lowers it. Water leaves as vapour and
+transpiration and RAISES it. In a small reservoir under a light the water term
+is far larger, so an unattended reservoir does not drift down toward starvation -
+it drifts **up toward toxicity**, then runs dry.
+
+At the grower's own observed ~2 L/day, with a plausible 1 g/day uptake:
+
+| Scenario | Safe days | What stops it |
+|---|---|---|
+| Current 1.341 @ 15 L | **4** | water below usable floor, day 5 |
+| Mid-high 1.62 @ 15 L | **1** | EC above band, day 2 |
+| Current @ 18.9 L capacity | 3-4 | — |
+| Evaporation halved | longer, and the floor becomes binding instead |
+| Volume held constant (auto top-off) | nutrient becomes binding at last |
+
+**Mixing to mid-high cuts the unattended window from four days to one.** It
+starts closer to the ceiling that concentration is already carrying it toward.
+
+The conditional worth keeping: **once volume is held constant, nutrient becomes
+the binding constraint and mixing stronger genuinely helps.** The instinct is
+right; the prerequisite is an auto top-off, not a richer mix.
+
+`unattended_runtime` refuses to run on a guessed water-loss rate - that term
+decides the answer, and a confident number about how long someone can leave their
+grow is exactly the kind that must not be invented. Uptake defaults to ZERO and
+says so, which is the conservative direction: it overstates the rise and
+understates how soon a floor is reached.
+
+**EC backfilled across 22 historical readings** from the recorded 0.5 factor,
+each marked `derived_unit: ec` and stamped with the factor and the assumption -
+the scale was verified today and is *assumed* to have applied earlier. Likely,
+and not evidence. The stamp is what makes it recoverable if the pen was ever
+switched.
