@@ -1,0 +1,83 @@
+{
+ "title": "Social Security Number collection - authority, notice, and the test",
+ "source": "AUTHORED for MycOS 2026-08-30. The Privacy Act text is held in this corpus at 5 U.S.C. 552a. Section 7 of Pub. L. 93-579 is uncodified and appears as a note; its content is summarised here from the public law. The DoDI 1000.30 entry rests on the principal's account and is marked unverified. Not authority - a test to run, with the sources named so each step can be checked.",
+ "authority_class": "doctrine_summary",
+ "authority_class_basis": "authored 2026-08-30; statute summarised, agency instruction unverified",
+ "binds": "nobody - a finding aid",
+ "confers_rights": false,
+ "origin_pdf": "authored",
+ "pages": 1,
+ "authorities_cited": [],
+ "sections": [
+  {
+   "citation": "SSN collection - the authority chain",
+   "kind": "doctrine",
+   "page": 1,
+   "text": "SSN collection - the authority chain. Three layers, and they are commonly cited in the wrong order. (1) The PRIVACY ACT OF 1974 is the public law. (2) EXECUTIVE ORDER 9397 is why SSN use spread across government, and it has been amended to remove the direction. (3) An agency's own implementing instruction - for DoD, DoDI 1000.30 - is where the written justification requirement lives. An instruction is not the source of the obligation; it is how one agency discharges it."
+  },
+  {
+   "citation": "Privacy Act section 7",
+   "kind": "doctrine",
+   "page": 1,
+   "text": "Privacy Act section 7. THE SSN PROVISIONS ARE NOT IN 5 U.S.C. 552a. This is the technical point that defeats most people who go looking: section 7 of the Privacy Act of 1974, Pub. L. 93-579, 88 Stat. 1896, was NEVER CODIFIED. It appears as a statutory NOTE to 5 U.S.C. 552a. Searching the section text for 'social security' returns nothing, and the provision is nonetheless law. s 7(a)(1): unlawful for any FEDERAL, STATE OR LOCAL agency to deny an individual any right, benefit or privilege provided by law because of refusal to disclose an SSN. s 7(a)(2): does not apply where disclosure is required by federal statute, or to a system of records in existence and operating before 1 January 1975 under a statute or regulation adopted before that date to verify identity. s 7(b): an agency requesting an SSN MUST tell the individual (i) whether disclosure is MANDATORY OR VOLUNTARY, (ii) BY WHAT STATUTORY AUTHORITY it is solicited, and (iii) WHAT USES will be made of it. Note what s 7(b) does in practice: an agency with no statutory authority cannot give the required notice truthfully, so the notice obligation and the authority requirement collapse into one test.",
+   "standing": "statute - federal (uncodified note)"
+  },
+  {
+   "citation": "Executive Order 9397",
+   "kind": "doctrine",
+   "page": 1,
+   "text": "Executive Order 9397. Issued 22 November 1943, directing federal agencies to use the SSN as the numerical identification system for individuals - the reason SSN use became universal across government. AMENDED BY EXECUTIVE ORDER 13478 (18 November 2008), which removed the direction to use it, leaving agencies permitted rather than required. This matters when an agency answers 'EO 9397' to the question of authority: since 2008 that order directs nothing, and an executive order is in any event not the 'statutory authority' s 7(b) asks for.",
+   "standing": "executive order"
+  },
+  {
+   "citation": "DoDI 1000.30",
+   "kind": "doctrine",
+   "page": 1,
+   "text": "DoDI 1000.30. DoD Instruction, Reduction of Social Security Number (SSN) Use Within DoD, 2012. Requires each DoD use of an SSN to carry a documented justification citing specific authority, and - as quoted by the principal from the instruction - that where review finds no authority or legal requirement for the use of the SSN, its collection and use SHOULD CEASE until such authority can be obtained. STANDING NOTE: this system has NOT read the instruction. The quoted clause and the 2012 date come from the principal's account of it. Obtain the instruction and verify the wording before any filing relies on it - a paraphrase of a regulation is not the regulation.",
+   "standing": "agency instruction - NOT YET VERIFIED against the source"
+  },
+  {
+   "citation": "the SSN test",
+   "kind": "doctrine",
+   "page": 1,
+   "text": "the SSN test. To test any SSN collection, in this order: (1) IS THERE A FEDERAL STATUTE requiring or authorising disclosure for this purpose - not an executive order, not an agency convenience, not long practice. (2) WAS THE s 7(b) NOTICE GIVEN, stating mandatory or voluntary, the authority, and the uses. (3) WAS A RIGHT, BENEFIT OR PRIVILEGE DENIED for refusing - that is the s 7(a)(1) prohibition and the sharpest of the three. (4) IF THE COLLECTOR IS NOT AN AGENCY - a landlord, an employer, a private company - s 7 does not reach them at all: it binds federal, state and local agencies. Aim the argument at the right party."
+  },
+  {
+   "citation": "SSN - what the remedy actually is",
+   "kind": "doctrine",
+   "page": 1,
+   "text": "SSN - what the remedy actually is. A caution against overreach, because the strength of the underlying point invites it. The civil remedy in 5 U.S.C. 552a(g) attaches to specified failures by an AGENCY as to records in a system of records, with actual damages and a wilful-or-intentional standard for the statutory minimum. Section 7 creates duties without spelling out its own damages remedy, and courts have divided on what follows from a bare s 7(b) notice failure - some treat it as supporting relief, others find no private right of action for section 7 alone. So: a missing justification memo is a real, auditable compliance failure and good leverage in a complaint to the agency or an IG; it is not automatically a damages claim. State it as the compliance gap it is."
+  }
+ ],
+ "term_index": {
+  "executive order": [
+   0,
+   2,
+   4
+  ],
+  "across government": [
+   0,
+   2
+  ],
+  "social security": [
+   1,
+   3
+  ],
+  "statutory authority": [
+   1,
+   2
+  ],
+  "federal statute": [
+   1,
+   4
+  ],
+  "right benefit": [
+   1,
+   4
+  ],
+  "federal state": [
+   1,
+   4
+  ]
+ }
+}

@@ -941,3 +941,44 @@ Known limit, and it matters: OCR reads structure well and NUMBERS badly - the
 $1,250.00 base rent came through as "$7125". Clause routing and obligation
 detection can be trusted from a photograph; a figure cannot, and must be read
 from the document itself before anything depends on it.
+
+### 2026-08-30 — SSN collection: the authority chain, and where the provision actually lives
+
+The principal set out the chain - Privacy Act, EO 9397, DoDI 1000.30 - and it is
+correct. One technical point sharpens it considerably.
+
+**The SSN provisions are not in 5 U.S.C. 552a.** Section 7 of the Privacy Act of
+1974, Pub. L. 93-579, 88 Stat. 1896, was NEVER CODIFIED; it appears as a
+statutory note. Searching the section text for "social security" returns
+nothing, and the provision is nonetheless law. That is why the argument gets
+waved away by people who look in the obvious place.
+
+What s 7 actually does: (a)(1) makes it unlawful for a federal, state or LOCAL
+agency to deny any right, benefit or privilege for refusing to disclose an SSN;
+(a)(2) excepts disclosure required by federal statute and pre-1975 systems; and
+(b) requires the agency to state whether disclosure is MANDATORY OR VOLUNTARY,
+BY WHAT STATUTORY AUTHORITY, and TO WHAT USES. An agency without authority
+cannot give that notice truthfully, so the notice duty and the authority
+requirement collapse into a single test.
+
+**EO 9397 no longer directs anything.** EO 13478 (2008) amended it to remove the
+direction to use the SSN. An agency answering "EO 9397" is citing an order that
+since 2008 permits rather than requires - and an executive order was never the
+"statutory authority" s 7(b) asks for.
+
+Recorded with two deliberate limits. **DoDI 1000.30 is marked NOT VERIFIED** -
+the quoted clause and the 2012 date come from the principal's account and this
+system has not read the instruction. A paraphrase of a regulation is not the
+regulation. And a caution on remedy: 5 U.S.C. 552a(g) attaches to specified
+agency failures with a wilfulness standard, while s 7 creates duties without
+spelling out its own damages remedy and courts have divided on a bare notice
+failure. A missing justification memo is a real auditable compliance gap and
+good leverage with an agency or an IG; it is not automatically a damages claim.
+
+Also recorded: s 7 binds AGENCIES. A landlord or employer demanding an SSN is
+not reached by it at all, so the argument has to be aimed at the right party.
+
+5 U.S.C. 552a ingested from Cornell LII. Two false successes on the way: govinfo
+bulk USC returned HTTP 200 with an error page as the body, twice, and I checked
+the status rather than the content - the exact error this system exists to hunt.
+Legal: 19 works, 1,718 sections.
