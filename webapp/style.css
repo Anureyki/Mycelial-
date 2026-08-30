@@ -403,3 +403,24 @@ main#log {
   color: var(--muted);
   vertical-align: 1px;
 }
+
+/* Open concern: a status block, not a paragraph of the classifier's reasoning. */
+.card-body .concern-head {
+  margin: 0 0 4px;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #c8863c;
+  white-space: normal;
+}
+.card-body .concern-what {
+  margin: 0 0 8px;
+  font-size: 0.92rem;
+  line-height: 1.4;
+  white-space: normal;
+}
+.card-body .concern-rows {
+  gap: 3px 12px;
+  font-size: 0.85rem;
+}
+.card-body .concern-rows dd { font-variant-numeric: normal; }

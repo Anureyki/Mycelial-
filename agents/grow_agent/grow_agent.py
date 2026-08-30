@@ -5729,6 +5729,85 @@ class GrowAgent(AgentBase):
                 lo = mid
         return (lo + hi) / 2.0
 
+    @staticmethod
+    def _clip(text, limit=150):
+        """Trim at a word boundary. Slicing a string mid-word produces "the
+        spray is the only rout", which reads as a bug in the data rather than
+        as a truncation."""
+        t = " ".join(str(text or "").split())
+        if len(t) <= limit:
+            return t
+        cut = t[:limit].rsplit(" ", 1)[0]
+        return cut + "\u2026"
+
+    def _concern_from_differential(self, plant_id):
+        """The open differential, as a status line.
+
+        Reports the differential's OWN state - how many explanations are live,
+        which are not yet weakened, what was decided and when it is worth
+        looking again. It deliberately does not name a single cause: the whole
+        point of the differential is that one has not been established, and a
+        card that picks the currently most appealing one would undo that in the
+        one place the grower actually reads."""
+        try:
+            from core import differential as dx
+        except Exception:
+            return None
+        for did in reversed(self._differential_index()):
+            d = self._load_differential(did)
+            if not d or d.get("status") != "open":
+                continue
+            if plant_id not in (d.get("subject") or "") and d.get("subject") != plant_id:
+                continue
+            st = dx.assess(d)
+            dec = d.get("decision") or {}
+            live = st.get("live", [])
+            unweakened = [h["name"] for h in live if h["confidence"] in ("leading", "plausible")]
+            nxt = [p for p in st.get("discriminators", []) if p.get("meaningful_after")]
+            soonest = min((p["meaningful_after"] for p in nxt), default=None)
+            return {
+                "source": "differential",
+                "id": did,
+                "at": d.get("opened_at"),
+                "what": self._clip(d.get("observation"), 130),
+                "live_count": len(live),
+                "front_runners": unweakened,
+                "decision": dec.get("decision"),
+                "decision_basis": self._clip(dec.get("basis"), 120),
+                "changes": dec.get("changes") or [],
+                "reassess_after": dec.get("reassess_after") or soonest,
+                "watch_for": self._clip(
+                    next((p["look_for"] for p in nxt
+                          if p["hypothesis"] in unweakened), ""), 150),
+            }
+        return None
+
+    def _concern_from_leaf_eval(self, plant_id):
+        """Fallback when no differential is open: the last evaluation that
+        found a problem. A card showing only the LATEST evaluation would hide a
+        standing problem the moment any later check came back clean."""
+        try:
+            keys = self._load_leaf_eval_index() or []
+        except Exception:
+            return None
+        for key in reversed(keys[-40:]):
+            raw = self._unwrap_value(self.retrieve_own_memory(key))
+            if not raw:
+                continue
+            try:
+                ev = json.loads(raw)
+            except Exception:
+                continue
+            if ev.get("plant_id", "current_plant") != plant_id:
+                continue
+            rec = ev.get("recommendation") or {}
+            if str(rec.get("classification")) == "problem":
+                return {"source": "leaf_eval", "at": ev.get("timestamp"),
+                        "what": self._clip(rec.get("issue") or rec.get("reason"), 150),
+                        "action": self._clip(rec.get("action"), 150),
+                        "confidence": rec.get("confidence")}
+        return None
+
     def grow_snapshot(self, plant_id="current_plant"):
         """Current facts about the grow, as fields rather than prose.
 
@@ -5801,37 +5880,21 @@ class GrowAgent(AgentBase):
             "system_type": sysrec.get("system_type", "unknown"),
         }
 
-        # The most recent assessment that found a PROBLEM, with its age. A card
-        # that shows only the latest evaluation hides a standing problem the
-        # moment any later check comes back clean.
-        try:
-            keys = self._load_leaf_eval_index() or []
-        except Exception:
-            keys = []
-        open_concern = None
-        for key in reversed(keys[-40:]):
-            raw = self._unwrap_value(self.retrieve_own_memory(key))
-            if not raw:
-                continue
-            try:
-                ev = json.loads(raw)
-            except Exception:
-                continue
-            if ev.get("plant_id", "current_plant") != plant_id:
-                continue
-            # The verdict lives under "recommendation", not at the top level of
-            # the record. Reading it from the top returned None for every
-            # evaluation ever made, so the card showed no concern on a day with
-            # several - a clean-looking dashboard produced by looking in the
-            # wrong place, which is worse than an empty one.
-            rec = ev.get("recommendation") or {}
-            if str(rec.get("classification")) == "problem":
-                open_concern = {"at": ev.get("timestamp"),
-                                "summary": str(rec.get("reason") or rec.get("issue") or "")[:200],
-                                "action": str(rec.get("action") or "")[:200],
-                                "confidence": rec.get("confidence")}
-                break
-        out["open_concern"] = open_concern
+        # WHAT is wrong and what is being done, not why the classifier decided.
+        #
+        # This showed a leaf evaluation's `reason` field, which is the
+        # classifier justifying itself - "The pattern is what decides this: an
+        # interruption in DELIVERY rather than a problem with what was being
+        # delivered..." - cut off mid-word at 200 characters. That is written
+        # for whoever is debugging the classifier. On a status card the grower
+        # needs the finding, the state, and the next step.
+        #
+        # It was also reading the wrong record. Once a differential is open it
+        # holds the live reasoning; the leaf evaluation that started it is a
+        # spent snapshot, and the card went on quoting it hours after the
+        # explanations had moved on.
+        out["open_concern"] = (self._concern_from_differential(plant_id)
+                               or self._concern_from_leaf_eval(plant_id))
         out["readings_recorded"] = len(readings)
         return out
 

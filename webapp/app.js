@@ -300,12 +300,55 @@ async function renderGrowCard(body) {
   ];
   renderRows(body, rows);
   // An open problem is the reason to look at the card at all, so it is shown
-  // rather than left to be inferred from the numbers.
+  // rather than left to be inferred from the numbers. It renders the STATE -
+  // what was seen, how many explanations are still live, what is being done -
+  // and never a single named cause, because the differential exists precisely
+  // because no cause is established. Naming one here would undo that in the
+  // one place actually read.
   if (d.open_concern) {
-    const p = document.createElement('p');
-    p.className = 'concern';
-    p.textContent = `Open concern (${ago(d.open_concern.at)}): ${d.open_concern.summary}`;
-    body.append(p);
+    const c = d.open_concern;
+    const box = document.createElement('div');
+    box.className = 'concern';
+
+    const head = document.createElement('p');
+    head.className = 'concern-head';
+    head.textContent = `Open concern · ${ago(c.at)}`;
+    box.append(head);
+
+    const what = document.createElement('p');
+    what.className = 'concern-what';
+    what.textContent = c.what || '(no description)';
+    box.append(what);
+
+    const rows = [];
+    if (c.source === 'differential') {
+      if (c.live_count) {
+        const names = (c.front_runners || []).map(n => n.replace(/_/g, ' '));
+        rows.push(['Explanations',
+          `${c.live_count} live, none confirmed` + (names.length ? ` · leading: ${names.join(', ')}` : '')]);
+      }
+      if (c.decision) {
+        rows.push(['Doing', c.decision === 'hold'
+          ? 'holding — waiting on the next observation'
+          : (c.changes && c.changes.length ? c.changes.join(', ') : c.decision)]);
+      }
+      if (c.watch_for) rows.push(['Watch for', c.watch_for]);
+      if (c.reassess_after) rows.push(['Reassess', c.reassess_after.slice(0, 10)]);
+    } else {
+      if (c.action) rows.push(['Suggested', c.action]);
+      if (c.confidence) rows.push(['Confidence', c.confidence]);
+    }
+    if (rows.length) {
+      const dl = document.createElement('dl');
+      dl.className = 'rows concern-rows';
+      for (const [k, v] of rows) {
+        const dt = document.createElement('dt'); dt.textContent = k;
+        const dd = document.createElement('dd'); dd.textContent = v;
+        dl.append(dt, dd);
+      }
+      box.append(dl);
+    }
+    body.append(box);
   } else {
     const p = document.createElement('p');
     p.className = 'muted';

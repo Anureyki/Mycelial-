@@ -1613,3 +1613,52 @@ Separately confirmed while tracing this, so it is not mistaken for a fault
 later: every agent binding `127.0.0.1` is **deliberate** - the Phase 6 hardening
 that made nginx on 8443 the single authenticated TLS front door. The LAN reaches
 the dashboard at `https://192.168.1.139:8443`, not at any agent port directly.
+
+### 2026-08-30 — The concern card was the classifier talking to itself
+
+With the cards finally reaching the device, the Grow card's open concern read:
+
+> *"The pattern is what decides this: an interruption in DELIVERY rather than a
+> problem with what was being delivered. In a top-fed system whose medium does
+> not touch the water, the spray is the only rout"*
+
+The grower's response was *"makes no sense. I don't even know what that's for."*
+Fair. Three faults, and the third is the one that matters.
+
+**It was the wrong genre.** That is a leaf evaluation's `reason` - the classifier
+justifying its own verdict, written for whoever is debugging the classifier. A
+status card needs the finding, the state and the next step.
+
+**It was cut mid-word.** A bare 200-character slice produced "the spray is the
+only rout", which reads as corrupt data rather than as truncation. `_clip` now
+trims at a word boundary with an ellipsis.
+
+**It was reading a spent record.** Once a differential is open it holds the live
+reasoning; the leaf evaluation that started it is a snapshot. The card went on
+quoting that snapshot for hours after the explanations had moved - past a
+retracted stance, past calcium overtaking iron, past a VPD hypothesis and a
+decision to intervene. Everything shown was true when written and none of it was
+current.
+
+`grow_snapshot` now prefers an open differential and falls back to a leaf
+evaluation only when none exists. It reports the differential's own state:
+
+```
+OPEN CONCERN · 58m ago
+Newest growth pale chartreuse with relatively greener veins; mature fan
+leaves remain properly green.
+
+  Explanations  5 live, none confirmed · leading: calcium deficiency,
+                vpd calcium maldistribution
+  Doing         raise RH to ~63%
+  Watch for     The NEXT set of leaves emerges clean while today's browned
+                and translucent tissue stays marked...
+  Reassess      2026-09-06
+```
+
+**It deliberately names no single cause.** The differential exists because none
+is established, and a card that picked the currently most appealing one would
+undo that in the one place the grower actually reads. "5 live, none confirmed"
+is the honest headline.
+
+Shell bumped to v8; `check_shell_version.py` passes.
