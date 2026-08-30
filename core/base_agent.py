@@ -4,6 +4,7 @@ Mycelial Agent Base – Security Agent guards + Registry Service integration + L
 Now with JSON-RPC compatibility (handles both top-level and nested params).
 Includes Tool Service integration for MCP tools and agent‑specific memory helpers.
 """
+import hashlib
 import os, re, json, uuid, time, threading, requests, paho.mqtt.client as mqtt
 from datetime import datetime
 from flask import Flask, request, jsonify
@@ -372,6 +373,8 @@ class AgentBase:
                               "retract_stance", "set_discriminator"):
                     result = self.handle_differential_task(
                         task, args if isinstance(args, dict) else {})
+                elif task == "base_version":
+                    result = self.base_version()
                 elif task == "corpus_currency":
                     result = self.corpus_currency(args if isinstance(args, dict) else {})
                 elif task == "refer_finding":
@@ -431,6 +434,33 @@ class AgentBase:
     # An agent that knows something the list cannot - the names of the plants it
     # is currently tracking - overrides this to add them at request time.
     ROUTING_TERMS = ()
+
+    def base_version(self):
+        """Fingerprint of the shared base class this PROCESS is running.
+
+        Every agent inherits its reasoning layer from this file, so a change
+        here reaches all of them - but only after each one restarts. Until then
+        the swarm is running two different shared classes at once, and nothing
+        says so: an agent on yesterday's base answers "Unknown task" to a verb
+        added today, which is indistinguishable from a verb that was never meant
+        to reach it.
+
+        That is not hypothetical. On 2026-08-30 the differential verbs reached
+        three agents of ten, and the other seven had simply been running since
+        before the file changed. Comparing this hash across agents turns that
+        from an invisible condition into a one-line check."""
+        try:
+            with open(os.path.abspath(__file__), "rb") as fh:
+                data = fh.read()
+        except Exception as exc:
+            return {"error": f"cannot read base class: {exc}"}
+        return {
+            "agent_id": self.agent_id,
+            "base_sha": hashlib.sha256(data).hexdigest()[:12],
+            "base_mtime": datetime.fromtimestamp(
+                os.path.getmtime(os.path.abspath(__file__))).isoformat(timespec="seconds"),
+            "loaded_at": getattr(self, "_started_at", None),
+        }
 
     def routing_terms(self):
         """Regex fragments that claim a request for this agent."""

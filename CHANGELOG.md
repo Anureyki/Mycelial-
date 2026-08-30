@@ -1868,3 +1868,48 @@ The `check_guard` traffic dominating the graph is itself the finding: every
 inbound call pays a round trip to the Security Agent, and Hermes alone accounts
 for 12,516 of them in two days. That is Phase 3 - *reduce A2A read amplification*
 - showing up as a picture for the first time.
+
+### 2026-08-30 — The swarm was running two different shared base classes
+
+The principal asked whether the universal capabilities were holding up across
+every agent. They were not, and the reason was invisible.
+
+`core/base_agent.py` changed at **16:25**. Seven of the ten agents had been
+running since **00:44-10:07** and were therefore executing yesterday's shared
+class. Asked for a verb added today they answered "Unknown task", which is
+exactly what an agent says about a verb that was never meant to reach it - so a
+capability rolled out to three agents of ten looked identical to a capability
+scoped to three agents on purpose.
+
+**`tools/check_inherited.py` calls every inherited verb on every running agent.**
+Not imports, not greps - a real request over the wire, because the fault this
+exists to catch (`_unwrap_value` and `_uid` defined on no base class, working
+only where an agent happened to define its own copy) is invisible to static
+reading and only appears when the code is actually run.
+
+Probes are side-effect free by being **deliberately invalid**. A verb that
+rejects bad input with its own guard message has proved three things at once:
+the method exists, dispatch reaches it, and the guard runs. A missing verb says
+"Unknown task"; a broken one raises. All distinguishable, and nothing is written.
+
+**`base_version`** returns a hash of the base class the process is actually
+running, so drift is a one-line check rather than an audit.
+
+After restarting all ten: **10 agents x 15 inherited verbs, no crashes, no gaps.**
+
+**The tool's first finding was a bug in the tool.** It flagged `coding_agent /
+routing_terms` as a crash because the raw body contained "Traceback" - which is
+one of that agent's own routing terms, since it is the agent that reads stack
+traces. A detector that cannot tell an error from *data about errors* invents
+bugs, and that is worse than missing them because the fix lands on working code.
+It parses the JSON now and only inspects `error` fields.
+
+**One real gap, named rather than fixed:** `answer` - one of the three
+inversions CLAUDE.md requires of every agent - is implemented on **three of ten**
+(grow, accounting, maintenance). Boss already handles it: *"An agent that has not
+implemented answer() yet falls through to the branches below rather than failing
+the request."* So it degrades rather than breaks, and Maintenance's is
+deliberately narrow (resource reclamation only, verified working on "free up
+some disk space" and correctly returning None otherwise). Incomplete rollout,
+not a defect - but it is the gap between the documented architecture and the
+running one.
