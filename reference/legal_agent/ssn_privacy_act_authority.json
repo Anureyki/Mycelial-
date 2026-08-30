@@ -33,8 +33,8 @@
    "citation": "DoDI 1000.30",
    "kind": "doctrine",
    "page": 1,
-   "text": "DoDI 1000.30. DoD Instruction, Reduction of Social Security Number (SSN) Use Within DoD, issued 1 August 2012 by USD(P&R), superseding Directive-Type Memorandum 07-015 (DoD SSN Reduction Plan, 28 March 2008). CHANGE 2 IS DATED 30 NOVEMBER 2022 - the instruction has been amended twice since issue, so a 2012 citation without a change number is incomplete and any quoted wording must be checked against the current version. It remains DoD policy. The requirement is that continued collection of an SSN be JUSTIFIED IN WRITING. THE OPERATIVE CLAUSE, as reported by the principal and NOT YET VERIFIED against the instrument: where review finds no authority or legal requirement for the use of the SSN, its collection and use should cease until such authority can be obtained. RETRIEVAL NOTE 2026-08-30: this system attempted to fetch the PDF from esd.whs.mil, dodcio.defense.gov, hqmc.marines.mil and mcieast.marines.mil, directly and through a fetch tool. EVERY .mil HOST RETURNED HTTP 403 to automated requests. The issue date, the Change 2 date and the supersession of DTM 07-015 are verified from public secondary sources; the wording of the operative clause is not. Obtain the PDF by hand and re-ingest before any filing quotes it.",
-   "standing": "agency instruction - dates verified, operative wording NOT verified"
+   "text": "DoDI 1000.30. Reduction of Social Security Number (SSN) Use Within DoD. Issued 1 August 2012; INCORPORATING CHANGE 2, 30 NOVEMBER 2022. Office of primary responsibility is now ATSD(PCLT) - the Assistant to the Secretary of Defense for Privacy, Civil Liberties, and Transparency - not USD(P&R) as at issue. It incorporates and cancels DTM 07-015. READ IN FULL 2026-08-30 and held in this corpus; the wording below is verbatim. THE OPERATIVE CLAUSE, verified: 'If upon review, it is determined that no authority or legal requirement for the use of the SSN exists, its collection and use should cease until such authority can be obtained.' THREE MORE LINES THAT DO MORE WORK THAN THAT ONE: (1) 'Any uses of the SSN not provided for in this Instruction are considered to be unnecessary and SHALL BE ELIMINATED.' - mandatory, not precatory, and it reverses the burden: a use is unnecessary unless the instruction provides for it. (2) 'The requirement for the use of the SSN provided by Executive Order 9397 has been ELIMINATED.' - DoD says this itself, so an agency answering EO 9397 is citing an authority its own department has disclaimed. EO 9397 'may be used to justify the use of the SSN as an interim measure while its use is being eliminated, but MAY NOT BY ITSELF BE USED TO JUSTIFY CONTINUED USE.' (3) 'Ease of use or unwillingness to change are not acceptable justifications', and systems or forms claiming 'operational necessity' SHALL BE CLOSELY SCRUTINIZED. SCOPE, and it matters: this instruction binds DoD COMPONENTS. It confers no rights on the public and is not the source of the obligation - the Privacy Act is. Cite it to show a DoD component failed its own mandatory standard, not as a statute a private party can sue on.",
+   "standing": "agency instruction - READ AND VERIFIED 2026-08-30, Change 2"
   },
   {
    "citation": "the SSN test",
@@ -50,26 +50,27 @@
   }
  ],
  "term_index": {
-  "executive order": [
-   0,
-   2,
-   4
-  ],
   "across government": [
    0,
    2
   ],
-  "right benefit": [
-   1,
-   4
-  ],
-  "federal state": [
-   1,
+  "executive order": [
+   0,
+   2,
+   3,
    4
   ],
   "statutory authority": [
    1,
    2
+  ],
+  "federal state": [
+   1,
+   4
+  ],
+  "right benefit": [
+   1,
+   4
   ],
   "federal statute": [
    1,

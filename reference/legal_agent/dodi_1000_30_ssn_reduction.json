@@ -1,0 +1,983 @@
+{
+ "title": "DoDI 1000.30 - Reduction of Social Security Number (SSN) Use Within DoD",
+ "source": "DoD Instruction 1000.30, August 1, 2012, INCORPORATING CHANGE 2, November 30, 2022. Office of primary responsibility ATSD(PCLT) - changed from USD(P&R) at issue. Retrieved from esd.whs.mil and supplied by the principal 2026-08-30. U.S. Government work - public domain. Segmented by the instruction's own paragraph numbering.",
+ "retrieved": "2026-08-30",
+ "authority_class": "agency_instruction",
+ "authority_class_basis": "read in full during ingest 2026-08-30",
+ "binds": "DoD Components. It confers no rights on the public and is not itself the Privacy Act.",
+ "confers_rights": false,
+ "jurisdiction": "federal - DoD",
+ "origin_pdf": "dodi100030.pdf",
+ "pages": 28,
+ "authorities_cited": [],
+ "sections": [
+  {
+   "citation": "c1",
+   "kind": "instruction_paragraph",
+   "page": 1,
+   "clause_kinds": [],
+   "text": "1 Department of Defense INSTRUCTION NUMBER 1000.30 August 1, 2012 Incorporating Change 2, November 30, 2022 ATSD(PCLT) SUBJECT: Reduction of Social Security Number (SSN) Use Within DoD References: See Enclosure 1"
+  },
+  {
+   "citation": "1",
+   "kind": "instruction_paragraph",
+   "page": 1,
+   "clause_kinds": [],
+   "text": "1. PURPOSE. This Ins truction: a. Establishes policy and assigns responsibilities for SSN use reduction in the Department of Defense in accordance with the authority in DoD Directive 5148.11 and the September 1, 2021 Deputy Secretary of Defense memorandum (References (a) and (b)). b. Establishes a DoD SSN Use Reduction Plan . c. Incorporates and cancels Directive-Type Memorandum 07-015 (Reference (c)). d. Establishes policy requirements for DoD mailings in accordance with section 2 of Public Law 115-59, also known as \u201cthe Social Security Number Fraud Prevention Act of 2017\u201d (Reference (n))."
+  },
+  {
+   "citation": "2",
+   "kind": "instruction_paragraph",
+   "page": 1,
+   "clause_kinds": [],
+   "text": "2. APPLICABILITY. This I nstruction: a. Applies to OSD, the Military Departments, the Office of the Chairman of the Joint Chiefs of Staff and the Joint Staff, the Combatant Commands, the Office of Inspector General of the Department of Defense (IG DoD), the Defense Agencies, the DoD Field Activities, and all other organizational entities within the Department of Defense (hereinafter referred to collectively as the \u201cDoD Components\u201d). b. Covers all uses of SSNs within the D epartment of Defense, in accordance with section 552a of title 5, United States Code (U.S.C.), as amended (also known and hereinafter referred to as \u201cThe Privacy Act\u201d (Reference (d)))."
+  },
+  {
+   "citation": "3",
+   "kind": "instruction_paragraph",
+   "page": 1,
+   "clause_kinds": [],
+   "text": "3. DEFINITIONS. See Gl ossary. DoDI 1000.30, August 1, 2012 Change 2, 11/30/2022 2"
+  },
+  {
+   "citation": "4",
+   "kind": "instruction_paragraph",
+   "page": 1,
+   "clause_kinds": [
+    "prohibition",
+    "condition",
+    "power",
+    "obligation"
+   ],
+   "text": "4. POLICY. It is Do D policy that: a. All DoD personnel shall reduce or eliminate the use of SSNs wherever possible. b. Use of the SSN includes the SSN in any form, including, but not limited to, truncated, masked, partially masked, encrypted, or disguised SSNs. c. SSNs may not be used in spreadsheets, hard copy lists, electronic reports, or collected in surveys unless they meet one or more of the acceptable use criteria in Enclosure 2. d. SSNs may be used in approved forms and systems when they meet one or more of the acceptable use criteria in Enclosure 2. e. Specific reviews of forms and systems shall be conducted to reduce SSN use. See Enclosures 3 and 4 for review procedures. f. Unless authorized by the Assistant to the Secretary of Defense for Privacy, Civil Liberties, and Transparency (ATSD(PCLT)), as established in Reference (b), a full SSN will not be included on any document that is physically mailed. Mailing includes delivery via the U.S. Postal Service or other commercial parcel or letter delivery services (e.g., Federal Express, United Parcel Service)."
+  },
+  {
+   "citation": "5",
+   "kind": "instruction_paragraph",
+   "page": 1,
+   "clause_kinds": [],
+   "text": "5. RESPONSIBILITIES. See Enc losure 5."
+  },
+  {
+   "citation": "6",
+   "kind": "instruction_paragraph",
+   "page": 1,
+   "clause_kinds": [],
+   "text": "6. RELEASABILITY. Cleared f or public release. This Instruction is available on the Directives Division Website at https://www.esd.whs.mil/DD/."
+  },
+  {
+   "citation": "7",
+   "kind": "instruction_paragraph",
+   "page": 1,
+   "clause_kinds": [],
+   "text": "7. SUMMARY OF CHANGE 2. This change: a. In accordance with Reference (b): (1) Reassigns this instruction to the ATSD(PCLT) as the Component head with primary responsibility. (2) Assigns responsibilities to the ATSD(PCLT). b. Implements the requirements of Reference (n), which restricts the inclusion of full SSNs on documents sent by mail. DoDI 1000.30, August 1, 2012"
+  },
+  {
+   "citation": "8",
+   "kind": "instruction_paragraph",
+   "page": 1,
+   "clause_kinds": [],
+   "text": "8. EFF ECTIVE DATE. This Instruction is effective August 1, 2012. Change 2, 11/30/2022 3 Erin C. Conaton Under Secretary of Defense for Personnel and Readiness Change 2 Approved by: Joo Chung Assistant to the Secretary of Defense for Privacy, Civil Liberties, and Transparency Enclosures"
+  },
+  {
+   "citation": "2",
+   "kind": "instruction_paragraph",
+   "page": 1,
+   "clause_kinds": [],
+   "text": "2. DoD Guidance on the Use of the SSN"
+  },
+  {
+   "citation": "3",
+   "kind": "instruction_paragraph",
+   "page": 1,
+   "clause_kinds": [],
+   "text": "3. DoD SSN U se Reduction in Forms, Systems, and Mailings"
+  },
+  {
+   "citation": "4",
+   "kind": "instruction_paragraph",
+   "page": 1,
+   "clause_kinds": [],
+   "text": "4. Approval for Use of the SSN"
+  },
+  {
+   "citation": "5",
+   "kind": "instruction_paragraph",
+   "page": 1,
+   "clause_kinds": [
+    "precatory"
+   ],
+   "text": "5. Responsibilities Glossary DoDI 1000.30, August 1, 2012 Change 2, 11/30/2022 4 CONTENTS TABLE OF CONTENTS ENCLOSURE 1: REFERENCES ...................................................................................................6 ENCLOSURE 2: DoD GUIDANCE ON THE USE OF THE SSN ...............................................7 OVERVIEW ..............................................................................................................................7 ACCEPTABLE USES ...............................................................................................................7 DOCUMENTING AUTHORIZED USES ................................................................................9 ALTERNATIVES....................................................................................................................10 DoD Identification Number ...............................................................................................11 System-Specific Identifiers ................................................................................................12 Net-Centric Environment ...................................................................................................12 Elimination of Identifier ....................................................................................................12 Biometrics ..........................................................................................................................12 Situational Elimination and Protection ..............................................................................12 TRAINING ..............................................................................................................................12 ENCLOSURE 3: DoD SSN USE REDUCTION IN FORMS, SYSTEMS, AND MAILINGS ..14 DoD FORMS ...........................................................................................................................14 Use of SSN in DoD Forms.................................................................................................14 Reporting Results ...............................................................................................................15 Schedule .............................................................................................................................16 DoD SYSTEMS .......................................................................................................................16 DITPR ................................................................................................................................16 PCLFD System Review Report Process ............................................................................17 MAILING DOCUMENTS WITH SSNS ................................................................................17 Redaction of SSNs .............................................................................................................17 Exterior Mailings ...............................................................................................................17 Requirements for Mailing with Full SSN ..........................................................................18 Authorized Mailings with Full SSNs .................................................................................18 Other Requests for Authorization to Mail .........................................................................18 IG DoD REVIEW ....................................................................................................................18 ENCLOSURE 4: APPROVAL FOR USE OF THE SSN ............................................................19 ACCEPTABLE USES .............................................................................................................19 DOCUMENTATION ..............................................................................................................19 DITPR ................................................................................................................................19 Forms .................................................................................................................................19 DoD COMPONENT CONCURRENCE .................................................................................20 PLAN TO ELIMINATE USE OF THE SSN ..........................................................................22 ENCLOSURE 5: RESPONSIBILITIES .......................................................................................24 DoDI 1000.30, August 1, 2012 Change 2, 11/30/2022 5 CONTENTS ATSD(PCLT) ...........................................................................................................................24 DIRECTOR OF PRIVACY, CIVIL LIBERTIES, AND FREEDOM OF INFORMATION .24 IG DoD.....................................................................................................................................24 DoD FORMS MANAGEMENT OFFICER ............................................................................24 OSD AND DoD COMPONENT HEADS ...............................................................................24 COMBATANT COMMANDERS...........................................................................................25 GLOSSARY ..................................................................................................................................26 PART I: ABBREVIATIONS AND ACRONYMS ................................................................26 PART II: DEFINITIONS ........................................................................................................27 FIGURES"
+  },
+  {
+   "citation": "1",
+   "kind": "instruction_paragraph",
+   "page": 1,
+   "clause_kinds": [],
+   "text": "1. Sample SSN Justification Memorandum ............................................................................21"
+  },
+  {
+   "citation": "2",
+   "kind": "instruction_paragraph",
+   "page": 1,
+   "clause_kinds": [
+    "power"
+   ],
+   "text": "2. Sample SSN Elimination Plan ............................................................................................23 DoDI 1000.30, August 1, 2012 Change 2, 11/30/2022 6 ENCLOSURE 1 ENCLOSURE 1 REFERENCES (a) DoD Directive 5148.11, \u201cAssistant to the Secretary of Defense for Intelligence Oversight (ATSD(IO)),\u201d April 24, 2013 (b) Deputy Secretary of Defense Memorandum, \u201cAssistant to the Secretary of Defense for Privacy, Civil Liberties, and Transparency,\u201d September 1, 2021 (c) Directive-Type Memorandum 07-015, \u201cDoD Social Security Number (SSN) Reduction Plan,\u201d March 28, 2008 (hereby cancelled) (d) Section 552a of t itle 5, United States Code, as amended (also known as \u201cThe Privacy Act\u201d) (e) President\u2019s Task Force on Identity Theft Strategic Plan, April 2007 1 (f) Office of Management and Budget Memorandum M-07-16, \u201cSafeguarding Against and Responding to the Breach of Personally Identifiable Information,\u201d May 22, 2007 (g) Executive Order 9397, \u201cNumbering System for Federal Accounts Relating to Individual Persons,\u201d November 22, 1943, as amended (h) Executive Order 13478, \u201cAmendments To Executive Order 9397 Relating To Federal Agency Use of Social Security Numbers\u201d November 18, 2008 (i) DoD Instruction 5400.11, \u201cDoD Privacy and Civil Liberties Program,\u201d January 29, 2019, as amended (j) DoD 5400.11- R, \u201cDepartment of Defense Privacy Program,\u201d May 14, 2007 (k) Sections 3501-35202 and 3541-3549, of title 44, United States Code (l) DoD Chief Information Officer, \u201cDoD IT Portfolio Repository (DITPR) and DoD SIPRNET IT Registry Guidance 2007-2008,\u201d September 6, 20073 (m) DoD Instruction 7750.07, \u201cDoD Forms Management Program,\u201d April 19, 2022 (n) Public Law No. 115-59, \u201cSocial Security Number Fraud Prevention Act of 2017,\u201d September 15, 2017 (o) DoD Manual 5400.11, Volume 2, \u201cDoD Privacy and Civil Liberties Programs: Breach Preparedness and Response Plan,\u201d May 6, 2021 (p) Section 552 of Title 5, United States Code, also known as \u201cthe Freedom of Information Act\u201d (q) DoD Instruction 5400.16, \u201cDoD Privacy Impact Assessment (PIA) Guidance,\u201d July 14, 2015, as amended (r) Office of Management and Budget Circular No. A-130, \u201cManaging Information as a Strategic Resource, July 28, 2016 1 Copies of document are available at: www.idtheft.gov/reports/strategicplan.pdf 2 Sections 3501-3520 are also known as \u201cThe Paperwork Reduction Act\u201d 3 Copies of document are available at: https://ditpr.dod.mil DoDI 1000.30, August 1, 2012 Change 2, 11/30/2022 7 ENCLOSURE 2 ENCLOSURE 2 DoD GUIDANCE ON THE USE OF THE SSN"
+  },
+  {
+   "citation": "1",
+   "kind": "instruction_paragraph",
+   "page": 1,
+   "clause_kinds": [
+    "definition",
+    "obligation"
+   ],
+   "text": "1. OVERVIEW a. The SSN has been used as a means to identify and authenticate individuals. Expanded use of the SSN has increased efficiency, enabling DoD information systems and processes to interoperate and transfer information with a greatly reduced chance of errors. However, the threat of identity theft has rendered this widespread use unacceptable, resulting in the requirement that all Federal agencies evaluate how the SSN is used and eliminate its unnecessary use in accordance with President\u2019s Task Force on Identity Theft Strategic Plan (Reference (e)) and Office of Management and Budget (OMB) Memorandum M-07-16 (Reference (f)). b. This Enclosure identifies the acceptable uses of the SSN, describes how authorized uses shall be documented, presents alternatives to using the SSN, and explains the role that Privacy Act training plays in protecting privacy information within the Department of Defense. Any uses of the SSN not provided for in this Instruction are considered to be unnecessary and shall be eliminated. Use of the SSN includes the SSN in any form, including, but not limited to, truncated (last four digits), masked, partially masked, encrypted, or disguised SSNs."
+  },
+  {
+   "citation": "2",
+   "kind": "instruction_paragraph",
+   "page": 1,
+   "clause_kinds": [
+    "definition",
+    "prohibition",
+    "condition",
+    "deadline",
+    "power",
+    "obligation"
+   ],
+   "text": "2. ACCEPTABLE USES a. The acceptable uses of the SSN are those that are provided for by law, require interoperability with organizations beyond the Department of Defense, or are required by operational necessities. Such operational necessities may be the result of the inability to alter systems, processes, or forms due to cost or unacceptable levels of risk. Those systems, processes, or forms that claim \u201coperational necessity\u201d shall be closely scrutinized. Ease of use or unwillingness to change are not acceptable justifications for this case. b. The requirement for the use of the SSN provided by Executive Order 9397 ( Reference (g)) has been eliminated. No new uses of the SSN are permitted in accordance with Reference (g) as amended by Executive Order 13478 (Reference (h)). Reference (g) may be used to justify the use of the SSN as an interim measure while its use is being eliminated, but may not by itself be used to justify continued use of the SSN. c. This paragraph describes general categories of use that may continue to be acceptable for the SSN. General coverage of an application by one of the use cases discussed in subparagraphs 2.c.(1) through 2.c.(13) of this enclosure must also be compared with the particular way in which the SSN is used. The fact that a use case may loosely meet one or more of the justifications does not necessarily mean that a specific justification is acceptable. The specific legislative or regulatory language must be examined to determine if it is applicable. Justification for the use of the SSN to be contained in an application does not constitute authority to use the SSN in every transaction or interaction. Any transaction that includes the display, transfer, or presentation of DoDI 1000.30, August 1, 2012 Change 2, 11/30/2022 8 ENCLOSURE 2 the SSN should be closely scrutinized to determine if some alternate form of identification or authentication may suffice. (1) Geneva Conventions Serial Number. As of the late 1960s, the SSN has served as the Geneva Conventions serial number for the Military Services. Many of the systems, processes, and forms used by the Department of Defense categorize individuals by their SSNs. The Military Departments should begin to transition away from the SSN as the Geneva Conventions identifier as further addressed in subparagraph 4.a.(1) of this enclosure. (2) Law E nforcement, National Security, and Credentialing. Almost every law enforcement application available to Federal, State, and local law enforcement and other criminal justice agencies reports and tracks individuals, and makes application information available to other agencies, through the use of the SSN. This includes, but is not limited to, checks of the National Crime Information Center; State criminal histories; and Federal Bureau of Investigation records checks. (3) Security Clearance Investigation or Verification. The i nitiation, conduct, adjudication, verification, quality assurance, and billing fund control of background investigations and security clearances requires the use of the SSN. The SSN is the single identifier that links all of the aspects of these investigations together. This use case is also linked to other Federal agencies that continue to use the SSN as a primary identifier. (4) Interactions With Financial Institutions. F inancial institutions may require that individuals provide the SSN as part of the process to open accounts. It may therefore be required to provide the SSN for systems, processes, or forms that interface with or act on behalf of individuals or organizations in transactions with financial institutions. (5) Confirmation of Employment Eligibility. F ederal statute requires that all persons employed within the United States provide an SSN or comparable identifier to prove that they are eligible to work for or with the U.S. Government. Any system that deals with employment eligibility may contain the SSN. (6) Administration of Federal Workers\u2019 Compe nsation. The Federal Workers\u2019 Compensation Program continues to track individuals through the use of the SSN. As such, systems, processes, or forms that interact with or provide information for the administration of this system or associated systems may be required to retain the SSN. (7) Federal Taxpayer Identification Number. The application of Federal and State income tax programs rely on the use of the SSN. As such, systems that have any function that pertains to the collection, payment, or record keeping of this use case may contain the SSN. Additionally, individuals who operate corporate entities under their own name may use their SSN as the tax number for that business function. (8) Computer Matching. Systems, processes, or forms that interact with other Government agencies may require the continued use of the SSN as a primary identifier until such time as the applications to which they are linked move to some other identifier as a primary DoDI 1000.30, August 1, 2012 Change 2, 11/30/2022 9 ENCLOSURE 2 means for transferring, matching, or checking information. These applications shall be rigorously scrutinized to determine the availability of some other means for conducting these transactions. (9) Foreign Travel. D oD personnel are often required to travel beyond the borders of the United States and many members often require official clearance prior to travel. Currently, the SSN is used as the identifier for these purposes. (10) Noncombatant Evacuation Operations (NEOs). The Department of State requires that all persons repatriated to the United States as part of a NEO present their SSN as part of this process. Any systems, forms, or processes supporting NEOs may be required to process individuals using the SSN as the primary identifier. (11) L egacy System Interface. Many systems, processes, or forms that do not meet the criteria in subparagraphs 2.c.(1) through 2.c.(10) of this enclosure for the continued use of the SSN may not be able to transition to another identifier in a timely manner due to an interface with a legacy system still using the SSN, or due to the excessive cost associated with the change. In these cases, the continued use of the SSN may be acceptable for a specified period of time, provided that formalized, written plans are in place for the migration away from the SSN in the future. Plans to alter these use cases must take into account interactions with other applications as well as all methods for entry, processing, or transfer of information from said application. It is critical that transfer away from the SSN does not cause unacceptably long interruptions to continued operations. (12) Operational Necessity. It is not the intention of this Instruction to preclude operational capabilities. In austere or tactical environments where continuity of operations requires the use of SSN, to include the use of hard copy lists and spreadsheets, approval can be granted that supersedes normal requirements. An example of this may include a system in a tactical environment where hard copies are used in the event of a loss of power to the system. To ensure that this is only used in cases of absolute necessity, justification of this use case must be approved by the Combatant Commander. The higher risk and increased liability to Service members and the Department of Defense should be strongly considered prior to granting approval to use this category of justification. (13) Other Cases. The previous categories may not include all uses of the SSN authorized by law. Should an application owner be able to show sufficient grounds that a use case not specified in subparagraphs 2.c.(1) through 2.c.(12) of this enclosure is required by law, that use case may continue to use the SSN. Any application that seeks to use this clause as justification must provide specific documentation in order to continue use in accordance with this provision."
+  },
+  {
+   "citation": "3",
+   "kind": "instruction_paragraph",
+   "page": 1,
+   "clause_kinds": [
+    "deadline",
+    "power",
+    "obligation",
+    "precatory"
+   ],
+   "text": "3. DOCUMENTING AUTHORIZED USES a. Any system, process, or form that collects, transfers, or retains personally identifiable information (PII) must properly document the authority for that use. This includes, but is not DoDI 1000.30, August 1, 2012 Change 2, 11/30/2022 10 ENCLOSURE 2 limited to, justification for the collection, retention, or use of the SSN. It is unacceptable to collect, retain, or transfer PII without such justification. The authorization for use of PII is governed through DoD Instruction 5400.11 (Reference (i)). In addition to the documentation required for the use of PII, the use of the SSN as part of any collection, transfer, mailing, or retention must be specifically documented and justified. This documentation shall include justification in accordance with paragraph 2.c of this enclosure as well as any specific legislative requirements for use of the SSN. The method by which this is documented shall be consistent with existing program requirements. Forms, processes, mailings, or systems, to include any locally created applications, must be properly documented. Additionally, if the SSN (or other personal identifier) is used to retrieve information, a Privacy Act system of records notice (SORN) must exist or be established prior to its use in accordance with Reference (i) and DoD 5400.11-R (Reference (j)). The Privacy, Civil Liberties, and Freedom of Information Directorate (PCLFD) of the Office of the ATSD(PCLT) will work with the DoD Component to develop the notice and forward to OMB for approval to publish in the Federal Register. Individuals who choose to use PII without proper documentation may be in violation of The Privacy Act and may be held accountable to the stated consequences. b. Forms used to collect PII shall be coordinated in accordance with each DoD Component\u2019s forms management process. The DD Form 67, \u201cForm Processing Action Request,\u201d submitted by the DoD Component to create or revise a form, shall provide the name, initials, office symbol, and telephone number of the coordinating DoD Component officer and the SORN number entered. Copies of the justification to collect PII and a SORN notice shall be included with the DD Form 67. c. Documentation of the justification for use of the SSN shall be retained by the DoD Component. d. SSN justification documentation shall be submitted to the PCLFD when a new, altered, or amended SORN is submitted for processing and completion. e. DoD Components shall make the SSN justification documentation available upon request to all Privacy officials, Chief Information Officers, Chief Data Officers, and Forms Management officials throughout DoD. This documentation should also be made available to the DoD Clearance Officer for information collection approvals. f. Requests for authorization to mail a document with full SSN will be made in writing and forwarded to the PCLFD in accordance with Reference (n) and section 3 of Enclosure 3. DoD Components will document justifications for mailings containing full SSNs."
+  },
+  {
+   "citation": "4",
+   "kind": "instruction_paragraph",
+   "page": 1,
+   "clause_kinds": [
+    "prohibition",
+    "power",
+    "obligation"
+   ],
+   "text": "4. ALTERNATIVES. One of the primary reasons that many systems, processes, and forms shifted to use of the SSN is that it provided greater efficiency and required individuals to remember a single identifier. To counteract the vulnerability that this expanded use of the SSN created, alternatives to the SSN shall be used whenever possible. The list in this section is not meant to be definitive. Alternatives include: DoDI 1000.30, August 1, 2012 Change 2, 11/30/2022 11 ENCLOSURE 2 a. DoD Identification Number (1) Defense Manpower Data Center (DMDC) is the authoritative source for the DoD Identification Number, which may be obtained for partner systems via DMDC's Identity Web Services. The DoD Identification Number will replace the SSN as the Geneva Conventions Serial Number for the United States as all DoD identification cards are updated through their natural lifecycle replacement. The DoD Identification Number is the common name for the Electronic Data Interchange Personal Identifier (EDI-PI). (a) The EDI-PI is a unique personal identifier created within the Defense Enrollment Eligibility Reporting System (DEERS) for each person who has a direct relationship with DoD. (b) The EDI-PI has previously been used as a system identifier and is present in many DoD enterprise systems. (2) To support widespread use of the DoD Identification Number, it will be printed on all DoD identification cards. It is intended to support replacement of the SSN in most DoD processes and business needs. It may not be used to replace the SSN in any case where the SSN is required by law. (3) The DoD Identification Number may only be used for DoD business purposes. This may include transactions that include entities outside DoD, so long as individuals are acting on behalf of or in support of the Department of Defense. (a) For use in authentication transactions, an individual\u2019s name and DoD Identification Number shall be treated as a single factor. When using an individual\u2019s name and the DoD Identification Number for authentication, a second authentication factor must also be provided beyond the individual\u2019s name and DoD Identification Number."
+  },
+  {
+   "citation": "1",
+   "kind": "instruction_paragraph",
+   "page": 1,
+   "clause_kinds": [
+    "prohibition",
+    "power"
+   ],
+   "text": "1. The DoD Identification Number may not, ei ther by itself or in conjunction with the individual\u2019s name, be considered sufficient for any level of authentication."
+  },
+  {
+   "citation": "2",
+   "kind": "instruction_paragraph",
+   "page": 1,
+   "clause_kinds": [
+    "prohibition",
+    "condition",
+    "power",
+    "obligation"
+   ],
+   "text": "2. Presence or knowledge of an individual\u2019s DoD Identification Number alone shall be considered as no more significant than presence or knowledge of that individual\u2019s name. It does not constitute any level of authority to act on that individual\u2019s behalf. (b ) The DoD Identification Number may not be shared with other Federal agencies unless a Memorandum of Understanding (MOU) is agreed upon by both the DoD and the recipient agency. MOUs for sharing the DoD Identification Number will be managed and administered by the Under Secretary of Defense for Personnel and Readiness and must include, at minimum, these stipulations:"
+  },
+  {
+   "citation": "1",
+   "kind": "instruction_paragraph",
+   "page": 1,
+   "clause_kinds": [
+    "obligation"
+   ],
+   "text": "1. The recipient agency must agree not to share the DoD I den tification Number with any other agency or outside organization without the permission of the DoD. DoDI 1000.30, August 1, 2012 Change 2, 11/30/2022 12 ENCLOSURE 2"
+  },
+  {
+   "citation": "2",
+   "kind": "instruction_paragraph",
+   "page": 1,
+   "clause_kinds": [
+    "power",
+    "obligation"
+   ],
+   "text": "2. The recipient agency must agree that the DoD Ide ntification Number will not be used for single factor authentication, but will instead be used as only a single factor in a multi- factor authentication. b. System -Sp ecific Identifiers. In use cases that are linked to a limited number of other applications, the best course of action may be to create a unique identifier for each of those uses. In particular, for situations in which members of the public are required to gain access to DoD information systems, particularly on a temporary basis, this would mitigate many privacy concerns. c. Net-C entric Environment. A growing number of systems and processes are relying on authentication of individuals with a minimum of collection and storage of PII. These systems and processes rely on an authoritative data source as the storage of this PII, and access to that information is granted on an \u201cas needed\u201d basis. d. Elimination of Identifier . M any instances where the SSN is collected or used may be able to be eliminated. The technology associated with newer applications is such that it is possible to specifically identify individuals through other pieces of information, negating the need for a unique identifier. This is particularly true of closed or standalone applications that do not interoperate with other applications. e. Biometrics. Biometrics is an enabling tool that can be used as part of a multi-factor authentication process. As an authentication factor, biometrics leverages \u201csomething one is\u201d (e.g., fingerprint) as opposed to \u201csomething one has\u201d (e.g., a common access card with Public Key Infrastructure certificates) or \u201csomething one knows\u201d (e.g., a personal identification number), and it cannot be shared or easily compromised. While biometrics first requires an initial enrollment and thus cannot perform the role of initial identification, it can be used for continuing authentication in circumstances other than network access. f. Situational Elimination and Protection. Au thority to collect, maintain, or use the SSN does not constitute blanket approval to use the SSN throughout any business process. Every associated report, display, printout, mailing, and transaction shall be reviewed to determine the appropriate authority and requirements for the use of the SSN and to determine all other required Privacy Act considerations and documentation. If upon review, it is determined that no authority or legal requirement for the use of the SSN exists, its collection and use should cease until such authority can be obtained. Where appropriate authorities and requirements exist, consideration of whether the SSN can be further protected by masking or truncating must be made."
+  },
+  {
+   "citation": "5",
+   "kind": "instruction_paragraph",
+   "page": 1,
+   "clause_kinds": [
+    "deadline"
+   ],
+   "text": "5. TRAINING. It is vital to the Department of Defense that the collection, retention, storage, use, and disposal of PII be handled appropriately, and only by individuals who are qualified to do so and have a need to know, and that breaches of PII are promptly reported and remediated in accordance with Volume 2 of DoD Manual 5400.11 (Reference (o)). To ensure that all personnel, including contractors, are so trained, References (i) and (j) require that, prior to operating systems that contain or use PII, individuals be trained on appropriate handling. In addition to this use-specific training, References (j) and (o) require DoD Components and DoDI 1000.30, August 1, 2012 Change 2, 11/30/2022 13 ENCLOSURE 2 subordinate organizations to have training programs that promote strong precautions and heightened awareness for the handling of PII and the reporting of PII breaches. Properly completing and documenting this training is essential to reducing the chance of loss or breach of PII and the consequences thereof. DoDI 1000.30, August 1, 2012 Change 2, 11/30/2022 14 ENCLOSURE 3 ENCLOSURE 3 DoD SSN USE REDUCTION IN F ORMS, SYSTEMS, AND MAILINGS"
+  },
+  {
+   "citation": "1",
+   "kind": "instruction_paragraph",
+   "page": 1,
+   "clause_kinds": [],
+   "text": "1. DoD FORMS a. Use of SSN in DoD Forms (1) New Forms (a) Action Officer Requirements"
+  },
+  {
+   "citation": "1",
+   "kind": "instruction_paragraph",
+   "page": 1,
+   "clause_kinds": [],
+   "text": "1. Provide justification for using SSNs. (See Enclosure 2 for acceptable uses.)"
+  },
+  {
+   "citation": "2",
+   "kind": "instruction_paragraph",
+   "page": 1,
+   "clause_kinds": [],
+   "text": "2. If justified, indicate if the SSN can be truncated or masked."
+  },
+  {
+   "citation": "3",
+   "kind": "instruction_paragraph",
+   "page": 1,
+   "clause_kinds": [],
+   "text": "3. Id entify the form\u2019s association to the SORN(s), privacy impact assessment(s) (PIA), and the DoD Information Technology Portfolio Repository (DITPR) identification number, as applicable."
+  },
+  {
+   "citation": "4",
+   "kind": "instruction_paragraph",
+   "page": 1,
+   "clause_kinds": [
+    "obligation"
+   ],
+   "text": "4. Identify if the form will be mailed by DoD containing a full SSN. (b) Approval of SSN Justifications. All SSN justifications must be signed by the appropriate authority (see section 3 of Enclosure 4 and section 4 of Enclosure 5) if continuing to collect the SSN. (c) Requirement for Reviewing SSN Justifications"
+  },
+  {
+   "citation": "1",
+   "kind": "instruction_paragraph",
+   "page": 1,
+   "clause_kinds": [
+    "obligation"
+   ],
+   "text": "1. For DD and SD forms, the justifications shall b e reviewed by the DoD Forms Management Officer, who shall consult with the PCLFD, to verify whether the justification is valid."
+  },
+  {
+   "citation": "2",
+   "kind": "instruction_paragraph",
+   "page": 1,
+   "clause_kinds": [
+    "obligation"
+   ],
+   "text": "2. For DoD Component forms, the justifications shall b e reviewed by the DoD Component to verify whether the justification is valid."
+  },
+  {
+   "citation": "3",
+   "kind": "instruction_paragraph",
+   "page": 1,
+   "clause_kinds": [
+    "obligation"
+   ],
+   "text": "3. For command and installation forms, the justifications shall b e reviewed by the DoD Component to verify whether the justification is valid. (2) Existing Forms (a) Review of SSN Use and Justification"
+  },
+  {
+   "citation": "1",
+   "kind": "instruction_paragraph",
+   "page": 1,
+   "clause_kinds": [
+    "obligation"
+   ],
+   "text": "1. The DoD Forms Management Officer shall co nduct a review of all DD and SD forms to ensure compliance with the guidance in Enclosure 2. DoDI 1000.30, August 1, 2012 Change 2, 11/30/2022 15 ENCLOSURE 3"
+  },
+  {
+   "citation": "2",
+   "kind": "instruction_paragraph",
+   "page": 1,
+   "clause_kinds": [
+    "obligation"
+   ],
+   "text": "2. The DoD Components shall conduc t reviews of all Component forms to ensure compliance with the guidance in Enclosure 2."
+  },
+  {
+   "citation": "3",
+   "kind": "instruction_paragraph",
+   "page": 1,
+   "clause_kinds": [
+    "obligation"
+   ],
+   "text": "3. For command and installation forms, the appropriate f orm s management officers shall conduct reviews to ensure compliance with the guidance in Enclosure 2."
+  },
+  {
+   "citation": "4",
+   "kind": "instruction_paragraph",
+   "page": 1,
+   "clause_kinds": [
+    "obligation"
+   ],
+   "text": "4. Where justification for use of SSNs does not currently exist , it shall be submitted in accordance with subparagraph 1.a.(1)(a) of this enclosure."
+  },
+  {
+   "citation": "5",
+   "kind": "instruction_paragraph",
+   "page": 1,
+   "clause_kinds": [],
+   "text": "5. Where a justification for SSN use is not accepted , th e action officer will prepare a plan, to include milestones and a timeline, for the elimination of SSN usage; this process is further detailed in section 4 of Enclosure 4. The final date for SSN elimination will be provided to the DoD Forms Management Officer, through the DoD Component if applicable."
+  },
+  {
+   "citation": "6",
+   "kind": "instruction_paragraph",
+   "page": 1,
+   "clause_kinds": [
+    "obligation"
+   ],
+   "text": "6. The review and justification of SSN use in DD forms and SD forms shall b e ongoing until all forms are compliant. (b) Periodic Review of SSN Use and Justification. T he reporting of the SSN review and approval process shall be added to the biennial Privacy Act SORN review administered by the PCLFD. The frequency and manner of the reporting of these reviews shall be established in accordance with the report requirement authority in Reference (j). b. Reporting Results (1) New Forms (a) For DD and SD forms, the DoD Forms Management Officer shall maintain a database to produce an annual report as of July 1. This report shall be included in the annual report required by section 3544(c) of title 44, U.S.C. (Reference (k)) and compiled by the PCLFD. The annual report shall contain:"
+  },
+  {
+   "citation": "1",
+   "kind": "instruction_paragraph",
+   "page": 1,
+   "clause_kinds": [],
+   "text": "1. Number of forms reviewed."
+  },
+  {
+   "citation": "2",
+   "kind": "instruction_paragraph",
+   "page": 1,
+   "clause_kinds": [],
+   "text": "2. Number of forms requesting SSNs."
+  },
+  {
+   "citation": "3",
+   "kind": "instruction_paragraph",
+   "page": 1,
+   "clause_kinds": [],
+   "text": "3. Number of SSN justifications accepted and not accepted ."
+  },
+  {
+   "citation": "4",
+   "kind": "instruction_paragraph",
+   "page": 1,
+   "clause_kinds": [],
+   "text": "4. Id entification of forms where SSNs were not allowed."
+  },
+  {
+   "citation": "5",
+   "kind": "instruction_paragraph",
+   "page": 1,
+   "clause_kinds": [
+    "prohibition",
+    "obligation"
+   ],
+   "text": "5. Id entification of forms where SSN was masked or truncated. (b) For DoD Component forms, the Components shall maintain a similar database as the DoD Forms Management Officer and produce the same report every July 1 for inclusion in the annual report required by section 3544(c) of Reference (k). Exceptions to this requirement can be approved by the PCLFD. DoDI 1000.30, August 1, 2012 Change 2, 11/30/2022 16 ENCLOSURE 3 (c) For command and installation forms, no reporting shall be required with the exception of annual reporting on July 1 of specific instances in which SSN use on forms has not been accepted. In the case where a DoD Component maintains command and installation data, it can also be reported in its annual report. (2) Existing Forms (a) For DD and SD forms, the DoD Forms Management Offi cer shall report the results of the review for existing forms and the periodic reviews for input into the FISMA Report. This report shall include:"
+  },
+  {
+   "citation": "1",
+   "kind": "instruction_paragraph",
+   "page": 1,
+   "clause_kinds": [],
+   "text": "1. Total number of forms in the database."
+  },
+  {
+   "citation": "2",
+   "kind": "instruction_paragraph",
+   "page": 1,
+   "clause_kinds": [],
+   "text": "2. Number of forms containing SSNs."
+  },
+  {
+   "citation": "3",
+   "kind": "instruction_paragraph",
+   "page": 1,
+   "clause_kinds": [],
+   "text": "3. Number of forms reviewed."
+  },
+  {
+   "citation": "4",
+   "kind": "instruction_paragraph",
+   "page": 1,
+   "clause_kinds": [],
+   "text": "4. Number of forms where SSN justifications were accepted ."
+  },
+  {
+   "citation": "5",
+   "kind": "instruction_paragraph",
+   "page": 1,
+   "clause_kinds": [],
+   "text": "5. Number of forms where SSN justifications were not accepted ."
+  },
+  {
+   "citation": "6",
+   "kind": "instruction_paragraph",
+   "page": 1,
+   "clause_kinds": [],
+   "text": "6. Id entification of forms where SSN justification was accepted."
+  },
+  {
+   "citation": "7",
+   "kind": "instruction_paragraph",
+   "page": 1,
+   "clause_kinds": [
+    "condition",
+    "obligation"
+   ],
+   "text": "7. Id entification of forms where SSN was masked or truncated. (b) The DoD Components shall provide the same information as the DoD Forms Management Officer for their Components as input into the FISMA Report. Exceptions to this requirement can be approved by the PCLFD. (c) At the command and installation levels no reports are required, with the exception of specific examples where SSNs were eliminated or better masked, unless the DoD Component collects data at this level. c. Schedule. Annually, on July 1, produce all data and reports related to new and existing forms at all levels."
+  },
+  {
+   "citation": "2",
+   "kind": "instruction_paragraph",
+   "page": 1,
+   "clause_kinds": [
+    "obligation"
+   ],
+   "text": "2. DoD SYSTEMS a. DITPR (1) The DITPR is a key tool in the plan to reduce SSN use in DoD systems. (2) All data elements in the DITPR relating to SSNs are mandatory data fields and shall be completely filled out by all DoD Components. DoDI 1000.30, August 1, 2012 Change 2, 11/30/2022 17 ENCLOSURE 3 (3) All automated systems containing SSNs shall be included in the DITPR in accordance with \u201cDoD IT Portfolio Repository (DITPR) and DoD SIPRNET IT Registry Guidance 2007-2008\u201d (Reference (l)). (4) All systems in DITPR shall report: (a) Whether the system (or initiative) contains SSNs (full or truncated) or uses SSNs in the system. (b) The justification for using SSNs. (This field should be consistent with the categories of acceptable use of SSNs in Enclosure 2 and specific legislative requirements.) b. PCL FD Sy stem Review Report Process. The initial SSN use case justifications are to be included in the DoD Component report to the PCLFD as a part of the annual FISMA submission using the process detailed in subparagraphs 2.b.(1) through 2.b.(3)(e) of this enclosure. Thereafter, PCLFD shall submit a report annually for input into the Privacy section of the annual FISMA Report, as part of the biennial Privacy Act SORN review. Since this review is on a biennial review schedule, the PCLFD shall produce a biennial schedule for the system reviews. Exceptions to this requirement can be approved by the PCLFD. The review and reporting process is as follows: (1) The Component official approves SSN justification; this process is further detailed in section 3 of Enclosure 4 and section 3 of Enclosure 5. (2) PCLFD reviews and approves or disapproves SSN justifications as an extension of the biennial Privacy Act SORN review. Where a justification for SSN use is not accepted, the action officer will prepare a plan, to include milestones and a timeline, for the elimination of SSN usage; this process is further detailed in section 4 of Enclosure 4. The final date for SSN elimination will be provided by the DoD Component to the PCLFD."
+  },
+  {
+   "citation": "3",
+   "kind": "instruction_paragraph",
+   "page": 1,
+   "clause_kinds": [
+    "prohibition",
+    "condition",
+    "power",
+    "obligation",
+    "precatory"
+   ],
+   "text": "3. MAILING DOCUMENTS WITH SSNs. In a ccordance with Reference (n), DoD must not include the full SSN on any document sent by mail unless the ATSD(PCLT) determines the inclusion of the SSN on the mailed document is necessary. The following requirements apply to mailings of documents with SSNs or SSN fields: a. Redaction of SSNs. When it is necessary for a document containing an SSN field to be mailed, the SSN will be redacted in full unless: (1) A partially redacted SSN is necessary for validating identification, in which case no more than any four digits of the SSN may appear; or (2) The inclusion of the full SSN in the mailing is authorized in accordance with paragraphs 3.c \u2013 3.e. b. Exterior of Mailings. A n SSN may not be visible on the outside of any mailing. DoDI 1000.30, August 1, 2012 Change 2, 11/30/2022 18 ENCLOSURE 3 c. Requirements for Mailing with Full SSN. A docum ent may not be mailed with a full SSN unless: (1) The category of document is authorized for mailing in accordance with paragraph 3.d or the ATSD(PCLT) has otherwise authorized the mailing of the document with full SSN in accordance with paragraph 3.e.; and (2) The document is being mailed by an office with primary responsibility to carry out the function that necessitates mailing and an authorization to mail is on file with PCLFD. d. Authorized Mailings with Full SSNs. The A TSD(PCLT) has authorized the following categories of documents for mailing with full SSN without a formal authorization request: (1) Official records of vital statistics (e.g., death, marriage, divorce). (2) Records containing an individual\u2019s SSN that are mailed to an individual (or the individual\u2019s authorized representative) as part of a legal process, such as discovery in court proceedings, disciplinary proceedings, and responses to access requests under the Privacy Act of 1974 (Reference (d)) or section 552 of Title 5, U.S.C., also known as \u201cthe Freedom of Information Act\u201d (Reference (p)). e. Other Requests for Authorization to Mail. Requests for authorization to mail a document with a full SSN will be made in writing and forwarded to the PCLFD in accordance with Enclosure 2. PCLFD will return a written determination authorizing or denying the request to the DoD or OSD Component requesting authorization. Both PCLFD and the requesting DoD or OSD Component will maintain a copy of the written authorization or denial in their files."
+  },
+  {
+   "citation": "4",
+   "kind": "instruction_paragraph",
+   "page": 1,
+   "clause_kinds": [
+    "money",
+    "power",
+    "obligation"
+   ],
+   "text": "4. IG DoD REVIEW. T he IG DoD, and the Service audit agencies shall review the implementation of the DoD SSN Use Reduction Plan at key milestones as reflected in this Instruction. The internal controls established in the DoD SSN Use Reduction Plan may be considered for review as \u201cCommand Interest Items.\u201d The following issues shall be addressed: a. Whether every organizational level followed the procedures required in the SSN Use Reduction Plan. b. Whether there are SSN justifications for forms and systems. c. Whether DoD Component heads are reviewing and approving SSN justifications. d. Whether actual reported results are accurate. DoDI 1000.30, August 1, 2012 Change 2, 11/30/2022 19 ENCLOSURE 4 ENCLOSURE 4 APPROVAL FOR USE OF THE SSN"
+  },
+  {
+   "citation": "1",
+   "kind": "instruction_paragraph",
+   "page": 1,
+   "clause_kinds": [
+    "power"
+   ],
+   "text": "1. ACCEPTABLE USES a. The general list of acceptable uses of the SSN is in Enclosure 2. b. Justification for the use of the SSN may also be found in the appropriate SORN or PIA."
+  },
+  {
+   "citation": "2",
+   "kind": "instruction_paragraph",
+   "page": 1,
+   "clause_kinds": [
+    "deadline",
+    "obligation"
+   ],
+   "text": "2. DOCUMENTATION a. DITPR (1) The DITPR requires all DoD information systems to state whether or not the system collects SSNs. (2) Acceptable justification shall be annotated in the appropriate DITPR field. (3) In cases where the justification is \u201cOther Uses,\u201d appropriate explanation of the supporting legal authority and the particular use case shall be entered into the Comment field. (4) Where continued use of the SSN is not accepted by the PCLFD, system managers shall work with their DoD Component privacy offices to develop a plan for the removal of the SSN. This plan shall be maintained by the action officer. (5) The justification for SSN usage in new information system development must be approved during the design and approval processes prior to initiation of system implementation. b. F orms (1) Requesting the use of SSNs, to include mailings, will be part of the forms approval process, including the use of DD Form 67. (2) Requesting the use of SSNs shall include the supporting documentation described in section 1 of Enclosure 3. (3) Reviewing of all forms shall be completed in accordance with DoD Instruction 7750.07 (Reference (m)). DoDI 1000.30, August 1, 2012 Change 2, 11/30/2022 20 ENCLOSURE 4"
+  },
+  {
+   "citation": "3",
+   "kind": "instruction_paragraph",
+   "page": 1,
+   "clause_kinds": [
+    "power",
+    "obligation"
+   ],
+   "text": "3. DoD COMPONENT CONCURRE NCE a. DoD Component concurrence for the use of the SSN shall be documented in a memorandum for PCLFD. Figure 1 of this enclosure contains a sample memorandum. b. The memorandum shall include : (1) Name of the DoD information system or name and number of the form that will collect, use, maintain, and/or disclose the SSN. (2) Specific use case that grants authority for use of the SSN. (3) Citation of statutory requirement for the use of the SSN, if applicable. (4) Appropriate system or form supporting documentation (e.g., SORN). (5) Physical, technical, and administrative safeguards to be put in place to reduce exposure of the SSN. (6) If continued use of the SSN is not justified by one of the 13 acceptable use cases specified in section 2 of Enclosure 2, a plan to eliminate the use of the SSN as described in section 4 is required. (7) An explanation of why any alternatives to the SSN that were considered are unacceptable (this is only required when legacy system interface is selected as the specific use case that grants authority for use of the SSN). (8) If a form or document containing a full SSN is to be mailed, an explanation of why mailing the form with a full SSN is necessary. DoDI 1000.30, August 1, 2012 Change 2, 11/30/2022 21 ENCLOSURE 4 Figure 1. Sam ple SSN Justification Memorandum (Month, Day, Year) MEMORANDUM FOR DIRECTOR, PRIVACY, CIVIL LIBERTIES, AND FREEDOM OF INFORMATION SUBJECT: Justification for the Use of the Social Security Number (SSN) \u2013 [Form or System Name/Number] The memorandum should begin by naming and describing the system or form that is the subject of the justification. The description should be sufficiently detailed so that someone unfamiliar with the system, form, or mailing should be able to grasp a general understanding of its intent. The justification for the use of the SSN should include a reference to the SSN instruction use case that is being used to justify the use of the SSN. If the justification does not fall under either the operational necessity use case or the legacy system interface use case, then the justification shall also include the specific legal authority that requires the use of the SSN and why it is applicable to the use being justified. If the form or document requires mailing with a full SSN, it should be explained. Reference should be made to the system or form supporting documentation, including, but not limited to, SORN, PIA, collection in accordance with sections 3501-3520 of Reference (k), also known as the \u201cPaperwork Reduction Act,\u201d or any other documentation that may be appropriate. If the substance of the documentation is not attached, reference should be made to how the reader may gain access to this documentation. Justification for the use of the SSN does not constitute blanket permission to use the SSN. Specific reference shall be made to indicate actions being taken to reduce the vulnerability of SSNs, which may include indicating where SSNs are being removed from transactions or any other protections that have been included. It should be obvious to the reader that a thorough effort has been made to evaluate the risk associated with the system or form and that every reasonable step has been or is being taken to reduce the use of the SSN and protect it where the use is still required. If the justification for the use of the SSN falls under the legacy use case and is not specifically required by the law, reference shall be made to the Plan of Actions and Milestones for the elimination of the use of the SSN and that plan shall be attached. Official\u2019s Name Title DoDI 1000.30, August 1, 2012 Change 2, 11/30/2022 22 ENCLOSURE 4"
+  },
+  {
+   "citation": "4",
+   "kind": "instruction_paragraph",
+   "page": 1,
+   "clause_kinds": [
+    "power",
+    "obligation"
+   ],
+   "text": "4. PLAN TO ELIMINATE USE OF THE SSN a. Any use or mailing of the SSN that cannot be justified through appropriate authorities must be eliminated. b. Elimination of the use or mailing of the SSN shall be completed consistent with the existing life cycle to reduce impact on operations and decrease overall cost. c. The plan to eliminate the use or mailing, of the SSN shall include: (1) The alternative being used to replace the function for which SSNs have been used. (2) Associated forms and systems that will be affected by elimination of the SSN. (3) A mitigation strategy to reduce or eliminate the effects of removal of the SSN in conjunction with associated forms or systems. (4) Timeline, with milestones, for removal of the SSN. (5) Where elimination is not to occur immediately, include interim measures to provide additional protection of the SSN. (6) Where elimination is dependent on changes to other systems, processes, and/or forms, include efforts made to work with owners of those systems and/or forms to collaborate and eliminate the use of SSNs. d. An example of an e limination plan can be seen in Figure 2 of this enclosure. DoDI 1000.30, August 1, 2012 Change 2, 11/30/2022 23 ENCLOSURE 4 Figure 2. S ample SSN Elimination Plan Sample SSN Elimination Plan System/Form Name: ________________________ System of Records Notice Number: ____________ System/Form Owner: ________________________ Inputs that use, provide, or are identified by SSN: Forms: DD Form XXX \u2013 For each form the plan shall include the purpose that the SSN serves as well as potential alternatives. Some level of detail shall be included regarding the owner of the form and any pertinent details regarding the form owner\u2019s plan to eliminate the use of the SSN. Systems: XXX System \u2013 For each system that provides an input to a system or is responsible for generating the form, the plan shall discuss the purpose served by the SSN and any potential alternatives. Some level of detail shall be included regarding the system owner and any important details regarding their plan to eliminate the use of the SSN. Outputs that include or are identified by the SSN: Forms: DD Form XXX \u2013 For each form the plan shall include the purpose that the SSN serves as well as potential alternatives. Some level of detail shall be included regarding the owner of the form and any pertinent details regarding the form owner\u2019s plan to eliminate the use of the SSN. System: XXX System \u2013 For each system that provides an input to the system or is responsible for generating the form, the plan shall discuss the purpose served by the SSN and any potential alternatives. Some level of detail shall be included regarding the system owner and any important details regarding their plan to eliminate the use of the SSN. Elimination Strategy and Timeline: The strategy shall include specific steps that must be accomplished to eliminate the use of the SSN with dates by which these steps will be accomplished. Be sure to include all appropriate references to dependencies such as other forms or systems, availability of resources (manpower, funding, etc) and dates by which these milestones will be completed. While it is clear that there may be significant constraints on making these changes, it is not acceptable to avoid activity through mutual dependencies. Interim Strategy and Timeline: Where elimination of the SSN cannot be achieved quickly or directly, interim steps shall be taken to provide better protection for SSNs. This may include masking or truncation, changes to displays or reports, or any other steps that can be shown to provide improvements to protection. DoDI 1000.30, August 1, 2012 Change 2, 11/30/2022 24 ENCLOSURE 5 ENCLOSURE 5 RESPONSIBILITIES"
+  },
+  {
+   "citation": "1",
+   "kind": "instruction_paragraph",
+   "page": 1,
+   "clause_kinds": [],
+   "text": "1. ATSD(PCLT). Th e ATSD(PCLT) establishes and oversees the implementation of DoD policy concerning the reduction of SSN use and mailings within DoD. The Office of the ATSD(PCLT) works with the DoD Forms Management Officer to implement the SSN Use Reduction Plan as described in this instruction."
+  },
+  {
+   "citation": "2",
+   "kind": "instruction_paragraph",
+   "page": 1,
+   "clause_kinds": [
+    "condition"
+   ],
+   "text": "2. DIRECTOR, P CLFD. Under the authority, direction, and control of the ATSD(PCLT), the Director, PCLFD: a. Provides the final approval authority for SSN use and justification. The authorization for use of PII is governed through the DoD Privacy Program in accordance with References (i) and (j). b. Reviews SSN use and justifications in the DITPR, in accordance with the guidance in Reference (l), as part of the biennial Privacy Act SORN review, required by the Defense Privacy Program, and prepares an annual report on results as described in Enclosure 3. c. Submits the annual report required by section 3544(c) of Reference (k). This report requires agencies to review and update their progress on the reduction of holdings of PII. Provide specific guidance annually to reflect the reporting elements. FISMA elements are subject to change. The DoD Component Privacy offices are responsible for providing input to the PCLFD for inclusion in the report. d. Establishes detailed guidance and additional reports as necessary to support DoD efforts in SSN collection, use, dissemination, and reduction."
+  },
+  {
+   "citation": "3",
+   "kind": "instruction_paragraph",
+   "page": 1,
+   "clause_kinds": [],
+   "text": "3. IG DoD. The IG DoD, in addition to th e responsibilities in section 5 of this enclosure, reviews the implementation of the DoD SSN Use Reduction Plan at the key milestones reflected in Enclosure 3."
+  },
+  {
+   "citation": "4",
+   "kind": "instruction_paragraph",
+   "page": 1,
+   "clause_kinds": [],
+   "text": "4. DOD FORMS MANAGEMENT OFFICER. The DoD Forms Management Officer reviews SSN use and justifications on new and existing DD and SD forms and produces an annual report on results."
+  },
+  {
+   "citation": "5",
+   "kind": "instruction_paragraph",
+   "page": 1,
+   "clause_kinds": [
+    "obligation"
+   ],
+   "text": "5. OSD AND DoD COMPONENT HE ADS. The OSD and DoD Component heads conduct periodic reviews of SSN use. The results of the review and justifications for all forms and systems shall be included in an annual report prepared in accordance with the process described in Enclosure 4. Reports shall be forwarded to the Director, PCLFD. DoDI 1000.30, August 1, 2012 Change 2, 11/30/2022 25 ENCLOSURE 5"
+  },
+  {
+   "citation": "6",
+   "kind": "instruction_paragraph",
+   "page": 1,
+   "clause_kinds": [
+    "definition",
+    "power",
+    "obligation",
+    "precatory"
+   ],
+   "text": "6. COMBATANT COMMANDERS. The Combatant Commanders, in addition to the responsibilities in section 5 of this enclosure, through the Chairman of the Joint Chiefs of Staff, review and approve uses of the SSN that are required as a result of operational necessity. DoDI 1000.30, August 1, 2012 Change 2, 11/30/2022 26 GLOSSARY GLOSSARY PART I. ABBREVIATIONS AND ACRONYMS ATSD(PCLT) Assistant to the Secretary of Defense for Privacy, Civil Liberties, and Transparency DEERS Defense Enrollment Eligibility Reporting Systems DITPR DoD Information Technology Portfolio Repository DMDC Defense Manpower Data Center EDI-PI Electronic Data Interchange Personal Identifier E.O. Executive Order FISMA Federal Information Security Management Act IG DoD Inspector General of the Department of Defense IT information technology MOU memorandum of understanding NCIC National Crime Information Center NEO Noncombatant Evacuation Operations OMB Office of Management and Budget PCLFD Privacy, Civil Liberties, and Freedom of Information Directorate PIA Privacy Impact Assessment PII personally identifiable information PIN Personal Identification Number PKI Public Key Infrastructure RCS Report Control Symbol SORN System of Records Notice SSN Social Security Number DoDI 1000.30, August 1, 2012 Change 2, 11/30/2022 27 GLOSSARY PART II. DEFINITIONS These terms and their definitions are for the purpose of this Instruction. application. Software program that performs a specific function directly for a user and can be executed without access to system control, monitoring, or administrative privileges. Examples include office automation, electronic mail, Web services, and major functional or mission software programs. authentication. The pr ocess of establishing that an individual, previously identified and with whom a business relationship has been established, is the same as the individual who initially created the relationship. This is generally done by presenting information that is known only to the individual and the organization. Authentication is also a security measure designed to establish the validity of a transmission, message, or originator, or a means of verifying an individual\u2019s authorization to receive specific categories of information. computer network. The const ituent element of an enclave responsible for connecting computing environments by providing short-haul data transport capabilities such as local or campus area networks, or long-haul data transport capabilities such as operational, metropolitan, or wide area and backbone networks. DoD Forms Management Officer. The i ndividual who is responsible for forms management for the Department of Defense. Specifically, the individual who is responsible for all DD and SD forms. DoD Information System. Set of information resources organized for the collection, storage, processing, maintenance, use, sharing, dissemination, disposition, display, or transmission of information. Includes automated information system applications, enclaves, outsourced IT-based processes, and platform IT interconnections. electronic form. Def ined in Reference (m). form. A fixed arrangement of c aptioned spaces designed for entering and extracting prescribed information. Forms may be preprinted paper forms or electronic forms. identification. The a ct of establishing who a person is. This is generally done by the collection and review of certain identity attributes, including, but not limited to, name, SSN, address, and date of birth. Identification is generally associated with a business process and includes establishing the relationship based on the need or desire of an individual to participate in the given business process. DoDI 1000.30, August 1, 2012 Change 2, 11/30/2022 28 GLOSSARY mailing. The phy sical delivery of a tangible document or parcel from a sender to a receiver via the U.S. Postal Service or via a commercial letter or parcel delivery service (e.g., Federal Express, United Parcel Service). PIA. An analysis of how information is handled to ensure handling conforms to applicable legal, regulatory, and policy requirements regarding privacy; to determine the risks and effects of collecting, maintaining, and disseminating PII information in an electronic information system; and to examine and evaluate protections and alternative processes for handling information to mitigate potential privacy risks. See DoD Instruction 5400.16 (Reference (q)) for policy requirements on PIAs. PII. Defined in OMB Circular No. A-130 (Reference (r)). record. Any item, collection, or grouping of information, whatever the storage media (e.g., paper, electronic), about an individual that is maintained, including, but not limited to, his or her education, financial transactions, medical history, criminal or employment history, and that contains his or her name, or the identifying number, symbol, or other identifying particular assigned to the individual, such as a fingerprint, a voice print, or a photograph. SORN. A public notice detailing the conditions, contents, and procedures for a system of records, including system identifications, system locations, categories of records and individuals contained in the system, access procedures, and legal exemptions. SORNs must be published in accordance with Reference (i). system. See DoD Information System. system identifiers. I dentifiers used for system-to-system electronic communications across the enterprise. They are not to be declared by, nor in fact generally known to, the person they are assigned to. Their primary purpose is to limit the ambiguity in identity caused by human entry of declarative identifiers (e.g., transpositions and typographical errors that occur when entering SSNs). Once they are assigned they are used only for technology-to-technology communications and never printed on any media. Their scope is only for use within the Department of Defense. system of records. A group of any records under the control of any agency from which information is retrieved by the name of the individual or by some identifying number, symbol, or other identifying particular assigned to the individual."
+  }
+ ],
+ "term_index": {
+  "security number": [
+   0,
+   1,
+   14,
+   55,
+   62
+  ],
+  "social security": [
+   0,
+   1,
+   14,
+   55,
+   62
+  ],
+  "social security number": [
+   0,
+   1,
+   14,
+   55,
+   62
+  ],
+  "atsd pclt": [
+   0,
+   4,
+   7,
+   12,
+   17,
+   51,
+   57,
+   58,
+   62
+  ],
+  "reduction plan": [
+   1,
+   14,
+   52,
+   57,
+   59
+  ],
+  "united states": [
+   2,
+   14,
+   16,
+   18
+  ],
+  "dodi august": [
+   3,
+   7,
+   12,
+   14,
+   16,
+   17,
+   18,
+   21,
+   23,
+   32,
+   42,
+   50,
+   51,
+   52,
+   54,
+   55,
+   56,
+   61,
+   62
+  ],
+  "dodi august change": [
+   3,
+   12,
+   14,
+   16,
+   17,
+   18,
+   21,
+   23,
+   32,
+   42,
+   50,
+   51,
+   52,
+   54,
+   55,
+   56,
+   61,
+   62
+  ],
+  "august change": [
+   3,
+   8,
+   12,
+   14,
+   16,
+   17,
+   18,
+   21,
+   23,
+   32,
+   42,
+   50,
+   51,
+   52,
+   54,
+   55,
+   56,
+   61,
+   62
+  ],
+  "privacy civil": [
+   4,
+   8,
+   12,
+   14,
+   17,
+   55,
+   62
+  ],
+  "privacy civil liberties": [
+   4,
+   8,
+   12,
+   14,
+   17,
+   55,
+   62
+  ],
+  "civil liberties": [
+   4,
+   8,
+   12,
+   14,
+   17,
+   55,
+   62
+  ],
+  "full ssns": [
+   7,
+   12,
+   17,
+   51
+  ],
+  "accordance with reference": [
+   7,
+   16,
+   17,
+   62
+  ],
+  "identification number": [
+   12,
+   16,
+   18,
+   19,
+   20,
+   22,
+   27,
+   62
+  ],
+  "management officer": [
+   12,
+   29,
+   32,
+   36,
+   37,
+   42,
+   49,
+   57,
+   60,
+   62
+  ],
+  "acceptable uses": [
+   12,
+   15,
+   16,
+   25,
+   53
+  ],
+  "component heads": [
+   12,
+   52,
+   61
+  ],
+  "authorized uses": [
+   12,
+   15,
+   17
+  ],
+  "forms management": [
+   12,
+   14,
+   17,
+   29,
+   32,
+   36,
+   37,
+   42,
+   49,
+   57,
+   60,
+   62
+  ],
+  "forms management officer": [
+   12,
+   29,
+   32,
+   36,
+   37,
+   42,
+   49,
+   57,
+   60,
+   62
+  ],
+  "personally identifiable information": [
+   14,
+   17,
+   62
+  ],
+  "privacy impact": [
+   14,
+   27,
+   62
+  ],
+  "privacy impact assessment": [
+   14,
+   27,
+   62
+  ],
+  "personally identifiable": [
+   14,
+   17,
+   62
+  ],
+  "august change enclosure": [
+   14,
+   16,
+   17,
+   18,
+   21,
+   23,
+   32,
+   42,
+   50,
+   51,
+   52,
+   54,
+   55,
+   56,
+   61
+  ],
+  "executive order": [
+   14,
+   16,
+   62
+  ],
+  "portfolio repository ditpr": [
+   14,
+   27,
+   50
+  ],
+  "identifiable information": [
+   14,
+   17,
+   62
+  ],
+  "change enclosure enclosure": [
+   14,
+   23,
+   52,
+   56
+  ],
+  "change enclosure": [
+   14,
+   16,
+   17,
+   18,
+   21,
+   23,
+   32,
+   42,
+   50,
+   51,
+   52,
+   54,
+   55,
+   56,
+   61
+  ],
+  "repository ditpr": [
+   14,
+   27,
+   50
+  ],
+  "portfolio repository": [
+   14,
+   27,
+   50,
+   62
+  ],
+  "enclosure enclosure": [
+   14,
+   23,
+   52,
+   56
+  ],
+  "impact assessment": [
+   14,
+   27,
+   62
+  ],
+  "federal agencies": [
+   15,
+   16,
+   20
+  ],
+  "information systems": [
+   15,
+   22,
+   54
+  ],
+  "systems processes": [
+   16,
+   18,
+   56
+  ],
+  "specific legislative": [
+   16,
+   17,
+   50
+  ],
+  "operational necessity": [
+   16,
+   55,
+   62
+  ],
+  "records notice": [
+   17,
+   56,
+   62
+  ],
+  "instruction reference": [
+   17,
+   54,
+   62
+  ],
+  "personal identifier": [
+   17,
+   18,
+   62
+  ],
+  "number will": [
+   18,
+   20,
+   22
+  ],
+  "recipient agency": [
+   20,
+   21,
+   22
+  ],
+  "action officer": [
+   24,
+   36,
+   50,
+   54
+  ],
+  "verify whether": [
+   29,
+   30,
+   31
+  ],
+  "component forms": [
+   30,
+   33,
+   42
+  ],
+  "existing forms": [
+   31,
+   42,
+   49
+  ],
+  "installation forms": [
+   31,
+   34,
+   42
+  ],
+  "ensure compliance": [
+   32,
+   33,
+   34
+  ],
+  "annual report": [
+   37,
+   42,
+   58,
+   60,
+   61
+  ],
+  "report required": [
+   37,
+   42,
+   58
+  ],
+  "sorn review": [
+   37,
+   50,
+   58
+  ],
+  "annual report required": [
+   37,
+   42,
+   58
+  ],
+  "biennial privacy": [
+   37,
+   50,
+   58
+  ],
+  "fisma report": [
+   42,
+   49,
+   50
+  ],
+  "information system": [
+   54,
+   55,
+   62
+  ]
+ }
+}

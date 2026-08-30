@@ -1018,3 +1018,44 @@ mcieast.marines.mil all return HTTP 403 to automated requests, directly and
 through a fetch tool. The issue date, the Change 2 date and the supersession of
 DTM 07-015 are verified from public secondary sources; the operative wording is
 not, and is marked so.
+
+### 2026-08-30 — DoDI 1000.30, read in full
+
+The principal supplied the PDF that every .mil host refused to serve. Ingested:
+28 pages, 63 paragraphs by the instruction's own numbering, held in Legal. The
+unverified marker is removed - the wording below is verbatim.
+
+Cover facts, and two correct a secondary source: **August 1, 2012, INCORPORATING
+CHANGE 2, November 30, 2022**, and the office of primary responsibility is now
+**ATSD(PCLT)** - Privacy, Civil Liberties, and Transparency - not USD(P&R) as at
+issue. Authority on the cover is DoDD 5148.11 and a 1 September 2021 DepSecDef
+memorandum. It incorporates and cancels DTM 07-015.
+
+The clause the principal quoted is exact: *"If upon review, it is determined
+that no authority or legal requirement for the use of the SSN exists, its
+collection and use should cease until such authority can be obtained."*
+
+Three lines found on reading do more work than that one:
+
+- *"Any uses of the SSN not provided for in this Instruction are considered to
+  be unnecessary and SHALL BE ELIMINATED."* Mandatory, not precatory, and it
+  reverses the burden - a use is unnecessary unless the instruction provides
+  for it.
+- *"The requirement for the use of the SSN provided by Executive Order 9397 has
+  been ELIMINATED."* DoD says this itself. An agency answering "EO 9397" is
+  citing an authority its own department has disclaimed - and the instruction
+  adds that EO 9397 may support an interim measure while use is being
+  eliminated but "may not by itself be used to justify continued use."
+- *"Ease of use or unwillingness to change are not acceptable justifications"*,
+  and claims of "operational necessity" *"shall be closely scrutinized."*
+
+Recorded with its scope, because the strength of the wording invites overreach:
+this instruction binds DoD COMPONENTS, confers no rights on the public, and is
+not the source of the obligation. Cite it to show a DoD component failed its own
+mandatory standard - not as a statute a private party sues on.
+
+Two tools behaved correctly on the way. `ingest_pdf` refused the document with
+zero sections rather than storing an unusable blob, because DoD paragraph
+numbering is not a citation format it knows. `document_intake` segmented it
+cleanly by that numbering instead - which is what it was built for.
+Legal: 20 works, 1,727 sections.
