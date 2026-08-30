@@ -1093,3 +1093,31 @@ instruction in the ways that matter to a veteran:
 
 That last provision is checkable rather than arguable: either the document type
 is on the published list or it is not.
+
+### 2026-08-30 — Training images cannot be attributed to a plant, and now they say why they were kept
+
+The grower worried that a Cal-Mag reference image accepted through the Training
+tab might have been filed against GSC1 or GSC2. Checked: it had not, and it
+cannot be. **A candidate record carries no plant_id field at all**, and no note
+in the grow history references a training file. The separation is structural
+rather than lucky.
+
+But the worry was reasonable, because the reassurance was nowhere in the record.
+`review_training_candidate` accepted only a candidate id and a decision - there
+was no field for the reviewer's reason, so a grower typing "this is internet
+reference material, nothing to do with my plants" had it discarded silently. An
+annotation that vanishes is its own small false success. Accepting now records
+`reviewer_note`, `reviewed_by`, and `depicts: reference material from the web,
+not this grow`, and all three travel into the provenance file beside the image.
+
+**And a file can now be supplied by hand.** Two hosts - advancednutrients.com and
+rocketseeds.com - return HTTP 403 to every automated request, so those examples
+were simply lost. `review_training_candidate` takes a `local_file`, applies the
+SAME format sniff and the SAME duplicate check as an automatic fetch, and records
+the original source_url and image_url alongside `acquired: supplied by the
+grower by hand` and `why_not_fetched: HTTP 403`. A hand-supplied file gets no
+easier ride - a duplicate or a non-image damages the set identically however it
+arrived.
+
+The Cal-Mag image the grower saved is in: `calmag_deficiency` now holds 4, the
+set is 31 files and 31 unique.

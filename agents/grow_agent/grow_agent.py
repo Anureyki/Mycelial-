@@ -3877,6 +3877,48 @@ class GrowAgent(AgentBase):
             detail[name] = q
         return drawable, detail
 
+    def _accept_supplied_image(self, candidate, local_file):
+        """Take a copy the grower fetched themselves, with the same checks.
+
+        Same format sniff and the same duplicate test as an automatic fetch -
+        a hand-supplied file gets no easier ride, because a duplicate or a
+        non-image hurts the training set identically however it arrived."""
+        label = candidate.get("label") or "unlabelled"
+        dest_dir = os.path.join(TRAINING_DIR, label)
+        try:
+            os.makedirs(dest_dir, exist_ok=True)
+            body = open(local_file, "rb").read()
+        except OSError as e:
+            return {"fetched": False, "why": f"could not read {local_file}: {e}"}
+        sig = body[:16]
+        ext = (".jpg" if sig.startswith(b"\xff\xd8\xff") else
+               ".png" if sig.startswith(b"\x89PNG\r\n\x1a\n") else
+               ".webp" if sig[:4] == b"RIFF" and sig[8:12] == b"WEBP" else
+               ".gif" if sig[:6] in (b"GIF87a", b"GIF89a") else None)
+        if not ext:
+            return {"fetched": False,
+                    "why": f"supplied file is not a recognised image "
+                           f"(first bytes {sig[:8].hex()})"}
+        dup = self._duplicate_of(body, label)
+        if dup:
+            return {"fetched": False, "duplicate": dup,
+                    "why": (f"already in the set as {os.path.basename(dup['path'])}"
+                            + (f" under '{dup['label']}' - LABEL CONFLICT"
+                               if dup["cross_label"] else "") + ".")}
+        path = os.path.join(dest_dir, f"{candidate['id']}{ext}")
+        with open(path, "wb") as f:
+            f.write(body)
+        with open(path + ".provenance.json", "w") as f:
+            json.dump({**{k: candidate.get(k) for k in
+                          ("id", "label", "query", "source_url", "image_url",
+                           "source_title", "retrieved_at", "reviewed_at")},
+                       "acquired": "supplied by the grower by hand",
+                       "why_not_fetched": candidate.get("fetch_error"),
+                       "depicts": "reference material from the web, not this grow",
+                       "reviewer_note": candidate.get("reviewer_note")}, f, indent=2)
+        return {"fetched": True, "path": path, "bytes": len(body),
+                "supplied_by_hand": True}
+
     def _fetch_candidate_image(self, candidate):
         """Download an ACCEPTED candidate into its label folder.
 
@@ -3960,7 +4002,9 @@ class GrowAgent(AgentBase):
             with open(path + ".provenance.json", "w") as f:
                 json.dump({k: candidate.get(k) for k in
                            ("id", "label", "query", "source_url", "image_url",
-                            "source_title", "retrieved_at", "reviewed_at")}, f, indent=2)
+                            "source_title", "retrieved_at", "reviewed_at",
+                            "reviewed_by", "reviewer_note", "depicts")
+                           if candidate.get(k) is not None}, f, indent=2)
             return {"fetched": True, "path": path, "bytes": len(body)}
         except Exception as e:
             return {"fetched": False, "why": str(e)}
@@ -7939,10 +7983,33 @@ class GrowAgent(AgentBase):
             candidate = json.loads(raw)
             candidate["status"] = "accepted" if decision == "accept" else "rejected"
             candidate["reviewed_at"] = datetime.now().isoformat()
+            # The reviewer's own words about WHY. There was nowhere to put them,
+            # so a grower who typed "this is internet reference material for
+            # calmag, nothing to do with my plants" had that discarded silently
+            # - and then reasonably worried the image had been filed against a
+            # real plant. It had not; a candidate carries no plant_id and cannot
+            # be. But the reassurance was not in the record either, and an
+            # annotation that vanishes is its own small false success.
+            _note = (args.get("note") or args.get("description") or "").strip()
+            if _note:
+                candidate["reviewer_note"] = _note
+            candidate["reviewed_by"] = args.get("reviewed_by") or "grower"
+            # Reference material is never a record OF a plant. Stated on the
+            # candidate so nothing downstream has to infer it.
+            candidate["depicts"] = "reference material from the web, not this grow"
 
             fetch = {"fetched": False}
             if decision == "accept":
-                fetch = self._fetch_candidate_image(candidate)
+                # A file the grower supplied by hand. Some hosts 403 every
+                # automated request - advancednutrients.com and rocketseeds.com
+                # both did - and the alternative to accepting a hand-saved copy
+                # is losing the example entirely. Provenance still records the
+                # ORIGINAL source, plus the fact that a human fetched it.
+                _local = args.get("local_file")
+                if _local and os.path.exists(_local):
+                    fetch = self._accept_supplied_image(candidate, _local)
+                else:
+                    fetch = self._fetch_candidate_image(candidate)
                 candidate["local_path"] = fetch.get("path")
                 if not fetch.get("fetched"):
                     # Say so. An accept that silently failed to fetch would

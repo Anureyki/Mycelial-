@@ -306,3 +306,16 @@ main#log {
 #speakBtn.on { color: var(--accent); }
 @keyframes mic-pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.45; } }
 @media (prefers-reduced-motion: reduce) { #micBtn.on { animation: none; } }
+
+/* Reviewer's reason, stored in the provenance beside the training image. */
+.candidate-note {
+  width: 100%;
+  margin: 6px 0;
+  padding: 6px 8px;
+  font-size: 13px;
+  background: #12181a;
+  color: #d8e6dd;
+  border: 1px solid #2b3a33;
+  border-radius: 3px;
+}
+.candidate-note::placeholder { color: #6b7d74; }
