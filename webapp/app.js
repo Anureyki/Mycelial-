@@ -287,7 +287,11 @@ async function renderGrowCard(body) {
   const rows = [
     ['Plant', `${d.strain || 'unknown'} · ${d.stage || 'unknown'}${d.day != null ? ` · day ${d.day}` : ''}`],
     ['Last reading', r.at ? ago(r.at) : 'never'],
-    ['ppm', r.ppm != null ? String(r.ppm) : '—'],
+    ['ppm', r.ppm != null
+      ? String(r.ppm) + (r.derived_unit === 'ppm' ? ' (derived)' : '') : '—'],
+    // EC beside ppm, and a note when one of them was computed rather than read.
+    ['EC', r.ec != null
+      ? `${r.ec} mS/cm` + (r.derived_unit === 'ec' ? ' (derived)' : '') : '—'],
     ['pH', r.ph != null ? String(r.ph) : '—'],
     ['Temp', r.temp_c != null ? `${r.temp_c} C` : '—'],
     // Volume says where it came from. A carried-forward level and a measured
@@ -296,8 +300,20 @@ async function renderGrowCard(body) {
       ? `${r.volume_liters} L (${r.volume_source || 'unknown'})` : '—'],
     ['Reservoir', res.liters != null
       ? `${res.liters} L of ${res.capacity_liters != null ? res.capacity_liters + ' L' : '?'}` : '—'],
-    ['Dissolved', d.dissolved_mass_ppm_l != null ? `${d.dissolved_mass_ppm_l} ppm·L` : '—'],
+    // Grams, with the arithmetic shown inline so it cannot be misread as a
+    // concentration sitting next to the ppm row.
+    ['Nutrient in it', d.nutrient_in_solution_g != null
+      ? `${d.nutrient_in_solution_g} g` + (d.nutrient_basis ? ` (${d.nutrient_basis})` : '')
+      : '—'],
   ];
+  // The CHANGE is the finding; the level on its own is just a number. ppm
+  // moves when water alone moves, so only mass says whether the plant fed.
+  if (d.nutrient_change) {
+    const c = d.nutrient_change;
+    const sign = c.delta_g > 0 ? '+' : '';
+    rows.push(['Change', `${sign}${c.delta_g} g`
+      + (c.hours ? ` over ${c.hours}h` : '') + ` — ${c.meaning}`]);
+  }
   renderRows(body, rows);
   // An open problem is the reason to look at the card at all, so it is shown
   // rather than left to be inferred from the numbers. It renders the STATE -

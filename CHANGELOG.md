@@ -1730,3 +1730,36 @@ guess.
 Four test readings created while verifying this were voided with a reason. That
 is the second time today debugging has put fabricated rows into a real series,
 which is the argument for `void_reading` having been built.
+
+### 2026-08-30 — "Dissolved 10005 ppm·L" meant nothing to the person reading it
+
+The grower: *"the dissolve says almost ten thousand. I don't even know what that
+means."* Correct response to it. `ppm·L` is a unit invented for the mass balance
+and put on a status card unexplained - sitting directly beneath "667 ppm", where
+it reads either as a contradiction or as an alarming concentration.
+
+It is neither. ppm is mg/L, so ppm x litres is **milligrams**: 10005 of them,
+which is **ten grams** of dissolved salt. Ten grams is a quantity a person can
+picture. Ten thousand ppm-litres is a quantity nobody can.
+
+```
+Nutrient in it   10.0 g (668 ppm x 15 L)
+Change           0.0 g over 4.8h — below the noise floor
+```
+
+The arithmetic is shown inline so the figure cannot be mistaken for a
+concentration, and **the change is now the headline**. The level on its own is
+just a number; the change is the only thing that answers *did the plant eat*.
+ppm rises when water evaporates and falls when water is added, both without a
+milligram moving. Mass falls only when something takes nutrient out of solution.
+
+A change under +/-10% of the previous mass is reported as **below the noise
+floor** rather than as a finding, because volume off an unmarked sight tube is
+good to about that - the same floor `reading_cadence` uses to refuse readings
+closer than 24h. A number inside instrument error, presented as uptake, is a
+finding invented out of rounding.
+
+**EC now appears on the card at all.** It has been logged since this afternoon
+and `grow_snapshot` never exposed it, so the card showed only the pen's
+restatement of it. Either figure is labelled `(derived)` when it was computed
+from the other rather than read.

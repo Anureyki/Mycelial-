@@ -5977,16 +5977,64 @@ class GrowAgent(AgentBase):
                 "at": last.get("timestamp"),
                 "hours_ago": age_h,
                 "ppm": last.get("ppm"), "ph": last.get("ph"),
+                # EC is what the probe physically measures; ppm is its
+                # restatement through a factor inside the pen. The card showed
+                # only the restatement.
+                "ec": last.get("ec"),
+                "derived_unit": last.get("derived_unit"),
                 "temp_c": last.get("reservoir_temp") or last.get("temp"),
                 "volume_liters": last.get("volume_liters"),
                 "volume_source": last.get("volume_source"),
             }
-            # Dissolved mass is the figure ppm cannot give on its own, and it
-            # is the one that says whether the plant actually ate.
+            # HOW MUCH NUTRIENT IS ACTUALLY IN THERE, in grams.
+            #
+            # This was shown as "10005 ppm.L", a unit invented for the mass
+            # balance and put on a status card with no explanation - sitting
+            # directly under "667 ppm", where it reads as a contradiction or an
+            # alarming concentration. It is neither. ppm is mg/L, so ppm x
+            # litres is milligrams: 10005 of them, which is ten grams of
+            # dissolved salt. Ten grams is a quantity a person can picture; ten
+            # thousand ppm-litres is not.
+            #
+            # It earns its place on the card because ppm alone cannot say
+            # whether the plant ATE. ppm rises when water leaves and falls when
+            # water is added, both without a single milligram moving. Mass only
+            # falls when something takes nutrient out of solution.
             ppm, vol = self._parse_numeric(last.get("ppm")), \
                 self._parse_numeric(last.get("volume_liters"))
             if ppm is not None and vol is not None:
-                out["dissolved_mass_ppm_l"] = round(ppm * vol, 0)
+                grams = ppm * vol / 1000.0
+                out["nutrient_in_solution_g"] = round(grams, 1)
+                out["nutrient_basis"] = f"{ppm:.0f} ppm x {vol:g} L"
+                prev = next((r for r in reversed(readings[:-1])
+                             if self._parse_numeric(r.get("ppm")) is not None
+                             and self._parse_numeric(r.get("volume_liters")) is not None),
+                            None)
+                if prev:
+                    pg = (self._parse_numeric(prev["ppm"])
+                          * self._parse_numeric(prev["volume_liters"]) / 1000.0)
+                    delta = grams - pg
+                    hours = None
+                    try:
+                        hours = (datetime.fromisoformat(str(last["timestamp"])[:19])
+                                 - datetime.fromisoformat(str(prev["timestamp"])[:19])
+                                 ).total_seconds() / 3600.0
+                    except Exception:
+                        pass
+                    # Volume off a sight tube is good to about +/-10%, so a
+                    # change smaller than that is instrument noise wearing the
+                    # costume of a finding.
+                    floor = max(pg * 0.10, 0.2)
+                    out["nutrient_change"] = {
+                        "delta_g": round(delta, 1),
+                        "hours": round(hours, 1) if hours else None,
+                        "meaning": ("below the noise floor - volume is good to about "
+                                    "+/-10%, so this is measurement error, not uptake"
+                                    if abs(delta) < floor else
+                                    "nutrient left solution - the plant is feeding"
+                                    if delta < 0 else
+                                    "nutrient was added"),
+                    }
         else:
             out["last_reading"] = None
 
