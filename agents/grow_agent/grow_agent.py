@@ -71,6 +71,20 @@ def calculate_vpd(temp_c, humidity_percent):
     avp = svp * (humidity_percent / 100.0)
     return svp - avp
 
+def calculate_vpd_leaf(air_temp_c, humidity_percent, leaf_offset_c=2.0):
+    """VPD at the leaf surface.
+
+    The saturation pressure inside the leaf is set by LEAF temperature; the
+    vapour already in the air is set by AIR temperature and RH. Using air
+    temperature for both - which is what every controller display does - gives
+    a number that is too high whenever the canopy runs cooler than the air,
+    which under LED with airflow is normally."""
+    if air_temp_c is None or humidity_percent is None:
+        return None
+    leaf_t = air_temp_c - (leaf_offset_c or 0.0)
+    return svp_from_temp_c(leaf_t) - svp_from_temp_c(air_temp_c) * (humidity_percent / 100.0)
+
+
 # ---------------------------
 # Stage profiles for data-driven reservoir/nutrient decisions.
 # Seeded from general hydroponic cultivation practice (same basis as the
@@ -5592,6 +5606,129 @@ class GrowAgent(AgentBase):
         readings.sort(key=lambda r: r.get("timestamp", ""))
         return readings
 
+    # Air VPD by stage. Cannabis practice, recorded as reference rather than as
+    # the operating rule - what this grow actually runs is derived from observed
+    # response, per "lived data outranks documentation".
+    VPD_BANDS = {
+        "seedling":   (0.4, 0.8),
+        "early_veg":  (0.6, 1.0),
+        "veg":        (0.8, 1.2),
+        "flower":     (1.2, 1.6),
+        "late_flower": (1.2, 1.6),
+    }
+
+    def assess_vpd(self, air_temp_c=None, humidity_percent=None, stage=None,
+                   plant_id="current_plant", leaf_offset_c=None):
+        """Is the transpiration demand matched to what the roots can supply?
+
+        VPD is usually read as a growth-rate dial. The reason it matters HERE is
+        narrower and it concerns calcium.
+
+        Calcium has no active transport. It rides the transpiration stream and
+        goes wherever the most water goes - which is the large mature fan
+        leaves, not the small, shaded, barely-transpiring new growth at the
+        centre. So VPD does not just set how MUCH calcium moves, it sets where
+        it ENDS UP. Push transpiration hard and calcium is biased toward the
+        tissue that already has it, while the growing tip is short of it with a
+        reservoir full of the stuff.
+
+        That is why tip burn is the signature: the leaf tip is the last stop on
+        the stream, and it runs dry first when demand outpaces root supply.
+
+        Two honest limits, both stated rather than absorbed:
+
+        - A controller's VPD figure is AIR VPD - it assumes leaf temperature
+          equals air temperature. Real leaves under LED with airflow sit cooler
+          than the air, so true leaf VPD is LOWER. Air VPD is therefore an
+          upper bound, and treating it as the leaf figure overstates the stress.
+        - The band is a reference, not this grow's measured optimum."""
+        t = self._parse_numeric(air_temp_c)
+        rh = self._parse_numeric(humidity_percent)
+        if t is None or rh is None:
+            return {"classification": "insufficient_evidence", "confidence": "low",
+                    "reason": "VPD needs AIR temperature and relative humidity together. "
+                              "Reservoir temperature is a different measurement and "
+                              "substituting it produces a confident wrong number.",
+                    "action": "Read air temp and RH from the controller at canopy height."}
+        if stage is None:
+            stage, _ = self._plant_state("current_stage", plant_id)
+        stage = stage or "veg"
+
+        svp = svp_from_temp_c(t)
+        air_vpd = calculate_vpd(t, rh)
+        out = {"air_temp_c": t, "humidity_percent": rh, "stage": stage,
+               "air_vpd_kpa": round(air_vpd, 2),
+               "vpd_basis": "air (leaf temperature assumed equal to air)"}
+
+        # Leaf VPD if an offset is supplied or assumed. Reported as a RANGE
+        # because the offset is not measured here and a single number would
+        # imply it was.
+        off = self._parse_numeric(leaf_offset_c)
+        leaf_lo = calculate_vpd_leaf(t, rh, 3.0)
+        leaf_hi = calculate_vpd_leaf(t, rh, 0.0)
+        out["leaf_vpd_range_kpa"] = [round(leaf_lo, 2), round(leaf_hi, 2)]
+        out["leaf_vpd_note"] = ("Leaf VPD depends on leaf temperature, which is not "
+                                "measured. Range spans leaves 3 C cooler than air "
+                                "(good airflow) to leaves at air temperature.")
+        if off is not None:
+            out["leaf_vpd_kpa"] = round(calculate_vpd_leaf(t, rh, off), 2)
+
+        lo, hi = self.VPD_BANDS.get(stage, self.VPD_BANDS["veg"])
+        out["band_for_stage"] = [lo, hi]
+        out["band_source"] = "reference"
+
+        if air_vpd > hi:
+            excess = air_vpd - hi
+            out.update({
+                "classification": "above_band", "confidence": "medium",
+                "reason": (f"Air VPD {air_vpd:.2f} kPa against a {stage} reference band of "
+                           f"{lo}-{hi}. The plant is being asked to transpire at roughly a "
+                           f"flowering rate. That matters most when root supply is reduced - "
+                           f"demand the roots cannot meet shows first at the leaf TIPS, the "
+                           f"last point on the transpiration stream, and it biases calcium "
+                           f"toward the mature fan leaves that move the most water rather "
+                           f"than toward the new growth."),
+                "excess_kpa": round(excess, 2),
+            })
+            # What would actually bring it into band, both levers, computed.
+            need_rh = (1 - (hi / svp)) * 100.0
+            out["to_reach_band"] = {
+                "raise_humidity_to_percent": round(need_rh, 1),
+                "or_lower_air_temp_to_c": round(self._temp_for_vpd(hi, rh), 1),
+                "note": "Either lever alone reaches the top of the band. Humidity is "
+                        "usually the faster one and does not slow growth the way "
+                        "dropping temperature does.",
+            }
+        elif air_vpd < lo:
+            out.update({
+                "classification": "below_band", "confidence": "medium",
+                "reason": (f"Air VPD {air_vpd:.2f} kPa against {lo}-{hi} for {stage}. "
+                           f"Transpiration is slow, and calcium moves ONLY with "
+                           f"transpiration - this is the condition where new growth goes "
+                           f"calcium-short with a reservoir full of it."),
+            })
+        else:
+            out.update({
+                "classification": "in_band", "confidence": "medium",
+                "reason": (f"Air VPD {air_vpd:.2f} kPa sits inside the {lo}-{hi} reference "
+                           f"band for {stage}. Note this is an upper bound: true leaf VPD "
+                           f"is lower still if the canopy runs cooler than the air."),
+            })
+        return out
+
+    def _temp_for_vpd(self, target_vpd, rh):
+        """Air temperature that would give target VPD at this RH. Solved
+        numerically rather than inverted - the Tetens form does not invert
+        cleanly and an approximation here would be quoted as a setpoint."""
+        lo, hi = 5.0, 45.0
+        for _ in range(60):
+            mid = (lo + hi) / 2.0
+            if calculate_vpd(mid, rh) > target_vpd:
+                hi = mid
+            else:
+                lo = mid
+        return (lo + hi) / 2.0
+
     def grow_snapshot(self, plant_id="current_plant"):
         """Current facts about the grow, as fields rather than prose.
 
@@ -6047,6 +6184,8 @@ class GrowAgent(AgentBase):
             self.store_own_memory(f"stage_transition_{self._uid()}", json.dumps(transition))
             return {"result": f"Stage transitioned to {new_stage}", "transition": transition}
 
+        elif task == "assess_vpd":
+            return {"result": self.assess_vpd(**(args if isinstance(args, dict) else {}))}
         elif task == "grow_snapshot":
             return {"result": self.grow_snapshot(**(args if isinstance(args, dict) else {}))}
         elif task == "void_reading":

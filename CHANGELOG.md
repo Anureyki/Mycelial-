@@ -1537,3 +1537,44 @@ growth that comes after carries information.
 Air temperature recorded as `absent`, not assumed: the 21.7 C on record is
 RESERVOIR temperature, and VPD cannot be computed without air temp. Ambient RH
 49.7%, humidifier off.
+
+### 2026-08-30 — VPD is not a growth dial here, it is a calcium routing problem
+
+Air temperature arrived (25.4 C, RH 52.9%) and reversed the advice given hours
+earlier on humidity alone. `assess_vpd` reproduces the controller's 1.53 kPa
+exactly and places it **above** the 0.8-1.2 veg reference band.
+
+The reason it matters is narrower than growth rate. **Calcium has no active
+transport.** It rides the transpiration stream and ends up wherever the most
+water goes - the large mature fan leaves, not the small shaded new growth at the
+centre. So VPD does not only set how much calcium moves, it sets **where it ends
+up**. Push transpiration to a flowering rate on a vegetative plant whose roots
+are still recovering and calcium is routed to tissue that already has it, while
+the growing tip goes short with a reservoir full of it. Tip burn follows because
+the leaf tip is the last stop on the stream and runs dry first.
+
+**The earlier advice was wrong and is corrected.** "Don't run the humidifier"
+was reasoned from RH 49.7% with no air temperature - and 49.7% means opposite
+things at 21 C and at 25.4 C. The classic calcium trap is high humidity stalling
+transpiration; this grow is at the other end. Raising RH to ~63% brings air VPD
+to the top of the band. `_temp_for_vpd` solves the other lever numerically (21.4
+C) rather than inverting Tetens approximately, because an approximation here
+gets quoted as a setpoint.
+
+Two limits are reported rather than absorbed: a controller's VPD is **air** VPD,
+assuming leaf temperature equals air temperature, so it is an upper bound - true
+leaf VPD here lies between **0.99 and 1.53** depending on canopy temperature,
+which is not measured. And the band is `reference`, not this grow's measured
+optimum.
+
+`vpd_calcium_maldistribution` enters the differential as its own hypothesis
+rather than folding into calcium, because it differs in the way that changes what
+to do: the pump outage is a PAST EVENT, this is a CONDITION STILL RUNNING.
+
+Decision moves from `hold` to `intervene` with exactly **one** change - raise RH,
+touch nothing else. The reservoir stays untouched so the calcium/iron
+discrimination survives, and the change is itself the discriminator: if the next
+leaf set comes in clean it supports VPD; if paling continues in tissue formed
+after the correction, it does not. The engine allowed it and still attached its
+caution, that a differential with five live explanations cannot say which one an
+improvement confirmed.
