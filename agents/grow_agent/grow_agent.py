@@ -5729,6 +5729,124 @@ class GrowAgent(AgentBase):
                 lo = mid
         return (lo + hi) / 2.0
 
+    # A TDS meter does not measure ppm. It measures CONDUCTIVITY and multiplies
+    # by a conversion factor chosen by the manufacturer - and there are three in
+    # common use. The same water reads 670, 858 or 939 ppm depending only on
+    # which one the meter was built with, or which one it is currently switched
+    # to. So a ppm with no scale attached is not a measurement, it is a number.
+    TDS_SCALES = {
+        "500_NaCl": 0.50,   # "500 scale" / NaCl. Most hobby pens, Bluelab US.
+        "640_KCl":  0.64,   # "640 scale" / KCl. Common on European meters.
+        "700_442":  0.70,   # "700 scale" / Hanna 442. Most US grow guidance.
+    }
+
+    def verify_tds_scale(self, ppm=None, ec=None, ec_units="uS/cm",
+                         plant_id="current_plant", record=False):
+        """Work out which conversion the meter is using, from a paired reading.
+
+        Take ppm and conductivity at the same moment and their ratio IS the
+        conversion factor. No manual, no guessing, no trusting a label.
+
+        This matters because every stage band in this agent is stored as a ppm
+        range AND an EC range - veg is 600-900 ppm with EC 1.2-1.8, a ratio of
+        exactly 0.5. Those bands are on the 500 scale. Feed a 700-scale reading
+        into them and a reservoir at EC 1.2 reports 840 ppm, lands mid-band, and
+        looks correct while sitting at the very bottom of it. Nothing downstream
+        can tell, because ppm arrives with no indication of where it came from.
+
+        EC is the honest unit and is what should be logged. ppm is a derived
+        convenience whose meaning depends on a setting inside the pen."""
+        p = self._parse_numeric(ppm)
+        e = self._parse_numeric(ec)
+        if p is None or e is None:
+            return {"classification": "insufficient_evidence", "confidence": "low",
+                    "reason": "The scale is the RATIO of a ppm and a conductivity reading "
+                              "taken at the same moment. One without the other says nothing.",
+                    "action": "Put the meter in TDS mode and EC mode on the same sample and "
+                              "record both numbers."}
+        # Normalise to uS/cm. A meter showing 1.34 is in mS/cm; one showing 1341
+        # is in uS/cm, and mixing them is a factor-of-1000 error that would
+        # otherwise be reported as a confident scale identification.
+        units = str(ec_units or "").lower().replace("μ", "u")
+        if "ms" in units or (e < 20):
+            ec_us, ec_ms = e * 1000.0, e
+        else:
+            ec_us, ec_ms = e, e / 1000.0
+        if ec_us <= 0:
+            return {"error": "Conductivity must be positive."}
+
+        factor = p / ec_us
+        best, gap = None, None
+        for name, f in self.TDS_SCALES.items():
+            d = abs(factor - f)
+            if gap is None or d < gap:
+                best, gap = name, d
+
+        out = {"ppm": p, "ec_us_cm": round(ec_us, 1), "ec_ms_cm": round(ec_ms, 3),
+               "derived_factor": round(factor, 4),
+               "closest_scale": best, "closest_factor": self.TDS_SCALES[best],
+               "deviation": round(gap, 4)}
+
+        # 0.03 is roughly half the distance between adjacent scales, so a
+        # reading inside it identifies one rather than merely leaning toward it.
+        if gap <= 0.03:
+            out.update({
+                "classification": "identified", "confidence": "medium",
+                "reason": (f"ppm/EC = {factor:.3f}, which is the {best} conversion "
+                           f"({self.TDS_SCALES[best]}). The meter derives ppm by multiplying "
+                           f"conductivity by that factor - so EC {ec_ms:.3f} mS/cm is the "
+                           f"measurement and {p:.0f} ppm is its restatement."),
+            })
+        else:
+            out.update({
+                "classification": "undetermined", "confidence": "low",
+                "reason": (f"ppm/EC = {factor:.3f} matches no standard conversion "
+                           f"(0.50 / 0.64 / 0.70). Either the two readings were not taken on "
+                           f"the same sample, the units are not what they appear, or the pen "
+                           f"needs calibration."),
+                "action": "Re-take both on one sample without moving the probe between modes.",
+            })
+
+        # What the stage band expects, and what a mismatch would cost.
+        stage, _ = self._plant_state("current_stage", plant_id)
+        ranges = STAGE_TARGETS.get(stage or "veg") or {}
+        band_ppm, band_ec = ranges.get("ppm"), ranges.get("ec")
+        if band_ppm and band_ec and band_ec[0]:
+            band_factor = band_ppm[0] / (band_ec[0] * 1000.0)
+            out["band_scale_factor"] = round(band_factor, 3)
+            out["band_ppm"] = list(band_ppm)
+            out["band_ec_ms_cm"] = list(band_ec)
+            out["scale_matches_band"] = abs(factor - band_factor) <= 0.03
+            if out["scale_matches_band"]:
+                out["reason"] += (f" This agrees with the stored {stage or 'veg'} band, which "
+                                  f"is on the same scale - so the ppm you read and the ppm "
+                                  f"the band expects mean the same thing.")
+            else:
+                misread = ec_us * band_factor
+                out["reason"] += (f" The stored {stage or 'veg'} band is on a "
+                                  f"{band_factor:.2f} scale, NOT this one. On the band's "
+                                  f"scale this reservoir is {misread:.0f} ppm, not {p:.0f} - "
+                                  f"every comparison against the band has been off by that "
+                                  f"much.")
+                out["classification"] = "scale_mismatch"
+                out["action"] = ("Log EC rather than ppm, or switch the pen to the band's "
+                                 "scale. Two scales in one dataset cannot be reconciled "
+                                 "afterwards.")
+        # EC against the band is the comparison that survives a scale change.
+        if band_ec:
+            lo, hi = band_ec
+            out["ec_vs_band"] = ("in_band" if lo <= ec_ms <= hi
+                                 else "below_band" if ec_ms < lo else "above_band")
+            out["ec_band_position"] = (f"EC {ec_ms:.3f} mS/cm against {lo}-{hi} for "
+                                       f"{stage or 'veg'}")
+        if record and out["classification"] == "identified":
+            self.amend_grow_system(plant_id, tds_scale=best,
+                                   tds_factor=self.TDS_SCALES[best],
+                                   tds_scale_basis=f"derived from paired reading "
+                                                   f"{p:.0f} ppm / {ec_us:.0f} uS/cm")
+            out["recorded"] = {"tds_scale": best}
+        return out
+
     @staticmethod
     def _clip(text, limit=150):
         """Trim at a word boundary. Slicing a string mid-word produces "the
@@ -6247,6 +6365,8 @@ class GrowAgent(AgentBase):
             self.store_own_memory(f"stage_transition_{self._uid()}", json.dumps(transition))
             return {"result": f"Stage transitioned to {new_stage}", "transition": transition}
 
+        elif task == "verify_tds_scale":
+            return {"result": self.verify_tds_scale(**(args if isinstance(args, dict) else {}))}
         elif task == "assess_vpd":
             return {"result": self.assess_vpd(**(args if isinstance(args, dict) else {}))}
         elif task == "grow_snapshot":

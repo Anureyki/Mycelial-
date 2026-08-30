@@ -1662,3 +1662,44 @@ undo that in the one place the grower actually reads. "5 live, none confirmed"
 is the honest headline.
 
 Shell bumped to v8; `check_shell_version.py` passes.
+
+### 2026-08-30 — A TDS meter does not measure ppm
+
+The grower photographed the pen and asked what a number on it was. It was
+**conductivity** - 1341 µS/cm - and it is the most useful reading on the screen.
+
+A TDS meter measures conductivity and multiplies by a conversion factor chosen
+by its manufacturer. Three are in common use: 0.50 (NaCl / "500 scale"), 0.64
+(KCl / "640"), 0.70 (Hanna 442 / "700"). **The same water reads 670, 858 or 939
+ppm depending only on which one the pen uses.** So a ppm with no scale attached
+is not a measurement, it is a number - the same fault as a volume with no source.
+
+`verify_tds_scale` derives the factor from a paired reading, because ppm ÷ EC
+*is* the conversion. No manual, no label, no trusting a spec sheet.
+
+On this grow: **0.4981 → the 500 scale**, and the stored stage bands are also on
+0.5 (veg is 600-900 ppm *and* EC 1.2-1.8, a ratio of exactly 0.5). They agree, so
+nothing has been misread. That agreement was a coincidence nobody had checked -
+`tds_scale` is now recorded with the basis it was derived from, and EC is logged
+for the first time in this grow's history.
+
+The cost if they had not agreed is stated rather than left implied: a 700-scale
+pen against these bands puts a reservoir at EC 1.2 at "840 ppm", squarely
+mid-band, while it sits at the very bottom of it. Nothing downstream could tell,
+because ppm arrives with no indication of where it came from.
+
+Two guards: a value under 20 is read as mS/cm regardless of the units label,
+because a 1000× unit slip would otherwise be reported as a confident scale
+identification; and a factor more than 0.03 from any standard returns
+`undetermined` rather than snapping to the nearest one.
+
+**Caught in my own code by the mismatch test.** The mismatch branch computed the
+corrected figure as `ec_ms * band_factor` and reported *"this reservoir is 1 ppm,
+not 939"* - a confident number wrong by a factor of 1000, inside the function
+whose entire job is catching factor errors. It needed `ec_us`. It now reports
+670 ppm. The test that found it was the deliberately-wrong input, not the real
+one, which is the argument for running both.
+
+Cadence, asked and answered from the agent: **every 3 days** in veg, minimum 24h
+(below that, uptake is under the noise floor), maximum 6 days (a longer gap
+contains no measurement and nothing inside it can be attributed).
