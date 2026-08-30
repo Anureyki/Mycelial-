@@ -982,3 +982,39 @@ not reached by it at all, so the argument has to be aimed at the right party.
 bulk USC returned HTTP 200 with an error page as the body, twice, and I checked
 the status rather than the content - the exact error this system exists to hunt.
 Legal: 19 works, 1,718 sections.
+
+### 2026-08-30 — Does this agent still hold the law? A currency check, not a new agent
+
+The principal asked for something that notices when a statute is amended,
+recodified, or about to take effect, across federal and every operating state.
+Built as an inherited capability rather than an agent: currency is not a domain.
+Legal, Trust and Accounting all carry statute and all go stale identically, so
+`corpus_currency` lives in `core/` and every agent has it.
+
+Each work is checked against THE SOURCE THAT PUBLISHES IT. The eCFR exposes a
+per-part version feed, so the check is exact: 12 CFR Part 1002 last amended
+2026-07-21, Part 1026 on 2026-03-01, 26 CFR Part 20 on 2026-07-24 - all newer
+than nothing this system holds, so all current.
+
+**Granularity was the difference between useful and useless.** The first version
+asked for the TITLE's amendment date. Title 12 is amended most weeks, so nine
+works came back stale at once and the check meant nothing. Asking the part-level
+feed instead: nine current, none stale, four honestly unknown.
+
+**"unknown" is never a clean bill of health.** The U.S. Code has no per-section
+feed wired up, and most state statutes have no version API at all. Those return
+`unknown` with the reason, because a checker that silently reports "current"
+when it could not check is a false success wearing a timestamp. The state entry
+also carries the recodification warning: Texas moved its Securities Act from
+Art. 581 to Gov't Code ch. 4001 in 2019, so a citation can be wrong without a
+word of the text changing.
+
+**And the check found its first real thing immediately.** DoDI 1000.30 was
+recorded from the principal's account as a 2012 instruction. It has **Change 2,
+dated 30 November 2022** - amended twice since issue, so a bare 2012 citation is
+incomplete. Recorded, along with the fact that this system could NOT retrieve
+the instruction: esd.whs.mil, dodcio.defense.gov, hqmc.marines.mil and
+mcieast.marines.mil all return HTTP 403 to automated requests, directly and
+through a fetch tool. The issue date, the Change 2 date and the supersession of
+DTM 07-015 are verified from public secondary sources; the operative wording is
+not, and is marked so.

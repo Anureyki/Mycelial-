@@ -366,6 +366,8 @@ class AgentBase:
                     # Catching every "case_*" swallowed them into "unknown case
                     # task" and the domain frames were unreachable.
                     result = self.handle_case_task(task, args if isinstance(args, dict) else {})
+                elif task == "corpus_currency":
+                    result = self.corpus_currency(args if isinstance(args, dict) else {})
                 elif task == "refer_finding":
                     # The outbound half. receive_finding was dispatched here
                     # and this was not, so an agent could accept a referral but
@@ -684,6 +686,21 @@ class AgentBase:
             return []
         results = inner.get("results") or []
         return results if isinstance(results, list) else []
+
+    def corpus_currency(self, args=None):
+        """Is what I hold still the law? Inherited, because Legal, Trust and
+        Accounting all carry statute and all go stale the same way."""
+        try:
+            from core.corpus_currency import survey
+        except Exception as e:
+            return {"error": f"currency check unavailable: {e}"}
+        root = os.path.join(os.path.dirname(os.path.dirname(
+            os.path.abspath(__file__))), "reference")
+        dirs = [os.path.join(root, self.agent_id)] + [
+            os.path.join(root, d) for d in getattr(self, "SHARED_CORPORA", ())]
+        out = survey(dirs)
+        out["agent"] = self.agent_id
+        return out
 
     def refer_finding(self, to_agent, kind, payload, why=""):
         """Hand another domain something this one noticed but does not own."""
