@@ -5578,10 +5578,71 @@ class GrowAgent(AgentBase):
                 reading = json.loads(raw)
             except Exception:
                 continue
+            # A voided reading stays on disk and out of the analysis. It is
+            # kept because the fact that a wrong number was once recorded is
+            # itself history - deleting it would make the series look like it
+            # had always been clean. It is excluded because every consumption
+            # and mass-balance figure is computed from this list, and a
+            # duplicate or a mis-entered volume in it silently corrupts them
+            # all rather than failing loudly.
+            if reading.get("voided"):
+                continue
             if reading.get("plant_id", "current_plant") == plant_id:
                 readings.append(reading)
         readings.sort(key=lambda r: r.get("timestamp", ""))
         return readings
+
+    def void_reading(self, timestamp=None, reason="", plant_id="current_plant",
+                     voided_by="principal"):
+        """Withdraw a reading from analysis without erasing it.
+
+        Readings get entered twice, entered against the wrong volume, or
+        entered while something downstream is being debugged. Any of those
+        quietly poisons the derived figures, because uptake and mass balance
+        are differences between consecutive readings and a bad row corrupts
+        both intervals touching it.
+
+        Voiding requires a REASON. A row withdrawn without one is
+        indistinguishable from a row withdrawn because it was inconvenient,
+        and a series that can be silently trimmed is not evidence."""
+        if not timestamp:
+            return {"error": "Need the timestamp of the reading to void."}
+        if not str(reason).strip():
+            return {"error": "Voiding a reading requires a reason. A series that can be "
+                             "trimmed without one is not evidence."}
+        index = self._unwrap_value(self.retrieve_own_memory("reading_index"))
+        try:
+            keys = json.loads(index) if index else []
+        except Exception:
+            keys = []
+        hits = []
+        for key in keys:
+            raw = self._unwrap_value(self.retrieve_own_memory(key))
+            if not raw:
+                continue
+            try:
+                reading = json.loads(raw)
+            except Exception:
+                continue
+            if reading.get("plant_id", "current_plant") != plant_id:
+                continue
+            if not str(reading.get("timestamp", "")).startswith(str(timestamp)):
+                continue
+            if reading.get("voided"):
+                hits.append({"key": key, "already_voided": True})
+                continue
+            reading["voided"] = True
+            reading["voided_reason"] = reason
+            reading["voided_by"] = voided_by
+            reading["voided_at"] = datetime.now().isoformat()
+            self.store_own_memory(key, json.dumps(reading))
+            hits.append({"key": key, "timestamp": reading.get("timestamp"),
+                         "ppm": reading.get("ppm"), "volume_liters": reading.get("volume_liters")})
+        if not hits:
+            return {"error": f"No reading for {plant_id} matching timestamp {timestamp}."}
+        return {"voided": hits, "count": len(hits), "reason": reason,
+                "note": "Kept on disk and excluded from analysis. The record that a wrong "
+                        "number was once entered is itself history."}
 
     def _collect_readings(self):
         """
@@ -5847,6 +5908,8 @@ class GrowAgent(AgentBase):
             self.store_own_memory(f"stage_transition_{self._uid()}", json.dumps(transition))
             return {"result": f"Stage transitioned to {new_stage}", "transition": transition}
 
+        elif task == "void_reading":
+            return {"result": self.void_reading(**(args if isinstance(args, dict) else {}))}
         elif task == "reconcile_topup":
             return {"result": self.reconcile_topup(**(args if isinstance(args, dict) else {}))}
         elif task == "log_water_change":

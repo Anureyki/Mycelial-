@@ -1312,3 +1312,24 @@ The event that moved the water now writes the new value, as `measured`.
 `volume` - a top-up is described by what went in, a full change by what the
 reservoir now holds, and accepting one name made the other look like a missing
 field.
+
+### 2026-08-30 — Withdraw a reading without erasing it
+
+Readings get entered twice, entered against the wrong volume, or entered while
+something downstream is being debugged - all three happened to this grow's
+series today. Any of them quietly poisons the derived figures, because uptake
+and mass balance are DIFFERENCES between consecutive readings, so one bad row
+corrupts both intervals touching it and nothing fails loudly.
+
+`void_reading` withdraws a row from analysis and keeps it on disk. Kept, because
+the fact that a wrong number was once recorded is itself history and deleting it
+would make the series look like it had always been clean. Excluded, because
+`_get_readings_for_plant` feeds every consumption and mass-balance calculation.
+
+Voiding **requires a reason**. A row withdrawn without one is indistinguishable
+from a row withdrawn because it was inconvenient, and a series that can be
+silently trimmed is not evidence.
+
+Applied to today: three duplicate/debug rows voided, and the pre-top-up reading
+re-logged with the volume the dilution measured (13.0 L) in place of the 12.5 L
+it had carried forward.
