@@ -240,7 +240,7 @@ async function fetchNarration(promptText) {
     const res = await fetch(`${serverUrl}/execute`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ task: 'process_request', args: [promptText] }),
+      body: JSON.stringify({ task: 'process_request', args: [promptText], sender: 'webapp' }),
     });
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
     const data = await res.json();
@@ -479,7 +479,9 @@ async function renderGraphCard(body) {
   body.textContent = '';
   const hdr = document.createElement('p');
   hdr.className = 'phase-hdr';
-  hdr.textContent = `${g.nodes.length} participants · ${g.edges.length} paths · last ${g.window_hours}h`;
+  const agents = g.nodes.filter(n => n.kind !== 'boundary').length;
+  hdr.textContent = `${agents} agents (${g.registered_count} registered) · `
+    + `${g.edges.length} paths · last ${g.window_hours}h · roster from ${g.roster_source}`;
   body.append(hdr);
 
   const W = 520, H = 340, R = 130;
@@ -525,20 +527,36 @@ async function renderGraphCard(body) {
     if (!p) continue;
     const total = n.handled + n.asked;
     const r = 5 + 7 * Math.min(1, Math.log(total + 1) / Math.log(30000));
-    const c = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
-    c.setAttribute('cx', p.x); c.setAttribute('cy', p.y);
-    c.setAttribute('r', r.toFixed(1));
-    c.setAttribute('class', `gnode gnode-${n.live === true ? 'up' : n.live === false ? 'down' : 'unknown'}`);
+    // The boundary is drawn as a square, not a circle. It is not an agent, and
+    // giving it the same shape as one is what made it read as a thirteenth
+    // department with no name.
+    const isB = n.kind === 'boundary';
+    const el = document.createElementNS('http://www.w3.org/2000/svg',
+      isB ? 'rect' : 'circle');
+    if (isB) {
+      el.setAttribute('x', p.x - r); el.setAttribute('y', p.y - r);
+      el.setAttribute('width', r * 2); el.setAttribute('height', r * 2);
+    } else {
+      el.setAttribute('cx', p.x); el.setAttribute('cy', p.y);
+      el.setAttribute('r', r.toFixed(1));
+    }
+    el.setAttribute('class', 'gnode gnode-'
+      + (isB ? 'boundary' : n.idle ? 'idle' : n.live === true ? 'up'
+         : n.live === false ? 'down' : 'unknown'));
     const t = document.createElementNS('http://www.w3.org/2000/svg', 'title');
-    t.textContent = `${n.id}${n.port ? ' :' + n.port : ''} — `
-      + (n.live === true ? 'answering' : n.live === false ? 'NOT answering' : 'no declared port')
-      + ` · handled ${n.handled}, asked ${n.asked}`;
-    c.append(t);
-    svg.append(c);
+    t.textContent = isB
+      ? `System boundary — ${n.asked} inbound calls whose caller did not identify itself`
+      : `${n.id}${n.port ? ' :' + n.port : ''} — `
+        + (n.live === true ? 'answering' : n.live === false ? 'NOT answering' : 'no declared port')
+        + (n.registered ? `, registered, ${n.capabilities} capabilities` : ', NOT in the registry')
+        + ` · handled ${n.handled}, asked ${n.asked}`
+        + (n.idle ? ' · nothing has called it in this window' : '');
+    el.append(t);
+    svg.append(el);
     const lb = document.createElementNS('http://www.w3.org/2000/svg', 'text');
     lb.setAttribute('x', p.x); lb.setAttribute('y', p.y - r - 4);
     lb.setAttribute('class', 'glabel');
-    lb.textContent = n.id.replace(/_agent$/, '');
+    lb.textContent = isB ? 'boundary' : n.id.replace(/_agent$/, '');
     svg.append(lb);
   }
   body.append(svg);
@@ -556,16 +574,32 @@ async function renderGraphCard(body) {
 
   // The knowledge graph is summarised, never drawn, while it holds fixtures. A
   // picture of unit-test data is indistinguishable from a system map.
+  // Who the unidentified caller is, answered as a list rather than a name -
+  // because there is no single answer and pretending otherwise was the bug.
+  if (g.boundary && g.boundary.total_calls) {
+    const b = document.createElement('p');
+    b.className = 'muted';
+    b.textContent = `Boundary: ${g.boundary.total_calls} inbound calls with no caller id — `
+      + g.boundary.by_target.slice(0, 3).map(x => `${x.target} ×${x.calls}`).join(', ')
+      + '. These are un-attributed, not unauthorised.';
+    body.append(b);
+  }
+
   const k = g.knowledge_graph;
   if (k && k.present) {
     const p = document.createElement('p');
     p.className = k.looks_like_test_data ? 'concern' : 'muted';
     const counts = Object.entries(k.node_types || {}).map(([t, c]) => `${c} ${t}`).join(', ');
+    // Never print a fixture's NAME. Telling the principal "these are test
+    // fixtures (John Doe, Alice Corp)" still puts a stranger on their page and
+    // makes them read a disclaimer to learn the page is not about them. Say
+    // that it holds development data, say how much, and name nothing.
     p.textContent = k.looks_like_test_data
-      ? `Knowledge graph holds ${counts} — but the named entities are test fixtures `
-        + `(${(k.fixture_matches || []).slice(0, 3).join(', ')}), newest ${String(k.newest_node).slice(0, 10)}. `
-        + `Not drawn: a graph of unit-test data looks exactly like a system map.`
-      : `Knowledge graph: ${counts}, newest ${String(k.newest_node).slice(0, 10)}.`;
+      ? `Knowledge graph holds ${counts} of development data and is not drawn. `
+        + `Run tools/purge_graph_fixtures.py to clear it.`
+      : (k.named_entities
+        ? `Knowledge graph: ${counts}, newest ${String(k.newest_node).slice(0, 10)}.`
+        : `Knowledge graph is empty — nothing has written a real entity to it yet.`);
     body.append(p);
   }
 }
@@ -615,7 +649,7 @@ async function callTask(task, args) {
   const res = await fetch(`${base}/execute`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ task, args: args || {} }),
+    body: JSON.stringify({ task, args: args || {}, sender: 'webapp' }),
   });
   if (!res.ok) return { error: `HTTP ${res.status}` };
   return res.json();

@@ -71,7 +71,8 @@ def agents():
 
 
 def call(port, task, args, timeout=20):
-    body = json.dumps({"task": task, "args": args}).encode()
+    body = json.dumps({"task": task, "args": args,
+                       "sender": "tool:check_inherited"}).encode()
     req = urllib.request.Request(f"http://127.0.0.1:{port}/execute", body,
                                  {"Content-Type": "application/json"})
     try:

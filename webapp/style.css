@@ -463,3 +463,9 @@ main#log {
   stroke: var(--panel);
   stroke-width: 2.5px;
 }
+
+/* The boundary is a square: it is not an agent, and the same shape made it read
+   as an unnamed thirteenth department. Idle = registered and running, nothing
+   called it. */
+.card-body .gnode-boundary { fill: none; stroke: #6b7d74; stroke-width: 1.5; stroke-dasharray: 3 2; }
+.card-body .gnode-idle { fill: none; stroke: #4a9d6e; stroke-width: 2; }

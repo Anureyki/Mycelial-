@@ -1974,3 +1974,64 @@ Search finds where the law lives; the corpus is what gets to speak.
   arrived unclassified and the claim pipeline could not weigh it. Now stamped
   with its basis: for a statute or regulation the title IS the citation and
   fixes the class definitionally.
+
+### 2026-08-30 — Who is "unknown", and why was a stranger's test data on the dashboard
+
+Three findings from one screenshot, all of them fair.
+
+**"unknown" was not a person or an agent. It was the system boundary.**
+`sender` defaults to the literal string `"unknown"` when a caller does not name
+itself, and drawing that as a labelled circle beside the real agents made it
+read as a thirteenth department with no name. Behind it in 48h: **1,715 calls** -
+the webapp's chat (118 `anansi/process_request`), the training review panel (41),
+local tooling, and `routing_terms` sweeps. All legitimate, none identified.
+
+It is now drawn as a dashed **square**, labelled `boundary`, with its traffic
+broken out by what it called - the honest answer to "who is that" is a list, not
+a name. And the legitimate callers now identify themselves: the webapp sends
+`sender: "webapp"` on both call sites, `check_inherited.py` sends
+`tool:check_inherited`. What stays unattributed after that is a real question
+rather than an artefact.
+
+**The roster comes from the registry now.** Building the node list only from
+observed traffic meant an agent nobody had called simply was not on the map -
+and "registered, running, and nothing has asked it anything" is one of the more
+useful things a system picture can show. Three sources, kept apart: the
+**registry** is the claim about who exists, the **audit log** is the observation
+of what happened, the **port** is the evidence of what is running. 12 registered.
+
+**The test fixtures are gone, not annotated.** Reporting "these are test
+fixtures (John Doe, Alice Corp, Bob LLC)" still put a stranger's name on the
+principal's page and made them read a disclaimer to learn the page was not about
+them. Every node in the graph dated to 2026-08-07 or 08-22 - development days -
+so all 38 nodes, 63 edges and 19 relationship rows were removed.
+`tools/purge_graph_fixtures.py` does it, dry-run by default, printing every node
+and why it matched.
+
+**No backup, on the principal's reasoning:** *"Why would I want to reverse
+something that I deleted? Especially if it's test data. That's just gonna
+corrupt whatever I got going on."* Correct - a copy of fixtures is a way to
+restore fixtures. The dry run is the review step; `--keep-backup` is opt-in for a
+graph with real work in it. Fixture NAMES are no longer returned to the client
+at all, only a count.
+
+**And then it was filled with live data.** `sync_graph_from_cases` projects the
+real case through `CaseManager` - not straight out of `memory.db`, because a
+second reader going round the broker is how four partial views of a matter
+appeared in the first place. The graph now holds the housing matter: 1 case, 6
+parties, 3 obligations, 10 edges.
+
+```
+principal               -> Monthly rent                $1450/monthly
+VA HUD-VASH             -> Monthly rent                $1450/monthly
+Anthony Hanlan          -> Rent - resident portion      $459/monthly
+Housing Authority (HAP) -> Rent - HAP voucher subsidy   $791/monthly
+```
+
+Who is authorised to pay is an EDGE, not a string inside an obligation, because
+it is the fact that decides whether a payment is contestable.
+
+Only STRUCTURE crosses: parties, roles, amounts, cadences. Not the 17 documents,
+not the evidence bodies, not the correspondence. The case record stays the place
+content lives; copying it into a second store is the drift this exists to
+prevent.

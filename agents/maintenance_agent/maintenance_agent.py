@@ -449,7 +449,7 @@ class MaintenanceAgent(AgentBase):
             h = 24
         since = (datetime.now() - timedelta(hours=h)).isoformat()
 
-        nodes, edges = {}, {}
+        nodes, edges, boundary = {}, {}, {}
         try:
             conn = sqlite3.connect(f"file:{audit}?mode=ro", uri=True, timeout=10)
             rows = conn.execute(
@@ -470,12 +470,26 @@ class MaintenanceAgent(AgentBase):
                 continue
             nodes.setdefault(agent_id, {"id": agent_id, "handled": 0, "asked": 0})
             nodes[agent_id]["handled"] += 1
-            # "unknown" is an inbound call with no named caller - the webapp and
-            # curl both arrive that way. Kept as a node rather than dropped,
-            # because traffic entering from outside is part of the picture.
-            src = sender or "external"
+            # AN UNIDENTIFIED CALLER IS NOT A PARTICIPANT.
+            #
+            # `sender` defaults to the literal string "unknown" when a caller
+            # does not name itself, and drawing that as a labelled circle beside
+            # the real agents invited exactly the right question: who is that?
+            # It is not an entity at all - it is the SYSTEM BOUNDARY, and every
+            # unattributed call collapses into one node that looks like a
+            # thirteenth department.
+            #
+            # Behind it in a 48h window: the webapp's chat (anansi
+            # process_request), the training review panel, and local tooling.
+            # All legitimate, none identified. So it is recorded as a boundary
+            # with its traffic broken out by what it called, and the honest
+            # answer to "who is that" is a list rather than a name.
+            src = sender if sender and sender != "unknown" else "__boundary__"
             nodes.setdefault(src, {"id": src, "handled": 0, "asked": 0})
             nodes[src]["asked"] += 1
+            if src == "__boundary__":
+                b = boundary.setdefault(f"{agent_id}/{task}", 0)
+                boundary[f"{agent_id}/{task}"] = b + 1
             if src == agent_id:
                 continue
             key = f"{src}->{agent_id}"
@@ -497,10 +511,32 @@ class MaintenanceAgent(AgentBase):
         # Liveness is read from the port, never from the log. An agent can be
         # all over the history and not be running now, and that difference is
         # the single most useful thing a system map can show.
+        # THE ROSTER COMES FROM THE REGISTRY, THE EDGES FROM THE LOG.
+        #
+        # Building the node list only from observed traffic meant an agent that
+        # had not been called simply was not on the map - and "registered but
+        # never spoken to" is one of the more useful things a system picture can
+        # show. The registry is the CLAIM about who exists; the log is the
+        # observation of what happened; the port is the evidence of what is
+        # running. All three, kept apart.
+        registered = {}
+        try:
+            reg = requests.post("http://127.0.0.1:8004/execute",
+                                json={"task": "list_agents", "args": {}}, timeout=5)
+            for a in (reg.json() or {}).get("result") or []:
+                if a.get("agent_id"):
+                    registered[a["agent_id"]] = a
+        except Exception as exc:
+            self.log(f"system_graph: registry unreachable ({exc}) - roster from configs only")
+
         ports = self._declared_ports()
+        seen |= set(registered)
         live = {}
         for nid in seen:
-            port = ports.get(nid)
+            if nid == "__boundary__":
+                live[nid] = None
+                continue
+            port = ports.get(nid) or (registered.get(nid) or {}).get("port")
             if port is None:
                 live[nid] = None
                 continue
@@ -512,20 +548,133 @@ class MaintenanceAgent(AgentBase):
 
         out_nodes = []
         for nid in sorted(seen):
-            n = dict(nodes[nid])
-            n["port"] = ports.get(nid)
+            n = dict(nodes.get(nid) or {"id": nid, "handled": 0, "asked": 0})
+            n["port"] = ports.get(nid) or (registered.get(nid) or {}).get("port")
             n["live"] = live.get(nid)
-            n["kind"] = ("external" if nid == "external"
-                         else "service" if (n["port"] or 0) and n["port"] < 8080
-                         else "agent")
+            n["registered"] = nid in registered
+            n["capabilities"] = len((registered.get(nid) or {}).get("capabilities") or [])
+            n["kind"] = ("boundary" if nid == "__boundary__" else "agent")
+            # Registered, running, and nothing has asked it anything. Not a
+            # fault - but it is the difference between a department and a
+            # department nobody uses, and the map should say which.
+            n["idle"] = (n["kind"] == "agent" and n["handled"] == 0)
             out_nodes.append(n)
 
+        top_boundary = sorted(boundary.items(), key=lambda kv: -kv[1])[:8]
         return {"nodes": out_nodes,
+                "boundary": {
+                    "total_calls": sum(boundary.values()),
+                    "by_target": [{"target": k, "calls": v} for k, v in top_boundary],
+                    "what_it_is": ("Inbound calls whose caller did not identify itself. "
+                                   "`sender` defaults to \"unknown\", so the webapp, local "
+                                   "tooling and anything else reaching the port all collapse "
+                                   "into one label. It is the system boundary, not a "
+                                   "participant - and the fact that these are "
+                                   "indistinguishable from each other is the finding."),
+                },
+                "roster_source": ("registry (8004)" if registered else "agent configs"),
+                "registered_count": len(registered),
                 "edges": sorted(kept, key=lambda e: -e["calls"]),
                 "window_hours": h, "min_calls": floor,
                 "edges_below_threshold": len(edges) - len(kept),
                 "source": "audit log (observed traffic)",
                 "knowledge_graph": self._knowledge_graph_summary() if include_knowledge else None}
+
+    def sync_graph_from_cases(self, apply=False):
+        """Project live case records into the knowledge graph.
+
+        The graph was built during development, filled with fixtures, and then
+        emptied - which left it correct and useless. It should hold what this
+        principal actually operates: the matters, who is party to them, what is
+        owed and who is authorised to pay it.
+
+        Read through `CaseManager`, not straight out of `memory.db`. The case
+        lives in ONE shared namespace and Hermes brokers it; a second reader
+        going round the broker is how four partial views of a matter appeared
+        in the first place.
+
+        What crosses into the graph is STRUCTURE - parties, roles, obligations,
+        amounts, element states. Not the documents, not the evidence bodies,
+        not the correspondence. A graph is for showing how things relate; the
+        case record remains the place the content lives, and copying content
+        into a second store is the drift this is supposed to prevent."""
+        try:
+            from core.graph_manager import GraphManager
+        except Exception as exc:
+            return {"error": f"graph manager unavailable: {exc}"}
+        cm = self.case()
+        try:
+            cases = cm.list_cases() or []
+        except Exception as exc:
+            return {"error": f"could not list cases: {exc}"}
+        if isinstance(cases, dict):
+            cases = cases.get("cases") or cases.get("result") or []
+
+        planned = {"nodes": [], "edges": []}
+        for entry in cases:
+            cid = entry.get("case_id") if isinstance(entry, dict) else entry
+            if not cid:
+                continue
+            try:
+                case = cm.get(cid)
+            except Exception:
+                continue
+            if not isinstance(case, dict):
+                continue
+            title = case.get("title") or cid
+            planned["nodes"].append({"id": cid, "type": "case",
+                                     "properties": {"title": title,
+                                                    "state": case.get("current_state")}})
+            for p in case.get("participants") or []:
+                name = (p.get("name") or "").strip()
+                if not name:
+                    continue
+                planned["nodes"].append({"id": name, "type": "party",
+                                         "properties": {"role": p.get("role")}})
+                planned["edges"].append({"from": name, "to": cid, "rel": "PARTY",
+                                         "properties": {"role": p.get("role")}})
+            for o in case.get("obligations") or []:
+                oid = o.get("obligation_id") or o.get("name")
+                if not oid:
+                    continue
+                planned["nodes"].append({
+                    "id": oid, "type": "obligation",
+                    "properties": {"name": o.get("name"), "amount": o.get("amount"),
+                                   "cadence": o.get("cadence"),
+                                   "due_day": o.get("due_day")}})
+                planned["edges"].append({"from": cid, "to": oid, "rel": "HAS_OBLIGATION",
+                                         "properties": {}})
+                # Who is authorised to pay is the fact that makes a payment
+                # contestable or not, so it is an EDGE rather than a string
+                # buried in the obligation's properties.
+                for payor in o.get("authorized_payors") or []:
+                    if not str(payor).strip():
+                        continue
+                    planned["nodes"].append({"id": payor, "type": "party",
+                                             "properties": {"role": "authorised payor"}})
+                    planned["edges"].append({"from": payor, "to": oid,
+                                             "rel": "AUTHORISED_PAYOR", "properties": {}})
+
+        # De-duplicate by id, keeping the first properties seen.
+        seen_n, nodes = set(), []
+        for n in planned["nodes"]:
+            if n["id"] in seen_n:
+                continue
+            seen_n.add(n["id"])
+            nodes.append(n)
+        out = {"cases": len(cases), "nodes": len(nodes), "edges": len(planned["edges"]),
+               "applied": False,
+               "sample": [f"{n['type']}: {n['id']}" for n in nodes[:8]]}
+        if not apply:
+            out["note"] = "Dry run. Pass apply=true to write."
+            return out
+        g = GraphManager()
+        for n in nodes:
+            g.add_node(n["id"], n["type"], n["properties"])
+        for e in planned["edges"]:
+            g.add_edge(e["from"], e["to"], e["rel"], e.get("properties") or {})
+        out["applied"] = True
+        return out
 
     def _knowledge_graph_summary(self):
         """What the KAG holds, and whether any of it is real.
@@ -553,7 +702,7 @@ class MaintenanceAgent(AgentBase):
                 if any(f in n.lower() for f in FIXTURES) or "test" in n.lower()]
         return {"present": True, "node_types": types, "edge_types": rels,
                 "newest_node": newest, "named_entities": len(names),
-                "fixture_matches": hits[:8],
+                "fixture_match_count": len(hits),
                 "looks_like_test_data": len(hits) >= max(2, len(names) // 3),
                 "note": ("Named entities matching known fixtures or containing 'test'. "
                          "Drawn nowhere until real work is written into it - a graph of "
@@ -653,6 +802,10 @@ class MaintenanceAgent(AgentBase):
             return self.recent_changes(limit=payload.get("limit", 10),
                                        scope=payload.get("scope"),
                                        include_domain=bool(payload.get("include_domain")))
+
+        if task == "sync_graph_from_cases":
+            payload = args if isinstance(args, dict) else {}
+            return self.sync_graph_from_cases(apply=bool(payload.get("apply")))
 
         if task == "system_graph":
             payload = args if isinstance(args, dict) else {}
