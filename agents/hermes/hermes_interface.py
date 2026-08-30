@@ -25,6 +25,7 @@ class HermesInterface(AgentBase):
             capabilities=[
                 "store_memory",
                 "retrieve_memory",
+                "retrieve_many",
                 "knowledge_search",
                 "update_memory",
                 "forget_memory",
@@ -127,6 +128,48 @@ class HermesInterface(AgentBase):
                 "key": args[1]
             })
             return result
+
+        elif task == "retrieve_many":
+            # PHASE 3, second fix. One key per A2A call meant reading 25 grow
+            # readings cost 25 HTTP round trips, and the request cache above
+            # only helps the SECOND read of a key - the first 91 are still one
+            # trip each. This is one trip for the lot.
+            #
+            # Hermes stays a broker here: it fans out to the Memory Service and
+            # returns what came back, key by key. It does not merge, summarise
+            # or interpret - a broker that starts combining domain records is
+            # the drift the ownership model exists to prevent.
+            if len(args) < 2:
+                return {"error": "Usage: retrieve_many <namespace> <keys[]>"}
+            namespace, keys = args[0], args[1]
+            if isinstance(keys, str):
+                try:
+                    keys = json.loads(keys)
+                except Exception:
+                    keys = [k.strip() for k in keys.split(",") if k.strip()]
+            if not isinstance(keys, list):
+                return {"error": "keys must be a list"}
+            # A missing key is reported as missing rather than omitted. An
+            # absent entry and a key nobody asked for look identical in a dict
+            # that only carries hits.
+            out, missing = {}, []
+            for k in keys[:500]:
+                r = self._call_memory_service("retrieve", "GET",
+                                              {"namespace": namespace, "key": k})
+                # _call_memory_service returns {"entry": ...} directly, not
+                # nested under "result" - checking only the nested shape marked
+                # every key missing and the batch silently returned nothing,
+                # which read downstream as "this grow has no readings".
+                entry = None
+                if isinstance(r, dict):
+                    entry = r.get("entry") or (r.get("result") or {}).get("entry") \
+                        if isinstance(r.get("result"), dict) else r.get("entry")
+                if entry:
+                    out[k] = r
+                else:
+                    missing.append(k)
+            return {"result": {"entries": out, "missing": missing,
+                               "requested": len(keys[:500])}}
 
         elif task == "knowledge_search":
             if len(args) < 1:

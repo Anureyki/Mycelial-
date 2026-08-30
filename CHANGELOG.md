@@ -2035,3 +2035,74 @@ Only STRUCTURE crosses: parties, roles, amounts, cadences. Not the 17 documents,
 not the evidence bodies, not the correspondence. The case record stays the place
 content lives; copying it into a second store is the drift this exists to
 prevent.
+
+### 2026-08-30 — Phase 3 done: 22.04s to 1.05s
+
+The grower's point first, because it is the reason this got done at all: *"if we
+did not write this into the phases, I would have forgotten... just continue
+architecting a different feature instead of finding ways to move forward."* The
+roadmap was the only thing that brought this back.
+
+**Measured before:** "how is my plant" produced **282 audited events in 22.04s** -
+137 memory reads, 141 guard checks, for **5 calls of actual work**. 87 of the 137
+reads returned data already fetched inside the same request; 108 were individual
+`reading_*` keys pulled one at a time.
+
+**Measured after: 22 events, 1.05s.**
+
+| | before | after |
+|---|---|---|
+| wall clock | 22.04s | **1.05s** |
+| audited events | 282 | **22** |
+| memory reads | 137 | **15** |
+| batched reads | 0 | **1** (replacing ~108) |
+| guard checks | 141 | **2** |
+
+**On the grower's reading of the 87 re-reads as a confidence problem** - *"it
+doesn't have confidence in the data that it recorded"* - the intuition points at
+something real and the diagnosis is not quite it. Nothing re-reads because it
+distrusts the first answer. Several code paths inside one `answer()` each fetch
+what they need independently and none can see that another already has; there is
+no shared scratchpad for *what do we know right now*, so every path starts from
+nothing. That is a coordination gap, not doubt.
+
+The distinction decides the fix, which is why it is worth being precise about.
+Doubt would be answered by *verification* - re-reading and comparing, which is
+what it already looks like it is doing and would make it slower still. A
+coordination gap is answered by *remembering*.
+
+Three fixes, in `core/base_agent.py` so every agent inherits them:
+
+1. **Request-scoped read cache**, destroyed when the request ends. A cache
+   outliving the request would serve a stale reading to the next question, and
+   dosing off a stale volume is the failure this project keeps finding. Writes
+   invalidate their key, so read-after-write inside one request cannot return
+   the pre-write value.
+2. **`retrieve_many` / `retrieve_own_memories`.** One round trip for many keys,
+   falling back to individual reads if the batch verb is missing - a performance
+   fix that can lose data is not one. Hermes stays a broker: it fans out and
+   returns key by key, and does not merge or interpret.
+3. **Guard decision cache, ALLOW only, 30 seconds.** Denials are re-evaluated
+   every time so a removed rule takes effect at once, and `state/LOCKED` is read
+   from local disk on every call before the cache is consulted. Verified: the
+   kill switch still returns 403 instantly.
+
+**A regression was introduced and caught by checking correctness before
+performance.** The batch returned entries one nesting level shallower than the
+single read, `_unwrap_value` looked too deep, every reading read as absent, and
+the grow reported having no readings at all. A faster path that returns a
+different shape is not a faster path - it is a second API nobody was told about.
+
+**Phase 9 recorded, not started:** *conversations that persist, and answers that
+arrive*. Asking Anansi something it cannot answer yet is a dead end - today's
+"What is legal tender" was answered correctly as a missing capability, the
+capability was built twenty minutes later, and nothing told the person who asked.
+Split deliberately into 9a (a question outlives its request; retry it when the
+capability appears) and 9b (sessions exist at all), because 9a is much the
+smaller half and worth more.
+
+**`apply_updates` now says why it cannot.** It ran `apt upgrade` and reported a
+bare "Failed", which reads as a broken package rather than as a boundary. This
+agent runs unprivileged by design - the Phase 6 posture, where no agent holds
+root so none can be talked into using it. It reports the 42 upgradable packages,
+names the command to run by hand, and states that nothing was changed.

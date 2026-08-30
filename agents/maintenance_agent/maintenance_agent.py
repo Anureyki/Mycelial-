@@ -1030,10 +1030,34 @@ class MaintenanceAgent(AgentBase):
             return {"upgradable_count": len(upgradable), "packages": upgradable}
 
         elif task == "apply_updates":
-            if args.get("confirm") != True:
+            if args.get("confirm") is not True:
                 return {"error": "Confirmation required (confirm=true)"}
-            result = self._execute_local("apt update && apt upgrade -y")
-            return {"result": "System updated" if result.get("returncode") == 0 else "Failed"}
+            # This agent runs as the same unprivileged user as the rest of the
+            # swarm - deliberately, per the Phase 6 hardening. `apt upgrade`
+            # needs root, so it cannot run here and saying "Failed" told the
+            # principal nothing: it reads as a broken package or a network
+            # problem rather than as a boundary the system is not allowed to
+            # cross. An agent that cannot do a thing should say WHY and hand
+            # back the command, not report a bare failure.
+            probe = self._execute_local("sudo -n true")
+            if probe.get("returncode") != 0:
+                pending = self.handle_task("check_updates", {}, self.agent_id)
+                return {
+                    "applied": False,
+                    "reason": ("This agent runs unprivileged and apt upgrade needs root. "
+                               "That is the Phase 6 posture, not a fault - no agent holds "
+                               "root, so no agent can be talked into using it."),
+                    "upgradable_count": pending.get("upgradable_count"),
+                    "run_yourself": "sudo apt update && sudo apt upgrade",
+                    "note": ("Nothing was changed. Re-run check_updates afterwards and the "
+                             "count should fall."),
+                }
+            result = self._execute_local("sudo -n apt-get update && "
+                                         "sudo -n apt-get upgrade -y")
+            ok = result.get("returncode") == 0
+            return {"applied": ok,
+                    "reason": "" if ok else (result.get("stderr") or "")[:400],
+                    "stdout_tail": (result.get("stdout") or "")[-400:]}
 
         elif task == "rollback":
             return {"result": "Rollback not implemented"}

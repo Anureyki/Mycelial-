@@ -5583,9 +5583,14 @@ class GrowAgent(AgentBase):
             keys = json.loads(index)
         except Exception:
             return []
+        # PHASE 3. This loop was the read amplification: 108 of the 137 calls
+        # in one answer were this, fetching each reading key on its own round
+        # trip. One batch call now, and the per-key path stays as the fallback
+        # inside retrieve_own_memories if the batch verb is unavailable.
+        fetched = self.retrieve_own_memories(keys)
         readings = []
         for key in keys:
-            raw = self._unwrap_value(self.retrieve_own_memory(key))
+            raw = self._unwrap_value(fetched.get(key))
             if not raw:
                 continue
             try:

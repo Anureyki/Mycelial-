@@ -24,6 +24,8 @@ CAG_TOKEN_RE = re.compile(r"[a-zA-Z0-9§][a-zA-Z0-9§.\-]*")
 
 REGISTRY_SERVICE_URL = "http://localhost:8004/execute"
 LOGGING_SERVICE_URL = "http://localhost:8009/log"
+LOCK_FILE = os.path.join(os.path.dirname(os.path.dirname(
+    os.path.abspath(__file__))), "state", "LOCKED")
 SECURITY_AGENT_URL = "http://localhost:9010/execute"
 
 # Guard checks sit in front of every request, so they must be fast and must
@@ -282,6 +284,33 @@ class AgentBase:
         if self.agent_id == "security_agent":
             return True, "security_agent is exempt"
 
+        # PHASE 3, third fix. Every inbound /execute pays a network round trip
+        # to the Security Agent, so Hermes serving 50 memory reads inside one
+        # answer made 50 identical guard calls with identical arguments and
+        # identical results. That is 13,407 of them in two days, and it is the
+        # single loudest edge on the interaction graph.
+        #
+        # ALLOW decisions are cached for a short window keyed by exactly what
+        # the decision depends on. Three deliberate limits:
+        #
+        #  - Only ALLOW is cached. A denial is re-evaluated every time. Denials
+        #    are rare, so this costs nothing, and a cached denial would keep
+        #    refusing after the rule that caused it was removed.
+        #  - The kill switch is checked on EVERY call, from local disk, before
+        #    the cache is consulted. `touch state/LOCKED` must stop the swarm
+        #    now, not within a TTL - that is the whole point of a kill switch.
+        #  - 30 seconds, so an edited denylist takes effect within 30s of the
+        #    reload rather than instantly. That staleness is bounded and stated;
+        #    an unbounded cache here would be a security regression.
+        if os.path.exists(LOCK_FILE):
+            return False, "state/LOCKED is present - all requests denied"
+
+        ck = (self.agent_id, task, sender, str(self._extract_target(args))[:120])
+        now = time.time()
+        cached = self._guard_cache.get(ck)
+        if cached and cached[0] > now:
+            return True, cached[1]
+
         try:
             response = requests.post(
                 SECURITY_AGENT_URL,
@@ -301,7 +330,18 @@ class AgentBase:
             if not isinstance(result, dict) or "allowed" not in result:
                 self.log("Guard check returned an unexpected shape; allowing by default")
                 return True, "guard unavailable"
-            return bool(result["allowed"]), result.get("reason", "")
+            allowed = bool(result["allowed"])
+            reason = result.get("reason", "")
+            # Cache the ALLOW only. See the note above - a cached denial would
+            # keep refusing after its rule was removed, and denials are rare
+            # enough that re-checking them costs nothing.
+            if allowed:
+                self._guard_cache[ck] = (now + self.GUARD_CACHE_SECONDS, reason)
+                if len(self._guard_cache) > 2000:
+                    for k, v in list(self._guard_cache.items()):
+                        if v[0] <= now:
+                            self._guard_cache.pop(k, None)
+            return allowed, reason
         except Exception as e:
             self.log(f"Guard check failed ({e}); allowing by default")
             return True, "guard unavailable"
@@ -339,6 +379,7 @@ class AgentBase:
                 sender = params.get("sender", "unknown")
             self.log(f"Received A2A: {task} from {sender}")
 
+            self._cache_begin()
             try:
                 allowed, reason = self.check_guard(task, args, sender)
                 if not allowed:
@@ -400,11 +441,14 @@ class AgentBase:
                 else:
                     result = self.handle_task(task, args, sender)
 
+                hits, misses = self._cache_end()
                 self.log_to_audit(task, str(result), event_type="TASK_COMPLETED",
-                                  metadata={"task": task, "sender": sender})
+                                  metadata={"task": task, "sender": sender,
+                                            "reads": misses, "read_cache_hits": hits})
                 self.publish_event("task.completed", {"task": task, "sender": sender})
                 return jsonify({"result": result})
             except Exception as e:
+                self._cache_end()
                 self.log(f"Error: {e}")
                 return jsonify({"error": str(e)}), 500
 
@@ -1182,17 +1226,132 @@ class AgentBase:
         return self.call_tool("vestige", "memory", args)
 
     # ---------- Agent‑specific Memory Helpers ----------
+    # ---------- Request-scoped read cache ----------
+    # PHASE 3. Measured on "how is my plant": one question produced 282 audited
+    # events - 137 memory reads, each paying a guard check, for 5 calls of
+    # actual work. 87 of the 137 returned data that had already been read
+    # inside the SAME request.
+    #
+    # Those 87 are not the system doubting what it recorded. Nothing re-reads
+    # because it distrusts the first answer - it re-reads because several code
+    # paths inside one `answer()` each fetch what they need independently and
+    # none of them can see that another already has. There is no shared
+    # scratchpad for "what do we know right now", so every path starts from
+    # nothing. That is a coordination gap, not a confidence one.
+    #
+    # The distinction matters because it decides the fix. Doubt would be
+    # answered by verification - re-reading and comparing, which is what it
+    # already looks like it is doing and would make it slower still. A
+    # coordination gap is answered by remembering, which is this.
+    #
+    # Scope is one inbound request and nothing longer. A cache that outlives
+    # the request would serve a stale reading to the next question, and a grow
+    # that doses off a stale volume is exactly the failure this project keeps
+    # finding. It dies when the request does.
+    _req = threading.local()
+    # (agent, task, sender, target) -> (expires_at, reason). ALLOW only.
+    _guard_cache = {}
+    GUARD_CACHE_SECONDS = 30
+
+    def _cache_begin(self):
+        self._req.reads = {}
+        self._req.hits = 0
+        self._req.misses = 0
+
+    def _cache_end(self):
+        stats = (getattr(self._req, "hits", 0), getattr(self._req, "misses", 0))
+        self._req.reads = None
+        return stats
+
+    def _cache_invalidate(self, key):
+        """A write makes the cached read wrong. Anything that stores must drop
+        the key, or a read-after-write inside one request returns the value
+        from before the write - which is worse than any number of extra reads,
+        because it is silently wrong rather than merely slow."""
+        reads = getattr(self._req, "reads", None)
+        if isinstance(reads, dict):
+            reads.pop(key, None)
+
     def store_own_memory(self, key, value, pin=False):
         """Store memory in the agent's own namespace (agent_<agent_id>)."""
         namespace = f"agent_{self.agent_id}"
         # Hermes accepts pin as 4th argument (boolean string)
         pin_str = str(pin).lower()
+        self._cache_invalidate(key)
         return self.send_a2a("hermes", "store_memory", [namespace, key, value, pin_str])
 
     def retrieve_own_memory(self, key):
-        """Retrieve memory from the agent's own namespace."""
+        """Retrieve memory from the agent's own namespace.
+
+        Served from the request-scoped cache when this request has already read
+        the key. See the note above `_req` for why the scope is exactly one
+        request and no longer."""
+        reads = getattr(self._req, "reads", None)
+        if isinstance(reads, dict) and key in reads:
+            self._req.hits = getattr(self._req, "hits", 0) + 1
+            return reads[key]
         namespace = f"agent_{self.agent_id}"
-        return self.send_a2a("hermes", "retrieve_memory", [namespace, key])
+        value = self.send_a2a("hermes", "retrieve_memory", [namespace, key])
+        if isinstance(reads, dict):
+            reads[key] = value
+            self._req.misses = getattr(self._req, "misses", 0) + 1
+        return value
+
+    def retrieve_own_memories(self, keys):
+        """Many keys, one round trip. Returns {key: value_or_None}.
+
+        The request cache removes RE-reads; this removes the cost of the first
+        read of each key, which the cache cannot help with. Reading a grow's 25
+        readings went from 25 A2A calls to one.
+
+        Anything already in the request cache is served from there and not
+        asked for again, so the two fixes compose instead of duplicating."""
+        keys = [k for k in (keys or []) if k]
+        if not keys:
+            return {}
+        reads = getattr(self._req, "reads", None)
+        out, need = {}, []
+        for k in keys:
+            if isinstance(reads, dict) and k in reads:
+                out[k] = reads[k]
+                self._req.hits = getattr(self._req, "hits", 0) + 1
+            else:
+                need.append(k)
+        if not need:
+            return out
+        namespace = f"agent_{self.agent_id}"
+        resp = self.send_a2a("hermes", "retrieve_many", [namespace, need])
+        payload = resp
+        for _ in range(4):
+            if isinstance(payload, dict) and "entries" not in payload and "result" in payload:
+                payload = payload["result"]
+            else:
+                break
+        entries = (payload or {}).get("entries") if isinstance(payload, dict) else None
+        if not isinstance(entries, dict):
+            # Batch unavailable - fall back to one at a time rather than
+            # returning nothing. A performance fix that can lose data is not a
+            # performance fix.
+            self.log("retrieve_many unavailable; falling back to individual reads")
+            for k in need:
+                out[k] = self.retrieve_own_memory(k)
+            return out
+        for k in need:
+            v = entries.get(k)
+            # SHAPE MUST MATCH THE SINGLE READ EXACTLY.
+            #
+            # retrieve_own_memory returns what /execute sends: {"result":
+            # {"entry": ...}}. The batch hands back {"entry": ...} - one level
+            # shallower - so every caller's _unwrap_value looked one level too
+            # deep and got None. Every reading read as absent, and the grow
+            # reported having no readings at all. A faster path that returns a
+            # different shape is not a faster path, it is a second API nobody
+            # was told about.
+            out[k] = {"result": v} if v is not None else None
+            if isinstance(reads, dict):
+                reads[k] = out[k]
+                self._req.misses = getattr(self._req, "misses", 0) + 1
+        return out
 
     def search_own_memory(self, query):
         """Search memory in the agent's own namespace."""

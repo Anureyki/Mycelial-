@@ -18,13 +18,14 @@ run, which put retention and maintenance work *after* cutover. Renumbered
 | 0 | Remove orphaned crash-looping systemd units | ✅ done |
 | 1 | Containerize for portability | ✅ done (smoke-tested) |
 | 2 | Retention: what to keep, and on what evidence | not started |
-| 3 | Reduce A2A read amplification inside a single answer | not started |
+| 3 | Reduce A2A read amplification inside a single answer | ✅ done 2026-08-30 |
 | 4 | Grow captures spoken facts itself | not started |
 | 5 | Identity and authorization (DID / verifiable claims) | not started |
 | 6 | Harden network exposure | ◐ one sudo command remaining |
 | 7 | Provision dedicated device | not started |
 | 8 | Migrate and cut over | not started |
 | — | Training-data loop: source, review, count | ✅ done 2026-08-25 |
+| 9 | Conversations that persist, and answers that arrive | not started |
 | — | *Deferred track:* multi-tenancy | not scheduled |
 
 2-4 are internal: they make the system cheaper, leaner and more truthful about
@@ -152,7 +153,43 @@ to 2026-08-13 in a single file, and every agent appends to that one file.
 
 Deleting on age or size. Both are proxies for "probably worthless" and neither
 is evidence. The three unreadable photos are among the oldest.
-## Phase 3 — Reduce A2A read amplification inside a single answer — NOT STARTED
+## Phase 3 — Reduce A2A read amplification inside a single answer — ✅ DONE 2026-08-30
+
+**Measured before:** "how is my plant" produced 282 audited events in 22.04s —
+137 memory reads, 141 guard checks, for 5 calls of actual work. 87 of the 137
+reads returned data already fetched inside the same request; 108 were individual
+`reading_*` keys pulled one at a time.
+
+**Measured after: 22 events, 1.05s.**
+
+| | before | after |
+|---|---|---|
+| wall clock | 22.04s | **1.05s** |
+| audited events | 282 | **22** |
+| memory reads | 137 | **15** |
+| batched reads | 0 | **1** (replacing ~108) |
+| guard checks | 141 | **2** |
+
+Three fixes, all in `core/base_agent.py` so every agent inherits them:
+
+1. **Request-scoped read cache.** Keyed per inbound request and destroyed when
+   it ends — a cache that outlived the request would serve a stale reading to
+   the next question, and dosing off a stale volume is the failure this project
+   keeps finding. Writes invalidate their key, so a read-after-write inside one
+   request cannot return the pre-write value.
+2. **`retrieve_many`** on Hermes, `retrieve_own_memories` on the base. One round
+   trip for many keys. Falls back to individual reads if the batch verb is
+   unavailable — a performance fix that can lose data is not one.
+3. **Guard decision cache, ALLOW only, 30s.** Denials are re-evaluated every
+   time so a removed rule takes effect at once, and `state/LOCKED` is checked
+   from local disk on every call before the cache is consulted — verified: the
+   kill switch still returns 403 instantly.
+
+**A regression was introduced and caught by checking correctness before
+performance.** The batch returned entries one nesting level shallower than the
+single read, so `_unwrap_value` looked too deep, every reading read as absent,
+and the grow reported having no readings at all. A faster path that returns a
+different shape is not a faster path — it is a second API nobody was told about.
 
 **Independent of the deployment chain (Phases 6-8) and of identity (Phase 5).
 Comes before the deferred multi-tenancy track, which would multiply it by the
@@ -492,3 +529,52 @@ already proves the thin-client pattern, and the socat forwarder already exposes
 Anansi to the LAN. That de-risks the whole UX question without touching the
 trust model.
 
+
+
+## Phase 9 — Conversations that persist, and answers that arrive — NOT STARTED
+
+Recorded 2026-08-30 at the principal's request, for the same reason Phase 3
+existed to be found again: *"if we did not write this into the phases, I would
+have forgotten... just continue architecting a different feature instead of
+finding ways to move forward."*
+
+### The gap
+
+Asking Anansi something it cannot answer yet ends the exchange. The principal
+waits, the capability gets built, and then they have to **come back and ask the
+same question again** — the system never tells them the answer exists now.
+
+Today's session is the example: *"What is legal tender"* returned *"the routing
+is right and the capability is missing."* That was the correct answer and it was
+a dead end. Legal's `answer()` was built twenty minutes later and nothing told
+the person who asked.
+
+Two separate things are missing, and they are worth separating because one is
+much smaller than the other:
+
+**9a. A question can outlive the request that asked it.** When an agent reports
+a missing capability, the question should be *recorded as open* against the
+agent that claimed it. When that agent later gains the capability, the open
+question is retried and the answer posted into the chat unprompted. This does
+not need conversation storage — it needs a queue of unanswered questions with
+the agent and prompt that produced them.
+
+**9b. Conversations persist at all.** There are no sessions: the chat is a
+transcript in the browser that dies on reload, and nothing on the server knows
+what was discussed. This is the larger piece and it is what makes 9a *feel* like
+a conversation rather than a notification.
+
+### Why it is not Phase 3-shaped
+
+Phase 3 was arithmetic — measure, cache, measure again. This one changes what a
+request IS: a thing that can be answered later, by a different process, into a
+channel the asker is not currently waiting on. That is closer to Phase 5
+(identity — *who* is the answer for) than to a performance fix, and it should
+probably follow it.
+
+### Do not start this by
+
+Building chat history storage first. The history is the bigger half and the
+smaller half is worth more: a queue of open questions retried when a capability
+appears would have caught today's legal-tender case with no session storage at
+all.
