@@ -872,3 +872,35 @@ trustee is a government and the beneficiary is the public. Reachable now from
 Legal, Trust and Accounting alike.
 
 Trust's corpus: 9 works, 511 sections.
+
+### 2026-08-30 — The limitation was mine: one question asked of every sentence
+
+Flagged a limitation and the principal asked the right question back - can the
+agent not parse this itself, from what it already knows? It can. The flaw was
+that `assess_instrument` asked ONE question of every clause ("does this
+protect?"), so a plain grant of discretion came back `refuted` - technically
+true, since there is no duty in it, and misleading, because it is a power rather
+than a failed promise.
+
+An instrument contains at least six kinds of clause and each takes a different
+question. `classify_clause` now sorts them: **prohibition, condition, power,
+duty, recital, precatory** - and the state follows the kind rather than one
+blanket test.
+
+The change that matters most: a precatory clause is only a FAILURE when someone
+is leaning on it. A letter-of-wishes clause quoted for context returns
+`not_applicable`; the same wording marked `relied_on_as_protection` returns
+`refuted` and is the only thing in the exposure list. That is the distinction
+the earlier version could not draw, and it is why it needed the caller to
+pre-select which sentences mattered.
+
+A power now carries its own follow-up instead of a verdict: *who holds this? if
+the settlor holds it, test it against ss 674-677.* That routes a discretion
+clause to the grantor-trust question, which is the question it actually raises.
+
+Ordering mattered in two places, both found by testing. "No interest of a
+beneficiary shall be subject to anticipation" read as a duty rather than a
+prohibition because the gap in the pattern was twenty characters and the phrase
+is twenty-five. And a whereas-clause containing the word "desires" led with
+precatory, because the general test ran before the unambiguous one - a recital
+is a recital even when it contains a wish.

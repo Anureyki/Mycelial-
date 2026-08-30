@@ -340,6 +340,52 @@ class TrustAgent(AgentBase):
             "to the grantor"),
     }
 
+    # ---- what KIND of clause is this ---------------------------------------
+    #
+    # The first version asked one question of every sentence - "does this
+    # protect?" - so a plain grant of discretion came back "refuted", which is
+    # technically true (no duty there) and misleading (it is a power, not a
+    # failed promise). An instrument contains at least six kinds of clause and
+    # each takes a different question.
+    #
+    # Order matters: a prohibition contains "shall", and a sentence carrying
+    # both a power and a wish is neither on its own, so the specific tests run
+    # before the general ones.
+
+    CLAUSE_KINDS = (
+        ("prohibition", r"\b(shall not|may not|must not|is prohibited|shall in no event|"
+                        r"no [a-z ,'-]{0,60}shall)\b",
+         "A restriction. Enforceable, and worth reading for what it forecloses."),
+        ("condition",   r"\b(provided (that|however)|on condition that|subject to|"
+                        r"unless and until|only if|in the event that)\b",
+         "A condition. It qualifies whatever it attaches to, so read them together."),
+        ("power",       r"\b(may|is authori[sz]ed|shall have (the )?power|"
+                        r"in (its|his|her|their) (sole |absolute )?discretion|"
+                        r"is empowered|at the discretion of)\b",
+         "A POWER, not a duty. The question is not whether it protects anyone - it is "
+         "WHO HOLDS IT, and whether the holder is the settlor, because that is what "
+         "26 U.S.C. ss 674-677 test."),
+        ("duty",        r"\b(shall|must|is directed to|are directed to|is required to|"
+                        r"undertakes to|covenants to)\b",
+         "A DUTY. Mandatory wording a trustee can be compelled to perform."),
+        ("recital",     r"\b(whereas|this trust is (created|established)|the settlor "
+                        r"(hereby )?declares|background|it is intended that)\b",
+         "A recital. Context and stated intent, with no operative effect of its own."),        ("precatory",   r"\b(wish(es)?|hope[sd]?|desire[sd]?|request(s|ed)?|recommend(s|ed)?|"
+                        r"would like|expect(s|ation)?|suggest(s|ed)?|letter of wishes)\b",
+         "PRECATORY. Words of wish or request impose no enforceable duty and create no "
+         "trust. Harmless as a statement of preference; dangerous only when something "
+         "is being RELIED ON as protection."),
+    )
+
+    def classify_clause(self, text):
+        """Every kind the sentence carries, most specific first."""
+        low = (text or "").lower()
+        kinds = []
+        for name, rx, meaning in self.CLAUSE_KINDS:
+            if re.search(rx, low):
+                kinds.append({"kind": name, "meaning": meaning})
+        return kinds
+
     def assess_instrument(self, args):
         terms = args.get("terms") or {}
         asserted = args.get("asserted_protections") or []
@@ -440,34 +486,49 @@ class TrustAgent(AgentBase):
         for clause in (args.get("clauses") or []):
             txt = clause if isinstance(clause, str) else (clause.get("text") or "")
             label = (clause.get("name") if isinstance(clause, dict) else None) or txt[:44]
-            low = txt.lower()
-            precatory = re.search(r"\b(wish(es)?|hope|desire|request|recommend|"
-                                  r"would like|it is my (wish|hope|desire)|"
-                                  r"expect(s|ation)?|trust that|suggest)\b", low)
-            mandatory = re.search(r"\b(shall|must|is directed|are directed|will be "
-                                  r"required|on condition that|may not|shall not)\b", low)
-            if mandatory and not precatory:
-                findings.append({"element": f"clause:{label}", "state": "established",
-                                 "consequence": "Mandatory wording. It imposes a duty a "
-                                 "trustee can be compelled to perform."})
-            elif precatory and not mandatory:
-                findings.append({"element": f"clause:{label}", "state": "refuted",
-                                 "consequence": "PRECATORY. Words of wish or request impose no "
-                                 "enforceable duty and create no trust - a trustee who "
-                                 "disregards this breaches nothing. It is the oral-assurance "
-                                 "failure moved inside the document, and it reads as stronger "
-                                 "for being written down."})
-                exposure.append(f"'{label}' is precatory, not mandatory")
-            elif precatory and mandatory:
-                findings.append({"element": f"clause:{label}", "state": "disputed",
-                                 "consequence": "Mixed wording - both mandatory and precatory "
-                                 "terms appear. Which governs is a construction question for a "
-                                 "court reading the whole instrument, so it cannot be relied on "
-                                 "as settled."})
+            # Did the caller offer this as protection, or just quote it? Only a
+            # protective CLAIM can fail; a power that is merely a power has not.
+            claimed = bool(isinstance(clause, dict) and clause.get("relied_on_as_protection"))
+            kinds = self.classify_clause(txt)
+            names = [k["kind"] for k in kinds]
+
+            if not kinds:
+                findings.append({"element": f"clause:{label}", "kinds": [],
+                                 "state": "insufficient_evidence",
+                                 "what_would_close_it": "No operative wording detected - "
+                                 "neither duty, power, prohibition, condition, wish nor "
+                                 "recital. Quote the operative sentence."})
+                continue
+
+            lead = kinds[0]
+            if "duty" in names and "precatory" not in names:
+                state = "established"
+            elif "prohibition" in names or "condition" in names:
+                state = "established"
+            elif "precatory" in names and "duty" in names:
+                state = "disputed"
+            elif "precatory" in names:
+                # A wish is only a FAILURE if someone is leaning on it.
+                state = "refuted" if claimed else "not_applicable"
+            elif "power" in names:
+                state = "not_applicable"
             else:
-                findings.append({"element": f"clause:{label}", "state": "insufficient_evidence",
-                                 "what_would_close_it": "Neither mandatory nor precatory wording "
-                                 "detected. Quote the operative sentence."})
+                state = "not_applicable"
+
+            entry = {"element": f"clause:{label}", "kinds": names, "state": state,
+                     "consequence": lead["meaning"]}
+            if state == "disputed":
+                entry["consequence"] = ("Mixed wording - mandatory and precatory terms in one "
+                                        "clause. Which governs is a construction question for a "
+                                        "court reading the whole instrument.")
+            if "power" in names:
+                entry["ask_next"] = ("Who holds this power? If the settlor holds it, test it "
+                                     "against ss 674-677 - a retained power to control "
+                                     "beneficial enjoyment or to deal with the corpus makes "
+                                     "the trust the grantor's for tax.")
+            if state == "refuted":
+                exposure.append(f"'{label}' is relied on as protection but is precatory")
+            findings.append(entry)
 
         # 5b. GRANTOR TRUST - control the instrument actually allocates.
         triggered, unexamined = [], []
