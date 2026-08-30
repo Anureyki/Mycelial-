@@ -1181,3 +1181,30 @@ means water is leaving faster than nutrient - transpiration concentrating what
 is left, which is what a plant under a brighter light does. That is not hunger,
 and dosing a reservoir that is already concentrating is how a pale plant becomes
 a burnt one. Top up with plain water to the mark, then re-measure.
+
+### 2026-08-30 — A reading taken earlier is still a reading taken earlier
+
+The grower reported the water level down from above 15 L to about 12.5 L while
+ppm rose 693 to 769 with no feed added - the mass-balance question that decides
+whether the plant is eating or the reservoir is just concentrating.
+
+`analyze_consumption` could not see it. Readings are compared only where they
+carry a VOLUME, and today's had none, so it fell back to a window from 22-23
+August and correctly reported `below_resolution` on that. Logging the volumes
+then produced a worse failure: both entries got a "now" timestamp seconds apart
+and the analysis reported a ZERO-HOUR window. The guard was right both times;
+the data was wrong.
+
+`log_reading` now takes `taken_at`. A reading measured at 05:00 and written down
+at 12:39 records 05:00 as its timestamp, keeps `recorded_at` for when it was
+entered, and sets `backfilled: true` so it is visible as a backfill rather than
+passing as live.
+
+With that, the window reads 7.7 hours and the answer is still a refusal -
+correctly. Uptake is a slow signal, a reservoir this size moves a few percent a
+day, and a sub-24h window on a sight tube read by eye cannot separate uptake
+from measurement error. The tool is right to decline.
+
+Two duplicate readings created while debugging this were de-indexed. Noting it
+because the record is evidence: entries made to test a tool are not observations
+of a plant, and leaving them in would have skewed every later comparison.

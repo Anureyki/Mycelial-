@@ -5437,8 +5437,19 @@ class GrowAgent(AgentBase):
             return result
 
         if task == "log_reading":
+            # A reading taken earlier and written down later is still a reading
+            # taken earlier. Without this, backfilling two readings from the
+            # same day stamped them seconds apart, and the consumption analysis
+            # correctly refused a zero-hour window - the guard was right and
+            # the data was wrong. `taken_at` records when it was MEASURED;
+            # `recorded_at` keeps when it was entered, so a backfill is visible
+            # as a backfill rather than passing as a live reading.
+            _taken = (args.get("taken_at") or args.get("timestamp") or "").strip() \
+                if isinstance(args.get("taken_at") or args.get("timestamp"), str) else ""
             reading = {
-                "timestamp": datetime.now().isoformat(),
+                "timestamp": _taken or datetime.now().isoformat(),
+                "recorded_at": datetime.now().isoformat(),
+                "backfilled": bool(_taken),
                 "plant_id": args.get("plant_id", "current_plant"),
                 "ph": args.get("ph"),
                 "ppm": args.get("ppm"),
