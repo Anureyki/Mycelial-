@@ -171,6 +171,40 @@ LEAF_PATTERNS = (
      "Try to wipe it off. Mildew smears and returns; mineral residue from spray or hard "
      "water comes away and does not.",
      "problem"),
+    ("whole_canopy_pale",
+     # The classifier knew bottom-up (mobile nutrient) and top-first (immobile
+     # or uptake failing) and had nothing for ALL OVER, which is a different
+     # question with a different answer - and it is the one the grower actually
+     # asked. Matched before uniform_lower_yellow because "uniform" appears in
+     # both and this is the more specific claim.
+     r"(whole|entire|all of the|across the) (plant|canopy)[^.]{0,40}"
+     r"(pale|paling|light green|losing (its )?green|yellow\w*)|"
+     r"(pal\w+|losing (its )?green|light\w* green)[^.]{0,40}"
+     r"(uniform\w*|evenly|all over|throughout|whole canopy|entire plant)|"
+     r"uniform\w* (pale|paling|light green|chloroti\w+)",
+     "the plant being underfed RELATIVE TO WHAT IT IS NOW DOING, rather than any single "
+     "nutrient failing. A mobile-nutrient shortage strips the OLDEST leaves first and an "
+     "immobile one shows at the TOP first - neither is even. Even paling across the whole "
+     "canopy usually means total feed strength is behind demand, and the commonest cause "
+     "of demand jumping is a LIGHT UPGRADE: more photons means more photosynthesis means "
+     "more draw, and a ppm that was adequate last week is not adequate now. Light burn "
+     "does the opposite - it bleaches whatever sits nearest the fixture and leaves the "
+     "lower canopy green",
+     "Three things separate them. WHERE, again: light burn is worst on the tops closest "
+     "to the fixture and spares the shaded lower leaves, so if the paling is even top to "
+     "bottom it is not the light doing it. THE DRAWDOWN: measure ppm, top up to target, "
+     "and measure again in 24 hours - a plant that is genuinely short pulls the number "
+     "down fast, and a flat reading means it is not eating, which points at the root zone "
+     "or pH instead. AND THE TIMING: if the light changed within the last week or two and "
+     "the feed did not, the feed is behind the light and raising it in steps is the test. "
+     "READ THE DIRECTION, NOT JUST THE NUMBER. Falling fast means it is eating and is short. "
+     "Flat means it is not eating - look at the root zone and pH. RISING with no feed added "
+     "means WATER is leaving faster than nutrient is: transpiration and evaporation are "
+     "concentrating what is left, which is what a plant under a new brighter light does. That "
+     "is not hunger, and adding nutrient to a reservoir that is already concentrating is how a "
+     "pale plant becomes a burnt one. Top up with PLAIN WATER to the mark first, then "
+     "re-measure - the honest ppm is the one taken at the right volume.",
+     "problem"),
     ("uniform_lower_yellow",
      r"(lower|bottom|oldest) leaves? (yellow|fading|pale)|whole leaf (yellow|pale)|"
      r"uniform\w* yellow",
@@ -1591,6 +1625,31 @@ class GrowAgent(AgentBase):
     # observations from the perception layer instead of keyword-matched prose.
     PROTECTIVE_CUES = ("protect", "prevent", "guard against", "deter", "in case of",
                        "to avoid", "used against", "treatment for", "resistant to")
+
+    def _negation_at(self, text, start):
+        """Is the clause CONTAINING this position a negative statement?
+
+        _negation_aware_hit looks for a whole keyword inside one comma-delimited
+        clause, which silently suppresses any pattern whose match spans a comma
+        - "whole plant is losing its green colour, paling evenly" matched its
+        pattern, crossed one comma, and was then discarded as unmatched. The
+        plant came back 'productive, high confidence' while visibly paling.
+
+        So negation is judged where the match BEGINS, not by re-finding the
+        span."""
+        lowered = str(text or "").lower()
+        pos, clause_start = 0, 0
+        for piece in re.split(r'([.;,]|\bbut\b|\bhowever\b)', lowered):
+            if piece in (".", ";", ",", "but", "however"):
+                pos += len(piece)
+                clause_start = pos
+                continue
+            if clause_start <= start < clause_start + len(piece):
+                return (any(n in piece for n in self.NEGATION_CUES)
+                        or any(c in piece for c in self.PROTECTIVE_CUES))
+            pos += len(piece)
+            clause_start = pos
+        return False
 
     def _negation_aware_hit(self, text, keywords):
         """True if any keyword appears in a non-negated clause of text. Splits on
@@ -4029,7 +4088,7 @@ class GrowAgent(AgentBase):
                 # pattern's NAME silently skipped every pattern whose name was
                 # not itself a word in the description, which was all of them
                 # except stippling.
-                if not self._negation_aware_hit(low, (m.group(0),)):
+                if self._negation_at(low, m.start()):
                     continue
                 found.append({"pattern": name, "consistent_with": consistent_with,
                               "what_would_settle_it": settle_it, "classification": klass})

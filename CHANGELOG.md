@@ -1145,3 +1145,39 @@ not fix it. The warning fires above 40%.
 
 Verified against disk: `have` totals 31 and there are 31 files, label by label.
 The counter is not an accounting of intentions.
+
+### 2026-08-30 — A pattern that matched, was discarded, and returned "healthy"
+
+The grower asked whether an evenly paling plant was the light or the nutrients.
+Grow answered about stippling, which was not the question, and on a second
+attempt returned **productive, high confidence** for a plant visibly losing
+colour.
+
+Two faults, and the second is the worse one.
+
+**No pattern for whole-canopy paling.** The classifier knew bottom-up (mobile
+nutrient, oldest leaves first) and top-first (immobile, or uptake failing) and
+had nothing for ALL OVER - which is a different question with a different
+answer. `whole_canopy_pale` now carries it: even paling usually means total feed
+strength is behind DEMAND, and the commonest reason demand jumps is a light
+upgrade. Light burn does the opposite - it bleaches whatever is nearest the
+fixture and spares the shaded lower canopy - so even paling top to bottom is
+evidence AGAINST the light.
+
+**And `_negation_aware_hit` was silently suppressing matches that span a comma.**
+It splits text on `[.;,]` and then looks for the whole matched span inside a
+single clause. "whole plant is losing its green colour, paling evenly" matched
+its pattern, crossed one comma, and was then discarded as if it had never
+matched. This affects EVERY pattern, not the new one - any match crossing a
+comma has always been thrown away. Negation is now judged on the clause where
+the match BEGINS. Verified that "no stippling, no webbing" still correctly
+matches nothing.
+
+The grower then supplied 769 ppm, 21.2C, 5.94 - and ppm had RISEN from 693 with
+no feed added to that reservoir. The drawdown test only contemplated falling or
+flat. It now reads the direction: falling fast means eating and short; flat
+means not eating, so look at the root zone and pH; RISING with no feed added
+means water is leaving faster than nutrient - transpiration concentrating what
+is left, which is what a plant under a brighter light does. That is not hunger,
+and dosing a reservoir that is already concentrating is how a pale plant becomes
+a burnt one. Top up with plain water to the mark, then re-measure.
