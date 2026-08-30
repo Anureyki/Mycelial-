@@ -1208,3 +1208,32 @@ from measurement error. The tool is right to decline.
 Two duplicate readings created while debugging this were de-indexed. Noting it
 because the record is evidence: entries made to test a tool are not observations
 of a plant, and leaving them in would have skewed every later comparison.
+
+### 2026-08-30 — Carry the volume forward; ask for it when it is actually needed
+
+The grower's correction: *"If it needs me to take the volume to get an accurate
+answer, it needs to ask me for it when it needs it. Not every time... the volume
+doesn't change that quickly."* Right, and the previous design had it backwards.
+
+Demanding a level with every ppm and pH is the wrong trade. Those take seconds
+with a meter, the level barely moves between them, and insisting on it means it
+gets skipped - which is exactly what happened, leaving nothing with a volume at
+all and the analysis falling back to a week-old window.
+
+`log_reading` now CARRIES THE LAST KNOWN LEVEL FORWARD, and marks it
+`volume_source: carried forward` with the date it was actually measured. A ppm
+stays interpretable without asking for anything, and nothing downstream can
+mistake an assumption for an observation.
+
+`analyze_consumption` uses MEASURED volumes only, because a carried level is
+unchanged by definition - including one guarantees "water moved 0%" and makes
+the comparison answer itself. It also dragged the window to 0.1h by pairing a
+fresh meter reading against the last real measurement.
+
+And when it genuinely needs a level it now ASKS, once, naming what it has:
+"the last measured level was 12.5 L on 2026-08-30... ppm, pH and temperature do
+not need it and are not being asked for."
+
+With measured-only readings the window reads 7.7h and the verdict is still a
+correct refusal. The tool was never the problem; the demand was in the wrong
+place.

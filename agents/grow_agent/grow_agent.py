@@ -5446,10 +5446,35 @@ class GrowAgent(AgentBase):
             # as a backfill rather than passing as a live reading.
             _taken = (args.get("taken_at") or args.get("timestamp") or "").strip() \
                 if isinstance(args.get("taken_at") or args.get("timestamp"), str) else ""
+
+            # VOLUME IS CARRIED FORWARD, NOT DEMANDED.
+            #
+            # Requiring a level with every ppm/pH/temp reading is the wrong
+            # trade: the grower takes those with a meter in seconds and the
+            # level barely moves between them, so insisting on it every time
+            # means it gets skipped, and then nothing has a volume at all -
+            # which is exactly what happened. The last known level is carried
+            # forward so a reading is interpretable, and it is marked as
+            # CARRIED rather than MEASURED so nothing downstream mistakes an
+            # assumption for an observation.
+            _vol = self._parse_numeric(args.get("volume_liters")
+                                       or args.get("reservoir_liters"))
+            _vol_src, _vol_age = ("measured", None)
+            if _vol is None:
+                _prev = [r for r in self._get_readings_for_plant(
+                             args.get("plant_id", "current_plant"))
+                         if self._parse_numeric(r.get("volume_liters")) is not None]
+                if _prev:
+                    _last = _prev[-1]
+                    _vol = self._parse_numeric(_last.get("volume_liters"))
+                    _vol_src = "carried forward"
+                    _vol_age = str(_last.get("timestamp"))[:10]
             reading = {
                 "timestamp": _taken or datetime.now().isoformat(),
                 "recorded_at": datetime.now().isoformat(),
                 "backfilled": bool(_taken),
+                "volume_source": _vol_src,
+                "volume_measured_on": _vol_age,
                 "plant_id": args.get("plant_id", "current_plant"),
                 "ph": args.get("ph"),
                 "ppm": args.get("ppm"),
@@ -5460,7 +5485,7 @@ class GrowAgent(AgentBase):
                 # in 5L are different amounts of nutrient, and without it there is
                 # no way to tell whether a falling ppm means the plant is feeding
                 # or the solution is being diluted - see analyze_consumption.
-                "volume_liters": self._parse_numeric(args.get("volume_liters")),
+                "volume_liters": _vol,
                 "stage": args.get("stage", "seedling"),
                 "notes": args.get("notes", "")
             }
@@ -7374,8 +7399,42 @@ class GrowAgent(AgentBase):
             # the plant is stripping the reservoir; if ppm RISES while volume
             # falls, transpiration is outrunning feeding and it wants water.
             plant_id = args.get("plant_id", "current_plant") if isinstance(args, dict) else "current_plant"
+            # A mass balance needs volume MEASURED at both ends. A carried-
+            # forward level is fine for reading a ppm in context and useless
+            # here, because the whole question is whether the volume changed.
+            # So: ask for it, once, when it is actually needed - rather than
+            # demanding it with every ppm and pH.
+            _all = self._get_readings_for_plant(plant_id)
+            _measured = [r for r in _all
+                         if self._parse_numeric(r.get("volume_liters")) is not None
+                         and r.get("volume_source", "measured") == "measured"]
+            if len(_measured) < 2 and len(_all) >= 2:
+                _last_m = _measured[-1] if _measured else None
+                return {"result": self._make_recommendation(
+                    "Consumption cannot be worked out without a measured level at "
+                    "both ends of the window.",
+                    ("This compares nutrient MASS against volume, so it needs the "
+                     "level as it actually was - and a level carried forward from an "
+                     "earlier reading says nothing about whether it changed, which is "
+                     "the entire question. "
+                     + (f"The last measured level was {_last_m.get('volume_liters')} L on "
+                        f"{str(_last_m.get('timestamp'))[:10]}. "
+                        if _last_m else "No level has ever been measured for this plant. ")
+                     + "ppm, pH and temperature do not need it and are not being asked for."),
+                    "Tell me roughly where the water sits now - a mark on the sight tube "
+                    "is enough - and log it with the next reading. Once there are two "
+                    "measured levels a day or more apart, this answers properly.",
+                    "needs_a_measurement")}
+
+            # MEASURED volumes only. A carried-forward level is unchanged by
+            # definition, so including one guarantees "water moved 0%" and the
+            # comparison answers itself - and it dragged the window down to
+            # 0.1h by pairing a fresh meter reading against the last real
+            # measurement.
             readings = [r for r in self._get_readings_for_plant(plant_id)
-                        if r.get("ppm") is not None and r.get("volume_liters") is not None]
+                        if r.get("ppm") is not None
+                        and r.get("volume_liters") is not None
+                        and r.get("volume_source", "measured") == "measured"]
             if len(readings) < 2:
                 have = len(readings)
                 return {"result": {
