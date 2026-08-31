@@ -91,6 +91,174 @@ class Anansi(AgentBase):
             self._voice = Voice(log=self.log)
         return self._voice.contradiction(claim, observed, resolution)
 
+    # ------------------------------------------------------------------
+    # Reaching the principal.
+    #
+    # The design is the principal's own, in two corrections. First: agents do
+    # not each grow an outbound channel - Anansi is the interface layer, so it
+    # owns every way of reaching him and nothing else does. Second, and the one
+    # that shapes this: *"Anansi is not necessarily the one that's remembering.
+    # The domains are remembering their task. But it can be the interface that
+    # interacts with me on different levels."*
+    #
+    # So THIS HOLDS NO QUEUE. Grow remembers what is due; Legal remembers what
+    # runs out. Anansi keeps no copy of either, because a copy is a second
+    # source of truth and the copy is always the one that drifts. It is handed
+    # something and it delivers it. What it owns is the CHANNEL and the voice.
+    #
+    # "Different levels" is the interesting part and it is already built:
+    # the voice registers rank a situation from low_stakes 1.0 to
+    # safety_critical 0.1, so how serious a thing is already has a number.
+    # Channel keys off the same number rather than a second scale nobody
+    # maintains.
+    #
+    # THREE TIERS OF AUTHORITY, AND ONLY THE FIRST IS AUTOMATIC:
+    #
+    #   tell the principal      a reminder, a deadline. Safe. Automatic.
+    #   draft a document        Legal writes it, nothing leaves. Safe.
+    #   send to a third party   a landlord, HUD, a regulator. NEVER automatic.
+    #
+    # The third is refused here outright. An agent that can post a statutory
+    # notice on someone's behalf is an agent that can post the wrong one, and
+    # a misdirected 92.056(b) notice or a premature filing is not correctable
+    # afterwards. Hardware sits behind an authorization boundary in this system
+    # for the same reason, and an outbound legal communication is the same kind
+    # of act.
+
+    # Voice strength -> how loudly to reach him. One scale, not two.
+    CHANNELS = (
+        (0.00, 0.34, ("email", "dashboard"), "serious enough to interrupt"),
+        (0.34, 0.61, ("email", "dashboard"), "worth an email"),
+        (0.61, 1.01, ("dashboard",),         "it can wait for him to look"),
+    )
+
+    def notify(self, args):
+        """Deliver something a domain agent needs the principal to know.
+
+        `verbatim` is the whole distinction between a courier and a narrator.
+        A domain document - a notice Legal drafted, a figure Accounting
+        derived - goes out UNCHANGED. Anansi narrating legal text would be
+        Anansi practising law, which is the one thing this agent must never
+        do. It tells the story of what happened; it does not write the
+        instrument.
+        """
+        a = args if isinstance(args, dict) else {}
+        body = str(a.get("body") or "").strip()
+        subject = str(a.get("subject") or "").strip()
+        sender = str(a.get("from_agent") or a.get("sender") or "").strip()
+        if not body:
+            return {"error": "notify needs a body - the thing to say."}
+        if not sender:
+            return {"error": ("notify needs from_agent. A message the principal cannot "
+                              "trace to a domain is a message he cannot check.")}
+
+        # Refused, structurally, not by convention.
+        to = str(a.get("to") or "principal").strip().lower()
+        if to != "principal":
+            return {"error": (f"Refused: notify reaches the principal only, and this "
+                              f"names '{to}'. Sending to a third party is an outward act "
+                              f"with consequences that cannot be recalled - it needs his "
+                              f"explicit sign-off, not an agent's decision."),
+                    "sent": False, "requires_signoff": True}
+
+        verbatim = bool(a.get("verbatim"))
+        hint = a.get("register")
+        if not hasattr(self, "_voice"):
+            self._voice = Voice(log=self.log)
+        try:
+            name, reg = self._voice.register_for(body, hint)
+            strength = float(reg.get("voice", 0.5))
+        except Exception as exc:
+            # Named, not swallowed. Falling back silently to a mid register
+            # would decide the CHANNEL for a message whose seriousness was
+            # never actually assessed - and the channel is the whole point.
+            self.log(f"notify: register_for failed ({exc}); defaulting to technical")
+            name, strength = "technical", 0.6
+
+        channels, why = ("dashboard",), "default"
+        for lo, hi, ch, reason in self.CHANNELS:
+            if lo <= strength < hi:
+                channels, why = ch, reason
+                break
+        if a.get("channel"):
+            channels = (str(a["channel"]),)
+            why = "caller named the channel"
+
+        # Voice applies to a telling, never to a document. And even for a
+        # telling the guarantee still runs inside `tell` - a number lost or
+        # invented and the plain text ships instead.
+        text = body if verbatim else self._voice.tell(body, hint=hint)
+
+        return {
+            "delivered_to": "principal",
+            "channels": list(channels),
+            "channel_reason": why,
+            "register": name,
+            "voice_strength": strength,
+            "verbatim": verbatim,
+            "from_agent": sender,
+            "subject": subject or None,
+            "text": text,
+            "held_here": False,
+            "note": ("Anansi keeps no copy of this. The domain that raised it is "
+                     "still the only place it is remembered."),
+            **self._deliver(channels, subject, text, sender),
+        }
+
+    def _deliver(self, channels, subject, text, sender):
+        """Actually put it in front of him, and say honestly if it could not.
+
+        `email` needs a credential this machine does not have yet. A delivery
+        that silently does nothing while reporting success is the exact failure
+        this project hunts, so an unconfigured channel returns `sent: False`
+        with the reason and the one thing that would fix it - it does not
+        pretend, and it does not fall back to the dashboard while claiming the
+        email went.
+        """
+        import os
+        out = {"sent": {}, "unsent": {}}
+        for ch in channels:
+            if ch == "dashboard":
+                # The dashboard reads the DOMAIN's register directly, so there
+                # is nothing to push - which is the point. Grow's reminders and
+                # Legal's actions are already on their cards.
+                out["sent"][ch] = ("visible on the domain's own card; nothing was copied "
+                                   "here to make that true")
+            elif ch == "email":
+                if not (os.getenv("NOTIFY_SMTP_HOST") and os.getenv("NOTIFY_SMTP_USER")
+                        and os.getenv("NOTIFY_SMTP_PASS") and os.getenv("NOTIFY_TO")):
+                    out["unsent"][ch] = (
+                        "No mail credential on this machine. Set NOTIFY_SMTP_HOST, "
+                        "NOTIFY_SMTP_USER, NOTIFY_SMTP_PASS and NOTIFY_TO in .env. "
+                        "Until then this system cannot reach the principal when he is "
+                        "not looking at it - every reminder it holds is a note to "
+                        "someone it cannot contact.")
+                    continue
+                try:
+                    import smtplib
+                    from email.message import EmailMessage
+                    m = EmailMessage()
+                    m["Subject"] = subject or f"MycOS: {sender}"
+                    m["From"] = os.environ["NOTIFY_SMTP_USER"]
+                    m["To"] = os.environ["NOTIFY_TO"]
+                    m.set_content(text)
+                    port = int(os.getenv("NOTIFY_SMTP_PORT", "587"))
+                    with smtplib.SMTP(os.environ["NOTIFY_SMTP_HOST"], port, timeout=30) as s:
+                        s.starttls()
+                        s.login(os.environ["NOTIFY_SMTP_USER"], os.environ["NOTIFY_SMTP_PASS"])
+                        s.send_message(m)
+                    out["sent"][ch] = f"emailed to {os.environ['NOTIFY_TO']}"
+                except Exception as exc:
+                    # Named, never swallowed. A notification that failed
+                    # quietly is worse than one never attempted, because the
+                    # domain believes he was told.
+                    out["unsent"][ch] = f"send failed: {type(exc).__name__}: {exc}"
+                    self.log(f"notify: email delivery failed: {exc}")
+            else:
+                out["unsent"][ch] = f"unknown channel '{ch}'"
+        out["sent_any"] = bool(out["sent"] and any(k != "dashboard" for k in out["sent"]))
+        return out
+
     def handle_task(self, task, args, sender):
         self.log(f"Received task: {task}, args: {args}, sender: {sender}")
 
@@ -106,6 +274,9 @@ class Anansi(AgentBase):
         # strength while the grower was asking what the numbers are, and the
         # Progress card returned a paragraph assembled from three session-log
         # entries. Neither carried a timestamp, so stale output looked current.
+        if task == "notify":
+            return self.notify(args if isinstance(args, dict) else {})
+
         if task == "grow_snapshot":
             return self.send_a2a("grow_agent", "grow_snapshot",
                                  args if isinstance(args, dict) else {})

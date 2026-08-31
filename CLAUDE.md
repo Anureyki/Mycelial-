@@ -563,6 +563,49 @@ Two rules keep it from becoming the problem it is meant to solve:
 Starting an agent waits for its port to answer before reporting success -
 `{"success": true}` used to mean only that `Popen` did not raise.
 
+### Anansi owns the channels; the domains own the memory
+
+The principal's design, in his own two corrections. First: agents do not each
+grow an outbound channel - **Anansi is the interface layer, so it owns every way
+of reaching him and nothing else does.** Second, and the one that shapes it:
+*"Anansi is not necessarily the one that's remembering. The domains are
+remembering their task. But it can be the interface that interacts with me on
+different levels."*
+
+So `notify` **holds no queue**. Grow remembers what is due, Legal remembers what
+runs out, and Anansi keeps no copy of either - a copy is a second source of
+truth and the copy is always the one that drifts. It is handed something and it
+delivers it.
+
+**"Different levels" keys off the voice registers already there.** How serious a
+situation is already has a number - `low_stakes` 1.0 down to `safety_critical`
+0.1 - so channel is chosen from that scale rather than a second one nobody
+maintains. A grow reminder at 1.0 waits on the dashboard; a legal deadline at
+0.35 also takes email.
+
+**Courier, not narrator.** `verbatim` is the whole distinction. A domain
+document - a notice Legal drafted - goes out unchanged, because Anansi narrating
+legal text would be Anansi practising law, the one thing this agent must never
+do. It tells the story of what happened; it does not write the instrument.
+
+**Three tiers, and only the first is automatic:**
+
+| Tier | Example | Authority |
+|------|---------|-----------|
+| Tell the principal | a reminder, a deadline | automatic |
+| Draft a document | Legal writes it, nothing leaves | automatic, stays local |
+| **Send to a third party** | a landlord, HUD, a regulator | **refused** - needs his explicit sign-off |
+
+The third is refused structurally, not by convention. An agent that can post a
+statutory notice on someone's behalf can post the wrong one, and a misdirected
+notice or a premature filing is not correctable afterwards. This is the same
+boundary hardware sits behind, for the same reason.
+
+**An unconfigured channel reports `sent: false` with the reason.** It does not
+fall back to the dashboard while claiming the email went. A notification that
+fails quietly is worse than one never attempted, because the domain believes he
+was told.
+
 ## State travels with the fact, or the fact is gone
 
 Every serious defect this system has produced in the last week reduces to one
