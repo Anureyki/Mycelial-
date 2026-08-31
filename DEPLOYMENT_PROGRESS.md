@@ -656,11 +656,58 @@ tracking, gesture response, an "alive" background and sound. The principal
 wanted something similar and immediately made it specific: *"a humanoid spider,
 eight legs, spider legs obviously. But in the background... I would do a web."*
 
-### Why the spider is not a costume
+### It is a humanoid arachnid, and the skin is not the mechanic
 
 Anansi IS the spider - the West African trickster-storyteller the agent is named
-for. Every other implementation of this is a glowing humanoid head because there
-is nothing else for it to be. This one has a form that was already true.
+for - and the principal is specific that the form is **arachnid**, not a spider
+and not a human: *"like the mythical beings, arachnids. Half spider, half
+human."* Every other implementation of this idea is a glowing humanoid head
+because there is nothing else for it to be. This one has a form that was already
+true.
+
+**Skins come later, and the architecture has to anticipate them now.** The
+principal: *"you could turn it into a spider or you could have it utilize a
+humanoid arachnid skin, but regardless of what's visually reaching into the web
+domains, it is always going to be a spider leg pulling on a strand."*
+
+That is the same separation this codebase already makes for the voice.
+`config/anansi_voice.json` is a policy layer applied by `agents/anansi/voice.py`,
+and the split exists because *a voice edit that can reach an agent is one
+refactor away from being an authority edit*. The visual needs the identical
+boundary:
+
+| Layer | Holds | Changeable by |
+|-------|-------|---------------|
+| **Skin** | body, palette, particle style, how arachnid or how human | a config file, no code |
+| **Mechanic** | a leg reaches into a region and pulls a strand | code, and only with the constraint below |
+
+A skin that could change WHICH strand is touched, or make an unreached answer
+look reached, is a skin with authority. Keep it unable to.
+
+### The globe: what is outside the web
+
+The principal's addition, and it lands on a distinction the system already
+enforces in text:
+
+> *"there'll be like this world or globe in a corner somewhere on top of the web
+> - every time it does a generalized PQA internet search it'll touch that world
+> that's wrapped in its web, or even pull on that string that brings the world
+> into its hands."*
+
+**The web is what the system holds. The globe is what it reaches for.** That is
+exactly the line Legal's `answer()` draws: the corpus is authority, the public
+web is *discovery*, and the difference is carried in the `source` field -
+`corpus` versus `web_unverified` - so nothing downstream can mistake one for the
+other. Asked "what is legal tender" with Title 31 absent, it went to the web,
+returned the citation, and said in as many words: *"This paragraph is an
+unverified web result and is NOT authority; it is a pointer to where the
+authority lives."*
+
+So the globe sits **outside the web and tethered to it by a single strand** -
+reachable, not part of it. A leg touching a domain strand and a leg pulling the
+globe in must not look the same, because they are not the same kind of knowing.
+When a search finds a citation and that citation is then ingested, the strand
+that pulled the globe becomes a strand of the web: acquisition, drawn.
 
 ### The web is the domain space; the legs are the reach
 
@@ -706,7 +753,20 @@ a strand while the payload says `insufficient_evidence` is that same opener,
 rendered.
 
 So: leg extension comes from what was actually consulted, and manner comes from
-the register. Neither is an art direction decision.
+the register. Neither is an art direction decision - which is precisely what the
+skin layer above IS, and why the two must not share a file.
+
+**Three things the visual must be able to distinguish**, because the reasoning
+layer already does and a picture that blurs them is worse than no picture:
+
+| The system did | Should look like |
+|----------------|------------------|
+| answered from its own corpus or records | a leg into a domain strand |
+| answered from a public search | a leg pulling the globe, visibly outside the web |
+| answered from nothing | **no leg extended at all** |
+
+The third is the one no other build of this can do. A glowing head narrating
+from nothing looks exactly like a glowing head narrating from evidence.
 
 ### Honest cost
 
