@@ -115,3 +115,31 @@ def caution(section):
             "the absence of a subsection.")
     return ("UNVERIFIED: nothing recorded whether this section was stored whole. "
             "Treat the absence of a subsection as unproven, not as absence.")
+
+
+def pipe_check(on_disk, as_received):
+    """Did the fact survive the journey, or was it never recorded?
+
+    Both arrive as `unknown`, and they are opposite problems:
+
+      never recorded   the corpus genuinely does not know. Re-ingest.
+      dropped in transit  the corpus knows and the reader was not told. A code
+                          bug, and the more dangerous of the two, because the
+                          answer existed and something threw it away.
+
+    This exists because of exactly that confusion. `lookup_reference` was
+    wrapped at its exit so no read could escape the check - correct for a
+    function with a dozen return paths, but a boundary fix normalises the
+    symptom and says nothing about where the data was lost. The index builder
+    was silently dropping the field one layer up, and every read reported the
+    safe default forever. Wrapping is not tracing, and a safe default is the
+    perfect camouflage for a leaky pipe.
+    """
+    d = read(on_disk).get("state")
+    r = read(as_received).get("state")
+    if d == r:
+        return {"ok": True, "state": d}
+    return {"ok": False, "on_disk": d, "as_received": r,
+            "diagnosis": ("The corpus recorded this and the reader was not told. "
+                          "Something between the file and the caller is dropping "
+                          "the field - fix the pipe, not the reader.")}

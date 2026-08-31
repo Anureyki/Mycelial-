@@ -3479,3 +3479,63 @@ one. `unknown` does not fail the build — a corpus acquired before integrity
 existed is not thereby wrong, and failing on it would train someone to stamp
 `complete` to get green, putting a guess in the one field whose entire purpose is
 to not be one.
+
+### 2026-08-31 (cont.) — Phase 0: an audit, and the second copy of the same leak
+
+The principal's challenge: *"Isn't it the same bug one layer down because you
+decided to wrap it instead of fixing each individual bug?"*
+
+Half right, and the half that lands is the important one. The index-builder leak
+predated the wrapper, so wrapping did not cause it — but **a safe default at a
+boundary is perfect camouflage for a leaky pipe.** Every read reported `unknown`,
+which is exactly what an unstamped section reports, so a dropped field and a
+missing record were indistinguishable. It was found by testing the round trip
+after the file on disk already said `complete`, not because the design forced it
+into view. Wrapping is not tracing.
+
+`source_integrity.pipe_check(on_disk, as_received)` now separates the two: *never
+recorded* means re-ingest, *dropped in transit* means fix the pipe. They arrive
+looking identical and are opposite problems.
+
+**And the audit immediately found the second copy.** `_load_reference_docs` builds
+entries in **two** places — one for citations, one for subject terms — and only
+the first was patched. A section reached by citation would have carried its
+integrity while the identical section reached by subject term would not, and which
+one a caller got would depend on how they happened to ask. That is a bug with a
+second place to hide, which `CLAUDE.md` names as its own failure mode. Both now
+carry it.
+
+### The register, measured
+
+| # | Defect | Count |
+|---|--------|-------|
+| 0.1 | Tasks that dispatch but are not declared — invisible to routing | **82** |
+| 0.2 | `except: pass` — failure with no trace | **~90** |
+| 0.3 | Bare `except:` | **35** |
+| 0.4 | Sections recording themselves truncated | **711** |
+| 0.5 | Sections with no integrity record | **~15,000** |
+| 0.6 | Agents with no `answer()` | **5 of 9** |
+| 0.7 | Agents with no `describe()` | **6 of 9** |
+| 0.8 | Declared capabilities that do not dispatch | **1** |
+| 0.9 | Unused imports and variables | **48** |
+
+Grow is the worst on 0.1 — 45 undiscoverable tasks, roughly half its surface.
+Twelve were fixed by hand earlier the same day after `add_deadline` and
+`classify_charge` both turned out to work and be invisible, which is the tell that
+this needs a rule rather than another round of hand-fixing: a capability list
+assembled by hand drifts from the dispatcher every time.
+
+**Every item is the same shape: a fact that exists and does not travel.** The
+dispatcher knows a task exists and the registry does not. The corpus knows a
+section was cut and the reader does not. The `except` knows something failed and
+nobody does. The agent knows an answer and has no `describe()` to say it.
+
+So Phase 0's exit criterion is not zero warnings. It is that **for each class the
+system can state the count**, the way `check_inherited.py` now reports inherited
+capabilities, dead routing terms and corpus integrity on every run. A defect that
+is counted is being managed; a defect known only to whoever last read the file is
+not.
+
+Written as **Phase 0** in `DEPLOYMENT_PROGRESS.md` — before Phase 1 because it is
+not new capability. It is what is already built and already wrong, on a system
+carrying a live housing matter and a live grow.

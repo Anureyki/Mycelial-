@@ -22,6 +22,13 @@ a track that opens when a machine exists, and nothing above them waits on it.
 So the numbered phases are now **only work that can be done on the hardware that
 is already here**, ordered by necessity:
 
+**0 — what is already built and already wrong.** Added 2026-08-31 after an audit
+the principal asked for. It sits before 1 because it is not new capability: it is
+a register of defects the system is paying for today, on a live housing matter
+and a live grow. Nothing in it needs hardware and nothing above it waits on it -
+but building capability on top of 82 undiscoverable tasks and ~125 silent
+failures makes both harder to find.
+
 **1-2 — what the system cannot do, and that costs something every day.** Both
 are the same seam: information crossing between the principal and the system. A
 lollipop and a leaf removal reported on 2026-08-21 were still missing from the
@@ -67,6 +74,101 @@ out loud rather than discovered by watching it get worse.
 | — | *Hardware track:* migrate and cut over | blocked on hardware | n/a | Phase 8 |
 | — | *Deferred track:* multi-tenancy | not scheduled | unknown - not designed | — |
 | — | *Design track:* Anansi as a spider on a web | idea, evolving | yes - phone GPU, not this box | — |
+
+---
+
+## Phase 0 — Defect register: audit findings, fix by class — NOT STARTED
+
+**Opened 2026-08-31 at the principal's instruction**, after he pointed out that
+wrapping `lookup_reference` to attach source integrity was *"the same bug one
+layer down"* — a boundary fix that normalises a symptom rather than tracing where
+the data is lost. He was right about the method even where the diagnosis differed:
+the index-builder leak predated the wrapper, but a safe default at the boundary is
+perfect camouflage for a leaky pipe, and it was found by testing rather than by
+the design forcing it into view.
+
+**Numbered 0 because it is not new capability.** Everything here is already built
+and already wrong, so it is being paid for now, in a system whose principal is
+using it on a live housing matter and a live grow.
+
+### The findings, measured not estimated
+
+| # | Defect | Count | Class |
+|---|--------|-------|-------|
+| 0.1 | Tasks that dispatch but are **not declared** — invisible to routing and discovery | **82** | reachability |
+| 0.2 | `except: pass` — a failure that leaves no trace | **~90** | false success |
+| 0.3 | Bare `except:` — swallows `KeyboardInterrupt` and `SystemExit` too | **35** | false success |
+| 0.4 | Statutory sections recording themselves **truncated**, awaiting re-ingest | **711** | source integrity |
+| 0.5 | Sections with **no** integrity record — `unknown`, which is not `complete` | **~15,000** | source integrity |
+| 0.6 | Agents with no `answer()` — a question routes to them and dies | **5 of 9** | inversion |
+| 0.7 | Agents with no `describe()` — capability runs, says nothing | **6 of 9** | inversion |
+| 0.8 | Declared capabilities that do not dispatch | **1** | reachability |
+| 0.9 | Unused imports / unused variables | **48** | hygiene |
+
+### 0.1 — 82 tasks nothing can find
+
+The reverse of a dead capability, and harder to see: the task works perfectly
+when called by name, and no router, dashboard or peer agent knows it exists.
+
+```
+grow_agent          45     acquire_plant, amend_grow_system, assess_vpd, ...
+anansi              12     actions, deadlines, grow_snapshot, phase_status, ...
+boss_agent          14     ingest_document, pending_decisions, progress_recap, ...
+maintenance_agent    6     assess_updates, phase_status, recent_changes, ...
+legal_agent          4     citation_lookup, definition, matter_state, check_filing
+pqa_agent            1     fetch_page
+```
+
+Grow is the worst: roughly half its surface is undiscoverable. Twelve of these
+were fixed by hand on 2026-08-31 after `add_deadline` and `classify_charge` both
+turned out to work and be invisible — which is the tell that this needs a rule,
+not another round of hand-fixing. **A capability list assembled by hand will
+drift from the dispatcher every time.** The fix is to derive the declaration from
+the dispatch, or to fail the build when they disagree.
+
+### 0.2 / 0.3 — ~125 places a failure leaves no trace
+
+`grow_agent` alone has 32 `except: pass`. This is the mechanism behind every
+false-success entry in `CLAUDE.md`'s table: the work does not happen, nothing is
+raised, and the caller proceeds believing it did.
+
+Not all are wrong — an optional enrichment that fails should not take down a
+reading. But they are **indistinguishable** from the ones that are wrong, and
+that is the actual defect. Each needs to become either a logged swallow with a
+reason, or a raise.
+
+### 0.4 / 0.5 — the corpus does not know what it holds
+
+711 sections record themselves incomplete (backfilled 2026-08-31 from the one
+thing that was knowable: storage at exactly the retired 4,000-character cap).
+Roughly 15,000 more say nothing at all, and `unknown` is deliberately not
+`complete` — a guessed `complete` would be worse than a blank, because the
+reasoning layer trusts it.
+
+Re-ingesting is mechanical but not free: it is a network fetch per work, and the
+large CFR parts are the bulk of it — Reg S-X 247 sections, Reg Z 242, Reg B 35,
+26 CFR 20 85, 38 CFR 1 35.
+
+### 0.6 / 0.7 — five agents cannot answer a question
+
+`answer()` and `describe()` are two of the three inversions `CLAUDE.md` says
+carry the whole no-domain-knowledge-in-Boss design. Missing on **analyzer,
+coding, pqa, security, trust**. A question routing correctly to one of them still
+dies — verified live: *"what do I need to do for my housing case"* reached Legal
+and returned nothing until `matter_state` was added on 2026-08-31.
+
+### The rule this phase is really about
+
+Every item above is a case of **a fact that exists and does not travel**. The
+dispatcher knows a task exists and the registry does not. The corpus knows a
+section was cut and the reader does not. The `except` knows something failed and
+nobody does. The agent knows an answer and has no `describe()` to say it.
+
+So the exit criterion is not "zero warnings". It is that **for each class, the
+system can tell you the count** — the way `check_inherited.py` now reports
+routing terms, inherited capabilities and corpus integrity on every run. A defect
+that is counted is being managed. A defect that is only known to whoever last
+read the file is not.
 
 ---
 

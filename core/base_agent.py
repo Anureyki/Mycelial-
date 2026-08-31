@@ -748,9 +748,20 @@ class AgentBase:
                 for i in idxs:
                     if i < len(sections):
                         s = sections[i]
+                        # The SECOND entry-builder, and it leaked the same way
+                        # the first did. Patching one and not the other is how
+                        # a bug acquires a second place to hide: a section
+                        # reached by citation would carry its integrity while
+                        # the identical section reached by subject term would
+                        # not, and which one a caller got would depend on how
+                        # they happened to ask.
                         by_term.setdefault(term, []).append(
                             {"title": title, "source": source,
                              "citation": s.get("citation"), "page": s.get("page"),
+                             "authority_class": doc.get("authority_class"),
+                             "integrity": s.get("integrity"),
+                             "truncated": s.get("truncated"),
+                             "full_length": s.get("full_length"),
                              "text": s.get("text", "")})
         self._refdocs = {"by_citation": by_citation, "by_authority": by_authority,
                          "by_term": by_term}
