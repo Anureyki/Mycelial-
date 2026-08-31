@@ -196,7 +196,7 @@ class LegalAgent(AgentBase):
                 "add_deadline", "deadlines",
                 "open_action", "complete_action", "amend_action", "actions",
                 "add_venue", "venues", "running_clocks", "complaint_path",
-                "read_filed_document", "ingest_screenshot", "read_docket_document",
+                "read_filed_document", "ingest_screenshot", "read_docket_document", "learn_from_case",
                 "triage_source", "record_case_outcome"
             ],
             role="agent"
@@ -2406,6 +2406,168 @@ class LegalAgent(AgentBase):
             break
         return d
 
+    def learn_from_case(self, args):
+        """Turn a case someone posted about into a lesson grounded in the docket.
+
+        The principal's question: can he feed cases he finds on Instagram into
+        Legal so it learns how courts actually reason? Yes - but not the way the
+        question implies, and the difference is the whole capability.
+
+        THE POST IS NOT THE LESSON. THE DOCKET IS.
+
+        A card is a pointer. Twice today a post about a case and the case itself
+        told different stories: a state dismissal a narrative attributed to a
+        Brady violation and a $38B bond confrontation, which the court's own
+        minute entry attributed to a charge traced to a bail notice; and a
+        federal complaint the same author described as a strategy, which the
+        court called incoherent and rambling. In both, what settled it was the
+        document.
+
+        So this chains: read the card -> find the docket -> read what the court
+        actually filed -> record the outcome -> extract the lesson. And it
+        REFUSES at every point where the chain breaks, rather than falling back
+        to the card. A lesson learned from a post about a case is a lesson about
+        the post.
+
+        What it extracts is the REASONING, not the result. Who won is the least
+        transferable thing in a decision. The test the court applied, the
+        element it found missing, and the authority it relied on are what travel
+        to the next matter."""
+        a = args if isinstance(args, dict) else {}
+        case_name = str(a.get("case_name") or "").strip()
+        claimed = str(a.get("post_claims") or "").strip()
+        chain = []
+
+        # 1. If a screenshot was supplied, read it first - and keep what it
+        #    claims, because the divergence is the most valuable output here.
+        if a.get("image_path"):
+            shot = self.ingest_screenshot({"image_path": a["image_path"]})
+            if shot.get("error"):
+                chain.append({"step": "read_card", "ok": False, "why": shot["error"]})
+            else:
+                chain.append({"step": "read_card", "ok": True,
+                              "card_standing": shot["card_assessment"]["recommended"],
+                              "cites_anything_openable": bool(
+                                  (shot.get("citations") or {}).get("held"))})
+                if not claimed:
+                    claimed = "(the card's own text; see the screenshot record)"
+
+        if not case_name:
+            return {"error": ("learn_from_case needs a case_name to look up. A card "
+                              "without one points at nothing this agent can open, and a "
+                              "lesson taken from it would be a lesson about the card."),
+                    "chain": chain, "disclaimer": DISCLAIMER}
+
+        # 2. Find the docket. This agent does not accept a docket id from a post.
+        # Reuse the dispatcher's own path rather than a second copy of it -
+        # two implementations of "find a case" is two places for the bug.
+        found = self.handle_task("search_cases", [case_name, "r"], self.agent_id)
+        found = found if isinstance(found, dict) else {}
+        results = found.get("results") or []
+        if not results:
+            return {"case_name": case_name, "learned": False,
+                    "why": ("No docket found under that name, so there is nothing to "
+                            "check the post against. This is NOT a finding that the case "
+                            "is fabricated - it may be a state matter outside RECAP, or "
+                            "named differently. It is a finding that nothing here can "
+                            "verify it, and unverified is not false."),
+                    "chain": chain + [{"step": "find_docket", "ok": False}],
+                    "disclaimer": DISCLAIMER}
+        top = results[0]
+        chain.append({"step": "find_docket", "ok": True,
+                      "docket_id": top.get("docket_id"),
+                      "docket_number": top.get("docketNumber"),
+                      "court": top.get("court"),
+                      "other_matches": len(results) - 1})
+
+        # 3. Read what the court filed. A docket entry list is not a decision.
+        docs = self.read_docket_document({"docket_id": top.get("docket_id")})
+        available = [d for d in (docs.get("documents") or []) if d.get("is_available")]
+        if not available:
+            return {"case_name": case_name, "docket": top, "learned": False,
+                    "why": ("The docket exists and RECAP holds no readable text on it - "
+                            "nobody has contributed the PDFs. That is a fact about the "
+                            "archive, not the case. What the court reasoned cannot be read "
+                            "from here, so no lesson is recorded."),
+                    "entries_seen": docs.get("documents"),
+                    "chain": chain + [{"step": "read_document", "ok": False}],
+                    "disclaimer": DISCLAIMER}
+        pick = a.get("document_number") or available[0]["document_number"]
+        doc = self.read_docket_document({"docket_id": top.get("docket_id"),
+                                         "document_number": str(pick)})
+        if not doc.get("readable"):
+            return {"case_name": case_name, "learned": False, "why": doc.get("why"),
+                    "chain": chain, "disclaimer": DISCLAIMER}
+        chain.append({"step": "read_document", "ok": True,
+                      "document": pick, "pages": doc.get("pages"),
+                      "chars": doc.get("chars")})
+
+        text = doc.get("text") or ""
+        low = text.lower()
+
+        # 4. What the court DID, read off its own text rather than the post.
+        posture = None
+        for pat, label in (
+            (r"dismiss(?:ed|es|al)[^.]{0,60}with prejudice", "dismissed with prejudice"),
+            (r"dismiss(?:ed|es|al)[^.]{0,60}without prejudice", "dismissed without prejudice"),
+            (r"show cause why[^.]{0,80}dismissed", "order to show cause before dismissal"),
+            (r"summary judgment is (?:granted|denied)", "summary judgment"),
+            (r"motion to dismiss is (?:granted|denied)", "ruled on a motion to dismiss"),
+            (r"\baffirmed\b", "affirmed on appeal"),
+            (r"\breversed\b|\bvacated\b", "reversed or vacated on appeal"),
+        ):
+            if re.search(pat, low):
+                posture = label
+                break
+
+        # 5. THE LESSON: the test applied, not the winner. Sentences where a
+        #    court states a requirement are where the transferable content is.
+        tests = []
+        for m in re.finditer(
+                r"[^.]{0,200}?\b(?:must|requires?|may not|cannot|is required to|"
+                r"holding that|held that|fails? to state|lacks? standing)\b[^.]{0,220}\.",
+                text):
+            sent = " ".join(m.group(0).split())
+            if 60 < len(sent) < 420:
+                tests.append(sent)
+        seen, deduped = set(), []
+        for t in tests:
+            k = t[:60].lower()
+            if k not in seen:
+                seen.add(k)
+                deduped.append(t)
+
+        divergence = None
+        if claimed:
+            divergence = ("The post's account and the court's text are both recorded "
+                          "above. Where they differ, the document governs: it is what "
+                          "the court filed, and the post is a report about it.")
+
+        return {
+            "case_name": case_name,
+            "docket": {k: top.get(k) for k in ("docketNumber", "court", "docket_id")},
+            "document_read": {"number": pick, "pages": doc.get("pages"),
+                              "description": (docs.get("documents") or [{}])[0].get("description")},
+            "learned": True,
+            "what_the_court_did": posture or "not stated in plain terms in this document",
+            "tests_the_court_applied": deduped[:8],
+            "authorities_relied_on": doc.get("authorities_the_court_relied_on"),
+            "post_claimed": claimed or None,
+            "divergence": divergence,
+            "standing": doc.get("standing"),
+            "how_to_record_it": (
+                "Pass what you want kept to `record_case_outcome` (the disposition and "
+                "what happened) and `log_lesson` (the transferable reasoning). This does "
+                "not write either on its own - a lesson worth keeping is worth a person "
+                "deciding to keep."),
+            "the_rule": ("The reasoning transfers; the outcome usually does not. Who won "
+                         "depends on facts that will not repeat. The test the court "
+                         "applied, the element it found missing, and the authority it "
+                         "relied on are what reach the next matter."),
+            "chain": chain,
+            "disclaimer": DISCLAIMER,
+        }
+
     def read_docket_document(self, args):
         """Read the court's own text of one document on a docket.
 
@@ -3182,6 +3344,8 @@ class LegalAgent(AgentBase):
                 a = {"stage": args[0]}
             return self.transaction_layers(a.get("stage"), a.get("state"))
 
+        if task == "learn_from_case":
+            return self.learn_from_case(args if isinstance(args, dict) else {})
         if task == "read_docket_document":
             return self.read_docket_document(args if isinstance(args, dict) else {})
         if task == "read_filed_document":

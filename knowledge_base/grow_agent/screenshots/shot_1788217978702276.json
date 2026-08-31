@@ -1,0 +1,39 @@
+{
+  "id": "shot_1788217978702276",
+  "image_path": "/home/anureyki/mycelial/state/uploads/up_05febcfd5e83517c.jpg",
+  "captured_from": "screenshot, origin not recorded",
+  "topic": "60/60 drying timeline",
+  "score": 5,
+  "markers": [
+    {
+      "marker": "self_disclosing_conceptual",
+      "weight": 3,
+      "why": "Labels its own figure as conceptual rather than measured. A fabricated card has no reason to give away that credibility.",
+      "quoted": "TIME STILL MATTERS 1 'Q\nczy apres CONCEPTUAL \u00b0 24\nraretin ows (f radaat TERPENE RETENTION ~~\ndegradation processes."
+    },
+    {
+      "marker": "scope_bounded",
+      "weight": 2,
+      "why": "Limits its own claim rather than generalising it.",
+      "quoted": "TERPENE RETENTION\nsums VOLATILIZATION ac a 2 * While 60/50 is crucial, other variables sev\n'ower temperatures (60\u00b0F) significantly : Hk ganatica, harvest ing,\nfacicn tera M when Voth terpenes 'a \\ alrfiow, light exposure,\nSrapoate, preservi"
+    }
+  ],
+  "internal_inconsistencies": [],
+  "quantities_mentioned": [
+    {
+      "value": "60",
+      "unit": "F"
+    }
+  ],
+  "source_class": "expert_commentary",
+  "evidence_kind": "reported",
+  "stance": "unknown",
+  "cannot_determine": [
+    "whether a real operator is behind this, or whether it is entirely fabricated - a fictional card and a practitioner's note rendered by the same generator are identical on the page",
+    "whether any number in it was measured",
+    "whether the author has the experience the card implies"
+  ],
+  "usable_as": "REFERENCE - a floor to reason from. Never as evidence about this grow. A measured outcome here outranks it, and the divergence is the finding.",
+  "text": "49 oD\noe macho_grams_gramsbe_sav... Follow\n: fi Michael Prince, Koncept P, WiIIN...\n\u2014 60/60 vs TIME \u2014\nTERPENE RETENTION DURING DRYING\nTae Ai TERPENES DIFFER IN\n. \u00ab VOLATILITY AND STABIETLY\n| \u2018 =\u201d a Not all terpenes are equal,\nne) more\n. a 7\" than an oo ore ge (e.9., a . fa\n\" eC lene)\ni | q q changing the profile over i il J\nitl id CONDITIONS ARE NOT 1\nONLY FACTOR AFFECTING 8\nLOWER TEMPERATURE hes \u2019 .\nTERPENE RETENTION\nsums VOLATILIZATION ac a 2 * While 60/50 is crucial, other variables sev\n\u2018ower temperatures (60\u00b0F) significantly : Hk ganatica, harvest ing,\nfacicn tera M when Voth terpenes \u2018a \\ alrfiow, light exposure,\nSrapoate, preserving ta presence in al . ta tral storage environment also 20\nthe vchomes compared toh : : critically impact retention =\n| temperatures.\nTIME STILL MATTERS 1 \u2018Q\nczy apres CONCEPTUAL \u00b0 24\nraretin ows (f radaat TERPENE RETENTION ~~\ndegradation processes. SL \u2014\u2014\u2014_\u2014_\u2014\nDay 0 Day 3 Day 7 Day 14 Day 30 Day 60\nhe a Pe\n:\nte =) =\nFRESH HARVEST \u2014\u2014> ACTIVE DRYING CURING LONG-TERM STORAGE\n60/60 DOESN\u2019T FREEZE TERPENES IN PLACI\nIT SLOWS THE PROCESS.\nConceptual illustration. Actual terpene retention varies by cultivar, terpene profile, i\nflower structure, airflow, drying duration, oxygen exposure, and storage conditions. \u00b0",
+  "recorded_at": "2026-08-31T23:12:58"
+}

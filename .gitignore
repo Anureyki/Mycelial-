@@ -63,3 +63,4 @@ knowledge_base/grow_agent/training/*/*
 .vscode/
 .idea/
 state/inbox/
+state/uploads/

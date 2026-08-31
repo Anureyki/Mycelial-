@@ -739,6 +739,78 @@ async function renderLegalCard(body) {
   }
 }
 
+// Add a source: the screenshot path, end to end, from the phone.
+//
+// Every card-reading capability built today was reachable by Claude and not by
+// the principal, because the webapp could only send text. A capability nobody
+// can reach from the interface is one the system does not really have.
+function wireUpload() {
+  const btn = document.getElementById('upGo');
+  if (!btn) return;
+  btn.addEventListener('click', async () => {
+    const fileEl = document.getElementById('upFile');
+    const out = document.getElementById('upResult');
+    const file = fileEl && fileEl.files && fileEl.files[0];
+    if (!file) { out.textContent = 'Pick a file first.'; return; }
+    const base = getServerUrl();
+    if (base === null) { out.textContent = 'No server URL set.'; return; }
+    btn.disabled = true;
+    out.textContent = 'Uploading...';
+    try {
+      const fd = new FormData();
+      fd.append('file', file);
+      const up = await fetch(`${base}/upload`, { method: 'POST', body: fd });
+      const stored = await up.json();
+      if (!up.ok || stored.error) { out.textContent = `Upload failed: ${stored.error || up.status}`; return; }
+
+      out.textContent = 'Reading it...';
+      const d = unwrap(await callTask('ingest_upload', {
+        path: stored.path,
+        domain: document.getElementById('upDomain').value,
+        topic: (document.getElementById('upTopic').value || '').trim() || null,
+        captured_from: 'uploaded from the dashboard',
+      }), 'routed_to');
+
+      out.textContent = '';
+      if (!d || d.error) { out.textContent = d && d.error ? d.error : 'No result.'; return; }
+      let r = d.result;
+      for (let i = 0; i < 6 && r && typeof r === 'object' && 'result' in r && Object.keys(r).length === 1; i++) r = r.result;
+
+      const rows = document.createElement('dl');
+      rows.className = 'rows';
+      const add = (k, v) => {
+        const dt = document.createElement('dt'); dt.textContent = k;
+        const dd = document.createElement('dd'); dd.textContent = v;
+        rows.append(dt, dd);
+      };
+      add('Read by', d.routed_to || 'unknown');
+      if (r && r.source_class) add('Standing', r.source_class);
+      if (r && r.score !== undefined) add('Score', String(r.score));
+      out.append(rows);
+
+      // The refusal is the part worth showing. A card that cannot be checked
+      // should say so on the screen, not only in a JSON field.
+      const cannot = (r && r.cannot_determine) || [];
+      if (cannot.length) {
+        const p = document.createElement('p');
+        p.className = 'muted';
+        p.textContent = 'Cannot be determined from the image: ' + cannot[0];
+        out.append(p);
+      }
+      if (r && r.usable_as) {
+        const u = document.createElement('p');
+        u.className = 'concern';
+        u.textContent = r.usable_as;
+        out.append(u);
+      }
+    } catch (e) {
+      out.textContent = `Couldn't do that (${e.message}).`;
+    } finally {
+      btn.disabled = false;
+    }
+  });
+}
+
 async function refreshDashboard() {
   const narrated = [
     { id: 'systemCard', prompt: 'system status' },
@@ -995,3 +1067,4 @@ if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('service-worker.js').catch(() => {});
   });
 }
+wireUpload();

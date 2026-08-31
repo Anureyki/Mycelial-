@@ -3936,3 +3936,67 @@ payload two levels inside it, so the agent reported the court's own order as
 unreadable while the text sat in `result.content[0].text` — the same nesting
 error as `describe()` looking for `reading` one level too deep and telling the
 grower his entry had not been logged.
+
+### 2026-08-31 — A case from a post, learned from the docket instead of the post
+
+*"Can I input these cases I find on IG in legal for lessons it can learn of court
+proceedings and reasoning?"*
+
+Yes — and the answer changes the design. **The post is not the lesson. The docket
+is.** Twice today a post about a case and the case itself told different stories:
+a state dismissal a narrative attributed to a *Brady* violation and a $38B bond
+confrontation, which the court's own minute entry attributed to a charge traced
+to a bail notice; and a federal complaint the same author described as strategy,
+which the court called *"incoherent and rambling"*. Both times, the document
+settled it.
+
+`learn_from_case` chains it: **read the card → find the docket → read what the
+court filed → extract the reasoning.** It refuses at every point the chain breaks
+rather than falling back to the card, because a lesson learned from a post about
+a case is a lesson about the post. Verified end to end on `Duell v. State of
+Hawaii`:
+
+```
+learned: True  |  1:26-cv-00161  District Court, D. Hawaii
+what the court did: order to show cause before dismissal
+tests applied: "holding that a pro se relator cannot 'prosecute a qui tam action
+  on behalf of the United States'" ... "pro se litigants lack statutory standing"
+```
+
+**It extracts the test, not the winner.** Who won depends on facts that will not
+repeat. The test the court applied, the element it found missing, and the
+authority it relied on are what reach the next matter — so the extraction targets
+sentences where a court states a **requirement**.
+
+And it **writes nothing on its own.** It hands back what it found; recording is a
+separate call to `record_case_outcome` and `log_lesson`. A lesson worth keeping is
+worth a person deciding to keep.
+
+Two refusals worth naming. A docket that cannot be found is reported as *"not a
+finding that the case is fabricated — it may be a state matter outside RECAP.
+Unverified is not false."* And a docket whose PDFs nobody has contributed reports
+that RECAP holds no text, **a fact about the archive rather than the case**.
+
+### The dashboard can add a source now
+
+Every card-reading capability built today was reachable by Claude and not by the
+principal, because the webapp could only ever send text — a screenshot had to be
+put on the machine by hand first. **A capability nobody can reach from the
+interface is one the system does not really have.**
+
+`/upload` on the base class takes the file and returns a path, and says plainly:
+*"Stored. Nothing has read it yet."* It does not decide what the file means.
+
+`ingest_upload` on Anansi routes it — and routing is the thing Anansi does, while
+what the file **means** is the domain's, which is the thing it must never do.
+When no domain is named the default is Legal, with the reason stated rather than
+hidden: **a legal card resolves against a corpus in seconds and a grow card
+resolves at harvest**, so a wrong guess costs far less in one direction.
+
+The card shows the refusal, not just the verdict — what cannot be determined from
+the image, and what the source is usable as. Verified end to end through the
+browser's own path, twice: a grow card came back `expert_commentary` and shelved,
+and the AI-agreeing-with-a-Brady-theory screenshot came back with *"cites nothing
+openable… a reading of the law that offers no section to read is not a finding."*
+
+Shell to v22.

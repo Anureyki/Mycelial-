@@ -535,3 +535,32 @@ main#log {
   position: absolute;
   left: 2px;
 }
+
+/* Add a source. Deliberately plain - the interesting output is the refusal. */
+.card-body .upload-why { margin: 0 0 10px; }
+.card-body .up-domain { display: block; font-size: 0.9rem; margin-bottom: 8px; }
+.card-body .up-domain select,
+.card-body #upTopic,
+.card-body #upFile {
+  display: block;
+  width: 100%;
+  margin-top: 4px;
+  margin-bottom: 8px;
+  padding: 6px 8px;
+  font: inherit;
+  color: inherit;
+  background: transparent;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+}
+.card-body #upGo {
+  padding: 7px 14px;
+  font: inherit;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+}
+.card-body #upGo:disabled { opacity: 0.5; cursor: default; }
+.card-body #upResult { margin-top: 10px; font-size: 0.9rem; white-space: normal; }

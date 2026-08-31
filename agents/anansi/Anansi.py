@@ -365,6 +365,40 @@ class Anansi(AgentBase):
                          "only. Nothing arriving by mail is authority - it is a source "
                          "with unknown standing until something reads it.")}
 
+    def ingest_upload(self, args):
+        """Send an uploaded file to the domain that should read it.
+
+        Anansi owns the channel and picks the destination; it does NOT read the
+        file. Which domain a screenshot belongs to is a routing decision - the
+        thing this agent does - and what the screenshot MEANS is the domain's,
+        which is the thing it must never do.
+
+        The caller names the domain when they know it. When they do not, the
+        default is Legal, and the reason is stated rather than hidden: a legal
+        card can be checked against a corpus in seconds, while a grow card
+        cannot be checked until harvest, so a wrong guess costs far less in one
+        direction than the other."""
+        a = args if isinstance(args, dict) else {}
+        path = a.get("path")
+        if not path:
+            return {"error": "ingest_upload needs the path returned by /upload"}
+        domain = (a.get("domain") or "").strip().lower()
+        if domain not in ("legal", "grow"):
+            domain = "legal"
+            why = ("No domain given, so this went to Legal. A legal card resolves against "
+                   "a corpus in seconds; a grow card resolves at harvest. The cheap check "
+                   "is the safer default.")
+        else:
+            why = "Domain named by the caller."
+        agent = "legal_agent" if domain == "legal" else "grow_agent"
+        payload = {"image_path": path}
+        if a.get("topic"):
+            payload["topic"] = a["topic"]
+        if a.get("captured_from"):
+            payload["captured_from"] = a["captured_from"]
+        out = self.send_a2a(agent, "ingest_screenshot", payload, timeout=300)
+        return {"routed_to": agent, "why": why, "path": path, "result": out}
+
     def handle_task(self, task, args, sender):
         self.log(f"Received task: {task}, args: {args}, sender: {sender}")
 
@@ -382,6 +416,9 @@ class Anansi(AgentBase):
         # entries. Neither carried a timestamp, so stale output looked current.
         if task == "receive_mail":
             return self.receive_mail(args if isinstance(args, dict) else {})
+
+        if task == "ingest_upload":
+            return self.ingest_upload(args if isinstance(args, dict) else {})
 
         if task == "notify":
             return self.notify(args if isinstance(args, dict) else {})

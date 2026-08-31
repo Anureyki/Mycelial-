@@ -465,6 +465,46 @@ class AgentBase:
                 self.log(f"Error: {e}")
                 return jsonify({"error": str(e)}), 500
 
+        @self.app.route("/upload", methods=["POST", "OPTIONS"])
+        def upload():
+            """Take a file from the dashboard and hand back a path.
+
+            The webapp could only ever SEND TEXT, so a screenshot had to be put
+            on the machine by hand before any agent could read one - which meant
+            the whole card-assessment path was reachable by Claude and not by
+            the principal. An agent capability nobody can reach from the
+            interface is a capability the system does not really have.
+
+            Stores it and returns the path. It does not decide what the file
+            means; that is the domain's job, and this is the interface."""
+            if request.method == "OPTIONS":
+                return ("", 204, {"Access-Control-Allow-Origin": "*",
+                                  "Access-Control-Allow-Headers": "Content-Type",
+                                  "Access-Control-Allow-Methods": "POST, OPTIONS"})
+            f = request.files.get("file")
+            if not f or not f.filename:
+                return jsonify({"error": "no file"}), 400
+            import hashlib
+            import re as _re
+            raw = f.read()
+            if len(raw) > 25 * 1024 * 1024:
+                return jsonify({"error": "file over 25 MB"}), 400
+            ext = (_re.search(r"\.([A-Za-z0-9]{1,5})$", f.filename) or [None, "bin"])[1].lower()
+            if ext not in ("png", "jpg", "jpeg", "webp", "gif", "pdf", "eml", "txt"):
+                return jsonify({"error": f"unsupported type .{ext}"}), 400
+            root = os.path.join(os.path.dirname(os.path.dirname(
+                os.path.abspath(__file__))), "state", "uploads")
+            os.makedirs(root, exist_ok=True)
+            name = f"up_{hashlib.sha256(raw).hexdigest()[:16]}.{ext}"
+            path = os.path.join(root, name)
+            with open(path, "wb") as fh:
+                fh.write(raw)
+            self.log(f"upload: {name} ({len(raw)} bytes) from {f.filename}")
+            return jsonify({"stored": True, "path": path, "id": name,
+                            "bytes": len(raw), "original_name": f.filename,
+                            "note": ("Stored. Nothing has read it yet - pass the path to "
+                                     "an agent capability that reads.")})
+
         @self.app.route("/health", methods=["GET"])
         def health():
             return jsonify({"status": "alive", "agent": self.agent_id})
