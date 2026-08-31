@@ -259,6 +259,112 @@ class Anansi(AgentBase):
         out["sent_any"] = bool(out["sent"] and any(k != "dashboard" for k in out["sent"]))
         return out
 
+    # ------------------------------------------------------------------
+    # Mail arriving.
+    #
+    # Anansi owns every channel, inward as well as outward - the symmetric
+    # half of `notify`. What makes the inbound direction different is that
+    # an email is written by SOMEBODY ELSE, who may know it is being read by
+    # an agent. Outbound text comes from a domain this system trusts; inbound
+    # text is a stranger's, and the difference decides the whole design.
+    #
+    # SO NO DOMAIN AGENT EVER SEES THE BODY.
+    #
+    # The message is written to disk and the domain is handed a REFERRAL - who
+    # it came from, when, what it is about, and a path. Exactly the rule that
+    # already governs cross-domain findings: the sending side decides what
+    # crosses the boundary and sends the minimum. Legal learns *a letter
+    # arrived from the property manager on this date, it is here*; it does not
+    # receive a paragraph of somebody else's prose into the agent that holds
+    # the corpus and drafts documents.
+    #
+    # Two things follow, and both are refusals:
+    #
+    #   - Nothing arriving by mail is authority. It enters as a source with
+    #     `evidence_kind: reported` and `source_class: unknown`, and it earns
+    #     anything better by being read - by the principal, or through
+    #     triage_source. A document does not become true by being emailed.
+    #   - The referral carries no instruction. Only metadata and a path, so
+    #     text a stranger wrote cannot arrive shaped like a task. An agent that
+    #     will act on sentences from an untrusted mailbox is an agent anyone
+    #     with the address can drive.
+
+    MAIL_DIR = "state/inbox"
+
+    def receive_mail(self, args):
+        """Fetch what arrived, file it, and refer it without its contents."""
+        import email as _email
+        import hashlib
+        import imaplib
+        import os
+        a = args if isinstance(args, dict) else {}
+        limit = int(a.get("limit", 10))
+
+        need = ("MAIL_IMAP_HOST", "MAIL_IMAP_USER", "MAIL_IMAP_PASS")
+        missing = [k for k in need if not os.getenv(k)]
+        if missing:
+            return {"fetched": 0, "configured": False, "missing_env": missing,
+                    "note": ("No mailbox credential on this machine, so nothing can "
+                             "arrive. Set " + ", ".join(need) + " in .env, pointing at a "
+                             "DEDICATED address rather than the principal's personal "
+                             "inbox - a mailbox an agent reads should contain only what "
+                             "was meant for it.")}
+
+        os.makedirs(self.MAIL_DIR, exist_ok=True)
+        out, errors = [], []
+        try:
+            box = imaplib.IMAP4_SSL(os.environ["MAIL_IMAP_HOST"],
+                                    int(os.getenv("MAIL_IMAP_PORT", "993")))
+            box.login(os.environ["MAIL_IMAP_USER"], os.environ["MAIL_IMAP_PASS"])
+            box.select(os.getenv("MAIL_IMAP_FOLDER", "INBOX"))
+            typ, data = box.search(None, "UNSEEN")
+            ids = (data[0].split() if data and data[0] else [])[:limit]
+            for mid in ids:
+                typ, raw = box.fetch(mid, "(RFC822)")
+                if not raw or not raw[0]:
+                    continue
+                blob = raw[0][1]
+                msg = _email.message_from_bytes(blob)
+                digest = hashlib.sha256(blob).hexdigest()[:16]
+                path = os.path.join(self.MAIL_DIR, f"mail_{digest}.eml")
+                with open(path, "wb") as fh:
+                    fh.write(blob)
+                # THE REFERRAL. Metadata and a path. No body, no snippet, no
+                # subject-derived "action" - a subject line is written by the
+                # sender too.
+                out.append({
+                    "id": f"mail_{digest}",
+                    "from": str(msg.get("From") or "")[:200],
+                    "date": str(msg.get("Date") or "")[:80],
+                    "subject": str(msg.get("Subject") or "")[:200],
+                    "has_attachments": any(p.get_filename() for p in msg.walk()),
+                    "attachment_names": [p.get_filename() for p in msg.walk()
+                                         if p.get_filename()][:10],
+                    "bytes": len(blob),
+                    "stored_at": path,
+                    "evidence_kind": "reported",
+                    "source_class": "unknown",
+                    "read_by_system": False,
+                    "note": ("Filed, not read. Nothing here has been assessed, and the "
+                             "subject line was written by the sender like everything "
+                             "else. It becomes evidence when a person or triage_source "
+                             "opens it."),
+                })
+            box.close()
+            box.logout()
+        except Exception as exc:
+            # Named. A mailbox that silently fetches nothing looks exactly like
+            # a mailbox with nothing in it.
+            self.log(f"receive_mail: {type(exc).__name__}: {exc}")
+            errors.append(f"{type(exc).__name__}: {exc}")
+
+        return {"fetched": len(out), "configured": True, "messages": out,
+                "errors": errors or None,
+                "domains_saw_body": False,
+                "note": ("Each message is on disk and each domain gets the reference "
+                         "only. Nothing arriving by mail is authority - it is a source "
+                         "with unknown standing until something reads it.")}
+
     def handle_task(self, task, args, sender):
         self.log(f"Received task: {task}, args: {args}, sender: {sender}")
 
@@ -274,6 +380,9 @@ class Anansi(AgentBase):
         # strength while the grower was asking what the numbers are, and the
         # Progress card returned a paragraph assembled from three session-log
         # entries. Neither carried a timestamp, so stale output looked current.
+        if task == "receive_mail":
+            return self.receive_mail(args if isinstance(args, dict) else {})
+
         if task == "notify":
             return self.notify(args if isinstance(args, dict) else {})
 
