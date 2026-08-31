@@ -2671,3 +2671,50 @@ its own parties.
 Every outcome carries `evidence_kind: observed` and `source_class: case_outcome`,
 because a court doing something is an event, not an assertion about the law -
 which is what makes it the lived column rather than the corpus.
+
+### 2026-08-31 — Three infographics, checked rather than believed
+
+The grower sent three legal infographics from an Instagram account that labels
+its own posts "AI content". The system now has a way to handle that, so it was
+handled that way rather than read.
+
+**Every citation checked out against the actual text**, which was worth
+establishing rather than assuming:
+
+| Claim | Cited | Verified in corpus |
+|---|---|---|
+| Permissible purposes of consumer reports | 15 U.S.C. § 1681b | credit transaction, employment purposes, review or collection, insurance, licensing, **order of a court**, **written instructions of the consumer** - all present |
+| Banking powers and incidental powers | 12 U.S.C. § 24 (Seventh) | "Seventh", "incidental powers", "discounting and negotiating" - present |
+| Scope of review | 5 U.S.C. § 706 | arbitrary and capricious, abuse of discretion, substantial evidence, scope of review - present |
+
+**§ 1681b was the gap.** Yesterday's FCRA acquisition took §§ 1681, 1681c,
+1681e, 1681i, 1681n, 1681o and 1681s-2 - and missed *permissible purposes*,
+which is the section that decides whether pulling a report was lawful at all.
+The infographic pointed at it. That is the class working as intended: the prose
+is not evidence, and the citation is a pointer worth following.
+
+**`ai_generated` added as a source class.** Its own poster names it, and it is
+distinct: fluent, formatted like authority, and capable of being confidently
+wrong in a way a human summariser usually is not - invented citations most of
+all. Which cuts both ways. Because the citations are the checkable part, this
+class is useful *exactly to the degree it points somewhere*. Verify the pointer,
+never the prose.
+
+**One thing did not check, and it is the interesting one.** The "PRESUMPTION vs
+PROOF" card carries an **8-POINT TEST** - Law, Definition, Capacity, Facts,
+Authority, Procedure, Evidence, Remedy - under a citation to *U.S. Const.
+amends. V and XIV; 5 U.S.C. § 706*. Those authorities are real and they do not
+contain an eight-point test. It is the author's framework sitting directly
+beneath a citation, which reads as though the citation supports it.
+
+That is precisely the presumption the same card warns against: *"should not
+replace actual evidence where proof is required."* A framework is a useful way
+to organise thinking and it is not a holding, and the layout does not
+distinguish them.
+
+Worth noting it overlaps substantially with `core/claim_assessment.py`, whose
+ten prerequisites were derived independently: instrument, jurisdiction,
+governing_law, provision, factual_prereqs, definition, documentation,
+recognizing_party, subsequent_action, reproducible. Two people arriving at
+similar checklists is mild corroboration that the shape is right - and it is
+still a checklist, not authority.

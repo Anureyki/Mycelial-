@@ -4186,6 +4186,17 @@ class GrowAgent(AgentBase):
                                  "Secondhand, however qualified the byline.",
             "documentation":  "a label, spec sheet, manual or published guideline. Generic, "
                               "possibly dated, often written by an interested party.",
+            # Its own poster labelled the Instagram set "AI content". That is a
+            # distinct class and an increasingly common one: fluent, formatted
+            # like authority, and capable of being confidently wrong in a way
+            # a human summariser usually is not - invented citations most of
+            # all. Which cuts both ways: the citations are the checkable part,
+            # so this class is USEFUL exactly to the degree it points
+            # somewhere. Verify the pointer, never the prose.
+            "ai_generated":   "an AI-produced summary or infographic. Its citations are "
+                              "checkable and its prose is not evidence of anything. "
+                              "Verify each citation against the corpus before relying on "
+                              "any of it.",
             "authority":      "a statute, regulation or standard that governs.",
             "lab_result":     "an instrumented measurement by a third party.",
             "unknown":        "not determined - and left that way rather than guessed.",
@@ -4262,7 +4273,7 @@ class GrowAgent(AgentBase):
         # blog post through the side door - which is precisely the laundering
         # this field exists to prevent.
         VALID_SOURCE_CLASSES = {"peer_account", "expert_commentary", "documentation",
-                                "authority", "lab_result", "unknown"}
+                                "ai_generated", "authority", "lab_result", "unknown"}
         if source_class and str(source_class).lower() not in VALID_SOURCE_CLASSES:
             return {"error": f"source_class must be one of: "
                              f"{', '.join(sorted(VALID_SOURCE_CLASSES))}"}
