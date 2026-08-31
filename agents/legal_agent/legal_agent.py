@@ -1732,6 +1732,8 @@ class LegalAgent(AgentBase):
     # do for my housing case" routed here correctly and got nothing back - the
     # register was full and unreachable by the only sentence anyone would
     # actually say.
+    OWNS_TERMS = ("repair notice", "habitability", "reasonable accommodation")
+
     _MATTER_STATE_ASK = (
         r"\bwhat (?:do|should) i (?:need to |have to )?do\b",
         r"\bwhat(?:'s| is) (?:next|outstanding|left|pending|due)\b",
@@ -1775,6 +1777,61 @@ class LegalAgent(AgentBase):
         r"\b(?:that'?s|it'?s|this is) (?:done|sent|filed|handled|taken care of)\b",
         r"\bi did (?:that|the|it)\b", r"\bdone with\b",
     )
+
+    def routing_terms(self):
+        """Declared vocabulary, plus the words of the matters actually open.
+
+        The learned words go into `terms`, which are COUNTED against other
+        agents, and never into `owns`, which is DEFINITIVE and stops the
+        router. The first version put them in `owns` and Legal immediately
+        claimed "pest control" and "damages entry" off its own action list -
+        words that belong to Accounting, which owns what a charge is. An agent
+        that learns a word from its own paperwork has a claim on it, not a
+        certainty, and the difference is exactly what the two tiers are for.
+        """
+        base = super().routing_terms()
+        base["terms"] = list(base.get("terms") or []) + self._matter_vocabulary()
+        return base
+
+    def _matter_vocabulary(self):
+        """Two-word phrases taken from the open action register.
+
+        Grow adds the names of the plants it is tracking, so registering a
+        plant makes questions about it route correctly from that moment with
+        no edit anywhere. The same reasoning applies here and was missing:
+        "I emailed the repair notice today" named an item sitting in this
+        agent's own action register and reached no agent's vocabulary, so
+        Boss guessed - and guessed differently on different runs, because a
+        fallback is not a routing decision.
+
+        Only distinctive words are taken. A word already claimed generically,
+        or too short to mean anything, would pull unrelated requests in, which
+        is the opposite failure and harder to see.
+        """
+        terms = []
+        generic = {"notice", "request", "record", "records", "date", "dated",
+                   "send", "sent", "give", "given", "file", "filed", "form", "copy",
+                   "case", "cases", "open", "close", "closed", "item",
+                   "items", "step", "steps", "thing", "things", "with", "from",
+                   "that", "this", "what", "when", "where", "which", "their", "your"}
+        try:
+            for a in (self.actions().get("actions") or []):
+                phrase = str(a.get("what") or "")
+                # Two-word phrases from the item's own wording: distinctive
+                # enough to claim, short enough to say.
+                words = [w for w in re.findall(r"[a-z]{4,}", phrase.lower())
+                         if w not in generic]
+                for i in range(len(words) - 1):
+                    pair = f"{words[i]} {words[i + 1]}"
+                    if pair not in terms:
+                        terms.append(re.escape(pair))
+                if a.get("forum") and len(str(a["forum"])) > 3:
+                    f = re.escape(str(a["forum"]).lower())
+                    if f not in terms:
+                        terms.append(f)
+        except Exception as exc:
+            self.log(f"owns_terms: could not read the action register: {exc}")
+        return terms
 
     def _record_reported_step(self, text):
         """Attach a reported step to the open action it names, or say it could

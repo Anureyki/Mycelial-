@@ -2525,10 +2525,10 @@ class GrowAgent(AgentBase):
     "net pot", "clay pebble", "pebbles", "leca", "air stone", "airstone",
     "top feed", "air pump",
     # measurements and inputs
-    "ppm", "\bph\b", "\bec\b", "tds", "nutrient", "nutrition", "feed", "feeding",
+    "ppm", "\\bph\\b", "\\bec\\b", "tds", "nutrient", "nutrition", "feed", "feeding",
     "cal-?mag", "calmag", "flora ?(micro|gro|bloom)", "runoff",
     # plant and lifecycle
-    "plant", "grow", "garden", "seedling", "germinat", "sprout", "veg\b",
+    "plant", "grow", "garden", "seedling", "germinat", "sprout", "veg\\b",
     "vegetative", "flower", "bloom", "pistil", "calyx", "trichome", "harvest",
     "leaf", "leaves", "canopy", "node", "root", "roots", "strain",
     "autoflower", "auto-?flower", "photoperiod", "cultivar",
@@ -2539,7 +2539,7 @@ class GrowAgent(AgentBase):
     "top ?up", "how much more",
     # the act of keeping the record itself - asking how often to log is a grow
     # question even when it names no plant, no measurement and no equipment
-    "reading", "readings", "log\b", "logging", "cadence", "how often",
+    "reading", "readings", "log\\b", "logging", "cadence", "how often",
     # actions
     "transplant", "defoliat", "lollipop", "topping", "water change", "top ?off",
     )

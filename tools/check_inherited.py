@@ -212,5 +212,49 @@ def main():
     return 0
 
 
+def check_routing_terms_are_regex():
+    """A routing term containing a control character is a dead term.
+
+    "\\bph\\b" written in a NON-raw Python string makes \\b a BACKSPACE, not a
+    word boundary, so the pattern is backspace-p-h-backspace and matches
+    nothing, ever. pH and EC - the two measurements this grow is steered by -
+    were unroutable this way, and nothing reported it: an agent with a dead
+    term looks exactly like an agent whose term simply did not match.
+    """
+    import json as _json
+    import urllib.request as _u
+    dead = {}
+    for port in (8000, 8001, 8002, 8003, 8081, 9006, 9007, 9009, 9010, 9011, 9012, 9013):
+        try:
+            r = _u.Request(f"http://127.0.0.1:{port}/execute",
+                           _json.dumps({"task": "routing_terms", "args": {},
+                                        "sender": "check"}).encode(),
+                           {"Content-Type": "application/json"})
+            d = _json.load(_u.urlopen(r, timeout=10))
+            n = 0
+            while isinstance(d, dict) and "terms" not in d and "result" in d and n < 6:
+                d = d["result"]
+                n += 1
+        except Exception:
+            continue
+        bad = [t for t in (d.get("terms") or []) + (d.get("owns") or [])
+               if any(ord(ch) < 32 for ch in t)]
+        if bad:
+            dead[d.get("agent") or port] = [repr(x) for x in bad]
+    if dead:
+        print("DEAD ROUTING TERMS - control characters, these can never match:")
+        for k, v in dead.items():
+            print(f"  {k}: {', '.join(v)}")
+        return 1
+    print("no routing term contains a control character")
+    return 0
+
+
 if __name__ == "__main__":
-    sys.exit(main())
+    # BOTH checks, and the exit code is the worse of the two. Appending a
+    # second __main__ block silently replaced the first - the inherited-
+    # capability check would have stopped running while the script still
+    # reported success, which is the shape this file exists to catch.
+    _rc = main() or 0
+    _rc2 = check_routing_terms_are_regex() or 0
+    sys.exit(_rc or _rc2)

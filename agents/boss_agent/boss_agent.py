@@ -800,6 +800,20 @@ class BossAgent(AgentBase):
         }
 
     def handle_task(self, task, args, sender):
+        # An agent that restarts with changed routing terms is invisible to the
+        # vocabulary cache for up to its TTL, so a capability declared correctly
+        # still routes to whoever held the words before. Five minutes of wrong
+        # routing after every restart is a long time when nobody is watching,
+        # and the remedy must not be "restart Boss as well".
+        if task == "refresh_routing":
+            self._domain_cache["map"] = None
+            self._domain_cache["at"] = 0
+            v = self._domain_vocabulary()
+            return {"refreshed": True, "agents": len(v),
+                    "terms": sum(len(t) for t in v.values()),
+                    "note": ("Vocabulary re-read from every registered agent. Call this "
+                             "after restarting an agent whose routing terms changed.")}
+
         if task == "ingest_document":
             return self.ingest_document(args if isinstance(args, dict) else {})
 

@@ -3171,3 +3171,60 @@ and I first wrote 325 by arithmetic; the agents say 328.
 
 Measured, end to end through Anansi: grow snapshot 1.0s, matter state 0.9s,
 deadline question 2.2s, reading capture 3.1s, reported step 2.3s.
+
+### 2026-08-31 (cont.) — pH and EC were unroutable, and nothing said so
+
+Sweeping every question the principal would ask over the next three days turned
+up a bug that had been sitting in the grow vocabulary:
+
+```python
+"ppm", "\bph\b", "\bec\b", "tds", ...
+```
+
+In a **non-raw** Python string `\b` is a BACKSPACE, not a word boundary. The
+declared terms were `\x08ph\x08` and `\x08ec\x08` — patterns that can never
+match anything. **pH and EC, the two measurements this grow is steered by, were
+unroutable**, and so were `veg\b` and `log\b`. "What's my pH?" was answered by
+whatever Boss guessed; it went to Legal.
+
+Nothing reported it, because an agent with a dead term looks exactly like an
+agent whose term simply did not match. `tools/check_inherited.py` now fails on
+any routing term containing a control character. Merging that check revealed the
+same shape one level up: appending a second `__main__` block silently replaced
+the first, so the inherited-capability check would have stopped running while
+the script still reported success.
+
+**Boss cached the vocabulary for five minutes.** An agent restarting with new
+terms still routed to whoever held the words before, and the remedy could not be
+"restart Boss as well". `POST localhost:8000/execute {"task":"refresh_routing"}`
+re-reads it on demand.
+
+**Legal now learns vocabulary from its own register**, the way Grow claims the
+names of the plants it tracks — so an action opened today makes questions about
+it route correctly from that moment with no edit anywhere. The first version put
+the learned words in `owns`, and Legal immediately claimed *"pest control"* and
+*"damages entry"* off its own action list — words belonging to Accounting, which
+owns what a charge is. Learned words are `terms`, which are counted; `owns`
+stays static and definitive. **An agent that learns a word from its own
+paperwork has a claim on it, not a certainty**, and that is what the two tiers
+are for.
+
+**Accounting could not explain a classification it had already made.** Its
+`answer()` tested for money words, so *"why is the pest control charge coded
+wrong"* — routed to it correctly — returned nothing, while the derivation sat in
+memory reachable only by re-supplying every fact by hand. It was also stored
+under a key with no index, so nothing could enumerate it.
+
+Ends at **10/10** on the sweep, every answer under 2.5 seconds:
+
+```
+What's my pH? · What's my EC? · What's my reservoir at? · next reading?
+What do I need to do for my housing case? · How long do I have to file with HUD?
+why is the pest control charge coded wrong? · they billed me for a trip charge
+I emailed the repair notice today · system status
+```
+
+Four test readings and two false step-reports were written by this testing and
+all six were reverted — the readings voided with reasons, the action retracted
+on its own record. A false entry on a register is worse than a missing one: it
+tells its owner he is covered when he is not.

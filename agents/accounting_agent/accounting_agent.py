@@ -83,6 +83,17 @@ class AccountingAgent(AgentBase):
         "transaction code", "coded as", "miscod", "mis-?label", "chart of accounts",
         "posted as", "line item", "trip charge", "chargeback", "charge-?back",
         "pass-?through", "expense classification", "classif\\w* (?:the )?charge",
+        # "why is the pest control charge coded wrong" matched NOTHING in any
+        # agent's vocabulary, so Boss guessed and sent it to Security. A
+        # question nobody claims is routed by whatever the fallback happens to
+        # do, which is the router failure this architecture exists to prevent -
+        # so the several ways a person actually says it are declared here.
+        "charge\\w*.{0,24}cod(?:e|ed|ing)", "cod(?:e|ed|ing).{0,24}charge",
+        "charge\\w*.{0,24}(?:wrong|incorrect|mislabel|misfiled|shouldn'?t be)",
+        "(?:wrong|incorrect).{0,24}(?:code|category|account|entry)",
+        "what.{0,20}(?:code|category).{0,20}(?:should|ought)",
+        "billed (?:me |us )?for", "\\bdamages\\b.{0,30}\\bledger\\b",
+        "\\bledger\\b.{0,30}\\bdamages\\b",
     )
 
     # Definitive: a request about what a ledger entry OUGHT to be classified as
@@ -542,9 +553,99 @@ class AccountingAgent(AgentBase):
                              "square" if balance == 0 else "owing"),
                 "charges": charges}
 
+    # A question about how a charge was CODED is not a question about a
+    # balance, so the money test above rejected it and the department that
+    # owns the answer said nothing. The classifications this agent has already
+    # derived sat in memory, reachable only by calling classify_charge again
+    # with the facts re-supplied by hand.
+    _CHARGE_ASK = (
+        r"\bcod(?:e|ed|ing)\b", r"\btransaction code\b", r"\bmiscod", r"\bmislabel",
+        r"\bposted as\b", r"\bchart of accounts\b", r"\bclassif",
+        r"\btrip charge\b", r"\bcharge\w*\b.{0,24}\b(?:wrong|right|correct|should)\b",
+        r"\bwhy\b.{0,30}\bdamages\b", r"\bbilled (?:me|us)\b",
+    )
+
+    def _stored_classifications(self, case_id=None):
+        """Every charge this agent has classified, newest first."""
+        out = []
+        try:
+            raw = self._unwrap_value(self.retrieve_own_memory("charge_class_index"))
+            idx = json.loads(raw) if raw else []
+        except Exception:
+            idx = []
+        for cid in idx:
+            r = self._unwrap_value(self.retrieve_own_memory(cid))
+            if not r:
+                continue
+            try:
+                rec = json.loads(r)
+            except Exception:
+                continue
+            if case_id and rec.get("case_id") != case_id:
+                continue
+            out.append(rec)
+        out.sort(key=lambda x: x.get("recorded_at") or "", reverse=True)
+        return out
+
+    def _describe_classification(self, rec):
+        amt = rec.get("amount")
+        head = (f"The ${amt:,.2f} charge" if isinstance(amt, (int, float))
+                else "That charge")
+        posted = rec.get("posted_as")
+        nat = rec.get("nature") or {}
+        recov = rec.get("recoverability") or {}
+        lines = []
+        verdict = rec.get("verdict")
+        if verdict == "posted_label_unsupported":
+            lines.append(f"{head} is posted as “{posted}” and that label is not "
+                         f"supported by the facts on record.")
+        elif verdict == "posted_label_contradicted":
+            lines.append(f"{head} is posted as “{posted}” and the record says the "
+                         f"opposite.")
+        elif verdict == "posted_label_questionable":
+            lines.append(f"{head} is posted as “{posted}”, which is questionable.")
+        elif verdict == "posted_label_consistent":
+            lines.append(f"{head} is posted as “{posted}” and that is consistent "
+                         f"with what it is.")
+        else:
+            lines.append(f"{head}: {verdict}.")
+        lines.append("")
+        lines.append(f"What it is: {nat.get('classification')}. {nat.get('basis','')}")
+        lines.append(f"Whether it can be billed to you: {recov.get('status')}. "
+                     + " ".join(recov.get("basis") or []))
+        for f in (rec.get("findings") or [])[:2]:
+            lines.append("")
+            lines.append(f)
+        missing = [a["citation"] for a in (rec.get("governing_authority") or [])
+                   if not a.get("in_corpus")]
+        if missing:
+            lines.append("")
+            lines.append("Authority that would settle the consequence is not held here: "
+                         + ", ".join(missing)
+                         + ". Nothing is asserted about what those say.")
+        lines.append("")
+        lines.append("This is a derivation, not an attestation - it carries no licence. "
+                     "Every step above can be checked.")
+        return "\n".join(l for l in lines if l is not None)
+
     def answer(self, prompt):
         """Questions this department owns, answered from its own records."""
         p = (prompt or "").lower()
+
+        if any(re.search(pat, p) for pat in self._CHARGE_ASK):
+            recs = self._stored_classifications()
+            if not recs:
+                return {"answered_as": "no_classification_held",
+                        "text": ("No charge has been classified yet, so there is nothing on "
+                                 "record to explain. Give me the charge - who performed the "
+                                 "work, what occasioned it, and what it was posted as - and "
+                                 "I will derive what it actually is.")}
+            return {"answered_as": "charge_classification",
+                    "text": self._describe_classification(recs[0]),
+                    "facts": {"verdict": recs[0].get("verdict"),
+                              "amount": recs[0].get("amount"),
+                              "also_held": len(recs) - 1}}
+
         wants_money = any(w in p for w in (
             "owe", "owed", "balance", "due", "rent", "obligation", "ledger",
             "pay", "paid", "payment", "arrears", "behind", "current"))
@@ -1007,6 +1108,13 @@ class AccountingAgent(AgentBase):
         if cid:
             try:
                 rec_id = f"charge_class_{self._uid()}"
+                try:
+                    _raw = self._unwrap_value(self.retrieve_own_memory("charge_class_index"))
+                    _idx = json.loads(_raw) if _raw else []
+                except Exception:
+                    _idx = []
+                _idx.append(rec_id)
+                self.store_own_memory("charge_class_index", json.dumps(_idx))
                 self.store_own_memory(rec_id, json.dumps(
                     {**{k: v for k, v in result.items() if k != "disclaimer"},
                      "case_id": cid, "document_ref": a.get("document_ref"),
