@@ -66,6 +66,7 @@ out loud rather than discovered by watching it get worse.
 | — | *Hardware track:* provision dedicated device | blocked on hardware | n/a | Phase 7 |
 | — | *Hardware track:* migrate and cut over | blocked on hardware | n/a | Phase 8 |
 | — | *Deferred track:* multi-tenancy | not scheduled | unknown - not designed | — |
+| — | *Design track:* Anansi as a spider on a web | idea, evolving | yes - phone GPU, not this box | — |
 
 ---
 
@@ -639,3 +640,89 @@ platform is stateless by design and that property is worth more than the
 round trips. The cache should live for one `answer()` and die with it.
 
 ### Training-data loop: source, review, count — done 2026-08-25
+
+---
+
+## Design track — Anansi as a spider on a web
+
+**Not a phase.** Recorded 2026-08-31 because the principal expects it to change:
+*"the idea might evolve later."* This is the shape of the idea and the one
+constraint that must survive whatever it becomes.
+
+### Where it came from
+
+An Instagram build by `reznikov_engineering` - a particle humanoid with motion
+tracking, gesture response, an "alive" background and sound. The principal
+wanted something similar and immediately made it specific: *"a humanoid spider,
+eight legs, spider legs obviously. But in the background... I would do a web."*
+
+### Why the spider is not a costume
+
+Anansi IS the spider - the West African trickster-storyteller the agent is named
+for. Every other implementation of this is a glowing humanoid head because there
+is nothing else for it to be. This one has a form that was already true.
+
+### The web is the domain space; the legs are the reach
+
+The principal's design, and it is better than "one leg per department":
+
+> *"if there's some information that's needed, you'll see the spider leg go into
+> the background, touch a certain portion of the web. This might be Grow's
+> department or domain of the web. This might be Legal's, this might be
+> Accounting."*
+
+A leg extends into a region and touches a strand. The region is the department,
+the strand is what within it - a citation lookup and a case-element assessment
+are different strands of Legal, and they should not look the same.
+
+Two properties fall out of that for free:
+
+- **It shows when nothing was reached.** An answer given with no leg extended is
+  Anansi answering from nothing. A glowing head cannot show that; it looks
+  equally confident either way. This is the visual form of the same distinction
+  the codebase already insists on - a check that found nothing must be
+  distinguishable from a check that found the thing to be fine.
+- **It is drawn from real traffic.** The interaction graph already knows which
+  agents were consulted for a request and with what task. The legs are that
+  data, not an animation loop. `hermes -> security_agent` at 13,407 calls is one
+  strand worn smooth.
+
+### The constraint that must survive any redesign
+
+**The visual is derived from the register and the payload, never chosen for
+effect.** `config/anansi_voice.json` already carries seven registers with
+numbers - `low_stakes 1.0`, `technical 0.6`, `security 0.4`, `legal` and
+`financial 0.35`, `sensitive 0.25`, `safety_critical 0.1` - and
+`Voice.register_for()` already decides how much personality the WORDS get. The
+same call drives the particles, so the spider physically cannot look relaxed
+about a contested claim: at 0.1 it goes still and sparse because the words did.
+
+The failure this prevents is exact and has already happened once in text. The
+voice layer discards a telling if a number is lost or invented - an opener
+asserting *"All 7 of your readings are perfect"* was refused because the 7 was
+not in the payload. **A visual can tell that lie in a form the guard cannot
+catch, because nobody fact-checks a glow.** An avatar reaching confidently into
+a strand while the payload says `insufficient_evidence` is that same opener,
+rendered.
+
+So: leg extension comes from what was actually consulted, and manner comes from
+the register. Neither is an art direction decision.
+
+### Honest cost
+
+The reference implementation is motion tracking, gesture recognition, particle
+systems and sound - substantial work, and it competes with Phases 1-5, all of
+which are being paid for daily. This is a *want*, and wants are legitimate; it
+should not quietly become the next thing while a lollipop from nine days ago is
+still the kind of fact that goes unrecorded.
+
+Two practical notes: it is Canvas or WebGL inside the PWA that already exists,
+so no new stack - and it renders on the phone's GPU, which means the 7 GB
+no-GPU box is not the constraint here for once.
+
+### Do not start this by
+
+Building the particle system first. The renderer is the part that is easy to
+find tutorials for and the part that is worth the least. Start by deciding what
+a leg reaching means and where that data comes from - if a leg can move for a
+reason nobody can point at, the whole thing is decoration with extra steps.

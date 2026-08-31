@@ -848,6 +848,11 @@ class MaintenanceAgent(AgentBase):
                      else "in_progress" if ("\u25d0" in status or "remaining" in low
                                             or "progress" in low)
                      else "blocked" if ("blocked" in low or "waiting on" in low)
+                     # An idea deliberately left open is not an unknown state.
+                     # It is a decision to not decide yet, and the roadmap
+                     # should be able to say so.
+                     else "idea" if ("idea" in low or "evolving" in low
+                                     or "sketch" in low)
                      else "not_started" if "not started" in low
                      else "not_scheduled" if "not scheduled" in low
                      else "unknown")
@@ -893,7 +898,8 @@ class MaintenanceAgent(AgentBase):
         # The next phase is the lowest-numbered one not finished AND not
         # blocked - pointing at something nobody can start is not guidance.
         nxt = next((p for p in numbered
-                    if p["state"] not in ("done", "blocked", "not_scheduled")), None)
+                    if p["state"] not in ("done", "blocked", "not_scheduled",
+                                          "idea")), None)
         return {"phases": phases, "table_section_conflicts": conflicts,
                 "tracks": [p for p in phases if not p["number"].isdigit()],
                 "done": len(done), "total_numbered": len(numbered),

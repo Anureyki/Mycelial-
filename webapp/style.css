@@ -474,3 +474,7 @@ main#log {
 .card-body .phases li.ph-blocked::before { content: "\25A0"; color: #8a7d5a; }
 .card-body .phases li.ph-not_scheduled::before { content: "\25CB"; color: #5a5a5a; }
 .card-body .phases li.ph-blocked { color: var(--muted); }
+
+/* An idea held open on purpose - neither started nor blocked. */
+.card-body .phases li.ph-idea::before { content: "\25CC"; color: #7a6f9a; }
+.card-body .phases li.ph-idea { color: var(--muted); }

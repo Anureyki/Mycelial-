@@ -2347,3 +2347,42 @@ wrong one succeeding.
 
 Backward compatible: `terms` is unchanged, `owns` is additive, and the five
 agents that declare none return `owns=0` and route exactly as before.
+
+### 2026-08-31 — The spider on the web, recorded as a track
+
+Written down at the principal's request because it is expected to change: *"the
+idea might evolve later."* A design track, not a phase - it is a want, not a
+necessity, and the roadmap should be able to hold the difference.
+
+**Why the spider is not a costume.** Anansi IS the spider. Every other build of
+this is a glowing humanoid head because there is nothing else for it to be; this
+one has a form that was already true.
+
+**The web is the domain space and the legs are the reach** - the principal's
+design, and better than one-leg-per-department. A leg extends into a region and
+touches a strand: the region is the department, the strand is what within it,
+because a citation lookup and a case-element assessment are different strands of
+Legal and should not look alike.
+
+Two properties fall out for free. **It shows when nothing was reached** - an
+answer given with no leg extended is Anansi answering from nothing, which a
+glowing head cannot show because it looks equally confident either way. And **it
+is drawn from real traffic**: the interaction graph already knows which agents
+were consulted and with what task, so the legs are that data rather than an
+animation loop.
+
+**The constraint recorded to survive any redesign:** the visual is derived from
+the register and the payload, never chosen for effect. `Voice.register_for()`
+already decides how much personality the WORDS get, on a scale from
+`low_stakes 1.0` to `safety_critical 0.1`; the same call drives the particles,
+so the spider cannot look relaxed about a contested claim.
+
+The failure that guards against has already happened once in text - an opener
+asserting *"All 7 of your readings are perfect"* was discarded because the 7 was
+not in the payload. **A visual can tell that lie in a form the existing guard
+cannot catch, because nobody fact-checks a glow.**
+
+`idea` is now a state distinct from `unknown`, and `next` skips it. An idea held
+open on purpose is a decision not to decide yet, and reporting it as unknown
+loses that. It also renders on the dashboard as its own marker rather than
+disappearing into the numbered list.
