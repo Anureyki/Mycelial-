@@ -3876,3 +3876,63 @@ because `cite_in_jurisdiction` has already been told the input is a uniform
 section and is being permissive about typing. It is useless as a discriminator.
 Federal is now tested first, and the uniform test requires a real hyphen and an
 actual UCC article number.
+
+### 2026-08-31 — "Is that all what legal agent on MycOS said" — no, and that was the finding
+
+The principal asked the plainest possible question after a long answer about
+*Duell v. State of Hawaii*, and the honest answer was **no**. Worth separating,
+because the same question about the grow reminder produced the same shape a few
+hours earlier.
+
+**What Legal Agent actually did:** opened 18 U.S.C. § 153 from its own corpus;
+ran the claim pipeline to `contradicted / 0.15`; scored the screenshots;
+recorded the case outcome — and **refused a bad record from Claude twice**, first
+on an invalid `precedential` value and then, more usefully, on substance:
+
+> *A 'dismissal_procedural' does not reach the merits, so it has no holding… Put
+> what happened in `notes` instead — a holding recorded here would be cited as
+> one later.*
+
+That is the discipline working on its operator, which is the point of building it.
+And it was right: *Stoner* is the authority; this order only applied it.
+
+**What Claude did:** the retrieval and the reading. Which is the gap.
+
+### Legal could find the case and could not read it
+
+`search_cases` found `Duell v. State of Hawaii`, docket 73143817, **by name, in
+seconds** — along with four other Duell filings in D. Haw. going back to 2024.
+Then it stopped. `check_docket` returns *alerts*, and returned `{"alerts": []}`
+here: a call that succeeds and answers nothing.
+
+The CourtListener MCP server exposed `search`, `create_alert` and
+`subscribe_docket_alert`. **It could find that a case existed and could not open
+anything.** So a human fetched the ten pages and did the reading, and the
+analysis that came back was Claude's — the capture-layer problem one layer down.
+An agent that can find a case and cannot read it has to be narrated to, and a
+narrator is exactly what this architecture keeps outside the domain.
+
+`docket_documents` was added to the MCP server and `read_docket_document` to
+Legal. Verified end to end, by the agent, on the document in question:
+
+```
+readable=True  pages=10  chars=18425   standing: observed / authority
+"...fails to comply with Rule 8. The Complaint is incoherent and rambling..."
+"...Given these specious allegations, the Complaint plainly fails to state a
+   plausible claim under the FCA..."
+"...Stoner v. Santa Clara Cnty. Off. of Educ., 502 F.3d 1116, 1127 (9th Cir. 2007)..."
+authorities the court relied on -> 3 testable now, 16 worth acquiring, 13 not fetchable
+```
+
+It adds what a plain fetch cannot: every authority the court relied on, triaged
+against what the corpus can open. And `evidence_kind: observed` is correct here
+for the first time in this domain — this is not a report about a case, it is the
+case.
+
+**Two bugs on the way, both familiar shapes.** RECAP's `is_available: false` is a
+fact about the archive, not the document, and is reported as such rather than as
+an empty result. And the first version read the JSON-RPC envelope instead of the
+payload two levels inside it, so the agent reported the court's own order as
+unreadable while the text sat in `result.content[0].text` — the same nesting
+error as `describe()` looking for `reading` one level too deep and telling the
+grower his entry had not been logged.

@@ -196,7 +196,7 @@ class LegalAgent(AgentBase):
                 "add_deadline", "deadlines",
                 "open_action", "complete_action", "amend_action", "actions",
                 "add_venue", "venues", "running_clocks", "complaint_path",
-                "read_filed_document", "ingest_screenshot",
+                "read_filed_document", "ingest_screenshot", "read_docket_document",
                 "triage_source", "record_case_outcome"
             ],
             role="agent"
@@ -2378,6 +2378,104 @@ class LegalAgent(AgentBase):
     # The output is a triage - what is cited, what is openable in the corpus,
     # what would have to be verified - not a plan of action.
 
+    @staticmethod
+    def _unwrap_mcp(raw):
+        """Get the payload out of the JSON-RPC envelope MCP returns.
+
+        A tool call comes back as {"result": {"content": [{"type": "text",
+        "text": "<json>"}]}}, and reading the wrapper for the payload's keys
+        finds none of them - so the first version reported the court's own order
+        as unreadable while the text sat two levels down. The same nesting class
+        as describe() looking for `reading` one level too deep and telling the
+        grower his entry had not been logged.
+        """
+        d = raw
+        for _ in range(4):
+            if not isinstance(d, dict):
+                break
+            if "content" in d and isinstance(d["content"], list) and d["content"]:
+                t = (d["content"][0] or {}).get("text")
+                if isinstance(t, str):
+                    try:
+                        return json.loads(t)
+                    except Exception:
+                        return {"error": "MCP returned text that is not JSON", "raw": t[:400]}
+            if "result" in d:
+                d = d["result"]
+                continue
+            break
+        return d
+
+    def read_docket_document(self, args):
+        """Read the court's own text of one document on a docket.
+
+        THE GAP THIS CLOSES, found by the principal asking a plain question:
+        *"Is that all what legal agent on MycOS said"* - and the honest answer
+        was no. This agent located `Duell v. State of Hawaii` by name in seconds
+        through `search_cases`, and then could not open the order that decided
+        it. Claude fetched and read the ten pages, and the analysis that came
+        back was Claude's, not this agent's.
+
+        That is the capture-layer problem one layer down. An agent that can find
+        a case and cannot read it has to be narrated to, and a narrator is
+        exactly what this architecture puts outside the domain.
+
+        What it refuses: to treat a court's text as anything but what it is.
+        `is_available` false means RECAP holds no text - nobody has contributed
+        that PDF - which is a fact about the ARCHIVE, not about the document, and
+        the two are reported differently."""
+        a = args if isinstance(args, dict) else {}
+        did = a.get("docket_id")
+        if not did:
+            return {"error": ("read_docket_document needs a docket_id. Find one with "
+                              "search_cases; this agent does not guess docket ids."),
+                    "disclaimer": DISCLAIMER}
+        payload = {"docket_id": int(did)}
+        if a.get("document_number") is not None:
+            payload["document_number"] = str(a["document_number"])
+        out = self.call_tool("courtlistener", "docket_documents", payload)
+        out = self._unwrap_mcp(out)
+        if not isinstance(out, dict) or out.get("error"):
+            return {"error": (out or {}).get("error", "no response from courtlistener")
+                             if isinstance(out, dict) else "no response from courtlistener",
+                    "disclaimer": DISCLAIMER}
+        if "documents" in out:
+            out["disclaimer"] = DISCLAIMER
+            return out
+        text = out.get("text") or ""
+        if not text:
+            return {"docket_id": did, "document_number": out.get("document_number"),
+                    "is_available": out.get("is_available"),
+                    "readable": False,
+                    "why": ("RECAP holds no text for this document. That is a fact about "
+                            "the archive - nobody has purchased and contributed the PDF - "
+                            "and says nothing about what the document contains. It has NOT "
+                            "been read, and nothing about it should be asserted."),
+                    "disclaimer": DISCLAIMER}
+        # The corpus check is what this agent adds over a plain fetch: every
+        # authority the court relied on, tested against what it can open.
+        cites = self.triage_source(
+            text=text[:20000], source_class="authority",
+            note=(f"Court's own text, docket {did} document "
+                  f"{out.get('document_number')}. Primary source, read not summarised."))
+        return {
+            "docket_id": did,
+            "document_number": out.get("document_number"),
+            "description": out.get("description"),
+            "pages": out.get("page_count"),
+            "chars": out.get("chars"),
+            "readable": True,
+            "authorities_the_court_relied_on": cites,
+            "text": text,
+            "standing": {
+                "evidence_kind": "observed",
+                "source_class": "authority",
+                "why": ("This is what a court actually filed, retrieved from the docket. "
+                        "It is the lived column - not a report about a case, the case."),
+            },
+            "disclaimer": DISCLAIMER,
+        }
+
     def read_filed_document(self, args):
         """Open one message Anansi filed, and triage it as a source."""
         import email as _email
@@ -3084,6 +3182,8 @@ class LegalAgent(AgentBase):
                 a = {"stage": args[0]}
             return self.transaction_layers(a.get("stage"), a.get("state"))
 
+        if task == "read_docket_document":
+            return self.read_docket_document(args if isinstance(args, dict) else {})
         if task == "read_filed_document":
             return self.read_filed_document(args if isinstance(args, dict) else {})
         if task == "ingest_screenshot":

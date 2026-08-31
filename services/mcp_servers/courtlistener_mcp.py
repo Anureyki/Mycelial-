@@ -64,6 +64,63 @@ def search(arguments):
         return {"error": str(e)}
 
 
+
+def docket_documents(arguments):
+    """List a docket's entries, and return the TEXT of one when asked.
+
+    This was the gap. The server could `search` - find that a case exists - and
+    could subscribe to alerts, and could not READ anything. So the Legal Agent
+    could locate `Duell v. State of Hawaii` by name in seconds and then had no
+    way to open the order that decided it; a human had to fetch and read it,
+    which is the capture-layer problem one layer down.
+
+    A docket entry is not the document. RECAP holds the court's own text only
+    where someone has purchased and contributed it, so `is_available` is
+    reported per document and an unavailable one says so rather than coming
+    back empty.
+    """
+    docket_id = arguments.get("docket_id")
+    if not docket_id:
+        return {"error": "Missing required 'docket_id' (from a search result)"}
+    number = arguments.get("document_number")
+    try:
+        params = {"docket_entry__docket": docket_id, "page_size": 50}
+        fields = ["id", "document_number", "description", "is_available", "page_count"]
+        if number is not None:
+            params["document_number"] = str(number)
+            fields.append("plain_text")
+        params["fields"] = ",".join(fields)
+        resp = requests.get(f"{BASE_URL}/recap-documents/", params=params,
+                            headers=_headers(), timeout=45)
+        if resp.status_code != 200:
+            return {"error": f"CourtListener document fetch failed: HTTP {resp.status_code}",
+                    "detail": resp.text[:400]}
+        results = resp.json().get("results", [])
+        if number is None:
+            return {"docket_id": docket_id, "documents": [
+                {k: r.get(k) for k in ("document_number", "description",
+                                       "is_available", "page_count")}
+                for r in results],
+                "note": ("Entries only. Pass document_number to read one. "
+                         "is_available false means RECAP holds no text for it - "
+                         "nobody has contributed that PDF, which is a fact about "
+                         "the archive and not about the document.")}
+        if not results:
+            return {"error": f"No document {number} on docket {docket_id}."}
+        doc = results[0]
+        text = doc.get("plain_text") or ""
+        return {"docket_id": docket_id, "document_number": doc.get("document_number"),
+                "description": doc.get("description"),
+                "is_available": doc.get("is_available"),
+                "page_count": doc.get("page_count"),
+                "chars": len(text),
+                "text": text[:120000],
+                "truncated": len(text) > 120000,
+                "read_not_summarised": ("This is the court's own text as filed. "
+                                        "Nothing here is a paraphrase.")}
+    except Exception as e:
+        return {"error": str(e)}
+
 def create_alert(arguments):
     if not API_TOKEN:
         return {"error": NO_TOKEN_ERROR}
@@ -127,6 +184,21 @@ TOOLS = {
             "required": ["q"],
         },
         "handler": search,
+    },
+    "docket_documents": {
+        "description": ("List the documents on a docket, or read the full text of one. "
+                        "Pass docket_id alone to list; add document_number to read."),
+        "inputSchema": {
+            "type": "object",
+            "properties": {
+                "docket_id": {"type": "integer",
+                              "description": "docket_id from a search result"},
+                "document_number": {"type": "string",
+                                    "description": "entry number to read in full"},
+            },
+            "required": ["docket_id"],
+        },
+        "handler": docket_documents,
     },
     "create_alert": {
         "description": "Create a recurring CourtListener search alert (requires COURTLISTENER_API_TOKEN).",
