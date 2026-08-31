@@ -195,6 +195,7 @@ class BossAgent(AgentBase):
             self.log(f"routing: registry lookup failed: {e}")
             agents = []
         silent, declined = [], []
+        owns = {}
         for a in agents:
             aid, url = a.get("agent_id"), a.get("url")
             if not aid or not url or aid == self.agent_id:
@@ -209,6 +210,9 @@ class BossAgent(AgentBase):
                 terms = (body or {}).get("terms") or []
                 if terms:
                     vocab[aid] = [t for t in terms if isinstance(t, str) and t]
+                owned = (body or {}).get("owns") or []
+                if isinstance(owned, list) and owned:
+                    owns[aid] = [t for t in owned if isinstance(t, str) and t]
                 elif isinstance(body, dict) and "terms" in body:
                     declined.append(aid)     # answered, and claims nothing
                 else:
@@ -226,12 +230,22 @@ class BossAgent(AgentBase):
         # narrates and Hermes brokers; neither owns a domain, so both answer
         # with an empty list on purpose and must not keep the router retrying.
         c["map"], c["at"] = vocab, time.time()
+        c["owns"] = owns
         c["ttl"] = 30 if silent else 300
         self.log("routing vocabulary: " +
                  ", ".join(f"{k}={len(v)}" for k, v in sorted(vocab.items())) +
                  (f" | claims nothing: {', '.join(sorted(declined))}" if declined else "") +
-                 (f" | silent: {', '.join(sorted(silent))} (retry in 30s)" if silent else ""))
+                 (f" | silent: {', '.join(sorted(silent))} (retry in 30s)" if silent else "") +
+                 (f" | owns: " + ", ".join(f"{k}={len(v)}" for k, v in sorted(owns.items()))
+                  if owns else ""))
         return vocab
+
+    def _owned_terms(self):
+        """The definitive claims, per agent. Populated by the same sweep that
+        builds the vocabulary, so it is never staler than the map it came
+        with."""
+        self._domain_vocabulary()
+        return (self._domain_cache or {}).get("owns", {})
 
     def ingest_document(self, args):
         """Take in a document, cut it into clauses, and tell each department
@@ -316,6 +330,39 @@ class BossAgent(AgentBase):
         id that exists, so a wrong answer is a wrong ROUTE - recoverable,
         because the department says it does not own the question - never a
         wrong fact. See core/intent.py."""
+        # AN OWNED TERM ENDS THE DECISION.
+        #
+        # Boss holds no domain knowledge and cannot judge whether a request is
+        # really Grow's - but Grow can, and a plant it is actually tracking is
+        # not a matter of opinion. So a department is allowed to say "this one
+        # is definitively mine", and that is not a vote to be weighed against a
+        # model's guess or another agent's keyword. It stops the routing.
+        #
+        # Two agents both claiming ownership is a real conflict and is logged
+        # rather than silently resolved - the same reason the claim pipeline has
+        # `contested` instead of quietly lowering a confidence number. It falls
+        # through to the ordinary path so the request still gets answered, but
+        # the collision is on the record and someone can go fix the vocabulary.
+        lp_own = (prompt or "").lower()
+        claimed = []
+        for aid, terms in (self._owned_terms() or {}).items():
+            for t in terms:
+                try:
+                    if re.search(t if ("\\b" in t or "?" in t or "*" in t) else r"\b" + t,
+                                 lp_own):
+                        claimed.append(aid)
+                        break
+                except re.error:
+                    continue
+        if len(set(claimed)) == 1:
+            owner = claimed[0]
+            self.log(f"routing: {owner} OWNS a term in this request - decision ends there")
+            return owner
+        if len(set(claimed)) > 1:
+            self.log(f"routing: OWNERSHIP CONFLICT - {sorted(set(claimed))} all claim to own "
+                     f"a term in this request. Falling through to the ordinary path; the "
+                     f"vocabularies need fixing.")
+
         pick = self._resolve_intent(prompt)
         keyword, margin, scores = self._domain_by_terms(prompt, with_margin=True)
 

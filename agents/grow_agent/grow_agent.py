@@ -2581,8 +2581,16 @@ class GrowAgent(AgentBase):
             except Exception as e:
                 self.log(f"could not build live plant terms: {e}")
             c["terms"], c["at"] = sorted(set(live)), time.time()
+        # A REGISTERED PLANT NAME IS OWNED, NOT VOTED ON.
+        #
+        # The subject words - "reservoir", "flower", "ppm" - are ordinary
+        # claims; another department could reasonably want one of them. The name
+        # of a plant this agent is actually tracking is not like that. Nothing
+        # else in the system knows what "gsc_auto_2" is, and no vote should be
+        # able to outweigh the department that holds the roster.
         return {"agent": self.agent_id,
-                "terms": list(self.ROUTING_TERMS) + c["terms"]}
+                "terms": list(self.ROUTING_TERMS) + c["terms"],
+                "owns": c["terms"]}
 
     # What this agent can be asked, and what it uses to answer. Kept HERE
     # because choosing among a domain's own capabilities is domain reasoning -

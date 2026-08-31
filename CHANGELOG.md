@@ -2301,3 +2301,49 @@ it out of the list was meant to preserve. `next` also skips blocked and
 unscheduled work - pointing at something nobody can start is not guidance. The
 dashboard shows the tracks below the numbered phases instead of filtering them
 out.
+
+### 2026-08-31 — A department can now say a request is definitively its own
+
+The principal, on the registry: *"the registry was strictly supposed to be for
+finding out agent-to-agent communications, how the agents consult one another,
+how they can find each other."* It still is - nothing has been added to it. It
+holds `agent_id, capabilities, port, role, status, url, last_seen` and is only
+ever read. (The `register` hits elsewhere in the code are Anansi's *voice*
+registers; same word, unrelated thing.)
+
+The fault was in `routing_terms`, which is a different mechanism and had no way
+to express certainty. And the principal named the fix: *"if one agent knows a
+hundred percent for a fact that the question belongs to it, it needs to be able
+to tell all the other agents you're wrong."*
+
+**`owns` is now a second tier alongside `terms`.** An ordinary term is a claim
+counted against other claims. An owned term is the department stating the
+request is definitively its own, and it **ends the routing decision** - no
+weighing against a model's guess, no keyword arithmetic.
+
+What belongs there is names only one agent can own. Grow returns the plants it
+is actually tracking - `gsc_auto_2`, `aloe_1`, `gsc\s*#?\s*2` - built at runtime
+from the live roster, because a static list cannot know them. What does NOT
+belong there is subject words: "legal", "plant", "trust" are subjects, and two
+departments can reasonably both want a subject.
+
+This fixes the class rather than the sentence. Hand-tuning Trust's `\bwill\b`
+stopped it claiming "when will the aloe flower"; it did nothing about the fact
+that Grow, which had declared `aloe`, had no way to insist. Now it does:
+
+```
+routing: grow_agent OWNS a term in this request - decision ends there
+```
+
+**Two agents both claiming ownership is logged, not silently resolved.** Same
+reason the claim pipeline has `contested` rather than a quieter confidence
+number - the collision goes on the record and the request still falls through to
+the ordinary path, so nothing hangs while someone fixes a vocabulary.
+
+Side effect worth noting: "what is in my will" now reaches **Trust** rather than
+Legal. Trust has no `answer()` yet, so it reports the missing capability
+honestly - which is the correct department failing correctly, rather than the
+wrong one succeeding.
+
+Backward compatible: `terms` is unchanged, `owns` is additive, and the five
+agents that declare none return `owns=0` and route exactly as before.

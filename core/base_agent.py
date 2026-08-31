@@ -506,9 +506,39 @@ class AgentBase:
             "loaded_at": getattr(self, "_started_at", None),
         }
 
+    # Terms an agent OWNS outright. A match here is not a vote to be counted
+    # against other agents' votes - it is the department saying the request is
+    # definitively its own, and it ends the routing decision.
+    #
+    # The distinction exists because a flat term list has no way to express
+    # certainty, and that cost real answers: Trust declared a bare `\bwill\b`
+    # and claimed "when WILL the aloe flower", while Grow - which had declared
+    # `flower` and `aloe` - was outvoted by a model's guess. Hand-tuning Trust's
+    # regex fixed that sentence. It did not fix the class, because nothing in
+    # the mechanism let Grow say "a registered plant name is MINE, stop asking".
+    #
+    # What belongs here: names only this agent can own. A plant this grow is
+    # actually tracking. A statute citation. An account number. Not a subject
+    # word - "legal" or "trust" or "plant" are subjects, and two departments can
+    # reasonably both want a subject.
+    OWNS_TERMS = ()
+
     def routing_terms(self):
-        """Regex fragments that claim a request for this agent."""
-        return {"agent": self.agent_id, "terms": list(self.ROUTING_TERMS)}
+        """Regex fragments that claim a request for this agent, in two tiers.
+
+        `terms` are ordinary claims, counted against other agents'. `owns` are
+        definitive: a match means the request belongs here and the router should
+        stop. `terms` is still returned unchanged so an older Boss keeps working
+        - the tier is additive, not a break."""
+        return {"agent": self.agent_id,
+                "terms": list(self.ROUTING_TERMS),
+                "owns": list(self.owns_terms())}
+
+    def owns_terms(self):
+        """Overridable so an agent can own things it only learns at runtime -
+        the names of the plants it is actually tracking, the cases it holds.
+        A static list cannot know those."""
+        return list(self.OWNS_TERMS)
 
     # ---------- Shared case management ----------
     # A case is ONE object in a shared namespace, referenced by id. Every agent
