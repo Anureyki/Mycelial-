@@ -2504,3 +2504,67 @@ Authority leads now and the dictionary rides along as `plain_english`. Where
 only the dictionary holds a term - `laches`, a term of art with no statutory
 definition - it leads properly, which is the case it exists for. Verified:
 `1681i` returns corpus only, `laches` returns corpus + dictionary.
+
+### 2026-08-31 — A read claim earns promotion by someone actually doing the thing
+
+The grower, on the fan-leaf finding: *"when it finds health data on the plant,
+that's where it goes to tell the human to go experiment. Even if it has WebMD,
+if it has all these other sources that confirm it - live data is always better
+than written, because it's proven."*
+
+That is *lived data outranks documentation* made operational. A `read` claim
+sitting in the store forever is documentation pretending to be knowledge; the
+way it earns promotion is that somebody does the thing.
+
+**`propose_experiment` turns a read claim into something runnable HERE.** Scoped
+to the recorded equipment, because proposing a flavonoid assay to a grower with
+a dropper and a pH pen is the same failure as a Cal-Mag dose quoted to three
+decimals - a number nobody can act on is not advice. On the fan-leaf claim:
+
+```
+RUNNABLE      edibility and palatability
+              establishes: that it is edible here and what it tastes like
+              does NOT:    any nutrient content
+
+NOT RUNNABLE  vitamin c, vitamin k, iron, calcium, fibre, flavonoid, antioxidant
+              Composition claims need laboratory assay. These stay `read` until
+              a lab result exists, and no amount of eating the leaf will move them.
+```
+
+**That split is the whole point.** `record_experiment_outcome` requires `tested`
+separately from `outcome`, because "I ate it" does not verify vitamin C, and a
+store that let it look like it did would have broken its own evidence ordering
+from the inside. The original claim is kept and marked as tested rather than
+rewritten - the record should show a claim that was read and then checked, not
+one that was always known.
+
+The grower's second use, recorded as a `reported` idea rather than a fact: the
+same plant is both hemp and cannabis, so leaf removed for airflow is currently
+discarded and under that framing it is harvest. That reframes lollipopping.
+
+**`amend_knowledge` attaches provenance to a claim already recorded** - the URL
+arrived a few minutes after the finding, and the alternatives were a duplicate
+entry or an untraceable claim. It amends provenance ONLY: rewriting what a claim
+said, or how it was learned, is not an amendment but a different claim. Source
+now attached, `evidence_kind` unchanged at `read`, because identifying a source
+does not verify it.
+
+### Primary governs, secondary explains
+
+The grower generalised the dictionary rule: *"the dictionary is a support tool,
+just like the Corpus Juris Secundum would also be a supporting tool."* The
+standard distinction, and it was implicit in the order things happened to be
+checked rather than enforced.
+
+`AUTHORITY_RANK` makes it a property of the corpus: statutes and state codes
+first, then regulations, court rules and case law, then agency guidance, then
+doctrine summaries and treatises, then the dictionary last - and an **unset**
+class sorts last rather than first, so a work whose class was never determined
+cannot outrank one that declares itself a statute.
+
+`authority_class` was being recorded on every work and read by nothing at lookup
+time, so a subject term appearing in both a statute and a treatise came back in
+file-walk order - Pomeroy on equity could arrive ahead of the statute that
+governs. It is carried into the index and sorted on now. Verified: `1681i`
+returns `federal_statute`, `laches` returns `doctrine_summary`, and `trustee`
+falls to the dictionary because no statute section in this corpus is keyed to it.

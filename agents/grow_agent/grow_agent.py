@@ -4189,6 +4189,179 @@ class GrowAgent(AgentBase):
                 "evidence_kind": entry["evidence_kind"],
                 "total_known": len(k)}
 
+    def amend_knowledge(self, knowledge_id=None, source_ref=None, note=None):
+        """Attach provenance to knowledge already recorded.
+
+        A claim was stored before its source was to hand, which is normal - the
+        grower mentioned the finding and produced the URL a few minutes later.
+        Without this the only options were a duplicate entry or leaving the
+        claim untraceable, and an untraceable claim is one nobody can go and
+        check.
+
+        It amends PROVENANCE only. The text of a claim and its `evidence_kind`
+        are not editable here: rewriting what a claim said, or how it was
+        learned, is not an amendment - it is a different claim, and it should
+        arrive as one."""
+        if not knowledge_id:
+            return {"error": "Needs knowledge_id."}
+        if not source_ref and not note:
+            return {"error": "Nothing to attach. Pass source_ref and/or note."}
+        k = self._load_knowledge()
+        target = next((e for e in k if e.get("id") == knowledge_id), None)
+        if not target:
+            return {"error": f"No knowledge entry {knowledge_id}."}
+        if source_ref:
+            refs = target.setdefault("source_refs", [])
+            if target.get("source_ref") and target["source_ref"] not in refs:
+                refs.append(target["source_ref"])
+            if source_ref not in refs:
+                refs.append(source_ref)
+            target["source_ref"] = source_ref
+        if note:
+            target.setdefault("amendments", []).append(
+                {"note": note, "at": datetime.now().isoformat(timespec="seconds")})
+        self.store_own_memory(self.KNOWLEDGE_KEY, json.dumps(k), pin=True)
+        return {"amended": knowledge_id, "source_refs": target.get("source_refs"),
+                "evidence_kind": target.get("evidence_kind"),
+                "note": ("Provenance only. The claim text and evidence_kind are unchanged - "
+                         "a source being identified does not make an unverified claim "
+                         "verified.")}
+
+    def propose_experiment(self, knowledge_id=None, plant_id="current_plant"):
+        """Turn a claim this agent only READ into something the grower can run.
+
+        The grower: *"when it finds health data on the plant, that's where it
+        goes to tell the human to go experiment. Even if it has WebMD, if it has
+        all these other sources that confirm it - live data is always better
+        than written, because it's proven."*
+
+        That is CLAUDE.md's *lived data outranks documentation* made operational.
+        A `read` claim sitting in the store forever is documentation pretending
+        to be knowledge; the way it earns the promotion is that somebody
+        actually does the thing.
+
+        The experiment must be runnable with what this grow HAS. Proposing an
+        assay for flavonoid content to a grower with a dropper and a pH pen is
+        the same failure as a Cal-Mag dose quoted to three decimals - a number
+        nobody can act on is not advice. So it is scoped to the recorded
+        equipment, and where the honest answer is "you cannot test that here",
+        it says so instead of inventing a procedure."""
+        entries = [e for e in self._load_knowledge()
+                   if not knowledge_id or e.get("id") == knowledge_id]
+        if knowledge_id and not entries:
+            return {"error": f"No knowledge entry {knowledge_id}."}
+        candidates = [e for e in entries if e.get("evidence_kind") == "read"]
+        if not candidates:
+            return {"classification": "nothing_to_test", "confidence": "medium",
+                    "reason": ("No unverified claims are waiting. Only `read` knowledge is "
+                               "promotable - what this grow observed is already evidence, "
+                               "and what the grower reported is theirs to correct, not "
+                               "this agent's to test.")}
+
+        sysrec = {}
+        try:
+            sysrec = json.loads(self._unwrap_value(self.retrieve_own_memory(
+                f"grow_system_{plant_id}"))
+                or self._unwrap_value(self.retrieve_own_memory("grow_system")) or "{}")
+        except Exception:
+            pass
+        have = sysrec.get("equipment") or {}
+
+        out = []
+        for e in candidates:
+            text = str(e.get("text") or "").lower()
+            # What the grower can actually establish, and what they cannot.
+            # These are deliberately separate lists: an experiment that quietly
+            # claims to have tested more than it did is how a `read` claim gets
+            # laundered into an `observed` one.
+            testable, not_testable = [], []
+            if any(w in text for w in ("edible", "eaten", "eat", "salad", "juice")):
+                testable.append({
+                    "tests": "edibility and palatability",
+                    "procedure": ("Eat a small quantity of fresh fan leaf and record what it "
+                                  "actually tastes like and how it sat afterwards. Start "
+                                  "small; this establishes flavour and tolerance for THIS "
+                                  "grower, not for anyone else."),
+                    "establishes": "that it is edible here and what it tastes like",
+                    "does_not_establish": "any nutrient content",
+                })
+            if any(w in text for w in ("thca", "thc", "decarb", "tea", "heat")):
+                testable.append({
+                    "tests": "effect of heating (THCA to THC conversion)",
+                    "procedure": ("Heat leaf and make tea; record dose, temperature if it can "
+                                  "be measured, time, and the effect observed over the "
+                                  "following hours."),
+                    "establishes": "the effect of a heated preparation at a recorded dose",
+                    "does_not_establish": "the conversion percentage - that needs a lab",
+                })
+            for nutrient in ("vitamin c", "vitamin k", "iron", "calcium", "fibre",
+                             "fiber", "flavonoid", "antioxidant"):
+                if nutrient in text:
+                    not_testable.append(nutrient)
+            out.append({
+                "knowledge_id": e.get("id"),
+                "claim": str(e.get("text"))[:180],
+                "currently": e.get("evidence_kind"),
+                "runnable_here": testable,
+                "not_runnable_here": (
+                    {"claims": sorted(set(not_testable)),
+                     "why": ("Composition claims need laboratory assay. Recorded equipment is "
+                             f"{', '.join(sorted(have)) if have else 'not recorded'} - a pH "
+                             "pen, a TDS meter and a dropper cannot measure vitamin content. "
+                             "These stay `read` until a lab result exists, and no amount of "
+                             "eating the leaf will move them.")}
+                    if not_testable else None),
+            })
+        return {"proposals": out, "count": len(out),
+                "note": ("Running an experiment promotes ONLY what it tested. Eating a leaf "
+                         "establishes that it is edible and what it tastes like. It does not "
+                         "establish vitamin C content, and a promotion that claimed otherwise "
+                         "would be documentation wearing an observation's clothes.")}
+
+    def record_experiment_outcome(self, knowledge_id=None, tested=None, outcome=None,
+                                  plant_id="current_plant"):
+        """Promote a read claim to observed - for the part actually tested.
+
+        Requires what was TESTED and what was OBSERVED, separately. A promotion
+        with an outcome but no statement of what it tested is the failure this
+        exists to prevent: 'I ate it' does not verify vitamin C, and a store
+        that lets it look like it did has broken its own evidence ordering."""
+        if not knowledge_id or not str(tested or "").strip() \
+                or not str(outcome or "").strip():
+            return {"error": ("Needs knowledge_id, `tested` (what the experiment actually "
+                              "establishes) and `outcome` (what happened). Without `tested` "
+                              "a promotion silently claims more than it verified.")}
+        k = self._load_knowledge()
+        target = next((e for e in k if e.get("id") == knowledge_id), None)
+        if not target:
+            return {"error": f"No knowledge entry {knowledge_id}."}
+
+        # The original claim is NOT overwritten. A new entry records what was
+        # observed, and the two are linked - so the record shows a claim that
+        # was read, then tested, rather than a claim that was always known.
+        promoted = {
+            "id": f"kn_{self._uid()}",
+            "text": (f"OBSERVED, {datetime.now().date().isoformat()}: {outcome} "
+                     f"[Experiment tested: {tested}. Promoted from the read claim "
+                     f"{knowledge_id}, which is NOT thereby verified in full - only "
+                     f"what was tested.]"),
+            "evidence_kind": "observed",
+            "evidence_kind_note": "this grow measured or watched it happen",
+            "tested": tested,
+            "promoted_from": knowledge_id,
+            "applies_to": dict(target.get("applies_to") or {}),
+            "learned_from": f"experiment run by the grower on {plant_id}",
+            "recorded": datetime.now().isoformat(),
+        }
+        target.setdefault("tested_by", []).append(promoted["id"])
+        k.append(promoted)
+        self.store_own_memory(self.KNOWLEDGE_KEY, json.dumps(k), pin=True)
+        return {"recorded": promoted["id"], "promoted_from": knowledge_id,
+                "evidence_kind": "observed", "tested": tested,
+                "note": ("The original read claim is kept and marked as tested, not "
+                         "rewritten. The record should show a claim that was read and "
+                         "then checked - not one that was always known.")}
+
     def _knowledge_for(self, plant_id):
         """What this agent knows THAT APPLIES to this plant.
 
@@ -9695,6 +9868,12 @@ class GrowAgent(AgentBase):
                 "note": note,
             }}
 
+        elif task == "amend_knowledge":
+            return {"result": self.amend_knowledge(**(args if isinstance(args, dict) else {}))}
+        elif task == "propose_experiment":
+            return {"result": self.propose_experiment(**(args if isinstance(args, dict) else {}))}
+        elif task == "record_experiment_outcome":
+            return {"result": self.record_experiment_outcome(**(args if isinstance(args, dict) else {}))}
         elif task == "record_knowledge":
             return self.record_knowledge(args if isinstance(args, dict) else {})
 

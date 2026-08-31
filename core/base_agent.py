@@ -703,6 +703,11 @@ class AgentBase:
             for s in sections:
                 entry = {"title": title, "source": source,
                          "citation": s.get("citation"), "page": s.get("page"),
+                         # Carried so results can be ranked primary-before-
+                         # secondary. It was recorded on every work and read by
+                         # nothing at lookup time, so a treatise and a statute
+                         # came back in whatever order the files were walked.
+                         "authority_class": doc.get("authority_class"),
                          "text": s.get("text", "")}
                 # Index a section under every form a caller might cite it by.
                 # The stored citation is whatever the source wrote - CFR gives
@@ -739,6 +744,40 @@ class AgentBase:
                  f"{len(by_authority)} authorities from {len(titles)} work(s): "
                  + "; ".join(titles))
         return self._refdocs
+
+    # PRIMARY GOVERNS; SECONDARY EXPLAINS.
+    #
+    # The standard legal distinction, and the principal stated it twice - first
+    # for Black's, then generalising: *"the dictionary is a support tool, just
+    # like the Corpus Juris Secundum would also be a supporting tool."* Right.
+    # A dictionary, an encyclopedia and a treatise are all SECONDARY: they say
+    # what a term or doctrine is understood to mean. A statute, a regulation, a
+    # court rule and a case say what the law IS.
+    #
+    # This was implicit in the order things happened to be checked, which is not
+    # the same as being enforced. Ranking by the class the work already declares
+    # makes it a property of the corpus rather than of the call order - and
+    # `authority_class` was already being recorded on every work for exactly
+    # this kind of decision.
+    AUTHORITY_RANK = {
+        "federal_statute": 0,
+        "state_statute": 0,
+        "regulation": 1,
+        "court_rules": 1,
+        "case_law": 1,
+        "agency_guidance": 2,      # directs personnel, confers no rights
+        "agency_instruction": 2,
+        "doctrine_summary": 3,     # secondary
+        "treatise": 3,             # secondary - Pomeroy, Maitland
+        "dictionary": 4,           # secondary, and the oldest thing here
+    }
+
+    def _authority_rank(self, entry):
+        """Lower is more authoritative. Unknown sorts last rather than first -
+        a work whose class was never determined must not outrank one that
+        declares itself a statute."""
+        cls = str((entry or {}).get("authority_class") or "").lower()
+        return self.AUTHORITY_RANK.get(cls, 5)
 
     def lookup_reference(self, term):
         """A citation or a case name, matched exactly, then as a contained name.
@@ -779,7 +818,12 @@ class AgentBase:
         if key in idx["by_authority"]:
             return idx["by_authority"][key]
         if key in idx.get("by_term", {}):
-            return idx["by_term"][key][:4]
+            # Primary before secondary. A subject term can appear in a statute
+            # AND in a treatise discussing it, and returning them in file-walk
+            # order meant Pomeroy on equity could arrive ahead of the statute
+            # that governs. Stable sort, so within a class the existing order
+            # is untouched.
+            return sorted(idx["by_term"][key], key=self._authority_rank)[:4]
         # A case is often cited with extra words around it ("as the tax
         # considered in Gleason v. McKay"), so match on containment in either
         # direction - but only for names that look like a case.
