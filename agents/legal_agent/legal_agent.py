@@ -155,6 +155,13 @@ class LegalAgent(AgentBase):
         "\\busc\\b", "case ?law", "precedent", "docket", "plaintiff",
         "defendant", "court", "judge", "ruling", "opinion", "jurisdiction",
         "liability", "indemnif", "breach", "enforceab", "unconscionab",
+        # The REMEDY side of a credit report. Accounting owns what the report
+        # says against the books; whether that divergence is actionable is a
+        # statute question and belongs here. Split by which question the words
+        # signal, not by subject - both departments touch "credit".
+        "\\bfcra\\b", "1681", "fair credit reporting", "reinvestigat",
+        "adverse action", "\\bfurnisher (dut|obligation|responsib)",
+        "dispute.{0,20}(credit|report|tradeline)", "regulation ?v",
         "consideration", "covenant", "lien", "easement", "tort", "negligen",
         "subpoena", "affidavit", "pleading", "motion to", "pro se", "equitable",
         "state law", "which state", "\\bucc\\b", "article 9", "blue ?sky",
@@ -1443,6 +1450,52 @@ class LegalAgent(AgentBase):
     _CITATION = re.compile(
         r"\b\d+\s*(?:u\.?s\.?c\.?|c\.?f\.?r\.?)\s*(?:§+\s*)?[\d.\-()a-z]+",
         re.I)
+
+    def describe(self, task, payload):
+        """Put this agent's own results into words.
+
+        `answer()` has five branches and two of them - `citation_lookup` and
+        `definition` - delegated their wording to `describe`, which this agent
+        never implemented. The base returns None, so those two computed the
+        right passage and handed back empty text, and Boss reported the
+        capability as MISSING. The same fault Grow's flowering answer had hours
+        earlier: a capability that exists, runs, and says nothing.
+
+        The other three branches built their text inline, which is why "what is
+        legal tender" worked and "what does 15 USC 1681i require" did not."""
+        p = payload if isinstance(payload, dict) else {}
+
+        if task == "citation_lookup":
+            secs = p.get("sections") or []
+            if not secs:
+                return ""
+            out = []
+            for sec in secs[:2]:
+                cite = str(sec.get("citation") or "").strip()
+                body = re.sub(r"\s+", " ", str(sec.get("text") or "")).strip()
+                src = str(sec.get("source") or "")
+                out.append(f"{p.get('citation') or cite}\n\n{body}"
+                           + (f"\n\n({src})" if src else ""))
+            if len(secs) > 2:
+                out.append(f"({len(secs) - 2} further section(s) match this citation.)")
+            return "\n\n".join(out)
+
+        if task == "definition":
+            entry = p.get("entry")
+            term = p.get("term")
+            if isinstance(entry, dict):
+                body = entry.get("definition") or entry.get("text") or ""
+                if isinstance(body, dict):
+                    body = body.get("definition") or body.get("text") or ""
+            else:
+                body = str(entry or "")
+            body = re.sub(r"\s+", " ", str(body)).strip()
+            if not body:
+                return ""
+            return (f"{term}: {body}"
+                    f"\n\n(Corpus headword. Black's 2nd edition is a floor, not a boundary - "
+                    f"where statute, regulation or case law disagree with it, they win.)")
+        return None
 
     def answer(self, prompt):
         """Pick this agent's own capability for a legal question.

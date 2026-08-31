@@ -398,7 +398,7 @@ class BossAgent(AgentBase):
                      f"matched {scores.get(keyword)} of its own declared terms - "
                      f"took keywords")
             return keyword
-        if keyword and margin >= 2 and pick and pick != "UNCLEAR" and pick != keyword:
+        if keyword and margin >= 6 and pick and pick != "UNCLEAR" and pick != keyword:
             self.log(f"routing: intent={pick} keywords={keyword} (margin {margin}) - "
                      f"took keywords; a declared term outranks a model guess")
             return keyword
@@ -458,8 +458,27 @@ class BossAgent(AgentBase):
             n = 0
             for t in terms:
                 try:
-                    if re.search(t if ("\\b" in t or "?" in t or "*" in t) else r"\b" + t, lp):
-                        n += 1
+                    # SCORE BY SPECIFICITY, NOT BY COUNT.
+                    #
+                    # coding_agent's "repo" matched "my credit REPOrt shows a
+                    # late payment" and beat Accounting, which had declared
+                    # "credit report" outright - one hit each, and the tie went
+                    # the wrong way.
+                    #
+                    # Anchoring both ends was the obvious fix and it was wrong:
+                    # many terms are deliberate STEMS - `indemnif`, `enforceab`,
+                    # `reconcil`, `delinquen` - and a trailing \b kills every one
+                    # of them. "What is laches" went to the Security Agent
+                    # inside a minute of trying it.
+                    #
+                    # So keep the prefix match and weigh each hit by how much of
+                    # the sentence it actually accounts for. "credit report" is
+                    # 13 characters of evidence; "repo" is 4. A longer term is a
+                    # more specific claim, which is the thing being measured.
+                    m = re.search(t if ("\\b" in t or "?" in t or "*" in t)
+                                  else r"\b" + t, lp)
+                    if m:
+                        n += len(m.group(0))
                 except re.error:
                     continue
             if n:

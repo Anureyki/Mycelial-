@@ -2386,3 +2386,69 @@ cannot catch, because nobody fact-checks a glow.**
 open on purpose is a decision not to decide yet, and reporting it as unknown
 loses that. It also renders on the dashboard as its own marker rather than
 disappearing into the numbered list.
+
+### 2026-08-31 — Legal as counsel to the other departments: the secondary corpus
+
+The principal named the concept: *"making Legal act as the attorney for the
+agents, so that the agents maintain their jobs in accordance with the
+regulations already current and set. Thus creating the notion of a secondary
+corpus, because it's secondhand knowledge... trusted secondary knowledge that
+lives in another agent's corpus because they're the domain expert."*
+
+Three classes now, and they are not interchangeable:
+
+| Class | Means | Cached? |
+|---|---|---|
+| **primary** | this agent's own corpus - its domain, its responsibility | yes, it owns it |
+| **secondary** | another agent's corpus, borrowed. Trusted because that agent maintains it | **never** |
+| **unverified** | a public search. Discovery, not authority | never |
+
+A borrowed result came back looking exactly like a firsthand one, so the moment
+it left `ask_peer_corpus` nothing could tell Accounting was reading Legal's
+books. Each borrowed section now carries `knowledge_class: secondary`,
+`held_by`, `borrowed_by`, `borrowed_at` and a provenance line.
+
+**Not caching it is the point, not an omission.** Legal is the department that
+runs `corpus_currency`, so borrowed law is *current* law. A cached copy would be
+firsthand-looking, stale and unowned - the worst of the three.
+
+**`ask_peer_corpus` had never run because it could not.** It was a method with a
+docstring and no dispatch - unreachable over A2A, and called by no agent's code.
+Zero uses in 48 hours read as "nobody needed it" rather than "nobody could". The
+identical fault `refer_finding` had earlier today. Dispatched now.
+
+**FCRA acquired into Legal, borrowed by Accounting.** 15 U.S.C. §§ 1681, 1681c,
+1681e, 1681i, 1681n, 1681o, 1681s-2 and 12 CFR Part 1022 (Regulation V), all
+stamped `federal_statute` / `regulation`. Verified end to end: Accounting borrows
+§1681i and gets the reinvestigation procedure marked `secondary`; asking for
+`asc 606` returns **nothing**, because Legal falls to a web search for it and the
+filter refuses to launder an unverified answer across a domain boundary.
+
+**Statutes were unreachable by their own citation.** `lookup_reference`
+normalised CFR citations and had no rule for the U.S. Code, and the index keyed
+each section under exactly one string - the CFR writes `§ 1022.3`, the U.S. Code
+writes `§ 1681i.` with a trailing period. So `15 U.S.C. 1681i` matched nothing,
+fell through to the cache, then to a public web search for a statute ingested
+four minutes earlier. Sections are indexed under every form of the same citation
+now; the section sign and the trailing period are typography, not identity. This
+also fixed 31 U.S.C. § 5103, which had only been findable by full-text scan.
+
+**Routing scored by count, and a prefix beat a phrase.** `coding_agent` declares
+`repo`, which as `\brepo` matched "my credit **repo**rt shows a late payment" -
+one hit each against Accounting's `credit report`, and the tie went to coding.
+Anchoring both ends was the obvious fix and was wrong: many terms are deliberate
+stems - `indemnif`, `enforceab`, `reconcil` - and a trailing `\b` kills every
+one. Scoring is by **matched length** instead: 13 characters of "credit report"
+against 4 of "repo". A longer term is a more specific claim, which is the thing
+being measured.
+
+**Legal had no `describe`.** Two of `answer()`'s five branches delegate their
+wording to it and it was never implemented, so `citation_lookup` computed the
+right passage and returned empty text while Boss reported the capability as
+missing. The same fault as Grow's flowering answer hours earlier.
+
+**Known and not fixed:** "what is laches" reaches nobody. Legal holds Black's and
+the doctrine files but declares only ~55 generic terms; `laches` is a dictionary
+headword, not an indexed term, and the corpora carry 7,397 indexed terms that are
+mostly boilerplate phrases. Declaring dictionary headwords as routing vocabulary
+is not the answer and neither is a bodge, so it is written down instead.

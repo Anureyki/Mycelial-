@@ -69,6 +69,14 @@ class AccountingAgent(AgentBase):
         "\\bgaap\\b", "\\bifrs\\b", "\\basc\\b", "\\bedgar\\b", "10-?k", "10-?q",
         "beneficial interest", "equitable interest", "custodian", "trustee",
         "disbursement", "receivable", "payable", "reconcil", "invoice",
+        # A credit report is a LEDGER a third party keeps about the principal.
+        # What it says, what the books say, and the divergence between them is
+        # bookkeeping - so the terms that signal "compare the record" land here.
+        # Whether a divergence is actionable is Legal's, and those terms are
+        # declared there rather than duplicated.
+        "credit report", "credit file", "tradeline", "trade ?line",
+        "furnisher", "credit bureau", "equifax", "experian", "transunion",
+        "charge-?off", "delinquen", "collection account", "credit score",
     )
 
     def __init__(self):

@@ -427,6 +427,19 @@ class AgentBase:
                     result = self.refer_finding(a.get("to_agent"), a.get("kind"),
                                                 a.get("payload") or {},
                                                 a.get("why", ""))
+                elif task == "ask_peer_corpus":
+                    # The third cross-domain direction, and the only one that
+                    # was never wired. CLAUDE.md documents all three as
+                    # inherited; `refer_finding` was found undispatched earlier
+                    # today and this one had the same fault - a method with a
+                    # docstring, reachable by nothing. It had run zero times in
+                    # 48 hours and that read as "nobody needed it" rather than
+                    # "nobody could".
+                    a = args if isinstance(args, dict) else {}
+                    result = {"results": self.ask_peer_corpus(
+                        a.get("agent_id") or a.get("agent"),
+                        a.get("term") or a.get("citation") or a.get("query"),
+                        timeout=int(a.get("timeout", 20)))}
                 elif task == "receive_finding":
                     result = self.receive_finding(
                         (args or {}).get("kind"), (args or {}).get("payload") or {},
@@ -691,9 +704,23 @@ class AgentBase:
                 entry = {"title": title, "source": source,
                          "citation": s.get("citation"), "page": s.get("page"),
                          "text": s.get("text", "")}
+                # Index a section under every form a caller might cite it by.
+                # The stored citation is whatever the source wrote - CFR gives
+                # "§ 1022.3", the U.S. Code gives "§ 1681i." WITH a trailing
+                # period - and a single exact key meant the punctuation of the
+                # source decided whether the law was reachable. Every FCRA
+                # section ingested today was invisible for exactly that reason.
+                #
+                # These are all the SAME citation written differently, not a
+                # loose match: the section sign and the trailing period are
+                # typography, not identity.
                 cit = str(s.get("citation") or "").strip().lower()
                 if cit:
-                    by_citation.setdefault(cit, entry)
+                    bare = cit.lstrip("\u00a7 ").strip().rstrip(".")
+                    for form in {cit, cit.rstrip("."), bare,
+                                 f"\u00a7 {bare}", f"\u00a7{bare}"}:
+                        if form:
+                            by_citation.setdefault(form, entry)
                 for a in s.get("authorities", []) or []:
                     by_authority.setdefault(a.strip().lower(), []).append(entry)
             # Subject terms the work itself repeats, so a doctrine can be asked
@@ -729,6 +756,20 @@ class AgentBase:
         # so a person typing "8.4" or "24 CFR 8.4" matched nothing and fell
         # through to public web search for a rule sitting in the corpus.
         key = re.sub(r'^\d+\s*c\.?f\.?r\.?\s*(part\s*)?', '', key).strip()
+        # STATUTES HAD NO SUCH RULE, so law acquired by citation could not be
+        # reached by citation. Sections are keyed as they cite themselves -
+        # "§ 1681i.", "§ 1681s-2." - and "15 U.S.C. 1681i" matched nothing, fell
+        # through to the cache, and then to a public web search for a statute
+        # sitting on the shelf. Verified: 12 CFR 1022.3 resolved and every FCRA
+        # section ingested minutes earlier did not.
+        key = re.sub(r'^\d+\s*u\.?\s*s\.?\s*c\.?(\s*a\.?)?\s*', '', key).strip()
+        key = re.sub(r'^(section|sec\.?|\u00a7+)\s*', '', key).strip()
+        # The index keys carry the section sign; a bare number is how a person
+        # types it. Try both rather than making the caller guess.
+        for candidate in (key, f"\u00a7 {key}", f"\u00a7{key}"):
+            if candidate in idx["by_citation"]:
+                key = candidate
+                break
         if key not in idx["by_citation"]:
             for variant in (f"§ {key}", f"§{key}", key.lstrip("§ ").strip()):
                 if variant in idx["by_citation"]:
@@ -950,7 +991,41 @@ class AgentBase:
         if "corpus" not in src:
             return []
         results = inner.get("results") or []
-        return results if isinstance(results, list) else []
+        if not isinstance(results, list):
+            return []
+
+        # SECONDARY KNOWLEDGE IS MARKED AS SECONDARY.
+        #
+        # A borrowed authority came back looking exactly like a firsthand one -
+        # same shape, same fields - so the moment it left this method nothing
+        # could tell that Accounting was reading Legal's books rather than its
+        # own. Three classes now, and they are not interchangeable:
+        #
+        #   primary    - this agent's own corpus. Its domain, its responsibility.
+        #   secondary  - another agent's corpus, borrowed. Trusted, because that
+        #                agent is the domain expert and maintains it. NOT owned.
+        #   unverified - a public search. Discovery, never authority.
+        #
+        # The point of the middle class is that Legal acts as counsel to the
+        # other departments: they keep working in accordance with current
+        # regulation without each shelving a copy of it. And because Legal is
+        # the one running `corpus_currency`, borrowed law is CURRENT law - which
+        # is the whole reason not to cache it here. A cached copy would be
+        # firsthand-looking, stale, and unowned, which is the worst of the three.
+        stamped = []
+        for r in results:
+            if not isinstance(r, dict):
+                continue
+            r = dict(r)
+            r["knowledge_class"] = "secondary"
+            r["held_by"] = agent_id
+            r["borrowed_by"] = self.agent_id
+            r["borrowed_at"] = datetime.now().isoformat(timespec="seconds")
+            r["provenance"] = (f"{agent_id}'s corpus, borrowed at request time and not "
+                               f"cached here - {agent_id} maintains it and is the domain "
+                               f"expert. Re-borrow rather than storing a copy.")
+            stamped.append(r)
+        return stamped
 
     def corpus_currency(self, args=None):
         """Is what I hold still the law? Inherited, because Legal, Trust and

@@ -1,0 +1,2221 @@
+{
+  "title": "12 CFR Part 1022 - Fair Credit Reporting (Regulation V)",
+  "source": "Electronic CFR, title 12 part 1022, as of 2026-08-01, retrieved from ecfr.gov. Federal regulation - public domain.",
+  "authorities_cited": [],
+  "term_index": {
+    "street reform": [
+      0,
+      3,
+      11,
+      12,
+      13,
+      15,
+      19,
+      21,
+      27
+    ],
+    "frank wall": [
+      0,
+      3,
+      11,
+      12,
+      13,
+      15,
+      19,
+      21,
+      27
+    ],
+    "credit reporting": [
+      0,
+      19
+    ],
+    "consumer reporting agencies": [
+      0,
+      14,
+      16,
+      27,
+      29,
+      30,
+      31,
+      32,
+      33,
+      35,
+      36
+    ],
+    "information contained": [
+      0,
+      16,
+      18,
+      19,
+      24
+    ],
+    "excluded from coverage": [
+      0,
+      3,
+      11,
+      12,
+      13,
+      15,
+      19,
+      21,
+      27
+    ],
+    "consumer reporting": [
+      0,
+      2,
+      12,
+      14,
+      15,
+      16,
+      17,
+      18,
+      22,
+      24,
+      25,
+      27,
+      29,
+      30,
+      31,
+      32,
+      33,
+      34,
+      35,
+      36,
+      37,
+      38,
+      39
+    ],
+    "gramm leach bliley": [
+      0,
+      7,
+      8,
+      13
+    ],
+    "fair credit": [
+      0,
+      19
+    ],
+    "frank wall street": [
+      0,
+      3,
+      11,
+      12,
+      13,
+      15,
+      19,
+      21,
+      27
+    ],
+    "person excluded": [
+      0,
+      3,
+      11,
+      12,
+      13,
+      15,
+      19,
+      21,
+      27
+    ],
+    "information about": [
+      0,
+      4,
+      5,
+      7,
+      8,
+      12,
+      16,
+      24,
+      25,
+      38
+    ],
+    "consumer financial protection": [
+      0,
+      3,
+      11,
+      12,
+      13,
+      15,
+      19,
+      21,
+      27
+    ],
+    "consumer protection": [
+      0,
+      3,
+      11,
+      12,
+      13,
+      15,
+      19,
+      21,
+      27
+    ],
+    "financial protection": [
+      0,
+      3,
+      11,
+      12,
+      13,
+      15,
+      19,
+      21,
+      27
+    ],
+    "notice requirement": [
+      0,
+      25
+    ],
+    "consumer financial": [
+      0,
+      3,
+      11,
+      12,
+      13,
+      15,
+      19,
+      21,
+      27
+    ],
+    "dodd frank": [
+      0,
+      3,
+      11,
+      12,
+      13,
+      15,
+      19,
+      21,
+      27
+    ],
+    "wall street reform": [
+      0,
+      3,
+      11,
+      12,
+      13,
+      15,
+      19,
+      21,
+      27
+    ],
+    "wall street": [
+      0,
+      3,
+      11,
+      12,
+      13,
+      15,
+      19,
+      21,
+      27
+    ],
+    "dodd frank wall": [
+      0,
+      3,
+      11,
+      12,
+      13,
+      15,
+      19,
+      21,
+      27
+    ],
+    "otherwise provided": [
+      0,
+      5,
+      18,
+      22,
+      23,
+      26
+    ],
+    "leach bliley": [
+      0,
+      7,
+      8,
+      13
+    ],
+    "part applies": [
+      0,
+      3,
+      10,
+      15
+    ],
+    "fair credit reporting": [
+      0,
+      19
+    ],
+    "reporting agencies": [
+      0,
+      14,
+      16,
+      27,
+      29,
+      30,
+      31,
+      32,
+      33,
+      35,
+      36
+    ],
+    "gramm leach": [
+      0,
+      7,
+      8,
+      13
+    ],
+    "part examples": [
+      1,
+      19
+    ],
+    "reporting agency": [
+      2,
+      12,
+      14,
+      15,
+      16,
+      17,
+      18,
+      22,
+      24,
+      25,
+      27,
+      29,
+      31,
+      32,
+      33,
+      34,
+      36,
+      37,
+      38,
+      39
+    ],
+    "additional information": [
+      2,
+      32,
+      33
+    ],
+    "social security number": [
+      2,
+      18,
+      29
+    ],
+    "relationship between": [
+      2,
+      3,
+      5
+    ],
+    "government issued": [
+      2,
+      29
+    ],
+    "information means": [
+      2,
+      3
+    ],
+    "federal state": [
+      2,
+      38
+    ],
+    "security number": [
+      2,
+      18,
+      29
+    ],
+    "consumer reporting agency": [
+      2,
+      12,
+      14,
+      15,
+      16,
+      17,
+      18,
+      22,
+      24,
+      25,
+      27,
+      29,
+      31,
+      32,
+      33,
+      34,
+      36,
+      37,
+      38,
+      39
+    ],
+    "report means": [
+      2,
+      34
+    ],
+    "social security": [
+      2,
+      18,
+      29
+    ],
+    "identifying information": [
+      2,
+      18
+    ],
+    "days after": [
+      2,
+      7,
+      24
+    ],
+    "identity theft": [
+      2,
+      18,
+      27
+    ],
+    "consumer report": [
+      3,
+      13,
+      14,
+      16,
+      18,
+      19,
+      21,
+      22,
+      23,
+      24,
+      25,
+      27,
+      31,
+      38
+    ],
+    "business relationship": [
+      3,
+      4
+    ],
+    "make solicitations": [
+      3,
+      4,
+      5,
+      6,
+      10
+    ],
+    "consumer obtained": [
+      3,
+      9
+    ],
+    "another continuing relationship": [
+      3,
+      5
+    ],
+    "notice required": [
+      3,
+      4,
+      10,
+      24,
+      26
+    ],
+    "another continuing": [
+      3,
+      5
+    ],
+    "consumer obtains": [
+      3,
+      26
+    ],
+    "provides information": [
+      3,
+      16,
+      32
+    ],
+    "required disclosures": [
+      3,
+      34
+    ],
+    "disclosures required": [
+      3,
+      34
+    ],
+    "reasonably understandable": [
+      3,
+      34
+    ],
+    "month period": [
+      3,
+      31
+    ],
+    "eligibility information": [
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      10
+    ],
+    "existing business": [
+      3,
+      4
+    ],
+    "consumer based": [
+      3,
+      11,
+      23
+    ],
+    "consumer about": [
+      3,
+      4,
+      7,
+      8,
+      19,
+      27
+    ],
+    "continuing relationship between": [
+      3,
+      5
+    ],
+    "existing business relationship": [
+      3,
+      4
+    ],
+    "continuing relationship": [
+      3,
+      5,
+      27
+    ],
+    "financial institution": [
+      3,
+      5
+    ],
+    "using eligibility": [
+      4,
+      5
+    ],
+    "your affiliate": [
+      4,
+      5
+    ],
+    "affiliate marketing": [
+      4,
+      8
+    ],
+    "manner described": [
+      4,
+      11
+    ],
+    "reasonable opportunity": [
+      4,
+      7,
+      10
+    ],
+    "affiliated group": [
+      4,
+      10
+    ],
+    "creditor does": [
+      4,
+      11
+    ],
+    "third party": [
+      4,
+      23,
+      26,
+      27
+    ],
+    "consumer does": [
+      4,
+      10
+    ],
+    "your products": [
+      4,
+      7,
+      8
+    ],
+    "home equity": [
+      4,
+      22
+    ],
+    "eligibility information received": [
+      4,
+      5
+    ],
+    "information received": [
+      4,
+      5
+    ],
+    "eligibility information about": [
+      4,
+      5,
+      7,
+      8
+    ],
+    "simple method": [
+      4,
+      6,
+      8,
+      10
+    ],
+    "using eligibility information": [
+      4,
+      5
+    ],
+    "joint notice": [
+      4,
+      6,
+      10
+    ],
+    "more members": [
+      4,
+      10
+    ],
+    "determine whether": [
+      4,
+      11,
+      23
+    ],
+    "consumer agrees": [
+      4,
+      8
+    ],
+    "affiliate covered": [
+      5,
+      6,
+      10
+    ],
+    "solicitations based": [
+      5,
+      10
+    ],
+    "general except": [
+      5,
+      23
+    ],
+    "insurance product": [
+      5,
+      11
+    ],
+    "affiliates covered": [
+      5,
+      6,
+      10
+    ],
+    "identify each": [
+      6,
+      10
+    ],
+    "renewal notice": [
+      6,
+      10
+    ],
+    "each affiliate shares": [
+      6,
+      10
+    ],
+    "previously opted": [
+      6,
+      10
+    ],
+    "companies that become": [
+      6,
+      10
+    ],
+    "notice applies": [
+      6,
+      10
+    ],
+    "consumers jointly": [
+      6,
+      26
+    ],
+    "notice shares": [
+      6,
+      10
+    ],
+    "credit card companies": [
+      6,
+      10
+    ],
+    "banking credit": [
+      6,
+      10
+    ],
+    "include companies": [
+      6,
+      10
+    ],
+    "will apply": [
+      6,
+      10,
+      22
+    ],
+    "separately identify": [
+      6,
+      10
+    ],
+    "being provided": [
+      6,
+      10
+    ],
+    "securities companies": [
+      6,
+      10
+    ],
+    "separately identify each": [
+      6,
+      10
+    ],
+    "accurately disclose": [
+      6,
+      10
+    ],
+    "affiliates whose": [
+      6,
+      10
+    ],
+    "each affiliate providing": [
+      6,
+      10
+    ],
+    "affiliate shares": [
+      6,
+      10
+    ],
+    "card insurance": [
+      6,
+      10
+    ],
+    "identify each covered": [
+      6,
+      10
+    ],
+    "once that period": [
+      6,
+      10
+    ],
+    "common names": [
+      6,
+      10
+    ],
+    "become affiliates": [
+      6,
+      10
+    ],
+    "consumer will": [
+      6,
+      10
+    ],
+    "covered affiliate": [
+      6,
+      10
+    ],
+    "banking credit card": [
+      6,
+      10
+    ],
+    "credit card": [
+      6,
+      10,
+      22,
+      25
+    ],
+    "each affiliate": [
+      6,
+      10
+    ],
+    "provided jointly": [
+      6,
+      10
+    ],
+    "insurance companies": [
+      6,
+      10
+    ],
+    "card companies": [
+      6,
+      10
+    ],
+    "specified period": [
+      6,
+      10
+    ],
+    "clear conspicuous": [
+      6,
+      10
+    ],
+    "election once": [
+      6,
+      10
+    ],
+    "common name": [
+      6,
+      10
+    ],
+    "each affiliate covered": [
+      6,
+      10
+    ],
+    "either separately": [
+      6,
+      10
+    ],
+    "names used": [
+      6,
+      10
+    ],
+    "each covered": [
+      6,
+      10
+    ],
+    "either separately identify": [
+      6,
+      10
+    ],
+    "more consumers": [
+      6,
+      26
+    ],
+    "common names used": [
+      6,
+      10
+    ],
+    "become affiliates after": [
+      6,
+      10
+    ],
+    "affiliates after": [
+      6,
+      10
+    ],
+    "identify each affiliate": [
+      6,
+      10
+    ],
+    "affiliate providing": [
+      6,
+      9,
+      10
+    ],
+    "multiple affiliates": [
+      6,
+      10
+    ],
+    "credit card insurance": [
+      6,
+      10
+    ],
+    "time stated": [
+      6,
+      10
+    ],
+    "general description": [
+      6,
+      10
+    ],
+    "period expires": [
+      6,
+      10
+    ],
+    "each covered affiliate": [
+      6,
+      10
+    ],
+    "notice must either": [
+      6,
+      10
+    ],
+    "affiliates providing": [
+      6,
+      10
+    ],
+    "consumer receives": [
+      6,
+      25
+    ],
+    "multiple companies": [
+      6,
+      10
+    ],
+    "services unless": [
+      7,
+      8
+    ],
+    "consumer about your": [
+      7,
+      8
+    ],
+    "reasonable period": [
+      7,
+      10
+    ],
+    "about your products": [
+      7,
+      8
+    ],
+    "about your": [
+      7,
+      8
+    ],
+    "provided electronically": [
+      7,
+      9,
+      19
+    ],
+    "electronic means": [
+      7,
+      8,
+      19
+    ],
+    "reasonable means": [
+      7,
+      27
+    ],
+    "each consumer": [
+      8,
+      9,
+      23,
+      24,
+      25,
+      26
+    ],
+    "electronic delivery": [
+      8,
+      18
+    ],
+    "free telephone number": [
+      8,
+      24,
+      32,
+      33,
+      34
+    ],
+    "free telephone": [
+      8,
+      24,
+      32,
+      33,
+      34
+    ],
+    "toll free telephone": [
+      8,
+      24,
+      32,
+      33,
+      34
+    ],
+    "site without": [
+      8,
+      9
+    ],
+    "notice that includes": [
+      8,
+      26
+    ],
+    "telephone number": [
+      8,
+      18,
+      24,
+      32,
+      33,
+      34
+    ],
+    "toll free": [
+      8,
+      19,
+      24,
+      32,
+      33,
+      34
+    ],
+    "section applies": [
+      11,
+      12,
+      13,
+      14,
+      23,
+      27,
+      38
+    ],
+    "receives medical": [
+      11,
+      12
+    ],
+    "credit products": [
+      11,
+      23
+    ],
+    "scope this section": [
+      11,
+      12,
+      13,
+      14,
+      27,
+      38
+    ],
+    "medical information": [
+      11,
+      12,
+      13
+    ],
+    "continued eligibility": [
+      11,
+      13
+    ],
+    "consumer owes": [
+      11,
+      25
+    ],
+    "receives medical information": [
+      11,
+      12
+    ],
+    "using medical": [
+      11,
+      14
+    ],
+    "person except": [
+      12,
+      13,
+      21
+    ],
+    "person described": [
+      12,
+      13
+    ],
+    "otherwise permitted": [
+      12,
+      13
+    ],
+    "purpose described": [
+      13,
+      32
+    ],
+    "consumers based": [
+      13,
+      26
+    ],
+    "reporting agencies regarding": [
+      14,
+      27,
+      30
+    ],
+    "information including": [
+      14,
+      24
+    ],
+    "agencies regarding": [
+      14,
+      27,
+      30
+    ],
+    "furnishes information": [
+      15,
+      16,
+      27
+    ],
+    "creditworthiness credit standing": [
+      16,
+      18
+    ],
+    "definitions apply": [
+      16,
+      19,
+      22,
+      31
+    ],
+    "general reputation personal": [
+      16,
+      18
+    ],
+    "following definitions": [
+      16,
+      19,
+      22,
+      31
+    ],
+    "personal characteristics": [
+      16,
+      18
+    ],
+    "character general reputation": [
+      16,
+      18
+    ],
+    "capacity character": [
+      16,
+      18
+    ],
+    "standing credit": [
+      16,
+      18
+    ],
+    "furnished information": [
+      16,
+      17
+    ],
+    "direct dispute": [
+      16,
+      18
+    ],
+    "general reputation": [
+      16,
+      18
+    ],
+    "credit standing credit": [
+      16,
+      18
+    ],
+    "credit capacity character": [
+      16,
+      18
+    ],
+    "information relating": [
+      16,
+      17
+    ],
+    "following definitions apply": [
+      16,
+      19,
+      22,
+      31
+    ],
+    "standing credit capacity": [
+      16,
+      18
+    ],
+    "credit standing": [
+      16,
+      18
+    ],
+    "reputation personal": [
+      16,
+      18
+    ],
+    "credit capacity": [
+      16,
+      18
+    ],
+    "creditworthiness credit": [
+      16,
+      18
+    ],
+    "character general": [
+      16,
+      18
+    ],
+    "reputation personal characteristics": [
+      16,
+      18
+    ],
+    "capacity character general": [
+      16,
+      18
+    ],
+    "reasonable policies": [
+      17,
+      27
+    ],
+    "implement reasonable": [
+      17,
+      27,
+      29,
+      32,
+      33
+    ],
+    "repair organization": [
+      18,
+      38
+    ],
+    "credit limit": [
+      18,
+      22
+    ],
+    "credit repair": [
+      18,
+      38
+    ],
+    "active duty alerts": [
+      18,
+      28
+    ],
+    "credit account": [
+      18,
+      36
+    ],
+    "duty alerts": [
+      18,
+      28
+    ],
+    "public records": [
+      18,
+      36
+    ],
+    "credit repair organization": [
+      18,
+      38
+    ],
+    "specific information": [
+      18,
+      32,
+      33
+    ],
+    "active duty": [
+      18,
+      28
+    ],
+    "inaccurate information": [
+      18,
+      24
+    ],
+    "information derived": [
+      18,
+      23
+    ],
+    "reasonable belief": [
+      18,
+      27
+    ],
+    "firm offers": [
+      19,
+      25
+    ],
+    "type style": [
+      19,
+      34
+    ],
+    "prescreened solicitations": [
+      19,
+      25
+    ],
+    "close proximity": [
+      19,
+      34
+    ],
+    "consumer files": [
+      19,
+      31
+    ],
+    "subpart applies": [
+      19,
+      21
+    ],
+    "risk based pricing": [
+      20,
+      23,
+      24,
+      25,
+      26
+    ],
+    "users regarding": [
+      20,
+      27
+    ],
+    "reserved subpart": [
+      20,
+      27,
+      30,
+      35
+    ],
+    "risk based": [
+      20,
+      23,
+      24,
+      25,
+      26
+    ],
+    "based pricing": [
+      20,
+      23,
+      24,
+      25,
+      26
+    ],
+    "otherwise provides credit": [
+      21,
+      23,
+      24
+    ],
+    "materially less": [
+      21,
+      22,
+      23,
+      26
+    ],
+    "report grants extends": [
+      21,
+      23
+    ],
+    "grants extends": [
+      21,
+      23,
+      24
+    ],
+    "provides credit": [
+      21,
+      23,
+      24
+    ],
+    "materially less favorable": [
+      21,
+      22,
+      23,
+      26
+    ],
+    "grant extension": [
+      21,
+      23,
+      26
+    ],
+    "material terms available": [
+      21,
+      23
+    ],
+    "less favorable": [
+      21,
+      22,
+      23,
+      24,
+      26
+    ],
+    "personal family": [
+      21,
+      23
+    ],
+    "otherwise provides": [
+      21,
+      23,
+      24
+    ],
+    "favorable material": [
+      21,
+      23,
+      25
+    ],
+    "consumer report grants": [
+      21,
+      23
+    ],
+    "terms available": [
+      21,
+      23,
+      26
+    ],
+    "most favorable material": [
+      21,
+      23
+    ],
+    "material terms": [
+      21,
+      22,
+      23,
+      24,
+      25,
+      26
+    ],
+    "report grants": [
+      21,
+      23
+    ],
+    "through that person": [
+      21,
+      23
+    ],
+    "favorable material terms": [
+      21,
+      23,
+      25
+    ],
+    "substantial proportion": [
+      21,
+      23
+    ],
+    "household purposes": [
+      21,
+      23
+    ],
+    "most favorable": [
+      21,
+      23,
+      26
+    ],
+    "credit granted extended": [
+      22,
+      23
+    ],
+    "more specific": [
+      22,
+      33
+    ],
+    "adverse action": [
+      22,
+      25
+    ],
+    "purchase annual": [
+      22,
+      25
+    ],
+    "card issuer": [
+      22,
+      25
+    ],
+    "granted extended": [
+      22,
+      23,
+      26
+    ],
+    "credit granted": [
+      22,
+      23
+    ],
+    "annual percentage rate": [
+      22,
+      24,
+      25
+    ],
+    "percentage rate": [
+      22,
+      24,
+      25
+    ],
+    "credit product": [
+      22,
+      23
+    ],
+    "difference between": [
+      22,
+      27
+    ],
+    "annual percentage": [
+      22,
+      24,
+      25
+    ],
+    "purchase annual percentage": [
+      22,
+      25
+    ],
+    "terms means": [
+      22,
+      25
+    ],
+    "credit score": [
+      22,
+      23,
+      24,
+      25,
+      26
+    ],
+    "material terms means": [
+      22,
+      25
+    ],
+    "credit card issuer": [
+      22,
+      25
+    ],
+    "credit extension": [
+      22,
+      26
+    ],
+    "firm offer": [
+      22,
+      25
+    ],
+    "party sources": [
+      23,
+      27
+    ],
+    "person using": [
+      23,
+      25
+    ],
+    "third party sources": [
+      23,
+      27
+    ],
+    "credit scores": [
+      23,
+      24,
+      25,
+      26
+    ],
+    "provided credit": [
+      23,
+      26
+    ],
+    "more than percent": [
+      23,
+      31
+    ],
+    "based pricing notice": [
+      23,
+      24,
+      25,
+      26
+    ],
+    "favorable terms": [
+      23,
+      26
+    ],
+    "general requirements": [
+      23,
+      34
+    ],
+    "pricing notice": [
+      23,
+      24,
+      25,
+      26
+    ],
+    "based pricing notices": [
+      23,
+      24,
+      26
+    ],
+    "person must provide": [
+      23,
+      26
+    ],
+    "terms offered": [
+      23,
+      24,
+      26
+    ],
+    "pricing notices": [
+      23,
+      24,
+      26
+    ],
+    "most favorable terms": [
+      23,
+      26
+    ],
+    "credit history": [
+      24,
+      25
+    ],
+    "consumer reports": [
+      24,
+      27,
+      36
+    ],
+    "without charge": [
+      24,
+      31
+    ],
+    "account information": [
+      24,
+      36
+    ],
+    "credit report": [
+      24,
+      25,
+      34
+    ],
+    "credit offered": [
+      24,
+      25
+    ],
+    "includes information about": [
+      24,
+      25
+    ],
+    "contact information": [
+      24,
+      38
+    ],
+    "includes information": [
+      24,
+      25
+    ],
+    "score disclosure": [
+      25,
+      26
+    ],
+    "credit score disclosure": [
+      25,
+      26
+    ],
+    "consumer requests": [
+      25,
+      33
+    ],
+    "contain only": [
+      26,
+      34
+    ],
+    "ordinary course": [
+      27,
+      36
+    ],
+    "accordance with paragraph": [
+      27,
+      32
+    ],
+    "report provided": [
+      27,
+      34
+    ],
+    "appropriate proof": [
+      29,
+      38
+    ],
+    "nationwide basis": [
+      31,
+      36
+    ],
+    "annual file": [
+      31,
+      32,
+      33
+    ],
+    "file disclosures": [
+      31,
+      32,
+      33
+    ],
+    "request file": [
+      31,
+      32,
+      33
+    ],
+    "meaning provided": [
+      31,
+      38
+    ],
+    "request method": [
+      31,
+      32,
+      33
+    ],
+    "request file disclosures": [
+      31,
+      32,
+      33
+    ],
+    "specialty consumer reporting": [
+      31,
+      33
+    ],
+    "annual file disclosure": [
+      31,
+      32
+    ],
+    "file disclosure": [
+      31,
+      32,
+      33,
+      34
+    ],
+    "nationwide specialty": [
+      31,
+      33
+    ],
+    "maintains files": [
+      31,
+      36
+    ],
+    "agency that compiles": [
+      31,
+      36
+    ],
+    "specialty consumer": [
+      31,
+      33
+    ],
+    "nationwide consumer": [
+      31,
+      32,
+      34
+    ],
+    "nationwide specialty consumer": [
+      31,
+      33
+    ],
+    "nationwide consumer reporting": [
+      31,
+      32,
+      34
+    ],
+    "providing information": [
+      32,
+      33
+    ],
+    "necessarily limited": [
+      32,
+      33
+    ],
+    "designed funded": [
+      32,
+      33
+    ],
+    "centralized source": [
+      32,
+      34
+    ],
+    "implementing contingency": [
+      32,
+      33
+    ],
+    "reasonable procedures": [
+      32,
+      33
+    ],
+    "might reasonably": [
+      32,
+      33
+    ],
+    "enable consumers": [
+      32,
+      33
+    ],
+    "implement reasonable procedures": [
+      32,
+      33
+    ],
+    "asked questions screen": [
+      32,
+      33
+    ],
+    "method providing": [
+      32,
+      33
+    ],
+    "reasonably anticipated": [
+      32,
+      33
+    ],
+    "address circumstances": [
+      32,
+      33
+    ],
+    "understandable information": [
+      32,
+      33
+    ],
+    "properly identified": [
+      32,
+      33
+    ],
+    "reasonably necessary": [
+      32,
+      33
+    ],
+    "screen which includes": [
+      32,
+      33
+    ],
+    "asked questions": [
+      32,
+      33
+    ],
+    "implementing contingency plans": [
+      32,
+      33
+    ],
+    "reasonably likely": [
+      32,
+      33
+    ],
+    "obtain annual": [
+      32,
+      33
+    ],
+    "obtain annual file": [
+      32,
+      33
+    ],
+    "submit such information": [
+      32,
+      33
+    ],
+    "request including": [
+      32,
+      33
+    ],
+    "annual file disclosures": [
+      32,
+      33
+    ],
+    "including developing": [
+      32,
+      33
+    ],
+    "part shall enable": [
+      32,
+      33
+    ],
+    "properly identify": [
+      32,
+      33
+    ],
+    "request including what": [
+      32,
+      33
+    ],
+    "consumers identity": [
+      32,
+      33
+    ],
+    "request annual": [
+      32,
+      33
+    ],
+    "reasonably anticipated volume": [
+      32,
+      33
+    ],
+    "reasonably need": [
+      32,
+      33
+    ],
+    "instructions whereby": [
+      32,
+      33
+    ],
+    "easily understandable": [
+      32,
+      33
+    ],
+    "requesting annual file": [
+      32,
+      33
+    ],
+    "frequently asked questions": [
+      32,
+      33
+    ],
+    "consumers contacting": [
+      32,
+      33
+    ],
+    "funded implemented maintained": [
+      32,
+      33
+    ],
+    "requesting annual": [
+      32,
+      33
+    ],
+    "consumer requesting": [
+      32,
+      33
+    ],
+    "consumers might reasonably": [
+      32,
+      33
+    ],
+    "site request": [
+      32,
+      33
+    ],
+    "questions that consumers": [
+      32,
+      33
+    ],
+    "including what": [
+      32,
+      33
+    ],
+    "easily understandable information": [
+      32,
+      33
+    ],
+    "request annual file": [
+      32,
+      33
+    ],
+    "anticipated volume": [
+      32,
+      33
+    ],
+    "regulations providing": [
+      32,
+      33
+    ],
+    "providing access": [
+      32,
+      33
+    ],
+    "accept requests": [
+      32,
+      33
+    ],
+    "collects only": [
+      32,
+      33
+    ],
+    "fcra section": [
+      32,
+      33,
+      36
+    ],
+    "request method providing": [
+      32,
+      33
+    ],
+    "funded implemented": [
+      32,
+      33
+    ],
+    "site request method": [
+      32,
+      33
+    ],
+    "designed funded implemented": [
+      32,
+      33
+    ],
+    "consumers might": [
+      32,
+      33
+    ],
+    "implemented maintained": [
+      32,
+      33
+    ],
+    "including what additional": [
+      32,
+      33
+    ],
+    "adequate capacity": [
+      32,
+      33
+    ],
+    "information that consumers": [
+      32,
+      33
+    ],
+    "what additional information": [
+      32,
+      33
+    ],
+    "disclosures from nationwide": [
+      32,
+      33
+    ],
+    "applicable laws": [
+      32,
+      33
+    ],
+    "provides clear": [
+      32,
+      33
+    ],
+    "credit reports": [
+      32,
+      34
+    ],
+    "contingency plans": [
+      32,
+      33
+    ],
+    "consumers identity cannot": [
+      32,
+      33
+    ],
+    "frequently asked": [
+      32,
+      33
+    ],
+    "consumers including": [
+      32,
+      33
+    ],
+    "request while": [
+      32,
+      33
+    ],
+    "what additional": [
+      32,
+      33
+    ],
+    "might reasonably need": [
+      32,
+      33
+    ],
+    "adversely impact": [
+      32,
+      33
+    ],
+    "documentation will": [
+      32,
+      33
+    ],
+    "will contact": [
+      32,
+      33
+    ],
+    "method providing access": [
+      32,
+      33
+    ],
+    "identity cannot": [
+      32,
+      33
+    ],
+    "questions screen": [
+      32,
+      33
+    ],
+    "request methods": [
+      32,
+      33
+    ],
+    "maximum allowable charge": [
+      37,
+      39
+    ],
+    "consumer pursuant": [
+      37,
+      39
+    ],
+    "allowable charge": [
+      37,
+      39
+    ],
+    "maximum allowable": [
+      37,
+      39
+    ]
+  },
+  "origin_pdf": "12cfr1022.txt",
+  "pages": 1,
+  "sections": [
+    {
+      "citation": "\u00a7 1022.1",
+      "kind": "section_sign",
+      "page": 1,
+      "text": "\u00a7 1022.1 Purpose, scope, and model forms and disclosures. (a) Purpose. The purpose of this part is to implement the Fair Credit Reporting Act (FCRA). This part generally applies to persons that obtain and use information about consumers to determine the consumer's eligibility for products, services, or employment, share such information among affiliates, and furnish information to consumer reporting agencies. (b) Scope. (1) [Reserved] (2) Institutions covered. (i) Except as otherwise provided in this part, this part applies to any person subject to the FCRA except for a person excluded from coverage of this part by section 1029 of the Consumer Financial Protection Act of 2010, title X of the Dodd-Frank Wall Street Reform and Consumer Protection Act, Public Law 111-203, 124 Stat. 1376. (ii) For purposes of appendix B to this part, financial institutions as defined in section 509 of the Gramm-Leach-Bliley Act (12 U.S.C. 6809), may use the model notices in appendix B to this part to comply with the notice requirement in section 623(a)(7) of the FCRA (15 U.S.C. 1681s-2(a)(7)). (c) Model forms and disclosures \u2014(1) Use. Appendices D, H, I, K, L, M, and N contain model forms and disclosures. These appendices carry out the directive in FCRA that the Bureau prescribe such model forms and disclosures. Use or distribution of these model forms and disclosures, or substantially similar forms and disclosures, will constitute compliance with any section or subsection of the FCRA requiring that such forms and disclosures be used by or supplied to any person. (2) Definition. Substantially similar means that all information in the Bureau's prescribed model is included in the document that is distributed, and that the document distributed is formatted in a way consistent with the format prescribed by the Bureau. The document that is distributed shall not include anything that interferes with, detracts from, or otherwise undermines the information contained in the Bureau's prescribed model. Until January 1, 2013, the model forms in appendices B, E, F, G, and H to 16 CFR part 698, as those appendices existed as of October 1, 2011, are deemed substantially similar to the corresponding model forms in appendices H, I, K, M, and N to this part, and the model forms in appendix H to 12 CFR part 222, as that appendix existed as of October 1, 2011, are deemed substantially similar to the corresponding model forms in appendix H to this part."
+    },
+    {
+      "citation": "\u00a7 1022.2",
+      "kind": "section_sign",
+      "page": 1,
+      "text": "\u00a7 1022.2 Examples. The examples in this part are not exclusive. Compliance with an example, to the extent applicable, constitutes compliance with this part. Examples in a paragraph illustrate only the issue described in the paragraph and do not illustrate any other issue that may arise in this part."
+    },
+    {
+      "citation": "\u00a7 1022.3",
+      "kind": "section_sign",
+      "page": 1,
+      "text": "\u00a7 1022.3 Definitions. For purposes of this part, unless explicitly stated otherwise: (a) Act means the FCRA (15 U.S.C. 1681 et seq. ). (b) Affiliate means any company that is related by common ownership or common corporate control with another company. For example, an affiliate of a Federal credit union is a credit union service corporation, as provided in 12 CFR part 712, that is controlled by the Federal credit union. (c) [Reserved] (d) Common ownership or common corporate control means a relationship between two companies under which: (1) One company has, with respect to the other company: (i) Ownership, control, or power to vote 25 percent or more of the outstanding shares of any class of voting security of a company, directly or indirectly, or acting through one or more other persons; (ii) Control in any manner over the election of a majority of the directors, trustees, or general partners (or individuals exercising similar functions) of a company; or (iii) The power to exercise, directly or indirectly, a controlling influence over the management or policies of a company, as determined by the applicable prudential regulator (as defined in 12 U.S.C. 5481(24)) (a credit union is presumed to have a controlling influence over the management or policies of a credit union service corporation if the credit union service corporation is 67% owned by credit unions) or, where there is no prudential regulator, by the Bureau; or (2) Any other person has, with respect to both companies, a relationship described in paragraphs (d)(1)(i) through (d)(1)(ii). (e) Company means any corporation, limited liability company, business trust, general or limited partnership, association, or similar organization. (f) Consumer means an individual. (g) Identifying information means any name or number that may be used, alone or in conjunction with any other information, to identify a specific person, including any: (1) Name, social security number, date of birth, official state or government issued driver's license or identification number, alien registration number, government passport number, employer or taxpayer identification number; (2) Unique biometric data, such as fingerprint, voice print, retina or iris image, or other unique physical representation; (3) Unique electronic identification number, address, or routing code; or (4) Telecommunication identifying information or access device (as defined in 18 U.S.C. 1029(e)). (h) Identity theft means a fraud committed or attempted using the identifying information of another person without authority. (i)(1) Identity theft report means a report: (i) That alleges identity theft with as much specificity as the consumer can provide; (ii) That is a copy of an official, valid report filed by the consumer with a Federal, state, or local law enforcement agency, including the United States Postal Inspection Service, the filing of which subjects the person filing the report to criminal penalties relating to the filing of false information, if, in fact, the information in the report is false; and (iii) That may include additional information or documentation that an information furnisher or consumer reporting agency reasonably requests for the purpose of determining the validity of the alleged identity theft, provided that the information furnisher or consumer reporting agency: (A) Makes such request not later than fifteen days after the date of receipt of the copy of the report form identified in Paragraph (i)(1)(ii) of this section or the request by the consumer for the particular service, whichever shall be the later; (B) Makes any supplemental requests for information or documentation and final determination on the acceptance of the identity theft report within another fifteen days after its initial request for information or documentation; and (C) Shall have five days to make a final determination on the acceptance of the identity theft report, in the event that the consumer reporting agency or information"
+    },
+    {
+      "citation": "\u00a7 1022.20",
+      "kind": "section_sign",
+      "page": 1,
+      "text": "\u00a7 1022.20 Coverage and definitions. (a) Coverage. Subpart C of this part applies to any person that uses information from its affiliates for the purpose of marketing solicitations, or provides information to its affiliates for that purpose, other than a person excluded from coverage of this part by section 1029 of the Consumer Financial Protection Act of 2010, title X of the Dodd-Frank Wall Street Reform and Consumer Protection Act, Public Law 111-203, 124 Stat. 137. (b) Definitions. For purposes of this subpart: (1) Clear and conspicuous. The term \u201cclear and conspicuous\u201d means reasonably understandable and designed to call attention to the nature and significance of the information presented. (2) Concise \u2014(i) In general. The term \u201cconcise\u201d means a reasonably brief expression or statement. (ii) Combination with other required disclosures. A notice required by this subpart may be concise even if it is combined with other disclosures required or authorized by Federal or state law. (3) Eligibility information. The term \u201celigibility information\u201d means any information the communication of which would be a consumer report if the exclusions from the definition of \u201cconsumer report\u201d in section 603(d)(2)(A) of the Act did not apply. Eligibility information does not include aggregate or blind data that does not contain personal identifiers such as account numbers, names, or addresses. (4) Pre-existing business relationship \u2014(i) In general. The term \u201cpre-existing business relationship\u201d means a relationship between a person, or a person's licensed agent, and a consumer based on: (A) A financial contract between the person and the consumer which is in force on the date on which the consumer is sent a solicitation covered by this subpart; (B) The purchase, rental, or lease by the consumer of the person's goods or services, or a financial transaction (including holding an active account or a policy in force or having another continuing relationship) between the consumer and the person, during the 18-month period immediately preceding the date on which the consumer is sent a solicitation covered by this subpart; or (C) An inquiry or application by the consumer regarding a product or service offered by that person during the three-month period immediately preceding the date on which the consumer is sent a solicitation covered by this subpart. (ii) Examples of pre-existing business relationships. (A) If a consumer has a time deposit account, such as a certificate of deposit, at a financial institution that is currently in force, the financial institution has a pre-existing business relationship with the consumer and can use eligibility information it receives from its affiliates to make solicitations to the consumer about its products or services. (B) If a consumer obtained a certificate of deposit from a financial institution, but did not renew the certificate at maturity, the financial institution has a pre-existing business relationship with the consumer and can use eligibility information it receives from its affiliates to make solicitations to the consumer about its products or services for 18 months after the date of maturity of the certificate of deposit. (C) If a consumer obtains a mortgage, the mortgage lender has a pre-existing business relationship with the consumer. If the mortgage lender sells the consumer's entire loan to an investor, the mortgage lender has a pre-existing business relationship with the consumer and can use eligibility information it receives from its affiliates to make solicitations to the consumer about its products or services for 18 months after the date it sells the loan, and the investor has a pre-existing business relationship with the consumer upon purchasing the loan. If, however, the mortgage lender sells a fractional interest in the consumer's loan to an investor but also retains an ownership interest in the loan, the mortgage lender continues to have a pre-existing business relationship with the consume"
+    },
+    {
+      "citation": "\u00a7 1022.21",
+      "kind": "section_sign",
+      "page": 1,
+      "text": "\u00a7 1022.21 Affiliate marketing opt-out and exceptions. (a) Initial notice and opt-out requirement \u2014(1) In general. You may not use eligibility information about a consumer that you receive from an affiliate to make a solicitation for marketing purposes to the consumer, unless: (i) It is clearly and conspicuously disclosed to the consumer in writing or, if the consumer agrees, electronically, in a concise notice that you may use eligibility information about that consumer received from an affiliate to make solicitations for marketing purposes to the consumer; (ii) The consumer is provided a reasonable opportunity and a reasonable and simple method to \u201copt out,\u201d or prohibit you from using eligibility information to make solicitations for marketing purposes to the consumer; and (iii) The consumer has not opted out. (2) Example. A consumer has a homeowner's insurance policy with an insurance company. The insurance company furnishes eligibility information about the consumer to its affiliated creditor. Based on that eligibility information, the creditor wants to make a solicitation to the consumer about its home equity loan products. The creditor does not have a pre-existing business relationship with the consumer and none of the other exceptions apply. The creditor is prohibited from using eligibility information received from its insurance affiliate to make solicitations to the consumer about its home equity loan products unless the consumer is given a notice and opportunity to opt out and the consumer does not opt out. (3) Affiliates who may provide the notice. The notice required by this paragraph must be provided: (i) By an affiliate that has or has previously had a pre-existing business relationship with the consumer; or (ii) As part of a joint notice from two or more members of an affiliated group of companies, provided that at least one of the affiliates on the joint notice has or has previously had a pre-existing business relationship with the consumer. (b) Making solicitations \u2014(1) In general. For purposes of this subpart, you make a solicitation for marketing purposes if: (i) You receive eligibility information from an affiliate; (ii) You use that eligibility information to do one or more of the following: (A) Identify the consumer or type of consumer to receive a solicitation; (B) Establish criteria used to select the consumer to receive a solicitation; or (C) Decide which of your products or services to market to the consumer or tailor your solicitation to that consumer; and (iii) As a result of your use of the eligibility information, the consumer is provided a solicitation. (2) Receiving eligibility information from an affiliate, including through a common database. You may receive eligibility information from an affiliate in various ways, including when the affiliate places that information into a common database that you may access. (3) Receipt or use of eligibility information by your service provider. Except as provided in paragraph (b)(5) of this section, you receive or use an affiliate's eligibility information if a service provider acting on your behalf (whether an affiliate or a nonaffiliated third party) receives or uses that information in the manner described in paragraphs (b)(1)(i) or (b)(1)(ii) of this section. All relevant facts and circumstances will determine whether a person is acting as your service provider when it receives or uses an affiliate's eligibility information in connection with marketing your products and services. (4) Use by an affiliate of its own eligibility information. Unless you have used eligibility information that you receive from an affiliate in the manner described in paragraph (b)(1)(ii) of this section, you do not make a solicitation subject to this subpart if your affiliate: (i) Uses its own eligibility information that it obtained in connection with a pre-existing business relationship it has or had with the consumer to market your products or services to the consumer; or ("
+    },
+    {
+      "citation": "\u00a7 1022.22",
+      "kind": "section_sign",
+      "page": 1,
+      "text": "\u00a7 1022.22 Scope and duration of opt-out. (a) Scope of opt-out \u2014(1) In general. Except as otherwise provided in this section, the consumer's election to opt out prohibits any affiliate covered by the opt-out notice from using eligibility information received from another affiliate as described in the notice to make solicitations to the consumer. (2) Continuing relationship. (i) In general. If the consumer establishes a continuing relationship with you or your affiliate, an opt-out notice may apply to eligibility information obtained in connection with: (A) A single continuing relationship or multiple continuing relationships that the consumer establishes with you or your affiliates, including continuing relationships established subsequent to delivery of the opt-out notice, so long as the notice adequately describes the continuing relationships covered by the opt-out; or (B) Any other transaction between the consumer and you or your affiliates as described in the notice. (ii) Examples of continuing relationships. A consumer has a continuing relationship with you or your affiliate if the consumer: (A) Opens a deposit or investment account with you or your affiliate; (B) Obtains a loan for which you or your affiliate owns the servicing rights; (C) Purchases an insurance product from you or your affiliate; (D) Holds an investment product through you or your affiliate, such as when you act or your affiliate acts as a custodian for securities or for assets in an individual retirement arrangement; (E) Enters into an agreement or understanding with you or your affiliate whereby you or your affiliate undertakes to arrange or broker a home mortgage loan for the consumer; (F) Enters into a lease of personal property with you or your affiliate; or (G) Obtains financial, investment, or economic advisory services from you or your affiliate for a fee. (3) No continuing relationship. (i) In general. If there is no continuing relationship between a consumer and you or your affiliate, and you or your affiliate obtain eligibility information about a consumer in connection with a transaction with the consumer, such as an isolated transaction or a credit application that is denied, an opt-out notice provided to the consumer only applies to eligibility information obtained in connection with that transaction. (ii) Examples of isolated transactions. An isolated transaction occurs if: (A) The consumer uses your or your affiliate's ATM to withdraw cash from an account at another financial institution; or (B) You or your affiliate sells the consumer a cashier's check or money order, airline tickets, travel insurance, or traveler's checks in isolated transactions. (4) Menu of alternatives. A consumer may be given the opportunity to choose from a menu of alternatives when electing to prohibit solicitations, such as by electing to prohibit solicitations from certain types of affiliates covered by the opt-out notice but not other types of affiliates covered by the notice, electing to prohibit solicitations based on certain types of eligibility information but not other types of eligibility information, or electing to prohibit solicitations by certain methods of delivery but not other methods of delivery. However, one of the alternatives must allow the consumer to prohibit all solicitations from all of the affiliates that are covered by the notice. (5) Special rule for a notice following termination of all continuing relationships \u2014(i) In general. A consumer must be given a new opt-out notice if, after all continuing relationships with you or your affiliate(s) are terminated, the consumer subsequently establishes another continuing relationship with you or your affiliate(s) and the consumer's eligibility information is to be used to make a solicitation. The new opt-out notice must apply, at a minimum, to eligibility information obtained in connection with the new continuing relationship. Consistent with paragraph (b) of this section, the consumer's decision"
+    },
+    {
+      "citation": "\u00a7 1022.23",
+      "kind": "section_sign",
+      "page": 1,
+      "text": "\u00a7 1022.23 Contents of opt-out notice; consolidated and equivalent notices. (a) Contents of opt-out notice \u2014(1) In general. A notice must be clear, conspicuous, and concise, and must accurately disclose: (i) The name of the affiliate(s) providing the notice. If the notice is provided jointly by multiple affiliates and each affiliate shares a common name, such as \u201cABC,\u201d then the notice may indicate that it is being provided by multiple companies with the ABC name or multiple companies in the ABC group or family of companies, for example, by stating that the notice is provided by \u201call of the ABC companies,\u201d \u201cthe ABC banking, credit card, insurance, and securities companies,\u201d or by listing the name of each affiliate providing the notice. But if the affiliates providing the joint notice do not all share a common name, then the notice must either separately identify each affiliate by name or identify each of the common names used by those affiliates, for example, by stating that the notice is provided by \u201call of the ABC and XYZ companies\u201d or by \u201cthe ABC banking and credit card companies and the XYZ insurance companies;\u201d (ii) A list of the affiliates or types of affiliates whose use of eligibility information is covered by the notice, which may include companies that become affiliates after the notice is provided to the consumer. If each affiliate covered by the notice shares a common name, such as \u201cABC,\u201d then the notice may indicate that it applies to multiple companies with the ABC name or multiple companies in the ABC group or family of companies, for example, by stating that the notice is provided by \u201call of the ABC companies,\u201d \u201cthe ABC banking, credit card, insurance, and securities companies,\u201d or by listing the name of each affiliate providing the notice. But if the affiliates covered by the notice do not all share a common name, then the notice must either separately identify each covered affiliate by name or identify each of the common names used by those affiliates, for example, by stating that the notice applies to \u201call of the ABC and XYZ companies\u201d or to \u201cthe ABC banking and credit card companies and the XYZ insurance companies;\u201d (iii) A general description of the types of eligibility information that may be used to make solicitations to the consumer; (iv) That the consumer may elect to limit the use of eligibility information to make solicitations to the consumer; (v) That the consumer's election will apply for the specified period of time stated in the notice and, if applicable, that the consumer will be allowed to renew the election once that period expires; (vi) If the notice is provided to consumers who may have previously opted out, such as if a notice is provided to consumers annually, that the consumer who has chosen to limit solicitations does not need to act again until the consumer receives a renewal notice; and (vii) A reasonable and simple method for the consumer to opt out. (2) Joint relationships. (i) If two or more consumers jointly obtain a product or service, a single opt-out notice may be provided to the joint consumers. Any of the joint consumers may exercise the right to opt out. (ii) The opt-out notice must explain how an opt-out direction by a joint consumer will be treated. An opt-out direction by a joint consumer may be treated as applying to all of the associated joint consumers, or each joint consumer may be permitted to opt out separately. If each joint consumer is permitted to opt out separately, one of the joint consumers must be permitted to opt out on behalf of all of the joint consumers and the joint consumers must be permitted to exercise their separate rights to opt out in a single response. (iii) It is impermissible to require all joint consumers to opt out before implementing any opt-out direction. (3) Alternative contents. If the consumer is afforded a broader right to opt out of receiving marketing than is required by this subpart, the requirements of this section may be satisfied by "
+    },
+    {
+      "citation": "\u00a7 1022.24",
+      "kind": "section_sign",
+      "page": 1,
+      "text": "\u00a7 1022.24 Reasonable opportunity to opt out. (a) In general. You must not use eligibility information about a consumer that you receive from an affiliate to make a solicitation to the consumer about your products or services, unless the consumer is provided a reasonable opportunity to opt out, as required by \u00a7 1022.21(a)(1)(ii) of this part. (b) Examples of a reasonable opportunity to opt out. The consumer is given a reasonable opportunity to opt out if: (1) By mail. The opt-out notice is mailed to the consumer. The consumer is given 30 days from the date the notice is mailed to elect to opt out by any reasonable means. (2) By electronic means. (i) The opt-out notice is provided electronically to the consumer, such as by posting the notice at a Web site at which the consumer has obtained a product or service. The consumer acknowledges receipt of the electronic notice. The consumer is given 30 days after the date the consumer acknowledges receipt to elect to opt out by any reasonable means. (ii) The opt-out notice is provided to the consumer by email where the consumer has agreed to receive disclosures by email from the person sending the notice. The consumer is given 30 days after the email is sent to elect to opt out by any reasonable means. (3) At the time of an electronic transaction. The opt-out notice is provided to the consumer at the time of an electronic transaction, such as a transaction conducted on a Web site. The consumer is required to decide, as a necessary part of proceeding with the transaction, whether to opt out before completing the transaction. There is a simple process that the consumer may use to opt out at that time using the same mechanism through which the transaction is conducted. (4) At the time of an in-person transaction. The opt-out notice is provided to the consumer in writing at the time of an in-person transaction. The consumer is required to decide, as a necessary part of proceeding with the transaction, whether to opt out before completing the transaction, and is not permitted to complete the transaction without making a choice. There is a simple process that the consumer may use during the course of the in-person transaction to opt out, such as completing a form that requires consumers to write a \u201cyes\u201d or \u201cno\u201d to indicate their opt-out preference or that requires the consumer to check one of two blank check boxes; one that allows consumers to indicate that they want to opt out and one that allows consumers to indicate that they do not want to opt out. (5) By including in a privacy notice. The opt-out notice is included in a Gramm-Leach-Bliley Act privacy notice. The consumer is allowed to exercise the opt-out within a reasonable period of time and in the same manner as the opt-out under that privacy notice."
+    },
+    {
+      "citation": "\u00a7 1022.25",
+      "kind": "section_sign",
+      "page": 1,
+      "text": "\u00a7 1022.25 Reasonable and simple methods of opting out. (a) In general. You must not use eligibility information about a consumer that you receive from an affiliate to make a solicitation to the consumer about your products or services, unless the consumer is provided a reasonable and simple method to opt out, as required by \u00a7 1022.21(a)(1)(ii) of this part. (b) Examples \u2014(1) Reasonable and simple opt-out methods. Reasonable and simple methods for exercising the opt-out right include: (i) Designating a check-off box in a prominent position on the opt-out form; (ii) Including a reply form and a self-addressed envelope together with the opt-out notice; (iii) Providing an electronic means to opt out, such as a form that can be electronically mailed or processed at a Web site, if the consumer agrees to the electronic delivery of information; (iv) Providing a toll-free telephone number that consumers may call to opt out; or (v) Allowing consumers to exercise all of their opt-out rights described in a consolidated opt-out notice that includes the privacy opt-out under the Gramm-Leach-Bliley Act, 15 U.S.C. 6801 et seq., the affiliate sharing opt-out under the Act, and the affiliate marketing opt-out under the Act, by a single method, such as by calling a single toll-free telephone number. (2) Opt-out methods that are not reasonable and simple. Reasonable and simple methods for exercising an opt-out right do not include\u2014 (i) Requiring the consumer to write his or her own letter; (ii) Requiring the consumer to call or write to obtain a form for opting out, rather than including the form with the opt-out notice; (iii) Requiring the consumer who receives the opt-out notice in electronic form only, such as through posting at a Web site, to opt out solely by paper mail or by visiting a different Web site without providing a link to that site. (c) Specific opt-out means. Each consumer may be required to opt out through a specific means, as long as that means is reasonable and simple for that consumer."
+    },
+    {
+      "citation": "\u00a7 1022.26",
+      "kind": "section_sign",
+      "page": 1,
+      "text": "\u00a7 1022.26 Delivery of opt-out notices. (a) In general. The opt-out notice must be provided so that each consumer can reasonably be expected to receive actual notice. For opt-out notices provided electronically, the notice may be provided in compliance with either the electronic disclosure provisions in this subpart or the provisions in section 101 of the Electronic Signatures in Global and National Commerce Act, 15 U.S.C. 7001 et seq. (b) Examples of reasonable expectation of actual notice. A consumer may reasonably be expected to receive actual notice if the affiliate providing the notice: (1) Hand-delivers a printed copy of the notice to the consumer; (2) Mails a printed copy of the notice to the last known mailing address of the consumer; (3) Provides a notice by email to a consumer who has agreed to receive electronic disclosures by email from the affiliate providing the notice; or (4) Posts the notice on the Web site at which the consumer obtained a product or service electronically and requires the consumer to acknowledge receipt of the notice. (c) Examples of no reasonable expectation of actual notice. A consumer may not reasonably be expected to receive actual notice if the affiliate providing the notice: (1) Only posts the notice on a sign in a branch or office or generally publishes the notice in a newspaper; (2) Sends the notice via email to a consumer who has not agreed to receive electronic disclosures by email from the affiliate providing the notice; or (3) Posts the notice on a Web site without requiring the consumer to acknowledge receipt of the notice."
+    },
+    {
+      "citation": "\u00a7 1022.27",
+      "kind": "section_sign",
+      "page": 1,
+      "text": "\u00a7 1022.27 Renewal of opt-out. (a) Renewal notice and opt-out requirement \u2014(1) In general. After the opt-out period expires, you may not make solicitations based on eligibility information you receive from an affiliate to a consumer who previously opted out, unless: (i) The consumer has been given a renewal notice that complies with the requirements of this section and \u00a7\u00a7 1022.24 through 1022.26 of this part, and a reasonable opportunity and a reasonable and simple method to renew the opt-out, and the consumer does not renew the opt-out; or (ii) An exception in \u00a7 1022.21(c) of this part applies. (2) Renewal period. Each opt-out renewal must be effective for a period of at least five years as provided in \u00a7 1022.22(b) of this part. (3) Affiliates who may provide the notice. The notice required by this paragraph must be provided: (i) By the affiliate that provided the previous opt-out notice, or its successor; or (ii) As part of a joint renewal notice from two or more members of an affiliated group of companies, or their successors, that jointly provided the previous opt-out notice. (b) Contents of renewal notice. The renewal notice must be clear, conspicuous, and concise, and must accurately disclose: (1) The name of the affiliate(s) providing the notice. If the notice is provided jointly by multiple affiliates and each affiliate shares a common name, such as \u201cABC,\u201d then the notice may indicate that it is being provided by multiple companies with the ABC name or multiple companies in the ABC group or family of companies, for example, by stating that the notice is provided by \u201call of the ABC companies,\u201d \u201cthe ABC banking, credit card, insurance, and securities companies,\u201d or by listing the name of each affiliate providing the notice. But if the affiliates providing the joint notice do not all share a common name, then the notice must either separately identify each affiliate by name or identify each of the common names used by those affiliates, for example, by stating that the notice is provided by \u201call of the ABC and XYZ companies\u201d or by \u201cthe ABC banking and credit card companies and the XYZ insurance companies\u201d; (2) A list of the affiliates or types of affiliates whose use of eligibility information is covered by the notice, which may include companies that become affiliates after the notice is provided to the consumer. If each affiliate covered by the notice shares a common name, such as \u201cABC,\u201d then the notice may indicate that it applies to multiple companies with the ABC name or multiple companies in the ABC group or family of companies, for example, by stating that the notice is provided by \u201call of the ABC companies,\u201d \u201cthe ABC banking, credit card, insurance, and securities companies,\u201d or by listing the name of each affiliate providing the notice. But if the affiliates covered by the notice do not all share a common name, then the notice must either separately identify each covered affiliate by name or identify each of the common names used by those affiliates, for example, by stating that the notice applies to \u201call of the ABC and XYZ companies\u201d or to \u201cthe ABC banking and credit card companies and the XYZ insurance companies;\u201d (3) A general description of the types of eligibility information that may be used to make solicitations to the consumer; (4) That the consumer previously elected to limit the use of certain information to make solicitations to the consumer; (5) That the consumer's election has expired or is about to expire; (6) That the consumer may elect to renew the consumer's previous election; (7) If applicable, that the consumer's election to renew will apply for the specified period of time stated in the notice and that the consumer will be allowed to renew the election once that period expires; and (8) A reasonable and simple method for the consumer to opt out. (c) Timing of the renewal notice \u2014(1) In general. A renewal notice may be provided to the consumer either: (i) A reasonable period of time before the exp"
+    },
+    {
+      "citation": "\u00a7 1022.30",
+      "kind": "section_sign",
+      "page": 1,
+      "text": "\u00a7 1022.30 Obtaining or using medical information in connection with a determination of eligibility for credit. (a) Scope. This section applies to any person that participates as a creditor in a transaction, except for a person excluded from coverage of this part by section 1029 of the Consumer Financial Protection Act of 2010, title X of the Dodd-Frank Wall Street Reform and Consumer Protection Act, Public Law 111-203, 124 Stat. 137. (b) General prohibition on obtaining or using medical information \u2014(1) In general. A creditor may not obtain or use medical information pertaining to a consumer in connection with any determination of the consumer's eligibility, or continued eligibility, for credit, except as provided in this section. (2) Definitions. (i) Credit has the same meaning as in section 702 of the Equal Credit Opportunity Act, 15 U.S.C. 1691a. (ii) Creditor has the same meaning as in section 702 of the Equal Credit Opportunity Act, 15 U.S.C. 1691a. (iii) Eligibility, or continued eligibility, for credit means the consumer's qualification or fitness to receive, or continue to receive, credit, including the terms on which credit is offered. The term does not include: (A) Any determination of the consumer's qualification or fitness for employment, insurance (other than a credit insurance product), or other non-credit products or services; (B) Authorizing, processing, or documenting a payment or transaction on behalf of the consumer in a manner that does not involve a determination of the consumer's eligibility, or continued eligibility, for credit; or (C) Maintaining or servicing the consumer's account in a manner that does not involve a determination of the consumer's eligibility, or continued eligibility, for credit. (c) Rule of construction for obtaining and using unsolicited medical information \u2014(1) In general. A creditor does not obtain medical information in violation of the prohibition if it receives medical information pertaining to a consumer in connection with any determination of the consumer's eligibility, or continued eligibility, for credit without specifically requesting medical information. (2) Use of unsolicited medical information. A creditor that receives unsolicited medical information in the manner described in paragraph (c)(1) of this section may use that information in connection with any determination of the consumer's eligibility, or continued eligibility, for credit to the extent the creditor can rely on at least one of the exceptions in paragraph (e) of this section. (3) Examples. A creditor does not obtain medical information in violation of the prohibition if, for example: (i) In response to a general question regarding a consumer's debts or expenses, the creditor receives information that the consumer owes a debt to a hospital. (ii) In a conversation with the creditor's loan officer, the consumer informs the creditor that the consumer has a particular medical condition. (d) [Reserved] (e) Specific exceptions for obtaining and using medical information \u2014(1) In general. A creditor may obtain and use medical information pertaining to a consumer in connection with any determination of the consumer's eligibility, or continued eligibility, for credit: (i) To determine whether the use of a power of attorney or legal representative that is triggered by a medical condition or event is necessary and appropriate or whether the consumer has the legal capacity to contract when a person seeks to exercise a power of attorney or act as legal representative for a consumer based on an asserted medical condition or event; (ii) To comply with applicable requirements of local, state, or Federal laws; (iii) To determine, at the consumer's request, whether the consumer qualifies for a legally permissible special credit program or credit-related assistance program that is: (A) Designed to meet the special needs of consumers with medical conditions; and (B) Established and administered pursuant to a written plan that: "
+    },
+    {
+      "citation": "\u00a7 1022.31",
+      "kind": "section_sign",
+      "page": 1,
+      "text": "\u00a7 1022.31 Limits on redisclosure of information. (a) Scope. This section applies to any person, except for a person excluded from coverage of this part by section 1029 of the Consumer Financial Protection Act of 2010, title X of the Dodd-Frank Wall Street Reform and Consumer Protection Act, Public Law 111-203, 124 Stat. 137. (b) Limits on redisclosure. If a person described in paragraph (a) of this section receives medical information about a consumer from a consumer reporting agency or its affiliate, the person must not disclose that information to any other person, except as necessary to carry out the purpose for which the information was initially disclosed, or as otherwise permitted by statute, regulation, or order."
+    },
+    {
+      "citation": "\u00a7 1022.32",
+      "kind": "section_sign",
+      "page": 1,
+      "text": "\u00a7 1022.32 Sharing medical information with affiliates. (a) Scope. This section applies to any person, except for a person excluded from coverage of this part by section 1029 of the Consumer Financial Protection Act of 2010, title X of the Dodd-Frank Wall Street Reform and Consumer Protection Act, Public Law 111-203, 124 Stat. 137. (b) In general. The exclusions from the term \u201cconsumer report\u201d in section 603(d)(2) of the Act that allow the sharing of information with affiliates do not apply to a person described in paragraph (a) of this section if that person communicates to an affiliate: (1) Medical information; (2) An individualized list or description based on the payment transactions of the consumer for medical products or services; or (3) An aggregate list of identified consumers based on payment transactions for medical products or services. (c) Exceptions. A person described in paragraph (a) of this section may rely on the exclusions from the term \u201cconsumer report\u201d in section 603(d)(2) of the Act to communicate the information in paragraph (b) of this section to an affiliate: (1) In connection with the business of insurance or annuities (including the activities described in section 18B of the model Privacy of Consumer Financial and Health Information Regulation issued by the National Association of Insurance Commissioners, as in effect on January 1, 2003); (2) For any purpose permitted without authorization under the regulations promulgated by the Department of Health and Human Services pursuant to the Health Insurance Portability and Accountability Act of 1996 (HIPAA); (3) For any purpose referred to in section 1179 of HIPAA; (4) For any purpose described in section 502(e) of the Gramm-Leach-Bliley Act; (5) In connection with a determination of the consumer's eligibility, or continued eligibility, for credit consistent with \u00a7 1022.30 of this part; or (6) As otherwise permitted by order of the Bureau."
+    },
+    {
+      "citation": "\u00a7 1022.38",
+      "kind": "section_sign",
+      "page": 1,
+      "text": "\u00a7 1022.38 Duty of consumer reporting agencies regarding medical debt information. (a) Scope. This section applies to any consumer reporting agency as defined in section 603(f) of the FCRA, 15 U.S.C. 1681a(f). (b) Limitation regarding prohibited medical debt information. A consumer reporting agency may include medical debt information, as defined in \u00a7 1022.3(j), in a consumer report furnished to a creditor only if the consumer reporting agency: (1) Has reason to believe the creditor intends to use the medical debt information in a manner not prohibited by \u00a7 1022.30; and (2) Has reason to believe the creditor is not otherwise legally prohibited from obtaining or using the medical debt information, including by a State law that prohibits a creditor from obtaining or using medical debt information. [90 FR 3373, Jan. 14, 2025] Subpart E\u2014Duties of Furnishers of Information"
+    },
+    {
+      "citation": "\u00a7 1022.40",
+      "kind": "section_sign",
+      "page": 1,
+      "text": "\u00a7 1022.40 Scope. Subpart E of this part applies to any person that furnishes information to a consumer reporting agency, except for a person excluded from coverage of this part by section 1029 of the Consumer Financial Protection Act of 2010, title X of the Dodd-Frank Wall Street Reform and Consumer Protection Act, Public Law 111-203, 124 Stat. 1376."
+    },
+    {
+      "citation": "\u00a7 1022.41",
+      "kind": "section_sign",
+      "page": 1,
+      "text": "\u00a7 1022.41 Definitions. For purposes of this subpart and appendix E of this part, the following definitions apply: (a) Accuracy means that information that a furnisher provides to a consumer reporting agency about an account or other relationship with the consumer correctly: (1) Reflects the terms of and liability for the account or other relationship; (2) Reflects the consumer's performance and other conduct with respect to the account or other relationship; and (3) Identifies the appropriate consumer. (b) Direct dispute means a dispute submitted directly to a furnisher (including a furnisher that is a debt collector) by a consumer concerning the accuracy of any information contained in a consumer report and pertaining to an account or other relationship that the furnisher has or had with the consumer. (c) Furnisher means an entity that furnishes information relating to consumers to one or more consumer reporting agencies for inclusion in a consumer report. An entity is not a furnisher when it: (1) Provides information to a consumer reporting agency solely to obtain a consumer report in accordance with sections 604(a) and (f) of the FCRA; (2) Is acting as a \u201cconsumer reporting agency\u201d as defined in section 603(f) of the FCRA; (3) Is a consumer to whom the furnished information pertains; or (4) Is a neighbor, friend, or associate of the consumer, or another individual with whom the consumer is acquainted or who may have knowledge about the consumer, and who provides information about the consumer's character, general reputation, personal characteristics, or mode of living in response to a specific request from a consumer reporting agency. (d) Integrity means that information that a furnisher provides to a consumer reporting agency about an account or other relationship with the consumer: (1) Is substantiated by the furnisher's records at the time it is furnished; (2) Is furnished in a form and manner that is designed to minimize the likelihood that the information may be incorrectly reflected in a consumer report; and (3) Includes the information in the furnisher's possession about the account or other relationship that the Bureau has: (i) Determined that the absence of which would likely be materially misleading in evaluating a consumer's creditworthiness, credit standing, credit capacity, character, general reputation, personal characteristics, or mode of living; and (ii) Listed in section I(b)(2)(iii) of appendix E of this part."
+    },
+    {
+      "citation": "\u00a7 1022.42",
+      "kind": "section_sign",
+      "page": 1,
+      "text": "\u00a7 1022.42 Reasonable policies and procedures concerning the accuracy and integrity of furnished information. (a) Policies and procedures. Each furnisher must establish and implement reasonable written policies and procedures regarding the accuracy and integrity of the information relating to consumers that it furnishes to a consumer reporting agency. The policies and procedures must be appropriate to the nature, size, complexity, and scope of each furnisher's activities. (b) Guidelines. Each furnisher must consider the guidelines in appendix E of this part in developing its policies and procedures required by this section, and incorporate those guidelines that are appropriate. (c) Reviewing and updating policies and procedures. Each furnisher must review its policies and procedures required by this section periodically and update them as necessary to ensure their continued effectiveness."
+    },
+    {
+      "citation": "\u00a7 1022.43",
+      "kind": "section_sign",
+      "page": 1,
+      "text": "\u00a7 1022.43 Direct disputes. (a) General rule. Except as otherwise provided in this section, a furnisher must conduct a reasonable investigation of a direct dispute if it relates to: (1) The consumer's liability for a credit account or other debt with the furnisher, such as direct disputes relating to whether there is or has been identity theft or fraud against the consumer, whether there is individual or joint liability on an account, or whether the consumer is an authorized user of a credit account; (2) The terms of a credit account or other debt with the furnisher, such as direct disputes relating to the type of account, principal balance, scheduled payment amount on an account, or the amount of the credit limit on an open-end account; (3) The consumer's performance or other conduct concerning an account or other relationship with the furnisher, such as direct disputes relating to the current payment status, high balance, date a payment was made, the amount of a payment made, or the date an account was opened or closed; or (4) Any other information contained in a consumer report regarding an account or other relationship with the furnisher that bears on the consumer's creditworthiness, credit standing, credit capacity, character, general reputation, personal characteristics, or mode of living. (b) Exceptions. The requirements of paragraph (a) of this section do not apply to a furnisher if: (1) The direct dispute relates to: (i) The consumer's identifying information (other than a direct dispute relating to a consumer's liability for a credit account or other debt with the furnisher, as provided in paragraph (a)(1) of this section) such as name(s), date of birth, Social Security number, telephone number(s), or address(es); (ii) The identity of past or present employers; (iii) Inquiries or requests for a consumer report; (iv) Information derived from public records, such as judgments, bankruptcies, liens, and other legal matters (unless provided by a furnisher with an account or other relationship with the consumer); (v) Information related to fraud alerts or active duty alerts; or (vi) Information provided to a consumer reporting agency by another furnisher; or (2) The furnisher has a reasonable belief that the direct dispute is submitted by, is prepared on behalf of the consumer by, or is submitted on a form supplied to the consumer by, a credit repair organization, as defined in 15 U.S.C. 1679a(3), or an entity that would be a credit repair organization, but for 15 U.S.C. 1679a(3)(B)(i). (c) Direct dispute address. A furnisher is required to investigate a direct dispute only if a consumer submits a dispute notice to the furnisher at: (1) The address of a furnisher provided by a furnisher and set forth on a consumer report relating to the consumer; (2) An address clearly and conspicuously specified by the furnisher for submitting direct disputes that is provided to the consumer in writing or electronically (if the consumer has agreed to the electronic delivery of information from the furnisher); or (3) Any business address of the furnisher if the furnisher has not so specified and provided an address for submitting direct disputes under paragraphs (c)(1) or (2) of this section. (d) Direct dispute notice contents. A dispute notice must include: (1) Sufficient information to identify the account or other relationship that is in dispute, such as an account number and the name, address, and telephone number of the consumer, if applicable; (2) The specific information that the consumer is disputing and an explanation of the basis for the dispute; and (3) All supporting documentation or other information reasonably required by the furnisher to substantiate the basis of the dispute. This documentation may include, for example: a copy of the relevant portion of the consumer report that contains the allegedly inaccurate information; a police report; a fraud or identity theft affidavit; a court order; or account statements. (e) Duty of"
+    },
+    {
+      "citation": "\u00a7 1022.54",
+      "kind": "section_sign",
+      "page": 1,
+      "text": "\u00a7 1022.54 Duties of users making written firm offers of credit or insurance based on information contained in consumer files. (a) Scope. This subpart applies to any person who uses a consumer report on any consumer in connection with any credit or insurance transaction that is not initiated by the consumer, and that is provided to that person under section 604(c)(1)(B) of the FCRA (15 U.S.C. 1681b(c)(1)(B)), except for a person excluded from coverage of this part by section 1029 of the Consumer Financial Protection Act of 2010, title X of the Dodd-Frank Wall Street Reform and Consumer Protection Act, Public Law 111-203, 124 Stat. 137. (b) Definitions. For purposes of this section and appendix D of this part, the following definitions apply: (1) Simple and easy to understand means: (i) A layered format as described in paragraph (c) of this section; (ii) Plain language designed to be understood by ordinary consumers; and (iii) Use of clear and concise sentences, paragraphs, and sections. (iv) Examples. For purposes of this part, examples of factors to be considered in determining whether a statement is in plain language and uses clear and concise sentences, paragraphs, and sections include: (A) Use of short explanatory sentences; (B) Use of definite, concrete, everyday words; (C) Use of active voice; (D) Avoidance of multiple negatives; (E) Avoidance of legal and technical business terminology; (F) Avoidance of explanations that are imprecise and reasonably subject to different interpretations; and (G) Use of language that is not misleading. (2) Principal promotional document means the document designed to be seen first by the consumer, such as the cover letter. (c) Prescreen opt-out notice. Any person who uses a consumer report on any consumer in connection with any credit or insurance transaction that is not initiated by the consumer, and that is provided to that person under section 604(c)(1)(B) of the FCRA (15 U.S.C. 1681b(c)(1)(B)), shall, with each written solicitation made to the consumer about the transaction, provide the consumer with the following statement, consisting of a short portion and a long portion, which shall be in the same language as the offer of credit or insurance: (1) Short notice. The short notice shall be a clear and conspicuous, and simple and easy to understand statement as follows: (i) Content. The short notice shall state that the consumer has the right to opt out of receiving prescreened solicitations, and shall provide the toll-free number the consumer can call to exercise that right. The short notice also shall direct the consumer to the existence and location of the long notice, and shall state the heading for the long notice. The short notice shall not contain any other information. (ii) Form. The short notice shall be: (A) In a type size that is larger than the type size of the principal text on the same page, but in no event smaller than 12 point type, or if provided by electronic means, then reasonable steps shall be taken to ensure that the type size is larger than the type size of the principal text on the same page; (B) On the front side of the first page of the principal promotional document in the solicitation, or, if provided electronically, on the same page and in close proximity to the principal marketing message; (C) Located on the page and in a format so that the statement is distinct from other text, such as inside a border; and (D) In a type style that is distinct from the principal type style used on the same page, such as bolded, italicized, underlined, and/or in a color that contrasts with the color of the principal text on the page, if the solicitation is in more than one color. (2) Long notice. The long notice shall be a clear and conspicuous, and simple and easy to understand statement as follows: (i) Content. The long notice shall state the information required by section 615(d) of the Fair Credit Reporting Act (15 U.S.C. 1681m(d)). The long notice shall not include any o"
+    },
+    {
+      "citation": "\u00a7\u00a7 1022.55-1022.59",
+      "kind": "section_sign",
+      "page": 1,
+      "text": "\u00a7\u00a7 1022.55-1022.59 [Reserved] Subpart G [Reserved] Subpart H\u2014Duties of Users Regarding Risk-Based Pricing"
+    },
+    {
+      "citation": "\u00a7 1022.70",
+      "kind": "section_sign",
+      "page": 1,
+      "text": "\u00a7 1022.70 Scope. (a) Coverage \u2014(1) In general. This subpart applies to any person, except for a person excluded from coverage of this part by section 1029 of the Consumer Financial Protection Act of 2010, title X of the Dodd-Frank Wall Street Reform and Consumer Protection Act, Public Law 111-203, 124 Stat. 137, that both: (i) Uses a consumer report in connection with an application for, or a grant, extension, or other provision of, credit to a consumer that is primarily for personal, family, or household purposes; and (ii) Based in whole or in part on the consumer report, grants, extends, or otherwise provides credit to the consumer on material terms that are materially less favorable than the most favorable material terms available to a substantial proportion of consumers from or through that person. (2) Business credit excluded. This subpart does not apply to an application for, or a grant, extension, or other provision of, credit to a consumer or to any other applicant primarily for a business purpose. (b) Enforcement. The provisions of this subpart will be enforced in accordance with the enforcement authority set forth in sections 621(a) and (b) of the FCRA."
+    },
+    {
+      "citation": "\u00a7 1022.71",
+      "kind": "section_sign",
+      "page": 1,
+      "text": "\u00a7 1022.71 Definitions. For purposes of this subpart, the following definitions apply: (a) Adverse action has the same meaning as in 15 U.S.C. 1681a(k)(1)(A). (b) Annual percentage rate has the same meaning as in 12 CFR 1026.14(b) with respect to an open-end credit plan and as in 12 CFR 1026.22 with respect to closed-end credit. (c) Closed-end credit has the same meaning as in 12 CFR 1026.2(a)(10). (d) Consumer has the same meaning as in 15 U.S.C. 1681a(c). (e) Consummation has the same meaning as in 12 CFR 1026.2(a)(13). (f) Consumer report has the same meaning as in 15 U.S.C. 1681a(d). (g) Consumer reporting agency has the same meaning as in 15 U.S.C. 1681a(f). (h) Credit has the same meaning as in 15 U.S.C. 1681a(r)(5). (i) Creditor has the same meaning as in 15 U.S.C. 1681a(r)(5). (j) Credit card has the same meaning as in 15 U.S.C. 1681a(r)(2). (k) Credit card issuer has the same meaning as card issuer, as defined in 15 U.S.C. 1681a(r)(1)(A). (l) Credit score has the same meaning as in 15 U.S.C. 1681g(f)(2)(A). (m) Firm offer of credit has the same meaning as in 15 U.S.C. 1681a(l). (n) Material terms means: (1)(i) Except as otherwise provided in paragraphs (n)(1)(ii) and (n)(3) of this section, in the case of credit extended under an open-end credit plan, the annual percentage rate required to be disclosed under 12 CFR 1026.6(a)(1)(ii) or 12 CFR 1026.6(b)(2)(i), excluding any temporary initial rate that is lower than the rate that will apply after the temporary rate expires, any penalty rate that will apply upon the occurrence of one or more specific events, such as a late payment or an extension of credit that exceeds the credit limit, and any fixed annual percentage rate option for a home equity line of credit; (ii) In the case of a credit card (other than a credit card that is used to access a home equity line of credit or a charge card), the annual percentage rate required to be disclosed under 12 CFR 1026.6(b)(2)(i) that applies to purchases (\u201cpurchase annual percentage rate\u201d) and no other annual percentage rate, or in the case of a credit card that has no purchase annual percentage rate, the annual percentage rate that varies based on information in a consumer report and that has the most significant financial impact on consumers; (2) In the case of closed-end credit, the annual percentage rate required to be disclosed under 12 CFR 1026.17(c) and 1026.18(e); and (3) In the case of credit for which there is no annual percentage rate, the financial term that varies based on information in a consumer report and that has the most significant financial impact on consumers, such as a deposit required in connection with credit extended by a telephone company or utility or an annual membership fee for a charge card. (o) Materially less favorable means, when applied to material terms, that the terms granted, extended, or otherwise provided to a consumer differ from the terms granted, extended, or otherwise provided to another consumer from or through the same person such that the cost of credit to the first consumer would be significantly greater than the cost of credit granted, extended, or otherwise provided to the other consumer. For purposes of this definition, factors relevant to determining the significance of a difference in cost include the type of credit product, the term of the credit extension, if any, and the extent of the difference between the material terms granted, extended, or otherwise provided to the two consumers. (p) Open-end credit plan has the same meaning as in 15 U.S.C. 1602(i), as interpreted by the Bureau in Regulation Z (12 CFR part 1026) and the Official Interpretations to Regulation Z (Supplement I to 12 CFR part 1026). (q) Person has the same meaning as in 15 U.S.C. 1681a(b)."
+    },
+    {
+      "citation": "\u00a7 1022.72",
+      "kind": "section_sign",
+      "page": 1,
+      "text": "\u00a7 1022.72 General requirements for risk-based pricing notices. (a) In general. Except as otherwise provided in this subpart, a person must provide to a consumer a notice (\u201crisk-based pricing notice\u201d) in the form and manner required by this subpart if the person both: (1) Uses a consumer report in connection with an application for, or a grant, extension, or other provision of, credit to that consumer that is primarily for personal, family, or household purposes; and (2) Based in whole or in part on the consumer report, grants, extends, or otherwise provides credit to that consumer on material terms that are materially less favorable than the most favorable material terms available to a substantial proportion of consumers from or through that person. (b) Determining which consumers must receive a notice. A person may determine whether paragraph (a) of this section applies by directly comparing the material terms offered to each consumer and the material terms offered to other consumers for a specific type of credit product. For purposes of this section, a \u201cspecific type of credit product\u201d means one or more credit products with similar features that are designed for similar purposes. Examples of a specific type of credit product include student loans, unsecured credit cards, secured credit cards, new automobile loans, used automobile loans, fixed-rate mortgage loans, and variable-rate mortgage loans. As an alternative to making this direct comparison, a person may make the determination by using one of the following methods: (1) Credit score proxy method \u2014(i) In general. A person that sets the material terms of credit granted, extended, or otherwise provided to a consumer, based in whole or in part on a credit score, may comply with the requirements of paragraph (a) of this section by: (A) Determining the credit score (hereafter referred to as the \u201ccutoff score\u201d) that represents the point at which approximately 40 percent of the consumers to whom it grants, extends, or provides credit have higher credit scores and approximately 60 percent of the consumers to whom it grants, extends, or provides credit have lower credit scores; and (B) Providing a risk-based pricing notice to each consumer to whom it grants, extends, or provides credit whose credit score is lower than the cutoff score. (ii) Alternative to the 40/60 cutoff score determination. In the case of credit that has been granted, extended, or provided on the most favorable material terms to more than 40 percent of consumers, a person may, at its option, set its cutoff score at a point at which the approximate percentage of consumers who historically have been granted, extended, or provided credit on material terms other than the most favorable terms would receive risk-based pricing notices under this section. (iii) Determining the cutoff score \u2014(A) Sampling approach. A person that currently uses risk-based pricing with respect to the credit products it offers must calculate the cutoff score by considering the credit scores of all or a representative sample of the consumers to whom it has granted, extended, or provided credit for a specific type of credit product. (B) Secondary source approach in limited circumstances. A person that is a new entrant into the credit business, introduces new credit products, or starts to use risk-based pricing with respect to the credit products it currently offers may initially determine the cutoff score based on information derived from appropriate market research or relevant third-party sources for a specific type of credit product, such as research or data from companies that develop credit scores. A person that acquires a credit portfolio as a result of a merger or acquisition may determine the cutoff score based on information from the party which it acquired, with which it merged, or from which it acquired the portfolio. (C) Recalculation of cutoff scores. A person using the credit score proxy method must recalculate its cutoff score(s"
+    },
+    {
+      "citation": "\u00a7 1022.73",
+      "kind": "section_sign",
+      "page": 1,
+      "text": "\u00a7 1022.73 Content, form, and timing of risk-based pricing notices. (a) Content of the notice \u2014(1) In general. The risk-based pricing notice required by \u00a7 1022.72(a) or (c) must include: (i) A statement that a consumer report (or credit report) includes information about the consumer's credit history and the type of information included in that history; (ii) A statement that the terms offered, such as the annual percentage rate, have been set based on information from a consumer report; (iii) A statement that the terms offered may be less favorable than the terms offered to consumers with better credit histories; (iv) A statement that the consumer is encouraged to verify the accuracy of the information contained in the consumer report and has the right to dispute any inaccurate information in the report; (v) The identity of each consumer reporting agency that furnished a consumer report used in the credit decision; (vi) A statement that Federal law gives the consumer the right to obtain a copy of a consumer report from the consumer reporting agency or agencies identified in the notice without charge for 60 days after receipt of the notice; (vii) A statement informing the consumer how to obtain a consumer report from the consumer reporting agency or agencies identified in the notice and providing contact information (including a toll-free telephone number, where applicable) specified by the consumer reporting agency or agencies; (viii) A statement directing consumers to the Web site of the Bureau to obtain more information about consumer reports; and (ix) If a credit score of the consumer to whom a person grants, extends, or otherwise provides credit is used in setting the material terms of credit: (A) A statement that a credit score is a number that takes into account information in a consumer report, that the consumer's credit score was used to set the terms of credit offered, and that a credit score can change over time to reflect changes in the consumer's credit history; (B) The credit score used by the person in making the credit decision; (C) The range of possible credit scores under the model used to generate the credit score; (D) All of the key factors that adversely affected the credit score, which shall not exceed four key factors, except that if one of the key factors is the number of enquiries made with respect to the consumer report, the number of key factors shall not exceed five; (E) The date on which the credit score was created; and (F) The name of the consumer reporting agency or other person that provided the credit score. (2) Account review. The risk-based pricing notice required by \u00a7 1022.72(d) must include: (i) A statement that a consumer report (or credit report) includes information about the consumer's credit history and the type of information included in that credit history; (ii) A statement that the person has conducted a review of the account using information from a consumer report; (iii) A statement that as a result of the review, the annual percentage rate on the account has been increased based on information from a consumer report; (iv) A statement that the consumer is encouraged to verify the accuracy of the information contained in the consumer report and has the right to dispute any inaccurate information in the report; (v) The identity of each consumer reporting agency that furnished a consumer report used in the account review; (vi) A statement that Federal law gives the consumer the right to obtain a copy of a consumer report from the consumer reporting agency or agencies identified in the notice without charge for 60 days after receipt of the notice; (vii) A statement informing the consumer how to obtain a consumer report from the consumer reporting agency or agencies identified in the notice and providing contact information (including a toll-free telephone number, where applicable) specified by the consumer reporting agency or agencies; (viii) A statement directing consumers to the Web "
+    },
+    {
+      "citation": "\u00a7 1022.74",
+      "kind": "section_sign",
+      "page": 1,
+      "text": "\u00a7 1022.74 Exceptions. (a) Application for specific terms \u2014(1) In general. A person is not required to provide a risk-based pricing notice to the consumer under \u00a7 1022.72(a) or (c) if the consumer applies for specific material terms and is granted those terms, unless those terms were specified by the person using a consumer report after the consumer applied for or requested credit and after the person obtained the consumer report. For purposes of this section, \u201cspecific material terms\u201d means a single material term, or set of material terms, such as an annual percentage rate of 10 percent, and not a range of alternatives, such as an annual percentage rate that may be 8, 10, or 12 percent, or between 8 and 12 percent. (2) Example. A consumer receives a firm offer of credit from a credit card issuer. The terms of the firm offer are based in whole or in part on information from a consumer report that the credit card issuer obtained under the FCRA's firm offer of credit provisions. The solicitation offers the consumer a credit card with a single purchase annual percentage rate of 12 percent. The consumer applies for and receives a credit card with an annual percentage rate of 12 percent. Other customers with the same credit card have a purchase annual percentage rate of 10 percent. The exception applies because the consumer applied for specific material terms and was granted those terms. Although the credit card issuer specified the annual percentage rate in the firm offer of credit based in whole or in part on a consumer report, the credit card issuer specified that material term before, not after, the consumer applied for or requested credit. (b) Adverse action notice. A person is not required to provide a risk-based pricing notice to the consumer under \u00a7 1022.72(a), (c), or (d) if the person provides an adverse action notice to the consumer under section 615(a) of the FCRA. (c) Prescreened solicitations \u2014(1) In general. A person is not required to provide a risk-based pricing notice to the consumer under \u00a7 1022.72(a) or (c) if the person: (i) Obtains a consumer report that is a prescreened list as described in section 604(c)(2) of the FCRA; and (ii) Uses the consumer report for the purpose of making a firm offer of credit to the consumer. (2) More favorable material terms. This exception applies to any firm offer of credit offered by a person to a consumer, even if the person makes other firm offers of credit to other consumers on more favorable material terms. (3) Example. A credit card issuer obtains two prescreened lists from a consumer reporting agency. One list includes consumers with high credit scores. The other list includes consumers with low credit scores. The issuer mails a firm offer of credit to the high credit score consumers with a single purchase annual percentage rate of 10 percent. The issuer also mails a firm offer of credit to the low credit score consumers with a single purchase annual percentage rate of 14 percent. The credit card issuer is not required to provide a risk-based pricing notice to the low credit score consumers who receive the 14 percent offer because use of a consumer report to make a firm offer of credit does not trigger the risk-based pricing notice requirement. (d) Loans secured by residential real property\u2014credit score disclosure \u2014(1) In general. A person is not required to provide a risk-based pricing notice to a consumer under \u00a7 1022.72(a) or (c) if: (i) The consumer requests from the person an extension of credit that is or will be secured by one to four units of residential real property; and (ii) The person provides to each consumer described in paragraph (d)(1)(i) of this section a notice that contains the following: (A) A statement that a consumer report (or credit report) is a record of the consumer's credit history and includes information about whether the consumer pays his or her obligations on time and how much the consumer owes to creditors; (B) A statement that a credit score"
+    },
+    {
+      "citation": "\u00a7 1022.75",
+      "kind": "section_sign",
+      "page": 1,
+      "text": "\u00a7 1022.75 Rules of construction. For purposes of this subpart, the following rules of construction apply: (a) One notice per credit extension. A consumer is entitled to no more than one risk-based pricing notice under \u00a7 1022.72(a) or (c), or one notice under \u00a7 1022.74(d), (e), or (f), for each grant, extension, or other provision of credit. Notwithstanding the foregoing, even if a consumer has previously received a risk-based pricing notice in connection with a grant, extension, or other provision of credit, another risk-based pricing notice is required if the conditions set forth in \u00a7 1022.72(d) have been met. (b) Multi-party transactions \u2014(1) Initial creditor. The person to whom a credit obligation is initially payable must provide the risk-based pricing notice described in \u00a7 1022.72(a) or (c), or satisfy the requirements for and provide the notice required under one of the exceptions in \u00a7 1022.74(d), (e), or (f), even if that person immediately assigns the credit agreement to a third party and is not the source of funding for the credit. (2) Purchasers or assignees. A purchaser or assignee of a credit contract with a consumer is not subject to the requirements of this subpart and is not required to provide the risk-based pricing notice described in \u00a7 1022.72(a) or (c), or satisfy the requirements for and provide the notice required under one of the exceptions in \u00a7 1022.74(d), (e), or (f). (3) Example. A consumer obtains credit to finance the purchase of an automobile. If a bank or finance company is the person to whom the loan obligation is initially payable, the bank or finance company must provide the risk-based pricing notice to the consumer (or satisfy the requirements for and provide the notice required under one of the exceptions noted above) based on the terms offered by that bank or finance company only. The auto dealer has no duty to provide a risk-based pricing notice to the consumer. However, the bank or finance company may comply with this rule if the auto dealer has agreed to provide notices to consumers before consummation pursuant to an arrangement with the bank or finance company, as permitted under \u00a7 1022.73(c). (c) Multiple consumers \u2014(1) Risk-based pricing notices. In a transaction involving two or more consumers who are granted, extended, or otherwise provided credit, a person must provide a notice to each consumer to satisfy the requirements of \u00a7 1022.72(a) or (c). Whether the consumers have the same address or not, the person must provide a separate notice to each consumer if a notice includes a credit score(s). Each separate notice that includes a credit score(s) must contain only the credit score(s) of the consumer to whom the notice is provided, and not the credit score(s) of the other consumer. If the consumers have the same address, and the notice does not include a credit score(s), a person may satisfy the requirements by providing a single notice addressed to both consumers. (2) Credit score disclosure notices. In a transaction involving two or more consumers who are granted, extended, or otherwise provided credit, a person must provide a separate notice to each consumer to satisfy the exceptions in \u00a7 1022.74(d), (e), or (f). Whether the consumers have the same address or not, the person must provide a separate notice to each consumer. Each separate notice must contain only the credit score(s) of the consumer to whom the notice is provided, and not the credit score(s) of the other consumer. (3) Examples. (i) Two consumers jointly apply for credit with a creditor. The creditor obtains credit scores on both consumers. Based in part on the credit scores, the creditor grants credit to the consumers on material terms that are materially less favorable than the most favorable terms available to other consumers from the creditor. The creditor provides risk-based pricing notices to satisfy its obligations under this subpart. The creditor must provide a separate risk-based pricing notice to each consumer"
+    },
+    {
+      "citation": "\u00a7 1022.82",
+      "kind": "section_sign",
+      "page": 1,
+      "text": "\u00a7 1022.82 Duties of users regarding address discrepancies. (a) Scope. This section applies to a user of consumer reports (user) that receives a notice of address discrepancy from a consumer reporting agency described in 15 U.S.C. 1681a(p), except for a person excluded from coverage of this part by section 1029 of the Consumer Financial Protection Act of 2010, title X of the Dodd-Frank Wall Street Reform and Consumer Protection Act, Public Law 111-203, 124 Stat. 137. (b) Definition. For purposes of this section, a notice of address discrepancy means a notice sent to a user by a consumer reporting agency described in 15 U.S.C. 1681a(p) pursuant to 15 U.S.C. 1681c(h)(1), that informs the user of a substantial difference between the address for the consumer that the user provided to request the consumer report and the address(es) in the agency's file for the consumer. (c) Reasonable belief \u2014(1) Requirement to form a reasonable belief. A user must develop and implement reasonable policies and procedures designed to enable the user to form a reasonable belief that a consumer report relates to the consumer about whom it has requested the report, when the user receives a notice of address discrepancy. (2) Examples of reasonable policies and procedures. (i) Comparing the information in the consumer report provided by the consumer reporting agency with information the user: (A) Obtains and uses to verify the consumer's identity in accordance with the requirements of the Customer Identification Program (CIP) rules implementing 31 U.S.C. 5318(l) (31 CFR 1020.220); (B) Maintains in its own records, such as applications, change of address notifications, other customer account records, or retained CIP documentation; or (C) Obtains from third-party sources; or (ii) Verifying the information in the consumer report provided by the consumer reporting agency with the consumer. (d) Consumer's address \u2014(1) Requirement to furnish consumer's address to a consumer reporting agency. A user must develop and implement reasonable policies and procedures for furnishing an address for the consumer that the user has reasonably confirmed is accurate to the consumer reporting agency described in 15 U.S.C. 1681a(p) from whom it received the notice of address discrepancy when the user: (i) Can form a reasonable belief that the consumer report relates to the consumer about whom the user requested the report; (ii) Establishes a continuing relationship with the consumer; and (iii) Regularly and in the ordinary course of business furnishes information to the consumer reporting agency from which the notice of address discrepancy relating to the consumer was obtained. (2) Examples of confirmation methods. The user may reasonably confirm an address is accurate by: (i) Verifying the address with the consumer about whom it has requested the report; (ii) Reviewing its own records to verify the address of the consumer; (iii) Verifying the address through third-party sources; or (iv) Using other reasonable means. (3) Timing. The policies and procedures developed in accordance with paragraph (d)(1) of this section must provide that the user will furnish the consumer's address that the user has reasonably confirmed is accurate to the consumer reporting agency described in 15 U.S.C. 1681a(p) as part of the information it regularly furnishes for the reporting period in which it establishes a relationship with the consumer. Subparts J-L [Reserved] Subpart M\u2014Duties of Consumer Reporting Agencies Regarding Identity Theft"
+    },
+    {
+      "citation": "\u00a7 1022.121",
+      "kind": "section_sign",
+      "page": 1,
+      "text": "\u00a7 1022.121 Active duty alerts. (a) Duration. The duration of an active duty alert shall be twelve months."
+    },
+    {
+      "citation": "\u00a7 1022.123",
+      "kind": "section_sign",
+      "page": 1,
+      "text": "\u00a7 1022.123 Appropriate proof of identity. (a) Consumer reporting agencies shall develop and implement reasonable requirements for what information consumers shall provide to constitute proof of identity for purposes of sections 605A, 605B, and 609(a)(1) of the FCRA. In developing these requirements, the consumer reporting agencies must: (1) Ensure that the information is sufficient to enable the consumer reporting agency to match consumers with their files; and (2) Adjust the information to be commensurate with an identifiable risk of harm arising from misidentifying the consumer. (b) Examples of information that might constitute reasonable information requirements for proof of identity are provided for illustrative purposes only, as follows: (1) Consumer file match. The identification information of the consumer including his or her full name (first, middle initial, last, suffix), any other or previously used names, current and/or recent full address (street number and name, apt. no., city, state, and zip code), full nine digits of Social Security number, and/or date of birth. (2) Additional proof of identity. Copies of government issued identification documents, utility bills, and/or other methods of authentication of a person's identity which may include, but would not be limited to, answering questions to which only the consumer might be expected to know the answer."
+    },
+    {
+      "citation": "\u00a7\u00a7 1022.124-1022.129",
+      "kind": "section_sign",
+      "page": 1,
+      "text": "\u00a7\u00a7 1022.124-1022.129 [Reserved] Subpart N\u2014Duties of Consumer Reporting Agencies Regarding Disclosures to Consumers"
+    },
+    {
+      "citation": "\u00a7 1022.130",
+      "kind": "section_sign",
+      "page": 1,
+      "text": "\u00a7 1022.130 Definitions. For purposes of this subpart, the following definitions apply: (a) Annual file disclosure means a file disclosure that is provided to a consumer, upon consumer request and without charge, once in any twelve month period, in compliance with section 612(a) of the FCRA, 15 U.S.C. 1681j(a). (b) Associated consumer reporting agency means a consumer reporting agency that owns or maintains consumer files housed within systems operated by one or more nationwide consumer reporting agencies. (c) Consumer report has the meaning provided in section 603(d) of the FCRA, 15 U.S.C. 1681a(d). (d) Consumer reporting agency has the meaning provided in section 603(f) of the FCRA, 15 U.S.C. 1681a(f). (e) Extraordinary request volume occurs when the number of consumers requesting or attempting to request file disclosures during any twenty-four hour period is more than 175 percent of the rolling ninety-day daily average of consumers requesting or attempting to request file disclosures. For example, if over the previous ninety days an average of one hundred consumers per day requested or attempted to request file disclosures, then extraordinary request volume would be any volume greater than 175 percent of one hundred, i.e., 176 or more requests in a single twenty-four hour period. (f) File disclosure means a disclosure by a consumer reporting agency pursuant to section 609 of the FCRA, 15 U.S.C. 1681g. (g) High request volume occurs when the number of consumers requesting or attempting to request file disclosures during any twenty-four hour period is more than 125 percent of the rolling ninety-day daily average of consumers requesting or attempting to request file disclosures. For example, if over the previous ninety days an average of one hundred consumers per day requested or attempted to request file disclosures, then high request volume would be any volume greater than 125 percent of one hundred, i.e., 126 or more requests in a single twenty-four hour period. (h) Nationwide consumer reporting agency means a consumer reporting agency that compiles and maintains files on consumers on a nationwide basis as defined in section 603(p) of the FCRA, 15 U.S.C. 1681a(p). (i) Nationwide specialty consumer reporting agency has the meaning provided in section 603(w) of the FCRA, 15 U.S.C. 1681a(w). (j) Request method means the method by which a consumer chooses to communicate a request for an annual file disclosure."
+    },
+    {
+      "citation": "\u00a7 1022.136",
+      "kind": "section_sign",
+      "page": 1,
+      "text": "\u00a7 1022.136 Centralized source for requesting annual file disclosures from nationwide consumer reporting agencies. (a) Purpose. The purpose of the centralized source is to enable consumers to make a single request to obtain annual file disclosures from all nationwide consumer reporting agencies, as required under section 612(a) of the FCRA, 15 U.S.C. 1681j(a). (b) Establishment and operation. All nationwide consumer reporting agencies shall jointly design, fund, implement, maintain, and operate a centralized source for the purpose described in Paragraph (a) of this section. The centralized source required by this part shall: (1) Enable consumers to request annual file disclosures by any of the following request methods, at the consumers' option: (i) A single, dedicated Web site, (ii) A single, dedicated toll-free telephone number; and (iii) Mail directed to a single address; (2) Be designed, funded, implemented, maintained, and operated in a manner that: (i) Has adequate capacity to accept requests from the reasonably anticipated volume of consumers contacting the centralized source through each request method, as determined in accordance with Paragraph (c) of this section; (ii) Collects only as much personally identifiable information as is reasonably necessary to properly identify the consumer as required under the FCRA, section 610(a)(1), 15 U.S.C. 1681h(a)(1), and other applicable laws and regulations, and to process the transaction(s) requested by the consumer; (iii) Provides information through the centralized source Web site and telephone number regarding how to make a request by all request methods required under paragraph (b)(1) of this section; and (iv) Provides clear and easily understandable information and instructions to consumers, including, but not necessarily limited to: (A) Providing information on the progress of the consumer's request while the consumer is engaged in the process of requesting a file disclosure; (B) For a Web site request method, providing access to a \u201chelp\u201d or \u201cfrequently asked questions\u201d screen, which includes specific information that consumers might reasonably need to request file disclosures, the answers to questions that consumers might reasonably ask, and instructions whereby a consumer may file a complaint with the centralized source and with the Bureau; (C) In the event that a consumer requesting a file disclosure through the centralized source cannot be properly identified in accordance with the FCRA, section 610(a)(1), 15 U.S.C. 1681h(a)(1), and other applicable laws and regulations, providing a statement that the consumers' identity cannot be verified; and directions on how to complete the request, including what additional information or documentation will be required to complete the request, and how to submit such information; and (D) A statement indicating that the consumer has reached the Web site or telephone number for ordering free annual credit reports as required by Federal law; and (3) Make available to consumers a standardized form established jointly by the nationwide consumer reporting agencies, which consumers may use to make a request for an annual file disclosure, either by mail or on the Web site required under paragraph (b)(1) of this section, from the centralized source required by this part. The form provided at appendix L to part 1022, may be used to comply with this section. (c) Requirement to anticipate. The nationwide consumer reporting agencies shall implement reasonable procedures to anticipate, and to respond to, the volume of consumers who will contact the centralized source through each request method, to request, or attempt to request, a file disclosure, including developing and implementing contingency plans to address circumstances that are reasonably likely to occur and that may materially and adversely impact the operation of the nationwide consumer reporting agency, a centralized source request method, or the centralized source. (1) The contingen"
+    },
+    {
+      "citation": "\u00a7 1022.137",
+      "kind": "section_sign",
+      "page": 1,
+      "text": "\u00a7 1022.137 Streamlined process for requesting annual file disclosures from nationwide specialty consumer reporting agencies. (a) Streamlined process requirements. Any nationwide specialty consumer reporting agency shall have a streamlined process for accepting and processing consumer requests for annual file disclosures. The streamlined process required by this part shall: (1) Enable consumers to request annual file disclosures by a toll-free telephone number that: (i) Provides clear and prominent instructions for requesting disclosures by any additional available request methods, that do not interfere with, detract from, contradict, or otherwise undermine the ability of consumers to obtain annual file disclosures through the streamlined process required by this part; (ii) Is published, in conjunction with all other published numbers for the nationwide specialty consumer reporting agency, in any telephone directory in which any telephone number for the nationwide specialty consumer reporting agency is published; and(iii) Is clearly and prominently posted on any Web site owned or maintained by the nationwide specialty consumer reporting agency that is related to consumer reporting, along with instructions for requesting disclosures by any additional available request methods; and (2) Be designed, funded, implemented, maintained, and operated in a manner that: (i) Has adequate capacity to accept requests from the reasonably anticipated volume of consumers contacting the nationwide specialty consumer reporting agency through the streamlined process, as determined in compliance with Paragraph (b) of this section; (ii) Collects only as much personal information as is reasonably necessary to properly identify the consumer as required under the FCRA, section 610(a)(1), 15 U.S.C. 1681h(a)(1), and other applicable laws and regulations; and (iii) Provides clear and easily understandable information and instructions to consumers, including but not necessarily limited to: (A) Providing information on the status of the consumers request while the consumer is in the process of making a request; (B) For a Web site request method, providing access to a \u201chelp\u201d or \u201cfrequently asked questions\u201d screen, which includes more specific information that consumers might reasonably need to order their file disclosure, the answers to questions that consumers might reasonably ask, and instructions whereby a consumer may file a complaint with the nationwide specialty consumer reporting agency and with the Bureau; and (C) In the event that a consumer requesting a file disclosure cannot be properly identified in accordance with the FCRA, section 610(a)(1), 15 U.S.C. 1681h(a)(1), and other applicable laws and regulations, providing a statement that the consumers identity cannot be verified; and directions on how to complete the request, including what additional information or documentation will be required to complete the request, and how to submit such information. (b) Requirement to anticipate. A nationwide specialty consumer reporting agency shall implement reasonable procedures to anticipate, and respond to, the volume of consumers who will contact the nationwide specialty consumer reporting agency through the streamlined process to request, or attempt to request, file disclosures, including developing and implementing contingency plans to address circumstances that are reasonably likely to occur and that may materially and adversely impact the operation of the nationwide specialty consumer reporting agency, a request method, or the streamlined process. (1) The contingency plans required by this section shall include reasonable measures to minimize the impact of such circumstances on the operation of the streamlined process and on consumers contacting, or attempting to contact, the nationwide specialty consumer reporting agency through the streamlined process. (i) Such reasonable measures to minimize impact shall include, but are not necessarily limited t"
+    },
+    {
+      "citation": "\u00a7 1022.138",
+      "kind": "section_sign",
+      "page": 1,
+      "text": "\u00a7 1022.138 Prevention of deceptive marketing of free credit reports. (a) For purposes of this section: (1) AnnualCreditReport.com and (877) 322-8228 means the Uniform Resource Locator address \u201cAnnualCreditReport.com\u201d and toll-free telephone number, (877) 322-8228. These are the locator address and toll-free telephone number currently used by the centralized source. If the locator address or toll-free telephone number changes in the future, the new address or telephone number shall be substituted within a reasonable time. (2) Free credit report means a file disclosure prepared by or obtained from, directly or indirectly, a nationwide consumer reporting agency (as defined in section 603(p) of the FCRA), that is represented, either expressly or impliedly, to be available to the consumer at no cost if the consumer purchases a product or service, or agrees to purchase a product or service subject to cancellation. (3) General requirements for disclosures. The disclosures covered by Paragraph (b) of this section shall contain only the prescribed content and comply with the following requirements: (i) All disclosures shall be prominent; (ii) All disclosures shall be made in the same language as that principally used in the advertisement; (iii) Visual disclosures shall be easily readable; in a high degree of contrast from the immediate background on which it appears; in a format so that the disclosure is distinct from other text, such as inside a border; in a distinct type style, such as bold; and parallel to the base of the advertisement or screen; (iv) Audio disclosures shall be delivered in a slow and deliberate manner and in a reasonably understandable volume and pitch; (v) Program-length television, radio, or Internet-hosted multimedia advertisement disclosures shall be made at the beginning, near the middle, and at the end of the advertisement; and (vi) Nothing contrary to, inconsistent with, or that undermines the required disclosures shall be used in any advertisement in any medium, nor shall any audio, visual, or print technique be used that is likely to detract significantly from the communication of any disclosure. (b) Medium-specific disclosures. All offers of free credit reports shall prominently include the disclosures required by this section. (1) Television advertisements. (i) All advertisements for free credit reports broadcast on television shall include the following disclosure in close proximity to the first mention of a free credit report: \u201cThis is not the free credit report provided for by Federal law.\u201d (ii) The disclosure shall appear at the same time in the audio and visual part of the advertisement. The visual disclosure shall be at least four percent of the vertical picture height and appear for a minimum of four seconds. (2) Radio advertisements. All advertisements for free credit reports broadcast on radio shall include the following disclosure in close proximity to the first mention of a free credit report: \u201cThis is not the free credit report provided for by Federal law.\u201d (3) Print advertisements. All advertisements for free credit reports in print shall include the following disclosure in the form specified below and in close proximity to the first mention of a free credit report. The first line of the disclosure shall be centered and contain only the following language: \u201cTHIS NOTICE IS REQUIRED BY LAW.\u201d Immediately below the first line of the disclosure the following language shall appear: \u201cYou have the right to a free credit report from AnnualCreditReport.com or (877) 322-8228, the ONLY authorized source under Federal law.\u201d Each letter of the disclosure text shall be, at minimum, one-half the size of the largest character used in the advertisement. (4) Web sites. Any Web site offering free credit reports must display the disclosure set forth in paragraphs (b)(4)(i), (ii), and (v) of this section on each page that mentions a free credit report and on each page of the ordering process. This disclosure shal"
+    },
+    {
+      "citation": "\u00a7 1022.139",
+      "kind": "section_sign",
+      "page": 1,
+      "text": "\u00a7 1022.139 [Reserved] Subpart O\u2014Miscellaneous Duties of Consumer Reporting Agencies"
+    },
+    {
+      "citation": "\u00a7 1022.140",
+      "kind": "section_sign",
+      "page": 1,
+      "text": "\u00a7 1022.140 Prohibition against circumventing or evading treatment as a consumer reporting agency. (a) A consumer reporting agency shall not circumvent or evade treatment as a \u201cconsumer reporting agency that compiles and maintains files on consumers on a nationwide basis,\u201d as defined under section 603(p) of the FCRA, 15 U.S.C. 1681a(p), by any means, including, but not limited to: (1) Corporate organization, reorganization, structure, or restructuring, including merger, acquisition, dissolution, divestiture, or asset sale of a consumer reporting agency; or (2) Maintaining or merging public record and credit account information in a manner that is substantially equivalent to that described in Paragraphs (1) and (2) of section 603(p) of the FCRA, 15 U.S.C. 1681a(p). (b) Examples: (1) Circumvention through reorganization by data type. XYZ Inc. is a consumer reporting agency that compiles and maintains files on consumers on a nationwide basis. It restructures its operations so that public record information is assembled and maintained only by its corporate affiliate, ABC Inc. XYZ continues operating as a consumer reporting agency but ceases to comply with the FCRA obligations of a consumer reporting agency that compiles and maintains files on consumers on a nationwide basis, asserting that it no longer meets the definition found in FCRA section 603(p), because it no longer maintains public record information. XYZ's conduct is a circumvention or evasion of treatment as a consumer reporting agency that compiles and maintains files on consumers on a nationwide basis, and thus violates this section. (2) Circumvention through reorganization by regional operations. PDQ Inc. is a consumer reporting agency that compiles and maintains files on consumers on a nationwide basis. It restructures its operations so that corporate affiliates separately assemble and maintain all information on consumers residing in each state. PDQ continues to operate as a consumer reporting agency but ceases to comply with the FCRA obligations of a consumer reporting agency that compiles and maintains files on consumers on a nationwide basis, asserting that it no longer meets the definition found in FCRA section 603(p), because it no longer operates on a nationwide basis. PDQ's conduct is a circumvention or evasion of treatment as a consumer reporting agency that compiles and maintains files on consumers on a nationwide basis, and thus violates this section. (3) Circumvention by a newly formed entity. Smith Co. is a new entrant in the marketplace for consumer reports that bear on a consumer's credit worthiness, standing and capacity. Smith Co. organizes itself into two affiliated companies: Smith Credit Co. and Smith Public Records Co. Smith Credit Co. assembles and maintains credit account information from persons who furnish that information regularly and in the ordinary course of business on consumers residing nationwide. Smith Public Records Co. assembles and maintains public record information on consumers nationwide. Neither Smith Co. nor its affiliated organizations comply with FCRA obligations of consumer reporting agencies that compile and maintain files on consumers on a nationwide basis. Smith Co.'s conduct is a circumvention or evasion of treatment as a consumer reporting agency that compiles and maintains files on consumers on a nationwide basis, and thus violates this section. (4) Bona fide, arm's length transaction with unaffiliated party. Foster Ltd. is a consumer reporting agency that compiles and maintains files on consumers on a nationwide basis. Foster Ltd. sells its public record information business to an unaffiliated company in a bona fide, arm's length transaction. Foster Ltd. ceases to assemble, evaluate and maintain public record information on consumers residing nationwide, and ceases to offer reports containing public record information. Foster Ltd.'s conduct is not a circumvention or evasion of treatment as a consumer reporting agency "
+    },
+    {
+      "citation": "\u00a7 1022.141",
+      "kind": "section_sign",
+      "page": 1,
+      "text": "\u00a7 1022.141 Reasonable charges for certain disclosures. Pursuant to section 612(f) of the FCRA, 15 U.S.C. 1681j(f), the charge imposed by a consumer reporting agency for a disclosure to the consumer pursuant to section 609 of the FCRA, 15 U.S.C. 1681g, shall not exceed the maximum allowable charge set by the Bureau. [84 FR 517, Jan. 31, 2019]"
+    },
+    {
+      "citation": "\u00a7 1022.142",
+      "kind": "section_sign",
+      "page": 1,
+      "text": "\u00a7 1022.142 Prohibition on inclusion of adverse information in consumer reporting in cases of human trafficking. (a) Scope. This section applies to any consumer reporting agency as defined in section 603(f) of the FCRA, 15 U.S.C. 1681a(f). (b) Definitions. For purposes of this section: (1) Appropriate proof of identity means proof of identity that meets the requirements in \u00a7 1022.123, for purposes of section 605C of the FCRA. (2) Consumer report has the meaning provided in section 603(d) of the FCRA, 15 U.S.C. 1681a(d). (3) Consumer reporting agency has the meaning provided in section 603(f) of the FCRA, 15 U.S.C. 1681a(f). (4) Severe forms of trafficking in persons has the meaning provided in section 103 of the Trafficking Victims Protection Act of 2000, 22 U.S.C. 7102(11). (5) Sex trafficking has the meaning provided in section 103 of the Trafficking Victims Protection Act of 2000, as amended by section 108 of the Justice for Victims of Trafficking Act of 2015, 22 U.S.C. 7102(12). (6) Trafficking documentation means one or more documents that satisfy paragraphs (b)(6)(i) and (ii) of this section: (i) Victim determination. Documentation that: (A) Is of a determination that a consumer is a victim of trafficking made by a: ( 1 ) Federal, State, or Tribal governmental entity; or ( 2 ) Non-governmental organization or members of a human trafficking task force, including victim service providers affiliated with the organization or task force, authorized by a Federal, State, or Tribal governmental entity to make such a determination; (B) Is of a determination that a consumer is a victim of trafficking made by a court of competent jurisdiction or determination consisting of documents filed in a court of competent jurisdiction where a central issue in the case is whether the consumer is a victim of trafficking and the court has, at a minimum, affirmed the consumer's claim either by accepting certain pieces of evidence which are assumed to be true or finding that the there is no genuine dispute as to any material fact supporting a judgment in favor of the victim as a matter of law; or (C) Is of a signed statement by the consumer attesting that the consumer is a victim of trafficking if such statement or an accompanying document is signed or certified by a representative of an entity described in paragraph (b)(6)(i)(A) or (B) of this section. (ii) Identified adverse items of information. Documentation, which may consist of a statement prepared by the consumer or by any designated representative on behalf of a consumer (except for a credit repair organization as defined in section 403(3) of the Credit Repair Organizations Act, 15 U.S.C. 1679a(3), or an entity that would be a credit repair organization, but for section 403(3)(B)(i) of the Credit Repair Organizations Act, 15 U.S.C. 1679a(3)(B)(i)), that: (A) Identifies any items of adverse information that should not be furnished by a consumer reporting agency because the items resulted from a severe form of trafficking in persons or sex trafficking of which the consumer is a victim; and (B) Must contain a preferred method for a consumer reporting agency to contact the consumer electronically or in writing such as an email address or physical address where mail can be received. A consumer reporting agency shall use only the consumer's preferred method of contact for communications under paragraphs (d), (e), and (f) of this section about the consumer's submission and shall not use the consumer's preferred contact information for any other purpose. (7) Victim of trafficking means a person who is a victim of a severe form of trafficking in persons or sex trafficking. (c) Prohibition on inclusion of adverse information of trafficking victims. A consumer reporting agency may not furnish a consumer report containing any adverse item of information about a consumer that resulted from a severe form of trafficking in persons or sex trafficking if the consumer has provided trafficking documentation "
+    },
+    {
+      "citation": "612(f)",
+      "kind": "subsection",
+      "page": 1,
+      "text": "Section 612(f) of the FCRA, 15 U.S.C. 1681j(f), directs the Bureau to increase the maximum allowable charge a consumer reporting agency may impose for making a disclosure to the consumer pursuant to section 609 of the FCRA, 15 U.S.C. 1681g, on January 1 of each year, based proportionally on changes in the Consumer Price Index, with fractional changes rounded to the nearest fifty cents. The Bureau will publish notice of the maximum allowable charge each year by amending this appendix. For calendar year 2026, the maximum allowable charge is $16.00. For historical purposes: 1. For calendar year 2012, the maximum allowable disclosure charge was $11.50. 2. For calendar year 2013, the maximum allowable disclosure charge was $11.50. 3. For calendar year 2014, the maximum allowable disclosure charge was $11.50. 4. For calendar year 2015, the maximum allowable disclosure charge was $12.00. 5. For calendar year 2016, the maximum allowable disclosure charge was $12.00. 6. For calendar year 2017, the maximum allowable disclosure charge was $12.00. 7. For calendar year 2018, the maximum allowable disclosure charge was $12.00. 8. For calendar year 2019, the maximum allowable disclosure charge was $12.50. 9. For calendar year 2020, the maximum allowable disclosure charge was $12.50. 10. For calendar year 2021, the maximum allowable disclosure charge was $13.00. 11. For calendar year 2022, the maximum allowable disclosure charge was $13.50. 12. For calendar year 2023, the maximum allowable disclosure charge was $14.50. 13. For calendar year 2024, the maximum allowable disclosure charge was $15.50. 14. For calendar year 2025, the maximum allowable disclosure charge was $15.50. 15. For calendar year 2026, the maximum allowable disclosure charge is $16.00. [90 FR 57889, Dec. 15, 2025]"
+    }
+  ],
+  "authority_class": "regulation",
+  "authority_class_basis": "Title of the work is a CFR part citation, which fixes the class"
+}
