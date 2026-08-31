@@ -2452,3 +2452,55 @@ the doctrine files but declares only ~55 generic terms; `laches` is a dictionary
 headword, not an indexed term, and the corpora carry 7,397 indexed terms that are
 mostly boilerplate phrases. Declaring dictionary headwords as routing vocabulary
 is not the answer and neither is a bodge, so it is written down instead.
+
+### 2026-08-31 — How a thing was learned is part of the thing
+
+The grower read one of Grow's own training sources and found something the
+search was not looking for: *"GrowAgent found this resource because it had a
+healthy picture, but the resource behind it was a brilliant idea."* The source
+states that cannabis fan leaves carry vitamin C, K, iron, calcium and dietary
+fibre plus flavonoids with antioxidant activity, and are edible.
+
+The training loop keeps the image and the label and throws the rest away. That
+is the gap: **knowledge found incidentally, while doing something else, is still
+knowledge** - and it arrives with different provenance from a lesson the grow
+paid for.
+
+`record_knowledge` could not express that difference. A lesson proven by this
+grow's own ppm and leaf response and a sentence read on a website were stored
+identically, which makes CLAUDE.md's *lived data outranks documentation* rule
+unenforceable - the store could not tell which was which.
+
+**`evidence_kind` is now required and has no default:** `observed` (this grow
+measured it), `read` (a source states it, unverified here), `reported` (the
+grower said it), `inferred` (derived from records). A guessed value is worse
+than a blank one - it launders a claim into the field the reasoning layer uses
+to weigh things. Plus `found_while`, which keeps the incidental provenance:
+*"sourcing training images for the healthy-leaf label."*
+
+The finding went in as two entries, deliberately separate. The **source's
+claim**, marked `read` and explicitly not verified, so nothing gets eaten on the
+strength of a training-image caption. And the **grower's own idea** it prompted,
+marked `reported`: that the same plant is both hemp and cannabis, the flower
+being the crop and the leaf a hemp product - which reframes lollipopping, since
+leaf removed for airflow is currently discarded and under that framing it is
+harvest.
+
+### And the dictionary is support, not the lookup
+
+The grower, on Black's: *"a good dictionary for Legal to have for definitions
+and terms when it's perusing contracts and casework, so it can explain what they
+are in plain English. But it doesn't always have to consult it for everything,
+because almost everything it is going to look up is going to be in the statutes,
+the CFRs, the laws, the codes."*
+
+`lookup` had it inverted - the dictionary was consulted first and any statute
+was attached to IT. That matters beyond ordering: Black's is the 1910 edition,
+in the corpus because its copyright expired rather than because it is current,
+and `lien`, `trustee` and `custodian` are all defined in both it and live law.
+Leading with the dictionary answered from 1910.
+
+Authority leads now and the dictionary rides along as `plain_english`. Where
+only the dictionary holds a term - `laches`, a term of art with no statutory
+definition - it leads properly, which is the case it exists for. Verified:
+`1681i` returns corpus only, `laches` returns corpus + dictionary.

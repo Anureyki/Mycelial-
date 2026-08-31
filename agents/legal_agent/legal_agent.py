@@ -1769,29 +1769,46 @@ class LegalAgent(AgentBase):
             # Exact headword first, then the corpus, then the loose
             # first-word definition. A doctrine phrase must reach the treatises
             # before it is reduced to a one-word gloss.
+            # AUTHORITY LEADS; THE DICTIONARY ANNOTATES.
+            #
+            # The dictionary was consulted first and the statute attached to it,
+            # which inverts what each is for. The principal: *"almost everything
+            # it is going to look up is going to be in the statutes, the CFRs,
+            # the laws, the codes. The dictionaries are just there to help with
+            # the definitions in case further understanding is needed."*
+            #
+            # Right, and it matters beyond ordering: Black's is the 1910
+            # edition, in the corpus because its copyright term expired rather
+            # than because it is current. Leading with it meant a term that BOTH
+            # a live statute and a 116-year-old dictionary define was answered
+            # by the dictionary. `lien`, `trustee`, `custodian` are all in both.
+            #
+            # So the statute leads and the dictionary rides along as plain
+            # English - which is the job it is actually good at, helping the
+            # agent reason about what a contract means in a case.
             defined = self.lookup_term(term, loose=False)
-            if defined:
-                # A dictionary headword and a doctrinal entry are not competing
-                # answers. Black's 1910 defines "laches" in a sentence; the
-                # doctrine file gives its two elements and how it differs from a
-                # limitation period. Returning only the first meant the fuller
-                # entry was unreachable for every term the dictionary happens to
-                # carry - which is most of them.
-                both = self.lookup_reference(term)
-                out = {"term": term, "source": "reference/legal_agent dictionary",
-                       "definition": defined, "disclaimer": DISCLAIMER}
-                if both:
-                    out["source"] = ("reference/legal_agent dictionary + corpus")
-                    out["results"] = both
-                    out["note"] = ("Both a dictionary definition and a fuller "
-                                   "entry exist for this term. The definition "
-                                   "says what the words mean; the entry says "
-                                   "what the doctrine requires.")
-                return out
             passages = self.lookup_reference(term)
             if passages:
-                return {"term": term, "source": "reference/legal_agent corpus",
-                        "results": passages, "disclaimer": DISCLAIMER}
+                out = {"term": term, "source": "reference/legal_agent corpus",
+                       "results": passages, "disclaimer": DISCLAIMER}
+                if defined:
+                    out["plain_english"] = defined
+                    out["source"] = "reference/legal_agent corpus + dictionary"
+                    out["note"] = ("The authority governs; the dictionary entry is "
+                                   "attached as plain English only. Black's 2nd "
+                                   "edition is 1910 - where it and a live statute "
+                                   "disagree, the statute wins.")
+                return out
+            if defined:
+                # Only the dictionary holds it. This is the case the dictionary
+                # exists for - a term of art with no statutory definition, like
+                # laches - and here it leads properly.
+                return {"term": term, "source": "reference/legal_agent dictionary",
+                        "definition": defined, "disclaimer": DISCLAIMER,
+                        "note": ("No statute or regulation in this corpus defines this "
+                                 "term, so the dictionary is the answer rather than a "
+                                 "gloss. Black's 2nd edition, 1910 - its absence of a "
+                                 "headword is a fact about that edition and nothing else.")}
             loose_def = self.lookup_term(term, loose=True)
             if loose_def:
                 return {"term": term, "source": "reference/legal_agent dictionary (nearest headword)",

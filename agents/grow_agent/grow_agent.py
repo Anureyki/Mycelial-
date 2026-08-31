@@ -4138,9 +4138,41 @@ class GrowAgent(AgentBase):
         if not applies.get("species"):
             return {"error": "record_knowledge needs applies_to.species - "
                              "unscoped knowledge gets applied to the wrong plant"}
+        # HOW IT WAS LEARNED IS PART OF THE KNOWLEDGE.
+        #
+        # A lesson this grow paid for - Cal-Mag under-dosed for weeks, proven by
+        # ppm and leaf response - and a sentence read on a website were stored
+        # identically. CLAUDE.md is explicit that lived data outranks
+        # documentation, and that ordering is unenforceable if the store cannot
+        # tell them apart.
+        #
+        # There is no default. A guessed evidence_kind is worse than a blank
+        # one: it launders a claim into the same field the reasoning layer uses
+        # to decide how much weight something deserves.
+        KINDS = {
+            "observed":  "this grow measured or watched it happen",
+            "read":      "stated by a source; not verified here",
+            "reported":  "the grower said it; not measured",
+            "inferred":  "derived from other records, not directly seen",
+        }
+        kind = (args.get("evidence_kind") or "").strip().lower()
+        if kind not in KINDS:
+            return {"error": ("record_knowledge needs evidence_kind, one of: "
+                              + ", ".join(f"{k} ({v})" for k, v in KINDS.items())
+                              + ". A lesson this grow paid for and a claim read "
+                                "on a website must not be stored the same way."),
+                    "accepted": sorted(KINDS)}
         entry = {
             "id": f"kn_{self._uid()}",
             "text": text,
+            "evidence_kind": kind,
+            "evidence_kind_note": KINDS[kind],
+            # What the agent was DOING when it found this. Knowledge picked up
+            # incidentally - a training image search that turned up a
+            # cultivation idea - has different provenance from a lesson the
+            # grow produced, and losing that loses why it is trusted.
+            "found_while": args.get("found_while"),
+            "source_ref": args.get("source_ref"),
             "applies_to": {
                 "species": str(applies["species"]).lower(),
                 "strain": (applies.get("strain") or "").lower() or None,
@@ -4154,6 +4186,7 @@ class GrowAgent(AgentBase):
         k.append(entry)
         self.store_own_memory(self.KNOWLEDGE_KEY, json.dumps(k), pin=True)
         return {"recorded": entry["id"], "applies_to": entry["applies_to"],
+                "evidence_kind": entry["evidence_kind"],
                 "total_known": len(k)}
 
     def _knowledge_for(self, plant_id):
