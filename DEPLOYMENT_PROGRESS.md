@@ -58,7 +58,7 @@ out loud rather than discovered by watching it get worse.
 
 | # | Phase | Status | Fits current RAM? | was |
 |---|-------|--------|-------------------|-----|
-| 1 | Grow captures spoken facts itself | not started | yes, if capture stays deterministic | Phase 4 |
+| 1 | Agents capture spoken facts themselves | not started | yes, if capture stays deterministic | Phase 4 |
 | 2 | Conversations that persist, and answers that arrive | not started | yes - a table and a queue | Phase 9 |
 | 3 | Retention: decide what to keep, and on what evidence | not started | yes, and it REDUCES the footprint | Phase 2 |
 | 4 | Harden network exposure | ◐ one sudo command remaining | yes - one command | Phase 6 |
