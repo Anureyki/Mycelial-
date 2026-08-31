@@ -3052,3 +3052,55 @@ capabilities, and `classify_charge`, `log_harm` and `harm_summary` in
 Accounting's. Every one of them worked when called directly and was invisible to
 discovery — an agent whose capability list is out of date is one nothing can
 route to.
+
+### 2026-08-31 — The action register was telling its owner to do more than the law asks
+
+The principal said electronic receipts are an accepted form of notification, and
+that he knows it from operating with the court. He was right, and the way the
+register got it wrong is worth recording: `evidence_expected` was a single
+string, and I filled it with "USPS certified mail receipt plus the returned
+green card" — written from convention, never from the text.
+
+Read as it actually sits in the corpus, Tex. Prop. Code § 92.056 is more
+permissive and more specific than that:
+
+- **(b)(1)** requires only that notice go to the person or place where rent is
+  normally paid. It prescribes **no method at all**.
+- **(b)(3)**'s subsequent notice must be *written*. An email is a writing.
+- **(c)** deems the landlord to have received notice on **actual receipt**, and
+  **(d)** starts a rebuttable seven-day presumption from that receipt — so the
+  principal's point about timestamps is the operative one. An email timestamp
+  fixes when the clock started.
+
+Method decides exactly **one** thing, and it is an either/or rather than a
+preference: tracked mail — certified RRR, registered, or another USPS or
+private-carrier service allowing tracking — satisfies (b)(3) with a **single**
+notice. Every other method, email included, needs a first notice **and** a
+subsequent written one after a reasonable time. Email is a writing; it is not
+mail from a carrier, so it does not collapse the two into one.
+
+So `evidence_alternatives` now carries the several things any one of which will
+do, and the card lists them as alternatives rather than a checklist. Listing
+only the strictest reads as a requirement.
+
+`amend_action` corrects an item in place and keeps an amendment history with the
+reason. Void, do not delete: an action whose proof requirement was wrong and then
+corrected is a different record from one that always said the right thing, and
+the first is the one worth being able to see.
+
+**A cross-domain finding fell out of reading it.** § 92.0561(k): where the
+landlord remedies a condition after the tenant has contacted a repairman but
+before work begins, the landlord "shall be liable for the cost incurred by the
+tenant for the repairman's **trip charge**, and the tenant may deduct the charge
+from the tenant's rent **as if it were a repair cost**." Different fact pattern
+from the $54 — that contractor was the landlord's, not the tenant's — but it is
+the Texas Property Code characterising a trip charge as a *repair cost* and, in
+the analogous situation, as the landlord's to bear. Referred to Accounting, where
+it bears on `classify_charge`'s `posted_label_unsupported`.
+
+On standing: the correction came from the principal's own experience, recorded as
+`evidence_kind: reported` and not scored — the pipeline does not weigh a claim by
+who made it. The statute was then read, and it corroborates him. Two independent
+lines pointing the same way is worth more than either.
+
+Shell to v21.

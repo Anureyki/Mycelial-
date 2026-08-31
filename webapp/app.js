@@ -683,6 +683,20 @@ async function renderLegalCard(body) {
         : `needs: ${a.evidence_expected || 'nothing specified'}`;
       li.append(proof);
 
+      // Where an authority accepts more than one method, show all of them.
+      // Listing only the strictest reads as a requirement and quietly tells
+      // the reader to do more than the law asks.
+      if (!a.evidence_ref && Array.isArray(a.evidence_alternatives) && a.evidence_alternatives.length) {
+        const alts = document.createElement('ul');
+        alts.className = 'act-alts';
+        for (const x of a.evidence_alternatives) {
+          const ali = document.createElement('li');
+          ali.textContent = x;
+          alts.append(ali);
+        }
+        li.append(alts);
+      }
+
       if (a.blocked_by) {
         const b = document.createElement('div');
         b.className = 'act-blocked';

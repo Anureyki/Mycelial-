@@ -519,3 +519,19 @@ main#log {
 }
 .card-body .deadlines li.dl-critical time,
 .card-body .deadlines li.dl-passed time { color: #c8863c; font-weight: 600; }
+
+/* Any one of these satisfies the action. Set as a list rather than prose so
+   the reader can see they are alternatives, not a checklist. */
+.card-body .actions .act-alts {
+  margin: 3px 0 0;
+  padding-left: 0;
+  list-style: none;
+  color: var(--muted);
+  font-size: 0.82rem;
+}
+.card-body .actions .act-alts li { padding: 1px 0 1px 12px; position: relative; line-height: 1.3; }
+.card-body .actions .act-alts li::before {
+  content: "\2022";
+  position: absolute;
+  left: 2px;
+}

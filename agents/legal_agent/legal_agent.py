@@ -194,7 +194,7 @@ class LegalAgent(AgentBase):
                 "claim_evidence", "claim_observe", "claim_reproducibility",
                 "claim_corroborate", "claim_get", "claim_list", "claim_ontology",
                 "add_deadline", "deadlines",
-                "open_action", "complete_action", "actions",
+                "open_action", "complete_action", "amend_action", "actions",
                 "triage_source", "record_case_outcome"
             ],
             role="agent"
@@ -590,6 +590,12 @@ class LegalAgent(AgentBase):
             "id": f"action_{self._uid()}",
             "case_id": a.get("case_id"),
             "what": what,
+            # More than one thing can prove a step was taken, and which ones
+            # count is usually decided by an authority rather than by whoever
+            # wrote the to-do item. A single string here quietly encoded one
+            # method as if it were the only one - which is how a list starts
+            # telling its owner to do more than the law asks.
+            "evidence_alternatives": a.get("evidence_alternatives") or None,
             "why": str(a.get("why") or "").strip() or None,
             "owner": owner,
             "forum": a.get("forum"),
@@ -653,6 +659,39 @@ class LegalAgent(AgentBase):
                 self.case(rec["case_id"]).complete_task(rec["what"], f"evidence: {ref}")
             except Exception as exc:
                 rec["case_event_failed"] = str(exc)
+        return rec
+
+    def amend_action(self, args):
+        """Correct an open action in place. Merges; never rebuilds.
+
+        Amend rather than reopen, because the history of a step matters: an
+        action whose proof requirement was WRONG and then corrected is a
+        different record from one that always said the right thing, and the
+        first is the one worth being able to see."""
+        a = args if isinstance(args, dict) else {}
+        aid = str(a.get("action_id") or "").strip()
+        raw = self._unwrap_value(self.retrieve_own_memory(aid)) if aid else None
+        if not raw:
+            return {"error": f"no such action: {aid or '(none given)'}"}
+        try:
+            rec = json.loads(raw)
+        except Exception:
+            return {"error": f"action {aid} is unreadable"}
+        touched = []
+        for f in ("what", "why", "owner", "forum", "due", "protects_deadline",
+                  "evidence_expected", "evidence_alternatives", "note"):
+            if a.get(f) not in (None, ""):
+                rec[f] = a[f]
+                touched.append(f)
+        if not touched:
+            return {"error": "amend_action was given nothing to change.",
+                    "amendable": ["what", "why", "owner", "forum", "due",
+                                  "protects_deadline", "evidence_expected",
+                                  "evidence_alternatives", "note"]}
+        hist = rec.setdefault("amendments", [])
+        hist.append({"at": datetime.now().isoformat(timespec="seconds"),
+                     "fields": touched, "reason": a.get("reason") or "not stated"})
+        self.store_own_memory(aid, json.dumps(rec), pin=True)
         return rec
 
     def actions(self, case_id=None, include_closed=False):
@@ -2274,6 +2313,8 @@ class LegalAgent(AgentBase):
             return self.open_action(args if isinstance(args, dict) else {})
         if task == "complete_action":
             return self.complete_action(args if isinstance(args, dict) else {})
+        if task == "amend_action":
+            return self.amend_action(args if isinstance(args, dict) else {})
         if task == "actions":
             a = args if isinstance(args, dict) else {}
             return self.actions(a.get("case_id"), bool(a.get("include_closed")))
