@@ -3730,3 +3730,76 @@ The build turns on one distinction: a sent email proves **an act happened on a
 date**; it does not prove the assertions inside it were true. The action register
 already separates those, and the importer must preserve the separation rather
 than collapse both into "evidence".
+
+### 2026-08-31 — Judging a screenshot by what it says, never by where it came from
+
+The principal's framing is sharper than the usual advice: some cards are
+*fictional AI-generated fakes*, others are *AI-generated notes from growers
+actually in operation* — second-hand, but with a practitioner behind them.
+
+**Those two are identical on the page.** Same layout, same font, same confident
+voice, often the same generator. So neither the image nor the account name can
+decide it, and a rule saying "distrust Instagram" would have discarded the most
+careful source in this pile.
+
+`core/source_screenshot.py` tests what the **content does**. On the base class,
+inherited by every agent, because building it twice is how a bug gets a second
+place to hide — which happened in this file within the week.
+
+**What is actually testable:** whether it discloses its own limits, whether it
+holds together, whether it gives a mechanism, whether anything in it can be
+opened and checked, whether it overclaims.
+
+**What is not, and is reported as such every time:** whether a real operator is
+behind it, whether any number was measured, whether the author has the experience
+implied. Those stay `unknown`, and the module **recommends** a standing rather
+than setting one.
+
+### Two bugs found by running it on the real cards
+
+**It scored the best line on a card as its worst feature.** `TERPENES ARE ALWAYS
+VOLATILE — they don't suddenly "turn on" at a certain temperature` tripped
+`absolute_claim` on the word *always* and cost the card three points. That
+sentence is not a promise; it is a statement that **there is no threshold**,
+which is the opposite of overclaiming and is the error the card exists to
+correct. An absolute now counts only when it attaches to an **outcome** — always
+*gives*, always *works* — never to a physical property. And `denies_a_threshold`
+was added as a **positive** marker worth +3, because saying a phenomenon is
+continuous costs the author the simpler story.
+
+**Then that marker did not fire, because of a curly apostrophe.** OCR returns the
+typography the card was set in, and `don't` with U+2019 does not match a pattern
+written with `'`. Exactly the `\bph\b`-as-backspace failure again: a pattern that
+can never match, and nothing says so. Typography is normalised before matching.
+
+### Result on the five cards, and on a legal one
+
+```
+60/60 vs 70/55 argument        peer_account       scope_bounded, distinguishes_confusables
+70/55 timeline                 expert_commentary  self_disclosing_conceptual
+60/60 timeline                 expert_commentary  self_disclosing_conceptual
+terpene temperature scale      peer_account       self_disclosing_conceptual
+terpene volatility ranking     peer_account       denies_a_threshold
+```
+
+`self_disclosing_conceptual` is weighted highest at +3: a card labelling its own
+curve *"CONCEPTUAL — NOT MEASURED DATA"* has given away credibility a fabrication
+has no reason to surrender.
+
+Shelved to `knowledge_base/grow_agent/screenshots/`, **never `reference/`** —
+reference is codified rule looked up by citation, and a grower card is somebody's
+note about what happens above the rule. The thermometer card carries
+`numbers_rejected` with the reason: F and C scales interleaved as one axis, so the
+**ordering** is usable and no figure is.
+
+**Legal's half is the one that can actually fail**, and it added the right thing:
+it opens the citations. A card can be careful, well-hedged and entirely wrong
+about what a section says, and no amount of reading its prose reveals that — the
+corpus does. Run on the Colorado Law / LexisNexis screenshot, whose visible text
+was mostly page chrome, it returned: *"This card cites nothing openable… a reading
+of the law that offers no section to read is not a finding."*
+
+**How any of it gets settled** is stated in every result: not by looking harder at
+the card, but by testing one of its claims against this grow and recording what
+happened — at which point the observation outranks the card and the divergence is
+the finding.

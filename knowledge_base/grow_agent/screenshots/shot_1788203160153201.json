@@ -1,0 +1,34 @@
+{
+  "id": "shot_1788203160153201",
+  "image_path": "/home/anureyki/.claude/uploads/9e71ce00-52bb-4352-80a9-7324bebd6d5e/2ac1913c-image.jpg",
+  "captured_from": "Instagram, macho_grams_gramsbe_savage, supplied by the principal",
+  "topic": "60/60 vs 70/55 - why both growers are partly right",
+  "score": 4,
+  "markers": [
+    {
+      "marker": "scope_bounded",
+      "weight": 2,
+      "why": "Limits its own claim rather than generalising it.",
+      "quoted": "Temperature x RH x Airflow x Time = The drying\nenvironment\nSo which is better?\nThat depends on what you're optimizing for and what\nhappens to the flower over the entire process."
+    },
+    {
+      "marker": "distinguishes_confusables",
+      "weight": 2,
+      "why": "Separates two things commonly conflated - the shape of a real correction.",
+      "quoted": "What you smell during or immediately after drying is not\nnecessarily the same thing as what remains in the\nflower."
+    }
+  ],
+  "internal_inconsistencies": [],
+  "quantities_mentioned": [],
+  "source_class": "peer_account",
+  "evidence_kind": "reported",
+  "stance": "unknown",
+  "cannot_determine": [
+    "whether a real operator is behind this, or whether it is entirely fabricated - a fictional card and a practitioner's note rendered by the same generator are identical on the page",
+    "whether any number in it was measured",
+    "whether the author has the experience the card implies"
+  ],
+  "usable_as": "REFERENCE - a floor to reason from. Never as evidence about this grow. A measured outcome here outranks it, and the divergence is the finding.",
+  "text": "war wr wer wr wr wr we,\n@\n9 Q17 O77 W\nLiked by kaliksorganix and others\nmacho_grams_gramsbe_savage Grower A: \u201c60/60\npreserves terps.\u201d\nGrower B: \"70/55 gives you louder flower.\u201d\nWhat if | told you... you're BOTH right?\nThe idea is that a cooler, controlled drying environment\ncan slow the rate at which volatile compounds escape,\nwhile also slowing moisture removal compared with a\nwarmer, drier environment.\nAt a warmer drying temperature, some of the more\nvolatile aromatic compounds can move into the air more\nreadily. That can make the aroma you perceive at the\nmoment seem stronger, even if some of those same\ncompounds are being lost from the flower.\nAnd here's the part that gets overlooked:\nLOUDER DOESN'T AUTOMATICALLY MEAN MORE\nTERPENES.\nWhat you smell during or immediately after drying is not\nnecessarily the same thing as what remains in the\nflower.\nThe real variable is TIME.\nTemperature x RH x Airflow x Time = The drying\nenvironment\nSo which is better?\nThat depends on what you're optimizing for and what\nhappens to the flower over the entire process.",
+  "recorded_at": "2026-08-31T19:06:00"
+}

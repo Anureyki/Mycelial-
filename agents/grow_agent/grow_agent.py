@@ -788,6 +788,11 @@ STOP_TERMS = {"the", "and", "auto", "autoflower", "plant", "current", "cannabis"
 
 
 class GrowAgent(AgentBase):
+    # Screenshots of posts, shelved as knowledge_base and never as reference:
+    # reference is codified rule looked up by citation, and a grower card is
+    # somebody's note about what happens above the rule.
+    SHOT_DIR = os.path.expanduser("~/mycelial/knowledge_base/grow_agent/screenshots")
+
     def __init__(self):
         super().__init__(
             agent_id="grow_agent",
@@ -796,7 +801,7 @@ class GrowAgent(AgentBase):
                 "log_reading", "check_stage", "adjust_nutrients",
                 "transition_stage", "log_water_change", "get_status",
                 "set_germination_date", "set_current_nutrients",
-                "add_reminder", "list_reminders", "complete_reminder",
+                "add_reminder", "list_reminders", "complete_reminder", "ingest_screenshot",
                 "add_note", "list_notes",
                 "evaluate_reservoir", "evaluate_leaf", "get_grow_history", "evaluate_growth_stage",
                 "verify_growth_stage",
@@ -4287,6 +4292,75 @@ class GrowAgent(AgentBase):
                 "evidence_kind": entry["evidence_kind"],
                 "total_known": len(k)}
 
+    def ingest_screenshot(self, args):
+        """Read a screenshot of a post, assess it, and shelve it with its standing.
+
+        The reading is `read_screenshot` on the base class - the same code Legal
+        uses, because building it twice is how a bug gets a second place to
+        hide. What this adds is the part only this domain can do: the numbers on
+        a grow card are quantities this agent already reasons in, so a figure
+        that contradicts what the plant record holds is worth surfacing here and
+        nowhere else.
+
+        And the shelf matters. This goes to `knowledge_base/`, never to
+        `reference/`. Reference is codified rule looked up by exact citation;
+        this is somebody's note. The corpus is the floor and a grower card is
+        not the floor - it is a claim about what happens above it."""
+        a = args if isinstance(args, dict) else {}
+        path = a.get("image_path")
+        read = self.read_screenshot(path)
+        if read.get("error"):
+            return read
+        if not read.get("assessable"):
+            return read
+
+        text = read.get("text") or ""
+        # Quantities this agent can hold against its own record. Not scored -
+        # surfaced, because a card disagreeing with the plant is a finding and
+        # not a verdict about the card.
+        quantities = []
+        for pat, unit in ((r"(\d{2,3})\s*(?:°|deg)?\s*F\b", "F"),
+                          (r"(\d{2,3})\s*%\s*(?:RH|humidity)", "%RH"),
+                          (r"(\d{3,4})\s*ppm\b", "ppm"),
+                          (r"\bpH\s*([0-9]\.[0-9])", "pH")):
+            for m in re.finditer(pat, text, re.I):
+                quantities.append({"value": m.group(1), "unit": unit})
+
+        rec = {
+            "id": f"shot_{self._uid()}",
+            "image_path": str(path),
+            "captured_from": a.get("captured_from") or "screenshot, origin not recorded",
+            "topic": a.get("topic"),
+            "score": read.get("score"),
+            "markers": read.get("markers"),
+            "internal_inconsistencies": read.get("internal_inconsistencies"),
+            "quantities_mentioned": quantities[:40],
+            "source_class": read["recommended"]["source_class"],
+            "evidence_kind": "reported",
+            "stance": "unknown",
+            "cannot_determine": read.get("cannot_determine"),
+            "usable_as": ("REFERENCE - a floor to reason from. Never as evidence about "
+                          "this grow. A measured outcome here outranks it, and the "
+                          "divergence is the finding."),
+            "text": text[:12000],
+            "recorded_at": datetime.now().isoformat(timespec="seconds"),
+        }
+        if a.get("do_not_ingest_numbers"):
+            rec["numbers_rejected"] = str(a["do_not_ingest_numbers"])
+
+        os.makedirs(self.SHOT_DIR, exist_ok=True)
+        with open(os.path.join(self.SHOT_DIR, rec["id"] + ".json"), "w") as fh:
+            json.dump(rec, fh, indent=2)
+        try:
+            raw = self._unwrap_value(self.retrieve_own_memory("screenshot_index"))
+            idx = json.loads(raw) if raw else []
+        except Exception:
+            idx = []
+        idx.append(rec["id"])
+        self.store_own_memory("screenshot_index", json.dumps(idx))
+        self.store_own_memory(rec["id"], json.dumps(rec), pin=True)
+        return {k: v for k, v in rec.items() if k != "text"}
+
     def amend_knowledge(self, knowledge_id=None, source_ref=None, note=None,
                         corroborates=None, source_class=None):
         """Attach provenance to knowledge already recorded.
@@ -7107,6 +7181,9 @@ class GrowAgent(AgentBase):
                 "tally": tally, "hit_rate": result["hit_rate"],
             }))
             return result
+
+        if task == "ingest_screenshot":
+            return self.ingest_screenshot(args if isinstance(args, dict) else {})
 
         if task == "log_reading":
             # A reading taken earlier and written down later is still a reading

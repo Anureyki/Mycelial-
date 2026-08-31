@@ -1,0 +1,29 @@
+{
+  "id": "shot_1788203164995577",
+  "image_path": "/home/anureyki/.claude/uploads/9e71ce00-52bb-4352-80a9-7324bebd6d5e/98bc053f-image.jpg",
+  "captured_from": "Instagram, macho_grams_gramsbe_savage, supplied by the principal",
+  "topic": "terpene temperature scale",
+  "score": 3,
+  "markers": [
+    {
+      "marker": "self_disclosing_conceptual",
+      "weight": 3,
+      "why": "Labels its own figure as conceptual rather than measured. A fabricated card has no reason to give away that credibility.",
+      "quoted": "Values chown are conceptual ranges, not absolute thresholds."
+    }
+  ],
+  "internal_inconsistencies": [],
+  "quantities_mentioned": [],
+  "source_class": "peer_account",
+  "evidence_kind": "reported",
+  "stance": "unknown",
+  "cannot_determine": [
+    "whether a real operator is behind this, or whether it is entirely fabricated - a fictional card and a practitioner's note rendered by the same generator are identical on the page",
+    "whether any number in it was measured",
+    "whether the author has the experience the card implies"
+  ],
+  "usable_as": "REFERENCE - a floor to reason from. Never as evidence about this grow. A measured outcome here outranks it, and the divergence is the finding.",
+  "text": "13:49 & 1 > @\nmacho_grams_gramsbe_sav... Follow \u2014\nSuggested for you ~~\nTHE TERPENE TEMPERATURE SCA o19\nHow rising temperature increases terpene volatility\nHIGH TEMPERATURES\n* AP\nRapid loss + Increased thermal degradation risk Linalool { { \u00e9\nmore volatile J\n\u00b0\nSS *\np) Nerolidol ie\nmore volatile )\nVa\n6) Geraniol \u00a2<~e*\n7 more volatile J\nWARMER TEMPERATURES \u00bb Ocimene *\u00bb~ \u00a2\nIncreasing evaporation / volatilization \u201cTy 3 more volatile @\u00b0 -* \u201c8? ~e\n' Coy\n}) B-Caryophyllene So\nmoderately volatile rad\ni\nTerpinolene Bl: >\nmoderately volatile \u00a9 ~ *\na\nvig\n{ } _ Limonene\n- \u201cmoderately volatile\ne\nCOOLER TEMPERATURES\nLower volatility \u00ab Better retention\nB-Pinene\naN\nmoderately volatile\nLA.\n| ole\n\u00e9\n\u00ae wy, (&) a-Pinene wf,\nA moderately volatile fle\nrs\n2 ~\nves _Myrcene\nless volatile\nAe\nVOLATILITY # BOILING POINT # DEGRADATION\n~ | Terpene behavior is influenced by temperature, time, oxygen, humidity, surface area, \u00a9)\nand the plant matris. Values chown are conceptual ranges, not absolute thresholds.\n> % . \u201c4",
+  "recorded_at": "2026-08-31T19:06:04",
+  "numbers_rejected": "The thermometer figures. F and C scales interleave with lines drawn between them as one axis, and the caption says volatility is not boiling point while the numbers read as boiling points. Take the ORDERING of terpenes; take no number."
+}

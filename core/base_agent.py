@@ -5,7 +5,7 @@ Now with JSON-RPC compatibility (handles both top-level and nested params).
 Includes Tool Service integration for MCP tools and agent‑specific memory helpers.
 """
 import hashlib
-import os, re, json, uuid, time, threading, requests, paho.mqtt.client as mqtt
+import os, re, sys, json, uuid, time, threading, requests, paho.mqtt.client as mqtt
 from datetime import datetime
 from flask import Flask, request, jsonify
 
@@ -803,6 +803,38 @@ class AgentBase:
         declares itself a statute."""
         cls = str((entry or {}).get("authority_class") or "").lower()
         return self.AUTHORITY_RANK.get(cls, 5)
+
+    def read_screenshot(self, image_path):
+        """OCR a screenshot and assess what its text can support.
+
+        ON THE BASE CLASS, deliberately. Grow needs it for grower cards and
+        Legal for legal ones, and building it twice is how a bug acquires a
+        second place to hide - which happened in this file within the week, when
+        two entry-builders were patched one at a time and a section carried its
+        integrity by one lookup path and lost it by the other.
+
+        The domain layer adds what only it can check: Legal opens the citations,
+        Grow tests the quantities. The reading of the card itself is the same
+        job in both."""
+        import os
+        from core import source_screenshot
+        if not image_path or not os.path.exists(str(image_path)):
+            return {"error": f"no such image: {image_path}"}
+        try:
+            sys.path.insert(0, os.path.join(os.path.dirname(
+                os.path.dirname(os.path.abspath(__file__))), "services", "vision"))
+            import plant_perception
+            lines = plant_perception.read_text(str(image_path))
+        except Exception as exc:
+            return {"error": f"OCR unavailable: {type(exc).__name__}: {exc}",
+                    "image_path": str(image_path)}
+        if isinstance(lines, dict) and lines.get("error"):
+            return {"error": lines["error"], "image_path": str(image_path)}
+        text = "\n".join(lines) if isinstance(lines, list) else str(lines)
+        out = source_screenshot.assess(text)
+        out["image_path"] = str(image_path)
+        out["text"] = text
+        return out
 
     def lookup_reference(self, term):
         """A citation or a case name, with its integrity attached.

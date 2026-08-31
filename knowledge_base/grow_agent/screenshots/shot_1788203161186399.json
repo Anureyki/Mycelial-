@@ -1,0 +1,43 @@
+{
+  "id": "shot_1788203161186399",
+  "image_path": "/home/anureyki/.claude/uploads/9e71ce00-52bb-4352-80a9-7324bebd6d5e/d3499060-image.jpg",
+  "captured_from": "Instagram, macho_grams_gramsbe_savage, supplied by the principal",
+  "topic": "70/55 vs time - retention timeline",
+  "score": 5,
+  "markers": [
+    {
+      "marker": "self_disclosing_conceptual",
+      "weight": 3,
+      "why": "Labels its own figure as conceptual rather than measured. A fabricated card has no reason to give away that credibility.",
+      "quoted": "Suggested for you Peas\n70/55 vs TIME - TERPENE RETENTION DURING DRYING\nIF 70\u00b0F / 55% RH\nLONG-TERM\nFRESH HARVEST a CURING STORAGE\n6 - -\n| in\nDay 0 Day 3 Day7 Day 14 Day 30 Day 60\nHigher temperature Q \u00ae@ Faster moisture loss Time x\ncan increa"
+    },
+    {
+      "marker": "scope_bounded",
+      "weight": 2,
+      "why": "Limits its own claim rather than generalising it.",
+      "quoted": "Actual terpene retention varies by cultivar, terpene profile, flower structure, airflow, drying duration, oxygen exposure, and storage conditions."
+    }
+  ],
+  "internal_inconsistencies": [],
+  "quantities_mentioned": [
+    {
+      "value": "70",
+      "unit": "F"
+    },
+    {
+      "value": "55",
+      "unit": "%RH"
+    }
+  ],
+  "source_class": "expert_commentary",
+  "evidence_kind": "reported",
+  "stance": "unknown",
+  "cannot_determine": [
+    "whether a real operator is behind this, or whether it is entirely fabricated - a fictional card and a practitioner's note rendered by the same generator are identical on the page",
+    "whether any number in it was measured",
+    "whether the author has the experience the card implies"
+  ],
+  "usable_as": "REFERENCE - a floor to reason from. Never as evidence about this grow. A measured outcome here outranks it, and the divergence is the finding.",
+  "text": "\u00b0 ef > (__]\nmacho_grams_gramsbe_sav...\nSuggested for you Peas\n70/55 vs TIME \u2014 TERPENE RETENTION DURING DRYING\nIF 70\u00b0F / 55% RH\nLONG-TERM\nFRESH HARVEST a CURING STORAGE\n6 \u2014 \u2014\n| in\nDay 0 Day 3 Day7 Day 14 Day 30 Day 60\nHigher temperature Q \u00ae@ Faster moisture loss Time x\ncan increase does not automatically temperature x\nvolatilization mean better drying airflow all matter\n@ dry\n/ ae degraded\ny f ae as CONCEPTUAL TERPENE RETENTION\nB\u00ae Ee \u2014= \u2014 NOT MEASURED DATA \u2014\u2014\nLower RH increases Different terpenes\ndrying pressure behave differently\nConceptual illustration. Actual terpene retention varies by cultivar, terpene profile, flower structure, airflow, drying duration, oxygen exposure, and storage conditions.",
+  "recorded_at": "2026-08-31T19:06:01"
+}

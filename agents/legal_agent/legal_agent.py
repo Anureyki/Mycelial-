@@ -196,7 +196,7 @@ class LegalAgent(AgentBase):
                 "add_deadline", "deadlines",
                 "open_action", "complete_action", "amend_action", "actions",
                 "add_venue", "venues", "running_clocks", "complaint_path",
-                "read_filed_document",
+                "read_filed_document", "ingest_screenshot",
                 "triage_source", "record_case_outcome"
             ],
             role="agent"
@@ -2332,6 +2332,44 @@ class LegalAgent(AgentBase):
             "disclaimer": DISCLAIMER,
         }
 
+    def ingest_screenshot(self, args):
+        """Read a screenshot of a legal post and triage what it cites.
+
+        The card assessment is `read_screenshot` on the base class, shared with
+        Grow. What Legal adds is the only check that settles anything here:
+        **it opens the citations.** A card can be careful, well-hedged and
+        entirely wrong about what a section says, and no amount of reading its
+        prose reveals that - the corpus does.
+
+        So a legal card is worth exactly what its citations survive. One that
+        cites nothing is prose, however confident."""
+        a = args if isinstance(args, dict) else {}
+        read = self.read_screenshot(a.get("image_path"))
+        if read.get("error") or not read.get("assessable"):
+            return read
+        text = read.get("text") or ""
+        triaged = self.triage_source(
+            text=text[:20000], source_class=read["recommended"]["source_class"],
+            note=(f"Screenshot of a post. Card assessment scored {read.get('score')} "
+                  f"on testable properties of its own text. Whether a real "
+                  f"practitioner is behind it is NOT determinable from the image."))
+        held = [h for h in (triaged.get("held") or [])]
+        return {
+            "image_path": str(a.get("image_path")),
+            "card_assessment": {k: read.get(k) for k in
+                                ("score", "markers", "internal_inconsistencies",
+                                 "recommended", "cannot_determine")},
+            "citations": triaged,
+            "settles_it": (
+                f"{len(held)} citation(s) in this card can be opened in the corpus and "
+                f"checked against what it claims they say. That is the only test here "
+                f"that can actually fail." if held else
+                "This card cites nothing openable, so nothing in it can be checked "
+                "against authority. It is prose - careful prose, possibly, but a "
+                "reading of the law that offers no section to read is not a finding."),
+            "disclaimer": DISCLAIMER,
+        }
+
     def triage_source(self, text=None, source_class="unknown", note=None):
         """Sort source material into what is worth ingesting and what is not.
 
@@ -2926,6 +2964,8 @@ class LegalAgent(AgentBase):
 
         if task == "read_filed_document":
             return self.read_filed_document(args if isinstance(args, dict) else {})
+        if task == "ingest_screenshot":
+            return self.ingest_screenshot(args if isinstance(args, dict) else {})
         if task == "triage_source":
             return self.triage_source(**(args if isinstance(args, dict) else {}))
 
