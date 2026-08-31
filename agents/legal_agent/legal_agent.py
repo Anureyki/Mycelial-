@@ -195,6 +195,7 @@ class LegalAgent(AgentBase):
                 "claim_corroborate", "claim_get", "claim_list", "claim_ontology",
                 "add_deadline", "deadlines",
                 "open_action", "complete_action", "amend_action", "actions",
+                "add_venue", "venues", "running_clocks", "complaint_path",
                 "triage_source", "record_case_outcome"
             ],
             role="agent"
@@ -1778,6 +1779,227 @@ class LegalAgent(AgentBase):
         r"\bi did (?:that|the|it)\b", r"\bdone with\b",
     )
 
+    # ------------------------------------------------------------------
+    # Complaint venues, and the clock that keeps running while you use one.
+    #
+    # The principal asked what the CFPB, the OCC and California's DFPI take -
+    # then widened it to every equivalent body, federal and state. So this is a
+    # register rather than three hardcoded entries: a venue is added in one
+    # call and becomes answerable from that moment.
+    #
+    # THE FINDING THAT MATTERS IS NOT THE PROCESSING TIME.
+    #
+    # An administrative complaint does not stop a private limitation period.
+    # File with a regulator, wait for it to work through the queue, and the
+    # one-year FDCPA and TILA clocks run out while the file is open - the
+    # complaint was live the whole time and the right to sue quietly expired.
+    # Every venue answer therefore carries the periods that are still running,
+    # read from the corpus rather than recalled.
+    #
+    # WHAT THIS REFUSES: a processing timeframe is agency practice, not law.
+    # It is recorded as `agency_policy` and never presented as a period this
+    # agent verified - the same rule as add_deadline, which will not compute a
+    # period whose authority it cannot open. Where a venue's statutory basis IS
+    # openable, that is checked by looking, not by asserting.
+
+    VENUE_LEVELS = ("federal", "state", "self_regulatory")
+
+    def add_venue(self, args):
+        """Record a complaint forum: who it covers and what it cannot do."""
+        a = args if isinstance(args, dict) else {}
+        name = str(a.get("name") or "").strip()
+        level = str(a.get("level") or "").strip().lower()
+        if not name:
+            return {"error": "A venue needs a name."}
+        if level not in self.VENUE_LEVELS:
+            return {"error": f"level must be one of {list(self.VENUE_LEVELS)}"}
+        if not str(a.get("covers") or "").strip():
+            return {"error": ("A venue needs `covers` - who it has jurisdiction over. A "
+                              "forum recorded without that is a name, and complaining to "
+                              "the wrong regulator costs the time it takes to be told so.")}
+
+        # Statutory basis is verified by LOOKING, never by the caller saying so.
+        basis = []
+        for cite in (a.get("statutory_basis") or []):
+            found = self.lookup_reference(str(cite))
+            basis.append({"citation": str(cite), "in_corpus": bool(found),
+                          "work": (found[0] or {}).get("title") if found else None})
+
+        rec = {
+            "id": f"venue_{self._uid()}",
+            "name": name,
+            "level": level,
+            "jurisdiction": a.get("jurisdiction") or ("United States" if level == "federal" else None),
+            "covers": str(a["covers"]).strip(),
+            "statutory_basis": basis,
+            "authority_in_corpus": any(b["in_corpus"] for b in basis),
+            # Agency practice. Recorded as what it is.
+            "processing": {"stated": a.get("processing"),
+                           "class": "agency_policy",
+                           "verified_against_authority": False,
+                           "note": ("Agency practice, not a statutory period. Nothing here "
+                                    "verified it; treat it as what the body says it does.")}
+                          if a.get("processing") else None,
+            "filing_deadline": a.get("filing_deadline"),
+            # STATE FIRST, THEN FEDERAL - the principal's sequence, recorded on
+            # the venue rather than left in someone's head. State regulators
+            # licence the entity directly and a documented state record is what
+            # a federal complaint escalates FROM. Nothing here is a legal
+            # exhaustion requirement and it is not presented as one: it is an
+            # order of operations, and the cost of that order is time, which is
+            # why complaint_path prices it against the clocks still running.
+            "escalation_order": int(a.get("escalation_order")
+                                    or (1 if level == "state" else 2)),
+            "tolls_private_limitations": a.get("tolls_private_limitations", False),
+            "how": a.get("how"),
+            "source": a.get("source") or "unknown",
+            "recorded_at": datetime.now().isoformat(timespec="seconds"),
+        }
+        if rec["filing_deadline"] and not rec["authority_in_corpus"]:
+            rec["filing_deadline_caveat"] = (
+                "A filing deadline is stated but no authority for it is open in this corpus, "
+                "so it is recorded as reported and must not be relied on as computed.")
+        try:
+            raw = self._unwrap_value(self.retrieve_own_memory("venue_index"))
+            idx = json.loads(raw) if raw else []
+        except Exception:
+            idx = []
+        self.store_own_memory(rec["id"], json.dumps(rec), pin=True)
+        idx.append(rec["id"])
+        self.store_own_memory("venue_index", json.dumps(idx))
+        return rec
+
+    # The private clocks a complaint does not stop. Each is answered from the
+    # corpus at call time - if a section is not openable, it is reported as a
+    # gap rather than recited.
+    _PRIVATE_CLOCKS = (
+        ("15 U.S.C. 1681p", "1681p", "FCRA - credit reporting"),
+        ("15 U.S.C. 1640(e)", "1640", "TILA - truth in lending"),
+        ("15 U.S.C. 1692k(d)", "1692k", "FDCPA - debt collection"),
+        ("15 U.S.C. 1691e(f)", "1691e", "ECOA - credit discrimination"),
+        ("42 U.S.C. 3613(a)", "3613", "FHA - housing discrimination"),
+    )
+
+    def running_clocks(self):
+        """Limitation periods that keep running while a complaint sits open."""
+        out = []
+        for cite, key, label in self._PRIVATE_CLOCKS:
+            found = self.lookup_reference(key)
+            if not found:
+                out.append({"citation": cite, "subject": label, "in_corpus": False,
+                            "period": None,
+                            "note": "Not openable here, so no period is stated for it."})
+                continue
+            text = re.sub(r"\s+", " ", str((found[0] or {}).get("text") or ""))
+            m = re.search(r"(?:not later than|within)\s+(?:the\s+earlier\s+of\s*[—-]?\s*)?"
+                          r"[^.]{0,320}?\byears?\b[^.]{0,160}", text, re.I)
+            out.append({"citation": cite, "subject": label, "in_corpus": True,
+                        "period": re.sub(r"\s+", " ", m.group(0)).strip()[:300] if m else None,
+                        "note": None if m else ("Section is open but no period phrase was "
+                                                "isolated; read it directly.")})
+        return out
+
+    def complaint_path(self, jurisdiction=None, subject=None):
+        """The order to complain in, and what it costs in time.
+
+        State before federal is the principal's strategy, so this returns a
+        SEQUENCE rather than a list. The part worth reading is the last
+        section: an escalation ladder spends days, and the private limitation
+        periods do not pause while it is climbed. A path that would consume a
+        clock is named as such rather than left for the person to notice.
+        """
+        v = self.venues(jurisdiction=jurisdiction) if jurisdiction else self.venues()
+        vs = v["venues"]
+        if jurisdiction:
+            vs = [x for x in vs if x.get("level") == "federal"
+                  or str(x.get("jurisdiction") or "").lower() == str(jurisdiction).lower()]
+        if subject:
+            sub = str(subject).lower()
+            narrowed = [x for x in vs if sub in json.dumps(x).lower()]
+            if narrowed:
+                vs = narrowed
+        vs.sort(key=lambda x: (x.get("escalation_order") or 9, x.get("name") or ""))
+
+        steps, cumulative_note = [], []
+        for i, x in enumerate(vs, 1):
+            proc = (x.get("processing") or {}).get("stated")
+            steps.append({
+                "step": i,
+                "venue": x.get("name"),
+                "level": x.get("level"),
+                "jurisdiction": x.get("jurisdiction"),
+                "covers": x.get("covers"),
+                "how": x.get("how"),
+                "typical_time": proc,
+                "time_is": ("agency practice, not a verified period" if proc
+                            else "not recorded - ask the body directly"),
+                "carry_forward": ("The record this produces is what the next step "
+                                  "escalates from." if x.get("level") == "state" else None),
+            })
+            if proc:
+                cumulative_note.append(f"{x.get('name')}: {proc}")
+
+        clocks = self.running_clocks()
+        return {
+            "jurisdiction": jurisdiction, "subject": subject,
+            "sequence": steps, "steps": len(steps),
+            "order_rationale": (
+                "State first, then federal. A state regulator licences the entity directly "
+                "and its file is what a federal complaint escalates from. This is an order "
+                "of operations, NOT a legal exhaustion requirement - no statute here "
+                "conditions a federal complaint on a state one, and none is claimed to."),
+            "what_it_costs": (cumulative_note or
+                              ["No processing times recorded, so the ladder cannot be priced."]),
+            "clocks_that_do_not_pause": clocks,
+            "the_risk_in_this_order": (
+                "Every day spent climbing the ladder is a day off the court deadline. A "
+                "one-year FDCPA or TILA period can expire with the agency file still open, "
+                "and the complaint being live is not a defence to the limitation. Open the "
+                "court deadline in the deadline register on the day the conduct occurred, "
+                "not on the day the agency answers."),
+        }
+
+    def venues(self, level=None, jurisdiction=None):
+        """The register. Every answer carries the clocks it does not stop."""
+        try:
+            raw = self._unwrap_value(self.retrieve_own_memory("venue_index"))
+            idx = json.loads(raw) if raw else []
+        except Exception:
+            idx = []
+        out = []
+        for vid in idx:
+            r = self._unwrap_value(self.retrieve_own_memory(vid))
+            if not r:
+                continue
+            try:
+                v = json.loads(r)
+            except Exception:
+                continue
+            if level and v.get("level") != level:
+                continue
+            if jurisdiction and str(v.get("jurisdiction") or "").lower() != str(jurisdiction).lower():
+                continue
+            out.append(v)
+        out.sort(key=lambda v: (v.get("level") != "federal", v.get("jurisdiction") or "",
+                                v.get("name") or ""))
+        states = sorted({v.get("jurisdiction") for v in out
+                         if v.get("level") == "state" and v.get("jurisdiction")})
+        return {
+            "count": len(out), "venues": out,
+            "states_held": states,
+            "coverage": (f"{len(states)} state jurisdiction(s) recorded. The rest are absent "
+                         f"by design, not by failure - this register is filled on demand the "
+                         f"way the corpus is, and a state agency named from memory would be "
+                         f"exactly the recalled fact this system refuses elsewhere. Add one "
+                         f"with add_venue."),
+            "clocks_that_keep_running": self.running_clocks(),
+            "the_thing_to_understand": (
+                "Filing with a regulator does not stop a private limitation period. A "
+                "complaint can sit open with an agency while the right to sue on the same "
+                "facts expires. Track the court deadline separately, in the deadline "
+                "register, from the day the conduct occurred."),
+        }
+
     def routing_terms(self):
         """Declared vocabulary, plus the words of the matters actually open.
 
@@ -2603,6 +2825,16 @@ class LegalAgent(AgentBase):
             return self.open_action(args if isinstance(args, dict) else {})
         if task == "complete_action":
             return self.complete_action(args if isinstance(args, dict) else {})
+        if task == "add_venue":
+            return self.add_venue(args if isinstance(args, dict) else {})
+        if task == "complaint_path":
+            a = args if isinstance(args, dict) else {}
+            return self.complaint_path(a.get("jurisdiction"), a.get("subject"))
+        if task == "venues":
+            a = args if isinstance(args, dict) else {}
+            return self.venues(a.get("level"), a.get("jurisdiction"))
+        if task == "running_clocks":
+            return {"clocks": self.running_clocks()}
         if task == "amend_action":
             return self.amend_action(args if isinstance(args, dict) else {})
         if task == "actions":

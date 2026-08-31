@@ -3228,3 +3228,80 @@ Four test readings and two false step-reports were written by this testing and
 all six were reverted — the readings voided with reasons, the action retracted
 on its own record. A false entry on a register is worse than a missing one: it
 tells its owner he is covered when he is not.
+
+### 2026-08-31 (cont.) — A venue register, and the clock a complaint does not stop
+
+The principal asked what the CFPB, the OCC and California's DFPI take, then
+widened it: *"not just the OCC or the DFPI, but anything equivalent across all
+states and federal"*, and then gave the reason — **"the point is to make a state
+complaint before we make a federal complaint."**
+
+So it is a register with an order, not three entries. `add_venue` records a forum
+and `complaint_path` returns the sequence. State sits at rung 1 because a state
+regulator licences the entity directly and its file is what a federal complaint
+escalates from — recorded explicitly as an order of operations and **not** a
+legal exhaustion requirement, because no statute here conditions a federal
+complaint on a state one and none is claimed to.
+
+**The finding is not the processing time. It is that the ladder costs days the
+court clock does not give back.** Every venue answer therefore carries the
+periods still running, read from the corpus at call time:
+
+```
+15 U.S.C. 1681p   FCRA   the earlier of 2 years after discovery, or 5 after occurrence
+15 U.S.C. 1640(e) TILA   within one year from the occurrence of the violation
+15 U.S.C. 1692k(d) FDCPA within one year from the date on which the violation occurs
+15 U.S.C. 1691e(f) ECOA  within 5 years after the occurrence
+42 U.S.C. 3613(a)  FHA   not later than 2 years after the occurrence or termination
+```
+
+A complaint can sit open with an agency while the right to sue on the same facts
+expires, and the file being live is not a defence to the limitation. Five
+sections were acquired to make that answerable; before today none of them was
+openable and a lookup for `1681p` fell through to a web search.
+
+**A processing time is agency practice, not law**, and is stored as
+`agency_policy` with `verified_against_authority: false`. 12 U.S.C. § 5534
+requires a *timely* response and contains no day count; the 15-day and 60-day
+figures are the CFPB's own published practice and say so. A venue's statutory
+basis is checked by **looking**, not by the caller asserting it.
+
+**Forty-eight states are absent by design.** The register is filled on demand the
+way the corpus is — a state agency named from memory would be exactly the
+recalled fact this system refuses elsewhere. Texas and California are seeded, and
+each entry records how it got there: `named by the principal` or `recalled, not
+verified against any source in this corpus`. **OCC and OCCC are different bodies**
+and are recorded separately — the federal Comptroller of the Currency covers
+national banks only; Texas's Office of Consumer Credit Commissioner covers
+licensed consumer credit businesses.
+
+### The data-broker claim, run through the pipeline rather than agreed with
+
+The principal argued LexisNexis and the bureaus are unjustly enriched by selling
+data derived from his information without paying him. He then supplied a real law
+review article — Lizzie Bird, *LexisNexis's Contract With ICE and Unjust
+Enrichment*, 95 U. Colo. L. Rev. Iss. 4 (2024).
+
+That article changed the assessment. It describes the doctrine as *misunderstood
+and irregular* and the LexisNexis–ICE contract as *an opportunity for advocates to
+push courts to clarify* it, and refers to an Illinois class action pleading it.
+That is the language of an open question — so the theory is **arguable and
+unsettled**, not the settled loser it would have been called from memory. It is
+recorded as **secondary authority, treatise class, NOT READ** — only fragments
+visible in a screenshot of a livestream overlay were seen.
+
+The pipeline returned **`prerequisite_missing`, confidence 0.45**, with one
+prerequisite outstanding: **what instrument is this about?** Nothing about this
+principal's own data is in evidence — no report, no recipient, no date.
+
+Two things fell out of that, both more useful than a verdict:
+
+- **The status term is wrong.** *"Credit broker"* is not defined anywhere in
+  FCRA. **Consumer reporting agency** is, at 15 U.S.C. § 1681a(f), and it carries
+  duties — permissible purpose, accuracy procedures, reinvestigation, and a
+  private right of action with fees. Using the undefined label puts the wrong
+  duty on the wrong status.
+- **The missing instrument has a free remedy.** § 1681g entitles a consumer to
+  the full file on request. An action is open for it: the cheapest step that
+  turns an argument into a set of facts, and until it is taken there is nothing
+  to complain to a regulator *about*.
