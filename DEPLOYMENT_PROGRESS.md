@@ -97,6 +97,46 @@ basket. Claude agreed with it in the same turn and never wrote it down. On
 distorted by displacement that does not exist. The grower had supplied the
 deciding fact two days earlier and been agreed with.
 
+### It is not a Grow problem. Worked example, 2026-08-31.
+
+Renamed from *"Grow captures spoken facts itself"* after a session that made the
+scope obvious. The principal, on the same failure in Legal: *"I should be able to
+have this conversation with Anansi, and Legal should be able to pull the
+respective solutions - just like how you did."*
+
+Correct, and what "how you did" consisted of IS the specification. In one
+exchange the principal said, in ordinary speech: the pest-control trip charge is
+$54; it is posted on the ledger under DAMAGES; the landlord alleged the tenant
+broke through the wall; the roaches come from the AC penetration, not the
+plumbing. Four facts. What followed was mechanical, and none of it is reachable
+through Anansi:
+
+1. **Route each fact to the agent that owns it.** The $54 and its ledger caption
+   are Accounting's. The tenant-causation allegation is Legal's.
+2. **Pick the category that decides what it is worth.** `out_of_pocket`, not a
+   general note - the category carries what evidence closes it.
+3. **Notice what the fact IMPLIES against the corpus.** A landlord alleging
+   tenant causation is not a complaint about tone; it is Tex. Prop. Code
+   92.052(b), which extinguishes the repair duty outright if established. That
+   connection is the whole value, and it came from having the statute open.
+4. **Open a claim and test it.** The allegation scored `prerequisite_missing` at
+   0.0 - no move-in inspection, no incident report, no photograph predating the
+   tenancy, nothing in the file evidencing causation.
+5. **Report the gap rather than a number.** The $54 was recorded as NOT YET
+   KNOWN until the principal read it off the ledger, then updated.
+
+Steps 1, 2 and 5 are mechanical and belong in the agents. Step 3 needs a domain
+corpus open, which is exactly what Legal has. Step 4 already exists as
+`claim_open` / `claim_evidence` / `claim_get` and is reachable by nothing a
+person says out loud.
+
+**So the phase is: every domain agent captures its own spoken facts, and Anansi
+routes an ordinary sentence to the one that owns it.** Grow is the example
+because it failed first, not because it is the only one - and Phase 2
+(conversations that persist) is what lets the answer arrive after the capability
+to give it exists.
+
+
 ### Likely shape (not designed yet)
 
 Extend `ingest()` beyond readings: recognise statements of system fact and
