@@ -793,6 +793,67 @@ has used it in two days. Whether that is because no question needed a sibling's
 authority or because the agents do not reach for it is a real question, and a
 strand that never appears in the picture is how it would get asked.
 
+### Two graphs, and each draws a different part
+
+The principal: *"all the KAG is is a visual layer. The visuals can change."* Half
+right, and the half that is not decides what gets built. The **rendering** is a
+visual layer and is entirely swappable - web, node-link, table, whatever the
+creator's vision and the installed capabilities allow. The **graph** is not. It
+is a data store: `state/graph.db` holds that the Housing Authority may pay the
+$791 and the principal may not, and that remains true with every renderer
+deleted.
+
+There are two graphs, and the useful thing is that they map onto two different
+parts of the spider:
+
+| | Source | Holds | Draws as |
+|---|---|---|---|
+| **Knowledge graph** | `state/graph.db` | what RELATES to what - case, parties, instruments, obligations | **the web** - its regions and strands |
+| **Interaction graph** | `state/audit.db` | who TALKED to whom, just now | **the legs** - what is reaching |
+
+Standing structure versus live motion. The web exists whether or not anything is
+happening and changes slowly, when a case gains a participant or a corpus gains
+a section. The legs exist only while something is being answered.
+
+Which means the web is not a backdrop - **it is the knowledge graph, drawn**. A
+department holding nothing looks sparse because it IS sparse, and that is
+information rather than a rendering flaw.
+
+### What the case actually holds
+
+The principal, correcting a projection that had stopped at parties and amounts:
+*"it's not just Housing Authority - Housing Authority, VA, me benefiting from the
+interaction, contracted party, the corporation renting a space from, and then
+there's the instruments on the ledgers."*
+
+Right, and the graph now carries it: **21 nodes, 21 edges** - 1 case, 6 parties,
+3 obligations, **11 instruments**, each with what it DOES rather than merely that
+it exists:
+
+```
+GOVERNS         Residential Lease Contract - 7333 Potranco Rd Apt 5201
+EVIDENCES       Resident Ledger, Villas at Costa Brava, unit 05-05201
+APPOINTS        Fiduciary appointment letter
+AUTHORISES      FHCST Client Authorization Form, signed 8/28/2026
+ESTABLISHES     VA disability rating decision
+REQUESTS_UNDER  Formal Request for Reasonable Accommodation
+DIRECTS         Instruction to Texas Fair Housing: proceed to a HUD complaint
+```
+
+A lease is what CREATES an obligation; a resident ledger is what EVIDENCES
+payment against it; an authorization letter is what MAKES a representative one.
+Those are relationships, and a graph that omits them is a contact list. Only
+instrument kinds cross - an email is correspondence, and copying every document
+in would put the case file into a second store.
+
+**And the projection immediately found something a list never would.** The case
+carries `principal` as a participant and `Anthony Hanlan` as an authorised
+payor - one human, two nodes, because the two facts arrived by different paths.
+It is **reported, not merged**: deciding two names are one person is an identity
+judgement and belongs to the principal, not to a projection script. The same
+rule as `contested` in the claim pipeline - surface the conflict, do not resolve
+it quietly.
+
 ### The constraint that must survive any redesign
 
 **The visual is derived from the register and the payload, never chosen for

@@ -733,6 +733,45 @@ class MaintenanceAgent(AgentBase):
                                          "properties": {"role": p.get("role")}})
                 planned["edges"].append({"from": name, "to": cid, "rel": "PARTY",
                                          "properties": {"role": p.get("role")}})
+            # INSTRUMENTS, and what they do.
+            #
+            # The first projection took parties and obligations and stopped,
+            # which left the graph saying WHO and HOW MUCH and nothing about
+            # what establishes either. The principal: *"then there's the
+            # instruments on the ledgers."* A lease is what creates the
+            # obligation; a resident ledger is what evidences payment against
+            # it; an authorization letter is what makes a representative one.
+            # Those are relationships, and a graph that omits them is a
+            # contact list.
+            #
+            # Only instrument KINDS cross. An email or a status update is
+            # correspondence, not an instrument, and copying every document in
+            # would put the case file into a second store - the drift this is
+            # meant to avoid.
+            INSTRUMENT_KINDS = {
+                "lease": "GOVERNS",
+                "rent_ledger": "EVIDENCES",
+                "fiduciary_letter": "APPOINTS",
+                "client_authorization": "AUTHORISES",
+                "accommodation_request": "REQUESTS_UNDER",
+                "decision": "DIRECTS",
+                "va_disability_proof": "ESTABLISHES",
+            }
+            for doc in case.get("documents") or []:
+                kind = doc.get("kind")
+                rel = INSTRUMENT_KINDS.get(kind)
+                if not rel:
+                    continue
+                did = doc.get("doc_id") or doc.get("title")
+                if not did:
+                    continue
+                planned["nodes"].append({
+                    "id": did, "type": "instrument",
+                    "properties": {"kind": kind, "title": doc.get("title"),
+                                   "ref": doc.get("ref")}})
+                planned["edges"].append({"from": did, "to": cid, "rel": rel,
+                                         "properties": {"kind": kind}})
+
             for o in case.get("obligations") or []:
                 oid = o.get("obligation_id") or o.get("name")
                 if not oid:
@@ -762,9 +801,33 @@ class MaintenanceAgent(AgentBase):
                 continue
             seen_n.add(n["id"])
             nodes.append(n)
+        # THE SAME PERSON UNDER TWO NAMES IS A FINDING, NOT A MERGE.
+        #
+        # This case carries "principal" as a participant and "Anthony Hanlan" as
+        # an authorised payor - one human, two nodes, because the two facts were
+        # recorded by different paths. Silently merging them would be the graph
+        # deciding an identity question, which is exactly the kind of judgement
+        # that belongs to a person. So it is REPORTED and left alone: two nodes,
+        # and a note saying they may be one.
+        parties = [n["id"] for n in nodes if n["type"] == "party"]
+        possible_same = []
+        if "principal" in parties:
+            named = [p for p in parties
+                     if p != "principal" and " " in p and not any(
+                         w in p.lower() for w in ("authority", "va ", "council",
+                                                  "management", "inc", "llc"))]
+            for p in named:
+                possible_same.append(["principal", p])
+
         out = {"cases": len(cases), "nodes": len(nodes), "edges": len(planned["edges"]),
                "applied": False,
-               "sample": [f"{n['type']}: {n['id']}" for n in nodes[:8]]}
+               "by_type": {t: sum(1 for n in nodes if n["type"] == t)
+                           for t in sorted({n["type"] for n in nodes})},
+               "possible_same_entity": possible_same,
+               "identity_note": ("Reported, never merged. Two names for one person is an "
+                                 "identity judgement and belongs to the principal, not to a "
+                                 "projection script."),
+               "sample": [f"{n['type']}: {n['id']}" for n in nodes[:10]]}
         if not apply:
             out["note"] = "Dry run. Pass apply=true to write."
             return out
