@@ -3003,3 +3003,52 @@ not. A licensed CPA can sign an opinion a third party may rely on, and this
 agent carries no licence and offers none — `not_an_attestation` ships in every
 result. What it has instead is that every step is shown and can be checked, and
 that it has no conflict of interest to decline over.
+
+### 2026-08-31 — A Legal column on the dashboard, and a step is not done until something shows it was
+
+The principal asked for a Legal column holding the things that still need doing —
+the certified-mail repair notice, a HUD complaint to be filed. It is a to-do
+list, so the only interesting design question is what closes an item.
+
+**`complete_action` refuses to close one without a reference to its proof.**
+
+```
+Cannot mark this done without `evidence_ref`. Expected: USPS certified mail
+receipt number plus the returned green card (PS Form 3811), and a copy of the
+letter as sent. Doing a thing and being able to show it was done are different
+states, and only the second one survives a denial.
+```
+
+That is not pedantry about this matter in particular. Tex. Prop. Code § 92.056(b)
+conditions the landlord's repair duty on notice having been **given**; a notice
+that was sent but cannot be evidenced leaves the duty untriggered and looks
+identical, on any list that closes on assertion, to one that was never sent. So
+`evidence_expected` is required when the action is **opened**, not decided at the
+end — deciding it at the end is how a step gets ticked with nothing behind it.
+
+The register is kept separate from `deadlines` on purpose. A deadline is a period
+computed from an authority and the register refuses to hold one it cannot open. An
+action is an errand and needs no citation. Merging them would force every errand
+to carry a statute, or make the deadline register accept things nobody verified.
+They travel together instead — an action may name the deadline it protects.
+
+Four opened for the housing matter: photograph the unsealed AC line-set
+penetration before it is repaired (2d), send the § 92.056(b) notice by certified
+mail (4d), request the itemised ledger and the pest-control invoice behind the
+`damages` entry (11d), file the HUD complaint (361d).
+
+**The card shows what each item is waiting for, never a checkbox.** An action
+list whose evidence requirement is invisible closes on assertion.
+
+Verified through the path the browser actually takes, not on disk: Anansi
+forwards `actions` and `deadlines` by name — narration is the wrong layer for a
+to-do list, because the thing a telling shortens out is the item nobody has
+started — and the shell is at v20 across `index.html`, `service-worker.js` and
+the fingerprint, so an installed client stops serving v19.
+
+Also registered `add_deadline`, `deadlines`, `open_action`, `complete_action`,
+`actions`, `triage_source` and `record_case_outcome` in Legal's declared
+capabilities, and `classify_charge`, `log_harm` and `harm_summary` in
+Accounting's. Every one of them worked when called directly and was invisible to
+discovery — an agent whose capability list is out of date is one nothing can
+route to.

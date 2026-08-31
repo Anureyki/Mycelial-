@@ -101,7 +101,8 @@ class AccountingAgent(AgentBase):
                 "refresh_cache", "query_cache", "cache_stats", "cache_manifest",
                 "map_transaction_roles", "log_transaction", "check_ledger_integrity",
                 "map_assets_liabilities", "prepare_documentation_package", "check_budget_constraint",
-                "forecast_cash_flow", "build_budget"
+                "forecast_cash_flow", "build_budget",
+                "classify_charge", "log_harm", "harm_summary"
             ],
             role="agent"
         )

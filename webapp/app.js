@@ -624,6 +624,107 @@ async function renderGraphCard(body) {
   }
 }
 
+// Legal card: what still has to be DONE, and what will show it was.
+//
+// Deliberately not a status readout. A matter is lost by a step nobody took,
+// not by a dashboard that failed to describe itself - so this shows the open
+// actions and the statutory periods and nothing else. Every row carries the
+// evidence it is waiting for rather than a checkbox, because an action list
+// that closes on assertion is a list of things somebody believes happened.
+async function renderLegalCard(body) {
+  body.textContent = '';
+
+  const act = unwrap(await callTask('actions', {}), 'actions');
+  if (!act || act.error) {
+    body.textContent = act && act.error ? act.error : 'No legal data.';
+    return;
+  }
+
+  const items = act.actions || [];
+  if (!items.length) {
+    const p = document.createElement('p');
+    p.className = 'muted';
+    p.textContent = 'Nothing outstanding.';
+    body.append(p);
+  } else {
+    const ul = document.createElement('ul');
+    ul.className = 'actions';
+    for (const a of items) {
+      const li = document.createElement('li');
+      li.className = `act-${a.status || 'open'}`;
+
+      const head = document.createElement('div');
+      head.className = 'act-what';
+      head.textContent = a.what || '(unnamed)';
+      li.append(head);
+
+      const bits = [];
+      if (a.due) {
+        const d = a.days_remaining;
+        bits.push(d == null ? a.due
+          : d < 0 ? `${Math.abs(d)}d overdue`
+          : d === 0 ? 'due today'
+          : `${d}d left`);
+      }
+      if (a.forum) bits.push(a.forum);
+      if (a.status && a.status !== 'open') bits.push(a.status);
+      if (bits.length) {
+        const meta = document.createElement('div');
+        meta.className = 'act-meta';
+        meta.textContent = bits.join(' \u00b7 ');
+        li.append(meta);
+      }
+
+      // The point of the card: not "is it ticked" but "what would show it".
+      const proof = document.createElement('div');
+      proof.className = 'act-proof';
+      proof.textContent = a.evidence_ref
+        ? `proof: ${a.evidence_ref}`
+        : `needs: ${a.evidence_expected || 'nothing specified'}`;
+      li.append(proof);
+
+      if (a.blocked_by) {
+        const b = document.createElement('div');
+        b.className = 'act-blocked';
+        b.textContent = `blocked by ${a.blocked_by}`;
+        li.append(b);
+      }
+      ul.append(li);
+    }
+    body.append(ul);
+  }
+
+  const dl = unwrap(await callTask('deadlines', {}), 'deadlines');
+  if (dl && dl.deadlines && dl.deadlines.length) {
+    const h = document.createElement('p');
+    h.className = 'phase-hdr';
+    h.textContent = 'Deadlines';
+    body.append(h);
+
+    const ul = document.createElement('ul');
+    ul.className = 'deadlines';
+    for (const d of dl.deadlines.slice(0, 6)) {
+      const li = document.createElement('li');
+      li.className = `dl-${(d.status || 'open').toLowerCase()}`;
+      const t = document.createElement('time');
+      t.textContent = d.status === 'PASSED' ? 'passed'
+        : d.days_remaining != null ? `${d.days_remaining}d` : (d.due || '');
+      const n = document.createElement('span');
+      n.className = 'dl-name';
+      n.textContent = d.name || '(unnamed)';
+      li.append(t, n);
+      if (d.citation) li.title = `${d.citation} - ${d.consequence || ''}`;
+      ul.append(li);
+    }
+    body.append(ul);
+
+    const note = document.createElement('p');
+    note.className = 'muted';
+    note.textContent = 'Every period was computed from an authority located in the corpus. None was recalled.';
+    body.append(note);
+  }
+}
+
 async function refreshDashboard() {
   const narrated = [
     { id: 'systemCard', prompt: 'system status' },
@@ -632,6 +733,7 @@ async function refreshDashboard() {
   const structured = [
     { id: 'growCard', render: renderGrowCard },
     { id: 'progressCard', render: renderProgressCard },
+    { id: 'legalCard', render: renderLegalCard },
     { id: 'graphCard', render: renderGraphCard },
   ];
   for (const { id } of [...narrated, ...structured]) {

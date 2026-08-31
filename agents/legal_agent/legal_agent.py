@@ -192,7 +192,10 @@ class LegalAgent(AgentBase):
                 "cite_in_jurisdiction", "transaction_layers",
                 "claim_open", "claim_cite", "claim_answer", "claim_set_right",
                 "claim_evidence", "claim_observe", "claim_reproducibility",
-                "claim_corroborate", "claim_get", "claim_list", "claim_ontology"
+                "claim_corroborate", "claim_get", "claim_list", "claim_ontology",
+                "add_deadline", "deadlines",
+                "open_action", "complete_action", "actions",
+                "triage_source", "record_case_outcome"
             ],
             role="agent"
         )
@@ -548,6 +551,148 @@ class LegalAgent(AgentBase):
                 "critical": [d["name"] for d in out if d.get("status") == "CRITICAL"],
                 "note": ("Every period here was computed from an authority located in the "
                          "corpus at the time it was recorded. None was recalled.")}
+
+    # ------------------------------------------------------------------
+    # The action register: what a person still has to DO.
+    #
+    # Deliberately separate from `deadlines`. A deadline is a period computed
+    # from an authority, and the register refuses to hold one it cannot open.
+    # An action is a step somebody must take - send the notice, file the
+    # complaint, request the ledger - and it is not law, so it needs no
+    # citation. Merging them would force every errand to carry a statute or
+    # make the deadline register accept things nobody verified. They travel
+    # together instead: an action may point at the deadline it protects.
+    #
+    # One rule carries the whole thing: AN ACTION IS NOT DONE UNTIL SOMETHING
+    # SHOWS IT WAS DONE. A certified-mail notice with no green card is not a
+    # notice this principal can prove he sent, and under Tex. Prop. Code
+    # 92.056(b) the repair duty turns on notice having been given. "I sent it"
+    # and "I can show I sent it" are different states of the world, and a
+    # to-do list that cannot tell them apart tells its owner he is covered
+    # when he is not. So `complete_action` requires an evidence reference and
+    # refuses without one - the same rule the case layer applies to a payment.
+
+    ACTION_STATES = ("open", "in_progress", "blocked", "done", "not_needed")
+
+    def open_action(self, args):
+        """Record something that still has to be done, and what will show it was."""
+        a = args if isinstance(args, dict) else {}
+        what = str(a.get("what") or "").strip()
+        if not what:
+            return {"error": "An action needs `what` - the step somebody has to take."}
+        proof = str(a.get("evidence_expected") or "").strip()
+        if not proof:
+            return {"error": ("An action needs `evidence_expected`: what will show this was "
+                              "actually done. Deciding that at the end is how a step gets "
+                              "marked complete with nothing behind it.")}
+        owner = str(a.get("owner") or "principal").strip().lower()
+        rec = {
+            "id": f"action_{self._uid()}",
+            "case_id": a.get("case_id"),
+            "what": what,
+            "why": str(a.get("why") or "").strip() or None,
+            "owner": owner,
+            "forum": a.get("forum"),
+            "due": a.get("due"),
+            "protects_deadline": a.get("protects_deadline"),
+            "evidence_expected": proof,
+            "evidence_ref": None,
+            "status": "open",
+            "blocked_by": None,
+            "opened_at": datetime.now().isoformat(timespec="seconds"),
+            "completed_at": None,
+        }
+        if not rec["why"]:
+            rec["why"] = ("Not stated. An action with no stated purpose cannot be ranked "
+                          "against another, and is the first thing to be dropped.")
+        try:
+            raw = self._unwrap_value(self.retrieve_own_memory("action_index"))
+            idx = json.loads(raw) if raw else []
+        except Exception:
+            idx = []
+        self.store_own_memory(rec["id"], json.dumps(rec), pin=True)
+        idx.append(rec["id"])
+        self.store_own_memory("action_index", json.dumps(idx))
+        return rec
+
+    def complete_action(self, args):
+        """Close an action. Refuses without proof, and says why."""
+        a = args if isinstance(args, dict) else {}
+        aid = str(a.get("action_id") or "").strip()
+        state = str(a.get("status") or "done").strip().lower()
+        if state not in self.ACTION_STATES:
+            return {"error": f"status must be one of {list(self.ACTION_STATES)}"}
+        raw = self._unwrap_value(self.retrieve_own_memory(aid)) if aid else None
+        if not raw:
+            return {"error": f"no such action: {aid or '(none given)'}"}
+        try:
+            rec = json.loads(raw)
+        except Exception:
+            return {"error": f"action {aid} is unreadable"}
+
+        ref = str(a.get("evidence_ref") or "").strip()
+        if state == "done" and not ref:
+            return {"error": ("Cannot mark this done without `evidence_ref`. Expected: "
+                              f"{rec.get('evidence_expected')}. Doing a thing and being able "
+                              f"to show it was done are different states, and only the second "
+                              f"one survives a denial."),
+                    "recorded": False, "action_id": aid, "status": rec.get("status")}
+        if state == "blocked" and not a.get("blocked_by"):
+            return {"error": "A blocked action needs `blocked_by` - what is in the way."}
+
+        rec["status"] = state
+        rec["evidence_ref"] = ref or rec.get("evidence_ref")
+        rec["blocked_by"] = a.get("blocked_by") or rec.get("blocked_by")
+        if a.get("note"):
+            rec["note"] = a["note"]
+        rec["completed_at"] = (datetime.now().isoformat(timespec="seconds")
+                               if state in ("done", "not_needed") else None)
+        self.store_own_memory(aid, json.dumps(rec), pin=True)
+        if state == "done" and rec.get("case_id"):
+            try:
+                self.case(rec["case_id"]).complete_task(rec["what"], f"evidence: {ref}")
+            except Exception as exc:
+                rec["case_event_failed"] = str(exc)
+        return rec
+
+    def actions(self, case_id=None, include_closed=False):
+        """The open list, most urgent first. Closed items are kept but hidden
+        by default - a completed step with its proof attached is the record
+        that the step was taken."""
+        try:
+            raw = self._unwrap_value(self.retrieve_own_memory("action_index"))
+            idx = json.loads(raw) if raw else []
+        except Exception:
+            idx = []
+        out = []
+        for aid in idx:
+            r = self._unwrap_value(self.retrieve_own_memory(aid))
+            if not r:
+                continue
+            try:
+                rec = json.loads(r)
+            except Exception:
+                continue
+            if case_id and rec.get("case_id") != case_id:
+                continue
+            if not include_closed and rec.get("status") in ("done", "not_needed"):
+                continue
+            if rec.get("due"):
+                try:
+                    rec["days_remaining"] = (
+                        datetime.fromisoformat(str(rec["due"])[:19]) - datetime.now()).days
+                except Exception:
+                    pass
+            out.append(rec)
+        rank = {"blocked": 0, "in_progress": 1, "open": 2, "done": 3, "not_needed": 4}
+        out.sort(key=lambda x: (x.get("due") or "9999", rank.get(x.get("status"), 9)))
+        return {"case_id": case_id, "count": len(out), "actions": out,
+                "blocked": [x["what"] for x in out if x.get("status") == "blocked"],
+                "awaiting_proof": [x["what"] for x in out
+                                   if x.get("status") == "in_progress" and not x.get("evidence_ref")],
+                "note": ("Nothing here is closed without a reference to what shows it was "
+                         "done. An action list that closes on assertion is a list of things "
+                         "somebody believes happened.")}
 
     def _check_deadlines(self, text, matter):
         """Deadline exposure. Reports days remaining; never guesses a date it
@@ -2125,6 +2270,13 @@ class LegalAgent(AgentBase):
         if task == "triage_source":
             return self.triage_source(**(args if isinstance(args, dict) else {}))
 
+        if task == "open_action":
+            return self.open_action(args if isinstance(args, dict) else {})
+        if task == "complete_action":
+            return self.complete_action(args if isinstance(args, dict) else {})
+        if task == "actions":
+            a = args if isinstance(args, dict) else {}
+            return self.actions(a.get("case_id"), bool(a.get("include_closed")))
         if task == "add_deadline":
             return self.add_deadline(**(args if isinstance(args, dict) else {}))
         if task == "deadlines":

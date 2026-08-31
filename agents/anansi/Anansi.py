@@ -122,6 +122,21 @@ class Anansi(AgentBase):
         if task == "phase_status":
             return self.send_a2a("maintenance_agent", "phase_status", {})
 
+        # The Legal card wants the register, not a telling of it. A matter is
+        # lost by a step nobody took, and narration is exactly the wrong layer
+        # for that - it is allowed to shorten, and the thing that gets shortened
+        # out of a to-do list is the item nobody has started.
+        if task == "actions":
+            payload = args if isinstance(args, dict) else {}
+            return self.send_a2a("legal_agent", "actions",
+                                 {"case_id": payload.get("case_id"),
+                                  "include_closed": bool(payload.get("include_closed"))})
+
+        if task == "deadlines":
+            payload = args if isinstance(args, dict) else {}
+            return self.send_a2a("legal_agent", "deadlines",
+                                 {"case_id": payload.get("case_id")})
+
         if task == "system_graph":
             payload = args if isinstance(args, dict) else {}
             return self.send_a2a("maintenance_agent", "system_graph",
