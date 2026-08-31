@@ -591,6 +591,189 @@ class AccountingAgent(AgentBase):
         return {"text": " ".join(lines), "answered_as": "obligation_status",
                 "obligations": len(obs)}
 
+    # WHAT A HARM IS WORTH DEPENDS ON WHICH KIND IT IS.
+    #
+    # The principal: *"log harm that's being done to me, substantiate everything
+    # into harm to get a just settlement or compensation, including attorney
+    # fees and research."*
+    #
+    # Right in shape, and the categories are not interchangeable. 42 U.S.C.
+    # 3613(c) - now in Legal's corpus - authorises two different things in two
+    # different subsections, on two different conditions:
+    #
+    #   (c)(1) "the court may award to the plaintiff ACTUAL AND PUNITIVE
+    #          DAMAGES" plus injunctive relief. No prevailing-party condition
+    #          stated in the clause itself.
+    #   (c)(2) "the court, IN ITS DISCRETION, may allow the PREVAILING PARTY...
+    #          a reasonable ATTORNEY'S FEE AND COSTS."
+    #
+    # So fees are conditional on prevailing AND discretionary, while actual
+    # damages are the substance of the claim. Recording them in one bucket
+    # produces a number that cannot survive being asked what it is made of.
+    HARM_KINDS = {
+        "out_of_pocket": {
+            "recoverable_as": "actual damages, 42 U.S.C. 3613(c)(1)",
+            "needs": "a receipt, invoice, or statement",
+            "note": "Money that actually left. The most durable category there is."},
+        "lost_income": {
+            "recoverable_as": "actual damages, 42 U.S.C. 3613(c)(1)",
+            "needs": "pay records, a schedule, or a supervisor's confirmation",
+            "note": "Time off work FOR the matter. Hours, dates, and rate."},
+        "medical_or_treatment": {
+            "recoverable_as": "actual damages, 42 U.S.C. 3613(c)(1)",
+            "needs": "records or bills",
+            "note": "Including mental-health treatment attributable to the conduct."},
+        "emotional_distress": {
+            "recoverable_as": "actual damages, 42 U.S.C. 3613(c)(1)",
+            "needs": "testimony, a contemporaneous log, corroboration",
+            "note": ("Real and compensable in fair-housing cases, and proved by "
+                     "contemporaneous detail rather than by a round number. Log it as it "
+                     "happens; reconstructed distress reads as reconstructed.")},
+        "loss_of_housing_opportunity": {
+            "recoverable_as": "actual damages, 42 U.S.C. 3613(c)(1)",
+            "needs": "the accommodation request, the refusal, what it cost",
+            "note": "The core injury in a denied-accommodation case."},
+        "punitive": {
+            "recoverable_as": "punitive damages, 42 U.S.C. 3613(c)(1)",
+            "needs": "evidence of the state of mind, not of the loss",
+            "note": ("Not a multiple of the other categories - it addresses the conduct. "
+                     "Log the facts showing what they knew and when, not an amount.")},
+        "attorney_fee": {
+            "recoverable_as": "42 U.S.C. 3613(c)(2) - PREVAILING PARTY, court's discretion",
+            "needs": "counsel's own time records",
+            "note": ("An ATTORNEY's hours, including their legal research. Conditional on "
+                     "prevailing and discretionary - not part of the damages figure.")},
+        "cost": {
+            "recoverable_as": "costs, 42 U.S.C. 3613(c)(2)",
+            "needs": "receipts",
+            "note": ("Filing fees, service, records, certified mail, transcripts. Separate "
+                     "from fees and usually easier to recover.")},
+        "own_time_unrecoverable": {
+            "recoverable_as": "NOT recoverable as an attorney's fee",
+            "needs": "log it anyway - it evidences burden and diligence",
+            "note": ("A party's own research and preparation hours are not an 'attorney's "
+                     "fee'. Kay v. Ehrler, 499 U.S. 432 (1991) held even a pro se ATTORNEY "
+                     "cannot recover fees for self-representation. Recorded in its own "
+                     "category so it never inflates a demand - a number that collapses under "
+                     "one question damages the credible categories beside it.")},
+    }
+
+    def log_harm(self, case_id=None, occurred_on=None, kind=None, description=None,
+                 amount=None, evidence_ref=None, hours=None, rate=None):
+        """Record one harm, in the category that decides what it is worth.
+
+        Substantiation is the whole exercise: a harm with a date, an amount and
+        a document behind it survives a hostile reading, and a harm without one
+        is an assertion. So `evidence_ref` is recorded and its ABSENCE is
+        reported rather than passed over."""
+        k = str(kind or "").strip().lower()
+        if k not in self.HARM_KINDS:
+            return {"error": ("kind must be one of: " + ", ".join(sorted(self.HARM_KINDS))),
+                    "meanings": {n: v["recoverable_as"] for n, v in self.HARM_KINDS.items()}}
+        if not description or not str(description).strip():
+            return {"error": "A harm needs a description of what actually happened."}
+        profile = self.HARM_KINDS[k]
+
+        amt = None
+        try:
+            amt = float(amount) if amount is not None else None
+        except (TypeError, ValueError):
+            return {"error": f"amount '{amount}' is not a number."}
+        if amt is None and hours and rate:
+            try:
+                amt = round(float(hours) * float(rate), 2)
+            except (TypeError, ValueError):
+                pass
+
+        entry = {
+            "id": f"harm_{self._uid()}" if hasattr(self, "_uid")
+                  else f"harm_{int(time.time()*1000000)}",
+            "case_id": case_id,
+            "occurred_on": occurred_on,
+            "recorded_at": datetime.now().isoformat(timespec="seconds"),
+            "kind": k,
+            "description": str(description).strip(),
+            "amount": amt,
+            "hours": hours, "rate": rate,
+            "evidence_ref": evidence_ref,
+            "recoverable_as": profile["recoverable_as"],
+            "evidence_needed": profile["needs"],
+            "note": profile["note"],
+            "substantiated": bool(evidence_ref),
+        }
+        if not evidence_ref:
+            entry["gap"] = (f"No evidence reference. This is currently an assertion. "
+                            f"What would close it: {profile['needs']}.")
+        if not occurred_on:
+            entry["date_gap"] = ("No date. A harm without one cannot be tied to the "
+                                 "conduct that caused it.")
+        try:
+            raw = self._unwrap_value(self.retrieve_own_memory("harm_index"))
+            idx = json.loads(raw) if raw else []
+        except Exception:
+            idx = []
+        self.store_own_memory(entry["id"], json.dumps(entry), pin=True)
+        idx.append(entry["id"])
+        self.store_own_memory("harm_index", json.dumps(idx))
+        return entry
+
+    def harm_summary(self, case_id=None):
+        """Totals by category, and what is not yet substantiated.
+
+        Deliberately does NOT produce one number. A demand figure that mixes
+        actual damages with a discretionary fee award and a party's own hours
+        invites exactly one question, and the answer unravels the credible parts
+        along with the rest."""
+        try:
+            raw = self._unwrap_value(self.retrieve_own_memory("harm_index"))
+            idx = json.loads(raw) if raw else []
+        except Exception:
+            idx = []
+        rows = []
+        for hid in idx:
+            r = self._unwrap_value(self.retrieve_own_memory(hid))
+            if not r:
+                continue
+            try:
+                e = json.loads(r)
+            except Exception:
+                continue
+            if case_id and e.get("case_id") != case_id:
+                continue
+            rows.append(e)
+
+        buckets = {}
+        for e in rows:
+            b = buckets.setdefault(e["kind"], {"count": 0, "amount": 0.0,
+                                               "substantiated": 0,
+                                               "recoverable_as": e["recoverable_as"]})
+            b["count"] += 1
+            b["amount"] += e.get("amount") or 0.0
+            b["substantiated"] += 1 if e.get("substantiated") else 0
+
+        actual = sum(v["amount"] for k, v in buckets.items()
+                     if v["recoverable_as"].startswith("actual"))
+        fees = sum(v["amount"] for k, v in buckets.items() if k == "attorney_fee")
+        costs = sum(v["amount"] for k, v in buckets.items() if k == "cost")
+        own = sum(v["amount"] for k, v in buckets.items() if k == "own_time_unrecoverable")
+        unsub = [e["id"] for e in rows if not e.get("substantiated")]
+
+        return {
+            "case_id": case_id, "entries": len(rows), "by_kind": buckets,
+            "actual_damages_total": round(actual, 2),
+            "attorney_fees_claimed": round(fees, 2),
+            "costs_total": round(costs, 2),
+            "own_time_logged_not_claimable": round(own, 2),
+            "unsubstantiated": unsub,
+            "unsubstantiated_count": len(unsub),
+            "why_no_single_total": (
+                "Actual damages are the claim. Attorney's fees and costs are a separate "
+                "application under 42 U.S.C. 3613(c)(2), conditional on prevailing and "
+                "discretionary. A party's own hours are neither. One combined number would "
+                "be asked what it consists of, and the answer would discredit the parts that "
+                "are sound."),
+        }
+
     def handle_task(self, task, args, sender):
         self.log(f"Task {task} from {sender}")
 
@@ -707,6 +890,10 @@ class AccountingAgent(AgentBase):
                 "disclaimer": DISCLAIMER
             }
 
+        elif task == "log_harm":
+            return self.log_harm(**(args if isinstance(args, dict) else {}))
+        elif task == "harm_summary":
+            return self.harm_summary(**(args if isinstance(args, dict) else {}))
         elif task == "parse_financial_instrument":
             if not args or not args[0]:
                 return {"error": "Missing document_text", "disclaimer": DISCLAIMER}

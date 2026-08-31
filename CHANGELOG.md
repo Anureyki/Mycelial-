@@ -2802,3 +2802,57 @@ Acquired tonight because a citation pointed at them: 15 U.S.C. 1681, 1681b,
 1681c, 1681e, 1681i, 1681n, 1681o, 1681s-2, 15 U.S.C. 45, 12 C.F.R. 1022,
 12 U.S.C. 24, 12 U.S.C. 1813, 5 U.S.C. 552, 5 U.S.C. 706, 28 U.S.C. 455,
 28 U.S.C. 2041, 28 U.S.C. 2042, 31 U.S.C. 5103, 42 U.S.C. 1983.
+
+### 2026-08-31 — Substantiate harm by category, because the categories are not interchangeable
+
+The principal: *"log harm that's being done to me, substantiate everything into
+harm to get a just settlement or compensation, including attorney fees and
+research."* Right in shape, and 42 U.S.C. 3613 - now in the corpus - authorises
+two different things on two different conditions:
+
+> **(c)(1)** *"the court may award to the plaintiff **actual and punitive
+> damages**"* plus injunctive relief.
+> **(c)(2)** *"the court, **in its discretion**, may allow the **prevailing
+> party**... a reasonable **attorney's fee and costs**."*
+
+Fees are conditional on prevailing AND discretionary. Actual damages are the
+substance of the claim. One bucket for both produces a number that cannot
+survive being asked what it is made of.
+
+**`log_harm` / `harm_summary` in Accounting**, with nine categories each carrying
+what it is recoverable as, what evidence closes it, and why it is separate.
+
+**The correction the principal needs:** *"research of the harm goes underneath
+attorney fees, just another charge"* is true for an ATTORNEY's hours - counsel's
+legal research is attorney time. It is not true for a party's own. Kay v. Ehrler,
+499 U.S. 432 (1991) held that even a pro se ATTORNEY cannot recover fees for
+self-representation. So `own_time_unrecoverable` exists as its own category:
+logged, because it evidences burden and diligence, and never totalled into a
+demand.
+
+`harm_summary` deliberately refuses to produce one number, and says why: *"one
+combined number would be asked what it consists of, and the answer would
+discredit the parts that are sound."* An unsubstantiated entry is flagged as an
+assertion with the evidence that would close it, not rejected and not quietly
+counted.
+
+**And the ledger question produced a real finding.** Asked for the principal of
+the rent:
+
+```
+Monthly rent                $1,450   principal, VA HUD-VASH
+Rent - resident portion       $459   Anthony Hanlan
+Rent - HAP voucher subsidy    $791   Housing Authority (HAP)
+
+459 + 791 = 1,250 against a stated 1,450 - a $200 monthly gap
+```
+
+Unexplained in the record. Logged as a **discrepancy to reconcile, not a harm**:
+two ledgers are on file - "Rent ledger 2026" and "Resident Ledger, Villas at
+Costa Brava, unit 05-05201" - and neither has been reconciled against the
+obligation figures. The claim that the components reconcile scores `unsupported`
+at 0.0.
+
+That is the divergence-first rule doing its job: Accounting surfaces it, Legal
+decides whether it is actionable, and nobody claims $200 a month until a ledger
+says so.
