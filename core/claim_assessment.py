@@ -180,6 +180,31 @@ def assess(claim):
     answered = {k for k, v in prereq.items() if v.get("state") == "answered"}
     missing = [k for k, _ in PREREQUISITES if k not in answered]
 
+    # AN ANSWER THAT DESTROYS THE CLAIM IS NOT PROGRESS TOWARD IT.
+    #
+    # Answering a prerequisite used to count as advancement whatever the
+    # answer said, so reading 22 U.S.C. 7102, finding that every branch
+    # requires a PERSON, and recording that a data record is not a person
+    # RAISED the claim's confidence from 0.45 to 0.5. A pipeline that cannot
+    # get worse when the authority contradicts you is a confirmation engine
+    # with extra steps, which is the one thing this file exists not to be.
+    #
+    # So an answer carries what it BEARS on the claim, and a refuting answer
+    # to the definition or the required facts is decisive: those two are where
+    # a claim meets the text, and losing there is losing.
+    refuting = sorted(k for k, v in prereq.items()
+                      if v.get("state") == "answered" and v.get("bears") == "refutes")
+    DECISIVE_PREREQS = ("definition", "factual_prereqs", "governing_law", "provision")
+    decisive = [k for k in refuting if k in DECISIVE_PREREQS]
+    # Refuting ANYWHERE ELSE is an evidentiary gap, not a contradiction. "No
+    # document establishes it" is the absence of an answer; treating it as the
+    # law being against you overstates by exactly as much as counting it as
+    # progress understated. Both errors were made here within one hour.
+    for k in refuting:
+        if k not in DECISIVE_PREREQS:
+            answered.discard(k)
+    missing = [k for k, _ in PREREQUISITES if k not in answered]
+
     auths = claim.get("authorities", [])
     located = [a for a in auths if a.get("located_in_corpus")]
     governing = [a for a in located if a.get("governs") is True]
@@ -194,7 +219,16 @@ def assess(claim):
     repro = claim.get("reproducibility", {}).get("state", "untested")
 
     # Order matters: the harshest finding that actually applies wins.
-    if contradicted:
+    if decisive:
+        conclusion = "contradicted"
+        why.append("The authority itself refutes the claim at " + ", ".join(decisive)
+                   + ". A provision that does not reach the facts on its own terms is "
+                     "not cured by any amount of further evidence.")
+        for k in decisive:
+            d = (prereq.get(k) or {}).get("detail")
+            if d:
+                why.append(f"{k}: {d}")
+    elif contradicted:
         conclusion = "contradicted"
         why.append(f"The record cuts against: {', '.join(sorted(contradicted))}.")
     elif not auths:
@@ -262,7 +296,11 @@ def assess(claim):
     # actually checked, so an empty record scores zero rather than defaulting
     # to something reassuring.
     n_prereq = len(PREREQUISITES)
-    score = len(answered) / n_prereq * 0.5
+    # Only answers that SUPPORT count toward the score. An answer recorded as
+    # refuting is real work on the record and must not read as advancement.
+    supporting = {k for k in answered
+                  if (prereq.get(k) or {}).get("bears") != "refutes"}
+    score = len(supporting) / n_prereq * 0.5
     if governing:
         score += 0.2
     if asserted:

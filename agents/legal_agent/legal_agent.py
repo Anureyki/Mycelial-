@@ -1616,7 +1616,15 @@ class LegalAgent(AgentBase):
             return {"error": "answering a prerequisite requires a detail - an "
                              "empty answer is not an answer",
                     "disclaimer": DISCLAIMER}
+        # What the answer BEARS on the claim. Default `supports` keeps every
+        # existing caller working; `refutes` is what lets a claim get worse
+        # when the text goes against it, which it previously could not do.
+        bears = str(args.get("bears") or "supports").strip().lower()
+        if bears not in ("supports", "refutes", "neutral"):
+            return {"error": "bears must be supports, refutes or neutral",
+                    "disclaimer": DISCLAIMER}
         c["prerequisites"][key] = {"state": "answered", "detail": detail,
+                                   "bears": bears,
                                    "answered_at": datetime.now().isoformat()}
         claim_assessment.assess(c); self._save_claim(c)
         return {"claim_id": c["claim_id"], "answered": key,

@@ -3305,3 +3305,60 @@ Two things fell out of that, both more useful than a verdict:
   the full file on request. An action is open for it: the cheapest step that
   turns an argument into a set of facts, and until it is taken there is nothing
   to complain to a regulator *about*.
+
+### 2026-08-31 (cont.) — The pipeline could not get worse when the law was against you
+
+The principal argued that data brokerage is *trafficking in persons* and that
+selling data without a right is a federal crime. Both halves went through the
+claim pipeline rather than being answered from opinion, and the run exposed a
+defect in the pipeline itself that matters more than either claim.
+
+**Answering a prerequisite counted as progress whatever the answer said.** So
+reading 22 U.S.C. § 7102, finding that every branch requires **a person**, and
+recording that a data record is not one **raised** the claim's confidence from
+0.45 to 0.50. A pipeline that cannot get worse when the authority contradicts you
+is a confirmation engine with extra steps — the one thing `claim_assessment.py`
+exists not to be.
+
+An answer now carries what it **bears**: `supports`, `refutes` or `neutral`.
+Refuting at `definition`, `factual_prereqs`, `governing_law` or `provision` is
+decisive and drives **`contradicted`** — a provision that does not reach the facts
+on its own terms is not cured by further evidence. Refuting answers never count
+toward the score.
+
+**Then the fix overshot, and that is recorded too.** The first version made ANY
+refuting answer `contradicted`, so the second claim came back contradicted
+because no document was in evidence. *"No document establishes it"* is the
+absence of an answer, not the law being against you. Refutation outside the
+decisive four is now a gap, producing `prerequisite_missing`. Both errors were
+made within the hour, in opposite directions, and the second was only visible
+because the first fix was tested on a claim it should not have killed.
+
+### The two halves, assessed separately
+
+| Claim | Result | Why |
+|---|---|---|
+| data brokerage is trafficking in persons | **contradicted, 0.15** | § 7102 requires a person subjected to labor, services or a commercial sex act by force, fraud or coercion. A record is not a person. |
+| providing file information to someone not authorised to receive it is a federal crime | **prerequisite_missing, 0.35** | 15 U.S.C. § 1681r says exactly that — 2 years. The statute is real; the facts are not in evidence. |
+
+The second is the finding. **§ 1681r is very nearly the principal's own
+sentence**: *any officer or employee of a consumer reporting agency who knowingly
+and willfully provides information concerning an individual from the agency's
+files to a person not authorized to receive that information* — fined, or
+imprisoned not more than two years, or both. § 1681q covers obtaining under false
+pretenses on the same penalty. Neither was in the corpus this morning.
+
+Two limits recorded with it: the elements are narrower than *"selling without a
+contract"* — a CRA furnishing to a recipient **with** a permissible purpose under
+§ 1681b is performing the licensed activity FCRA regulates — and both sections
+are enforceable **only by the United States**. A private citizen cannot bring
+them. The private remedies are § 1681n and § 1681o.
+
+**On the supplied article** — Rutan & Tucker, *Lessons From Representing Human
+Trafficking Survivors in Orange County*, Orange County Lawyer Magazine, Nov 2023
+— it concerns actual trafficking survivors and is recorded as **not authority for
+a data theory**. The real connection between the two subjects runs the other way:
+broker-held address and location data endangering survivors is a documented harm
+with live advocacy behind it. That is a claim about what data brokers *do to*
+trafficking victims, not a claim that data *is* trafficking, and only the first
+one survives contact with § 7102.
