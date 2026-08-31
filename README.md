@@ -20,7 +20,8 @@ The organising rule is one sentence: **the orchestrator practises no domain.** I
 | **Domain-owned** | Every agent declares its own vocabulary, picks its own capabilities, and words its own results. Adding a capability to an agent requires **no edit to the orchestrator**. |
 | **Model-agnostic** | Agents request a *capability* (`vision`/`reasoning`/`synthesis`/`code`), never a vendor. Zero model names in `agents/` or `core/`. |
 | **Evidence-first** | Reference material is retrieved by exact headword or citation, never bag-of-words similarity. Measured outcomes outrank documentation. |
-| **Honest about absence** | A check that found nothing says so, distinctly from a check that found the thing to be fine. `undetermined` and `unscorable` are real verdicts. |
+| **State-carrying** | Facts, provenance, integrity, uncertainty and findings stay attached as information moves between ingestion, storage, retrieval, agents and output. Missing state is never silently promoted to certainty. |
+| **Honest about absence** | *Nothing found*, *not checked*, *incomplete*, *conflicting* and *verified clear* are five distinct states, not one. `undetermined`, `unscorable` and `unknown` are real verdicts rather than fields nobody filled in — and `unknown` is never read as `complete`. |
 | **Supervised narrowly** | Nothing runs on a timer. Healing is on demand and covers five core agents. |
 
 ---
@@ -64,7 +65,13 @@ Boss never picks a capability. It asks who claims the request, hands the prompt 
 
 ## Five verbs every agent inherits
 
-Defined once in `core/base_agent.py`. A new domain agent becomes routable, answerable and narratable **by starting up**.
+Defined once in `core/base_agent.py`, so a domain agent that implements them becomes
+routable, answerable and narratable **by starting up** — no edit to the orchestrator.
+
+That is the contract. It is **not yet enforced**: inheriting the verbs is not the same as
+implementing them, and an agent can start up, register, and still have nothing to say. Which
+agents actually satisfy it is reported by `tools/check_inherited.py`, and closing the gap is
+Phase 0 in [`DEPLOYMENT_PROGRESS.md`](DEPLOYMENT_PROGRESS.md).
 
 | Task | What the agent answers | What it replaced |
 |------|------------------------|------------------|
@@ -154,7 +161,7 @@ are different states of the world.
 | Data Engineering | 8012 | Dataset preprocessing |
 | Service Manager | 8014 | Process supervision — **on demand only** (`POST /heal`) |
 | Tool Service | 8015 | MCP gateway (11 servers over stdio) |
-| Provenance | 8016 | Artifact lineage, origin classification, integrity verification |
+| Provenance | 8016 | Artifact lineage and origin classification. Corpus integrity is a property of the section itself (`core/source_integrity.py`), stamped at ingest and carried to the reader — not something this service verifies after the fact |
 | Federated Learning | 8017 | Flower server lifecycle + FedAvg (gRPC on 9092) |
 
 ---
@@ -241,15 +248,24 @@ Servers run over stdio, managed by the Tool Service. Configured in `config/mcp.d
 
 Ordered work lives in **`DEPLOYMENT_PROGRESS.md`**, in dependency order — **deployment is the last phase**, not one in the middle.
 
-- ✅ **0–1** systemd cleanup · Docker packaging
-- ✅ **3** A2A read amplification (22.04s → 1.05s)
-- ◐ **4** agents capturing spoken facts — Grow logs a reading stated in conversation and
+The current phase is **integrity and contract hardening**, not deployment. The
+architecture above describes contracts the platform is built around; an audit in
+August 2026 found several of them stated but unenforced — a capability that
+dispatched and was never declared, a corpus section that recorded itself
+incomplete and reached the reader silent, an exception that occurred and was
+swallowed. Enforcing what is already claimed comes before adding to it.
+
+- ✅ system foundation — systemd cleanup · Docker packaging · A2A read amplification (22.04s → 1.05s)
+- ◐ **0** integrity and contract audit — the defect register, fixed by class rather than
+  one at a time. Corpus integrity is now a stamped property; the reachability and
+  silent-failure classes are counted and open.
+- ◐ **1** agents capturing spoken facts — Grow logs a reading stated in conversation and
   echoes a receipt; Legal records a reported step as reported. Physical facts (a light
   height, a medium swap) still reach the record only through Claude.
-- ⬜ **2** retention policy
-- ⬜ **5** identity and authorization (DID / verifiable claims)
-- ◐ **6** harden network exposure — TLS + auth live; two legacy plaintext listeners still open
-- ⬜ **7–8** provision dedicated device *(blocked on hardware)* · migrate and cut over
+- ⬜ **2–3** retention policy · conversations that persist
+- ⬜ **4** identity and authorization (DID / verifiable claims)
+- ◐ **5** harden network exposure — TLS + auth live; two legacy plaintext listeners still open
+- ⬜ **hardware track** — provision a dedicated device, migrate, cut over *(a constraint, not a phase)*
 
 **Known ceiling:** 7 GB RAM with YOLO + ViT + a vision model + ~20 processes is genuinely tight; a 3B synthesis model OOM-killed most of the stack on its first run. This is the strongest concrete argument for the dedicated-hardware phase.
 

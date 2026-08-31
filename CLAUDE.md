@@ -563,6 +563,55 @@ Two rules keep it from becoming the problem it is meant to solve:
 Starting an agent waits for its port to answer before reporting success -
 `{"success": true}` used to mean only that `Popen` did not raise.
 
+## State travels with the fact, or the fact is gone
+
+Every serious defect this system has produced in the last week reduces to one
+sentence: **the information existed, and something dropped it at a boundary.**
+
+| Where | What existed | What arrived |
+|-------|--------------|--------------|
+| Corpus → reader | a section recording itself truncated | the text, silent about being half a provision |
+| Dispatcher → registry | 82 working tasks | a capability list nothing could route to |
+| Ingester → file | `body[:MAX_SECTION]` knowing it had cut | a stored string and no record of the cut |
+| `except:` → caller | a failure with a reason | `pass` |
+| Agent → user | an answer the agent could compute | no `describe()`, so nothing said |
+| Index → lookup | `integrity` on the section | an entry rebuilt from a chosen handful of keys |
+
+None of these is a wrong answer. Every one is a **true thing that stopped
+travelling**, which is worse, because everything the caller can see is accurate.
+A wrong passage presented as authority gets caught on review. A half passage
+presented as whole does not.
+
+So: **any field carrying provenance, integrity, uncertainty or a finding is part
+of the payload, not decoration on it.** It survives every hop — ingestion,
+storage, indexing, retrieval, A2A, narration — or the hop is a bug.
+
+Three rules follow, and they are testable rather than aspirational:
+
+1. **Record it where it is known, not where it is convenient.** The only code
+   that can say whether a section was truncated is the code holding the full
+   body at the moment it cuts. Reconstructing that later from string length is a
+   guess about form standing in for a record of history — the same error as
+   setting `authority_class` from a filename.
+2. **A missing state is `unknown`, and `unknown` is never `complete`.** The
+   default must be the honest one. Backfilling 15,000 sections as `complete` for
+   a clean report would put a guess in the one field whose entire purpose is not
+   to be one.
+3. **Never infer at a boundary what should have been carried to it.** Wrapping
+   an exit so nothing escapes unchecked is correct for a function with a dozen
+   return paths, and it is **not** tracing. A safe default at a boundary is
+   perfect camouflage for a leaky pipe: `source_integrity.pipe_check()` exists
+   because *never recorded* and *dropped in transit* arrive looking identical
+   and are opposite problems — the first means re-ingest, the second means fix
+   the pipe.
+
+The corollary for fixing: **fix the class, not the instance.** `_load_reference_docs`
+builds entries in two places and only one was patched, so a section reached by
+citation carried its integrity and the same section reached by subject term did
+not — which one a caller got depended on how they happened to ask. A fix applied
+to one of two identical sites is not a fix; it is a second place for the bug to
+hide.
+
 ## False success is the failure mode to hunt
 
 A command that reports success while doing nothing is worse than one that

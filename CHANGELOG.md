@@ -3539,3 +3539,62 @@ not.
 Written as **Phase 0** in `DEPLOYMENT_PROGRESS.md` — before Phase 1 because it is
 not new capability. It is what is already built and already wrong, on a system
 carrying a live housing matter and a live grow.
+
+### 2026-08-31 — "State must travel with the fact" becomes a design law
+
+The principal reviewed the README and asked for surgery, not a manifesto: keep
+the generalized positioning, fix the places where it now describes an older
+architectural state, and promote one thing to a first-class principle.
+
+**Three changes to README.md, and nothing else.**
+
+`State-carrying` joins the differentiators, directly under `Evidence-first`:
+
+> Facts, provenance, integrity, uncertainty and findings stay attached as
+> information moves between ingestion, storage, retrieval, agents and output.
+> Missing state is never silently promoted to certainty.
+
+`Honest about absence` was already good and is now precise — *nothing found*,
+*not checked*, *incomplete*, *conflicting* and *verified clear* are **five**
+distinct states, and `unknown` is never read as `complete`.
+
+`Where things stand` said deployment was the last phase. It is, and that was not
+the stale part: the project is in **integrity and contract hardening**, which now
+sits ahead of everything else in the list rather than being invisible.
+
+**Two stale absolutes corrected, both flagged by the principal.** The README said
+*"a new domain agent becomes routable, answerable and narratable by starting up"*
+as a statement of fact; it is the **contract**, and the audit found it stated but
+unenforced — inheriting the verbs is not implementing them, and an agent can start
+up, register, and have nothing to say. And the Provenance Service was credited
+with *"integrity verification"*, which it does not do: corpus integrity is a
+property of the section, stamped at ingest and carried to the reader.
+
+**No counts went into the README.** 711, 82, ~90, 35 belong in
+`DEPLOYMENT_PROGRESS.md` and here. A README answers what MYCOS is, why it is
+shaped this way, and where it stands — not what the autopsy found.
+
+**And the law itself went into `CLAUDE.md`**, because it governs how the agents
+are built rather than describing them to a reader. Every serious defect of the
+last week reduces to one sentence: *the information existed, and something
+dropped it at a boundary.*
+
+| Where | What existed | What arrived |
+|-------|--------------|--------------|
+| corpus → reader | a section recording itself truncated | text, silent about being half a provision |
+| dispatcher → registry | 82 working tasks | a list nothing could route to |
+| ingester → file | code knowing it had cut | a string, and no record of the cut |
+| `except:` → caller | a failure with a reason | `pass` |
+| agent → user | a computable answer | no `describe()`, so nothing said |
+| index → lookup | `integrity` on the section | an entry rebuilt from selected keys |
+
+None of these is a wrong answer. Each is **a true thing that stopped travelling**,
+which is worse, because everything the caller can see is accurate. A wrong passage
+presented as authority gets caught on review; a half passage presented as whole
+does not.
+
+Three testable rules follow — record it where it is known rather than where it is
+convenient; a missing state is `unknown` and `unknown` is never `complete`; never
+infer at a boundary what should have been carried to it. With the corollary that
+cost real time this week: **fix the class, not the instance.** A fix applied to
+one of two identical sites is not a fix, it is a second place for the bug to hide.
