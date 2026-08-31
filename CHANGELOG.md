@@ -2568,3 +2568,55 @@ file-walk order - Pomeroy on equity could arrive ahead of the statute that
 governs. It is carried into the index and sorted on now. Verified: `1681i`
 returns `federal_statute`, `laches` returns `doctrine_summary`, and `trustee`
 falls to the dictionary because no statute section in this corpus is keyed to it.
+
+### 2026-08-31 — A blog is a research lead, and a credential does not change that
+
+The grower, twice, sharpening the same point. First: *"blogs are research
+reference points for lived data that aren't always accurate and true until
+proven, or until a trusted source records it."* Then, on WebMD: *"a bunch of
+doctor blog posts on things researched."*
+
+Both are right and neither fitted the four `evidence_kind` values, because they
+answer a different question. `evidence_kind` says how THIS agent came to hold a
+claim. `source_class` says what KIND of thing said it - and the two are
+independent:
+
+| source_class | means |
+|---|---|
+| `peer_account` | someone else's lived experience - a grow blog, a forum post. A lead, not a finding |
+| `expert_commentary` | a credentialed author summarising research they did not run |
+| `documentation` | a label, spec sheet or published guideline. Generic, dated, often written by an interested party |
+| `authority` | a statute, regulation or standard that governs |
+| `lab_result` | an instrumented measurement by a third party |
+| `unknown` | not determined, and left that way rather than guessed |
+
+**`expert_commentary` is the dangerous one, because it looks like authority.** A
+doctor writing about a study is still writing ABOUT a study: the study is the
+`lab_result` and the article is commentary on it. A byline with letters after it
+does not move a piece up the list. That is *standing comes from content* applied
+to venue - the publisher does not set the class, what the piece IS sets it.
+
+The Veriheal article is classified `expert_commentary`: a cannabis telehealth
+company publishing summaries of research its authors did not run. Its
+`evidence_kind` stays `read` and only an experiment moves it.
+
+**Corroboration raises confidence within `read` and never promotes.** Two
+independent sources agreeing is worth more than either - CLAUDE.md says so - but
+agreement among accounts is still agreement among accounts, and nobody has done
+the thing. Only `record_experiment_outcome` reaches `observed`.
+
+**Three faults found while building it**, all the same shape - a rule enforced in
+one place and not the other:
+
+- The patch adding `expert_commentary` failed on a quoting error and reported
+  success, so the class did not exist while the next command appeared to use it.
+- `record_knowledge` validated `source_class` against a closed set and
+  `amend_knowledge` did not, so `source_class: "authority"` could be written to
+  a blog post through the side door - the exact laundering the field exists to
+  prevent.
+- The "nothing to attach" guard did not count `source_class`, so a
+  classification-only amendment was rejected as empty.
+
+Re-classifying an already-classified source is refused: *"changing it is a
+re-reading of the source, not an amendment - record why in a note and let both
+stand."*

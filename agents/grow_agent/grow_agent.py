@@ -4155,6 +4155,45 @@ class GrowAgent(AgentBase):
             "reported":  "the grower said it; not measured",
             "inferred":  "derived from other records, not directly seen",
         }
+        # WHAT KIND OF SOURCE IS A SEPARATE QUESTION FROM HOW WE CAME TO HOLD IT.
+        #
+        # The grower: *"blogs are research reference points for lived data that
+        # aren't always accurate and true until proven, or until a trusted
+        # source records it."* That is a real class and none of the four above
+        # capture it. A grow blog is not documentation in the spec-sheet sense
+        # and it is not authority - it is somebody ELSE's lived experience,
+        # secondhand and unverified. Which makes it a LEAD: worth testing,
+        # never worth relying on.
+        #
+        # It matters because the three behave differently when they are wrong.
+        # A spec sheet is wrong because it was generic or self-interested. A
+        # blog is wrong because one person's conditions were not these. An
+        # authority is wrong only if it has been superseded.
+        SOURCE_CLASSES = {
+            "peer_account":   "someone else's lived experience - a grow blog, a forum post. "
+                              "A research lead, not a finding.",
+            # The grower, on WebMD: "a bunch of doctor blog posts on things
+            # researched." Exactly - and it is the most dangerous class here,
+            # because it LOOKS like authority. A credentialed author writing
+            # about a study is still writing ABOUT a study: the study is the
+            # lab_result and the article is commentary on it. A byline with
+            # letters after it does not move a piece up this list.
+            #
+            # "Standing comes from content" applied to venue - the publisher
+            # does not set the class, what the piece IS sets it.
+            "expert_commentary": "a credentialed author summarising research they did not "
+                                 "run - WebMD, a clinic blog, a trade journal column. "
+                                 "Secondhand, however qualified the byline.",
+            "documentation":  "a label, spec sheet, manual or published guideline. Generic, "
+                              "possibly dated, often written by an interested party.",
+            "authority":      "a statute, regulation or standard that governs.",
+            "lab_result":     "an instrumented measurement by a third party.",
+            "unknown":        "not determined - and left that way rather than guessed.",
+        }
+        source_class = (args.get("source_class") or "").strip().lower()
+        if source_class and source_class not in SOURCE_CLASSES:
+            return {"error": f"source_class must be one of: {', '.join(SOURCE_CLASSES)}",
+                    "meanings": SOURCE_CLASSES}
         kind = (args.get("evidence_kind") or "").strip().lower()
         if kind not in KINDS:
             return {"error": ("record_knowledge needs evidence_kind, one of: "
@@ -4173,6 +4212,16 @@ class GrowAgent(AgentBase):
             # grow produced, and losing that loses why it is trusted.
             "found_while": args.get("found_while"),
             "source_ref": args.get("source_ref"),
+            # Unset rather than guessed. Filling this from a URL or a title is
+            # the exact failure "standing comes from content" names.
+            "source_class": source_class or "unknown",
+            "source_class_note": SOURCE_CLASSES.get(source_class or "unknown"),
+            # Independent sources saying the same thing. CLAUDE.md: two
+            # independent lines pointing the same way is worth more than either.
+            # It raises confidence WITHIN `read` and never converts to
+            # `observed` - only an experiment does that, because agreement
+            # among accounts is still agreement among accounts.
+            "corroborations": [],
             "applies_to": {
                 "species": str(applies["species"]).lower(),
                 "strain": (applies.get("strain") or "").lower() or None,
@@ -4189,7 +4238,8 @@ class GrowAgent(AgentBase):
                 "evidence_kind": entry["evidence_kind"],
                 "total_known": len(k)}
 
-    def amend_knowledge(self, knowledge_id=None, source_ref=None, note=None):
+    def amend_knowledge(self, knowledge_id=None, source_ref=None, note=None,
+                        corroborates=None, source_class=None):
         """Attach provenance to knowledge already recorded.
 
         A claim was stored before its source was to hand, which is normal - the
@@ -4204,8 +4254,18 @@ class GrowAgent(AgentBase):
         arrive as one."""
         if not knowledge_id:
             return {"error": "Needs knowledge_id."}
-        if not source_ref and not note:
-            return {"error": "Nothing to attach. Pass source_ref and/or note."}
+        if not source_ref and not note and not corroborates and not source_class:
+            return {"error": "Nothing to attach. Pass source_ref, source_class, "
+                             "corroborates and/or note."}
+        # The same closed set record_knowledge enforces. Validating in one place
+        # and not the other let `source_class: "authority"` be written to a
+        # blog post through the side door - which is precisely the laundering
+        # this field exists to prevent.
+        VALID_SOURCE_CLASSES = {"peer_account", "expert_commentary", "documentation",
+                                "authority", "lab_result", "unknown"}
+        if source_class and str(source_class).lower() not in VALID_SOURCE_CLASSES:
+            return {"error": f"source_class must be one of: "
+                             f"{', '.join(sorted(VALID_SOURCE_CLASSES))}"}
         k = self._load_knowledge()
         target = next((e for e in k if e.get("id") == knowledge_id), None)
         if not target:
@@ -4217,12 +4277,34 @@ class GrowAgent(AgentBase):
             if source_ref not in refs:
                 refs.append(source_ref)
             target["source_ref"] = source_ref
+        if source_class:
+            # Only fillable when it was left unknown. Re-classifying a source
+            # after the fact is a judgement about the source, and overwriting
+            # one silently is how a guess replaces a reading.
+            if target.get("source_class") in (None, "", "unknown"):
+                target["source_class"] = str(source_class).lower()
+            else:
+                return {"error": (f"source_class is already "
+                                  f"'{target.get('source_class')}'. Changing it is a "
+                                  f"re-reading of the source, not an amendment - record "
+                                  f"why in a note and let both stand.")}
+        if corroborates:
+            # A second independent source saying the same thing. Raises
+            # confidence within `read`; it does NOT promote to `observed`,
+            # because agreement among accounts is still agreement among
+            # accounts and nobody here has done the thing yet.
+            c = target.setdefault("corroborations", [])
+            c.append({"source": corroborates,
+                      "at": datetime.now().isoformat(timespec="seconds")})
+            target["corroboration_count"] = len(c)
         if note:
             target.setdefault("amendments", []).append(
                 {"note": note, "at": datetime.now().isoformat(timespec="seconds")})
         self.store_own_memory(self.KNOWLEDGE_KEY, json.dumps(k), pin=True)
         return {"amended": knowledge_id, "source_refs": target.get("source_refs"),
                 "evidence_kind": target.get("evidence_kind"),
+                "source_class": target.get("source_class"),
+                "corroboration_count": target.get("corroboration_count", 0),
                 "note": ("Provenance only. The claim text and evidence_kind are unchanged - "
                          "a source being identified does not make an unverified claim "
                          "verified.")}
