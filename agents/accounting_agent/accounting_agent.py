@@ -77,7 +77,18 @@ class AccountingAgent(AgentBase):
         "credit report", "credit file", "tradeline", "trade ?line",
         "furnisher", "credit bureau", "equifax", "experian", "transunion",
         "charge-?off", "delinquen", "collection account", "credit score",
+        # How a charge is CODED is a bookkeeping question even when the charge
+        # arose from a dispute. What the code asserts about fault is Legal's;
+        # what the entry ought to say about the transaction is this agent's.
+        "transaction code", "coded as", "miscod", "mis-?label", "chart of accounts",
+        "posted as", "line item", "trip charge", "chargeback", "charge-?back",
+        "pass-?through", "expense classification", "classif\\w* (?:the )?charge",
     )
+
+    # Definitive: a request about what a ledger entry OUGHT to be classified as
+    # belongs here and nowhere else. Legal decides whether a mislabel is
+    # actionable; it does not decide what the correct entry is.
+    OWNS_TERMS = ("transaction code", "chart of accounts", "expense classification")
 
     def __init__(self):
         super().__init__(
@@ -774,12 +785,246 @@ class AccountingAgent(AgentBase):
                 "are sound."),
         }
 
+    # ------------------------------------------------------------------
+    # Charge classification
+    #
+    # A code on a ledger is a CLAIM about a transaction. The characteristics
+    # of the transaction are the evidence. Where they diverge, the divergence
+    # is the finding - the same rule the rest of this system runs on, applied
+    # to a book of account.
+    #
+    # The specific failure this exists to catch: a label that asserts a fact
+    # not in evidence. "Damages" is not a neutral bucket. It asserts that a
+    # party caused physical harm, and it is the bucket a security deposit is
+    # drawn against at move-out. Posting a contractor's trip charge there
+    # decides causation, fault and recoverability in one keystroke, none of
+    # which was proved, and the ledger then reads to a future landlord, a
+    # screening bureau or a court as though all three were.
+    #
+    # So this deliberately answers TWO questions instead of one, because the
+    # mislabel is what happens when they are answered together:
+    #
+    #   1. WHAT IS IT?        nature - what economic event actually occurred
+    #   2. IS IT RECOVERABLE? recovery - whether it may be billed to this party
+    #
+    # A code that answers (2) in the poster's favour while pretending to
+    # answer (1) is the whole problem.
+
+    # Codes that assert fault. Posting one is an accusation, not a category.
+    FAULT_BEARING_CODES = {
+        "damages", "damage", "damage charge", "tenant damage", "resident damage",
+        "tenant damages", "negligence", "negligent damage", "vandalism", "abuse",
+        "destruction", "destruction of property", "malicious damage",
+    }
+
+    PERFORMED_BY = {
+        "third_party_contractor": (
+            "third_party_service_cost",
+            "A vendor performed the work, so what the landlord incurred is a "
+            "payable to that vendor. Billing it onward is a COST RECOVERY - a "
+            "reimbursement of an expense already classified as a service cost. "
+            "It does not become a damage assessment by being passed on."),
+        "in_house_staff": (
+            "internal_service_cost",
+            "Own staff performed the work, so the cost is internal labour and "
+            "overhead. Billing it onward is a service charge under whatever fee "
+            "term the agreement provides."),
+        "unknown": (
+            "undetermined",
+            "Who performed the work has not been established, and that is the "
+            "fact the nature of the charge turns on. Not classifiable yet."),
+    }
+
+    OCCASIONED_BY = {"tenant_conduct", "landlord_condition", "routine_or_preventive", "unknown"}
+    FAULT_STATUS = {"adjudicated", "admitted", "alleged", "unestablished"}
+
+    def classify_charge(self, args):
+        """What a charge actually is, derived from its characteristics rather
+        than read off the code someone posted it under.
+
+        Refuses to answer from the label. Refuses to invent the code it cannot
+        derive - the inputs it lacks are named instead. And it never asserts
+        what an authority says unless that authority is openable in a corpus
+        this system can reach, which is the same rule `add_deadline` runs."""
+        a = args if isinstance(args, dict) else {}
+        posted = str(a.get("posted_as") or "").strip()
+        performed_by = str(a.get("performed_by") or "unknown").strip().lower()
+        occasioned_by = str(a.get("occasioned_by") or "unknown").strip().lower()
+        fault_status = str(a.get("fault_status") or "unestablished").strip().lower()
+        lease_authority = a.get("lease_authority")
+        description = str(a.get("description") or "").strip()
+
+        if not description:
+            return {"error": "classify_charge needs a description of the charge.",
+                    "disclaimer": DISCLAIMER}
+        if performed_by not in self.PERFORMED_BY:
+            return {"error": f"performed_by must be one of: {sorted(self.PERFORMED_BY)}",
+                    "why": "Who did the work decides what the cost is. It is not optional.",
+                    "disclaimer": DISCLAIMER}
+        if occasioned_by not in self.OCCASIONED_BY:
+            return {"error": f"occasioned_by must be one of: {sorted(self.OCCASIONED_BY)}",
+                    "disclaimer": DISCLAIMER}
+        if fault_status not in self.FAULT_STATUS:
+            return {"error": f"fault_status must be one of: {sorted(self.FAULT_STATUS)}",
+                    "disclaimer": DISCLAIMER}
+
+        amount = None
+        if a.get("amount") is not None:
+            try:
+                amount = round(float(a["amount"]), 2)
+            except (TypeError, ValueError):
+                return {"error": f"amount '{a['amount']}' is not a number.",
+                        "disclaimer": DISCLAIMER}
+
+        nature, nature_basis = self.PERFORMED_BY[performed_by]
+
+        # --- question 2, kept separate on purpose -----------------------
+        recovery, recovery_basis = "not_shown_recoverable", []
+        if occasioned_by == "landlord_condition":
+            recovery = "contradicted"
+            recovery_basis.append(
+                "The work was occasioned by a condition that is the landlord's own "
+                "to remedy. A cost arising from a party's own duty is that party's "
+                "cost; charging it to the counterparty reverses the obligation.")
+        elif not lease_authority:
+            recovery_basis.append(
+                "No lease clause has been identified authorising this charge to be "
+                "passed to the tenant. Without one there is no agreed basis for it, "
+                "whatever it is called.")
+        elif occasioned_by == "tenant_conduct" and fault_status in ("adjudicated", "admitted"):
+            recovery = "supported"
+            recovery_basis.append(
+                f"A lease clause is identified ({lease_authority}) and causation is "
+                f"{fault_status}.")
+        elif occasioned_by == "routine_or_preventive":
+            recovery = "depends_on_fee_schedule"
+            recovery_basis.append(
+                "Routine or preventive service is not fault-based. It is recoverable "
+                "only if the agreement sets it out as a scheduled fee, at a stated "
+                "amount, and not as a discretionary charge.")
+        else:
+            recovery_basis.append(
+                f"A lease clause is identified ({lease_authority}) but causation is "
+                f"'{fault_status}' and the occasion is '{occasioned_by}'. The clause "
+                f"does not supply the facts the charge depends on.")
+
+        # --- the verdict on what was posted -----------------------------
+        posted_l = posted.lower().strip().rstrip(".")
+        is_fault_code = posted_l in self.FAULT_BEARING_CODES
+        findings, verdict = [], "posted_label_undetermined"
+
+        if not posted:
+            verdict = "no_posted_label_supplied"
+        elif is_fault_code and fault_status not in ("adjudicated", "admitted"):
+            verdict = "posted_label_unsupported"
+            findings.append(
+                f"'{posted}' is a fault-bearing code: posting it asserts that this "
+                f"party caused the condition. Causation here is '{fault_status}'. An "
+                f"assertion of fault that has been neither adjudicated nor admitted "
+                f"does not become established by being written into a ledger.")
+        elif is_fault_code and occasioned_by == "landlord_condition":
+            verdict = "posted_label_contradicted"
+            findings.append(
+                f"'{posted}' assigns fault to the tenant while the recorded occasion "
+                f"of the work is a landlord condition. The label states the opposite "
+                f"of the evidence.")
+        elif is_fault_code and performed_by == "third_party_contractor":
+            verdict = "posted_label_questionable"
+            findings.append(
+                f"'{posted}' is a fault code, but the cost originated as a vendor "
+                f"payable. Even where fault is established, the cost is a recovery of "
+                f"a service expense; the fault question governs whether it may be "
+                f"recharged, not what kind of cost it is.")
+        elif nature != "undetermined" and posted_l:
+            verdict = "posted_label_consistent"
+
+        if is_fault_code:
+            findings.append(
+                "A fault-bearing code is not a neutral filing choice. It is the "
+                "category a security deposit is drawn against at move-out, and it is "
+                "read by later landlords, screening services and courts as a finding "
+                "about the tenant rather than as one party's unreviewed entry.")
+        if performed_by == "third_party_contractor" and not lease_authority:
+            findings.append(
+                "A contractor's trip or call-out fee is the vendor's charge for "
+                "attending. Whether any part of it reaches the tenant is a term "
+                "question, and no term has been produced.")
+
+        # --- authority: named, never paraphrased from memory -------------
+        authorities = []
+        for cite, why in (
+            ("92.104", "retention of a security deposit for damages and charges, and "
+                       "the itemisation a landlord must give"),
+            ("92.109", "landlord liability for retaining a deposit in bad faith"),
+        ):
+            located = []
+            try:
+                located = self.ask_peer_corpus("legal_agent", cite) or []
+            except Exception:
+                located = []
+            authorities.append({
+                "citation": f"Tex. Prop. Code § {cite}",
+                "bears_on": why,
+                "in_corpus": bool(located),
+                "note": None if located else
+                        ("NOT in any corpus this system can open, so nothing is "
+                         "asserted about what it says. Acquire it before relying on it."),
+            })
+
+        result = {
+            "description": description,
+            "amount": amount,
+            "posted_as": posted or None,
+            "verdict": verdict,
+            "findings": findings,
+            "nature": {"classification": nature, "basis": nature_basis,
+                       "question_answered": "What economic event occurred?"},
+            "recoverability": {"status": recovery, "basis": recovery_basis,
+                               "question_answered": "May this be billed to this party?"},
+            "two_questions": (
+                "These are separate and the posted code answered both at once. A code "
+                "that decides recoverability while presenting itself as a description "
+                "of the cost is not a classification, it is a conclusion."),
+            "governing_authority": authorities,
+            "inputs_used": {"performed_by": performed_by, "occasioned_by": occasioned_by,
+                            "fault_status": fault_status,
+                            "lease_authority": lease_authority or None},
+            "principle": (
+                "Substance over form: an entry must depict the transaction that "
+                "occurred, not the one that is convenient to have occurred. This "
+                "agent states it as its own operating rule - the FASB conceptual "
+                "framework and the ASC are under copyright and are NOT in this "
+                "corpus, so no citation to them is offered."),
+            "not_an_attestation": (
+                "This is a derivation, not an opinion a third party may rely on. It "
+                "carries no licence and no attestation. Its value is that every step "
+                "is shown and can be checked."),
+            "disclaimer": DISCLAIMER,
+        }
+
+        cid = a.get("case_id")
+        if cid:
+            try:
+                rec_id = f"charge_class_{self._uid()}"
+                self.store_own_memory(rec_id, json.dumps(
+                    {**{k: v for k, v in result.items() if k != "disclaimer"},
+                     "case_id": cid, "document_ref": a.get("document_ref"),
+                     "occurred_on": a.get("occurred_on"),
+                     "recorded_at": datetime.now().isoformat(timespec="seconds")}), pin=True)
+                result["recorded_as"] = rec_id
+            except Exception as exc:
+                result["record_failed"] = str(exc)
+        return result
+
     def handle_task(self, task, args, sender):
         self.log(f"Task {task} from {sender}")
 
         cag_result = self.try_handle_cag_task(task, args)
         if cag_result is not None:
             return cag_result
+
+        if task == "classify_charge":
+            return self.classify_charge(args if isinstance(args, dict) else {})
 
         if task == "set_lease_terms":
             return self.set_lease_terms(args if isinstance(args, dict) else {})

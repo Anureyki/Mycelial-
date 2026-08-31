@@ -196,6 +196,17 @@ def fetch_usc_section(title, section):
             f"domain; Cornell's annotations are excluded.")
 
 
+# Texas statutes are NOT scriptable from statutes.capitol.texas.gov today.
+# The site is an Angular application: /Docs/PR/htm/PR.92.htm answers 200 with a
+# 250 KB shell containing none of the statutory text, and /GetStatute?code=PR&
+# level=SE&value=92.104 answers 200 with the same shell. Probed 2026-08-31.
+# The same class of failure as uscode.house.gov, noted in fetch_usc_section.
+# Tex. Prop. Code sections in this corpus were ingested from PDF via
+# tools/ingest_pdf.py, which remains the path for state law until a source that
+# serves text to a script is found. Adding a `tx` mode that fetches the shell
+# would put an empty page into the corpus reporting success, which is the exact
+# failure this file already guards against in _reject_error_page.
+
 def main():
     ap = argparse.ArgumentParser(description=__doc__,
                                  formatter_class=argparse.RawDescriptionHelpFormatter)

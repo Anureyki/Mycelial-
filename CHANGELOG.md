@@ -2949,3 +2949,57 @@ principal's own example - *"Mycelial shouldn't immediately generate a transfer
 document; it should first construct the transaction"* - and it is a bigger piece
 than a drafting capability, because it is the one that decides whether a
 document should exist at all.
+
+### 2026-08-31 — A ledger code is a claim, and a fault-bearing code is an accusation
+
+The principal's CPA read the tenant ledger and said the $54 pest-control trip
+charge is coded wrong: it comes from a third-party contractor, so it is not
+"damages." She declined to say what the right code is — a possible conflict of
+interest — so the record now holds a professional's judgment that the posted code
+is **wrong** and no professional statement of what is **right**. Both facts are
+in the case, and the limit is recorded as carefully as the opinion.
+
+That gap is the capability. `classify_charge` on the Accounting Agent derives
+what a charge IS from its characteristics, instead of reading it off the code
+someone posted it under. It answers **two questions the mislabel answered as
+one**:
+
+| | question | on the $54 |
+|---|---|---|
+| **Nature** | what economic event occurred? | `third_party_service_cost` — a vendor payable; billing it onward is cost recovery, not a damage assessment |
+| **Recoverability** | may it be billed to this party? | `contradicted` — the work was occasioned by a landlord condition, and a cost arising from a party's own duty is that party's cost |
+
+Verdict: **`posted_label_unsupported`**. "Damages" is a fault-bearing code, so
+posting it asserts that this tenant caused the condition. Causation here is
+`alleged`. *An assertion of fault that has been neither adjudicated nor admitted
+does not become established by being written into a ledger.*
+
+Why the label is not a filing preference: it is the category a security deposit
+is drawn against at move-out, and it is read by later landlords, screening
+services and courts as a finding about the tenant rather than as one party's
+unreviewed entry.
+
+**It is a test, not an advocate.** Run with the facts against the principal —
+tenant admits breaking a window, lease clause cited — the same engine returns
+`recovery: supported`. An instrument that only ever agrees with its owner is a
+confirmation engine, and this one was checked for that before it was trusted.
+
+**It does not assert what it cannot open.** Tex. Prop. Code §§ 92.104 and 92.109
+govern deposit deductions and bad-faith retention. Neither is in any corpus this
+system can reach, so both are named with `in_corpus: false` and nothing is
+claimed about their contents — the rule `add_deadline` runs, applied one layer
+out. Nor does it cite the FASB conceptual framework for substance over form: the
+ASC is under copyright and is not in this corpus, so the principle is stated as
+the agent's own operating rule and says so.
+
+Texas statutes are not scriptable today — statutes.capitol.texas.gov is an
+Angular app that answers 200 with a shell containing no statutory text on both
+the document and `GetStatute` paths. Recorded in `tools/ingest_law.py` rather
+than rediscovered. Adding a `tx` mode that fetched the shell would file an empty
+page as law and report success.
+
+**On "as capable as a CPA."** The reasoning is reproducible; the attestation is
+not. A licensed CPA can sign an opinion a third party may rely on, and this
+agent carries no licence and offers none — `not_an_attestation` ships in every
+result. What it has instead is that every step is shown and can be checked, and
+that it has no conflict of interest to decline over.
