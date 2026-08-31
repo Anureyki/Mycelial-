@@ -196,7 +196,7 @@ class LegalAgent(AgentBase):
                 "add_deadline", "deadlines",
                 "open_action", "complete_action", "amend_action", "actions",
                 "add_venue", "venues", "running_clocks", "complaint_path",
-                "read_filed_document", "ingest_screenshot", "read_docket_document", "learn_from_case",
+                "read_filed_document", "ingest_screenshot", "read_docket_document", "learn_from_case", "set_principal", "classify_matter",
                 "triage_source", "record_case_outcome"
             ],
             role="agent"
@@ -2406,6 +2406,170 @@ class LegalAgent(AgentBase):
             break
         return d
 
+    # ------------------------------------------------------------------
+    # Whose matter is this?
+    #
+    # The principal drew the line himself: *"not everything that I input has
+    # something to do with me. That Duell versus Hawaii, that was just an
+    # example, so Legal has something to go off of. But my own cases will match
+    # my ledger in saying Anthony Hanlan."*
+    #
+    # The separation already held structurally - his matters live in the shared
+    # `cases` namespace, studied decisions live in `case_outcome_*`, and nothing
+    # written today crossed. But it held because a careful operator filed things
+    # correctly, and the participant on his own case read `principal ->
+    # principal`. HIS NAME WAS NOWHERE IN THE SYSTEM, so there was nothing for a
+    # docket, a ledger line or a screenshot to match against.
+    #
+    # THE RULE THAT MATTERS: A NAME MATCH IS NOT IDENTITY.
+    #
+    # Names are not unique. A docket carrying his name is a CANDIDATE, and
+    # confirming it is his is a decision, not an inference. Getting this
+    # backwards in the other direction - assuming a matching name means a
+    # matching person - is how someone else's judgment ends up on your record,
+    # and it is the identical error as reading a stance off a channel name.
+
+    # THREE KINDS OF LESSON, AND THE MIDDLE ONE IS THE SUBTLE ONE.
+    #
+    # The principal: *"there's a difference between the user's live lessons
+    # from the user's cases, and then there's secondhand cases where the court
+    # is actually responding to these people that come up with these things."*
+    #
+    # That middle category is not merely "somebody else's case". A decided case
+    # is FIRSTHAND EVIDENCE OF HOW A COURT BEHAVES and second-hand evidence of
+    # everything else in it. Duell v. Hawaii is worth nothing as evidence about
+    # Duell and a great deal as evidence about what the District of Hawaii does
+    # when a CUSIP-and-1099 qui tam arrives: it calls it incoherent and gives
+    # thirty days to find a lawyer. That is the institution reacting, in
+    # writing, on the record - and the reaction is what transfers, because the
+    # court will react the same way to the next one.
+    LESSON_KINDS = {
+        "own_matter": {
+            "kind": "own_matter",
+            "evidence_of": "this principal's own facts and what actually happened to him",
+            "standing": "firsthand",
+            "use": ("The strongest thing the system holds about his position. Outranks "
+                    "any commentary about what should happen."),
+        },
+        "court_response": {
+            "kind": "court_response",
+            "evidence_of": "how a tribunal actually reacts when a theory is put to it",
+            "standing": ("FIRSTHAND as to the court's behaviour, second-hand as to "
+                         "everything else in the case"),
+            "use": ("The transferable half. Who won turns on facts that will not repeat; "
+                    "how the court reacted to the ARGUMENT repeats every time the "
+                    "argument does. This is the reason a case someone else lost is "
+                    "worth reading closely."),
+        },
+        "reported": {
+            "kind": "reported",
+            "evidence_of": "what somebody says happened",
+            "standing": "unverified until the docket is opened",
+            "use": ("A pointer. Worth following, worth nothing on its own - twice in one "
+                    "day a post and the docket it described told different stories."),
+        },
+    }
+
+    PRINCIPAL_KEY = "principal_identity"
+
+    def set_principal(self, args):
+        """Record who the principal is, and the forms his name takes on records."""
+        a = args if isinstance(args, dict) else {}
+        name = str(a.get("legal_name") or "").strip()
+        if not name:
+            return {"error": ("set_principal needs a legal_name - the name that appears "
+                              "on records. Without it nothing can tell his matters from "
+                              "the ones he is only studying."),
+                    "disclaimer": DISCLAIMER}
+        rec = {
+            "legal_name": name,
+            # Records render a name several ways and a match on one is a match.
+            "name_variants": [v for v in (a.get("name_variants") or []) if str(v).strip()],
+            "jurisdictions": a.get("jurisdictions") or [],
+            "note": a.get("note"),
+            "recorded_at": datetime.now().isoformat(timespec="seconds"),
+            "matching_rule": ("A name match makes a record a CANDIDATE, never a "
+                              "confirmed matter. Names are not unique and the cost of "
+                              "being wrong is somebody else's case on this principal's "
+                              "record."),
+        }
+        self.store_own_memory(self.PRINCIPAL_KEY, json.dumps(rec), pin=True)
+        return {**rec, "disclaimer": DISCLAIMER}
+
+    def _principal(self):
+        raw = self._unwrap_value(self.retrieve_own_memory(self.PRINCIPAL_KEY))
+        try:
+            return json.loads(raw) if raw else {}
+        except Exception:
+            return {}
+
+    def classify_matter(self, args):
+        """Is this MINE, or something I am studying? Decided by party, not source.
+
+        Returns `mine`, `candidate`, `studied` or `undetermined`, and never
+        promotes a candidate on its own."""
+        a = args if isinstance(args, dict) else {}
+        text = " ".join(str(a.get(k) or "") for k in
+                        ("case_name", "caption", "parties", "text")).strip()
+        if not text:
+            return {"error": "classify_matter needs a case_name, caption, parties or text.",
+                    "disclaimer": DISCLAIMER}
+        me = self._principal()
+        if not me.get("legal_name"):
+            return {"classification": "undetermined",
+                    "why": ("No principal is on record, so nothing can be said to be his "
+                            "or not his. Set one with set_principal. Until then every "
+                            "case this agent reads is material it is studying, which is "
+                            "the safe default but not a finding."),
+                    "disclaimer": DISCLAIMER}
+
+        names = [me["legal_name"]] + list(me.get("name_variants") or [])
+        low = text.lower()
+        hits = [n for n in names if n and n.strip().lower() in low]
+
+        # An explicit case_id in the shared namespace settles it outright: he
+        # opened it, so it is his, and no name matching is needed or wanted.
+        if a.get("case_id"):
+            try:
+                c = self.case(a["case_id"]).get()
+                if c and not c.get("error"):
+                    return {"classification": "mine", "case_id": a["case_id"],
+                            "title": c.get("title"),
+                            "why": ("It is in the shared cases namespace, which only holds "
+                                    "matters opened for this principal. Ownership comes "
+                                    "from the register, not from a name."),
+                            "disclaimer": DISCLAIMER}
+            except Exception:
+                pass
+
+        if not hits:
+            return {"classification": "studied",
+                    "lesson_kind": self.LESSON_KINDS["court_response"],
+                    "why": ("The principal's name does not appear, so this is material "
+                            "he is learning from rather than a matter he is in. It goes "
+                            "to the case-outcome and lesson stores, never to his case "
+                            "register."),
+                    "matched_on": [], "disclaimer": DISCLAIMER}
+
+        return {
+            "classification": "candidate",
+            "matched_on": hits,
+            "why": (f"The name {hits[0]!r} appears, which makes this a CANDIDATE and not "
+                    f"his matter. Names are not unique. Someone else with this name has "
+                    f"cases too, and putting one of theirs on his record is worse than "
+                    f"missing one of his - a record he cannot explain is a liability in "
+                    f"the matters he does have."),
+            "to_confirm": ("Check a second identifier against the docket - the court and "
+                           "county, the filing date against something he remembers, a "
+                           "party address, or a ledger line for the filing fee. Then open "
+                           "it with case_open, which is what makes it his."),
+            "ledger_check": ("Accounting holds obligations and harms keyed by case_id. A "
+                             "real matter of his usually left money somewhere - a filing "
+                             "fee, a certified-mail receipt, a judgment. That is a "
+                             "cheaper confirmation than a name."),
+            "disclaimer": DISCLAIMER,
+        }
+
     def learn_from_case(self, args):
         """Turn a case someone posted about into a lesson grounded in the docket.
 
@@ -2560,6 +2724,7 @@ class LegalAgent(AgentBase):
                 "what happened) and `log_lesson` (the transferable reasoning). This does "
                 "not write either on its own - a lesson worth keeping is worth a person "
                 "deciding to keep."),
+            "lesson_kind": self.LESSON_KINDS["court_response"],
             "the_rule": ("The reasoning transfers; the outcome usually does not. Who won "
                          "depends on facts that will not repeat. The test the court "
                          "applied, the element it found missing, and the authority it "
@@ -3344,6 +3509,10 @@ class LegalAgent(AgentBase):
                 a = {"stage": args[0]}
             return self.transaction_layers(a.get("stage"), a.get("state"))
 
+        if task == "set_principal":
+            return self.set_principal(args if isinstance(args, dict) else {})
+        if task == "classify_matter":
+            return self.classify_matter(args if isinstance(args, dict) else {})
         if task == "learn_from_case":
             return self.learn_from_case(args if isinstance(args, dict) else {})
         if task == "read_docket_document":

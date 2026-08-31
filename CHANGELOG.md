@@ -4000,3 +4000,82 @@ and the AI-agreeing-with-a-Brady-theory screenshot came back with *"cites nothin
 openable… a reading of the law that offers no section to read is not a finding."*
 
 Shell to v22.
+
+### 2026-08-31 — Whose matter is this, and what kind of lesson is it
+
+Two questions from the principal, one after the other, and the second is sharper
+than the first.
+
+*"Legal does know that not everything I input has something to do with me,
+right? That Duell versus Hawaii was just an example… but my own cases will match
+my ledger in saying Anthony Hanlan."*
+
+**The separation held, and it held by luck.** `case_list` returns exactly one
+case — his housing matter — and nothing written today crossed into it. But the
+participant on his own case read **`principal -> principal`**. His name was
+nowhere in the system, so there was nothing for a docket, a ledger line or a
+screenshot to match against. It held because an operator filed carefully, which
+is not the same as being enforced.
+
+`set_principal` records the name and the forms records render it in — captions in
+all caps, surname-first in indexes, middle name and suffix on instruments.
+`classify_matter` returns one of four, and the middle one is the point:
+
+```
+Duell v. State of Hawaii          -> studied     (name absent)
+his housing matter, by case_id    -> mine        (it is in the register)
+"ANTHONY HANLAN v. Some Apartment"-> candidate   (name present, and only that)
+no principal on record            -> undetermined
+```
+
+**A NAME MATCH IS NOT IDENTITY.** A docket carrying his name is a candidate, and
+confirming it is a decision. *"Someone else with this name has cases too, and
+putting one of theirs on his record is worse than missing one of his — a record
+he cannot explain is a liability in the matters he does have."* Ownership comes
+from the register, not from a string: a case is his because he opened it.
+
+And the cheaper confirmation is the one he named himself — **the ledger**.
+Accounting holds obligations and harms keyed by `case_id`, and a real matter of
+his usually left money somewhere: a filing fee, a certified-mail receipt, a
+judgment.
+
+### The middle kind of lesson
+
+*"There's a difference between the user's live lessons from the user's cases, and
+then there's second-hand cases where the court is actually responding to these
+people that come up with these things."*
+
+That middle category is not merely somebody else's case. **A decided case is
+FIRSTHAND evidence of how a court behaves and second-hand evidence of everything
+else in it.**
+
+| kind | evidence of | standing |
+|---|---|---|
+| `own_matter` | his own facts and what happened to him | firsthand |
+| `court_response` | how a tribunal reacts when a theory is put to it | **firsthand as to the court**, second-hand as to the rest |
+| `reported` | what somebody says happened | unverified until the docket is opened |
+
+*Duell v. Hawaii* is worth nothing as evidence about Duell and a great deal as
+evidence about what the District of Hawaii does when a CUSIP-and-1099 qui tam
+arrives: it calls it incoherent and gives thirty days to find a lawyer. **The
+reaction is what transfers**, because the court will react the same way to the
+next one — which is exactly why a case somebody else lost is worth reading
+closely.
+
+### And it does not reach the dashboard
+
+*"I just wanted to make sure that when it's posting to the dashboard, it's not
+posting unnecessary things."*
+
+Measured rather than asserted. Snapshot the Legal card, run a full
+`learn_from_case` through the whole chain, snapshot again:
+
+```
+BEFORE: 7 actions, 2 deadlines
+AFTER:  7 actions, 2 deadlines      UNCHANGED: True
+```
+
+Study material cannot appear there, for a structural reason rather than a
+filtering one: the card renders `actions` and `deadlines`, both scoped to his own
+cases, and `learn_from_case` **writes nothing at all on its own**. It hands back
+what it found and recording stays a separate, deliberate call.
