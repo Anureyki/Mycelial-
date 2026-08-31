@@ -250,6 +250,51 @@ def check_routing_terms_are_regex():
     return 0
 
 
+def check_corpus_not_truncated():
+    """A statutory section stored at EXACTLY the old cap is a truncated statute.
+
+    MAX_SECTION was 4000 and cut silently, so 15 U.S.C. 1681b was stored
+    ending mid-word inside (b)(1) - the employment-purpose consent
+    requirements, the most litigated provisions in FCRA, simply were not
+    there. The work looked present, the lookup succeeded, and the agent read
+    the first 4000 characters as though they were the section.
+
+    A short section is fine. A section that stops at the round number the
+    truncator used is the tell.
+    """
+    import glob as _g
+    import json as _j
+    import os as _os
+    import re as _re
+    cut = {}
+    for f in _g.glob(_os.path.join(_os.path.dirname(_os.path.dirname(
+            _os.path.abspath(__file__))), "reference", "*", "*.json")):
+        try:
+            with open(f, encoding="utf-8") as fh:
+                d = _j.load(fh)
+        except Exception:
+            continue
+        title = str(d.get("title") or "")
+        # Statutes and regulations only. A book page chunked at 4000 is a
+        # chunk; a statute cut at 4000 has lost its back half.
+        if not _re.search(r"U\.?S\.?C\.?|C\.?F\.?R\.?|Prop\. Code|Bus\. & Com\.",
+                          title, _re.I):
+            continue
+        n = sum(1 for s in (d.get("sections") or [])
+                if len(str(s.get("text") or "")) == 4000)
+        if n:
+            cut[title] = n
+    if cut:
+        total = sum(cut.values())
+        print(f"TRUNCATED CORPUS: {total} statutory section(s) stored at exactly "
+              f"4000 chars, across {len(cut)} work(s). Re-ingest them:")
+        for t, n in sorted(cut.items(), key=lambda kv: -kv[1])[:12]:
+            print(f"  {n:>4}  {t}")
+        return 1
+    print("no statutory section is sitting on the old 4000-char truncation cap")
+    return 0
+
+
 if __name__ == "__main__":
     # BOTH checks, and the exit code is the worse of the two. Appending a
     # second __main__ block silently replaced the first - the inherited-
@@ -257,4 +302,5 @@ if __name__ == "__main__":
     # reported success, which is the shape this file exists to catch.
     _rc = main() or 0
     _rc2 = check_routing_terms_are_regex() or 0
-    sys.exit(_rc or _rc2)
+    _rc3 = check_corpus_not_truncated() or 0
+    sys.exit(_rc or _rc2 or _rc3)

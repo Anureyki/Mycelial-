@@ -3362,3 +3362,64 @@ broker-held address and location data endangering survivors is a documented harm
 with live advocacy behind it. That is a claim about what data brokers *do to*
 trafficking victims, not a claim that data *is* trafficking, and only the first
 one survives contact with § 7102.
+
+### 2026-08-31 (cont.) — 738 statutory sections were stored truncated, and one of them was the answer
+
+The principal reframed his argument and it got much stronger: *"it's not always
+about credit being furnished on these reports. There's employee reports that
+people pay to get data on you."* He supplied a First Advantage consumer FAQ whose
+last entry reads **"What if I were a victim of trafficking?"**
+
+Both parts checked out, and checking them exposed a corpus defect.
+
+**The trafficking FAQ is backed by statute.** 15 U.S.C. § 1681c-3, *Adverse
+information in cases of trafficking*, forbids a consumer reporting agency to
+furnish a report containing adverse information that resulted from a severe form
+of trafficking once the consumer has supplied trafficking documentation — and it
+takes its definitions expressly from 22 U.S.C. § 7102. So FCRA and the TVPA do
+connect, in the direction that protects a **victim**, not in the direction that
+makes data brokerage into trafficking. Regulation V implements it at
+**12 CFR § 1022.142**.
+
+**Employment screening is squarely inside FCRA and never needed credit at all.**
+§ 1681a(d)(1), read rather than recalled: a consumer report is a communication
+bearing on *credit worthiness, standing, capacity, **character, general
+reputation, personal characteristics or mode of living*** used as a factor in
+eligibility for credit, insurance, **or employment purposes**.
+
+### The defect: a section stored at exactly the truncator's round number
+
+Reading § 1681b to answer him, the stored text stopped mid-word inside (b)(1) at
+**exactly 4000 characters** — the old `MAX_SECTION`. The employment-purpose
+provisions were simply not there. The work looked present, the lookup succeeded,
+and the agent read the first 4000 characters as though they were the section.
+
+A sweep found **738 truncated statutory sections across 23 works**, including
+§§ 1681b, 1681c, 1681e, 1681i, 1681s-2, 15 U.S.C. § 45, 5 U.S.C. § 552, and 18
+sections of Regulation V. Nine U.S.C. sections and Reg V were re-acquired; the
+big CFR parts (Reg Z 242, Reg S-X 247, Reg B 35) remain queued and are now
+**reported by name on every run** rather than sitting silent.
+
+`tools/check_inherited.py` fails on any statutory section stored at exactly 4000
+characters. A short section is fine; a section that stops on the truncator's
+round number is the tell.
+
+**Checked first, because it was load-bearing:** 42 U.S.C. § 3610 is 12,071
+characters and its one-year period is intact, so the HUD deadline seeded from it
+this morning stands.
+
+After re-acquisition, § 1681b reads through to the provisions that matter:
+
+> a person may not procure a consumer report … for employment purposes … unless
+> (i) a clear and conspicuous disclosure has been made in writing to the consumer
+> … **in a document that consists solely of the disclosure** … and (ii) the
+> consumer has authorized in writing …
+
+and § 1681b(b)(3), before adverse action: a copy of the report **and** a written
+description of the consumer's rights.
+
+The claim came back **`prerequisite_missing`, 0.4** — authority located and read,
+facts not yet gathered. Two actions opened, and both are cheap: request the
+screener file under § 1681g, and keep the disclosure form to test whether it
+consists *solely* of the disclosure. That last one needs no credit history, no
+damages proof and no expert — just the piece of paper.
