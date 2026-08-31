@@ -46,7 +46,17 @@ SECTION_PATTERNS = [
     # of ~50, which looked like a successful ingest.
     (re.compile(r'^\s*(\d{3,4}[A-Za-z]?)\.\s+[A-Z]'), "code_section"),
 ]
-MIN_SECTION, MAX_SECTION = 80, 4000
+# MAX_SECTION was 4000 and silently TRUNCATED. 12 U.S.C. 1813 is a long
+# definitions section; it stored the first 4,000 characters, reported "1
+# citation-addressable section", and cut off before subsection (l) - the
+# definition of "deposit", which was the entire reason for fetching it. A reader
+# would get the first third with nothing saying the rest existed.
+#
+# That is the false-success shape this project hunts, in the corpus itself: a
+# section that looks whole and is a fragment, presented to the reasoning layer
+# as authority. Raised, and anything still over the limit is marked so the
+# truncation is visible rather than silent.
+MIN_SECTION, MAX_SECTION = 80, 60000
 
 
 def spacing_looks_broken(pages):
@@ -115,7 +125,15 @@ def split_sections(pages):
             body = dehyphenate(re.sub(r'\s+', ' ', " ".join(buf)).strip())
             if len(body) >= MIN_SECTION:
                 sections.append({"citation": cur_id, "kind": cur_kind,
-                                 "page": cur_page, "text": body[:MAX_SECTION]})
+                                 "page": cur_page,
+                                 "text": body[:MAX_SECTION],
+                                 **({"truncated": True,
+                                     "full_length": len(body),
+                                     "truncation_note": (
+                                         f"Stored {MAX_SECTION:,} of {len(body):,} "
+                                         f"characters. This section is INCOMPLETE - do "
+                                         f"not rely on the absence of a subsection.")}
+                                    if len(body) > MAX_SECTION else {})})
     for pno, text in enumerate(pages, 1):
         for line in text.splitlines():
             matched = None

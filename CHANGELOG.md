@@ -2746,3 +2746,59 @@ agreement still matter."** A T-account drawn with the labels reversed still
 balances. That is precisely why balance is not the test - which is also why
 Accounting surfaces a divergence in this system and Legal decides whether it is
 actionable.
+
+### 2026-08-31 — Triage a source by its citations, and follow them to the cases
+
+The principal's purpose, stated after a night of sending material: *"the reason
+why I ingested a lot of these cards is because a lot of them had case laws
+attached that Legal could be looking at for the equitable principles that
+allowed a party to win the case."* And: *"all of this is to help me purchase
+correctly, operate correctly in the human world as an entrepreneur."*
+
+That reframes everything. The question was never whether an infographic is
+trustworthy. It is which of its citations are worth acquiring.
+
+**`triage_source`** does it. It ignores the prose and sorts the citations:
+
+```
+held               already in the corpus - testable right now
+acquire            real, not held, and the source EARNED its keep by naming it
+wrong_jurisdiction A.R.S. against an operating jurisdiction of TX
+not_fetchable      a case or a Restatement - needs CourtListener, not ingest_law
+```
+
+A source with no citation at all is reported as *"opinion with formatting,
+nothing to ingest"*, which is the honest verdict on most of what circulates.
+
+**A mention is not a holding.** The first run reported `28 U.S.C. 1746` as held
+under `court_rules` - the FRCP text CITES 1746 and the index had keyed that
+mention as a section. The passage is real and it is not the statute, and
+reporting it as held would have told the principal they could open something
+they do not have. The matched work now has to be the right KIND for the
+citation; a U.S.C. cite answered by a rules volume is a cross-reference.
+
+**And the loop closes on CourtListener.** Verified working end to end: an
+infographic names *eBay Inc. v. MercExchange*; CourtListener returns SCOTUS
+docket 05-130, decided 2006-05-15; `record_case_outcome` stores it as
+`judgment_on_merits`, published, weight high, with the four-factor test as its
+holding. `source_class: case_outcome`, `evidence_kind: observed` - because a
+court doing something is an event.
+
+The equity cards were the best material of the night by a distance, and the
+reason is structural: they cite *eBay*, *Weinberger v. Romero-Barcelo* and
+*Seymour v. Freer* to Justia and Cornell, and their "usable sentences" ask a
+court to identify the doctrine it is relying on rather than asserting a theory.
+That is the same move this system makes - a claim earns its conclusion by having
+each prerequisite answered with something checkable.
+
+**Corpus truncation fixed.** `MAX_SECTION` was 4,000 characters and cut silently:
+12 U.S.C. 1813 stored its first third and reported success, stopping before the
+subsection that was the entire reason for fetching it. Raised to 60,000, and
+anything still over is stamped `truncated` with the full length - a section that
+looks whole and is a fragment is the false-success shape reaching into the
+corpus itself.
+
+Acquired tonight because a citation pointed at them: 15 U.S.C. 1681, 1681b,
+1681c, 1681e, 1681i, 1681n, 1681o, 1681s-2, 15 U.S.C. 45, 12 C.F.R. 1022,
+12 U.S.C. 24, 12 U.S.C. 1813, 5 U.S.C. 552, 5 U.S.C. 706, 28 U.S.C. 455,
+28 U.S.C. 2041, 28 U.S.C. 2042, 31 U.S.C. 5103, 42 U.S.C. 1983.

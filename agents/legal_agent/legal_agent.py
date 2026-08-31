@@ -1514,6 +1514,138 @@ class LegalAgent(AgentBase):
     # is worth to anyone but its own parties.
     PRECEDENTIAL = ("published", "unpublished", "per_curiam", "unknown")
 
+    def triage_source(self, text=None, source_class="unknown", note=None):
+        """Sort source material into what is worth ingesting and what is not.
+
+        The principal's actual need, stated plainly: *"all I'm doing is looking
+        for things that my agents can ingest - help me discern correct
+        information from wrong information, and maintain a relationship of
+        what's operable because it's provable by governing statutes."*
+
+        So this does not grade the prose. It pulls the CITATIONS out and reports,
+        for each, whether this agent can already open it, whether it is
+        acquirable, and what class of authority it is. A claim is worth keeping
+        to the exact degree it points at something checkable - which is why an
+        AI infographic and a law review article get the same treatment here.
+
+        Three outcomes per citation, and the middle one is the productive one:
+
+          held      - already in the corpus. Testable right now.
+          acquire   - a real citation this agent does not hold. Worth fetching;
+                      the source EARNED its keep by naming it.
+          unparsed  - looks like a citation and could not be resolved. Reported,
+                      never guessed at.
+
+        And prose with no citation at all is reported as exactly that. A
+        confident paragraph naming no authority is not a lead; it is an opinion
+        with formatting."""
+        raw = str(text or "")
+        if not raw.strip():
+            return {"error": "Pass the text of the source."}
+
+        # Citation shapes this corpus can actually act on.
+        PATTERNS = [
+            (r"\b(\d{1,2})\s*U\.?\s*S\.?\s*C\.?\s*(?:\u00a7+\s*)?([\w.\-]+)", "usc"),
+            (r"\b(\d{1,2})\s*C\.?\s*F\.?\s*R\.?\s*(?:part\s*)?(?:\u00a7+\s*)?([\w.\-]+)", "cfr"),
+            (r"\bA\.?R\.?S\.?\s*(?:\u00a7+\s*)?([\w.\-]+)", "ars"),
+            (r"\bU\.?C\.?C\.?\s*(?:\u00a7+\s*)?([\d\-.]+)", "ucc"),
+            (r"\bRestatement\s*\((?:Second|Third)\)[^,;.]{0,40}", "restatement"),
+            (r"\b([A-Z][A-Za-z.'\-]+(?:\s+[A-Z][A-Za-z.'\-]+)*)\s+v\.\s+"
+             r"([A-Z][A-Za-z.'\-]+(?:\s+[A-Z][A-Za-z.'\-]+)*)", "case"),
+        ]
+        found, seen = [], set()
+        for pat, kind in PATTERNS:
+            for m in re.finditer(pat, raw, re.I if kind != "case" else 0):
+                cite = re.sub(r"\s+", " ", m.group(0)).strip().rstrip(".,;")
+                if cite.lower() in seen or len(cite) < 4:
+                    continue
+                seen.add(cite.lower())
+                found.append({"citation": cite, "kind": kind})
+
+        jur = None
+        try:
+            jur = (self.handle_task("get_operating_jurisdiction", {}, self.agent_id) or {})
+            jur = (jur.get("operating_jurisdiction") or {}) if isinstance(jur, dict) else {}
+        except Exception:
+            jur = {}
+
+        held, acquire, unparsed, foreign = [], [], [], []
+        for f in found:
+            kind, cite = f["kind"], f["citation"]
+            # A state code from a state this principal does not operate in is
+            # not "wrong law" - it is law about somebody else, and saying so is
+            # more useful than calling it false.
+            if kind == "ars":
+                foreign.append({**f, "jurisdiction": "AZ",
+                                "operating": jur.get("business"),
+                                "why": ("Arizona Revised Statutes. The operating jurisdiction "
+                                        f"on record is {jur.get('business')}. Find the local "
+                                        f"equivalent rather than citing this one.")})
+                continue
+            if kind in ("restatement", "case"):
+                unparsed.append({**f, "why": ("Not fetchable by tools/ingest_law.py. A "
+                                              "Restatement is a treatise and a case needs "
+                                              "CourtListener - both are secondary or "
+                                              "case-outcome material, not statute.")})
+                continue
+            hits = self.lookup_reference(cite)
+            if hits:
+                # A MENTION IS NOT A HOLDING.
+                #
+                # "28 U.S.C. 1746" resolved against the Federal Rules of Civil
+                # Procedure, because the FRCP text CITES 1746 and the index
+                # keyed that mention as a section. The passage is real and it is
+                # not the statute - reporting it as held would tell the
+                # principal they can open a section they do not have.
+                #
+                # So the matched work has to be the right KIND of work for the
+                # citation. A U.S.C. cite answered by a rules volume is a
+                # cross-reference: useful, and a different thing.
+                work = str((hits[0] or {}).get("title") or "")
+                klass = (hits[0] or {}).get("authority_class")
+                wl = work.lower()
+                right_work = (("u.s.c" in wl or "u. s. c" in wl) if kind == "usc"
+                              else ("cfr" in wl) if kind == "cfr" else True)
+                entry = {**f, "authority_class": klass, "work": work}
+                if right_work:
+                    held.append({**entry, "in_corpus": True})
+                else:
+                    acquire.append({**entry, "in_corpus": False,
+                                    "found_as": "cross-reference only",
+                                    "why": (f"'{cite}' appears inside {work}, which cites it. "
+                                            f"The section itself is not held."),
+                                    "how": (f"tools/ingest_law.py usc-section --title "
+                                            f"{cite.split()[0]} --section <sec> "
+                                            f"--agent legal_agent" if kind == "usc" else
+                                            f"tools/ingest_law.py cfr --title "
+                                            f"{cite.split()[0]} --part <part> "
+                                            f"--agent legal_agent")})
+            else:
+                title = cite.split()[0] if cite.split() else ""
+                acquire.append({**f, "in_corpus": False,
+                                "how": (f"tools/ingest_law.py usc-section --title {title} "
+                                        f"--section <sec> --agent legal_agent"
+                                        if kind == "usc" else
+                                        f"tools/ingest_law.py cfr --title {title} "
+                                        f"--part <part> --agent legal_agent")})
+
+        return {
+            "source_class": source_class,
+            "note": note,
+            "citations_found": len(found),
+            "held": held,
+            "acquire": acquire,
+            "wrong_jurisdiction": foreign,
+            "not_fetchable": unparsed,
+            "verdict": ("no citations - opinion with formatting, nothing to ingest"
+                        if not found else
+                        f"{len(held)} testable now, {len(acquire)} worth acquiring, "
+                        f"{len(foreign)} for another state, {len(unparsed)} not fetchable"),
+            "principle": ("A source earns its keep by naming something checkable. Its prose "
+                          "is never evidence and its citations always are - verify the "
+                          "pointer, not the paragraph."),
+        }
+
     def record_case_outcome(self, citation=None, disposition=None, court=None,
                             precedential="unknown", holding=None, in_favor_of=None,
                             supersedes=None, docket=None, notes=None):
@@ -1894,6 +2026,9 @@ class LegalAgent(AgentBase):
             if not a and isinstance(args, list) and args:
                 a = {"stage": args[0]}
             return self.transaction_layers(a.get("stage"), a.get("state"))
+
+        if task == "triage_source":
+            return self.triage_source(**(args if isinstance(args, dict) else {}))
 
         if task == "record_case_outcome":
             return self.record_case_outcome(**(args if isinstance(args, dict) else {}))
