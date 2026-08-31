@@ -1,0 +1,26 @@
+{
+  "title": "18 U.S.C. \u00a7 153",
+  "source": "United States Code title 18 section 153, retrieved from Cornell LII (law.cornell.edu). The statutory text is a U.S. government work and is public domain; Cornell's annotations are excluded.",
+  "authorities_cited": [],
+  "term_index": {},
+  "origin_pdf": "usc18_153.txt",
+  "pages": 1,
+  "sections": [
+    {
+      "citation": "\u00a7 153.",
+      "kind": "section_sign",
+      "page": 1,
+      "text": "\u00a7 153. Embezzlement against estate. (a) Offense.\u2014 A person described in subsection (b) who knowingly and fraudulently appropriates to the person\u2019s own use, embezzles, spends, or transfers any property or secretes or destroys any document belonging to the estate of a debtor shall be fined under this title, imprisoned not more than 5 years, or both. (b) Person to Whom Section Applies.\u2014 A person described in this subsection is one who has access to property or documents belonging to an estate by virtue of the person\u2019s participation in the administration of the estate as a trustee, custodian, marshal, attorney, or other officer of the court or as an agent, employee, or other person engaged by such an officer to perform a service with respect to the estate. (June 25, 1948, ch. 645, 62 Stat. 690 ; Pub. L. 95\u2013598, title III, \u00a7 314(a)(1) , (d)(1), (2), Nov. 6, 1978 , 92 Stat. 2676 , 2677; Pub. L. 103\u2013322, title XXXIII, \u00a7 330016(1)(K) , Sept. 13, 1994 , 108 Stat. 2147 ; Pub. L. 103\u2013394, title III, \u00a7 312(a)(1)(A) , Oct. 22, 1994 , 108 Stat. 4139 ; Pub. L. 104\u2013294, title VI, \u00a7 601(a)(1) , Oct. 11, 1996 , 110 Stat. 3497 .)",
+      "integrity": {
+        "state": "complete",
+        "basis": "Full retrieved body of 1,128 characters stored; under the 60,000 cap, so nothing was cut.",
+        "stamped_at": "2026-08-31T22:31:47",
+        "stored_chars": 1128,
+        "source_chars": 1128,
+        "cap_applied": 60000
+      }
+    }
+  ],
+  "authority_class": "federal_statute",
+  "authority_class_basis": "Title of the work is a U.S. Code section citation, which fixes the class"
+}
