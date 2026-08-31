@@ -454,6 +454,101 @@ class LegalAgent(AgentBase):
                         "why": "A court that catches a miscitation discounts the whole filing."})
         return out
 
+    def add_deadline(self, case_id=None, name=None, trigger_event=None,
+                     trigger_date=None, period_days=None, citation=None,
+                     consequence=None, note=None):
+        """Register a deadline, computed from an authority that was READ.
+
+        The principal's architecture puts *"track deadlines and procedural
+        posture"* under Legal, and there was no register - only one hardcoded
+        FRCP 72(b) objection window, reachable only while checking a draft.
+        For a live matter that is the one irreversible gap: every other error
+        here can be corrected, and a limitation period cannot.
+
+        The rule that makes it safe is the same one governing everything else:
+        **a period is not computed unless the authority stating it is in the
+        corpus and openable.** A deadline invented from recollection is exactly
+        the inference-become-legal-fact this system exists to prevent, and it
+        would be the most dangerous instance of it - confidently wrong about
+        the only thing that cannot be undone."""
+        if not (name and trigger_date and period_days and citation):
+            return {"error": ("Needs name, trigger_date, period_days and citation. The "
+                              "citation is not optional: a period this agent cannot open is "
+                              "a period it must not compute.")}
+        located = self.lookup_reference(citation)
+        if not located:
+            return {"error": (f"'{citation}' is not in this corpus, so the period cannot be "
+                              f"verified and no deadline was recorded. Acquire it with "
+                              f"tools/ingest_law.py and try again."),
+                    "recorded": False, "authority_located": False}
+        try:
+            start = datetime.fromisoformat(str(trigger_date)[:19])
+            days = int(period_days)
+        except Exception as exc:
+            return {"error": f"trigger_date or period_days unusable: {exc}"}
+        due = start + timedelta(days=days)
+        left = (due - datetime.now()).days
+        rec = {
+            "id": f"deadline_{self._uid()}",
+            "case_id": case_id, "name": name,
+            "trigger_event": trigger_event, "trigger_date": start.date().isoformat(),
+            "period_days": days, "due": due.date().isoformat(),
+            "days_remaining": left,
+            "status": ("PASSED" if left < 0 else "CRITICAL" if left <= 14
+                       else "WARN" if left <= 45 else "OPEN"),
+            "citation": citation,
+            "authority_excerpt": re.sub(r"\s+", " ",
+                                        str((located[0] or {}).get("text") or ""))[:400],
+            "authority_work": (located[0] or {}).get("title"),
+            "consequence": consequence or ("Not stated. A deadline whose consequence is "
+                                           "unrecorded cannot be prioritised against another."),
+            "note": note,
+            "recorded_at": datetime.now().isoformat(timespec="seconds"),
+        }
+        try:
+            raw = self._unwrap_value(self.retrieve_own_memory("deadline_index"))
+            idx = json.loads(raw) if raw else []
+        except Exception:
+            idx = []
+        self.store_own_memory(rec["id"], json.dumps(rec), pin=True)
+        idx.append(rec["id"])
+        self.store_own_memory("deadline_index", json.dumps(idx))
+        return rec
+
+    def deadlines(self, case_id=None):
+        """The register, soonest first. Passed deadlines stay - a limitation
+        period that ran is a fact about the matter, not a row to tidy away."""
+        try:
+            raw = self._unwrap_value(self.retrieve_own_memory("deadline_index"))
+            idx = json.loads(raw) if raw else []
+        except Exception:
+            idx = []
+        out = []
+        for did in idx:
+            r = self._unwrap_value(self.retrieve_own_memory(did))
+            if not r:
+                continue
+            try:
+                d = json.loads(r)
+            except Exception:
+                continue
+            if case_id and d.get("case_id") != case_id:
+                continue
+            try:
+                left = (datetime.fromisoformat(d["due"]) - datetime.now()).days
+                d["days_remaining"] = left
+                d["status"] = ("PASSED" if left < 0 else "CRITICAL" if left <= 14
+                               else "WARN" if left <= 45 else "OPEN")
+            except Exception:
+                pass
+            out.append(d)
+        out.sort(key=lambda x: x.get("due") or "9999")
+        return {"case_id": case_id, "count": len(out), "deadlines": out,
+                "passed": [d["name"] for d in out if d.get("status") == "PASSED"],
+                "critical": [d["name"] for d in out if d.get("status") == "CRITICAL"],
+                "note": ("Every period here was computed from an authority located in the "
+                         "corpus at the time it was recorded. None was recalled.")}
+
     def _check_deadlines(self, text, matter):
         """Deadline exposure. Reports days remaining; never guesses a date it
         was not given."""
@@ -2029,6 +2124,11 @@ class LegalAgent(AgentBase):
 
         if task == "triage_source":
             return self.triage_source(**(args if isinstance(args, dict) else {}))
+
+        if task == "add_deadline":
+            return self.add_deadline(**(args if isinstance(args, dict) else {}))
+        if task == "deadlines":
+            return self.deadlines(**(args if isinstance(args, dict) else {}))
 
         if task == "record_case_outcome":
             return self.record_case_outcome(**(args if isinstance(args, dict) else {}))

@@ -2895,3 +2895,57 @@ Photographs saved to `knowledge_base/legal_agent/photos/` and four harm entries
 logged against the case with those files as `evidence_ref`: the aerator delay,
 the wall penetration, the fouled return grille, and the pest-control trip charge
 with its amount recorded as NOT YET KNOWN rather than estimated.
+
+### 2026-08-31 — A deadline register, because a limitation period is the one thing that cannot be undone
+
+The principal set out the architecture: agents as specialised operational
+officers, `Observe -> Identify -> Verify -> Model -> Act -> Record -> Reassess`,
+and Boss orchestrating without becoming the expert. Most of it is built. One
+item under Legal was not: *"track deadlines and procedural posture."*
+
+There was deadline logic - hardcoded to a single FRCP 72(b) objection window,
+reachable only while checking a draft. No register. For a live matter that is
+the one irreversible gap: every other error in this system can be corrected
+afterwards, and a limitation period cannot.
+
+**`add_deadline` will not compute a period whose authority it cannot open.**
+Verified: a made-up citation is refused and nothing is recorded. That is the
+principal's own rule - *"never convert an inference into a legal fact"* - applied
+where getting it wrong costs the most. A deadline recalled rather than read
+would be the most dangerous inference this system could make, because it would
+be confidently wrong about the only thing that cannot be undone.
+
+Seeded from authority now in the corpus:
+
+```
+FHA private civil action - 2 year limitation   due 2028-08-27   726d   42 U.S.C. 3613
+HUD administrative complaint - 1 year          due 2027-08-28   361d   42 U.S.C. 3610
+```
+
+Each row carries the excerpt it was computed from and the work it came from.
+Passed deadlines are kept - a period that ran is a fact about the matter, not a
+row to tidy away.
+
+**Inventory against the principal's spec**, since most of it already exists and
+saying so is more useful than agreeing:
+
+| Called for | State |
+|---|---|
+| Boss orchestrates, holds no domain knowledge | built, and reinforced by `owns` |
+| Identify jurisdiction; retrieve primary authority | `get_operating_jurisdiction`, `lookup_reference` |
+| Distinguish statute / regulation / case law / commentary | `authority_class`, `AUTHORITY_RANK`, `source_class`, `DISPOSITIONS` |
+| Compare claimed authority against actual | `claim_cite` decides `located_in_corpus` by looking |
+| Never convert an inference into a legal fact | `evidence_kind` required with no default; `add_deadline` refuses unlocated authority |
+| The evidence chain | `claim_assessment` - ten prerequisites, `unsupported` by default |
+| Ownership vs possession vs authority vs control vs beneficial interest | `RIGHTS` ontology |
+| Security: hard stop, audit trail, authorization | guards, `state/LOCKED`, `audit.db` |
+| Ledger, obligations, evidence, discrepancies | case obligations, `log_harm`, authorised payors, the $200 gap |
+| **Track deadlines and procedural posture** | **built now** |
+| Draft responses, objections, motions | **not built** |
+| Transaction constructor (asset -> trust chain) | **not built** |
+
+The last two are the honest remainder. The transaction constructor is the
+principal's own example - *"Mycelial shouldn't immediately generate a transfer
+document; it should first construct the transaction"* - and it is a bigger piece
+than a drafting capability, because it is the one that decides whether a
+document should exist at all.
