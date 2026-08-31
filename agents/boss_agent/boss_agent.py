@@ -1094,8 +1094,43 @@ class BossAgent(AgentBase):
                 if not plant_id:
                     _r = self._unwrap(self.send_a2a("grow_agent", "resolve_plant",
                                                     {"prompt": prompt or ""}),
-                                      key="plant_id")
-                    plant_id = (_r or {}).get("plant_id") or "current_plant"
+                                      key="plant_id") or {}
+                    # AN AMBIGUOUS NAME IS A QUESTION, NOT A DEFAULT.
+                    #
+                    # This fell back to current_plant whenever Grow could not
+                    # decide, which files a photo of one plant against another
+                    # and then assesses it against that plant's age. Grow now
+                    # says WHICH plants a word fits, and the right move is to
+                    # ask - the principal's own framing: *"it doesn't need to
+                    # guess, it can ask me for specification. Grow agent can ask
+                    # questions. It has that right, so that the organization of
+                    # what we're tracking is correct."*
+                    #
+                    # The photos are already saved, so asking costs nothing but
+                    # a sentence, and answering the wrong plant costs a record.
+                    if _r.get("ambiguous"):
+                        # BOSS DOES NOT COMPOSE THE QUESTION.
+                        #
+                        # The first version wrote the sentence here, which is
+                        # the orchestrator practising a domain - it does not
+                        # know a plant from a plant. Grow knows which two a word
+                        # fits and why it matters; Anansi knows how to say it.
+                        # Boss's job is to notice that the domain is blocked and
+                        # get out of the way.
+                        names = ", ".join(os.path.basename(p_) for p_ in saved)
+                        raised = self._unwrap(self.send_a2a("grow_agent", "ask_principal", {
+                            "question": _r.get("ask"),
+                            "options": _r.get("candidates"),
+                            "why": _r.get("why"),
+                            "blocked_on": (f"the photo ({names}) is saved and not filed "
+                                           f"against any plant"),
+                            "ref": {"photos": [os.path.basename(p_) for p_ in saved]},
+                        }), key="question") or {}
+                        return {"result": raised.get("question") or _r.get("ask"),
+                                "evidence": {"raised_by": "grow_agent",
+                                             "question_id": raised.get("id"),
+                                             "blocked_on": raised.get("blocked_on")}}
+                    plant_id = _r.get("plant_id") or "current_plant"
                     self.log(f"photo attributed to {plant_id} (resolved by grow_agent)")
 
                 # A measurement sent with the photos is logged BEFORE they are

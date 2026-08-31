@@ -4152,3 +4152,74 @@ calendar loses it.
 `gsc` is ambiguous between two Girl Scout Cookies plants and should refuse.
 Verified pre-existing by stashing the change and re-testing — it is not a
 regression from this work, and it is left standing rather than half-fixed.
+
+### 2026-08-31 — A background agent asks through Anansi, and a human types like a human
+
+Four corrections from the principal in a row, each sharper than the last.
+
+**1. A domain agent does not talk to the principal.** *"It doesn't need to reach
+the chat. If it needs more questions, it can have Anansi ask. It's a background
+agent that's tracking things. The only agent I need to interact with is Anansi."*
+
+The first version had **Boss composing the question**, which is the orchestrator
+practising a domain — it cannot tell one plant from another. `ask_principal` is
+on the base class now, so every agent has it: the domain raises the question,
+Anansi carries it, and **the asking agent holds it** — the same rule as `notify`,
+because the domain is what is blocked and a copy in Anansi is a second source of
+truth. Verified: Grow holds one open question with `blocked_on: the photo is
+saved and not filed against any plant`.
+
+The rule the whole thing turns on is his: *"if you have things that are unclear,
+ask. If I don't know, I can find out. Just like if you don't know something, you
+can find out."* An agent guessing to avoid asking is choosing a wrong record over
+a short delay.
+
+**2. Ambiguity is a question, not a default.** `"how is the gsc doing"` resolved
+to `gsc_auto_2` with full confidence. Two Girl Scout Cookies are tracked — one in
+DWC at day 34, one in LWC at day 10 — and picking either is a coin toss presented
+as an answer. It now refuses and names what it is between:
+
+> Do you mean current_plant (day 34, DWC) or gsc_auto_2 (vegetative, day 10, LWC)?
+
+**3. I blanked his dashboard, and it was mine to fix.** *"You completely removed
+the data that was on the dashboard for GSC one. That was actually helpful."*
+
+His data was never lost — it was **buried**. My photo tests wrote two readings
+carrying nothing but a carried-forward volume, and an empty row became the most
+recent one, so the card showed blanks where 668 ppm / EC 1.341 / pH 5.93 / 21.3 C
+had been. Both voided with the reason; the real reading is back.
+
+The defect is not mine alone and is now closed at the class: **`log_reading`
+refuses a reading with no measurement in it.** Volume alone is carried forward
+from the previous row, so a row containing only volume records nothing that was
+observed, and its only effect is to hide the last real one. That is worse than an
+error, because the card looks like it is working.
+
+And the card he asked for was **added, not substituted** — `git diff` confirms
+zero lines removed from the original Grow renderer. `Grow · other plants` shows
+GSC2 (LWC, vegetative, day 10, *last reading: never*) and the aloe. A plant with
+no readings renders as a plant with no readings, because hiding it would put it
+back where it was.
+
+**4. He types like a person, and dictates.** *"I'm not going to do
+g s c underscore number one. That's too much. Oftentimes I do speech to text, so
+you're gonna get what you get."*
+
+Correct, and meeting that is the agent's job. `_spoken_normalise` undoes what
+happens between his mouth and the parser — dictation spelling out letters
+(`"g s c two"`), ordinal words (`one/first/1st`), abbreviations (`no. 2`,
+`num 2`), and the name run together with the number (`gscone`). `_number_for_term`
+then finds the number wherever it landed: after the name, before it
+(`"the second gsc"`, `"2nd gsc"`), or glued to it.
+
+**21 of 21 phrasings resolve**, including the two that should refuse and the one
+that names no plant at all:
+
+```
+gsc2 · gsc 2 · GSC #2 · gsc one · GSC two · g s c two · G S C one
+gsc number two · the second gsc · the first gsc · gsc no 2 · gsc no. 1
+gsc#1 · gscone · gsctwo · 2nd gsc · my first gsc · gsc number 2 needs water
+hows my aloe -> aloe_1     how is the gsc doing -> ASKS     how are the plants -> none
+```
+
+Shell to v23.

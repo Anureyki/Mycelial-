@@ -423,6 +423,38 @@ class Anansi(AgentBase):
         if task == "notify":
             return self.notify(args if isinstance(args, dict) else {})
 
+        # The dashboard tracks EVERY plant, not the current one.
+        #
+        # The Grow card called grow_snapshot with no plant_id, which means
+        # `current_plant`, so GSC2 - a second Girl Scout Cookies in an LWC at
+        # day 10 - was tracked by the agent and invisible on the screen. A plant
+        # the system holds readings for and the dashboard does not show is a
+        # plant the grower has to remember on his own, which is the job the
+        # dashboard exists to take off him.
+        if task == "grow_roster":
+            roster = self.send_a2a("grow_agent", "list_plants", {})
+            r = roster
+            for _ in range(6):
+                if isinstance(r, dict) and "result" in r and len(r) == 1:
+                    r = r["result"]
+                else:
+                    break
+            active = (r or {}).get("active") or []
+            out = []
+            for p in active:
+                pid = p.get("plant_id")
+                if not pid:
+                    continue
+                snap = self.send_a2a("grow_agent", "grow_snapshot", {"plant_id": pid})
+                for _ in range(6):
+                    if isinstance(snap, dict) and "result" in snap and len(snap) == 1:
+                        snap = snap["result"]
+                    else:
+                        break
+                if isinstance(snap, dict) and not snap.get("error"):
+                    out.append(snap)
+            return {"plants": out, "count": len(out)}
+
         if task == "grow_snapshot":
             return self.send_a2a("grow_agent", "grow_snapshot",
                                  args if isinstance(args, dict) else {})

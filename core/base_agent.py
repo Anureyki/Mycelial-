@@ -37,6 +37,9 @@ REGISTRY_RETRY_ATTEMPTS = 10
 REGISTRY_RETRY_DELAY = 2
 
 CORE_CASE_TASKS = {
+    # Every agent can raise a question and every agent holds its own. The
+    # domain is blocked, so the domain remembers - Anansi only carries it.
+    "ask_principal", "open_questions", "answer_question",
     "case_open", "case_list", "case_get", "case_summary", "case_timeline",
     "case_add_document", "case_add_evidence", "case_add_participant",
     "case_add_complaint", "case_set_element", "case_set_state",
@@ -399,6 +402,17 @@ class AgentBase:
                               if isinstance(args, dict)
                               else (args[0] if isinstance(args, list) and args else ""))
                     result = self.answer(prompt) if prompt else None
+                elif task == "ask_principal":
+                    a_ = args if isinstance(args, dict) else {}
+                    result = self.ask_principal(
+                        a_.get("question"), a_.get("options"), a_.get("blocked_on"),
+                        a_.get("why"), a_.get("register"), a_.get("ref"))
+                elif task == "open_questions":
+                    a_ = args if isinstance(args, dict) else {}
+                    result = self.open_questions(bool(a_.get("include_answered")))
+                elif task == "answer_question":
+                    a_ = args if isinstance(args, dict) else {}
+                    result = self.answer_question(a_.get("question_id"), a_.get("answer"))
                 elif task == "case_event_notice":
                     result = self.case_event_notice(args if isinstance(args, dict) else {})
                 elif task in CORE_CASE_TASKS:
@@ -843,6 +857,130 @@ class AgentBase:
         declares itself a statute."""
         cls = str((entry or {}).get("authority_class") or "").lower()
         return self.AUTHORITY_RANK.get(cls, 5)
+
+    # ------------------------------------------------------------------
+    # A domain agent with a question.
+    #
+    # The principal's correction, and it is about who talks to whom: *"It
+    # doesn't need to reach the chat. If it needs more questions, it can have
+    # Anansi ask. It doesn't need to talk to me directly - it's a background
+    # agent that's tracking things. The only agent I need to interact with is
+    # Anansi."*
+    #
+    # So a domain agent NEVER addresses the principal. It raises a question and
+    # hands it to the interface layer, which is the same shape as `notify`: the
+    # domain owns the substance, Anansi owns the channel and the voice.
+    #
+    # The first version of this was Boss composing the question text itself,
+    # which is the orchestrator practising a domain - the one thing this
+    # architecture keeps it out of. Boss routes. Grow knows which two plants a
+    # word fits. Anansi knows how to say it.
+    #
+    # AND THE ASKING AGENT REMEMBERS, NOT ANANSI. A question is a thing the
+    # domain is blocked on, so the domain holds it; Anansi keeps no queue, for
+    # the same reason it keeps no copy of a reminder - a copy is a second source
+    # of truth and the copy is the one that drifts.
+    #
+    # The last part is the principal's, and it is the rule the whole thing turns
+    # on: *"if you have things that are unclear, ask. If I don't know, I can
+    # find out. Just like if you don't know something, you can find out."* An
+    # agent guessing to avoid asking is choosing a wrong record over a short
+    # delay.
+
+    def ask_principal(self, question, options=None, blocked_on=None,
+                      why=None, register=None, ref=None):
+        """Raise a question for the principal. Anansi delivers it; this holds it."""
+        q = str(question or "").strip()
+        if not q:
+            return {"error": "ask_principal needs a question."}
+        if not str(blocked_on or "").strip():
+            return {"error": ("ask_principal needs `blocked_on` - what cannot proceed "
+                              "until this is answered. A question with nothing waiting on "
+                              "it is a remark, and the principal has enough of those.")}
+        rec = {
+            "id": f"ask_{self._uid()}",
+            "from_agent": self.agent_id,
+            "question": q,
+            "options": list(options or []),
+            "blocked_on": str(blocked_on).strip(),
+            "why": str(why or "").strip() or None,
+            "ref": ref,
+            "status": "open",
+            "asked_at": datetime.now().isoformat(timespec="seconds"),
+            "answer": None,
+        }
+        # Held HERE, by the agent that is blocked.
+        try:
+            raw = self._unwrap_value(self.retrieve_own_memory("open_questions"))
+            idx = json.loads(raw) if raw else []
+        except Exception:
+            idx = []
+        idx.append(rec["id"])
+        self.store_own_memory("open_questions", json.dumps(idx))
+        self.store_own_memory(rec["id"], json.dumps(rec), pin=True)
+
+        body = q
+        if rec["options"]:
+            body += "\n" + "\n".join(f"  - {o}" for o in rec["options"])
+        if rec["why"]:
+            body += f"\n\n{rec['why']}"
+        body += f"\n\nUntil then: {rec['blocked_on']}"
+
+        delivered = None
+        if self.agent_id != "anansi":
+            try:
+                delivered = self.send_a2a("anansi", "notify", {
+                    "from_agent": self.agent_id,
+                    "subject": f"{self.agent_id} needs one thing",
+                    "body": body,
+                    "register": register,
+                    "verbatim": True,   # a question is not a story to retell
+                }, timeout=60)
+            except Exception as exc:
+                self.log(f"ask_principal: could not reach anansi: {exc}")
+                delivered = {"error": str(exc)}
+        return {**rec, "delivered_via": "anansi", "delivery": delivered,
+                "held_by": self.agent_id,
+                "note": ("The asking agent holds this, not Anansi. Anansi carried it and "
+                         "kept no copy.")}
+
+    def open_questions(self, include_answered=False):
+        """What this agent is waiting to be told."""
+        try:
+            raw = self._unwrap_value(self.retrieve_own_memory("open_questions"))
+            idx = json.loads(raw) if raw else []
+        except Exception:
+            idx = []
+        out = []
+        for qid in idx:
+            r = self._unwrap_value(self.retrieve_own_memory(qid))
+            if not r:
+                continue
+            try:
+                rec = json.loads(r)
+            except Exception:
+                continue
+            if not include_answered and rec.get("status") != "open":
+                continue
+            out.append(rec)
+        return {"agent": self.agent_id, "count": len(out), "questions": out}
+
+    def answer_question(self, question_id, answer):
+        """Record what the principal said, and unblock."""
+        raw = self._unwrap_value(self.retrieve_own_memory(str(question_id or "")))
+        if not raw:
+            return {"error": f"no open question {question_id!r}"}
+        try:
+            rec = json.loads(raw)
+        except Exception:
+            return {"error": f"question {question_id} is unreadable"}
+        if not str(answer or "").strip():
+            return {"error": "an answer cannot be empty."}
+        rec["answer"] = str(answer).strip()
+        rec["status"] = "answered"
+        rec["answered_at"] = datetime.now().isoformat(timespec="seconds")
+        self.store_own_memory(rec["id"], json.dumps(rec), pin=True)
+        return rec
 
     def read_screenshot(self, image_path):
         """OCR a screenshot and assess what its text can support.

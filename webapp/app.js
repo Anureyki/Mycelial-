@@ -811,6 +811,58 @@ function wireUpload() {
   });
 }
 
+// Every OTHER plant on the roster. A separate card on purpose.
+//
+// The Grow card shows `current_plant` and it is the one the grower reads every
+// day; it was left exactly as it was. GSC2 - a second Girl Scout Cookies in an
+// LWC at day 10 - was tracked by the agent and invisible on the screen, and a
+// plant the system holds readings for but does not show is a plant the grower
+// has to remember on his own, which is the job this page exists to take off him.
+//
+// It renders a plant with no readings as a plant with no readings. An empty row
+// is the honest state for a plant nobody has metered yet, and hiding it would
+// put it back where it was.
+async function renderGrow2Card(body) {
+  body.textContent = '';
+  const d = unwrap(await callTask('grow_roster', {}), 'plants');
+  if (!d || d.error) { body.textContent = d && d.error ? d.error : 'No roster.'; return; }
+  const others = (d.plants || []).filter(p => p.plant_id && p.plant_id !== 'current_plant');
+  if (!others.length) {
+    const p = document.createElement('p');
+    p.className = 'muted';
+    p.textContent = 'No other plants are being tracked.';
+    body.append(p);
+    return;
+  }
+  for (const pl of others) {
+    const r = pl.last_reading || {};
+    const res = pl.reservoir || {};
+    const h = document.createElement('p');
+    h.className = 'phase-hdr';
+    const sys = (res.system_type || '').toUpperCase();
+    h.textContent = `${pl.plant_id}${sys ? ` · ${sys}` : ''}`
+      + ` · ${pl.stage || 'unknown'}${pl.day != null ? ` · day ${pl.day}` : ''}`;
+    body.append(h);
+
+    const rows = document.createElement('dl');
+    rows.className = 'rows';
+    const add = (k, v) => {
+      const dt = document.createElement('dt'); dt.textContent = k;
+      const dd = document.createElement('dd'); dd.textContent = v;
+      rows.append(dt, dd);
+    };
+    add('Strain', pl.strain || 'unknown');
+    add('Last reading', r.at ? ago(r.at) : 'never');
+    add('ppm', r.ppm != null ? String(r.ppm) : '—');
+    add('EC', r.ec != null ? `${r.ec} mS/cm` : '—');
+    add('pH', r.ph != null ? String(r.ph) : '—');
+    add('Temp', r.temp_c != null ? `${r.temp_c} C` : '—');
+    add('Reservoir', res.capacity_liters != null
+      ? `${res.liters != null ? res.liters + ' L of ' : ''}${res.capacity_liters} L` : '—');
+    body.append(rows);
+  }
+}
+
 async function refreshDashboard() {
   const narrated = [
     { id: 'systemCard', prompt: 'system status' },
@@ -818,6 +870,7 @@ async function refreshDashboard() {
   ];
   const structured = [
     { id: 'growCard', render: renderGrowCard },
+    { id: 'grow2Card', render: renderGrow2Card },
     { id: 'progressCard', render: renderProgressCard },
     { id: 'legalCard', render: renderLegalCard },
     { id: 'graphCard', render: renderGraphCard },

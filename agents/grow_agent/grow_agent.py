@@ -3633,6 +3633,89 @@ class GrowAgent(AgentBase):
     _ORDINALS = {"one": 1, "first": 1, "1st": 1, "two": 2, "second": 2, "2nd": 2,
                  "three": 3, "third": 3, "3rd": 3, "four": 4, "fourth": 4}
 
+    def _spoken_normalise(self, text):
+        """Undo what a person and a speech-to-text engine do to a name.
+
+        The principal, plainly: *"I'm a human being, so I'm gonna text like a
+        human... Oftentimes I do speech to text. So you're gonna get what you
+        get."* Right, and it is the agent's job to meet that, not his to type
+        `gsc_auto_2`.
+
+        Three things happen to "GSC 2" between his mouth and this function:
+
+          spelled out   dictation hears the letters and writes "g s c two",
+                        so runs of single letters are collapsed back.
+          ordinal words "two", "second", "number two", "no. 2" all mean 2.
+          run together  "gscone" arrives with nothing between the name and the
+                        number at all.
+        """
+        lp = (text or "").lower()
+        # "g s c two" -> "gsc two". Two or more single letters separated by
+        # spaces are a spelled-out word, which no ordinary sentence contains.
+        lp = re.sub(r'\b(?:[a-z]\s+){1,5}[a-z]\b',
+                    lambda m: re.sub(r'\s+', '', m.group(0)), lp)
+        # "no. 2", "no 2", "num 2", "#2" all mean the same as "number 2".
+        lp = re.sub(r'\b(?:no\.?|num\.?|nbr)\s+(?=\d)', 'number ', lp)
+        for word, n in sorted(self._ORDINALS.items(), key=lambda kv: -len(kv[0])):
+            lp = re.sub(r'\b(?:number\s+)?' + word + r'\b', str(n), lp)
+        # "gsc number 2" still has a word between the name and the number, and
+        # the separator class that finds it excludes letters - so the digit was
+        # invisible and the whole thing came back ambiguous. Drop the word once
+        # it has done its job.
+        lp = re.sub(r'\bnumber\s+(?=\d)', '', lp)
+        return re.sub(r'\s{2,}', ' ', lp).strip()
+
+    def _number_for_term(self, lp, term):
+        """The number a person attached to this term, however they attached it.
+
+        Was one regex requiring the digit to FOLLOW the term, which missed
+        every natural way of putting it first - "the second gsc", "my first
+        one" - and every way of running it together.
+        """
+        t = re.escape(term)
+        for pat in (
+            # after: "gsc 2", "gsc#2", "gsc2", "gsc number 2"
+            t + r'[^a-z0-9]{0,8}(\d+)\b',
+            # after, run together with a word that already became a digit
+            t + r'(\d+)\b',
+            # before: "the 2 gsc", "2nd gsc" - the ordinal substitution above
+            # has already turned second/2nd into "2"
+            r'\b(\d+)\s{0,3}' + t + r'\b',
+        ):
+            m = re.search(pat, lp)
+            if m:
+                return int(m.group(1))
+        # "gscone", "gsctwo" - dictation runs the name and the number together,
+        # and \bone\b cannot see a word with no boundary in front of it. The
+        # TERM is the boundary, so anchor on it: safe in a way a bare rule is
+        # not, because it will never turn "someone" into "some1".
+        for word, num in sorted(self._ORDINALS.items(), key=lambda kv: -len(kv[0])):
+            if re.search(t + word + r'\b', lp):
+                return num
+        return None
+
+    def _plant_label(self, plant_id):
+        """How a person would say this plant: strain, stage and age."""
+        p = next((x for x in self._get_all_plants()
+                  if x.get("plant_id") == plant_id), None) or {}
+        bits = [plant_id]
+        st = p.get("stage")
+        # System type is how the grower tells these two apart in his head -
+        # one is in DWC and one in LWC - so it belongs in the question.
+        sysname = None
+        try:
+            snap = self.grow_snapshot(plant_id) if hasattr(self, "grow_snapshot") else {}
+            sysname = ((snap or {}).get("reservoir") or {}).get("system_type")
+            if not sysname:
+                sysname = (snap or {}).get("system") or (snap or {}).get("system_type")
+            day = (snap or {}).get("day")
+            if day is not None:
+                st = f"{st}, day {day}" if st else f"day {day}"
+        except Exception:
+            sysname = None
+        extra = ", ".join(x for x in (st, (sysname or "").upper() or None) if x)
+        return f"{plant_id} ({extra})" if extra else bits[0]
+
     def _plant_from_text(self, prompt):
         """Which of THIS agent's plants the text refers to, or None.
 
@@ -3644,12 +3727,10 @@ class GrowAgent(AgentBase):
         "GSC number two", "the second GSC". So the id is decomposed into the
         words in it and the number on the end, and a word shared by two plants
         needs the number with it - "gsc" alone cannot choose between them."""
-        lp = (prompt or "").lower()
-
-        # "number two" / "two" -> 2, so a spoken ordinal reaches the same path
-        # as a digit.
-        for word, n in sorted(self._ORDINALS.items(), key=lambda kv: -len(kv[0])):
-            lp = re.sub(r'\b(?:number\s+)?' + word + r'\b', str(n), lp)
+        # Spelled-out letters, ordinal words and run-together numbers are all
+        # normalised here, because the grower dictates and a name arrives
+        # however dictation left it.
+        lp = self._spoken_normalise(prompt)
 
         plants = self.active_plants()
         order = ["current_plant"] + [p.get("plant_id") for p in plants
@@ -3739,7 +3820,14 @@ class GrowAgent(AgentBase):
             #
             # The lookahead lets a digit follow while still refusing a longer
             # word: "gsc2" and "gsc 2" both match, "gscx" does not.
-            if not re.search(r'\b' + re.escape(term) + r'(?![a-z])', lp):
+            # The lookahead lets a DIGIT follow the term ("gsc2") and must
+            # also let an ordinal WORD follow it ("gscone"), because dictation
+            # runs them together. Anything else that is a letter is a longer
+            # word and not this term: "gscx" is still refused.
+            _ord = "|".join(sorted((re.escape(w) for w in self._ORDINALS),
+                                   key=len, reverse=True))
+            if not re.search(r'\b' + re.escape(term) + r'(?![a-z])', lp) and \
+                    not re.search(r'\b' + re.escape(term) + r'(?:' + _ord + r')\b', lp):
                 continue
             if len(owners) == 1:
                 # Unique term. A number in the sentence must still not
@@ -3747,18 +3835,32 @@ class GrowAgent(AgentBase):
                 # the caller meaning a different plant, not a loose match.
                 only = owners[0]
                 tail = next((t for t in reversed(tokens(only)) if t.isdigit()), None)
-                m = re.search(re.escape(term) + r'[^a-z0-9]{0,6}(\d+)\b', lp)
-                if tail and m and m.group(1) != tail:
+                m = self._number_for_term(lp, term)
+                if tail and m is not None and str(m) != tail:
                     continue
                 return only
             # Ambiguous term. The number selects among the plants it matches,
             # in roster order, which is what "gsc 1" means.
-            m = re.search(re.escape(term) + r'[^a-z0-9]{0,6}(\d+)\b', lp)
-            if m:
-                idx = int(m.group(1))
+            m = self._number_for_term(lp, term)
+            if m is not None:
+                idx = m
                 ranked = [pid for pid in order if pid in owners]
                 if 1 <= idx <= len(ranked):
                     return ranked[idx - 1]
+            # NO NUMBER, AND THE TERM FITS MORE THAN ONE PLANT.
+            #
+            # "how is the gsc doing" fell through here and was answered about
+            # gsc_auto_2 with full confidence, because a later, looser loop
+            # found something. Two Girl Scout Cookies are being tracked - one
+            # in DWC at day 34, one in LWC at day 10 - and picking either is a
+            # coin toss presented as an answer.
+            #
+            # Refusing is the answer. The caller is told WHAT it is between so
+            # it can ask, which is the only correct move when a person has said
+            # something that genuinely means two things.
+            self._ambiguous_plants = [pid for pid in order if pid in owners]
+            self._ambiguous_term = term
+            return None
 
         best = None
         for p in plants:
@@ -7372,6 +7474,30 @@ class GrowAgent(AgentBase):
                         "unrecognised": _unknown,
                         "accepted_fields": sorted(_known)}
 
+            # A READING WITH NO MEASUREMENT IN IT IS NOT A READING.
+            #
+            # Two rows were written on 2026-08-31 carrying nothing but a
+            # carried-forward volume - no ppm, no pH, no EC, no temperature.
+            # They became the most recent reading, and the dashboard showed the
+            # grower blanks where his 668 ppm / 5.93 / 21.3 had been. His data
+            # was never lost; it was buried under an empty row, which is worse
+            # than an error because the card looked like it was working.
+            #
+            # Volume alone is carried forward from the previous reading, so a
+            # row containing only volume contains nothing that was observed.
+            # Refuse it and say so, rather than storing a row whose only effect
+            # is to hide the last real one.
+            _measured = [k for k in ("ppm", "ec", "ph", "temp", "temp_c",
+                                     "reservoir_temp", "humidity")
+                         if isinstance(args, dict) and args.get(k) is not None]
+            if isinstance(args, dict) and not _measured:
+                return {"error": ("Nothing measurable in this reading - no ppm, EC, pH, "
+                                  "temperature or humidity. Volume alone is carried "
+                                  "forward from the last reading, so a row with only "
+                                  "volume records nothing that was observed and would "
+                                  "hide the last real reading behind a blank one."),
+                        "saved": False, "fields_seen": sorted(args.keys())}
+
             # VOLUME IS CARRIED FORWARD, NOT DEMANDED.
             #
             # Requiring a level with every ppm/pH/temp reading is the wrong
@@ -8680,7 +8806,22 @@ class GrowAgent(AgentBase):
             # Which plant a prompt is about. Only this agent holds the roster,
             # so only it can answer - a caller defaulting to "current_plant"
             # files a photo of one plant against another.
-            return {"result": {"plant_id": self._plant_from_text(args.get("prompt") or "")}}
+            self._ambiguous_plants, self._ambiguous_term = None, None
+            pid = self._plant_from_text(args.get("prompt") or "")
+            out = {"plant_id": pid}
+            if pid is None and getattr(self, "_ambiguous_plants", None):
+                cands = self._ambiguous_plants
+                out.update({
+                    "ambiguous": True,
+                    "term": self._ambiguous_term,
+                    "candidates": cands,
+                    "ask": (f"Do you mean {' or '.join(self._plant_label(c) for c in cands)}?"),
+                    "why": (f"{self._ambiguous_term!r} fits {len(cands)} plants being tracked "
+                            f"right now, and no number said which. Guessing would answer "
+                            f"about the wrong plant with full confidence, which has already "
+                            f"happened once."),
+                })
+            return {"result": out}
 
         elif task == "amend_grow_system":
             fields = {k: v for k, v in (args or {}).items() if k != "plant_id"}
