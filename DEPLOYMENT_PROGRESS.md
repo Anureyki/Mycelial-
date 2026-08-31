@@ -734,6 +734,65 @@ Two properties fall out of that for free:
   data, not an animation loop. `hermes -> security_agent` at 13,407 calls is one
   strand worn smooth.
 
+### Strands form BETWEEN domains, and legs do not stay home
+
+The principal's extension, and it is what makes this a web rather than a wheel:
+
+> *"cross connecting domains together with the web, to show two domains working
+> together. Or a domain agent searching the globe... the legs don't always have
+> to stay on the domain. When one agent talks to another, that's an interweb
+> connection. It creates a spider tunnel effect between the two parties."*
+
+Every one of those already exists as traffic, and each has a distinct meaning:
+
+| What happens | Already implemented as | Drawn as |
+|---|---|---|
+| Anansi routes a request to a department | Boss `_domain_for` | leg from the body into a region |
+| One domain borrows another's authority | `ask_peer_corpus` | **tunnel** between two regions |
+| One domain hands another a finding | `refer_finding` / `receive_finding` | tunnel, directional |
+| Several agents work one request at once | ordinary A2A fan-out | several legs at once |
+| A domain reaches the public web itself | `search_public` from inside an agent | leg from a REGION to the globe, not from the body |
+
+That last row is the one worth being careful about. When Legal answered *what is
+legal tender* tonight it searched the web **itself** - the reach did not come
+back through Anansi. So a strand can leave a domain region and touch the globe
+without the body being involved, and drawing it as though Anansi went looking
+would misreport who did the work.
+
+**The hard part is that most traffic is not collaboration.** `hermes ->
+security_agent` ran 13,407 times in two days, and `grow_agent -> hermes` 12,668.
+Those are an agent reading its own notes and paying a guard check for it - the
+read amplification Phase 3 was about. If every A2A call draws a tunnel, the web
+is a solid sheet and nothing is visible.
+
+So the tunnels are the **domain-to-domain** verbs, which are few and always
+meaningful: `ask_peer_corpus`, `refer_finding`, `receive_finding`, and the shared
+`case_*` events. Accounting borrowing Reg Z from Legal's corpus is a tunnel worth
+drawing. Grow reading its own reservoir volume is not, however many times it
+does it.
+
+That distinction is not a rendering optimisation. It is the difference between a
+picture of departments cooperating and a picture of infrastructure breathing.
+
+Measured over 48h on 2026-08-31, out of **37,701** completed tasks:
+
+```
+   4   refer_finding
+  99   receive_finding
+ 222   case_*  (13 case_add_evidence, 5 case_set_element, ...)
+   0   ask_peer_corpus
+```
+
+**Roughly 325 tunnels against 37,701 calls - under one percent.** That is the
+argument for the whole design: the web stays legible precisely because
+collaboration is rare, and the rare thing is the interesting thing. Drawing all
+37,701 would produce a sheet; drawing 325 produces a story.
+
+`ask_peer_corpus` at zero is itself worth noticing - the verb exists and nothing
+has used it in two days. Whether that is because no question needed a sibling's
+authority or because the agents do not reach for it is a real question, and a
+strand that never appears in the picture is how it would get asked.
+
 ### The constraint that must survive any redesign
 
 **The visual is derived from the register and the payload, never chosen for
