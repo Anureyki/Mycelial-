@@ -2856,3 +2856,42 @@ at 0.0.
 That is the divergence-first rule doing its job: Accounting surfaces it, Legal
 decides whether it is actionable, and nobody claims $200 a month until a ledger
 says so.
+
+### 2026-08-31 — The Texas repair statute, and the element that decides it
+
+The principal described conditions at the unit: an unsealed wall penetration by
+the AC/water heater admitting vermin, a bathroom aerator reported in May and
+still unrepaired in September, a maintenance ticket open for months, an offer to
+do the repair themselves refused, and a pest-control trip charge for a visit
+where nothing was treated. Three photographs supplied.
+
+**Tex. Prop. Code 92.052, 92.056, 92.0561 and 92.058 acquired** - the statute
+that actually governs a Texas landlord's repair duty, and the first STATE law in
+this corpus. Stamped `state_statute`, jurisdiction TX.
+
+Texas's own statutes site is now a JavaScript application and serves a script
+nothing but an app shell - 250 KB of HTML yielding 1,356 characters of text, the
+same failure uscode.house.gov has. Retrieved from texas.public.law instead, with
+that recorded in the source line rather than implied.
+
+**The element that decides the claim, found by reading the statute rather than
+the summary.** 92.056(b) conditions liability on five things, and the third is:
+
+> *"the tenant has given the landlord a **subsequent written notice** to repair
+> or remedy the condition after a reasonable time... **or** the tenant has given
+> the notice under Subdivision (1) by sending that notice by **certified mail,
+> return receipt requested**, by registered mail, or by another form of mail
+> that allows tracking of delivery"*
+
+The principal reports verbal requests at the office and a maintenance ticket.
+Neither is in the record as written-and-subsequent or as tracked mail. Four
+months of delay does not cure it - 92.052 creates the duty, and 92.056 is what
+makes it enforceable, and the notice form is the gate.
+
+`claim_assessment`: **`prerequisite_missing`, confidence 0.0** - and the missing
+prerequisite is nameable, curable, and curable today.
+
+Photographs saved to `knowledge_base/legal_agent/photos/` and four harm entries
+logged against the case with those files as `evidence_ref`: the aerator delay,
+the wall penetration, the fouled return grille, and the pest-control trip charge
+with its amount recorded as NOT YET KNOWN rather than estimated.
