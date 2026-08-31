@@ -269,4 +269,89 @@ def assess(text, source_hint=None):
             "against this grow and recording what happened - at which point the "
             "observation outranks the card and the divergence is the finding."),
         "source_hint_recorded_not_scored": source_hint,
+        **{"verification": pointers(t)},
     }
+
+# ---------------------------------------------------------------------------
+# What the card points at, and what following that pointer costs.
+#
+# The principal's observation, and it is the one that makes this module worth
+# more than a credibility score: *"it'll either point to a court case, a
+# statute, or an article."* A post is second-hand because it reports somebody
+# else's finding - but THE THING IT POINTS AT MAY BE FIRST-HAND, and openable.
+# The card is then a finding aid, not a source, and its own standing stops
+# mattering the moment the pointer resolves.
+#
+# And the cost of following it is wildly different by domain, which is the
+# other half of his point:
+#
+#   *"Grow cannot verify things unless it's tested... we won't know about that
+#    until it's harvest time. But if there are statutes, research sources, laws,
+#    CFRs, laboratories that post - information can be verified easily."*
+#
+# A legal card resolves in seconds against a corpus. A terpene-retention card
+# resolves at harvest, months out, or costs a lab panel. Same second-hand
+# status, opposite economics - so the assessment says WHERE EFFORT PAYS rather
+# than only how much the card deserves.
+
+POINTER_KINDS = (
+    ("statute_or_regulation",
+     r"\b\d+\s*(?:u\.?s\.?c\.?|c\.?f\.?r\.?)\b|§\s*\d|"
+     r"\b(?:section|title)\s+\d+[\d.\-]*\b",
+     "immediate",
+     "Open it in the corpus, or acquire it with tools/ingest_law.py. Seconds to "
+     "minutes, and it either says what the card claims or it does not."),
+    ("court_decision",
+     r"\b[A-Z][A-Za-z.'\-]+\s+v\.?\s+[A-Z][A-Za-z.'\-]+|"
+     r"\b\d+\s+(?:U\.S\.|F\.\d?d|S\. ?Ct\.)\s+\d+",
+     "immediate",
+     "Look the case up. A decision either holds what is claimed or it does not, "
+     "and a mention is not a holding."),
+    ("published_article",
+     r"\bet al\.|\bdoi:|\bjournal of\b|\b(?:19|20)\d{2}\s*\)|"
+     r"\bpublished in\b|\bpreprint\b",
+     "near_term",
+     "Find the paper and read what it measured. Cheap in time, and often the "
+     "abstract alone contradicts the card."),
+    ("laboratory_result",
+     r"\b(?:coa|certificate of analysis|lab (?:test|result|panel)|"
+     r"terpene (?:panel|profile|test)|gc-?ms|hplc)\b",
+     "costs_money",
+     "A panel on this material would settle it directly. Money rather than time, "
+     "and it is the only thing that turns a terpene claim into evidence."),
+    ("own_observation_required",
+     r"\b(?:dry|drying|cure|curing|harvest|yield|aroma|smell|taste|"
+     r"retention|terpene)\b",
+     "deferred_to_outcome",
+     "Nothing external settles this. It is settled by running it on this grow "
+     "and recording what happened, which is not available until harvest."),
+)
+
+VERIFIABILITY_ORDER = ("immediate", "near_term", "costs_money", "deferred_to_outcome")
+
+
+def pointers(text):
+    """What this card points at, and what following each pointer would take."""
+    t = str(text or "")
+    found, seen = [], set()
+    for name, pat, cost, how in POINTER_KINDS:
+        m = re.search(pat, t, re.I)
+        if not m or name in seen:
+            continue
+        seen.add(name)
+        found.append({"points_at": name, "verifiability": cost, "how_to_follow": how,
+                      "example": " ".join(t[max(0, m.start() - 40):m.end() + 40].split())[:160]})
+    # Cheapest route first: tell the principal where an hour actually buys
+    # something.
+    found.sort(key=lambda p: VERIFIABILITY_ORDER.index(p["verifiability"]))
+    if not found:
+        return {"pointers": [], "cheapest": None,
+                "note": ("This card points at nothing outside itself. It cannot be "
+                         "checked without reproducing whatever it describes, which "
+                         "makes it an assertion rather than a finding aid.")}
+    return {"pointers": found, "cheapest": found[0]["verifiability"],
+            "note": ("A card is second-hand because it reports someone else's "
+                     "finding. What it POINTS AT may be first-hand and openable - "
+                     "and once the pointer resolves, the card's own standing stops "
+                     "mattering. Follow the cheapest pointer first.")}
+

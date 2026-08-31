@@ -3803,3 +3803,76 @@ of the law that offers no section to read is not a finding."*
 the card, but by testing one of its claims against this grow and recording what
 happened — at which point the observation outranks the card and the divergence is
 the finding.
+
+### 2026-08-31 — Verification has a price, and it is not the same in every domain
+
+The principal's sharpest point yet: *"Grow cannot verify things unless it's
+tested — we won't know about that until harvest time. But if there are statutes,
+research, CFRs, laboratories that post — information can be verified easily.
+That's why it gets labeled as secondhand knowledge, because it's an Instagram
+post of somebody else's findings… because it'll either point to a court case, a
+statute, or an article."*
+
+Two ideas there, and both were missing.
+
+**A card is second-hand because it reports someone else's finding — but what it
+POINTS AT may be first-hand and openable.** Once the pointer resolves, the card's
+own standing stops mattering; it was a finding aid, not a source. So the
+assessment now extracts pointers and says what following each would take.
+
+**And the cost of following differs wildly by domain**, which is the half that
+makes it useful rather than merely tidy:
+
+| Points at | Cost | Route |
+|---|---|---|
+| statute or regulation | `immediate` | open it in the corpus, or acquire it |
+| court decision | `immediate` | look it up — a mention is not a holding |
+| published article | `near_term` | find the paper; the abstract often contradicts the card |
+| laboratory result | `costs_money` | a panel settles a terpene claim directly |
+| own observation | `deferred_to_outcome` | nothing external settles it — run it and record |
+
+Cheapest route first, so the answer to *where does an hour actually buy
+something* is in the result rather than in someone's head. Measured on the real
+cards: the terpene ranking comes back `deferred_to_outcome`, the 60/60 timeline
+`costs_money`, and a card citing 15 U.S.C. § 1692g and *Henson v. Santander*
+comes back **`immediate`, twice**. Same second-hand status, opposite economics.
+
+### The drying constraint, recorded the turn it was heard
+
+*"The lowest I could dry at is seventy two, because right now my AC is at
+seventy four."*
+
+On the system record now, with its basis. And it is a finding, not a note:
+**60/60 is not available in this setup** — about 12 °F below what the room can
+reach — so the 60/60-vs-70/55 argument is partly moot here. The real choice is
+what RH to pair with ~72 °F and how long to run it. Time and airflow are the
+variables actually under this grower's control, which is exactly what the source
+material said mattered most.
+
+### Sister-state citations: three shapes, and only two are translations
+
+*"If I find a Delaware code that matches federal law, and it also matches Texas…
+a lot of them mirror federal law, which makes them easy to find universally."*
+
+Right, and the mechanism has three strengths that must not be blurred:
+
+- **`uniform_act`** — same text, same uniform section number, renumbered locally.
+  The concept travels exactly. A **translation**.
+- **`federal_floor`** — it is federal, so it applies in every state directly and
+  there is nothing to translate. Open it.
+- **`parallel_only`** — another state simply legislated similarly. A **lead**, and
+  nothing more. Treating it as a translation is how an out-of-state citation ends
+  up in a filing.
+
+It refuses to assert that an analogue exists: *"This agent is NOT claiming TX has
+one. It has not looked, and a statute it has not read cannot be claimed to say
+anything."*
+
+**And the first version got all three wrong.** `UNIFORM_SECTION_RE` makes its
+separator optional, so `15 U.S.C. 1692g` matched as *16 + 92g* and a Delaware
+section as *25 + 13* — every shape came back `uniform_act / translation`, which
+is a wrong citation presented as authority. The regex is fine where it is used,
+because `cite_in_jurisdiction` has already been told the input is a uniform
+section and is being permissive about typing. It is useless as a discriminator.
+Federal is now tested first, and the uniform test requires a real hyphen and an
+actual UCC article number.

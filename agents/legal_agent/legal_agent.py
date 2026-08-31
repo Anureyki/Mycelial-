@@ -189,7 +189,7 @@ class LegalAgent(AgentBase):
                 "review_filing_draft", "compress_matter", "check_filing_frequency",
                 "scan_for_pii", "reflect_on_matter", "map_authority",
                 "set_operating_jurisdiction", "get_operating_jurisdiction",
-                "cite_in_jurisdiction", "transaction_layers",
+                "cite_in_jurisdiction", "sister_state_lead", "transaction_layers",
                 "claim_open", "claim_cite", "claim_answer", "claim_set_right",
                 "claim_evidence", "claim_observe", "claim_reproducibility",
                 "claim_corroborate", "claim_get", "claim_list", "claim_ontology",
@@ -1349,6 +1349,126 @@ class LegalAgent(AgentBase):
         self.store_own_memory(self.JURISDICTION_KEY, json.dumps(rec), pin=True)
         return {"updated": changed, "operating_jurisdiction": rec,
                 "disclaimer": DISCLAIMER}
+
+    def sister_state_lead(self, args):
+        """A citation from another state - what it is worth here, and why.
+
+        The principal's point: *"if I find a Delaware code that matches federal
+        law, and it also matches Texas or the operating state... a lot of them
+        mirror federal law, which makes them easy to find universally."*
+
+        He is right, and the mechanism has THREE different strengths that must
+        not be blurred, because two of them are translations and one is only a
+        lead:
+
+          uniform_act   - Delaware and Texas enacted the SAME text with the same
+                          uniform section number and renumbered it locally. The
+                          concept travels exactly; `cite_in_jurisdiction` already
+                          resolves these. This is a translation.
+          federal_floor - both states implement a federal provision. The FEDERAL
+                          section is the thing to open; the state codes are two
+                          local expressions of it. Also a translation, and the
+                          better target is the federal one.
+          parallel_only - neither of the above. Delaware simply legislated
+                          similarly. This is a LEAD - a place to look - and
+                          nothing more. Treating it as a translation is how a
+                          citation from the wrong state ends up in a filing.
+
+        The refusal that matters: this does NOT assert that a Texas analogue
+        exists. It says which of the three shapes applies and what to open next.
+        A statute this agent has not read cannot be claimed to say anything."""
+        a = args if isinstance(args, dict) else {}
+        cite = str(a.get("citation") or "").strip()
+        if not cite:
+            return {"error": "sister_state_lead needs a citation to work from.",
+                    "disclaimer": DISCLAIMER}
+        rec = self.get_operating_jurisdiction()
+        operating = rec.get("transaction_situs") or rec.get("business") or \
+            rec.get("residential")
+
+        # ORDER MATTERS, AND SO DOES A STRICT TEST.
+        #
+        # The first version asked UNIFORM_SECTION_RE first, and that pattern
+        # makes its separator OPTIONAL - "(\d+)\s*[-.]?\s*(\d+[A-Za-z]?)" -
+        # so "15 U.S.C. 1692g" matched as 16 + 92g and a Delaware section
+        # matched as 25 + 13. All three shapes came back `uniform_act /
+        # translation`: a wrong citation presented as authority, which is the
+        # thing this agent exists not to do.
+        #
+        # That regex is fine where it is used - `cite_in_jurisdiction` has
+        # already been told the input is a uniform section and is being
+        # permissive about how it was typed. It is useless as a discriminator.
+        # So federal is tested first, because a U.S.C. or C.F.R. citation is
+        # unambiguous, and the uniform test then requires a real hyphen and an
+        # actual UCC article number.
+
+        # Shape 2 first: it is federal, and that is unambiguous.
+        fed = re.search(r"\b(\d+)\s*(u\.?\s?s\.?\s?c\.?|c\.?\s?f\.?\s?r\.?)\s*"
+                        r"§?\s*([\d.\-]+[a-z]?(?:-\d+)?)", cite, re.I)
+        if fed:
+            located = self.lookup_reference(cite)
+            return {"citation": cite, "shape": "federal_floor",
+                    "strength": "translation",
+                    "operating_jurisdiction": operating,
+                    "in_corpus": bool(located),
+                    "why": ("This is federal. It applies in every state directly, so "
+                            "there is no translation to do - open it and read it. "
+                            "Where a state code merely implements it, the federal "
+                            "section is the better target anyway."),
+                    "next": (None if located else
+                             "Not in corpus. Acquire it with tools/ingest_law.py."),
+                    "disclaimer": DISCLAIMER}
+
+        # Shape 1: a uniform section number travels by construction. Strict:
+        # a real hyphen, and article 1-9 as the UCC actually numbers them.
+        if re.search(r"\b([1-9])\s*-\s*(\d{3}[A-Za-z]?)\b", cite):
+            resolved = self.cite_in_jurisdiction(cite)
+            return {"citation": cite, "shape": "uniform_act",
+                    "strength": "translation",
+                    "operating_jurisdiction": operating,
+                    "resolves_to": resolved,
+                    "why": ("Every state enacted the uniform text with the same "
+                            "section number and renumbered it locally, so the "
+                            "concept travels exactly. This is the strong case."),
+                    "disclaimer": DISCLAIMER}
+
+        # Shape 2: it is federal already, or names a federal provision.
+        fed = re.search(r"\b(\d+)\s*(u\.?s\.?c\.?|c\.?f\.?r\.?)\s*§?\s*([\d.\-a-z]+)",
+                        cite, re.I)
+        if fed:
+            located = self.lookup_reference(cite)
+            return {"citation": cite, "shape": "federal_floor",
+                    "strength": "translation",
+                    "operating_jurisdiction": operating,
+                    "in_corpus": bool(located),
+                    "why": ("This is federal. It applies in every state directly, "
+                            "so there is no translation to do - open it and read "
+                            "it. Where a state code merely implements it, the "
+                            "federal section is the better target anyway."),
+                    "next": (None if located else
+                             "Not in corpus. Acquire it with tools/ingest_law.py."),
+                    "disclaimer": DISCLAIMER}
+
+        # Shape 3: everything else. A lead, stated as a lead.
+        return {
+            "citation": cite, "shape": "parallel_only", "strength": "lead_only",
+            "operating_jurisdiction": operating,
+            "why": ("This is neither a uniform section number nor a federal "
+                    "provision, so nothing about it travels by construction. "
+                    "Another state legislating similarly is a PLACE TO LOOK, not "
+                    "a citation to use here."),
+            "what_it_is_good_for": (
+                "Read it to learn the SHAPE of the rule - the elements, the "
+                "defences, the vocabulary - then find whether "
+                f"{operating or 'the operating jurisdiction'} has its own, and "
+                "cite that. The out-of-state text is research, and research does "
+                "not go in a filing."),
+            "refuses_to_assert": (
+                f"This agent is NOT claiming {operating or 'the operating state'} "
+                f"has an analogue. It has not looked, and a statute it has not "
+                f"read cannot be claimed to say anything."),
+            "disclaimer": DISCLAIMER,
+        }
 
     def cite_in_jurisdiction(self, section, state=None, role="transaction_situs"):
         """Uniform section -> the citation the operating state actually uses.
@@ -2946,6 +3066,8 @@ class LegalAgent(AgentBase):
                         "disclaimer": DISCLAIMER}
             return {"operating_jurisdiction": rec, "disclaimer": DISCLAIMER}
 
+        if task == "sister_state_lead":
+            return self.sister_state_lead(args if isinstance(args, dict) else {})
         if task == "cite_in_jurisdiction":
             a = args if isinstance(args, dict) else {}
             if not a and isinstance(args, list) and args:
