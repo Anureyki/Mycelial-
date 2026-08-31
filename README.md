@@ -84,11 +84,11 @@ Term counts are what each agent declares for itself at runtime.
 
 | Agent | Port | Terms | Owns |
 |-------|------|-------|------|
-| **Grow** | 9009 | 95 | Plants, reservoir chemistry, stages, germination, dosing, photo assessment |
+| **Grow** | 9009 | 101 | Plants, reservoir chemistry, stages, germination, dosing, photo assessment |
 | **Maintenance** | 8003 | 42 | The machine itself — RAM, disk, reclaim, log hygiene |
-| **Legal** | 9011 | 34 | Instruments, statutes, dockets, authorities, CourtListener |
+| **Legal** | 9011 | 63 | Instruments, statutes, dockets, authorities, CourtListener, the deadline and action registers |
 | **Coding** | 8001 | 26 | Code, tests, lint, tracebacks, repo operations |
-| **Accounting** | 9012 | 24 | Ledger, equitable interest and control, instruments |
+| **Accounting** | 9012 | 50 | Ledger, equitable interest and control, instruments, what a charge actually is |
 | **Security** | 9010 | 13 | Guards, authorisation, kill switch, findings |
 | **Analyzer** | 9006 | 12 | Outcomes, patterns, recommendations |
 | **Trust** | 9013 | 10 | Trusts, beneficiaries, fiduciary roles |
@@ -100,6 +100,42 @@ Term counts are what each agent declares for itself at runtime.
 The three zeros are deliberate. None of them owns a domain, so none should claim a request.
 
 **On demand, not at boot:** `ag_agent` (agriculture department head, 9015) and `quantum_agent` (9014) are implemented but deliberately absent from `start_all.sh`.
+
+---
+
+## A live matter: registers, not a chat log
+
+Three registers carry a matter, and each is built around what it REFUSES.
+
+| Register | Holds | Refuses |
+|----------|-------|---------|
+| `deadlines` (Legal) | statutory periods | to compute a period whose authority it cannot open in the corpus |
+| `actions` (Legal) | steps somebody must take | to close one without a reference to the thing that proves it was taken |
+| `classify_charge` (Accounting) | what a charge actually is | to read the answer off the code someone posted it under |
+
+**A deadline is never recalled.** `add_deadline` looks the citation up and refuses
+if it is not there — every other error in this system is correctable afterwards,
+and a limitation period is not.
+
+**An action is not done until something shows it was done.** `evidence_expected`
+is required when the action is *opened*, not decided at the end. Where an
+authority accepts several methods, `evidence_alternatives` carries all of them:
+listing only the strictest reads as a requirement and tells the reader to do more
+than the law asks.
+
+**A ledger code is a claim.** `classify_charge` answers two questions the posted
+label answers as one — what economic event occurred, and whether it may be billed
+to this party — and a fault-bearing code with only alleged causation comes back
+`posted_label_unsupported`. It was checked against facts adverse to its own
+principal before being trusted; an instrument that only agrees with its owner is a
+confirmation engine.
+
+**Spoken facts are captured, and reported is not evidenced.** A reading stated in
+conversation is logged and the reply is the receipt — every stored field echoed
+back, so a misparse is visible in the seconds when it is still cheap to void. A
+step reported to Legal moves to `in_progress` and never to `done`: the statement
+is the assertion, the receipt is the proof, and the register exists because those
+are different states of the world.
 
 ---
 
@@ -206,7 +242,11 @@ Servers run over stdio, managed by the Tool Service. Configured in `config/mcp.d
 Ordered work lives in **`DEPLOYMENT_PROGRESS.md`**, in dependency order — **deployment is the last phase**, not one in the middle.
 
 - ✅ **0–1** systemd cleanup · Docker packaging
-- ⬜ **2–4** retention policy · A2A read amplification · Grow capturing spoken facts
+- ✅ **3** A2A read amplification (22.04s → 1.05s)
+- ◐ **4** agents capturing spoken facts — Grow logs a reading stated in conversation and
+  echoes a receipt; Legal records a reported step as reported. Physical facts (a light
+  height, a medium swap) still reach the record only through Claude.
+- ⬜ **2** retention policy
 - ⬜ **5** identity and authorization (DID / verifiable claims)
 - ◐ **6** harden network exposure — TLS + auth live; two legacy plaintext listeners still open
 - ⬜ **7–8** provision dedicated device *(blocked on hardware)* · migrate and cut over

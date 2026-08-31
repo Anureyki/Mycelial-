@@ -3070,19 +3070,57 @@ class GrowAgent(AgentBase):
             return text
 
         if task == "log_reading":
-            inner = result.get("result", {}) if isinstance(result, dict) else {}
-            reading = inner.get("reading") if isinstance(inner, dict) else None
+            # FALSE FAILURE WITH A REAL WRITE - the worst shape of the two.
+            #
+            # log_from_text returns {"logged", "reading", "result"} with the
+            # reading at the TOP level; this looked inside `result` for it,
+            # found nothing, and said "I wasn't able to log that reading" -
+            # after the row had already been written. A plain failure would
+            # have been safer. Told the entry did not take, the grower enters
+            # it again, and uptake and mass balance are differences between
+            # CONSECUTIVE readings, so two rows seconds apart produce either a
+            # zero-hour window or a nonsense rate from a real measurement.
+            #
+            # Both shapes are read now, and a write that genuinely did not
+            # happen is reported differently from one that did.
+            outer = result if isinstance(result, dict) else {}
+            inner = outer.get("result") if isinstance(outer.get("result"), dict) else {}
+            reading = outer.get("reading")
             if not isinstance(reading, dict):
-                return "I wasn't able to log that reading."
-            parts = []
-            if reading.get("ppm") is not None:
-                parts.append(f"{reading['ppm']} ppm")
-            if reading.get("temp") is not None:
-                parts.append(f"{reading['temp']}°C")
-            if reading.get("ph") is not None:
-                parts.append(f"pH {reading['ph']}")
-            detail = ", ".join(parts) if parts else "that reading"
-            return f"Got it - logged {detail} for the {reading.get('stage', 'current')} stage. I'll factor it into the reservoir trend."
+                reading = inner.get("reading") if isinstance(inner, dict) else None
+            if not isinstance(reading, dict):
+                why = (outer.get("reason") or inner.get("error")
+                       or "no numbers with units were found in what you said")
+                return (f"I did not log a reading - {why}. "
+                        f"Nothing was written, so nothing needs undoing.")
+            # ECHO EVERY FIELD THAT WAS ACTUALLY STORED.
+            #
+            # This listed ppm, temp and pH only, so a volume or an EC stated in
+            # the same sentence was recorded invisibly - or missed invisibly,
+            # which is worse. The grower cannot check a parse he is not shown,
+            # and a misread number is only cheap to fix in the seconds after it
+            # is entered. So the reply is the receipt.
+            labels = (("ppm", "{} ppm"), ("ec", "EC {} mS/cm"), ("ph", "pH {}"),
+                      ("temp", "{} C"), ("temp_c", "{} C"), ("reservoir_temp", "{} C"),
+                      ("humidity", "{}% RH"), ("volume_liters", "{} L"),
+                      ("reservoir_liters", "{} L"))
+            seen, parts = set(), []
+            for key, fmt in labels:
+                v = reading.get(key)
+                if v is None or fmt in seen:
+                    continue
+                seen.add(fmt)
+                parts.append(fmt.format(v))
+            if not parts:
+                return ("I did not find any numbers with units in that, so nothing was "
+                        "logged. Say it with units - 640 ppm, pH 5.9, 21 C.")
+            detail = ", ".join(parts)
+            reply = (f"Logged {detail} for the {reading.get('stage', 'current')} stage. "
+                     f"That is exactly what I stored - if a number is wrong, say so now and "
+                     f"I will void it rather than leave it in the trend.")
+            if reading.get("volume_liters") is None and reading.get("reservoir_liters") is None:
+                reply += " Volume carried forward from the last reading, not measured."
+            return reply
 
         if task == "purchase_recommendation":
             inner = result.get("result", {}) if isinstance(result, dict) else {}

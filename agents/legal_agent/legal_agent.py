@@ -1726,6 +1726,160 @@ class LegalAgent(AgentBase):
         r"^what (?:is|are|does .* mean)\b", r"^define\b", r"^definition of\b",
         r"^meaning of\b", r"\bwhat does\b.*\bmean\b", r"^who (?:is|are) a\b",
     )
+    # A person with a live matter asks what they still have to do far more
+    # often than they ask what a word means. `answer()` handled a citation and
+    # a definition and returned None for everything else, so "what do I need to
+    # do for my housing case" routed here correctly and got nothing back - the
+    # register was full and unreachable by the only sentence anyone would
+    # actually say.
+    _MATTER_STATE_ASK = (
+        r"\bwhat (?:do|should) i (?:need to |have to )?do\b",
+        r"\bwhat(?:'s| is) (?:next|outstanding|left|pending|due)\b",
+        r"\bwhat(?:'s| is) the (?:status|state|posture)\b",
+        r"\bwhere (?:are we|do (?:i|we) stand|does (?:it|this|my case) stand)\b",
+        r"\bto[- ]?do\b", r"\baction items?\b", r"\bmy (?:action|task)s?\b",
+        r"\bwhat needs (?:to be )?(?:doing|done)\b",
+        r"\b(?:any|my|the) deadlines?\b", r"\bwhen (?:is|are) .{0,24}\bdue\b",
+        r"\bhow long (?:do i have|have i got)\b",
+        r"\bam i (?:running out of time|late)\b",
+        r"\bnext steps?\b", r"\bwhat(?:'s| is) open\b",
+    )
+
+    # A question about one deadline should not be answered with the whole
+    # register. "How long do I have to file with HUD" returned four action
+    # items and two periods - everything true, nothing asked for. A telling
+    # that answers a narrower question with a wider one trains its reader to
+    # stop reading it.
+    _DEADLINE_FOCUS = (r"\bdeadlines?\b", r"\bhow long (?:do i have|have i got)\b",
+                       r"\bwhen (?:is|are)\b.{0,24}\bdue\b", r"\btime (?:limit|bar)\b",
+                       r"\bstatute of limitations?\b", r"\brunning out of time\b",
+                       r"\bam i late\b", r"\bexpir")
+
+    # HEARING IS RECORDING, BUT HEARING IS NOT PROOF.
+    #
+    # "I emailed the repair notice today" routed here correctly and hit no
+    # capability, so the fact died in the conversation - the exact failure
+    # CLAUDE.md documents for the grow (a clearance stated, agreed with, and
+    # never written down, contradicted by an assumption two days later).
+    #
+    # What it must NOT do is close the item. The statement is the assertion;
+    # the receipt is the proof, and this whole register exists because those
+    # two are different states of the world. So a reported step moves to
+    # in_progress with the date and the words recorded, and the reply names
+    # exactly what would close it.
+    _DID_IT_ASK = (
+        r"\bi (?:have |just |already )?(?:sent|emailed|e-mailed|mailed|posted|filed|"
+        r"submitted|delivered|dropped off|handed|photographed|took photos?|uploaded|"
+        r"requested|asked for|called|phoned)\b",
+        r"\bi'?ve (?:sent|emailed|mailed|filed|submitted|delivered|photographed|requested)\b",
+        r"\b(?:that'?s|it'?s|this is) (?:done|sent|filed|handled|taken care of)\b",
+        r"\bi did (?:that|the|it)\b", r"\bdone with\b",
+    )
+
+    def _record_reported_step(self, text):
+        """Attach a reported step to the open action it names, or say it could
+        not tell which. Never closes anything."""
+        acts = self.actions().get("actions") or []
+        if not acts:
+            return {"answered_as": "reported_step_no_register",
+                    "text": ("Noted, but there are no open actions recorded, so there is "
+                             "nothing here for it to attach to. Nothing was written."),
+                    "facts": {"matched": None}}
+        low = text.lower()
+        words = set(re.findall(r"[a-z]{4,}", low)) - {
+            "have", "just", "already", "sent", "emailed", "mailed", "filed", "with",
+            "them", "that", "this", "today", "yesterday", "morning", "afternoon",
+            "night", "week", "been", "about", "from", "over", "done", "took"}
+        best, score = None, 0
+        for a in acts:
+            hay = f"{a.get('what','')} {a.get('forum','')} {a.get('why','')}".lower()
+            n = sum(1 for w in words if w in hay)
+            if n > score:
+                best, score = a, n
+        if not best or score < 2:
+            return {"answered_as": "reported_step_unmatched",
+                    "text": ("I could not tell which open item that refers to, so I have "
+                             "written nothing rather than attach it to the wrong one. The "
+                             "open items are:\n"
+                             + "\n".join(f"  - {a.get('what')}" for a in acts)
+                             + "\nSay it again naming one of those."),
+                    "facts": {"matched": None, "open": len(acts)}}
+
+        stamp = datetime.now().strftime("%Y-%m-%d")
+        prior = best.get("note") or ""
+        self.amend_action({
+            "action_id": best["id"],
+            "reason": "Step reported by the principal in conversation.",
+            "note": (prior + ("\n" if prior else "")
+                     + f"[{stamp}] Principal reports: “{text.strip()}” "
+                       f"Recorded as reported, not as evidenced.")})
+        raw = self._unwrap_value(self.retrieve_own_memory(best["id"]))
+        try:
+            rec = json.loads(raw)
+        except Exception:
+            rec = best
+        rec["status"] = "in_progress"
+        self.store_own_memory(best["id"], json.dumps(rec), pin=True)
+
+        alts = best.get("evidence_alternatives") or []
+        closes = ("\n" + "\n".join(f"  - {x}" for x in alts)) if alts else \
+                 f" {best.get('evidence_expected')}"
+        return {"answered_as": "reported_step_recorded",
+                "text": (f"Recorded against “{best.get('what')}”, dated {stamp}, "
+                         f"as REPORTED rather than evidenced - so it is now in progress, not "
+                         f"done. What closes it, any one:{closes}\n"
+                         f"Tell me the receipt number or the confirmation and I will close it."),
+                "facts": {"matched": best["id"], "status": "in_progress",
+                          "closed": False, "reported_on": stamp}}
+
+    def _matter_state(self, prompt=""):
+        """What is outstanding and what periods are running, in one read.
+
+        Narrowed two ways when the question is narrow: by shape (a deadline
+        question leads with periods) and by subject (a word in the question
+        that appears in an item's own text pulls that item to the front and
+        drops the rest)."""
+        acts = (self.actions().get("actions") or [])
+        dls = (self.deadlines().get("deadlines") or [])
+        text = (prompt or "").lower()
+
+        focus = "deadlines" if any(re.search(p, text) for p in self._DEADLINE_FOCUS) else "actions"
+
+        # Subject narrowing, with a guard that had to be added immediately:
+        # "what do I need to do for my HOUSING case" matched "housing" and
+        # returned 1 of 4 items. The broadest question got the narrowest
+        # answer, which is worse than not narrowing at all - a partial answer
+        # that looks complete is the failure this system is built against.
+        # So a question that asks for everything is never narrowed, and a
+        # word that matches most of the register is not a subject.
+        subject = None
+        broad = any(re.search(p, text) for p in (
+            r"\bwhat (?:do|should) i (?:need to |have to )?do\b",
+            r"\bwhat(?:'s| is) (?:outstanding|left|pending|open)\b",
+            r"\bnext steps?\b", r"\beverything\b", r"\ball (?:of )?(?:it|my|the)\b",
+            r"\bto[- ]?do\b", r"\baction items?\b", r"\bwhere (?:are we|do (?:i|we) stand)\b",
+            r"\bwhat(?:'s| is) the (?:status|state|posture)\b"))
+        total = len(acts) + len(dls)
+        words = [w for w in re.findall(r"[a-z]{4,}", text)
+                 if w not in ("what", "when", "have", "need", "should", "long", "with",
+                              "does", "much", "time", "left", "this", "that", "case",
+                              "there", "about", "from", "them", "they", "will", "into",
+                              "your", "mine", "days", "week", "must", "want", "know")]
+        if not broad:
+            for w in words:
+                hit_a = [a for a in acts if w in json.dumps(a).lower()]
+                hit_d = [d for d in dls if w in json.dumps(d).lower()]
+                n = len(hit_a) + len(hit_d)
+                # A word matching half the register or more is describing the
+                # matter, not naming a subject within it.
+                if n and n * 2 < total:
+                    acts, dls, subject = hit_a, hit_d, w
+                    break
+
+        return {"actions": acts, "deadlines": dls, "focus": focus, "subject": subject,
+                "hidden": (total - len(acts) - len(dls)) if subject else 0,
+                "blocked": [a.get("what") for a in acts if a.get("status") == "blocked"]}
+
     _CITATION = re.compile(
         r"\b\d+\s*(?:u\.?s\.?c\.?|c\.?f\.?r\.?)\s*(?:§+\s*)?[\d.\-()a-z]+",
         re.I)
@@ -2024,6 +2178,74 @@ class LegalAgent(AgentBase):
         legal tender" worked and "what does 15 USC 1681i require" did not."""
         p = payload if isinstance(payload, dict) else {}
 
+        if task == "matter_state":
+            acts = p.get("actions") or []
+            dls = p.get("deadlines") or []
+            if not acts and not dls:
+                return ("Nothing is recorded as outstanding and no periods are running. "
+                        "That is a statement about the register, not about the matter - "
+                        "if a step has not been written down, this cannot see it.")
+            lines = []
+            # Say that it narrowed, and by how much. A partial list that
+            # does not announce itself as partial is the same error as a
+            # check that found nothing and reported health.
+            if p.get("subject") and p.get("hidden"):
+                lines.append(f"Showing only what mentions \u201c{p['subject']}\u201d - "
+                             f"{p['hidden']} other item(s) not shown. Ask what needs doing "
+                             f"to see everything.")
+            if p.get("focus") == "deadlines" and dls:
+                lines.append("Periods running:")
+                for d in dls:
+                    left = d.get("days_remaining")
+                    when = ("PASSED" if d.get("status") == "PASSED"
+                            else f"{left} days left" if isinstance(left, int) else d.get("due"))
+                    lines.append(f"  - {d.get('name')}: {when}, due {d.get('due')} "
+                                 f"({d.get('citation')}).")
+                    if d.get("consequence"):
+                        lines.append(f"    If it passes: {d['consequence']}")
+                lines.append("Computed from authority open in the corpus, not recalled.")
+                if acts:
+                    lines.append("")
+                    lines.append(f"{len(acts)} action{'s' if len(acts) != 1 else ''} also open"
+                                 + (f", soonest: {acts[0].get('what')}." if acts else "."))
+                return "\n".join(lines)
+            if acts:
+                lines.append(f"{len(acts)} thing{'s' if len(acts) != 1 else ''} still to do"
+                             + (", soonest first:" if len(acts) > 1 else ":"))
+                for a in acts:
+                    d = a.get("days_remaining")
+                    when = ("overdue by %d days" % abs(d)) if isinstance(d, int) and d < 0 \
+                        else "due today" if d == 0 \
+                        else ("%d days left" % d) if isinstance(d, int) \
+                        else (a.get("due") or "no date")
+                    lines.append(f"  - {a.get('what')} ({when}).")
+                    # What closes the item is the part worth saying out loud. A
+                    # step somebody believes they did, and a step they can show
+                    # they did, are different states of the world.
+                    alts = a.get("evidence_alternatives")
+                    if a.get("evidence_ref"):
+                        lines.append(f"    Proof on file: {a['evidence_ref']}.")
+                    elif alts:
+                        lines.append(f"    Any one of these closes it: {alts[0]}"
+                                     + (f" - or {len(alts) - 1} other accepted "
+                                        f"method{'s' if len(alts) > 2 else ''}."
+                                        if len(alts) > 1 else "."))
+                    elif a.get("evidence_expected"):
+                        lines.append(f"    Closes on: {a['evidence_expected']}.")
+                    if a.get("blocked_by"):
+                        lines.append(f"    Blocked by {a['blocked_by']}.")
+            if dls:
+                lines.append("")
+                lines.append("Periods running:")
+                for d in dls:
+                    left = d.get("days_remaining")
+                    when = ("PASSED" if d.get("status") == "PASSED"
+                            else f"{left} days left" if isinstance(left, int) else d.get("due"))
+                    lines.append(f"  - {d.get('name')}: {when} ({d.get('citation')}).")
+                lines.append("Each was computed from an authority that was open in the "
+                             "corpus at the time. None was recalled.")
+            return "\n".join(lines)
+
         if task == "citation_lookup":
             secs = p.get("sections") or []
             if not secs:
@@ -2090,6 +2312,17 @@ class LegalAgent(AgentBase):
                              f"absent by design, not by failure. It can be acquired with "
                              f"tools/ingest_law.py."),
                     "facts": {"citation": cite.group(0), "in_corpus": False}}
+
+        if any(re.search(p, text.lower()) for p in self._DID_IT_ASK):
+            return self._record_reported_step(text)
+
+        if any(re.search(p, text.lower()) for p in self._MATTER_STATE_ASK):
+            st = self._matter_state(text)
+            return {"answered_as": "matter_state",
+                    "text": self.describe("matter_state", st),
+                    "facts": {"open_actions": len(st["actions"]),
+                              "deadlines": len(st["deadlines"]),
+                              "blocked": st["blocked"]}}
 
         if not any(re.search(p, text.lower()) for p in self._DEFINITION_ASK):
             return None

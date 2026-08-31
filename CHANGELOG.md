@@ -3104,3 +3104,70 @@ who made it. The statute was then read, and it corroborates him. Two independent
 lines pointing the same way is worth more than either.
 
 Shell to v21.
+
+### 2026-08-31 — Tested whether the system holds a conversation without Claude, and it did not
+
+The principal is about to lose access for three days and asked for one thing:
+that he can still talk to his system and it can still reason. So the work was to
+*test* that rather than assure him of it. Four failures, in order of how much
+they cost.
+
+**1. A reading logged, and the grower told it was not.** Saying *"Log a reading:
+21.5 C, pH 5.90, 640 ppm"* wrote the row and answered **"I wasn't able to log
+that reading."** `log_from_text` returns `reading` at the top level;
+`describe("log_reading")` looked one level deeper, found nothing, and reported
+failure — after the write.
+
+This is worse than a plain failure. Told the entry did not take, the grower
+enters it again; uptake and mass balance are differences between **consecutive**
+readings, so two rows seconds apart yield either a zero-hour window or a nonsense
+rate from a real measurement. The register was silently corrupted by a correct
+entry.
+
+**The reply is now the receipt.** Every stored field is echoed —
+`Logged 640.0 ppm, EC 1.28 mS/cm, pH 5.9, 21.5 C, 15.0 L … That is exactly what I
+stored — if a number is wrong, say so now and I will void it` — because the
+grower cannot check a parse he is not shown, and a misread number is only cheap
+to fix in the seconds after it is entered. Volume says when it was carried
+forward rather than measured.
+
+**2. Legal answered nothing.** *"What do I need to do for my housing case"*
+routed to Legal correctly and returned `None`: `answer()` handled a citation and
+a definition and nothing else. Four action items and two live periods sat in the
+register, unreachable by the only sentence anyone would say. Added a
+`matter_state` branch.
+
+Its first version had a regression caught the same minute — subject narrowing
+matched **"housing"** and answered the broadest possible question with 1 of 4
+items. A partial answer that does not announce itself as partial is the same
+error as a check that found nothing and reported health. A question asking for
+everything is now never narrowed, a word matching half the register is not a
+subject, and narrowing says what it hid.
+
+**3. A reported step died in the conversation.** *"I emailed the repair notice
+today"* reached no capability at all — the exact failure CLAUDE.md documents for
+the grow, where a stated clearance was agreed with, never written down, and
+contradicted two days later by an assumption. It is now attached to the action it
+names, dated, in the principal's own words.
+
+**It does not close the item.** A reported step goes to `in_progress`, never to
+`done`: the statement is the assertion and the receipt is the proof, and this
+register exists because those are different states of the world. Where it cannot
+tell which item is meant it writes **nothing** and lists the open items, rather
+than attaching a fact to the wrong one.
+
+**4. Three spurious readings, written by these tests.** All voided within the
+minute, with the reason recorded — including one that a *rejected* call wrote
+before returning its error. `void_reading` requires a reason precisely so a
+series cannot be quietly trimmed. The retraction of the test line on the repair
+notice is on the record too: a false step on a register is worse than a missing
+one, because it tells its owner he is covered when he is not.
+
+**Docs caught up, on the principal's prompt.** README and `docs/system-map.html`
+had not moved while deadlines, actions and charge classification were added — the
+CHANGELOG had. Both now carry the registers and the term counts **read from the
+running agents**: Grow 101, Legal 63, Accounting 50, 328 total. The map said 264
+and I first wrote 325 by arithmetic; the agents say 328.
+
+Measured, end to end through Anansi: grow snapshot 1.0s, matter state 0.9s,
+deadline question 2.2s, reading capture 3.1s, reported step 2.3s.
