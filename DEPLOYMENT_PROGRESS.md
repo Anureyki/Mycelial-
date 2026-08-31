@@ -785,6 +785,120 @@ round trips. The cache should live for one `answer()` and die with it.
 
 ---
 
+## Harvest track — drying and curing — PLANNED, NOT STARTED
+
+**Opened 2026-08-31** from source material the principal supplied (five cards,
+`macho_grams_gramsbe_savage`). Planned rather than built at his instruction: he
+was short on time and asked for the plan.
+
+**The gap.** Grow tracks germination, vegetative growth, flowering, reservoir
+chemistry and VPD, and holds `PLANT_STATUSES` including `harvested` — and has
+**nothing after the cut**. No dry, no cure, no storage. That is the phase where
+the value of an entire grow is realised or thrown away, and this plant is close
+enough to it that the gap is about to cost something.
+
+### What the source actually establishes
+
+Judged on content rather than channel, this material is unusually honest for
+grow content and its best parts are the ones that refuse to overclaim:
+
+| Claim | Standing |
+|---|---|
+| *Louder does not automatically mean more terpenes* — what you smell during drying is partly what is **leaving** the flower | mechanism, and it corrects a common error |
+| *Volatility ≠ boiling point ≠ degradation.* Terpenes are **always** volatile; they do not "turn on" at a temperature — the rate rises with it | the single most useful line in the set |
+| Monoterpenes (myrcene, limonene, α-pinene) leave faster than sesquiterpenes (caryophyllene, guaiol, farnesene), so **the profile changes shape**, not just its size | a ranking, and rankings are exact-lookup material |
+| `Temperature × RH × Airflow × Time` is the environment, and **time is the variable people leave out** | the framing the capability should be built on |
+| 60/60 does not freeze terpenes; it **slows** the process | the correct statement of what a setpoint buys |
+| The retention curves themselves | **`conceptual`, and the cards say so on their face** — "NOT MEASURED DATA" |
+
+**Two things must NOT be ingested as data.** The thermometer card's numbers are
+internally inconsistent — °F and °C scales interleaved, values that read as
+boiling points sitting next to a caption saying volatility is not boiling point.
+Take the **ordering**, never the figures. And every retention curve is
+illustrative; the cards label them so, and that labelling is the reason the rest
+of the material can be trusted.
+
+Shelved as `reference/grow_agent/` — a **ranking looked up by terpene name** is
+exact-headword material, which is what the reference store is for, not CAG
+similarity. `source_class: expert_commentary`, `evidence_kind: reported`,
+`stance` set only after reading, per the standing rule.
+
+### What to build
+
+**1. The post-harvest record.** `start_dry`, `log_dry_reading`, `dry_status`,
+`start_cure`, `log_cure_reading`. Measured environment over time — temp, RH,
+airflow, day, stem snap, wet and dry weight — because *time is the variable*,
+and an environment logged once at the start is not an environment.
+
+**2. Cumulative exposure, not setpoint compliance.** The useful question is not
+*"am I at 60/60 right now"* but *"how much warm-hours has this flower
+accumulated"*. Integrate the environment across the dry and report the exposure,
+so a day at 74°F while the AC was out shows up as what it is. This is the same
+shape as `unattended_runtime` in the reservoir model and should reuse it.
+
+**3. Run 60/60 vs 70/55 as a DIFFERENTIAL, because that is what it is.**
+`core/differential.py` already refuses a single hypothesis, bars promotion
+without a discriminator, and refuses multi-variable intervention on an open
+differential. Grower A and Grower B are two hypotheses with a real mechanism
+each; the discriminator is a measured outcome — weight-loss curve, aroma scored
+blind at day 30 and day 60, and a lab terpene profile if one is ever affordable.
+**The agent must refuse to declare a winner without the spent test**, which is
+exactly what it already does everywhere else.
+
+`propose_experiment` and `record_experiment_outcome` exist in Grow already. This
+is their first genuinely good use: a question the principal cannot answer from
+reading, on a plant he owns, with an outcome he can observe.
+
+**4. Lived data outranks these cards.** They are the floor. Once this grow has
+been dried once and the result observed, that observation outranks every curve
+above, and the divergence is itself the finding.
+
+### Why it is a track and not a numbered phase
+
+Nothing above is blocked, and nothing else waits on it — but it is gated by the
+plant, not by the roadmap. It has to exist before the cut and is worth nothing
+after it.
+
+---
+
+## Correspondence track — sent mail as dated acts — PLANNED, NOT STARTED
+
+**Opened 2026-08-31.** The principal: *"It'll be able read all the emails I sent
+to companies and how I labeled them and how the situations fell off."*
+
+**Measured before planning, and the measurement changed the plan.** The mailbox
+holds **50 sent messages across 39 threads** (2023-03 to 2026-08) and **zero
+user-created labels** — only Gmail's system ones. There is no taxonomy to import.
+There is also **no correspondence with the apartment complex at all**, which is a
+finding in its own right for the § 92.056(b) action.
+
+**So: not a label importer.** What is actually there is a set of **dated acts**,
+each provable, each currently recorded nowhere:
+
+```
+2023-07-05  VIA Metropolitan Transit    Title VI civil-rights complaint
+2024-01-27  RBFCU                       request to transfer account liability to the trust
+2024-01-31  Early Warning Services      FILE DISCLOSURE REQUEST to a consumer reporting agency
+2024-10-16  Land Rover San Antonio      "nature of transaction" consumer-credit notice
+2023-04     Rocket Mortgage / Homes     trust-funded purchase; agent unresponsive, escalated
+```
+
+The Early Warning thread is the one that matters: a § 1681g file-disclosure
+request the principal **already made** to a CRA in 2024, with no outcome
+recorded — the exact shape of *"how the situations fell off"*, and the same
+request now open as an action against the background screeners.
+
+**The distinction the build turns on:** a sent email is proof that **an act
+happened on a date**. It is not proof that the assertions inside it were true.
+The action register already separates those two, and the importer must preserve
+the separation rather than collapse it into "evidence".
+
+Build: read `in:sent`, group by thread and counterparty, emit one `case` event
+per act with `outcome: unknown` where the thread ends without one — a named gap,
+which is what the register is for.
+
+---
+
 ## Design track — Anansi as a spider on a web
 
 **Not a phase.** Recorded 2026-08-31 because the principal expects it to change:

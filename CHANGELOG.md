@@ -3677,3 +3677,56 @@ one. State citations are not in its patterns yet.
 Both channels are inert until credentials exist. `.env.example` carries
 `NOTIFY_SMTP_*` and `MAIL_IMAP_*`, and the mailbox should be a **dedicated
 address** — a mailbox an agent reads should hold only what was meant for it.
+
+### 2026-08-31 — Two tracks planned, neither built
+
+The principal was short on time and asked for the plan rather than the build.
+Both are in `DEPLOYMENT_PROGRESS.md` as tracks, not numbered phases: neither is
+blocked and nothing waits on either, but each is gated by something outside the
+roadmap.
+
+**Harvest track — drying and curing.** Grow tracks germination through
+flowering, holds `harvested` as a plant status, and has **nothing after the
+cut**. That is where the value of a grow is realised or thrown away, and this
+plant is close enough that the gap is about to cost something.
+
+The source material he supplied is unusually honest, and its best parts are the
+ones that refuse to overclaim — *volatility ≠ boiling point ≠ degradation*,
+terpenes are always volatile and do not "turn on" at a temperature, 60/60 does
+not freeze terpenes but slows them, and *louder does not automatically mean more
+terpenes* because part of what you smell is what is leaving. The retention curves
+are labelled **"NOT MEASURED DATA"** on their own face, which is why the rest can
+be trusted.
+
+Two things are recorded as **not** ingestable: the thermometer card's figures are
+internally inconsistent — °F and °C interleaved, values reading as boiling points
+beside a caption saying volatility is not boiling point — so the **ordering** is
+usable and the numbers are not; and every curve is illustrative.
+
+The build has four parts, and the third is the one worth noting: **60/60 vs 70/55
+is a differential, and `core/differential.py` already exists.** Two hypotheses
+each with a real mechanism, and a discriminator that has to be a measured outcome
+— weight-loss curve, blind aroma at day 30 and 60, a lab profile if ever
+affordable. The engine already refuses to promote without a spent test. This is
+the first genuinely good use of `propose_experiment`: a question the principal
+cannot answer by reading, on a plant he owns, with an outcome he can observe.
+
+**Correspondence track — sent mail as dated acts.** He described importing the
+emails he sent to companies, how he labelled them, and how the situations fell
+off. Measured first, and the measurement changed the plan: **50 sent messages,
+39 threads, and zero user-created labels.** There is no taxonomy to import. There
+is also no correspondence with the apartment complex at all — itself a finding for
+the § 92.056(b) action.
+
+What is actually there is a set of dated, provable acts recorded nowhere — a
+Title VI complaint to VIA in 2023, a trust liability transfer request to RBFCU, a
+"nature of transaction" notice to a dealership, and the one that matters: a
+**§ 1681g file-disclosure request to Early Warning Services**, a consumer
+reporting agency, in January 2024, with no outcome recorded. That is precisely
+*"how the situations fell off"*, and it is the same request now sitting open as
+an action against the background screeners.
+
+The build turns on one distinction: a sent email proves **an act happened on a
+date**; it does not prove the assertions inside it were true. The action register
+already separates those, and the importer must preserve the separation rather
+than collapse both into "evidence".
