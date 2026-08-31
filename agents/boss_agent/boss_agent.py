@@ -1109,40 +1109,56 @@ class BossAgent(AgentBase):
                     self.log(f"Reading found alongside photos - logged first: {_r.get('reading')}")
                     reading_text = self._format_response("log_reading", _r.get("result"), "grow_agent")
 
-                # Vision runs in the BACKGROUND and the upload returns at once.
+                # VISION RUNS INLINE AND THE ANSWER COMES BACK IN THE SAME TURN.
                 #
-                # A single photo takes ~21s end to end - local perception plus an
-                # escalation to the vision model - so three photos is over a
-                # minute of a blocked HTTP request. A phone browser kills that
-                # the moment the screen locks or the user switches apps, and the
-                # app reports "Failed" while the server is working perfectly and
-                # finishes the job nobody is left to receive. Measured, not
-                # assumed: the same payload the webapp sends returns HTTP 200 in
-                # 21s from a client that waits.
+                # This used to hand the work to a background thread and reply
+                # "saved and being looked at now; ask me in a moment", because a
+                # phone browser abandons a long request when the screen locks.
+                # That is a real constraint and it was the wrong trade: the
+                # principal has to remember to come back and ask, and a question
+                # he forgets to re-ask is an assessment that never reached him.
+                # His instruction, plainly: *"this is supposed to respond in the
+                # same chat... I don't care if it takes two minutes."*
                 #
-                # The photo is already on disk before this point and the reading
-                # is already logged, so nothing is lost by answering immediately.
-                def _run_vision(paths, pid):
-                    for pth in paths:
-                        try:
-                            r = self.send_a2a("grow_agent", "evaluate_leaf",
-                                              {"plant_id": pid, "photo_path": pth}, timeout=300)
-                            self.log(f"background vision done for {os.path.basename(pth)}: "
-                                     f"{str(r)[:120]}")
-                        except Exception as e:
-                            self.log(f"background vision failed for {pth}: {e}")
+                # So it waits. What makes that affordable is running the photos
+                # CONCURRENTLY - one takes ~21s in the vision model, and three
+                # sequentially was over a minute, which is what made blocking
+                # untenable. In parallel three cost about what one does.
+                #
+                # A timeout says what actually happened rather than promising a
+                # result later. The photo is already on disk and the reading is
+                # already logged, so nothing is lost either way - but "I could
+                # not finish in time" and "ask me again shortly" are different
+                # claims, and only the first one is true.
+                from concurrent.futures import ThreadPoolExecutor
 
-                threading.Thread(target=_run_vision, args=(list(saved), plant_id),
-                                 daemon=True).start()
-                results = [{"photo": os.path.basename(p_), "assessment": None, "raw": None}
-                           for p_ in saved]
+                def _assess(pth):
+                    try:
+                        r = self.send_a2a("grow_agent", "evaluate_leaf",
+                                          {"plant_id": plant_id, "photo_path": pth},
+                                          timeout=300)
+                        return pth, r, None
+                    except Exception as exc:
+                        self.log(f"vision failed for {pth}: {exc}")
+                        return pth, None, f"{type(exc).__name__}: {exc}"
 
-                n = len(results)
-                text = (f"Got {'the photo' if n == 1 else f'{n} photos'} - saved and being looked "
-                        f"at now. Assessment takes about {20 * n}s; ask me about the plant in a "
-                        "moment and I'll have it.")
+                results, tellings = [], []
+                with ThreadPoolExecutor(max_workers=min(4, max(1, len(saved)))) as pool:
+                    for pth, raw, err in pool.map(_assess, list(saved)):
+                        name = os.path.basename(pth)
+                        if err or raw is None:
+                            results.append({"photo": name, "assessment": None, "error": err})
+                            tellings.append(f"{name}: I could not finish reading this one - "
+                                            f"{err or 'no response from the grow agent'}.")
+                            continue
+                        said = self._format_response("evaluate_leaf", raw, "grow_agent")
+                        results.append({"photo": name, "assessment": said, "raw": raw})
+                        tellings.append(said if len(saved) == 1 else f"{name}: {said}")
+
+                text = "\n\n".join(t for t in tellings if t) or (
+                    "The photos were saved and nothing came back from the assessment.")
                 if failed:
-                    text += f"\n({failed} could not be read and were skipped.)"
+                    text += f"\n\n({failed} could not be read and were skipped.)"
                 if reading_text:
                     text = reading_text + "\n\n" + text
                 return {"result": text, "evidence": {"photos": results, "reading": (_r or {}).get("reading")}}

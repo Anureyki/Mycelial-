@@ -798,7 +798,7 @@ class GrowAgent(AgentBase):
             agent_id="grow_agent",
             port=9009,
             capabilities=[
-                "log_reading", "check_stage", "adjust_nutrients",
+                "log_reading", "check_stage", "observe_stage_markers", "adjust_nutrients",
                 "transition_stage", "log_water_change", "get_status",
                 "set_germination_date", "set_current_nutrients",
                 "add_reminder", "list_reminders", "complete_reminder", "ingest_screenshot",
@@ -1376,6 +1376,142 @@ class GrowAgent(AgentBase):
                          "measured timing to reason from - and light, temperature and the "
                          "delivery interruption on day 33 all move it.")
         return out
+
+    # WHAT THE PLANT SHOWS OUTRANKS WHAT THE CALENDAR SAYS.
+    #
+    # `assess_stage` reasons from age, and correctly: at day 10 'seedling is
+    # consistent with 10 days'. But the principal watched GSC2 pass the
+    # transition - cotyledons popped, true leaves out - and there was NO WAY TO
+    # TELL THE AGENT THAT. The only path to a stage change was arithmetic, so an
+    # observation of the actual plant could not move a field that describes the
+    # actual plant.
+    #
+    # That is his own rule turned against him. He said it plainly weeks ago:
+    # *"I understand what the plant shows outranks the calendar."*
+    #
+    # So morphology is recorded as evidence and the stage is derived FROM it.
+    # Where morphology and the calendar disagree, the morphology wins and the
+    # disagreement is itself recorded - a plant running ahead or behind its
+    # clock is information about this plant, and averaging it away loses the
+    # only thing that was actually observed.
+    STAGE_MARKERS = {
+        "germination": {
+            "markers": ("taproot", "seed_split", "no_cotyledons"),
+            "means": "Root emerged; cotyledons not yet open.",
+        },
+        "seedling": {
+            "markers": ("cotyledons_open", "first_true_leaves", "single_blade"),
+            "means": "Cotyledons open and the first true leaves are forming.",
+        },
+        "vegetative": {
+            "markers": ("true_leaves_established", "three_blade", "five_blade",
+                        "seven_blade", "node_stacking", "cotyledons_spent"),
+            "means": ("True leaves established and taking over from the cotyledons. "
+                      "The plant is building structure rather than establishing."),
+        },
+        "preflower": {
+            "markers": ("pistils", "pre_flowers", "calyx_at_node"),
+            "means": "First pistils showing at the nodes.",
+        },
+        "flower": {
+            "markers": ("bud_sites", "flower_clusters", "trichomes"),
+            "means": "Bud sites forming and filling.",
+        },
+    }
+
+    def observe_stage_markers(self, args):
+        """Record what is visibly present, and let the stage follow from it."""
+        a = args if isinstance(args, dict) else {}
+        plant_id = str(a.get("plant_id") or "current_plant")
+        seen = [str(m).strip().lower() for m in (a.get("markers") or []) if str(m).strip()]
+        note = str(a.get("note") or "").strip()
+        if not seen:
+            return {"error": ("observe_stage_markers needs `markers` - what is actually "
+                              "visible on the plant. Without them this would be a stage "
+                              "set by assertion, which is what the calendar path already "
+                              "does better."),
+                    "known_markers": {k: list(v["markers"]) for k, v in
+                                      self.STAGE_MARKERS.items()}}
+
+        # Furthest stage with any marker present. A plant does not go backwards,
+        # and a cotyledon still attached while true leaves are established is
+        # normal rather than contradictory.
+        order = list(self.STAGE_MARKERS)
+        derived, matched = None, {}
+        for st in order:
+            hits = [m for m in seen if m in self.STAGE_MARKERS[st]["markers"]]
+            if hits:
+                derived, matched[st] = st, hits
+        unknown = [m for m in seen
+                   if not any(m in v["markers"] for v in self.STAGE_MARKERS.values())]
+        if not derived:
+            return {"error": "None of those markers is one this agent knows.",
+                    "unrecognised": unknown,
+                    "known_markers": {k: list(v["markers"]) for k, v in
+                                      self.STAGE_MARKERS.items()}}
+
+        by_calendar = self.assess_stage(plant_id)
+        recorded = by_calendar.get("stage")
+        days = by_calendar.get("days")
+
+        entry = {
+            "id": f"morph_{self._uid()}",
+            "plant_id": plant_id,
+            "observed_markers": seen,
+            "unrecognised_markers": unknown or None,
+            "derived_stage": derived,
+            "stage_before": recorded,
+            "days": days,
+            "observed_by": a.get("observed_by") or "principal",
+            "note": note or None,
+            "at": datetime.now().isoformat(timespec="seconds"),
+        }
+
+        divergence = None
+        if recorded and derived != recorded:
+            ci = order.index(derived) if derived in order else -1
+            ri = order.index(recorded) if recorded in order else -1
+            entry["divergence"] = divergence = (
+                f"The record said {recorded!r} at day {days}; the plant shows {derived!r}. "
+                + ("Running AHEAD of its clock." if ci > ri else
+                   "Running BEHIND its clock." if ci < ri else "")
+                + " The observation governs - what the plant shows outranks the calendar - "
+                  "and the gap is kept because a plant off its clock is information about "
+                  "this plant.")
+
+        self.store_own_memory(entry["id"], json.dumps(entry), pin=True)
+        try:
+            raw = self._unwrap_value(self.retrieve_own_memory("morphology_index"))
+            idx = json.loads(raw) if raw else []
+        except Exception:
+            idx = []
+        idx.append(entry["id"])
+        self.store_own_memory("morphology_index", json.dumps(idx))
+
+        # Move the stage, because that is the point.
+        moved = False
+        if derived and derived != recorded:
+            try:
+                if plant_id == "current_plant":
+                    self.store_own_memory("current_stage", derived)
+                    moved = True
+                else:
+                    key = f"plant_{plant_id}"
+                    raw = self._unwrap_value(self.retrieve_own_memory(key))
+                    rec = json.loads(raw) if raw else {}
+                    rec["stage"] = derived
+                    rec["stage_basis"] = ("observed morphology: " + ", ".join(seen))
+                    rec["stage_changed_at"] = entry["at"]
+                    self.store_own_memory(key, json.dumps(rec), pin=True)
+                    moved = True
+            except Exception as exc:
+                entry["stage_write_failed"] = str(exc)
+
+        return {**entry, "stage_now": derived if moved else recorded, "moved": moved,
+                "means": self.STAGE_MARKERS[derived]["means"],
+                "calendar_said": by_calendar.get("assessment"),
+                "rule": ("Morphology is evidence; the calendar is an expectation. Where "
+                         "they differ the evidence wins and the difference is recorded.")}
 
     def assess_stage(self, plant_id="current_plant"):
         """Decide the stage from evidence, without waiting to be asked.
@@ -3593,7 +3729,17 @@ class GrowAgent(AgentBase):
                         alias.setdefault(w, []).append(pid)
         for term, owners in alias.items():
             owners = list(dict.fromkeys(owners))
-            if not re.search(r'\b' + re.escape(term) + r'\b', lp):
+            # A DIGIT IS NOT A WORD BOUNDARY.
+            #
+            # \bgsc\b cannot match inside "gsc2" - there is no boundary between
+            # a letter and a digit - so the grower writing it without a space
+            # was rejected here, before the number was ever read, and the photo
+            # fell through to current_plant. A photo of a 10-day seedling was
+            # then assessed against a 34-day veg record.
+            #
+            # The lookahead lets a digit follow while still refusing a longer
+            # word: "gsc2" and "gsc 2" both match, "gscx" does not.
+            if not re.search(r'\b' + re.escape(term) + r'(?![a-z])', lp):
                 continue
             if len(owners) == 1:
                 # Unique term. A number in the sentence must still not
@@ -7181,6 +7327,9 @@ class GrowAgent(AgentBase):
                 "tally": tally, "hit_rate": result["hit_rate"],
             }))
             return result
+
+        if task == "observe_stage_markers":
+            return self.observe_stage_markers(args if isinstance(args, dict) else {})
 
         if task == "ingest_screenshot":
             return self.ingest_screenshot(args if isinstance(args, dict) else {})

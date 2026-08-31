@@ -4079,3 +4079,76 @@ Study material cannot appear there, for a structural reason rather than a
 filtering one: the card renders `actions` and `deadlines`, both scoped to his own
 cases, and `learn_from_case` **writes nothing at all on its own**. It hands back
 what it found and recording stays a separate, deliberate call.
+
+### 2026-08-31 — The photo answers in the same turn, and reaches the right plant
+
+*"This is supposed to respond in the same chat, not tell me to wait twenty
+seconds and ask again. I don't care if it takes two minutes."*
+
+**It was fire-and-forget by design, and the design was wrong.** Boss handed vision
+to a background thread and replied *"saved and being looked at now; ask me about
+the plant in a moment."* The stated reason was real — a phone browser abandons a
+long request when the screen locks — but it was the wrong trade: it makes the
+principal remember to come back, and **a question he forgets to re-ask is an
+assessment that never reached him.**
+
+Vision now runs inline and the answer comes back in the same turn. What makes
+that affordable is running photos **concurrently** — one takes ~21s in the model,
+and three sequentially was over a minute, which is what made blocking untenable
+in the first place. A timeout now says what actually happened rather than
+promising a result later: *"I could not finish"* and *"ask me again shortly"* are
+different claims and only the first one is true.
+
+Measured through the webapp's own wire format: **48.9s, one turn, real
+assessment** — including the honest part, *"This is an absence of findings, not a
+finding of health."*
+
+### The photo was reaching the wrong plant
+
+Then the deeper fault. `resolve_plant` returned `null` for **"gsc2"**, so the
+photo fell through to `current_plant` — and a **10-day seedling was assessed
+against a 34-day veg record**. The comment above that code says this exact bug
+was fixed once before, for `"Gsc 2"` with a space.
+
+`\bgsc\b` cannot match inside `gsc2`. **There is no word boundary between a
+letter and a digit**, so the term was rejected before the number was ever read.
+One lookahead fixes it — `\bgsc(?![a-z])` matches `gsc2` and `gsc 2` and still
+refuses `gscx`:
+
+```
+"image update for gsc2 plant" -> gsc_auto_2     (was: null -> current_plant)
+"gsc1 looks pale"             -> current_plant
+"update on GSC #2"            -> gsc_auto_2
+```
+
+### What the plant shows outranks the calendar — and there was no way to say it
+
+*"I sent the photo of it passing its seedling stage and entering early veg. The
+cotyledons are popped. The true leaves are out."*
+
+`assess_stage` reasons from age and said, correctly, *"'seedling' is consistent
+with 10 days."* But the principal **watched the transition**, and there was no
+way to tell the agent. The only path to a stage change was arithmetic — so an
+observation of the actual plant could not move the field that describes the
+actual plant. That is his own rule turned against him: *"what the plant shows
+outranks the calendar."*
+
+`observe_stage_markers` records what is visibly present and derives the stage
+from it. Run on GSC2:
+
+```
+derived: vegetative | was: seedling | moved: True
+calendar said: 'seedling' is consistent with 10 days
+DIVERGENCE: The record said 'seedling' at day 10; the plant shows 'vegetative'.
+  Running AHEAD of its clock. The observation governs, and the gap is kept
+  because a plant off its clock is information about this plant.
+```
+
+The divergence is **recorded rather than resolved** — a plant ahead of or behind
+its clock is the one thing that was actually observed, and averaging it into the
+calendar loses it.
+
+**Known and not fixed:** `"how is the gsc doing"` resolves to `gsc_auto_2` when
+`gsc` is ambiguous between two Girl Scout Cookies plants and should refuse.
+Verified pre-existing by stashing the change and re-testing — it is not a
+regression from this work, and it is left standing rather than half-fixed.
