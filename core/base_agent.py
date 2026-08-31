@@ -708,6 +708,20 @@ class AgentBase:
                          # nothing at lookup time, so a treatise and a statute
                          # came back in whatever order the files were walked.
                          "authority_class": doc.get("authority_class"),
+                         # SOURCE INTEGRITY TRAVELS WITH THE SECTION.
+                         #
+                         # The index used to build a fresh dict from a chosen
+                         # handful of keys, so a section that recorded itself
+                         # truncated arrived at the reader with that fact
+                         # dropped. The corpus knew; the agent could not. This
+                         # is the same failure as the ingester discarding what
+                         # it knew at the moment it cut - the fact existed and
+                         # the pipe leaked it - and it is why integrity had to
+                         # become a property carried end to end rather than a
+                         # thing a script measures afterwards.
+                         "integrity": s.get("integrity"),
+                         "truncated": s.get("truncated"),
+                         "full_length": s.get("full_length"),
                          "text": s.get("text", "")}
                 # Index a section under every form a caller might cite it by.
                 # The stored citation is whatever the source wrote - CFR gives
@@ -780,10 +794,48 @@ class AgentBase:
         return self.AUTHORITY_RANK.get(cls, 5)
 
     def lookup_reference(self, term):
-        """A citation or a case name, matched exactly, then as a contained name.
+        """A citation or a case name, with its integrity attached.
 
-        Returns [] rather than a loose match. A wrong passage presented as
-        authority is worse than none, because the reasoning layer trusts it."""
+        EVERY read goes through here, so this is where integrity has to be
+        surfaced or it is not surfaced at all. The corpus already recorded
+        whether a section was stored whole; nothing ever showed a reader, so a
+        statute cut at 4,000 characters and a statute stored in full were
+        indistinguishable to the agent reasoning from them - and 15 U.S.C.
+        1681b was read as though its employment provisions did not exist,
+        because the half containing them had been dropped at ingest.
+
+        A wrong passage presented as authority is worse than none. A HALF
+        passage presented as whole is the same failure with a quieter surface,
+        and it is the one that survives review, because everything shown is
+        accurate.
+
+        So each returned entry carries `integrity`, and anything not recorded
+        as complete carries a `caution` a caller cannot help but see. Unknown
+        is not complete: 15,683 sections had no integrity record at all when
+        this was written, and each reads as unverified rather than as fine."""
+        entries = self._lookup_reference_raw(term)
+        if not entries:
+            return entries
+        from core import source_integrity
+        out = []
+        for e in entries:
+            if not isinstance(e, dict):
+                out.append(e)
+                continue
+            e = dict(e)
+            e["integrity"] = source_integrity.read(e)
+            note = source_integrity.caution(e)
+            if note:
+                e["caution"] = note
+                # In the text itself, because a caller that reads `text` and
+                # nothing else is the normal case and must not be able to miss
+                # it. A flag in a sibling field is a flag nobody sees.
+                e["text"] = f"[{note}]\n\n" + str(e.get("text") or "")
+            out.append(e)
+        return out
+
+    def _lookup_reference_raw(self, term):
+        """Match a citation or case name. Integrity is added by the caller."""
         idx = self._load_reference_docs()
         key = (term or "").strip().lower().rstrip(".")
         if not key:

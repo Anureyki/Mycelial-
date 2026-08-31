@@ -250,48 +250,61 @@ def check_routing_terms_are_regex():
     return 0
 
 
-def check_corpus_not_truncated():
-    """A statutory section stored at EXACTLY the old cap is a truncated statute.
+def check_corpus_integrity():
+    """Read the integrity each section RECORDED. Do not measure it here.
 
-    MAX_SECTION was 4000 and cut silently, so 15 U.S.C. 1681b was stored
-    ending mid-word inside (b)(1) - the employment-purpose consent
-    requirements, the most litigated provisions in FCRA, simply were not
-    there. The work looked present, the lookup succeeded, and the agent read
-    the first 4000 characters as though they were the section.
+    This function used to find truncated statutes by looking for a stored
+    length of exactly 4000 - the retired MAX_SECTION. That is validation from
+    outside, inferring a fact about history from a coincidence of form, and it
+    is the thing `core/source_integrity.py` exists to replace. A provision that
+    happened to be 4000 characters long would have been condemned; one cut at
+    any other cap would have passed unseen.
 
-    A short section is fine. A section that stops at the round number the
-    truncator used is the tell.
+    So integrity is now stamped where it is known - by the ingester, at the
+    moment it cuts or does not cut - and this only READS it. What it reports:
+
+      truncated   the section says it is incomplete. Re-ingest it.
+      unknown     nothing vouches for it. Not an error, and NOT a pass.
+      complete    the ingester recorded storing the whole retrieved body.
+
+    `unknown` does not fail the build. A corpus acquired before integrity
+    existed is not thereby wrong, and failing on it would train someone to
+    stamp `complete` to get green - which would put a guess in the one field
+    whose entire purpose is to not be one.
     """
     import glob as _g
     import json as _j
     import os as _os
     import re as _re
-    cut = {}
-    for f in _g.glob(_os.path.join(_os.path.dirname(_os.path.dirname(
-            _os.path.abspath(__file__))), "reference", "*", "*.json")):
+    _sys_root = _os.path.dirname(_os.path.dirname(_os.path.abspath(__file__)))
+    if _sys_root not in sys.path:
+        sys.path.insert(0, _sys_root)
+    from core import source_integrity as _si
+
+    statutory = _re.compile(r"U\.?S\.?C\.?|C\.?F\.?R\.?|Prop\. Code|Bus\. & Com\.", _re.I)
+    tally = {"complete": 0, "truncated": 0, "unknown": 0}
+    bad = {}
+    for f in _g.glob(_os.path.join(_sys_root, "reference", "*", "*.json")):
         try:
             with open(f, encoding="utf-8") as fh:
                 d = _j.load(fh)
         except Exception:
             continue
         title = str(d.get("title") or "")
-        # Statutes and regulations only. A book page chunked at 4000 is a
-        # chunk; a statute cut at 4000 has lost its back half.
-        if not _re.search(r"U\.?S\.?C\.?|C\.?F\.?R\.?|Prop\. Code|Bus\. & Com\.",
-                          title, _re.I):
+        if not statutory.search(title):
             continue
-        n = sum(1 for s in (d.get("sections") or [])
-                if len(str(s.get("text") or "")) == 4000)
-        if n:
-            cut[title] = n
-    if cut:
-        total = sum(cut.values())
-        print(f"TRUNCATED CORPUS: {total} statutory section(s) stored at exactly "
-              f"4000 chars, across {len(cut)} work(s). Re-ingest them:")
-        for t, n in sorted(cut.items(), key=lambda kv: -kv[1])[:12]:
-            print(f"  {n:>4}  {t}")
+        for s in (d.get("sections") or []):
+            st = _si.read(s)["state"]
+            tally[st] = tally.get(st, 0) + 1
+            if st == "truncated":
+                bad[title] = bad.get(title, 0) + 1
+    print(f"corpus integrity (statutory): {tally['complete']} complete, "
+          f"{tally['truncated']} truncated, {tally['unknown']} unverified")
+    if bad:
+        print("  sections RECORDING themselves incomplete - re-ingest these:")
+        for t, n in sorted(bad.items(), key=lambda kv: -kv[1])[:12]:
+            print(f"    {n:>4}  {t}")
         return 1
-    print("no statutory section is sitting on the old 4000-char truncation cap")
     return 0
 
 
@@ -302,5 +315,5 @@ if __name__ == "__main__":
     # reported success, which is the shape this file exists to catch.
     _rc = main() or 0
     _rc2 = check_routing_terms_are_regex() or 0
-    _rc3 = check_corpus_not_truncated() or 0
+    _rc3 = check_corpus_integrity() or 0
     sys.exit(_rc or _rc2 or _rc3)

@@ -3423,3 +3423,59 @@ facts not yet gathered. Two actions opened, and both are cheap: request the
 screener file under § 1681g, and keep the disclosure form to test whether it
 consists *solely* of the disclosure. That last one needs no credit history, no
 damages proof and no expert — just the piece of paper.
+
+### 2026-08-31 (cont.) — Source integrity became a property, not a script's opinion
+
+The principal asked whether source integrity is a first-class property of every
+legal authority object, or merely something `check_inherited.py` validates from
+outside. It was the second, and the critique lands harder than it looks.
+
+Measured before changing anything: **0 of 15,683 sections carried an integrity
+field of any kind.** The checker found truncated statutes by looking for a stored
+length of exactly 4,000 — the retired `MAX_SECTION`. That is validation from
+outside, and it is wrong three ways:
+
+- **It infers a fact about history from a coincidence of form.** A provision that
+  happened to run 4,000 characters would be condemned; one cut at any other cap
+  passes unseen. This is precisely the error of setting `authority_class` from a
+  filename — the thing this project bans everywhere else.
+- **It runs at a different time than the read.** Between CI runs a truncated
+  statute and a whole one are indistinguishable to every agent that opens them.
+- **The truth was known and thrown away.** `body[:MAX_SECTION]` knows, at that
+  instant, whether it cut anything. That was discarded, then guessed at later.
+
+`core/source_integrity.py` makes it a property. Three states —
+**`complete` / `truncated` / `unknown`** — stamped by the ingester at the moment
+it does or does not cut, and `stamp()` refuses a state without a **basis**,
+exactly as `authority_class` carries `authority_class_basis`.
+
+**`unknown` is not `complete`,** and that is the whole design. An unstamped
+section reads as unverified forever, and the temptation to backfill 15,000
+sections as `complete` for a clean report was declined: a guessed `complete` is
+worse than a blank, because the reasoning layer then trusts it. Only the 711
+sections whose truncation is *history* — stored at exactly the cap that existed
+and cut silently — were stamped.
+
+**Two leaks were closed, both the same shape as the original defect.** The
+ingester knew and discarded. Then the index builder constructed each entry from a
+chosen handful of keys and dropped `integrity` on the floor, so a section that
+recorded itself truncated still reached the reader silent — caught only by
+testing the round trip after the file on disk already said `complete`. A fact
+that exists and cannot travel is not a property.
+
+`lookup_reference` now attaches integrity to every returned entry and prepends
+the caution **into the text itself**, because a caller that reads `text` and
+nothing else is the normal case and must not be able to miss it. Verified as an
+agent receives it:
+
+```
+1681b   COMPLETE    no caution - the section vouches for itself
+1.9     TRUNCATED   INCOMPLETE: do not rely on the absence of a subsection
+3610    UNKNOWN     UNVERIFIED: treat the absence of a subsection as unproven
+```
+
+`check_inherited.py` now **reads** the recorded property instead of measuring
+one. `unknown` does not fail the build — a corpus acquired before integrity
+existed is not thereby wrong, and failing on it would train someone to stamp
+`complete` to get green, putting a guess in the one field whose entire purpose is
+to not be one.

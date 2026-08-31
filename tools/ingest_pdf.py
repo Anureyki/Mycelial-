@@ -24,6 +24,9 @@ sections. Run OCR first (tesseract is installed) if so.
 """
 import argparse, json, os, re, sys
 
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+from core import source_integrity  # noqa: E402
+
 # Citation shapes worth splitting on, most specific first.
 SECTION_PATTERNS = [
     (re.compile(r'^\s*(ASC\s+\d{3}-\d{2}-\d{2}-\d+)', re.I), "asc"),
@@ -124,16 +127,28 @@ def split_sections(pages):
         if cur_id and buf:
             body = dehyphenate(re.sub(r'\s+', ' ', " ".join(buf)).strip())
             if len(body) >= MIN_SECTION:
-                sections.append({"citation": cur_id, "kind": cur_kind,
-                                 "page": cur_page,
-                                 "text": body[:MAX_SECTION],
-                                 **({"truncated": True,
-                                     "full_length": len(body),
-                                     "truncation_note": (
-                                         f"Stored {MAX_SECTION:,} of {len(body):,} "
-                                         f"characters. This section is INCOMPLETE - do "
-                                         f"not rely on the absence of a subsection.")}
-                                    if len(body) > MAX_SECTION else {})})
+                # Integrity is stamped HERE, by the only code that knows.
+                # This is the instant at which "was anything cut?" is a fact
+                # rather than an inference. It used to be discarded and left
+                # for a script to reconstruct from string length later - a
+                # guess about form standing in for a record of history.
+                sec = {"citation": cur_id, "kind": cur_kind, "page": cur_page,
+                       "text": body[:MAX_SECTION]}
+                if len(body) > MAX_SECTION:
+                    source_integrity.stamp(
+                        sec, "truncated",
+                        f"Body exceeded MAX_SECTION ({MAX_SECTION:,}) at ingest and was "
+                        f"cut. Recorded by the ingester at the moment of cutting.",
+                        source_chars=len(body), stored_chars=MAX_SECTION, cap=MAX_SECTION)
+                    sec["truncated"] = True          # readers predating the block
+                    sec["full_length"] = len(body)
+                else:
+                    source_integrity.stamp(
+                        sec, "complete",
+                        f"Full retrieved body of {len(body):,} characters stored; under "
+                        f"the {MAX_SECTION:,} cap, so nothing was cut.",
+                        source_chars=len(body), stored_chars=len(body), cap=MAX_SECTION)
+                sections.append(sec)
     for pno, text in enumerate(pages, 1):
         for line in text.splitlines():
             matched = None
