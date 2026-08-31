@@ -2620,3 +2620,54 @@ one place and not the other:
 Re-classifying an already-classified source is refused: *"changing it is a
 re-reading of the source, not an amendment - record why in a note and let both
 stand."*
+
+### 2026-08-31 — A decided case is Legal's lab result
+
+The grower carried the evidence model across domains: *"a published class action
+or case law with an issued judgment from a trial, a judge making a judgment on
+the case, settling in the benefit of either party or dismissal, or even if it
+comes up in the appellate court because the judge didn't do its job - those are
+akin to things happening in the laboratory for a grow agent."*
+
+Exactly the structure. A statute is `authority` - what the law says. A treatise
+or law-review piece is `expert_commentary` - someone writing ABOUT the law. **A
+decided case is the experiment actually run**, the theory put in front of a
+tribunal to see what happens. CLAUDE.md already named it - *"CourtListener: how
+courts actually rule and what dockets actually do"* is Legal's lived column - and
+nothing implemented it. Legal could search dockets and had no way to record an
+outcome.
+
+**A disposition is not one thing, and collapsing them is how a settlement gets
+cited as a holding.** What a court DID decides what the outcome establishes:
+
+| Disposition | Merits? | Establishes |
+|---|---|---|
+| `judgment_on_merits`, `summary_judgment` | yes | a court decided the question |
+| `dismissal_merits` | yes | the claim as pleaded did not state one |
+| `dismissal_procedural` | **no** | NOTHING about the merits - standing or timeliness ended it first |
+| `settlement` | **no** | NOTHING about the law. The parties agreed; no court held anything |
+| `default_judgment` | **no** | that one side did not appear. The theory was never tested |
+| `consent_decree` | no | terms entered by agreement, enforceable between the parties |
+| `appellate_reversed` | yes | the lower result was WRONG - it SUPERSEDES rather than joins |
+| `pending` | no | nothing yet. A filed complaint is an allegation |
+
+**Recording a holding on a non-merits disposition is refused outright**, because
+that is precisely how a settlement becomes a "holding" three citations later:
+
+> A 'settlement' does not reach the merits, so it has no holding... Put what
+> happened in `notes` instead - a holding recorded here would be cited as one.
+
+**A reversal supersedes rather than joins.** The prior outcome is marked
+`superseded_by` and kept, never deleted - the record should show one question
+answered twice and which answer stood, not two independent cases agreeing. A
+reversal recorded without `supersedes` is warned about rather than silently
+filed as a standalone case.
+
+**Unpublished is flagged**: a real outcome that binds its own parties and little
+else, with a note to check the circuit's rule before relying on it. Treating
+published and unpublished alike overstates what a case is worth to anyone but
+its own parties.
+
+Every outcome carries `evidence_kind: observed` and `source_class: case_outcome`,
+because a court doing something is an event, not an assertion about the law -
+which is what makes it the lived column rather than the corpus.

@@ -1451,6 +1451,154 @@ class LegalAgent(AgentBase):
         r"\b\d+\s*(?:u\.?s\.?c\.?|c\.?f\.?r\.?)\s*(?:§+\s*)?[\d.\-()a-z]+",
         re.I)
 
+    # A DECIDED CASE IS THIS AGENT'S LAB RESULT.
+    #
+    # The grower drew the parallel: "a published class action or case law with
+    # an issued judgment from a trial, a judge making a judgment on the case,
+    # settling in the benefit of either party or dismissal, or even if it comes
+    # up in the appellate court because the judge didn't do its job - those are
+    # akin to things happening in the laboratory for a grow agent."
+    #
+    # Exactly the structure Grow now has. A statute is `authority`: what the law
+    # says. A treatise or a law-review article is `expert_commentary`: someone
+    # writing ABOUT the law. A decided case is the experiment actually run - the
+    # theory put in front of a tribunal to see what happens.
+    #
+    # But a disposition is not one thing, and collapsing them is how a
+    # settlement gets cited as though it were a holding. What a court DID
+    # determines what the outcome establishes, and these differ enormously:
+    DISPOSITIONS = {
+        "judgment_on_merits": {
+            "reaches_merits": True, "weight": "high",
+            "establishes": "a court decided the legal question on this record"},
+        "summary_judgment": {
+            "reaches_merits": True, "weight": "high",
+            "establishes": "decided on facts the parties did not dispute"},
+        "dismissal_merits": {
+            "reaches_merits": True, "weight": "medium",
+            "establishes": "the claim as pleaded did not state one - a ruling about the "
+                           "pleading, not about what happened"},
+        "dismissal_procedural": {
+            "reaches_merits": False, "weight": "low",
+            "establishes": "NOTHING about the merits. Standing, jurisdiction or timeliness "
+                           "ended it before the question was reached"},
+        "settlement": {
+            "reaches_merits": False, "weight": "low",
+            "establishes": "NOTHING about the law. The parties agreed; no court held "
+                           "anything. A settlement cited as a holding is the commonest "
+                           "misuse of a docket"},
+        "default_judgment": {
+            "reaches_merits": False, "weight": "low",
+            "establishes": "that one side did not appear. The legal theory was never tested"},
+        "consent_decree": {
+            "reaches_merits": False, "weight": "low-medium",
+            "establishes": "terms a court entered by agreement - enforceable between the "
+                           "parties, not a ruling on the law"},
+        "appellate_affirmed": {
+            "reaches_merits": True, "weight": "high",
+            "establishes": "a reviewing court let the result stand"},
+        "appellate_reversed": {
+            "reaches_merits": True, "weight": "high",
+            "establishes": "the lower result was WRONG. It supersedes rather than joins - "
+                           "the experiment was re-run and came out differently"},
+        "appellate_vacated": {
+            "reaches_merits": False, "weight": "medium",
+            "establishes": "the lower result is undone. Often no ruling replaces it"},
+        "pending": {
+            "reaches_merits": False, "weight": "none",
+            "establishes": "nothing yet. A filed complaint is an allegation"},
+    }
+
+    # Whether it can be cited. An unpublished disposition is a real outcome and
+    # usually not precedent, and treating the two alike overstates what a case
+    # is worth to anyone but its own parties.
+    PRECEDENTIAL = ("published", "unpublished", "per_curiam", "unknown")
+
+    def record_case_outcome(self, citation=None, disposition=None, court=None,
+                            precedential="unknown", holding=None, in_favor_of=None,
+                            supersedes=None, docket=None, notes=None):
+        """Record what a court actually DID, with what that establishes.
+
+        Legal's equivalent of an instrumented result. The corpus is the floor -
+        what the law says - and this is the lived column: what happened when the
+        theory met a tribunal."""
+        if not citation or not disposition:
+            return {"error": "Needs citation and disposition. Disposition must be one of: "
+                             + ", ".join(sorted(self.DISPOSITIONS)),
+                    "dispositions": {k: v["establishes"]
+                                     for k, v in self.DISPOSITIONS.items()}}
+        d = str(disposition).strip().lower()
+        if d not in self.DISPOSITIONS:
+            return {"error": f"Unknown disposition '{disposition}'.",
+                    "accepted": sorted(self.DISPOSITIONS)}
+        prec = str(precedential or "unknown").strip().lower()
+        if prec not in self.PRECEDENTIAL:
+            return {"error": f"precedential must be one of: {', '.join(self.PRECEDENTIAL)}"}
+        profile = self.DISPOSITIONS[d]
+
+        # A holding is only meaningful where the court reached the merits.
+        # Recording one on a settlement is how a settlement becomes a "holding"
+        # three citations later.
+        if holding and not profile["reaches_merits"]:
+            return {"error": (f"A '{d}' does not reach the merits, so it has no holding. "
+                              f"It establishes: {profile['establishes']}. Put what happened "
+                              f"in `notes` instead - a holding recorded here would be cited "
+                              f"as one later."),
+                    "reaches_merits": False}
+
+        rec = {
+            "id": f"case_outcome_{self._uid()}" if hasattr(self, "_uid")
+                  else f"case_outcome_{int(time.time()*1000000)}",
+            "citation": citation, "court": court, "docket": docket,
+            "disposition": d,
+            "reaches_merits": profile["reaches_merits"],
+            "weight": profile["weight"],
+            "establishes": profile["establishes"],
+            "precedential": prec,
+            "holding": holding if profile["reaches_merits"] else None,
+            "in_favor_of": in_favor_of,
+            "notes": notes,
+            "source_class": "case_outcome",
+            "evidence_kind": "observed",
+            "evidence_note": ("A court did this. It is an outcome, not a claim about the "
+                              "law - which is what makes it the lived column rather than "
+                              "the corpus."),
+            "supersedes": supersedes,
+            "recorded": datetime.now().isoformat(timespec="seconds"),
+        }
+        if prec == "unpublished":
+            rec["citation_caveat"] = ("Unpublished. Usually not citable as precedent - a "
+                                      "real outcome that binds its own parties and little "
+                                      "else. Check the circuit's rule before relying on it.")
+        if d == "appellate_reversed" and not supersedes:
+            rec["warning"] = ("A reversal supersedes a lower result. Pass `supersedes` with "
+                              "that outcome's id so the record shows one question answered "
+                              "twice, rather than two independent cases agreeing.")
+
+        key = f"case_outcome_{rec['id']}"
+        try:
+            idx_raw = self._unwrap_value(self.retrieve_own_memory("case_outcome_index"))
+            idx = json.loads(idx_raw) if idx_raw else []
+        except Exception:
+            idx = []
+        self.store_own_memory(rec["id"], json.dumps(rec), pin=True)
+        idx.append(rec["id"])
+        self.store_own_memory("case_outcome_index", json.dumps(idx))
+        if supersedes:
+            try:
+                raw = self._unwrap_value(self.retrieve_own_memory(supersedes))
+                if raw:
+                    prior = json.loads(raw)
+                    prior["superseded_by"] = rec["id"]
+                    prior["superseded_note"] = ("Kept, not deleted - the record should show a "
+                                                "question answered twice, and which answer "
+                                                "stood.")
+                    self.store_own_memory(supersedes, json.dumps(prior))
+                    rec["superseded_prior"] = supersedes
+            except Exception as e:
+                rec["supersede_error"] = str(e)
+        return rec
+
     def describe(self, task, payload):
         """Put this agent's own results into words.
 
@@ -1746,6 +1894,9 @@ class LegalAgent(AgentBase):
             if not a and isinstance(args, list) and args:
                 a = {"stage": args[0]}
             return self.transaction_layers(a.get("stage"), a.get("state"))
+
+        if task == "record_case_outcome":
+            return self.record_case_outcome(**(args if isinstance(args, dict) else {}))
 
         if task == "lookup":
             # Positional-only meant a dict payload raised KeyError(0), which
