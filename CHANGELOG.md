@@ -2718,3 +2718,31 @@ governing_law, provision, factual_prereqs, definition, documentation,
 recognizing_party, subsequent_action, reproducible. Two people arriving at
 similar checklists is mild corroboration that the shape is right - and it is
 still a checklist, not authority.
+
+### 2026-08-31 — The ledger diagram that contradicts itself
+
+A "Cash, Credit & Debt Relationship" diagram, tested rather than read. Its cash
+panel is ordinary and correct: debits increase an asset, credits decrease it.
+Its credit panel labels credit extended to a consumer as *"Their Money -
+Liability to You"* with *"Net Credit (Positive = They Owe You)."*
+
+**`unsupported`, confidence 0.0** - and the strongest evidence against it is the
+diagram itself.
+
+Its own third panel draws "New Debt Incurred" and "Interest Accrued" as CREDITS
+to a *"Debt Account - Their Obligation."* If extending credit made the lender the
+obligor, the borrower incurring debt could not simultaneously be the lender's
+obligation. The two panels assign the same position to both parties at once.
+
+A companion card from the same feed states the rule correctly: *"a receivable may
+be an asset on the CREDITOR's books"* and *"the borrower and lender may record
+different but related accounts."* One transaction, two sets of books, opposite
+signs. Which is the whole of it: the lender's receivable is the borrower's
+payable, and swapping the party labels does not swap who owes.
+
+And the same companion card supplies the closing line: **"Balanced books do not
+by themselves prove who legally owes what; the underlying transaction and
+agreement still matter."** A T-account drawn with the labels reversed still
+balances. That is precisely why balance is not the test - which is also why
+Accounting surfaces a divergence in this system and Legal decides whether it is
+actionable.
