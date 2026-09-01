@@ -196,7 +196,7 @@ class LegalAgent(AgentBase):
                 "add_deadline", "deadlines",
                 "open_action", "complete_action", "amend_action", "actions",
                 "add_venue", "venues", "running_clocks", "complaint_path",
-                "read_filed_document", "ingest_screenshot", "read_docket_document", "learn_from_case", "set_principal", "classify_matter",
+                "read_filed_document", "ingest_screenshot", "read_docket_document", "learn_from_case", "verify_quote", "set_principal", "classify_matter",
                 "triage_source", "record_case_outcome"
             ],
             role="agent"
@@ -2733,6 +2733,143 @@ class LegalAgent(AgentBase):
             "disclaimer": DISCLAIMER,
         }
 
+    def verify_quote(self, args):
+        """Is this sentence actually in that case? Read it and say.
+
+        THE CHECK THE PRINCIPAL NEEDS TO BE ABLE TO RUN HIMSELF.
+        
+        A document circulating on social media quoted United States v. Benabe,
+        654 F.3d 753 (7th Cir. 2011) for the proposition that courts must avoid
+        summarily dismissing "sovereign citizen" claims. Benabe says: *"These
+        theories should be rejected summarily, however they are presented."* The
+        case name is real, the reporter cite is well-formed, the page number is
+        plausible, and the quote is the inverse of the holding.
+
+        That is the hardest kind of false authority to catch, because everything
+        checkable ABOUT the citation checks out. Only the text settles it. And
+        the check is cheap - under a minute - which is the whole argument for
+        doing it every time rather than trusting a well-formatted cite.
+
+        What this refuses: to say a quote is absent when the opinion could not
+        be read. Not-in-the-archive and not-in-the-opinion are opposite findings
+        and it reports them differently."""
+        a = args if isinstance(args, dict) else {}
+        case = str(a.get("case") or "").strip()
+        quote = str(a.get("quote") or "").strip()
+        if not case or not quote:
+            return {"error": ("verify_quote needs `case` (a name or citation) and `quote` "
+                              "(the sentence attributed to it)."),
+                    "disclaimer": DISCLAIMER}
+
+        # RETRY BEFORE CONCLUDING ABSENCE.
+        #
+        # Two identical searches seconds apart returned 20 results and then
+        # zero, and the empty one came back as `case_not_found` - a wrong
+        # verdict about a real case, produced by a transient API failure. A
+        # check that reports "this authority does not exist" had better be sure
+        # it asked properly.
+        results = []
+        for attempt in range(3):
+            found = self.handle_task("search_cases", [case, "o"], self.agent_id)
+            results = (found if isinstance(found, dict) else {}).get("results") or []
+            if results:
+                break
+            if attempt < 2:
+                time.sleep(1.5)
+        if not results:
+            return {"case": case, "verdict": "case_not_found",
+                    "why": ("No published opinion found under that name. NOT a finding that "
+                            "the case is fabricated - it may be unpublished, a state matter "
+                            "outside this index, or named differently. It is a finding that "
+                            "nothing here can check the quote."),
+                    "disclaimer": DISCLAIMER}
+        top = results[0]
+        cid = top.get("cluster_id") or top.get("docket_id")
+        if not cid:
+            # Found the case and cannot open it. That is NOT "case not found",
+            # and reporting it as such was a wrong answer to a search that had
+            # succeeded - the two failures need different fixes.
+            return {"case": case, "matched": top.get("caseName"),
+                    "verdict": "found_but_no_handle",
+                    "why": ("The case was found and the search returned no id to open it "
+                            "with, so the quote could not be checked. Nothing is asserted "
+                            "about whether it is in the opinion."),
+                    "disclaimer": DISCLAIMER}
+        raw = self._unwrap_mcp(self.call_tool("courtlistener", "opinion_text",
+                                              {"cluster_id": int(cid)}))
+        if not isinstance(raw, dict) or not raw.get("readable"):
+            return {"case": case, "matched": top.get("caseName"),
+                    "verdict": "opinion_not_readable",
+                    "why": (raw or {}).get("why") or "No text available for this opinion.",
+                    "note": ("Absent from the archive is NOT absent from the opinion. "
+                             "Nothing is asserted about what it says."),
+                    "disclaimer": DISCLAIMER}
+
+        text = raw["text"]
+        norm = lambda s: re.sub(r"[^a-z0-9 ]+", " ", s.lower())
+        norm = lambda s: re.sub(r"\s+", " ", re.sub(r"[^a-z0-9 ]+", " ", s.lower())).strip()
+        hay, needle = norm(text), norm(quote)
+        verbatim = needle in hay
+
+        # Not verbatim? Then look for the DISTINCTIVE words of the quote and
+        # show what the opinion says where they appear - because the useful
+        # answer is rarely "no", it is "here is what it actually says".
+        # WHERE THE SUBJECT IS ACTUALLY DISCUSSED.
+        #
+        # The first version probed on the quote's longest words and landed on
+        # an unrelated passage about courtroom removal - true, and useless. The
+        # useful passages are the ones about the SUBJECT of the quote, so probe
+        # on its distinctive multi-word phrases first and fall back to single
+        # terms, and prefer passages where several of them cluster.
+        context = []
+        if not verbatim:
+            stop = {"about", "which", "there", "their", "would", "should", "these",
+                    "those", "court", "courts", "using", "based", "party", "claim",
+                    "claims", "under", "other", "where", "while", "being"}
+            words = [w for w in needle.split() if len(w) > 4 and w not in stop]
+            phrases = [" ".join(words[i:i + 2]) for i in range(len(words) - 1)]
+            seen = set()
+            for key in phrases + words:
+                if len(context) >= 3:
+                    break
+                for m in re.finditer(re.escape(key), hay):
+                    i = m.start()
+                    block = re.sub(r"\s+", " ", text[max(0, i - 300):i + 460]).strip()
+                    sig = block[:60]
+                    if sig in seen:
+                        continue
+                    seen.add(sig)
+                    # Score by how many of the quote's own words are nearby -
+                    # a passage carrying several is the one about the subject.
+                    hits = sum(1 for w in words if w in norm(block))
+                    context.append((hits, block[:700]))
+                    break
+            context = [b for _, b in sorted(context, key=lambda x: -x[0])][:2]
+
+        return {
+            "case": case,
+            "matched": top.get("caseName"),
+            "court": top.get("court"),
+            "date": top.get("dateFiled"),
+            "url": top.get("absolute_url"),
+            "opinion_chars": raw.get("chars"),
+            "quote": quote,
+            "verdict": "quote_found_verbatim" if verbatim else "quote_NOT_in_opinion",
+            "what_the_opinion_says_nearby": context or None,
+            "meaning": ("The sentence appears in the opinion as quoted."
+                        if verbatim else
+                        "The sentence does NOT appear in this opinion. A real case name with "
+                        "a well-formed cite and a quote that is not in the text is the "
+                        "hardest kind of false authority to catch, because everything "
+                        "checkable about the citation checks out. Read the passages above "
+                        "and see what it actually says."),
+            "if_you_were_to_file_it": ("Rule 11(b)(2) certifies that the legal contentions "
+                                       "are warranted by existing law. Filing a quote the "
+                                       "case does not contain exposes the filer, not the "
+                                       "other side."),
+            "disclaimer": DISCLAIMER,
+        }
+
     def read_docket_document(self, args):
         """Read the court's own text of one document on a docket.
 
@@ -2899,8 +3036,49 @@ class LegalAgent(AgentBase):
                   f"on testable properties of its own text. Whether a real "
                   f"practitioner is behind it is NOT determinable from the image."))
         held = [h for h in (triaged.get("held") or [])]
+
+        # CASE CITATIONS AND THE WORDS ATTRIBUTED TO THEM.
+        #
+        # triage_source finds STATUTES. A legal card's real payload is usually
+        # case law, and the dangerous shape is a real case name carrying a quote
+        # that is not in the opinion - everything checkable about the citation
+        # checks out, and only the text settles it.
+        #
+        # So a quoted sentence followed by a case cite is pulled out as a PAIR
+        # and each pair is verified. This is the check that catches the 16-page
+        # complaint quoting United States v. Benabe for the inverse of its
+        # holding, and it runs on upload rather than on request.
+        pairs, checks = [], []
+        for m in re.finditer(
+                r'[\u201c"]([^\u201d"]{40,400})[\u201d"]\s*[\.\,]?\s*'
+                r'([A-Z][A-Za-z.\'\-]+(?:\s+[A-Za-z.\'\-]+){0,4}\s+v\.?\s+'
+                r'[A-Z][A-Za-z.\'\-]+(?:\s+[A-Za-z.\'\-]+){0,5})',
+                text):
+            q, cse = " ".join(m.group(1).split()), " ".join(m.group(2).split())
+            if (q, cse) not in pairs:
+                pairs.append((q, cse))
+        for q, cse in pairs[:6]:
+            try:
+                v = self.verify_quote({"case": cse, "quote": q})
+            except Exception as exc:
+                v = {"verdict": "check_failed", "why": str(exc)}
+            checks.append({"case": cse, "quote": q[:220],
+                           "verdict": v.get("verdict"),
+                           "matched": v.get("matched"),
+                           "opinion_says": (v.get("what_the_opinion_says_nearby") or [None])[0]})
+        bad = [c for c in checks if c["verdict"] == "quote_NOT_in_opinion"]
+
         return {
             "image_path": str(a.get("image_path")),
+            "quotes_checked": checks or None,
+            "quotes_not_in_the_opinion": len(bad),
+            "quote_warning": (
+                (f"{len(bad)} of {len(checks)} quoted passages are NOT in the opinion they "
+                 f"are attributed to. A real case name with a well-formed cite and a quote "
+                 f"the case does not contain is the hardest false authority to catch, "
+                 f"because everything checkable about the citation checks out. Filing one "
+                 f"is Rule 11(b)(2) exposure for the filer, not the other side.")
+                if bad else None),
             "card_assessment": {k: read.get(k) for k in
                                 ("score", "markers", "internal_inconsistencies",
                                  "recommended", "cannot_determine")},
@@ -3515,6 +3693,8 @@ class LegalAgent(AgentBase):
             return self.classify_matter(args if isinstance(args, dict) else {})
         if task == "learn_from_case":
             return self.learn_from_case(args if isinstance(args, dict) else {})
+        if task == "verify_quote":
+            return self.verify_quote(args if isinstance(args, dict) else {})
         if task == "read_docket_document":
             return self.read_docket_document(args if isinstance(args, dict) else {})
         if task == "read_filed_document":

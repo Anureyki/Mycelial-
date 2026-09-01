@@ -4223,3 +4223,81 @@ hows my aloe -> aloe_1     how is the gsc doing -> ASKS     how are the plants -
 ```
 
 Shell to v23.
+
+### 2026-09-01 — A real case name with a quote the case does not contain
+
+The principal supplied a 16-page complaint arguing that labelling someone a
+"sovereign citizen" violates due process, and said the thing that set the
+priority: *"I'm at 99% usage for the week, so making sure Legal Agent can handle
+this on the dashboard is highly important."*
+
+He was right to press it. **Legal could find a case and could not read a
+published opinion**, so the check that settles the document had to be run by hand
+outside the system — which is the same gap as the docket reader, one class over.
+
+### What the check found
+
+`United States v. Benabe`, 654 F.3d 753 (7th Cir. 2011) is the complaint's lead
+authority. Its actual words, read from the opinion:
+
+> Regardless of an individual's claimed status of descent, be it as a "sovereign
+> citizen," a "secured-party creditor," or a "flesh-and-blood human being," that
+> person is not beyond the jurisdiction of the courts. **These theories should be
+> rejected summarily, however they are presented.**
+
+The complaint quotes Benabe for the **inverse** — that courts must *avoid*
+summary dismissal. It also quotes `United States v. Phillips` for a duty to reach
+the merits, and Benabe's own parenthetical describes Phillips as *"dismissing
+jurisdiction arguments as frivolous."* Two Seventh Circuit authorities, both
+load-bearing, both cited against their holdings.
+
+**This is the hardest kind of false authority to catch**, because everything
+checkable *about* the citation checks out: the case is real, the reporter cite is
+well-formed, the page number is plausible. Only the text settles it.
+
+### What was built
+
+`opinion_text` on the CourtListener MCP, and `verify_quote` on Legal: give it a
+case and a quoted sentence and it retrieves the opinion, searches the text, and
+reports. Three controls, all passing:
+
+```
+the complaint's Benabe quote           -> quote_NOT_in_opinion   (98,579 chars read)
+a sentence that IS in the opinion      -> quote_found_verbatim
+a case that does not exist             -> case_not_found
+```
+
+**And it runs on upload.** A screenshot dropped on the dashboard now has its
+quoted case law pulled out as (quote, case) pairs and each pair verified. On page
+4 of the complaint: **2 of 3 quoted passages are not in the opinions they are
+attributed to.** The third came back `opinion_not_readable`, which is reported as
+a fact about the archive rather than about the case — absent from CourtListener is
+not absent from the opinion.
+
+### Three wrong verdicts fixed on the way, all the same shape
+
+**A flaky search became a false negative.** Two identical searches seconds apart
+returned 20 results and then zero, and the empty one was reported as
+`case_not_found` — a wrong verdict about a real case, from a transient API
+failure. A check that says *"this authority does not exist"* had better be sure it
+asked properly; it retries three times now.
+
+**Found-but-unopenable was reported as not-found.** The search returned the case
+and no handle to open it, and that came back as `case_not_found` too. Different
+failure, different fix, so it has its own verdict.
+
+**The MCP dropped `cluster_id`.** An opinion search returns one and the handler
+only passed `docket_id` through, so a caller could find a case and have nothing to
+open it with.
+
+### On what this is for
+
+The principal's framing: *"if there's ways to combat that logic, then we should be
+doing that… as long as it's proven that it works and it's factual."*
+
+That is the right test and this document fails it. The grievance underneath is
+real — courts do sometimes use the label to avoid engaging — but a filing built on
+inverted quotations does not combat that logic, it hands the other side Rule
+11(b)(2). The authority that actually helps is **`Offutt v. United States`, 348
+U.S. 11, 14 (1954)** — *"justice must satisfy the appearance of justice"* — which
+is a real quote from a real case, and which the same document also cites.

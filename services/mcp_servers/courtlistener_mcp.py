@@ -11,6 +11,7 @@ docket-alert subscriptions requires one.
 import sys
 import os
 import json
+import re
 import requests
 
 BASE_URL = "https://www.courtlistener.com/api/rest/v4"
@@ -54,6 +55,11 @@ def search(arguments):
                     "dateFiled": r.get("dateFiled"),
                     "docketNumber": r.get("docketNumber"),
                     "docket_id": r.get("docket_id"),
+                    # An OPINION search returns cluster_id, not docket_id, and
+                    # dropping it meant a caller could find a case and have no
+                    # handle to open it - which came back as "case_not_found",
+                    # the wrong answer to a search that had succeeded.
+                    "cluster_id": r.get("cluster_id") or r.get("id"),
                     "absolute_url": f"https://www.courtlistener.com{r['absolute_url']}" if r.get("absolute_url") else None,
                     "snippet": (r.get("snippet") or (r.get("text", "")[:300] if r.get("text") else None)),
                 }
@@ -118,6 +124,48 @@ def docket_documents(arguments):
                 "truncated": len(text) > 120000,
                 "read_not_summarised": ("This is the court's own text as filed. "
                                         "Nothing here is a paraphrase.")}
+    except Exception as e:
+        return {"error": str(e)}
+
+
+def opinion_text(arguments):
+    """The full text of a published opinion, so a QUOTE can be checked.
+
+    The gap this closes was found the hard way. A complaint circulating on
+    social media quoted United States v. Benabe for the proposition that courts
+    must avoid summary dismissal of "sovereign citizen" claims. Benabe says the
+    exact opposite - "These theories should be rejected summarily, however they
+    are presented" - and the only way to know that is to READ IT.
+
+    `search` could find the case existed. Nothing could open it. So the check
+    that settles a fabricated quote had to be done by hand outside the system,
+    which means the principal could not do it himself.
+    """
+    cluster = arguments.get("cluster_id")
+    if not cluster:
+        return {"error": "Missing required 'cluster_id' (from a search result)"}
+    try:
+        resp = requests.get(f"{BASE_URL}/opinions/",
+                            params={"cluster__id": cluster,
+                                    "fields": "id,plain_text,html_with_citations"},
+                            headers=_headers(), timeout=60)
+        if resp.status_code != 200:
+            return {"error": f"CourtListener opinion fetch failed: HTTP {resp.status_code}",
+                    "detail": resp.text[:300]}
+        text = ""
+        for o in resp.json().get("results", []):
+            t = o.get("plain_text") or ""
+            if not t and o.get("html_with_citations"):
+                t = re.sub(r"<[^>]+>", " ", o["html_with_citations"])
+            text += t + "\n"
+        text = re.sub(r"\s+", " ", text).strip()
+        if not text:
+            return {"cluster_id": cluster, "readable": False,
+                    "why": ("CourtListener holds no text for this opinion. A fact about the "
+                            "archive, not the opinion - nothing about what it says can be "
+                            "asserted from here.")}
+        return {"cluster_id": cluster, "readable": True, "chars": len(text),
+                "text": text[:400000]}
     except Exception as e:
         return {"error": str(e)}
 
@@ -199,6 +247,16 @@ TOOLS = {
             "required": ["docket_id"],
         },
         "handler": docket_documents,
+    },
+    "opinion_text": {
+        "description": ("Full text of a published opinion, by cluster_id from a search "
+                        "result. Use it to check whether a quoted sentence is really in it."),
+        "inputSchema": {
+            "type": "object",
+            "properties": {"cluster_id": {"type": "integer"}},
+            "required": ["cluster_id"],
+        },
+        "handler": opinion_text,
     },
     "create_alert": {
         "description": "Create a recurring CourtListener search alert (requires COURTLISTENER_API_TOKEN).",
