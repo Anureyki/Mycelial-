@@ -4567,3 +4567,53 @@ never does.** That is what makes one such fertile ground for an explanation.
 `12 CFR 1024` (Reg X) still could not be fetched — govinfo answers **HTTP 406**.
 The statute carries the notice duties, so the gap is narrower than it looks, but
 it is recorded rather than glossed.
+
+### 2026-09-02 — Ohio is scriptable, Texas is not, and "[Criminal]" is not in the statute
+
+The principal supplied a post claiming *"OHIO Revised Code § 2329.02 **[Criminal]**
+Judgment Lien"* — and, unusually, supplied **the statute's own text** alongside
+it. That made this checkable end to end.
+
+**`codes.ohio.gov` serves statutory text in the response body**, unlike Texas,
+whose statutes *and* rules are both Angular applications answering 200 with an
+empty shell. So `tools/ingest_law.py` gains an **`orc`** mode and Ohio law is now
+one command away, stamped `state_statute`. That asymmetry is a fact about two
+states' publishing choices and is recorded where the next person will look.
+
+**Read from corpus, § 2329.02:**
+
+- Its own heading is *"Judgment lien — certificate of judgment — filing —
+  transfer."*
+- It sits in **Title 23 Courts-Common Pleas, Chapter 2329 — EXECUTION AGAINST
+  PROPERTY.**
+- The string **"criminal" does not appear in it at all.**
+
+The bracket is the poster's insertion into a title. Same move as the *Benabe*
+quote: a real citation carrying a word the source does not contain.
+
+What it actually does is money-judgment execution — a judgment becomes a lien on
+land once a **certificate of judgment** is filed naming *"the judgment creditors
+and judgment debtors"* and *"the amount of the judgment and costs."* Ohio can
+reduce a criminal fine or restitution to a civil judgment enforceable this way,
+which is ordinary and provided for elsewhere. The section does not convert a
+criminal case into a commercial one, create a security interest, or mention a
+bid, performance or payment bond.
+
+**The peonage cases are real, and the doctrine does not reach a lien.**
+`Clyatt v. United States`, 197 U.S. 207 (1905) verified, quote verbatim:
+*"Peonage is sometimes classified as voluntary or involuntary, but this implies
+simply a difference in the mode of origin, but none in the character of the
+servitude."* Peonage is **compelled labour** to work off a debt. A lien compels
+no labour from anyone — it attaches to property and is satisfied out of property.
+
+### The pattern, now four for four
+
+| Authority | Real? | Characterisation |
+|---|---|---|
+| `United States v. Benabe` | yes | cited for the **inverse** of its holding |
+| 18 U.S.C. § 153 | yes | a **bankruptcy-estate** offence aimed at a state court clerk |
+| 15 U.S.C. § 1692 | yes | aimed at a court **§ 1692a(6)(C) expressly excludes** |
+| Ohio Rev. Code § 2329.02 | yes | a civil execution statute relabelled **"[Criminal]"** |
+
+**The citation is never the problem. The sentence attached to it is.** Which is
+exactly why a checker that only confirmed a case exists would pass all four.

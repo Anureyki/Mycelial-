@@ -207,10 +207,53 @@ def fetch_usc_section(title, section):
 # would put an empty page into the corpus reporting success, which is the exact
 # failure this file already guards against in _reject_error_page.
 
+
+def fetch_orc(section):
+    """One section of the Ohio Revised Code, from the state's own site.
+
+    codes.ohio.gov serves the statutory text in the response body - unlike
+    Texas, whose statutes and rules are both Angular applications that answer
+    200 with an empty shell. So Ohio is scriptable and Texas is not, which is a
+    fact about the two states' publishing choices and worth recording where the
+    next person will look for it.
+
+    The page carries navigation, amendment history and cross-reference chrome
+    around the operative text. Only the text between the section heading and
+    the effective-date footer is taken.
+    """
+    url = f"https://codes.ohio.gov/ohio-revised-code/section-{section}"
+    raw = _get(url, timeout=45)
+    body = _strip(raw)
+    if "Any judgment" not in body and "Section " + str(section) not in body:
+        _reject_error_page(body, url)
+    m = re.search(r"Latest Legislation:[^\n]{0,120}?(?:General Assembly)\s*(.+?)"
+                  r"(?:Available Versions of this Section|Last updated|Cite as)",
+                  body, re.S)
+    if not m or len(m.group(1).strip()) < 120:
+        m = re.search(r"(Any judgment.+?)(?:Available Versions|Last updated|Cite as)",
+                      body, re.S)
+    if not m or len(m.group(1).strip()) < 120:
+        raise SystemExit(
+            f"REFUSED: could not isolate the operative text of ORC {section} from {url}.\n"
+            f"  Storing the whole page would put site navigation into the corpus as though "
+            f"it were statute. Nothing written.")
+    operative = re.sub(r"\s+", " ", m.group(1)).strip()
+    heading = ""
+    hm = re.search(r"Section\s+" + re.escape(str(section)) + r"\s*\|\s*([^\n|]{3,120})", body)
+    if hm:
+        heading = hm.group(1).strip()
+    text = (f"\u00a7 {section}. {heading}. {operative}" if heading
+            else f"\u00a7 {section}. {operative}")
+    return (text,
+            f"Ohio Rev. Code \u00a7 {section}",
+            f"Ohio Revised Code section {section}, retrieved from the State of Ohio's own "
+            f"publication at codes.ohio.gov. State statutes are government works and are "
+            f"public domain.")
+
 def main():
     ap = argparse.ArgumentParser(description=__doc__,
                                  formatter_class=argparse.RawDescriptionHelpFormatter)
-    ap.add_argument("source", choices=["cfr", "usc", "usc-section", "irm"])
+    ap.add_argument("source", choices=["cfr", "usc", "usc-section", "irm", "orc"])
     ap.add_argument("--section", help="single U.S.C. section, e.g. 5103")
     ap.add_argument("--title")
     ap.add_argument("--part")
@@ -235,13 +278,18 @@ def main():
             ap.error("usc needs --title")
         body, title, source = fetch_usc(a.title, a.year)
         stem = f"usc{a.title}"
+    elif a.source == "orc":
+        if not a.section:
+            ap.error("orc needs --section, e.g. --section 2329.02")
+        body, title, source = fetch_orc(a.section)
+        stem = f"orc{a.section}"
     else:
         if not a.part:
             ap.error("irm needs --part")
         body, title, source = fetch_irm(a.part)
         stem = f"irm{a.part}"
 
-    if a.source != "usc-section" and len(body) < 2000:
+    if a.source not in ("usc-section", "orc") and len(body) < 2000:
         print(f"REFUSING: retrieved only {len(body)} characters - that is not a "
               f"body of law, it is an error page.", file=sys.stderr)
         return 2
@@ -271,6 +319,9 @@ def main():
         "usc-section": ("federal_statute",
                         "Title of the work is a U.S. Code section citation, which fixes "
                         "the class"),
+        "orc": ("state_statute",
+                "Title of the work is an Ohio Revised Code section citation, which fixes "
+                "the class"),
         "irm": ("agency_guidance",
                 "Internal Revenue Manual - directs IRS personnel, confers no rights on "
                 "taxpayers, and courts have held it lacks the force of a regulation"),
