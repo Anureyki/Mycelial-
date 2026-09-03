@@ -4526,3 +4526,44 @@ issues and parties and is appealable."
 Without prejudice is the whole point and it is the opposite of how a dismissal
 feels: **the claim can be brought again.** It is not an adjudication that the
 plaintiff was wrong.
+
+### 2026-09-01 — The welcome/goodbye letter is real; the house is not
+
+The principal found the Bexar County nonsuit through a TikTok live and relayed
+the explanation attached to it: the VA sent a welcome letter but no goodbye
+letter, a payment came from someone other than the borrower, a third defect he
+could not recall — and the man ended up with the house.
+
+**The first part checks out, and is now readable.** Acquired 12 U.S.C. § 2605:
+
+- **§ 2605(b)** — the **transferor** servicer must notify the borrower **not less
+  than 15 days before** the transfer. The goodbye letter.
+- **§ 2605(c)** — the **transferee** servicer must notify **not more than 15 days
+  after**. The welcome letter.
+
+Two duties on **two different parties**, which is precisely why *"a welcome
+letter but no goodbye letter"* is a coherent, named defect rather than folklore:
+the new servicer complied and the old one did not.
+
+**But what it gets you is damages, not a house.** § 2605(f): actual damages per
+failure, plus up to **$2,000** more where there is a *pattern or practice* of
+noncompliance. Nothing in the section voids a loan, clears title, or transfers
+ownership. And § 2605(b)(3)(G) requires the notice itself to say that a servicing
+transfer *"does not affect any term or condition of the security instruments
+other than terms directly related to the servicing"* — the statute states in
+terms that moving servicing does not disturb the lien.
+
+**So the document and the story part company on the one point that matters.** An
+Order of Nonsuit ends the *plaintiff's claim*. It adjudicates nothing, quiets no
+title, grants no ownership — and *without prejudice* means the VA can file again.
+"He got the house" is the narrative's leap; the order says the case went away,
+not that he won it.
+
+Recorded with its standing: the order is **firsthand as to what the court did**
+(`court_response`); the three-defects explanation is **reported**, second-hand,
+and uncheckable from the order — which states no reasons at all. **A nonsuit
+never does.** That is what makes one such fertile ground for an explanation.
+
+`12 CFR 1024` (Reg X) still could not be fetched — govinfo answers **HTTP 406**.
+The statute carries the notice duties, so the gap is narrower than it looks, but
+it is recorded rather than glossed.
