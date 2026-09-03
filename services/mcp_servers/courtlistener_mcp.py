@@ -12,6 +12,7 @@ import sys
 import os
 import json
 import re
+import time
 import requests
 
 BASE_URL = "https://www.courtlistener.com/api/rest/v4"
@@ -31,6 +32,78 @@ def _headers():
     return headers
 
 
+
+# ---------------------------------------------------------------------------
+# CourtListener allows 5 requests per minute on this token.
+#
+# Found the hard way: verify_quote's retry loop was BURNING THE QUOTA and then
+# reporting the throttling as "case not found" - the tool was manufacturing the
+# failures it was retrying. HTTP 429 says "Rate limit exceeded: 5/min. Expected
+# available in 11 seconds", which is not a transient blip to retry through, it
+# is an instruction to wait.
+#
+# Two things follow. Honour the wait rather than hammering it. And CACHE: an
+# opinion filed in 1959 does not change, so re-reading it should never cost a
+# request. With 5/min, a cache is the difference between checking one citation
+# and checking a document full of them.
+CACHE_DIR = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(
+    os.path.abspath(__file__)))), "state", "courtlistener_cache")
+CACHE_TTL = 30 * 24 * 3600      # opinions are stable; searches drift slowly
+
+
+def _cache_path(kind, key):
+    import hashlib
+    os.makedirs(CACHE_DIR, exist_ok=True)
+    h = hashlib.sha256(f"{kind}:{key}".encode()).hexdigest()[:24]
+    return os.path.join(CACHE_DIR, f"{kind}_{h}.json")
+
+
+def _cache_get(kind, key):
+    p = _cache_path(kind, key)
+    try:
+        if os.path.exists(p) and (time.time() - os.path.getmtime(p)) < CACHE_TTL:
+            with open(p, encoding="utf-8") as fh:
+                d = json.load(fh)
+            d["_from_cache"] = True
+            return d
+    except Exception:
+        pass
+    return None
+
+
+def _cache_put(kind, key, value):
+    if not isinstance(value, dict) or value.get("error"):
+        return value            # never cache a failure as if it were an answer
+    try:
+        with open(_cache_path(kind, key), "w", encoding="utf-8") as fh:
+            json.dump(value, fh)
+    except Exception:
+        pass
+    return value
+
+
+def _get_with_backoff(url, params, timeout=45, tries=3):
+    """GET, waiting the exact time a 429 asks for rather than guessing."""
+    last = None
+    for attempt in range(tries):
+        resp = requests.get(url, params=params, headers=_headers(), timeout=timeout)
+        if resp.status_code == 200:
+            return resp, None
+        if resp.status_code == 429:
+            wait = 12
+            m = re.search(r"available in (\d+)", resp.text or "")
+            if m:
+                wait = min(int(m.group(1)) + 2, 65)
+            last = (f"rate limited (5 requests/minute); waited {wait}s")
+            if attempt < tries - 1:
+                time.sleep(wait)
+                continue
+            return None, ("CourtListener rate limit: 5 requests per minute. "
+                          "The check did not run - this says nothing about the case.")
+        last = f"HTTP {resp.status_code}"
+        return None, f"CourtListener returned {last}: {resp.text[:200]}"
+    return None, last
+
 def search(arguments):
     query = arguments.get("q") or arguments.get("query")
     if not query:
@@ -40,13 +113,17 @@ def search(arguments):
                 "order_by", "filed_after", "filed_before"):
         if arguments.get(key):
             params[key] = arguments[key]
+    ck = json.dumps(params, sort_keys=True)
+    hit = _cache_get("search", ck)
+    if hit:
+        return hit
     try:
-        resp = requests.get(f"{BASE_URL}/search/", params=params, headers=_headers(), timeout=20)
-        if resp.status_code != 200:
-            return {"error": f"CourtListener search failed: HTTP {resp.status_code}", "detail": resp.text[:500]}
+        resp, err = _get_with_backoff(f"{BASE_URL}/search/", params, timeout=30)
+        if err:
+            return {"error": err}
         data = resp.json()
         results = data.get("results", [])
-        return {
+        out = {
             "count": data.get("count", len(results)),
             "results": [
                 {
@@ -66,6 +143,7 @@ def search(arguments):
                 for r in results
             ]
         }
+        return _cache_put("search", ck, out)
     except Exception as e:
         return {"error": str(e)}
 
@@ -145,13 +223,15 @@ def opinion_text(arguments):
     if not cluster:
         return {"error": "Missing required 'cluster_id' (from a search result)"}
     try:
-        resp = requests.get(f"{BASE_URL}/opinions/",
-                            params={"cluster__id": cluster,
-                                    "fields": "id,plain_text,html_with_citations"},
-                            headers=_headers(), timeout=60)
-        if resp.status_code != 200:
-            return {"error": f"CourtListener opinion fetch failed: HTTP {resp.status_code}",
-                    "detail": resp.text[:300]}
+        hit = _cache_get("opinion", str(cluster))
+        if hit:
+            return hit
+        resp, err = _get_with_backoff(
+            f"{BASE_URL}/opinions/",
+            {"cluster__id": cluster, "fields": "id,plain_text,html_with_citations"},
+            timeout=60)
+        if err:
+            return {"error": err}
         text = ""
         for o in resp.json().get("results", []):
             t = o.get("plain_text") or ""
@@ -164,8 +244,9 @@ def opinion_text(arguments):
                     "why": ("CourtListener holds no text for this opinion. A fact about the "
                             "archive, not the opinion - nothing about what it says can be "
                             "asserted from here.")}
-        return {"cluster_id": cluster, "readable": True, "chars": len(text),
-                "text": text[:400000]}
+        return _cache_put("opinion", str(cluster),
+                          {"cluster_id": cluster, "readable": True,
+                           "chars": len(text), "text": text[:400000]})
     except Exception as e:
         return {"error": str(e)}
 

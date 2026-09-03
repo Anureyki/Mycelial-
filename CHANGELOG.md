@@ -4397,3 +4397,61 @@ the page shows August and today's work looks absent. It was all pushed;
 `origin/main` matched local HEAD the whole time. An index of recent entries now
 sits at the top, which is the actual fix: a log nobody can find the end of is a
 log that does not work.
+
+### 2026-09-01 — The citation checker was manufacturing its own failures
+
+Five screenshots for Legal, and running them exposed something worse than a bad
+source: **the checker was rate-limiting itself into false negatives.**
+
+`CourtListener` allows **5 requests per minute** on this token. `verify_quote`
+retried up to five times on failure, so a single check could spend the whole
+minute's budget, get HTTP 429, and report **`case_not_found`** — a wrong verdict
+about a real authority, produced by the tool's own retries. Measured: the same
+query returned 20 hits twice and then nothing.
+
+For a tool whose entire job is telling the principal whether a citation is real,
+a false *"this does not exist"* is the worst output it can produce, because it
+would make him discard good law.
+
+Four fixes, all the same lesson:
+
+- **A failed search is not an absent case.** `search_unavailable` is now its own
+  verdict, and it says *"the check did not run — this says nothing about the
+  case."*
+- **Honour the throttle rather than fighting it.** A 429 carries *"Expected
+  available in 11 seconds"*; the fetcher waits that long instead of guessing.
+- **Cache.** An opinion filed in 1959 does not change, so re-reading it should
+  never cost a request. With 5/min this is the difference between checking one
+  citation and checking a document full of them. Cold pass on three cases: 69s.
+  Cached: **1s**.
+- **Stop double-retrying.** The agent was retrying on top of the MCP's own
+  retries, which is how one check became five requests.
+
+Two more wrong-answer bugs found on the way, both the shape of *right name,
+wrong thing*:
+
+**It picked the case that cites the case.** Given `"Adams v. Citizens Bank of
+Brevard, 248 So. 2d 682 (Fla. 4th DCA 1971)"` the index returned five opinions
+that CITE Adams and not Adams itself — reporter numbers are strong relevance
+signals for the opinions quoting them. Searching on party names finds it.
+Checking a quote against a case that quotes your case is a wrong answer wearing
+the right name.
+
+**It picked the wrong court in a pair.** `"Napue v. Illinois"` matched the 1958
+Illinois Supreme Court decision rather than the 1959 U.S. Supreme Court one at
+360 U.S. 264. Same parties, different court, opposite outcome. Results are now
+ranked by party-name match, then by a year in the citation, then by court.
+
+### What the five sources came to
+
+| Source | Result |
+|---|---|
+| Restatement (Third) of Trusts §§ 1, 55, 95 | mainstream trust law, accurately stated; ALI copyright keeps it out of corpus |
+| **Adams v. Citizens Bank of Brevard** | **real** — Fla. 4th DCA, 1971-06-07, verified, and a 1996 Florida court cites it for the same bifurcation point |
+| **Napue v. Illinois** | **real** — U.S. Supreme Court, 1959-06-15, quote verbatim |
+| Article 1 / admiralty / *fi. fa.* post | same theory family already assessed `contradicted` |
+| "The Real Story" CUSIP post | **the accurate one** — says individual cases are *not* CUSIP-traded and correctly separates that from judicial *infrastructure* financed by public debt, citing MSRB and actual bond documents |
+
+Three of five are usable. The one that is right is the sceptical one, and it is
+right for the reason this whole apparatus exists: it separates the checkable
+claim from the one that merely sounds like it.

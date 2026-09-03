@@ -2768,14 +2768,51 @@ class LegalAgent(AgentBase):
         # verdict about a real case, produced by a transient API failure. A
         # check that reports "this authority does not exist" had better be sure
         # it asked properly.
-        results = []
-        for attempt in range(3):
-            found = self.handle_task("search_cases", [case, "o"], self.agent_id)
-            results = (found if isinstance(found, dict) else {}).get("results") or []
+        # A FAILED SEARCH IS NOT AN ABSENT CASE.
+        #
+        # The same query returned 20 hits twice and then nothing, and the empty
+        # run was reported as `case_not_found` - which for this tool is the
+        # worst possible output, because it would make the principal throw away
+        # a real authority. So: retry with real backoff, and distinguish a
+        # search that ERRORED from one that legitimately found nothing. Only
+        # the second is a finding.
+        # SEARCH ON THE PARTY NAMES, NOT THE FULL CITATION.
+        #
+        # Handed "Adams v. Citizens Bank of Brevard, 248 So. 2d 682 (Fla. 4th
+        # DCA 1971)", the index returned five cases that CITE Adams and not
+        # Adams itself - reporter numbers and court abbreviations are strong
+        # relevance signals for the opinions that quote them. Stripping back to
+        # the party names finds the case. The full string is kept as a fallback
+        # for anything the strip mangles.
+        _clean = re.sub(r"[,(].*$", "", case).strip()
+        _queries = [q for q in (_clean, case) if q]
+        if len(_queries) > 1 and _queries[0] == _queries[1]:
+            _queries = _queries[:1]
+
+        results, last_error = [], None
+        for attempt in range(5):
+            _q = _queries[min(attempt // 3, len(_queries) - 1)]
+            found = self.handle_task("search_cases", [_q, "o"], self.agent_id)
+            found = found if isinstance(found, dict) else {}
+            results = found.get("results") or []
             if results:
                 break
-            if attempt < 2:
-                time.sleep(1.5)
+            last_error = found.get("error") or last_error
+            if found.get("count") == 0 and not found.get("error"):
+                break            # a real, clean "nothing matches"
+            # The MCP now waits out a 429 itself, using the exact time the API
+            # asks for. Retrying here on top of that just spends more of a
+            # 5-per-minute budget, which is what was manufacturing the failures
+            # in the first place. One more try, on the fallback query only.
+            if attempt >= 1:
+                break
+            time.sleep(1.0)
+        if not results and last_error:
+            return {"case": case, "verdict": "search_unavailable",
+                    "why": (f"The case index could not be queried: {last_error}. This says "
+                            f"NOTHING about whether the case or the quote is real - the "
+                            f"check did not run. Retry before drawing any conclusion."),
+                    "disclaimer": DISCLAIMER}
         if not results:
             return {"case": case, "verdict": "case_not_found",
                     "why": ("No published opinion found under that name. NOT a finding that "
@@ -2783,6 +2820,41 @@ class LegalAgent(AgentBase):
                             "outside this index, or named differently. It is a finding that "
                             "nothing here can check the quote."),
                     "disclaimer": DISCLAIMER}
+        # PICK THE DECISION THE CITATION NAMES, not the first hit.
+        #
+        # "Napue v. Illinois (1959)" is the U.S. Supreme Court at 360 U.S. 264;
+        # the first hit was the 1958 Illinois Supreme Court decision below it.
+        # Same parties, different court, opposite holding - and checking a quote
+        # against the wrong one of a pair is a wrong answer that looks right.
+        want_year = None
+        ym = re.search(r"\b(1[89]\d\d|20\d\d)\b", case)
+        if ym:
+            want_year = ym.group(1)
+        wants_scotus = bool(re.search(r"\bU\.?\s?S\.?\s+\d|\bS\.\s?Ct\.", case))
+
+        # The party names come first. Passing a full citation - reporter,
+        # court, year - made the search return a LATER case that merely CITES
+        # the one asked about, and checking a quote against a case that quotes
+        # your case is a wrong answer wearing the right name.
+        _parties = re.split(r"\s+v\.?\s+", re.sub(r"[,(].*$", "", case).strip(), maxsplit=1)
+        _parties = [re.sub(r"[^a-z ]", "", p.lower()).strip() for p in _parties if p.strip()]
+
+        def _rank(r):
+            score = 0
+            name = re.sub(r"[^a-z ]", "", str(r.get("caseName") or "").lower())
+            if _parties and all(p and p in name for p in _parties):
+                score -= 8          # both party names present: this is the case
+            elif _parties and _parties[0] and _parties[0] in name:
+                score -= 3
+            if want_year and str(r.get("dateFiled") or "").startswith(want_year):
+                score -= 4
+            court = str(r.get("court") or "").lower()
+            if wants_scotus and "supreme court of the united states" in court:
+                score -= 3
+            elif "supreme court of the united states" in court:
+                score -= 1
+            return score
+        results = sorted(results, key=_rank)
         top = results[0]
         cid = top.get("cluster_id") or top.get("docket_id")
         if not cid:
@@ -2795,6 +2867,9 @@ class LegalAgent(AgentBase):
                             "with, so the quote could not be checked. Nothing is asserted "
                             "about whether it is in the opinion."),
                     "disclaimer": DISCLAIMER}
+        # Same flakiness as the search, same rule: a transient failure to read
+        # is not a finding about the opinion.
+        # One call. The MCP caches the result and waits out a rate limit itself.
         raw = self._unwrap_mcp(self.call_tool("courtlistener", "opinion_text",
                                               {"cluster_id": int(cid)}))
         if not isinstance(raw, dict) or not raw.get("readable"):

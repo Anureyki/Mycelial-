@@ -64,3 +64,4 @@ knowledge_base/grow_agent/training/*/*
 .idea/
 state/inbox/
 state/uploads/
+state/courtlistener_cache/
