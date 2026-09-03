@@ -606,6 +606,58 @@ fall back to the dashboard while claiming the email went. A notification that
 fails quietly is worse than one never attempted, because the domain believes he
 was told.
 
+## Absence and unreachability are different findings
+
+Before concluding a capability is missing, determine whether it is merely
+unreachable. The two look identical from the outside and have opposite fixes:
+one means build it, the other means declare it.
+
+There are **four** states, not two, and the fourth is the one that hides:
+
+| State | What it means | Fix |
+|-------|---------------|-----|
+| **absent** | nothing implements it | build it |
+| **working** | implemented, declared, routable | nothing |
+| **undeclared** | implemented and dispatching, invisible to the registry, dashboard and router | declare it |
+| **inert knowledge** | the information is held and nothing reasons with it | give it a verb |
+
+`undeclared` was measured at **82 capabilities** on 2026-08-31: every one worked
+when called by name, and no router, dashboard or peer agent knew it existed. The
+capability had not disappeared - *its description of itself had*. That is why the
+failure propagates all the way up: dispatch succeeds, declaration omits it, the
+registry cannot expose it, Anansi cannot route on it, and the principal asks the
+system a question and is told, in effect, "I don't know."
+
+**`tools/check_inherited.py` is the instrument for this.** It compares what the
+agents actually inherited and wired up against what the architecture claims, and
+reports the discrepancy - dead routing terms, inherited verbs that crash, corpus
+sections recording themselves truncated. Declared reality on one side,
+operational reality on the other, and the gap named out loud.
+
+**The fourth state is the subtle one and the doctrine catches it.** Asked *"what
+can you already do about drying and curing"*, the system answered nothing, and
+the elegant inference is `undeclared`. Checked, it is not: Grow has **zero**
+drying verbs - the harvest track is planned and unstarted - and simultaneously
+holds **six shelved sources** on drying and terpene retention plus three fields
+on the plant record including `drying_temp_floor_f: 72`. The information is
+there and nothing reasons with it.
+
+So: **"I have this capability" and "I have information about this subject" are
+different answers**, and a system that cannot say which one it means will be
+rebuilt in the wrong layer.
+
+The rule is the same one this file already runs twice, at a third altitude:
+
+| Layer | Rule |
+|-------|------|
+| Legal | do not trust the claim - open the authority |
+| Data | do not trust the object - check whether its state survived the hop |
+| Architecture | do not assume the capability is missing - check whether it is reachable |
+
+And the reason it is a rule rather than an instinct: reasoning to the right
+framework and the wrong state is exactly what it prevents. The check is cheap.
+The inference is free and sometimes wrong.
+
 ## State travels with the fact, or the fact is gone
 
 Every serious defect this system has produced in the last week reduces to one
