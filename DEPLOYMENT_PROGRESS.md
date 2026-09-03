@@ -785,6 +785,57 @@ round trips. The cache should live for one `answer()` and die with it.
 
 ---
 
+## Retrieval track — semantic chunking for the knowledge base — PLANNED, NOT STARTED
+
+**Opened 2026-09-02.** The principal: *"semantic chunking is going to be very
+necessary for these agents to be able to utilize. If anything, it might stop all
+those bugs and errors that we keep running into."*
+
+**Right about the need, and it is worth being precise about where.**
+
+### The law corpus is already semantically chunked
+
+`SECTION_PATTERNS` in `tools/ingest_pdf.py` splits on **citation boundaries** —
+ASC sections, IFRS standards, subsections, Rules, IRM dotted numbers, `§` signs.
+Reg Z comes in as **959 chunks, one per section**, because a statute section *is*
+the unit of meaning. That is semantic chunking, done by the only boundary that
+matters in law, and it is why `lookup_reference("1692a")` returns the definitions
+section and nothing else.
+
+### The knowledge base is not chunked at all
+
+`query_cache` treats **each file as one document**, tokenises the whole thing, and
+scores `len(overlap) / len(query_tokens)` with **no stopword filter**. And
+`CAG_MAX_DOC_CHARS = 200_000` makes anything past that invisible. 169 files sit
+in `knowledge_base/` under those rules.
+
+`CLAUDE.md` already records what this costs: *"a long passage of boilerplate
+outranks a short passage that is exactly on point — measured on a real case at
+0.040 against 0.030."* That is the failure semantic chunking fixes, and it is
+sitting in the one store that has not had it.
+
+**So the work is narrow and the target is named:** chunk `knowledge_base/` by
+meaning, filter stopwords, score per chunk instead of per file, and retire the
+200k cliff — a document longer than the cap should become more chunks, never
+fewer facts.
+
+### It would not have stopped the bugs, and that matters
+
+Thirteen defects were found and fixed on 2026-08-31 and 2026-09-01. **One** is
+chunking-adjacent — `MAX_SECTION = 4000` truncating 15 U.S.C. § 1681b — and even
+that was a **cap**, not a chunking strategy. The other twelve were a dead regex,
+a nesting error, `res.json()` on an HTML error page, a rate limit reported as
+absence, a control-flow short-circuit, two dropped fields, a missing validation,
+two ranking faults, a normalisation fault, and 82 undeclared capabilities.
+
+**Retrieval quality and plumbing are different layers.** The through-line of that
+week was *state travels with the fact* — whether a field survives a hop — and no
+chunking strategy addresses a field that is never copied into the next dict.
+Treating chunking as the fix for those would be building the right thing for the
+wrong reason, and the wrong thing would stay broken.
+
+---
+
 ## Harvest track — drying and curing — PLANNED, NOT STARTED
 
 **Opened 2026-08-31** from source material the principal supplied (five cards,

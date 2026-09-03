@@ -4669,3 +4669,37 @@ That is the instrument working on its operator, which is the third time today.
 **The rule this leaves Legal with:** when a theory fails, ask what real doctrine
 it distorts. Discarding the subject throws away the true thing sitting next to
 the false one.
+
+### 2026-09-02 — Semantic chunking: right about the need, wrong about the bugs
+
+The principal: *"semantic chunking is going to be very necessary… if anything, it
+might stop all those bugs and errors that we keep running into."*
+
+**Right about the need, and the location is more specific than it looks.**
+
+**The law corpus already has it.** `SECTION_PATTERNS` splits on citation
+boundaries — ASC, IFRS, subsections, Rules, IRM dotted numbers, `§` signs. Reg Z
+lands as **959 chunks, one per section**, because in law the section *is* the unit
+of meaning. That is why `lookup_reference("1692a")` returns the definitions and
+nothing else, and it is why every statute check this week worked.
+
+**The knowledge base has none of it.** `query_cache` treats each **file** as one
+document, tokenises the whole thing, scores `len(overlap)/len(query_tokens)` with
+**no stopword filter**, and `CAG_MAX_DOC_CHARS = 200_000` makes anything past the
+cap invisible. 169 files live under those rules. `CLAUDE.md` already records the
+cost — boilerplate outranking an on-point passage, 0.040 to 0.030 on a real case.
+
+So the target is named and narrow, and it is planned as its own track.
+
+**But it would not have stopped the bugs, and saying so is the point.** Thirteen
+defects were fixed across 08-31 and 09-01. Exactly **one** is chunking-adjacent —
+`MAX_SECTION = 4000` truncating § 1681b — and that was a *cap*, not a strategy.
+The rest: a dead regex, a nesting error, `res.json()` on an HTML error page, a
+rate limit reported as absence, a control-flow short-circuit, two dropped fields,
+a missing validation, two ranking faults, a normalisation fault, and 82
+undeclared capabilities.
+
+**Retrieval quality and plumbing are different layers.** The through-line of that
+week was *state travels with the fact* — whether a field survives a hop — and no
+chunking strategy fixes a field that is never copied into the next dictionary.
+Building chunking to cure those would leave every one of them in place.
