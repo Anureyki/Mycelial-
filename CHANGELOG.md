@@ -4498,3 +4498,31 @@ rather than claiming the case was absent. Forty-five seconds later the same quer
 returned the Ohio Supreme Court opinion and the quote verbatim.
 
 Before today it would have said `case_not_found` about a real 1957 decision.
+
+### 2026-09-01 — A Texas order in hand, and the rule behind it unreadable
+
+The principal supplied **Cause No. 2026CV04711**, County Court at Law No. 3,
+Bexar County — *Secretary of Veterans Affairs, an Officer of the United States of
+America* v. a redacted defendant. An **ORDER OF NONSUIT** signed 8/26/2026,
+dismissing **without prejudice** under Texas Rule of Civil Procedure 162.
+
+**Tex. R. Civ. P. 162 could not be acquired**, and the failure is recorded rather
+than worked around: `txcourts.gov` 404s on the consolidated TRCP PDF,
+`texas.public.law` serves a JavaScript shell with no rule text, casetext refuses
+the request, and Justia blocks it. Same wall as the Texas statutes —
+`statutes.capitol.texas.gov` answers 200 with an Angular shell. **Texas primary
+law remains PDF-ingest-only** through `tools/ingest_pdf.py`.
+
+So anything said about Rule 162 beyond the four corners of the order is
+**recalled, not read**, and is labelled that way. That is the rule
+`add_deadline` runs, applied to a live document: a provision this agent cannot
+open is a provision it must not characterise.
+
+**What the order establishes on its own face, needing no outside authority:** the
+plaintiff moved to dismiss its own case, the court granted it, the dismissal is
+**without prejudice**, and the order says it "is the final order disposing of all
+issues and parties and is appealable."
+
+Without prejudice is the whole point and it is the opposite of how a dismissal
+feels: **the claim can be brought again.** It is not an adjudication that the
+plaintiff was wrong.
