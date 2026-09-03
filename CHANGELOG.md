@@ -4703,3 +4703,54 @@ undeclared capabilities.
 week was *state travels with the fact* — whether a field survives a hop — and no
 chunking strategy fixes a field that is never copied into the next dictionary.
 Building chunking to cure those would leave every one of them in place.
+
+### 2026-09-02 — The check that finds the 82 is now in the tool
+
+The principal asked the right question — *"did you fix the check?"* — and the
+answer was no. The 82 undeclared capabilities were found on 2026-08-31 with a
+one-off script, and the check was never added to `check_inherited.py`. **The tool
+built to compare what the architecture claims against what it does had a hole in
+exactly the place the discrepancy lived.**
+
+`check_declared_matches_dispatched()` now runs on every invocation, in **both**
+directions:
+
+- **undeclared** — dispatches, and no router, dashboard or peer agent can see it.
+  The capability did not disappear; its description of itself did.
+- **declared but not dispatched** — the registry promises something that is not
+  there.
+
+The second direction is new. The one-off never looked for it.
+
+Dispatch is read from **source**, not probed, and deliberately: running every
+declared capability to see whether it exists would log readings, send
+notifications and spend API quota. Reading the file is free and has no side
+effects.
+
+### It caught Claude twice in five minutes
+
+**First: four of Anansi's undeclared verbs were added today.** `notify`,
+`receive_mail`, `ingest_upload` and `grow_roster` all dispatch and none were
+declared — the 82-capability fault reproduced inside the same week it was
+documented, by the person documenting it. Anansi now declares fifteen.
+
+**Second, and worse: the check's own first version reported a false absence.** It
+matched only `task == "x"` and missed `task in ("x", "y")`, so it announced that
+`legal_agent` declared `find_relationships` and `query_relationship` without
+dispatching them. They are dispatched, on one line, in a tuple. **Reporting a
+capability as missing when it exists is the same fault as reporting a throttled
+search as `case_not_found`** — committed inside the tool built to catch that
+fault.
+
+Both dispatch forms are counted now. The two false positives are gone and the
+count is honest:
+
+```
+declared vs dispatched (9 agents): 69 undeclared, 0 declared-but-not-dispatched
+  grow_agent          45     boss_agent      13     maintenance_agent  6
+  legal_agent          4     anansi           1
+```
+
+**82 → 69**, and the remainder is now found automatically instead of by someone
+remembering to look. Reported and never fatal: a drifting capability list is a
+finding to act on, not a reason to fail an otherwise sound build.

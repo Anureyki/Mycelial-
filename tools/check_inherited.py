@@ -308,6 +308,127 @@ def check_corpus_integrity():
     return 0
 
 
+
+def check_declared_matches_dispatched():
+    """Declared reality against operational reality, in both directions.
+
+    THE GAP THAT LET 82 CAPABILITIES HIDE.
+
+    On 2026-08-31 eighty-two tasks were found that dispatched perfectly when
+    called by name and appeared in no agent's declared capability list - so no
+    router, dashboard or peer agent knew they existed. They were found with a
+    one-off script and the check was never added here, which meant the tool
+    that is supposed to compare what the architecture CLAIMS against what it
+    DOES had a hole in exactly the place the discrepancy lived.
+
+    Two directions, and they are different faults:
+
+      undeclared  dispatches, nobody can discover it. The capability did not
+                  disappear - its description of itself did. Declare it.
+      dead        declared, and the dispatcher answers "unknown task". The
+                  registry is promising something that is not there. Remove
+                  the claim or wire the verb.
+
+    The dispatch side is read from SOURCE rather than probed, deliberately:
+    probing a live agent runs the task, and running every declared capability
+    to see whether it exists would log readings, send notifications and spend
+    API quota. Reading the file is free and has no side effects.
+    """
+    import glob as _g
+    import json as _j
+    import os as _os
+    import re as _re
+    import urllib.request as _u
+
+    root = _os.path.dirname(_os.path.dirname(_os.path.abspath(__file__)))
+    try:
+        req = _u.Request("http://127.0.0.1:8004/execute",
+                         _j.dumps({"task": "list_agents", "args": [],
+                                   "sender": "check"}).encode(),
+                         {"Content-Type": "application/json"})
+        agents = _j.load(_u.urlopen(req, timeout=20)).get("result", [])
+    except Exception as exc:
+        print(f"declared-vs-dispatched: registry unreachable ({exc}); check skipped")
+        return 0
+
+    # Verbs every agent gets from the base class - never a per-agent omission.
+    try:
+        import sys as _s
+        if root not in _s.path:
+            _s.path.insert(0, root)
+        from core.base_agent import CORE_CASE_TASKS
+        inherited = set(CORE_CASE_TASKS)
+    except Exception:
+        inherited = set()
+    inherited |= {"routing_terms", "describe", "answer", "corpus_currency",
+                  "base_version", "ask_peer_corpus", "refer_finding",
+                  "receive_finding", "health", "store_memory", "retrieve_memory",
+                  "ask_principal", "open_questions", "answer_question",
+                  "case_event_notice", "reason", "think"}
+
+    undeclared, dead, checked = {}, {}, 0
+    for a in agents:
+        aid = a.get("agent_id")
+        declared = set(a.get("capabilities") or [])
+        if not aid or not declared:
+            continue
+        hits = _g.glob(_os.path.join(root, "agents", "*", "*.py"))
+        src = ""
+        for f in hits:
+            base = _os.path.basename(f)[:-3]
+            folder = _os.path.basename(_os.path.dirname(f))
+            if aid in (base, folder) or aid.replace("_agent", "") in (base, folder) \
+                    or base.lower() == aid.lower():
+                try:
+                    with open(f, encoding="utf-8") as fh:
+                        src = fh.read()
+                except Exception:
+                    pass
+                break
+        if not src:
+            continue
+        checked += 1
+        # BOTH DISPATCH FORMS, or the check reports a false absence.
+        #
+        # The first version matched only `task == "x"` and missed
+        # `task in ("x", "y")`, so it announced that legal_agent declared
+        # find_relationships and query_relationship without dispatching them -
+        # a registry promising what is not there. They are dispatched, on one
+        # line, in a tuple. Reporting a capability as missing when it exists is
+        # the same fault as reporting a throttled search as case_not_found, in
+        # the tool built to catch that fault.
+        dispatched = set(_re.findall(r'task\s*==\s*"([a-z0-9_]+)"', src))
+        for grp in _re.findall(r'task\s+in\s+\(([^)]*)\)', src):
+            dispatched |= set(_re.findall(r'"([a-z0-9_]+)"', grp))
+        gap_u = sorted(dispatched - declared - inherited)
+        gap_u = [t for t in gap_u if not t.startswith(("case_", "claim_", "cag_"))]
+        gap_d = sorted(declared - dispatched - inherited)
+        gap_d = [t for t in gap_d if not t.startswith(("case_", "claim_", "cag_",
+                                                       "refresh_cache", "query_cache",
+                                                       "cache_"))]
+        if gap_u:
+            undeclared[aid] = gap_u
+        if gap_d:
+            dead[aid] = gap_d
+
+    tu = sum(len(v) for v in undeclared.values())
+    td = sum(len(v) for v in dead.values())
+    print(f"declared vs dispatched ({checked} agents): {tu} undeclared, "
+          f"{td} declared-but-not-dispatched")
+    if undeclared:
+        print("  UNDECLARED - works when called, invisible to routing and the dashboard:")
+        for k, v in sorted(undeclared.items(), key=lambda kv: -len(kv[1])):
+            print(f"    {k:<20} {len(v):>3}  {', '.join(v[:6])}"
+                  + (" ..." if len(v) > 6 else ""))
+    if dead:
+        print("  DECLARED BUT NOT DISPATCHED - the registry promises what is not there:")
+        for k, v in sorted(dead.items(), key=lambda kv: -len(kv[1])):
+            print(f"    {k:<20} {len(v):>3}  {', '.join(v[:6])}"
+                  + (" ..." if len(v) > 6 else ""))
+    # Reported, never fatal: a capability list drifting is a finding to act on,
+    # not a reason to fail a build that is otherwise sound.
+    return 0
+
 if __name__ == "__main__":
     # BOTH checks, and the exit code is the worse of the two. Appending a
     # second __main__ block silently replaced the first - the inherited-
@@ -316,4 +437,5 @@ if __name__ == "__main__":
     _rc = main() or 0
     _rc2 = check_routing_terms_are_regex() or 0
     _rc3 = check_corpus_integrity() or 0
-    sys.exit(_rc or _rc2 or _rc3)
+    _rc4 = check_declared_matches_dispatched() or 0
+    sys.exit(_rc or _rc2 or _rc3 or _rc4)

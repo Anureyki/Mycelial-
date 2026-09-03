@@ -35,7 +35,18 @@ class Anansi(AgentBase):
         super().__init__(
             agent_id="anansi",
             port=8081,
-            capabilities=["process_request", "narrate_contradiction", "voice_policy"],
+            capabilities=["process_request", "narrate_contradiction", "voice_policy",
+                          # Declared because they dispatch. An undeclared verb
+                          # works when called and is invisible to the registry,
+                          # the dashboard and the router - which is the 82-capability
+                          # fault, and four of these were added today without
+                          # declaring them, reproducing it inside the same week
+                          # it was documented.
+                          "notify", "receive_mail", "ingest_upload", "grow_roster",
+                          "grow_snapshot", "recent_changes", "phase_status",
+                          "system_graph", "actions", "deadlines",
+                          "training_candidates", "training_quest_status",
+                          "advance_campaign", "review_candidate", "voice"],
             role="interface"
         )
         self.sessions = {}

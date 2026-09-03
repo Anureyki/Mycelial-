@@ -95,7 +95,8 @@ using it on a live housing matter and a live grow.
 
 | # | Defect | Count | Class |
 |---|--------|-------|-------|
-| 0.1 | Tasks that dispatch but are **not declared** — invisible to routing and discovery | **82** | reachability |
+| 0.1 | Tasks that dispatch but are **not declared** — invisible to routing and discovery | **69** | reachability |
+| 0.1a | *Now detected automatically.* `check_inherited.py` compares declared against dispatched in **both** directions on every run | ✅ | reachability |
 | 0.2 | `except: pass` — a failure that leaves no trace | **~90** | false success |
 | 0.3 | Bare `except:` — swallows `KeyboardInterrupt` and `SystemExit` too | **35** | false success |
 | 0.4 | Statutory sections recording themselves **truncated**, awaiting re-ingest | **711** | source integrity |
