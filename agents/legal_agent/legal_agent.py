@@ -2881,8 +2881,24 @@ class LegalAgent(AgentBase):
                     "disclaimer": DISCLAIMER}
 
         text = raw["text"]
-        norm = lambda s: re.sub(r"[^a-z0-9 ]+", " ", s.lower())
-        norm = lambda s: re.sub(r"\s+", " ", re.sub(r"[^a-z0-9 ]+", " ", s.lower())).strip()
+        # STRIP THE PRINTING, NOT THE WORDS.
+        #
+        # A verbatim match failed on Bearden because the opinion carries a
+        # footnote marker inside the sentence - "through no fault of his own, 9
+        # it is fundamentally unfair" - and a star-page marker a few words
+        # later. Those are typography of the reporter, not of the court, and
+        # letting them defeat a match makes the checker cry wolf on a quote
+        # that is genuinely there.
+        #
+        # Digits are dropped entirely for the comparison. That is deliberate:
+        # a quote's meaning does not turn on a page number, and a claim ABOUT a
+        # number is checked by reading the passage, not by string equality.
+        def norm(x):
+            x = str(x or "").lower()
+            x = re.sub(r"\*\d+", " ", x)          # *669 star pagination
+            x = re.sub(r"\[[a-z]*\]", "", x)       # [sic] and bracketed edits
+            x = re.sub(r"[^a-z ]+", " ", x)        # punctuation AND footnote digits
+            return re.sub(r"\s+", " ", x).strip()
         hay, needle = norm(text), norm(quote)
         verbatim = needle in hay
 

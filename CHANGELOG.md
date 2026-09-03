@@ -4617,3 +4617,55 @@ no labour from anyone — it attaches to property and is satisfied out of proper
 
 **The citation is never the problem. The sentence attached to it is.** Which is
 exactly why a checker that only confirmed a case exists would pass all four.
+
+### 2026-09-02 — The legitimate core inside each failed theory
+
+The principal named the actual project: *"The only thing I'm trying to do is
+teach Legal the right things to look for if they were used legitimately"* and
+*"errors on the plaintiff or the defendant's sides are both lessons."*
+
+That reframes every check in this stream. The point is not that a theory failed —
+it is **what real doctrine the failed theory is a distortion of**, because the
+distortion exists precisely because something true sits nearby.
+
+| The move that fails | The doctrine it distorts |
+|---|---|
+| "Where is the contract / charging instrument?" | **Sixth Amendment** notice of the nature and cause of the accusation, enforced by a **motion for a bill of particulars** |
+| "Certified accounting records" | **15 U.S.C. § 1692g** validation, and testing standing through the chain of assignment — against a *debt collector*, which § 1692a(6)(C) says a court is not |
+| "The court has a security interest" | **28 U.S.C. § 455(b)(4)** — a judge's actual financial interest, and the disclosure reports that make it checkable |
+| ORC § 2329.02 "[Criminal] lien" | If a fine *has* become a lien, the **certificate of judgment must contain eight listed elements**. One missing is a real challenge to the lien |
+| Peonage / 13th Amendment | **`Bearden v. Georgia`, 461 U.S. 660 (1983)** |
+
+**Bearden is the strongest thing found in this entire stream**, and it is the one
+nobody posted. Verified verbatim from the opinion:
+
+> if the probationer has made all reasonable efforts to pay the fine or
+> restitution, and yet cannot do so **through no fault of his own**, it is
+> fundamentally unfair to revoke probation automatically without considering
+> whether adequate alternative methods of punishing the defendant are available
+
+And the holding: *"the impermissibility of imprisoning a defendant solely because
+of his lack of financial resources."* **You cannot be jailed for being too poor
+to pay.** That is the real debtors'-prison doctrine — Supreme Court law, used
+successfully, every year. *Clyatt* and *Bailey* are about compelled **labour** and
+do not reach a lien; *Bearden* is the case that does the work.
+
+### And the checker caught Claude
+
+The Bearden quote first came back `quote_NOT_in_opinion` — because the reporter
+prints a **footnote marker inside the sentence**: *"through no fault of his own,
+**9** it is fundamentally unfair"*, with a star-page marker a few words later.
+Those are the typography of the reporter, not the words of the court, and letting
+them defeat a match makes the checker cry wolf on a quote that is genuinely
+there.
+
+Footnote digits and star pagination are stripped before comparison now. The
+control still fails correctly: a sentence invented for the test comes back
+`quote_NOT_in_opinion`.
+
+Worth recording that it was **Claude's own paraphrase** the tool refused first.
+That is the instrument working on its operator, which is the third time today.
+
+**The rule this leaves Legal with:** when a theory fails, ask what real doctrine
+it distorts. Discarding the subject throws away the true thing sitting next to
+the false one.
