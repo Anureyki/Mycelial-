@@ -4455,3 +4455,46 @@ ranked by party-name match, then by a year in the citation, then by court.
 Three of five are usable. The one that is right is the sceptical one, and it is
 right for the reason this whole apparatus exists: it separates the checkable
 claim from the one that merely sounds like it.
+
+### 2026-09-01 — Four more sources, and the split is the whole point
+
+**Verified real, quotes verbatim, read from the opinions:**
+
+- **`Zumsteg v. American Food Club, Inc.`**, 166 Ohio St. 439 — Ohio Supreme
+  Court, 1957-06-19, 11,005 chars.
+- **`Lamb v. Schmitt`**, 285 U.S. 222 — U.S. Supreme Court, 1932-03-14, 8,250
+  chars.
+
+Both are genuine authority on immunity from service of process while attending
+court. And *Zumsteg* carries a limit worth reading before anyone leans on it:
+the privilege exists **for the court's benefit, not the person's** — *"it has for
+its primal object the protection of the court and not the immunity of the person,
+and is extended or withheld only as judicial necessities require."* Not a
+personal shield.
+
+**The CUSIP article** — Judi Atwood, *The Real CUSIP Story Is Public Debt
+Transparency, Not Court-Case Conspiracy* — is the accurate source in this entire
+stream, and it has a named author with a stated role. Municipal securities do
+carry CUSIPs and those identifiers do let the public trace official statements
+and continuing disclosures; individual cases are not CUSIP-traded. Keep it.
+
+**The suretyship checklist** is the dangerous category, and it is dangerous for a
+reason the tooling can state precisely: **it cites nothing.** Six numbered
+instructions — identify the surety/subrogee/redeemer-mortgagor, call the court or
+company CEO, tender special deposit or choses in action, demand a plea of release,
+then sue for specific performance or issue quo warranto — with no statute, no
+rule and no case behind any step.
+
+Every other source in this stream at least points at something openable, which is
+what made them cheap to check. A card that cites nothing **cannot be checked at
+all**, and one that also tells you what to *do* in a live matter is the exact
+combination behind the dismissed federal filings already recorded here.
+
+### And the rate limiter proved the fix
+
+`Zumsteg` came back `search_unavailable` on the first attempt — the 5/min budget
+had just been spent. **That is the tool working**: it said the check did not run
+rather than claiming the case was absent. Forty-five seconds later the same query
+returned the Ohio Supreme Court opinion and the quote verbatim.
+
+Before today it would have said `case_not_found` about a real 1957 decision.
