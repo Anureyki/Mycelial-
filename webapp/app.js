@@ -752,6 +752,13 @@ function wireUpload() {
     const out = document.getElementById('upResult');
     const file = fileEl && fileEl.files && fileEl.files[0];
     if (!file) { out.textContent = 'Pick a file first.'; return; }
+    // A phone photo is routinely several MB and a default nginx in front of the
+    // agent stops at 1 MB with an HTML error. Warn where it is actionable
+    // rather than after the request has already failed.
+    if (file.size > 1024 * 1024) {
+      out.textContent = `Sending ${(file.size / 1048576).toFixed(1)} MB — if this fails with a `
+        + `413, the proxy body limit needs raising.`;
+    }
     const base = getServerUrl();
     if (base === null) { out.textContent = 'No server URL set.'; return; }
     btn.disabled = true;
@@ -760,8 +767,11 @@ function wireUpload() {
       const fd = new FormData();
       fd.append('file', file);
       const up = await fetch(`${base}/upload`, { method: 'POST', body: fd });
-      const stored = await up.json();
-      if (!up.ok || stored.error) { out.textContent = `Upload failed: ${stored.error || up.status}`; return; }
+      const stored = await readJson(up, 'upload');
+      if (!up.ok || stored.error || !stored.path) {
+        out.textContent = stored.error || `Upload failed (HTTP ${up.status}).`;
+        return;
+      }
 
       out.textContent = 'Reading it...';
       const d = unwrap(await callTask('ingest_upload', {
@@ -904,6 +914,36 @@ const training = document.getElementById('training');
 const candidateList = document.getElementById('candidateList');
 const questCard = document.getElementById('questCard');
 
+// Read a response without assuming it is JSON.
+//
+// `res.json()` on an HTML body throws a DOMException whose message on iOS is
+// "The string did not match the expected pattern." - which is what the upload
+// button showed for a week while the actual problem was an nginx error page in
+// front of the agent. Every layer between the phone and Anansi (TLS auth, a
+// body-size limit, a bad gateway) answers in HTML, and the app turned all of
+// them into the same unreadable sentence.
+//
+// So: read the text, report the STATUS and what the body actually was. An error
+// a person can act on beats a stack trace every time.
+async function readJson(res, what) {
+  const body = await res.text();
+  const looksJson = body.trim().startsWith('{') || body.trim().startsWith('[');
+  if (!looksJson) {
+    const first = body.replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim().slice(0, 140);
+    let hint = '';
+    if (res.status === 401 || res.status === 403) hint = ' Sign in again — the front door rejected it.';
+    else if (res.status === 413) hint = ' The file is larger than the server accepts.';
+    else if (res.status === 502 || res.status === 504) hint = ' The agent behind the proxy did not answer.';
+    else if (res.status === 404) hint = ' That endpoint is not being routed through.';
+    return { error: `${what}: HTTP ${res.status}.${hint}${first ? ' Server said: ' + first : ''}` };
+  }
+  try {
+    return JSON.parse(body);
+  } catch (e) {
+    return { error: `${what}: the server sent something that is not valid JSON (HTTP ${res.status}).` };
+  }
+}
+
 async function callTask(task, args) {
   const base = getServerUrl();
   if (base === null) return { error: 'No server URL set' };
@@ -912,8 +952,7 @@ async function callTask(task, args) {
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ task, args: args || {}, sender: 'webapp' }),
   });
-  if (!res.ok) return { error: `HTTP ${res.status}` };
-  return res.json();
+  return readJson(res, `task ${task}`);
 }
 
 function unwrap(d, key) {

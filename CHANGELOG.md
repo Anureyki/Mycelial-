@@ -60,6 +60,30 @@ For what is planned, see `DEPLOYMENT_PROGRESS.md`.
 - ✅ Batch photo upload. The attach control had `capture="environment"`, which opens the camera and **hides the photo library entirely** on iOS/Android, and lacked `multiple` - both defects, not limits.
 - 🔎 **Vision is honest about what it cannot do.** The PlantVillage checkpoints cover pepper/potato/tomato only, so cannabis photos were force-fit to the nearest tomato disease; out-of-scope species are now refused. Three failure modes are documented from live use: misclassification, missing a real feature (a visibly cupped leaf called "healthy"), and **confabulation** - inventing a purpose for observed equipment, which propagated into a wrong recommendation. Structured observations instead of keyword-matched prose is the outstanding fix.
 
+
+## Most recent entries
+
+This file is **newest-last** and is now over 250 KB, which GitHub truncates in the
+rendered view - so the top of the page shows the OLDEST entries and the newest work
+looks missing. It is not. Latest first:
+
+- [2026-09-01 — A real case name with a quote the case does not contain](#2026-09-01-a-real-case-name-with-a-quote-the-case-does-not-contain)
+- [2026-08-31 — A background agent asks through Anansi, and a human types like a human](#2026-08-31-a-background-agent-asks-through-anansi-and-a-human-types-like-a-human)
+- [2026-08-31 — The photo answers in the same turn, and reaches the right plant](#2026-08-31-the-photo-answers-in-the-same-turn-and-reaches-the-right-plant)
+- [2026-08-31 — Whose matter is this, and what kind of lesson is it](#2026-08-31-whose-matter-is-this-and-what-kind-of-lesson-is-it)
+- [2026-08-31 — A case from a post, learned from the docket instead of the post](#2026-08-31-a-case-from-a-post-learned-from-the-docket-instead-of-the-post)
+- [2026-08-31 — "Is that all what legal agent on MycOS said" — no, and that was the finding](#2026-08-31-is-that-all-what-legal-agent-on-mycos-said-no-and-that-was-the-finding)
+- [2026-08-31 — Verification has a price, and it is not the same in every domain](#2026-08-31-verification-has-a-price-and-it-is-not-the-same-in-every-domain)
+- [2026-08-31 — Judging a screenshot by what it says, never by where it came from](#2026-08-31-judging-a-screenshot-by-what-it-says-never-by-where-it-came-from)
+- [2026-08-31 — Two tracks planned, neither built](#2026-08-31-two-tracks-planned-neither-built)
+- [2026-08-31 — The reminder email was never from Grow](#2026-08-31-the-reminder-email-was-never-from-grow)
+- [2026-08-31 — "State must travel with the fact" becomes a design law](#2026-08-31-state-must-travel-with-the-fact-becomes-a-design-law)
+- [2026-08-31 (cont.) — Phase 0: an audit, and the second copy of the same leak](#2026-08-31-cont-phase-0-an-audit-and-the-second-copy-of-the-same-leak)
+- [2026-08-31 (cont.) — Source integrity became a property, not a script's opinion](#2026-08-31-cont-source-integrity-became-a-property-not-a-scripts-opinion)
+- [2026-08-31 (cont.) — 738 statutory sections were stored truncated, and one of them was the answer](#2026-08-31-cont-738-statutory-sections-were-stored-truncated-and-one-of-them-was-the-answer)
+
+89 entries total. Newest: **2026-09-01 — A real case name with a quote the case does not contain**.
+
 ---
 
 ### 2026-08-29 — Legal reasons in uniform sections, not one state's citations
@@ -4301,3 +4325,75 @@ inverted quotations does not combat that logic, it hands the other side Rule
 11(b)(2). The authority that actually helps is **`Offutt v. United States`, 348
 U.S. 11, 14 (1954)** — *"justice must satisfy the appearance of justice"* — which
 is a real quote from a real case, and which the same document also cites.
+
+### 2026-09-01 — The upload button was dead all week, and the error said nothing
+
+The principal, and he is right to be angry: *"The whole week while you was gone,
+I wasn't available. I couldn't upload anything because there was a button. I
+couldn't even fix it."*
+
+`Couldn't do that (The string did not match the expected pattern.)`
+
+**That sentence is iOS's `JSON.parse` error**, and the app produced it for every
+possible failure. The upload posts to Anansi through an nginx front door on 8443,
+and **every layer in front of the agent answers in HTML** — TLS auth with 401, a
+body-size limit with 413, a dead upstream with 502. `res.json()` on an HTML body
+throws, and the app printed the exception. Reproduced exactly: a POST to
+`/upload` without credentials returns `<html><head><title>401 Authorization
+Required</title>`.
+
+So a week of being locked out, over a message that named nothing.
+
+`readJson()` now reads the body as text, checks the status, and says what
+happened — *"Sign in again — the front door rejected it"*, *"The file is larger
+than the server accepts"*, *"The agent behind the proxy did not answer"* — with
+the first of the server's own words attached. **`callTask` used it too**, so every
+dashboard card had the same defect and would have failed the same illegible way.
+
+And a photo is warned about before it is sent: an iPhone image is routinely
+several MB and nginx's default `client_max_body_size` is **1 MB**, which needs one
+line of config the principal has to run himself.
+
+### The agent could not understand its own answer
+
+Second screenshot, worse. The ambiguity question asked *"Do you mean
+current_plant (day 36, DWC) or gsc_auto_2 (vegetative, day 12, LWC)?"*, the
+principal replied **`GSC_AUTO_2`**, and it said *"That does not name one of the
+plants I track."*
+
+Mine, from earlier the same day. The `return None` I added for ambiguity
+short-circuits the exact-plant-id match that sat further down the function — so
+the one unambiguous thing a person can say, **the id the agent itself had just
+offered**, became the one thing it stopped understanding. An exact id now wins
+outright, before any guessing. 8 of 8 phrasings resolve.
+
+### "When was the water increased" answered with a lecture
+
+Third screenshot. The question routed to a generic `situation:when` handler that
+returned a paragraph about feed strength, while **every reading on disk carries
+`volume_liters` and `volume_source`** and nothing looked at them.
+
+`volume_history` walks the readings and reports only the changes:
+
+```
+Volume last changed 2026-08-30 14:42, to 15.0 L.
+2026-08-21 21:20: set to 14.9 L (carried forward, not measured)
+2026-08-30 12:40: up 0.1 L to 15.0 L (carried forward, not measured)
+2026-08-30 13:46: down 1.99 L to 13.01 L
+2026-08-30 14:42: up 1.99 L to 15.0 L
+```
+
+It marks each one measured or carried-forward, because those are different kinds
+of fact: a carried-forward litre count is an assumption the system made so a dose
+could be computed, and only a measured one is evidence the water actually moved.
+An undated row says `date not recorded` rather than rendering blank — a blank
+date in a *when* answer is the one thing the answer exists to supply.
+
+### And the changelog was not missing
+
+*"Why is the latest CHANGELOG.md 8-29?"* Because this file is **newest-last** and
+is now over 250 KB, which GitHub truncates in the rendered view — so the top of
+the page shows August and today's work looks absent. It was all pushed;
+`origin/main` matched local HEAD the whole time. An index of recent entries now
+sits at the top, which is the actual fix: a log nobody can find the end of is a
+log that does not work.

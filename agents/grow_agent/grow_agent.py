@@ -798,7 +798,8 @@ class GrowAgent(AgentBase):
             agent_id="grow_agent",
             port=9009,
             capabilities=[
-                "log_reading", "check_stage", "observe_stage_markers", "adjust_nutrients",
+                "log_reading", "check_stage", "observe_stage_markers", "volume_history",
+                "adjust_nutrients",
                 "transition_stage", "log_water_change", "get_status",
                 "set_germination_date", "set_current_nutrients",
                 "add_reminder", "list_reminders", "complete_reminder", "ingest_screenshot",
@@ -1512,6 +1513,67 @@ class GrowAgent(AgentBase):
                 "calendar_said": by_calendar.get("assessment"),
                 "rule": ("Morphology is evidence; the calendar is an expectation. Where "
                          "they differ the evidence wins and the difference is recorded.")}
+
+    def volume_history(self, plant_id="current_plant", limit=12):
+        """When the reservoir volume changed, and whether it was measured.
+
+        *"When was the water increased for current"* is a plain question with
+        the answer already on disk - every reading carries `volume_liters` and
+        `volume_source` - and it routed to a generic `situation:when` handler
+        that answered with a lecture about feed strength. The data was there and
+        nothing looked at it.
+
+        Reports only the CHANGES, and says for each whether the number was
+        measured or carried forward from the reading before. Those are different
+        kinds of fact: a carried-forward litre count is an assumption the system
+        made, and a top-up recorded as measured is something the grower did."""
+        readings = self._get_readings_for_plant(plant_id) or []
+        rows = []
+        for r in readings:
+            if not isinstance(r, dict) or r.get("voided"):
+                continue
+            v = r.get("volume_liters")
+            if v is None:
+                continue
+            # A reading whose timestamp field is named something else must not
+            # render as a blank date - an undated row in a "when did it change"
+            # answer is the one thing the answer is supposed to supply.
+            _at = (r.get("taken_at") or r.get("at") or r.get("recorded_at")
+                   or r.get("timestamp") or r.get("logged_at") or r.get("date"))
+            rows.append({"at": _at or "date not recorded",
+                         "liters": float(v),
+                         "source": r.get("volume_source") or "unknown",
+                         "ppm": r.get("ppm"), "ec": r.get("ec")})
+        rows.sort(key=lambda x: str(x["at"] or ""))
+        changes, prev = [], None
+        for row in rows:
+            if prev is None or abs(row["liters"] - prev) > 0.05:
+                changes.append({**row,
+                                "from_liters": prev,
+                                "delta": (None if prev is None
+                                          else round(row["liters"] - prev, 2)),
+                                "measured": row["source"] not in ("carried forward",
+                                                                  "carried_forward",
+                                                                  "unknown")})
+                prev = row["liters"]
+        changes = changes[-int(limit):]
+        if not changes:
+            return {"plant_id": plant_id, "changes": [],
+                    "note": ("No reading on record carries a volume, so there is nothing "
+                             "to say about when it changed. That is a gap in the record, "
+                             "not a finding that it never changed.")}
+        last = changes[-1]
+        return {
+            "plant_id": plant_id,
+            "readings_with_volume": len(rows),
+            "changes": changes,
+            "current_liters": last["liters"],
+            "last_change_at": last["at"],
+            "last_change_measured": last["measured"],
+            "caveat": ("A volume marked carried-forward was never measured - it is the "
+                       "previous reading's number reused so a dose could be computed. "
+                       "Only a measured one is evidence the water actually moved."),
+        }
 
     def assess_stage(self, plant_id="current_plant"):
         """Decide the stage from evidence, without waiting to be asked.
@@ -2741,6 +2803,15 @@ class GrowAgent(AgentBase):
     # name picking the wrong plant, a care reading given for a reservoir
     # question. Boss decides WHICH AGENT. This decides which capability.
     QUESTION_SHAPES = (
+        # Asked BEFORE the generic "when" handler, which answered "when was the
+        # water increased" with a lecture about feed strength while the volume
+        # history sat unread on every reading.
+        ("volume_when", r"\bwhen\b[^.]{0,40}\b(water|volume|level|reservoir|res|top(?:ped)?"
+                        r"[- ]?up|refill\w*)\b[^.]{0,30}\b(increas\w*|rais\w*|chang\w*|"
+                        r"add\w*|top\w*|refill\w*|up)\b|"
+                        r"\bwhen\b[^.]{0,30}\b(top(?:ped)?[- ]?up|refill\w*)\b|"
+                        r"\b(water|volume|level)\b[^.]{0,24}\b(last )?(chang\w*|increas\w*|"
+                        r"rais\w*)\b[^.]{0,16}\bwhen\b"),
         # Asked FIRST: "what date will it flower" contains no care vocabulary,
         # and was falling through to the condition classifier, which answered
         # "nothing flags a care problem" to a question about a date.
@@ -3457,6 +3528,33 @@ class GrowAgent(AgentBase):
         shape = next((name for name, pat in self.QUESTION_SHAPES if re.search(pat, lp)), None)
         parts = []
 
+        if shape == "volume_when":
+            vh = self.volume_history(plant_id)
+            ch = vh.get("changes") or []
+            if not ch:
+                return {"answered_as": "volume_when", "text": vh.get("note"),
+                        "facts": vh}
+            lines = []
+            for c in ch[-5:]:
+                _raw = str(c.get("at") or "date not recorded")
+                when = (_raw[:16].replace("T", " ") if _raw[:4].isdigit() else _raw)
+                d = c.get("delta")
+                move = ("set to" if d is None else
+                        f"up {d} L to" if d > 0 else f"down {abs(d)} L to")
+                lines.append(f"{when}: {move} {c['liters']} L"
+                             + ("" if c.get("measured")
+                                else " (carried forward, not measured)"))
+            last = ch[-1]
+            head = (f"Volume last changed {str(last.get('at') or '')[:16].replace('T', ' ')}, "
+                    f"to {last['liters']} L"
+                    + ("." if last.get("measured")
+                       else " - and that number was carried forward from the previous "
+                            "reading rather than measured, so it is an assumption, not "
+                            "evidence the water moved."))
+            return {"answered_as": "volume_when",
+                    "text": head + "\n\n" + "\n".join(lines) + "\n\n" + vh["caveat"],
+                    "facts": vh}
+
         # Is this a question at all?
         #
         # "This is plant two, the same one we recorded" is the grower TELLING
@@ -3733,6 +3831,21 @@ class GrowAgent(AgentBase):
         lp = self._spoken_normalise(prompt)
 
         plants = self.active_plants()
+
+        # AN EXACT PLANT ID WINS OUTRIGHT, BEFORE ANY GUESSING.
+        #
+        # This was the whole point of the ambiguity question and it broke the
+        # answer to it: the agent asked "current_plant or gsc_auto_2?", the
+        # grower replied "GSC_AUTO_2", and it said it did not know that plant.
+        # The early ambiguity return added today short-circuits the exact-id
+        # match that used to sit further down, so the one unambiguous thing a
+        # person can say - the id the agent itself offered - was the one thing
+        # it stopped understanding.
+        for _p in plants:
+            _pid = str(_p.get("plant_id") or "")
+            if _pid and re.search(r'(?<![a-z0-9])' + re.escape(_pid.lower())
+                                  + r'(?![a-z0-9])', lp):
+                return _pid
         order = ["current_plant"] + [p.get("plant_id") for p in plants
                                      if p.get("plant_id") != "current_plant"]
 
@@ -7429,6 +7542,11 @@ class GrowAgent(AgentBase):
                 "tally": tally, "hit_rate": result["hit_rate"],
             }))
             return result
+
+        if task == "volume_history":
+            a_ = args if isinstance(args, dict) else {}
+            return self.volume_history(a_.get("plant_id") or "current_plant",
+                                       int(a_.get("limit", 12)))
 
         if task == "observe_stage_markers":
             return self.observe_stage_markers(args if isinstance(args, dict) else {})
