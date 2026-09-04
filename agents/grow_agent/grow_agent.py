@@ -132,6 +132,44 @@ LEAF_PATTERNS = (
      "a deficiency leaves nothing at all underneath. Pests spread to new growth; a "
      "deficit that has been corrected does not.",
      "problem"),
+    # DISCRETE LESIONS IN THE BLADE INTERIOR - the one distribution with no
+    # pattern, found when the grower asked about brown spots on his fan leaves
+    # and got "productive / high confidence" back. Nothing here was a near
+    # miss: `stippling` requires the dots to be TINY or pinhead, `margin_burn`
+    # requires tips, edges or margins, and this damage is neither - it is
+    # round, it is millimetres across, and it sits in the middle of the blade.
+    # So the sentence fell past every pattern into the generic buckets, where
+    # "deep green and turgid" - which described the tissue AROUND the spots -
+    # matched LEAF_PRODUCTIVE_KEYWORDS and carried the verdict.
+    #
+    # That is the failure this file already documents one row above: a
+    # "productive" verdict reached by finding nothing. The fix is a pattern
+    # rather than a keyword, because the keyword branch is tested BEFORE the
+    # pattern branch and would swallow the distribution that makes this
+    # decidable.
+    ("leaf_spot",
+     r"(brown|tan|rust\w*|bronze|dark|necrotic|dead|black) ?(circular|round|irregular)? ?"
+     r"(spot|spots|lesion|lesions|blotch|blotches|patch|patches)|"
+     r"(spot|spots|lesion|lesions|blotch|blotches)[^.]{0,30}"
+     r"(brown|tan|rust\w*|necrotic|dead|black)|"
+     r"leaf ?spot|(circular|round|irregular)[^.]{0,20}(spot|lesion|blotch)|"
+     r"spot\w*[^.]{0,30}(middle|centre|center|interior|blade|between the veins)",
+     "one of three things this grow can actually produce, and they are not "
+     "equally likely here. A pathogen (septoria and its relatives) spreads and "
+     "usually rings each spot with a yellow halo. A calcium shortfall spots the "
+     "tissue that expanded while the plant was short, and this grow ran distilled "
+     "water with Cal-Mag recorded as under-dosed. Or solution landed on the leaf "
+     "and dried there - this system TOP-FEEDS through a spray ring, and salt "
+     "build-up from dried droplets is already on the record for this reservoir",
+     "Two questions settle it, and neither needs a lab. First, is there a yellow "
+     "halo around any spot? A halo says pathogen; the earlier note on these leaves "
+     "recorded none, and that was one of its three trip conditions. Second, count "
+     "them against last time and check whether the NEWEST growth is clean. Spots "
+     "that multiply and reach new leaves are alive and spreading. Spots frozen on "
+     "leaves that were already open, with clean growth above them, are a record of "
+     "something that has already stopped - deficit or droplet - and that tissue "
+     "does not recover no matter what is fixed.",
+     "problem"),
     ("interveinal",
      r"interveinal|between the veins|veins? (stay|remain|still) green|green veins",
      "a mobile-nutrient deficiency - magnesium and iron present this way, and this grow "
