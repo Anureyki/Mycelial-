@@ -745,6 +745,19 @@ STAGE_TARGETS = {
 # becomes the headline. Below-target is the one that compounds silently: the
 # plant does not wilt, it just builds less, and on an autoflower that time is
 # never recovered because the clock does not wait.
+# The stage a plant IS recorded as, mapped to the key the target tables use.
+# `gsc_auto_2` is stored as "vegetative" and STAGE_TARGETS is keyed "veg", so
+# every lookup for that plant fell to the `seedling` default and scored a
+# vegetative plant against a 200-400 ppm band. An unrecognised stage must be
+# visible, never quietly substituted.
+STAGE_ALIASES = {
+    "vegetative": "veg", "vegging": "veg", "veg": "veg",
+    "early vegetative": "early_veg", "early-veg": "early_veg", "early_veg": "early_veg",
+    "flowering": "flower", "bloom": "flower", "flower": "flower",
+    "germinating": "germination", "germination": "germination",
+    "sprout": "seedling", "seedling": "seedling",
+}
+
 DRIFT_PATIENCE_DAYS = 3
 
 
@@ -1576,8 +1589,16 @@ class GrowAgent(AgentBase):
             # A reading whose timestamp field is named something else must not
             # render as a blank date - an undated row in a "when did it change"
             # answer is the one thing the answer is supposed to supply.
-            _at = (r.get("taken_at") or r.get("at") or r.get("recorded_at")
-                   or r.get("timestamp") or r.get("logged_at") or r.get("date"))
+            # MEASUREMENT TIME FIRST, ENTRY TIME LAST. `recorded_at` used to
+            # outrank `timestamp`, so this reported when a row was TYPED rather
+            # than when it was read off the meter - defeating the taken_at /
+            # recorded_at split log_reading maintains two functions above, whose
+            # whole purpose is that a backfill stays visible as a backfill.
+            # It also made the series unvoidable: void_reading matches on
+            # `timestamp`, so the value shown here matched nothing, and the two
+            # now() calls differ by milliseconds - close enough to look right.
+            _at = (r.get("taken_at") or r.get("timestamp") or r.get("at")
+                   or r.get("recorded_at") or r.get("logged_at") or r.get("date"))
             rows.append({"at": _at or "date not recorded",
                          "liters": float(v),
                          "source": r.get("volume_source") or "unknown",
@@ -6418,6 +6439,38 @@ class GrowAgent(AgentBase):
             return None
         return plant.get("species") or None
 
+    def _normalise_stage(self, stage):
+        """A recorded stage mapped onto a target-table key, or None.
+
+        None means *this stage is not one I have targets for* - which is a
+        finding. Returning "seedling" for an unrecognised value is the bug this
+        replaces: it is indistinguishable from a real seedling and scores a
+        mature plant against a 200-400 ppm band."""
+        if not stage:
+            return None
+        return STAGE_ALIASES.get(str(stage).strip().lower().replace("-", "_"))
+
+    def _stage_for_plant(self, plant_id):
+        """The stage this plant is RECORDED as, read from the record.
+
+        `evaluate_reservoir`, `adjust_nutrients` and `check_stage` each wrote
+        `args.get("stage") or "seedling"`, so a caller who did not pass a stage
+        got seedling targets regardless of what the plant actually is. This
+        plant is 38 days into vegetative growth and every reservoir evaluation
+        scored its 704 ppm against a seedling ceiling of 400 - reporting a
+        reading that sits mid-band as though it were nearly double the limit.
+
+        CLAUDE.md already names this class: reasoning must read the record
+        rather than assume around it, and a default in the calling layer
+        quietly defeats the lookup that would have been correct."""
+        if plant_id == "current_plant":
+            recorded = self._unwrap_value(self.retrieve_own_memory("current_stage"))
+        else:
+            plant = next((p for p in self._get_all_plants()
+                          if p.get("plant_id") == plant_id), None)
+            recorded = (plant or {}).get("stage")
+        return self._normalise_stage(recorded)
+
     def _classify_stage_by_keywords(self, text, species):
         if not text:
             return None
@@ -7798,18 +7851,31 @@ class GrowAgent(AgentBase):
             return out
 
         elif task == "check_stage":
-            stage = args.get("stage", "seedling")
-            ranges = {
-                "seedling": {"ph": (5.8, 6.0), "ppm": (200, 400), "ec": (0.4, 0.8)},
-                "early_veg": {"ph": (5.8, 6.2), "ppm": (400, 600), "ec": (0.8, 1.2)},
-                "veg": {"ph": (5.8, 6.2), "ppm": (600, 900), "ec": (1.2, 1.8)},
-                "flower": {"ph": (5.8, 6.2), "ppm": (800, 1200), "ec": (1.6, 2.4)}
-            }
-            return {"result": ranges.get(stage, ranges["seedling"])}
+            # STAGE_TARGETS is the one source of truth. This used to keep its
+            # own copy of the table, missing "germination" entirely, so the
+            # answer depended on which of two tables the caller reached.
+            requested = args.get("stage")
+            stage = self._normalise_stage(requested) \
+                or self._stage_for_plant(args.get("plant_id") or "current_plant")
+            out = dict(STAGE_TARGETS.get(stage or "", STAGE_TARGETS["seedling"]))
+            out["stage"] = stage or "seedling"
+            # An unrecognised REQUEST is reported even when the plant record
+            # supplies a usable fallback. Answering "blastoff" with the plant's
+            # own veg band and saying nothing is the same silent substitution
+            # this fix exists to remove - only the substitute changed.
+            if requested is not None and self._normalise_stage(requested) is None:
+                out["stage_unrecognised"] = (
+                    f"{requested!r} is not a stage this agent has targets for. "
+                    + (f"Falling back to the stage on the plant record: {stage!r}."
+                       if stage else
+                       "The plant record did not supply one either, so seedling targets "
+                       "are shown as a floor - they are NOT this plant's band."))
+            return {"result": out}
 
         elif task == "adjust_nutrients":
             current = args.get("reading", {})
-            stage = args.get("stage", "seedling")
+            stage = self._normalise_stage(args.get("stage")) \
+                or self._stage_for_plant(args.get("plant_id") or "current_plant") or "seedling"
             target_response = self.handle_task("check_stage", {"stage": stage}, sender)
             if "error" in target_response:
                 return target_response
@@ -8306,7 +8372,9 @@ class GrowAgent(AgentBase):
 
         elif task == "evaluate_reservoir":
             plant_id = args.get("plant_id", "current_plant")
-            stage = args.get("stage") or "seedling"
+            # Read the record before defaulting. See _stage_for_plant.
+            stage = self._normalise_stage(args.get("stage")) \
+                or self._stage_for_plant(plant_id) or "seedling"
             profile = STAGE_PROFILES.get(stage, STAGE_PROFILES["seedling"])
             stage_ranges = self.handle_task("check_stage", {"stage": stage}, sender).get("result", {})
 
