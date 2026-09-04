@@ -154,21 +154,27 @@ LEAF_PATTERNS = (
      r"(brown|tan|rust\w*|necrotic|dead|black)|"
      r"leaf ?spot|(circular|round|irregular)[^.]{0,20}(spot|lesion|blotch)|"
      r"spot\w*[^.]{0,30}(middle|centre|center|interior|blade|between the veins)",
-     "one of three things this grow can actually produce, and they are not "
-     "equally likely here. A pathogen (septoria and its relatives) spreads and "
-     "usually rings each spot with a yellow halo. A calcium shortfall spots the "
-     "tissue that expanded while the plant was short, and this grow ran distilled "
-     "water with Cal-Mag recorded as under-dosed. Or solution landed on the leaf "
-     "and dried there - this system TOP-FEEDS through a spray ring, and salt "
-     "build-up from dried droplets is already on the record for this reservoir",
+     "a nutrient or a pathogen, and in a system whose FOLIAGE STAYS DRY the "
+     "two thin to one. A calcium shortfall spots the tissue that expanded while "
+     "the plant was short; calcium is immobile, so the damage is stamped into "
+     "leaves that were open at the time and never reaches back into them again. "
+     "A pathogen (septoria and its relatives) spreads and usually rings each "
+     "spot with a yellow halo - but nearly all foliar fungi need liquid water "
+     "sitting on the leaf to establish, so a canopy that is never wetted is "
+     "poor ground for one. Check the system record before offering a "
+     "leaf-wetting cause at all: a spray ring that feeds the ROOTS through a "
+     "pellet bed wets no leaves, and asserting otherwise was a real error here "
+     "- salt crust found on a bucket lid was extended to foliage without asking "
+     "whether the foliage ever gets wet. It does not",
      "Two questions settle it, and neither needs a lab. First, is there a yellow "
      "halo around any spot? A halo says pathogen; the earlier note on these leaves "
      "recorded none, and that was one of its three trip conditions. Second, count "
      "them against last time and check whether the NEWEST growth is clean. Spots "
      "that multiply and reach new leaves are alive and spreading. Spots frozen on "
      "leaves that were already open, with clean growth above them, are a record of "
-     "something that has already stopped - deficit or droplet - and that tissue "
-     "does not recover no matter what is fixed.",
+     "a shortfall that has already been corrected - and that tissue does not "
+     "recover no matter what is fixed, so its condition is history, not a "
+     "verdict on today's feed.",
      "problem"),
     ("interveinal",
      r"interveinal|between the veins|veins? (stay|remain|still) green|green veins",
