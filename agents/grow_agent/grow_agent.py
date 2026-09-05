@@ -6764,6 +6764,16 @@ class GrowAgent(AgentBase):
         if not did:
             return opened
 
+        # EACH HYPOTHESIS NAMES THE CLAIM IT RESTS ON. The mechanisms below are
+        # not this agent's opinions - they are lifted from reference/grow_agent/,
+        # and until now that link existed only in a docstring. A mechanism whose
+        # source cannot be opened is an assertion, however plausible it reads.
+        #
+        # The corpus CONSTRAINS the reasoning space; it does not decide the
+        # case. Where it and the plant agree, confidence rises. Where they
+        # disagree the disagreement is the finding, and the system does not get
+        # to hide behind the corpus - that is this file's own rule about lived
+        # data, applied to its own references.
         hyps = [
             ("calcium_transport_limitation",
              "enough calcium in solution, but calcium moves with water and a low "
@@ -6789,9 +6799,22 @@ class GrowAgent(AgentBase):
              "sap-feeding damage",
              "underside inspection with a loupe"),
         ]
+        rests_on = {
+            "calcium_transport_limitation": "calcium-transport",
+            "calcium_shortfall": "calcium-immobile",
+            "magnesium_deficiency": "magnesium-potassium-mobile",
+            "potassium_deficiency": "magnesium-potassium-mobile",
+            "pathogen": "septoria-halo",
+            "pest": None,
+        }
         for name, mech, disc in hyps:
+            cite = rests_on.get(name)
             self.handle_differential_task("add_hypothesis", {
-                "id": did, "name": name, "mechanism": mech, "discriminator": disc})
+                "id": did, "name": name,
+                "mechanism": (mech + (f"  [rests on reference/grow_agent/{cite} - AUTHORED, "
+                                      f"not quoted; open it with lookup]" if cite else
+                                      "  [no corpus claim behind this one]")),
+                "discriminator": disc})
 
         # THE RETURN VALUE IS CHECKED. The first version of this discarded it,
         # and every negative stance was written as "against" - not one of the
@@ -6840,6 +6863,19 @@ class GrowAgent(AgentBase):
             weigh("pathogen", "halo present - raises suspicion, does not settle it",
                   "supports")
 
+        # WHERE THE CORPUS AND THE PLANT DISAGREE, SAY SO. A reference claim
+        # that repeatedly fails against observation is information about the
+        # claim, not a reason to discount the observation.
+        divergences = []
+        if new_growth and halo is False:
+            pass  # both consistent with the corpus; nothing to report
+        if a.get("older_leaves_worse") and new_growth:
+            divergences.append(
+                "Both the oldest and the newest leaves are reported affected. The corpus "
+                "claim that mobility separates these deficiencies (magnesium-potassium-mobile) "
+                "does not resolve this pattern, and the differential's weighting of magnesium "
+                "and potassium rests on it. Treat those two verdicts as unsupported here.")
+
         state = self.handle_differential_task("assess_differential", {"id": did})
         out_errors = ({"weighing_errors": weigh_errors,
                        "warning": ("Some evidence did NOT land on its hypothesis. The "
@@ -6861,6 +6897,15 @@ class GrowAgent(AgentBase):
                 # reading "magnesium weakened" as "do not add the product with
                 # magnesium in it" would refuse the only calcium available over
                 # a co-formulated ingredient nobody said was short.
+                "corpus_vs_observation": (divergences or
+                    "No disagreement detected between the reference claims and what the "
+                    "plant is doing. That is agreement between two lines, not proof - the "
+                    "claims are authored rather than quoted and have never been checked "
+                    "against a publication."),
+                "corpus_is_a_floor": (
+                    "reference/grow_agent/ constrains which mechanisms are considered. It "
+                    "does not decide the case. Where it and the plant disagree, the "
+                    "disagreement is the finding and the observation wins."),
                 "remedy_vocabulary": (
                     "Weakening a nutrient hypothesis says NOTHING about whether a "
                     "multi-nutrient product is the right remedy. Calcium is dosed here "

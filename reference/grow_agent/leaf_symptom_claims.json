@@ -1,5 +1,5 @@
 {
-  "title": "Leaf symptom claims used by the leaf_spot pattern",
+  "title": "Leaf symptom mechanisms - candidate space for the leaf differential",
   "source": "AUTHORED, NOT QUOTED. Every claim below was written by Claude from model knowledge while building the leaf_spot pattern and leaf_differential on 2026-09-05. NONE of it was retrieved from, or checked against, a cited publication. It is recorded here so it stops masquerading as authority inside a diagnostic pattern, which is where it currently sits with no source field at all. The principal identified Utah State University Extension hemp materials as reaching the same conclusions independently; that document has NOT been retrieved or opened here, so it corroborates nothing yet - a citation nobody has read is not evidence.",
   "authority_class": "unknown",
   "authority_class_basis": "Cannot be set. The work has not been read, and a class filled from a remembered impression is exactly the guessed standing field CLAUDE.md forbids. It becomes `treatise` or `extension_guidance` when a real document is ingested.",
@@ -15,7 +15,10 @@
         "stamped_at": null
       },
       "citation": "calcium-immobile",
-      "text": "Calcium is immobile in the plant: it cannot be withdrawn from older tissue to supply new growth, so a calcium problem marks NEW tissue and never reverses in leaves already damaged.  [UNVERIFIED: authored from model knowledge, not retrieved from any publication. Used by leaf_differential - separates calcium from magnesium and potassium.]"
+      "text": "Calcium is immobile in the plant: it cannot be withdrawn from older tissue to supply new growth, so a calcium problem marks NEW tissue and never reverses in leaves already damaged.  [UNVERIFIED: authored from model knowledge, not retrieved from any publication. Used by leaf_differential - separates calcium from magnesium and potassium.]",
+      "evidence_grade": "authored",
+      "constrains": "which mechanisms the leaf differential will consider",
+      "does_not_establish": "which mechanism is operating in this plant"
     },
     {
       "integrity": {
@@ -24,7 +27,10 @@
         "stamped_at": null
       },
       "citation": "calcium-transport",
-      "text": "Calcium moves with water. Adequate calcium in solution can still fail to reach new tissue if water transport is disrupted - a reservoir that ran low, a stopped feed, or impaired roots - so the meter can read correctly while the plant is calcium-starved.  [NOTE] This distinction came from the principal, not from this agent's original pattern, which collapsed both calcium failures into one.  [UNVERIFIED: authored from model knowledge, not retrieved from any publication. Used by leaf_differential - the calcium_transport_limitation hypothesis, which led on this plant and would have been missed entirely without it.]"
+      "text": "Calcium moves with water. Adequate calcium in solution can still fail to reach new tissue if water transport is disrupted - a reservoir that ran low, a stopped feed, or impaired roots - so the meter can read correctly while the plant is calcium-starved.  [NOTE] This distinction came from the principal, not from this agent's original pattern, which collapsed both calcium failures into one.  [UNVERIFIED: authored from model knowledge, not retrieved from any publication. Used by leaf_differential - the calcium_transport_limitation hypothesis, which led on this plant and would have been missed entirely without it.]",
+      "evidence_grade": "authored",
+      "constrains": "which mechanisms the leaf differential will consider",
+      "does_not_establish": "which mechanism is operating in this plant"
     },
     {
       "integrity": {
@@ -33,7 +39,10 @@
         "stamped_at": null
       },
       "citation": "magnesium-potassium-mobile",
-      "text": "Magnesium and potassium are mobile and are withdrawn from older leaves first, so their deficiencies mark OLD tissue. Both can produce rust-brown spotting or blotching.  [UNVERIFIED: authored from model knowledge, not retrieved from any publication. Used by leaf_differential - weakens both when new growth is affected.]"
+      "text": "Magnesium and potassium are mobile and are withdrawn from older leaves first, so their deficiencies mark OLD tissue. Both can produce rust-brown spotting or blotching.  [UNVERIFIED: authored from model knowledge, not retrieved from any publication. Used by leaf_differential - weakens both when new growth is affected.]",
+      "evidence_grade": "authored",
+      "constrains": "which mechanisms the leaf differential will consider",
+      "does_not_establish": "which mechanism is operating in this plant"
     },
     {
       "integrity": {
@@ -42,7 +51,10 @@
         "stamped_at": null
       },
       "citation": "septoria-halo",
-      "text": "Septoria-type leaf spot usually presents as a brown lesion with a yellow halo. A halo therefore SCREENS FOR a pathogen and does not establish one: leaf spots also arise from abiotic causes, and a nutrient lesion can develop a chlorotic margin. Spread over days is the stronger discriminator; absence of a halo is the more useful half of the test.  [NOTE] An earlier version of the pattern stated 'a halo says pathogen' as a rule. The principal corrected it to a screening feature. That correction is the reason this file exists.  [UNVERIFIED: authored from model knowledge, not retrieved from any publication. Used by leaf_differential - the pathogen hypothesis.]"
+      "text": "Septoria-type leaf spot usually presents as a brown lesion with a yellow halo. A halo therefore SCREENS FOR a pathogen and does not establish one: leaf spots also arise from abiotic causes, and a nutrient lesion can develop a chlorotic margin. Spread over days is the stronger discriminator; absence of a halo is the more useful half of the test.  [NOTE] An earlier version of the pattern stated 'a halo says pathogen' as a rule. The principal corrected it to a screening feature. That correction is the reason this file exists.  [UNVERIFIED: authored from model knowledge, not retrieved from any publication. Used by leaf_differential - the pathogen hypothesis.]",
+      "evidence_grade": "authored",
+      "constrains": "which mechanisms the leaf differential will consider",
+      "does_not_establish": "which mechanism is operating in this plant"
     },
     {
       "integrity": {
@@ -51,7 +63,26 @@
         "stamped_at": null
       },
       "citation": "abiotic-first",
-      "text": "Many cannabis and hemp leaf problems are abiotic - nutrient deficiency, over- or under-watering, environmental stress - rather than pest or pathogen. A symptom-first classifier that reaches for pests is reaching for the less likely branch.  [UNVERIFIED: authored from model knowledge, not retrieved from any publication. Used by leaf_differential - ordering of the candidate list.]"
+      "text": "Many cannabis and hemp leaf problems are abiotic - nutrient deficiency, over- or under-watering, environmental stress - rather than pest or pathogen. A symptom-first classifier that reaches for pests is reaching for the less likely branch.  [UNVERIFIED: authored from model knowledge, not retrieved from any publication. Used by leaf_differential - ordering of the candidate list.]",
+      "evidence_grade": "authored",
+      "constrains": "which mechanisms the leaf differential will consider",
+      "does_not_establish": "which mechanism is operating in this plant"
     }
-  ]
+  ],
+  "role": "REFERENCE, NOT ORACLE. This corpus constrains which mechanisms the differential considers. It does not decide which one is happening - the plant does. Where a claim here and repeated observation disagree, the disagreement is the finding and the observation wins; a claim that keeps failing against live data is information about the claim.",
+  "evidence_grade": "authored",
+  "evidence_grade_scale": [
+    "authored - written from model knowledge, no source opened (WHERE EVERY CLAIM HERE SITS)",
+    "identified - a source is named but has not been retrieved",
+    "retrieved - the document is in hand",
+    "verified - the claim has been read in the retrieved document",
+    "corroborated - an independent line of evidence agrees"
+  ],
+  "how_each_claim_is_upgraded": "Retrieve the publication and run tools/ingest_pdf.py. A university extension service, laboratory, peer-reviewed paper or validated dataset can carry traceable provenance - but the institution's NAME is not what makes a claim true. What upgrades a claim is that someone opened the document and read the sentence.",
+  "principal_identified_source": {
+    "source": "Utah State University Extension, hemp materials",
+    "identified_by": "the principal, 2026-09-05",
+    "retrieved": false,
+    "note": "He reached the same conclusions independently, from the plant, before naming this source. That is convergence between two lines and it is worth more than either alone - but it is NOT corroboration until the document is opened, because a citation nobody has read is not evidence."
+  }
 }
