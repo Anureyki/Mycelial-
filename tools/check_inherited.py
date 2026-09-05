@@ -383,8 +383,8 @@ def check_declaration_sites_agree():
         note = ", ".join(mc[:4]) + (" ..." if len(mc) > 4 else "") if mc else "-"
         print("  %-20s %4d %5d %5d  %s" % (aid, nc, nt, nk, note))
     print("  A capability absent from agent_configs is invisible to whatever reads it,")
-    print("  however well it dispatches. Reported, not failed - this is a finding.")
-    return 0
+    print("  however well it dispatches.")
+    return drifted
 
 
 def check_declared_matches_dispatched():
@@ -508,13 +508,36 @@ def check_declared_matches_dispatched():
     return 0
 
 if __name__ == "__main__":
-    # BOTH checks, and the exit code is the worse of the two. Appending a
-    # second __main__ block silently replaced the first - the inherited-
+    # EVERY check runs, and the exit code is the worst of them. Appending a
+    # second __main__ block silently replaced the first once - the inherited-
     # capability check would have stopped running while the script still
-    # reported success, which is the shape this file exists to catch.
+    # reported success, which is the shape this file exists to catch. The same
+    # thing happened again in miniature: check_declaration_sites_agree was
+    # added, computed into _rc5, and left out of the sys.exit line, so its
+    # result was calculated and thrown away.
+    #
+    # --static runs only the checks that read files, for CI, where no agent is
+    # listening. A check that needs a live swarm cannot gate a commit, and
+    # pretending otherwise would make the pipeline red for the wrong reason.
+    _static_only = "--static" in sys.argv
+
+    if _static_only:
+        print("static checks only (no live agents required)")
+        _rc3 = check_corpus_integrity() or 0
+        _rc5 = check_declaration_sites_agree() or 0
+        # Corpus integrity is KNOWN DEBT - hundreds of sections recorded as
+        # truncated at ingest - so it reports and does not gate. Declaration
+        # drift is at zero as of this commit, so any drift is a regression
+        # introduced by whatever is being committed, and that does gate.
+        if _rc5:
+            print(f"\nFAIL: {_rc5} agent(s) disagree with themselves about their "
+                  f"capabilities.\n      Bring config/agent_configs/<id>.json into line with "
+                  f"the constructor,\n      or remove the claim if nothing dispatches it.")
+        sys.exit(1 if _rc5 else 0)
+
     _rc = main() or 0
     _rc2 = check_routing_terms_are_regex() or 0
     _rc3 = check_corpus_integrity() or 0
     _rc4 = check_declared_matches_dispatched() or 0
     _rc5 = check_declaration_sites_agree() or 0
-    sys.exit(_rc or _rc2 or _rc3 or _rc4)
+    sys.exit(_rc or _rc2 or _rc3 or _rc4 or _rc5)

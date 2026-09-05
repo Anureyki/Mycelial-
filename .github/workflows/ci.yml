@@ -24,6 +24,18 @@ jobs:
           pip install ruff
           ruff check --select=E9,F63,F7,F82 --exclude backup_20260621_053644,quarantine .
 
+      - name: Agents agree with themselves about their capabilities
+        # A capability list lives in three places - the constructor,
+        # config/agent_configs/ and config/agent_cards/ - and on 2026-09-05 all
+        # eleven agents disagreed with themselves. Two configs advertised ten
+        # capabilities that returned "Unknown task" when called.
+        #
+        # --static runs only the file-reading checks, because the rest need a
+        # live swarm and a check that needs running agents cannot gate a
+        # commit. Drift is at zero as of that date, so any drift this reports
+        # was introduced by the change being committed.
+        run: python tools/check_inherited.py --static
+
       - name: Webapp shell cache version
         # A shell file edited without a version bump ships to nobody: the URL
         # index.html requests is unchanged, so an installed client keeps
