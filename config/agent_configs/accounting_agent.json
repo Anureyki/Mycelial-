@@ -27,6 +27,7 @@
     "query_cache",
     "reconcile",
     "refresh_cache",
+    "score_predictions",
     "set_lease_terms",
     "track_account_balance"
   ],

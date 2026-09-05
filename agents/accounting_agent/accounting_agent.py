@@ -114,7 +114,7 @@ class AccountingAgent(AgentBase):
                 "map_assets_liabilities", "prepare_documentation_package", "check_budget_constraint",
                 "forecast_cash_flow", "build_budget",
                 "classify_charge", "log_harm", "harm_summary"
-            ],
+            , "score_predictions"],
             role="agent"
         )
         # CAG: source docs live in knowledge_base/accounting_agent/{irs_forms,gaap_ifrs,
@@ -1124,6 +1124,95 @@ class AccountingAgent(AgentBase):
             except Exception as exc:
                 result["record_failed"] = str(exc)
         return result
+
+    # ---- prediction-scoring domain hooks ---------------------------------
+    #
+    # AN OBLIGATION IS A PREDICTION. It says an amount will be paid, on a
+    # cadence, by a named payor, with evidence. A payment record is the
+    # observation that tests it. The machinery for grading lives on AgentBase,
+    # extracted from Grow, and what belongs here is only what an accountant
+    # knows: what counts as an obligation met.
+    #
+    # THE LATENCY IS DIFFERENT AND THE SCORER DOES NOT CARE. Grow's outcomes
+    # arrive in days and Trading's in a day; an obligation resolves on a
+    # statement cycle. The base scorer imposes no window at all - each domain
+    # sets its own - which is why one scorer serves a plant, a market and a
+    # ledger without knowing anything about any of them.
+
+    PREDICTION_SUBJECT_KEY = "case_id"
+
+    def default_prediction_subject(self):
+        cases = self._list_case_ids() if hasattr(self, "_list_case_ids") else []
+        return cases[0] if cases else None
+
+    def collect_predictions(self, subject=None):
+        """Every obligation on this case, as the prediction it already is."""
+        if not subject:
+            return []
+        try:
+            status = self.case(subject).obligation_status()
+        except Exception:
+            return []
+        out = []
+        for ob in (status or {}).get("obligations", []) or []:
+            out.append({
+                "source": "obligation", "case_id": subject,
+                "obligation_id": ob.get("obligation_id"), "name": ob.get("name"),
+                "amount": ob.get("amount"), "cadence": ob.get("cadence"),
+                "due_day": ob.get("due_day"),
+                "authorized_payors": ob.get("authorized_payors") or [],
+                "expected_effect": (
+                    f"{ob.get('name')} of {ob.get('amount')} is paid {ob.get('cadence')}"
+                    + (f" by day {ob.get('due_day')}" if ob.get("due_day") else "")
+                    + ", by an authorised payor, with evidence attached"),
+                "observed": ob,
+            })
+        return out
+
+    def gather_observations(self, subject=None):
+        """The ledger side. Already carried on the obligation record."""
+        return {"case_id": subject}
+
+    def score_one_prediction(self, pred, observations):
+        """Was the obligation actually met - and can that be evidenced?
+
+        THREE WAYS TO FAIL, and they are not the same failure. Unpaid is the
+        obvious one. Paid by someone not on the authorised list, and paid with
+        no evidence reference, both look identical to good standing if all you
+        keep is the amount - which is the whole reason this ledger records them
+        separately.
+
+        UNSCORABLE, not failed, when the obligation carries no due day. Without
+        one, "paid on time" states an intention rather than a measurable
+        outcome, and grading it either way would invent a deadline nobody set.
+        """
+        ob = pred.get("observed") or {}
+        if not pred.get("due_day"):
+            return {**pred, "verdict": "unscorable",
+                    "why": ("no due day on this obligation, so 'met on time' is not a "
+                            "measurable outcome. Set due_day to make it gradeable.")}
+        paid = int(ob.get("payments_recorded") or 0)
+        if paid == 0:
+            return {**pred, "verdict": "undetermined",
+                    "why": "no payment recorded against this obligation yet"}
+        unauth = int(ob.get("payments_by_unauthorized_payor") or 0)
+        no_ev = int(ob.get("payments_without_evidence") or 0)
+        faults = []
+        if unauth:
+            faults.append(f"{unauth} payment(s) by a payor not on the authorised list")
+        if no_ev:
+            faults.append(f"{no_ev} payment(s) with no evidence reference")
+        if faults:
+            return {**pred, "verdict": "failed",
+                    "why": ("the obligation was paid but not cleanly: " + "; ".join(faults)
+                            + ". A payment that cannot be evidenced, or that came from an "
+                              "unauthorised payor, is contestable - it is not the same as "
+                              "an obligation in good standing."),
+                    "payments_recorded": paid}
+        return {**pred, "verdict": "held",
+                "why": (f"{paid} payment(s) recorded, all by authorised payors and all "
+                        f"evidenced. Standing: {ob.get('standing')}."),
+                "payments_recorded": paid}
 
     def handle_task(self, task, args, sender):
         self.log(f"Task {task} from {sender}")
