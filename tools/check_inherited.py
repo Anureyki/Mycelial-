@@ -309,6 +309,72 @@ def check_corpus_integrity():
 
 
 
+def check_feedback_loops():
+    """How far along the loop each operational domain actually is.
+
+    The weaker invariant is "every domain agent has a corpus". The stronger one
+    is that every domain which ACTS should have a detectable, evidence-aware
+    feedback loop connecting knowledge, action, observation and outcome - a loop
+    with reality somewhere inside it. Without that you have model -> reasoning
+    -> model, which is a loop in the same sense that asking three mirrors for
+    directions is navigation.
+
+    The rungs below are only the ones that can be MEASURED. Two more matter and
+    are deliberately absent rather than faked: whether the structured facts an
+    agent holds are actually consulted, and whether its graded outcomes change
+    its next decision. Neither is decidable from source, and inventing a proxy
+    would put a guess inside the one instrument built to refuse guesses.
+
+    Reported, never gated. A domain part-way up this ladder is work in
+    progress, not a broken build.
+    """
+    import glob
+    import re as _re
+
+    rungs = ("verbs", "corpus", "reach", "predict", "grade")
+    rows = []
+    for cf in sorted(glob.glob(os.path.join(ROOT, "config", "agent_configs", "*.json"))):
+        aid = os.path.basename(cf)[:-5]
+        src = None
+        for cand in (glob.glob(os.path.join(ROOT, "agents", "*", aid + ".py"))
+                     + glob.glob(os.path.join(ROOT, "agents", aid, "*.py"))):
+            try:
+                t = open(cand).read()
+            except Exception:
+                continue
+            if "capabilities=[" in t:
+                src = t
+                break
+        if not src:
+            continue
+        # Only agents that CLAIM a domain are held to this. Boss orchestrates
+        # and practises nothing, so it is not on the ladder.
+        if not _re.search(r"^\s+ROUTING_TERMS\s*=", src, _re.M):
+            continue
+        got = {
+            "verbs": bool(_re.search(r'task\s*==\s*"', src)),
+            "corpus": os.path.isdir(os.path.join(ROOT, "reference", aid)),
+            "reach": "lookup_reference" in src,
+            "predict": "def collect_predictions" in src,
+            "grade": "def score_one_prediction" in src,
+        }
+        rows.append((aid, got))
+
+    print()
+    print("feedback loops (how far each domain closes the loop):")
+    print("  %-20s %s" % ("agent", " ".join(r.ljust(7) for r in rungs)))
+    closed = 0
+    for aid, got in rows:
+        marks = " ".join(("yes" if got[r] else "-").ljust(7) for r in rungs)
+        n_got = sum(1 for r in rungs if got[r])
+        closed += 1 if n_got == len(rungs) else 0
+        print("  %-20s %s  %d/%d" % (aid, marks, n_got, len(rungs)))
+    print("  %d of %d domains close every measurable rung." % (closed, len(rows)))
+    print("  NOT MEASURED, deliberately: whether held facts are consulted, and whether")
+    print("  graded outcomes change the next decision. Neither is decidable from source.")
+    return 0
+
+
 def check_declaration_sites_agree():
     """The THREE places a capability list lives, compared against each other.
 
@@ -525,6 +591,7 @@ if __name__ == "__main__":
         print("static checks only (no live agents required)")
         _rc3 = check_corpus_integrity() or 0
         _rc5 = check_declaration_sites_agree() or 0
+        check_feedback_loops()
         # Corpus integrity is KNOWN DEBT - hundreds of sections recorded as
         # truncated at ingest - so it reports and does not gate. Declaration
         # drift is at zero as of this commit, so any drift is a regression
@@ -540,4 +607,5 @@ if __name__ == "__main__":
     _rc3 = check_corpus_integrity() or 0
     _rc4 = check_declared_matches_dispatched() or 0
     _rc5 = check_declaration_sites_agree() or 0
+    check_feedback_loops()
     sys.exit(_rc or _rc2 or _rc3 or _rc4 or _rc5)
