@@ -885,7 +885,7 @@ class GrowAgent(AgentBase):
                 "remove_plant", "list_vision_corrections", "recommend_purchase",
                 "web_search",
                 "prepare_dataset", "fit_linear_model", "predict_linear"
-            , "leaf_differential", "lookup"],
+            , "leaf_differential", "lookup", "list_training_events", "void_training_event"],
             role="gardener"
         )
         # Listen for probe traffic. Costs nothing when no sensor is publishing.
@@ -6971,6 +6971,26 @@ class GrowAgent(AgentBase):
                               "expected_effect": ctx["expected_effect"],
                               "decision": ctx.get("decision"),
                               "confidence": ctx.get("confidence")})
+        # TRAINING EVENTS ARE PREDICTIONS TOO, and were the one record type
+        # carrying an expected_effect that nothing ever graded. A cut is an
+        # intervention with a stated consequence - "airflow improves, growth
+        # continues" - and the plant answers it within days. Leaving them out
+        # meant the grower could log every lollipop and defoliation he made and
+        # never learn from a single one, which is the whole reason he asked for
+        # the vocabulary in the first place: not to be told what a source
+        # believes, but to have his own moves watched.
+        for t in self._get_all_training_events():
+            if t.get("plant_id", "current_plant") != plant_id or t.get("voided"):
+                continue
+            ctx = t.get("reasoning_context") or {}
+            if ctx.get("expected_effect"):
+                preds.append({"source": f"training:{t.get('event_type')}",
+                              "timestamp": t.get("timestamp"),
+                              "expected_effect": ctx["expected_effect"],
+                              "decision": ctx.get("decision"),
+                              "confidence": ctx.get("confidence"),
+                              "severity": t.get("severity"),
+                              "removed_capacity": t.get("removed_capacity")})
         return [p for p in preds if p.get("timestamp")]
 
     def _score_prediction(self, pred, readings):
@@ -9574,6 +9594,56 @@ class GrowAgent(AgentBase):
             self.store_own_memory(record["id"], json.dumps(record))
 
             return {"result": recommendation, "record": record}
+
+        elif task == "list_training_events":
+            # A cut could be RECORDED and never READ BACK. Readings have
+            # list/void; training events had neither, so nothing could show what
+            # had been done to the plant, and a mistaken entry was permanent.
+            _p = args.get("plant_id", "current_plant") if isinstance(args, dict) else "current_plant"
+            _ev = [e for e in self._get_all_training_events()
+                   if e.get("plant_id", "current_plant") == _p]
+            _ev.sort(key=lambda e: str(e.get("timestamp") or ""))
+            return {"plant_id": _p, "events": _ev[-int((args or {}).get("limit", 20)):],
+                    "total": len(_ev),
+                    "voided_excluded": len([e for e in _ev if e.get("voided")]),
+                    "note": ("A voided event is kept and excluded from reasoning. The record that "
+                             "a wrong entry was once made is itself history.")}
+
+        elif task == "void_training_event":
+            # Mirrors void_reading, including its rule: a reason is required. An
+            # entry withdrawn without one is indistinguishable from one withdrawn
+            # because it was inconvenient.
+            _p = args.get("plant_id", "current_plant")
+            _id, _ts = args.get("id"), str(args.get("timestamp") or "")
+            _reason = str(args.get("reason") or "").strip()
+            if not _id and not _ts:
+                return {"error": "Pass the training event id, or its timestamp."}
+            if not _reason:
+                return {"error": ("Voiding a training event requires a reason. A history that can "
+                                  "be trimmed without one is not evidence.")}
+            hit = 0
+            for eid in self._load_training_event_index():
+                raw = self._unwrap_value(self.retrieve_own_memory(eid))
+                if not raw:
+                    continue
+                try:
+                    ev = json.loads(raw)
+                except Exception:
+                    continue
+                if ev.get("plant_id", "current_plant") != _p:
+                    continue
+                if (_id and ev.get("id") == _id) or (_ts and str(ev.get("timestamp", "")).startswith(_ts)):
+                    if ev.get("voided"):
+                        continue
+                    ev["voided"] = True
+                    ev["voided_reason"] = _reason
+                    ev["voided_by"] = args.get("voided_by", "principal")
+                    ev["voided_at"] = datetime.now().isoformat()
+                    self.store_own_memory(eid, json.dumps(ev))
+                    hit += 1
+            return {"count": hit, "reason": _reason,
+                    "note": ("Kept on disk and excluded from reasoning, the same way a voided "
+                             "reading is.")} if hit else {"error": "No matching training event."}
 
         elif task == "log_training_event":
             # Topping, lollipopping, defoliation, LST. Recorded as a first-class

@@ -1,0 +1,90 @@
+{
+  "title": "Plant training (LST/HST) - reported thread, @nova2cotton",
+  "source": "REPORTED, SECONDHAND. An X/Twitter thread (parts 2-5) by @nova2cotton, supplied by the principal 2026-09-05. A verified badge is a payment, not a credential, and Grow's own screenshot assessment scored this 0 with the note that a fictional card and a practitioner's note rendered by the same generator are identical on the page. Two of the five images are AI-GENERATED DIAGRAMS illustrating the text - one contains the garbled label 'multiple tops formom' - so they restate the claims rather than corroborate them. EXTENDED 2026-09-05 with parts 7-9 of the same thread plus two further AI-generated diagrams from the same account's Instagram (novacotton).",
+  "authority_class": "unknown",
+  "authority_class_basis": "Anonymous social-media practitioner. Not a publication, not a study.",
+  "evidence_grade": "reported",
+  "role": "Constrains the reasoning space for training decisions. Decides nothing. Where it and this plant disagree, the plant wins.",
+  "sections": [
+    {
+      "citation": "lst-vs-hst",
+      "text": "LST = bend, tie, reposition, no cutting; the plant adapts by phototropism and gravitropism without healing a wound. HST = topping, FIMming, supercropping; tissue is damaged or removed on purpose to force new structure. [UNVERIFIED - reported by @nova2cotton, not checked against any publication]",
+      "evidence_grade": "reported",
+      "integrity": {
+        "state": "unknown",
+        "basis": "secondhand social post",
+        "stamped_at": null
+      }
+    },
+    {
+      "citation": "autos-pay-recovery-mid-run",
+      "text": "THE CLAIM THAT BEARS ON THIS GROW. 'Autos are on a timer. Recovery time comes out of the middle of the run, not the end. When in doubt with autos, LST first.' A photoperiod plant can be vegged longer to absorb the cost of a wound; an autoflower cannot, so tissue removal is paid for out of the productive middle of its life. [UNVERIFIED - reported, and directly contradicted by nothing on this record, but also confirmed by nothing on it]",
+      "evidence_grade": "reported",
+      "integrity": {
+        "state": "unknown",
+        "basis": "secondhand social post",
+        "stamped_at": null
+      }
+    },
+    {
+      "citation": "apical-dominance",
+      "text": "The top growing tip pumps auxin downward and suppresses lower branches. Bending the main stem so the tip is no longer the highest point changes auxin distribution and releases the side branches. This is standard plant physiology rather than a claim unique to this source, but it is recorded here as reported because no textbook was opened for it. [UNVERIFIED as cited]",
+      "evidence_grade": "reported",
+      "integrity": {
+        "state": "unknown",
+        "basis": "secondhand social post",
+        "stamped_at": null
+      }
+    },
+    {
+      "citation": "inverse-square-light",
+      "text": "'Double the distance from the light and intensity drops to about one quarter.' THIS ONE IS CHECKABLE AND IT IS CORRECT - the inverse-square law is physics, not horticulture, and does not depend on the source's credibility. The worked example (top cola at 1000 umol while sites 18 inches lower sit at 200-300) is an illustration whose numbers depend on fixture and geometry and are NOT verified. [PHYSICS VERIFIED; the specific figures are not]",
+      "evidence_grade": "reported",
+      "integrity": {
+        "state": "unknown",
+        "basis": "physics verifiable, figures not",
+        "stamped_at": null
+      }
+    },
+    {
+      "citation": "lst-timing-and-ties",
+      "text": "Begin around the 4th-6th node while the stem is still flexible. Soft ties only - anything cutting into the stem as it thickens creates a new problem. LST is not one-and-done: new growth keeps reaching up and needs retying, every couple of days during fast veg. Ignored for a week, stems lignify in the wrong position. [UNVERIFIED - practitioner practice, no source opened]",
+      "evidence_grade": "reported",
+      "integrity": {
+        "state": "unknown",
+        "basis": "secondhand social post",
+        "stamped_at": null
+      }
+    },
+    {
+      "citation": "topping-timing-over-calendar",
+      "text": "'Timing matters more than calendar days.' Most top after 4-6 nodes - enough roots, stem and side branches to use. Too early stresses a plant with no reserve; too late means energy already spent on unwanted vertical growth. Multiple toppings work on PHOTOS if veg time is long enough, because each cycle costs recovery time. 'Plan the veg around the training, not the other way around.' [UNVERIFIED - reported]",
+      "evidence_grade": "reported",
+      "integrity": {
+        "state": "unknown",
+        "basis": "secondhand social post",
+        "stamped_at": null
+      }
+    },
+    {
+      "citation": "fim-vs-topping",
+      "text": "FIM = 'Fuck I Missed', named for how it was discovered. Pinch off ~70-80% of the tip and leave a little meristem, giving 3-5 messy tops instead of 2 clean ones. Less shock than a full top, less predictable structure. 'If you want a planned shape, topping is cleaner... just don't pretend it's as controlled as a clean top.' [UNVERIFIED - reported]",
+      "evidence_grade": "reported",
+      "integrity": {
+        "state": "unknown",
+        "basis": "secondhand social post",
+        "stamped_at": null
+      }
+    },
+    {
+      "citation": "defoliation-NOT-COVERED",
+      "text": "THIS THREAD DOES NOT COVER DEFOLIATION. Part 9 closes the series by listing what is deferred: 'Part 2 covers mainlining, supercropping, SCROG, SOG, lollipopping, defoliation, and how to combine this stuff without turning your plant into a confused side quest.' So the material supplied here offers NO guidance on the intervention this grower actually performed over 2026-09-04/05. Its accompanying diagram does carry one relevant warning - a 'too many moves -> confused structure' panel listing lollipop and defol among the techniques - and this plant has now had lollipopping (early), defoliation across two days, and a fan-speed change. That is a caution from a secondhand source, not a finding. [UNVERIFIED - reported, and explicitly incomplete on the point that matters most here]",
+      "evidence_grade": "reported",
+      "integrity": {
+        "state": "unknown",
+        "basis": "source defers the topic to an unpublished part 2",
+        "stamped_at": null
+      }
+    }
+  ]
+}

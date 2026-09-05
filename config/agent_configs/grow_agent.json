@@ -27,6 +27,7 @@
     "list_notes",
     "list_reminders",
     "list_training_candidates",
+    "list_training_events",
     "list_vision_corrections",
     "log_reading",
     "log_training_event",
@@ -50,6 +51,7 @@
     "transition_stage",
     "validate_environment_targets",
     "verify_growth_stage",
+    "void_training_event",
     "volume_history",
     "web_search",
     "what_i_know"
