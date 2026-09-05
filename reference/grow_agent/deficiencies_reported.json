@@ -105,6 +105,56 @@
         "basis": "secondhand social post",
         "stamped_at": null
       }
+    },
+    {
+      "citation": "dwc-temperature-thresholds",
+      "text": "PRECISE NUMBERS, and they are the most directly applicable claim in anything supplied today. 'Solution temperature controls dissolved oxygen. Cold water holds more oxygen than warm water. At 65F you're in a good range. ABOVE 72F Pythium starts thriving and oxygen levels drop. ABOVE 75F the risk climbs fast.' And: 'Roots in oxygen deficient solution don't just slow down - they start dying within hours.' [UNVERIFIED - reported]",
+      "evidence_grade": "reported",
+      "integrity": {
+        "state": "unknown",
+        "basis": "secondhand social post",
+        "stamped_at": null
+      }
+    },
+    {
+      "citation": "dwc-failure-chain-24-72h",
+      "text": "'The speed of growth in DWC is matched by the speed of failure. Root rot doesn't develop over weeks. A TEMPERATURE SPIKE ABOVE 72F COMBINED WITH REDUCED OXYGENATION (pump failure, clogged air stone, power outage) can show browning in 24 hours and serious damage in 48-72 hours.' Healthy DWC roots are white to off-white, fibrous and nearly odourless; infected roots turn brown, slimy and smell foul. Beneficial bacteria compete with Pythium but 'won't save bad temperature or oxygen management'. Reservoir must stay completely lightproof - algae competes for oxygen. Full reservoir changes every 1-2 weeks. [UNVERIFIED - reported]",
+      "evidence_grade": "reported",
+      "integrity": {
+        "state": "unknown",
+        "basis": "secondhand social post",
+        "stamped_at": null
+      }
+    },
+    {
+      "citation": "dwc-solution-level-one-inch",
+      "text": "'Keep the solution level about an inch below the net pot once roots are down. Too high and you restrict oxygen at the base of the stem. Too low and young roots struggle to reach solution.' Roots develop in three zones: submerged, a surface zone where bubbling gives the best mix of water and air, and air roots above the solution. NOTE AGAINST THIS GROW'S RECORD: the gap here was reported as about TWO inches on 2026-08-21, twice the figure this source gives - though roots have since reached down and the surface zone has moved. [UNVERIFIED - reported]",
+      "evidence_grade": "reported",
+      "integrity": {
+        "state": "unknown",
+        "basis": "secondhand social post",
+        "stamped_at": null
+      }
+    },
+    {
+      "citation": "rdwc-shared-risk",
+      "text": "RDWC connects multiple containers to one control reservoir. Advantages: pH and EC adjusted once affect every plant, larger total volume buffers against the rapid swings small individual buckets suffer, one system instead of eight. 'The trade off is SHARED RISK. Root rot in one container can circulate to every plant. A pump failure or major leak affects the entire system at once.' NOT THIS GROW'S SYSTEM - a single bucket with a top-feed recirculation line - but directly relevant if gsc_auto_2 is ever joined to it, because this grow has already had two pump failures and shared risk would have made both of them everyone's. [UNVERIFIED - reported]",
+      "evidence_grade": "reported",
+      "integrity": {
+        "state": "unknown",
+        "basis": "secondhand social post",
+        "stamped_at": null
+      }
+    },
+    {
+      "citation": "nft-not-this-system",
+      "text": "NFT runs a thin film along a sloped channel (1:30 to 1:40) with roots in humid air above it. Critical vulnerability is flow interruption: 'because the film is thin and roots aren't submerged, a pump failure or power outage leaves roots drying out quickly. Stress can start within an hour.' NOT THIS GROW'S SYSTEM, and the contrast is the point - in NFT the overnight outage would have been catastrophic within an hour. Here the roots hang in solution, which is exactly the reason the grower gave for reading the risk as lower than it looked. [UNVERIFIED - reported]",
+      "evidence_grade": "reported",
+      "integrity": {
+        "state": "unknown",
+        "basis": "secondhand social post",
+        "stamped_at": null
+      }
     }
   ]
 }
