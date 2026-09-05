@@ -28,7 +28,8 @@
     "build_budget",
     "classify_charge",
     "log_harm",
-    "harm_summary"
+    "harm_summary",
+    "score_predictions"
   ],
   "endpoint": "/execute",
   "port": 9012,
@@ -43,5 +44,5 @@
   "public_key": "",
   "owner": "anureyki",
   "created": "2026-07-31T17:59:12.923481",
-  "updated": "2026-09-05T11:31:52.569923"
+  "updated": "2026-09-05T15:15:22.832427"
 }

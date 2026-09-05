@@ -50,7 +50,11 @@
     "web_search",
     "prepare_dataset",
     "fit_linear_model",
-    "predict_linear"
+    "predict_linear",
+    "leaf_differential",
+    "lookup",
+    "list_training_events",
+    "void_training_event"
   ],
   "endpoint": "/execute",
   "port": 9009,
@@ -65,5 +69,5 @@
   "public_key": "",
   "owner": "anureyki",
   "created": "2026-07-28T23:04:50.187235",
-  "updated": "2026-09-05T11:31:50.584918"
+  "updated": "2026-09-05T16:24:00.911150"
 }

@@ -5,7 +5,8 @@
   "capabilities": [
     "analyze_outcomes",
     "generate_recommendations",
-    "report_to_boss"
+    "report_to_boss",
+    "web_search"
   ],
   "endpoint": "/execute",
   "port": 9006,
@@ -19,5 +20,6 @@
   },
   "public_key": "",
   "owner": "anureyki",
-  "created": "2026-07-27T22:21:48.535695"
+  "created": "2026-07-27T22:21:48.535695",
+  "updated": "2026-09-05T11:59:51.740156"
 }
