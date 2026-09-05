@@ -6617,6 +6617,7 @@ class GrowAgent(AgentBase):
         different responses - one is a dose, the other is a delivery fault -
         and collapsing them is how a grower doses a plant that is not hungry.
         """
+        import re as _re
         a = args if isinstance(args, dict) else {}
         plant_id = a.get("plant_id", "current_plant")
         observation = a.get("observation") or "brown necrotic lesions on foliage"
@@ -6632,7 +6633,37 @@ class GrowAgent(AgentBase):
         vols = [v for v in vols if v is not None]
         excursion = (max(vols) - min(vols)) if len(vols) > 1 else None
         pests_ruled_out = "pests ruled out" in text
-        delivery_fault = any(w in text for w in ("pump", "air pump was off", "delivery"))
+        # COUNT THE INTERRUPTIONS, do not just ask whether one happened. The
+        # first version was a boolean, so a second outage that ran all night
+        # weighed exactly the same as the first that ran two hours - and a
+        # repeated fault is stronger evidence than a single one, which is the
+        # whole reason a differential accumulates rather than decides.
+        # COUNTING BY KEYWORD GAVE 6 WHEN THE ANSWER WAS 2. The word "pump"
+        # matched an equipment description, two notes REFERRING BACK to an
+        # earlier outage, and - worst - a note recording that the pump was
+        # RUNNING. A note saying the pump was on was counted as evidence it was
+        # off, and that inflated the leading hypothesis.
+        #
+        # So: require language that REPORTS an outage, reject notes describing
+        # normal operation, and collapse by date, because one outage generates
+        # several notes and three notes about one night is still one night.
+        _outage_re = _re.compile(
+            r"(pump|recirculation|circulation|top ?feed|delivery)[^.]{0,60}"
+            r"\b(off|stopped|outage|interrupt\w*|not running|failed)\b"
+            r"|\b(off all night|was off for)\b", _re.I)
+        _running_re = _re.compile(
+            r"(pump|feed|circulation)[^.]{0,40}\b(running|cycling|on|restored|back on)\b", _re.I)
+        outage_days = set()
+        for _n in notes:
+            _t = str(_n.get("text") or "")
+            if not _outage_re.search(_t):
+                continue
+            if _running_re.search(_t) and not _re.search(r"\boff all night\b", _t, _re.I):
+                continue                      # describes normal operation
+            m = _re.search(r"(20\d\d-\d\d-\d\d)", _t)
+            outage_days.add(m.group(1) if m else str(_n.get("timestamp"))[:10])
+        delivery_faults = len(outage_days)
+        delivery_fault = delivery_faults > 0
         new_growth = a.get("new_growth_affected")
         if new_growth is None:
             new_growth = "newly established leaves" in text or "new growth" in text
@@ -6642,8 +6673,15 @@ class GrowAgent(AgentBase):
                "kind": "measured", "value": excursion} if excursion else None,
               {"fact": "pests ruled out by direct underside inspection",
                "kind": "observed"} if pests_ruled_out else None,
-              {"fact": "a feed/delivery interruption is on the record",
-               "kind": "observed"} if delivery_fault else None,
+              {"fact": ("feed/delivery has been interrupted more than once"
+                        if delivery_faults > 1 else
+                        "a feed/delivery interruption is on the record")
+                       + f" - days mentioned: {', '.join(sorted(outage_days))}"
+                       + (". THE COUNT IS APPROXIMATE: it is mined from note text, and one "
+                          "outage spanning midnight was counted twice because one note wrote "
+                          "the date and another did not. Read the days, not the number."
+                          if delivery_faults > 1 else ""),
+               "kind": "observed", "days": sorted(outage_days)} if delivery_fault else None,
               {"fact": f"latest ppm {latest.get('ppm')}, pH {latest.get('ph')}",
                "kind": "measured"} if latest else None,
               {"fact": ("new growth IS affected" if new_growth
@@ -6725,7 +6763,17 @@ class GrowAgent(AgentBase):
                   "supports")
         if delivery_fault:
             weigh("calcium_transport_limitation",
-                  "a feed/delivery interruption is on the record", "supports")
+                  f"{delivery_faults} feed/delivery interruption(s) on the record", "supports")
+        if delivery_faults > 1:
+            # WEIGHED ONCE, NOT PER OCCURRENCE. Recurrence is the finding; the
+            # count is text-mined and demonstrably unreliable - it read 6 when
+            # the answer was 2, once counting a note that recorded the pump
+            # RUNNING. Scaling a hypothesis by a number this agent cannot
+            # verify would put a guess in the weighing, so it contributes a
+            # single stance for "this recurs" and no more.
+            weigh("calcium_transport_limitation",
+                  "the interruption has recurred - a standing property of the delivery path "
+                  "rather than one unlucky night (count approximate, see days)", "supports")
         if halo is False:
             weigh("pathogen", "no halo observed", "contradicts")
         elif halo is True:
