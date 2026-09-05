@@ -538,6 +538,78 @@ happen" are different states. Recommendations flow through Boss for
 authorisation before reaching any control service or device. No agent holds
 direct actuation authority.
 
+### Capital actuation, and the one exception to the rule above
+
+Recorded before any Trading agent exists, because it is the thing every later
+implementation choice gets checked against, and because once an exchange
+credential is wired into an agent you are no longer designing a capability -
+you are operating an authority system over real money.
+
+An exchange API is a control service. So the rule above already answers the
+easy version of the question: **an agent may not place an order.** What it does
+not answer is the hard version, which arrives the moment a position needs
+closing faster than a governance hop can complete. A stop that waits for
+authorisation is not a stop.
+
+**The exception is scoped by DIRECTION, never by trust.**
+
+> An agent may act without authorisation if, and only if, every action
+> available to it reduces exposure.
+
+An agent that can only close, cancel, or halt is safe to hand unmediated
+authority, because the worst a confused or compromised one can do is exit a
+sound position - which costs money and cannot lose the bank. An agent that can
+open, size or add never receives it, however reliable it has been. The test is
+the capability surface, not the record.
+
+This is the same rule the kill switch already runs on: `touch state/LOCKED`
+needs no permission because stopping is the only thing it can do.
+
+**Fail-closed is the default in code for anything touching capital, and policy
+may only tighten it.** Not a lookup - a lookup needs a failure posture for the
+thing that defines failure postures, which is a recursion, not an answer. The
+swarm-wide guard fails OPEN by design and correctly: a Security Agent that is
+restarting must not halt a grow reading. Capital inverts that default, and the
+inversion is structural rather than configured, so an unreachable policy service
+cannot open a gate. Opening is not an operation policy can perform.
+
+The clearest statement of the principle came from outside this project: *a
+position you cannot measure is a position you do not hold.* It is `unknown is
+never complete`, one domain over.
+
+**Supervision and authorisation are different edges.** A safety loop needs a
+supervisor that can restart it, ping it and log it, and that cannot gate what it
+decides. Service Manager already is exactly that - restart-only, scope-limited,
+refusing every agent id outside its list. Boss is the authorisation path and
+therefore must not sit anywhere in a safety loop's line, not even as a parent in
+a diagram, because every other edge out of Boss is an authorisation edge and the
+drawing will be read that way by whoever builds from it.
+
+**Reconciliation belongs to Accounting, never to the desk that traded.** A
+trading system that assembles its end-of-day report from what its own components
+say they did is grading its own homework, and self-reported P&L is a claim like
+any other. Accounting pulls the venue's record and diffs it against the claim;
+where they disagree the result is `contested` and stays visible, and its default
+remains `undetermined` rather than `agrees`. That is the closing edge of the
+loop: Accounting authorises the financial state going in and evidences it coming
+out.
+
+**Regulator guidance is reference, not authority, for a private principal.**
+FINRA's algorithmic-trading material is good engineering to borrow from -
+pre-trade controls, financial thresholds, kill switches, post-trade
+surveillance - and it binds member firms, which a person trading their own
+account is not. It is shelved as `agency_guidance` in the live column, the same
+way the IRM is, and for the same reason: the claim pipeline weighs whatever it
+can open as potentially governing, and guidance filed as authority would be
+scored as though it governed.
+
+**What this does not settle,** and what has to be decided deliberately rather
+than discovered: whether Trading is advisory - it recommends, a human fills - or
+whether it holds narrow financial actuation authority with its own credential
+scope, transaction limits, kill switch, audit trail and reconciliation
+requirement, separate from general control-service authority. Both are coherent.
+Drifting into the second by implementing the first is not.
+
 ## Supervision is on demand, and narrow
 
 Service Manager does not run a restart loop. `POST localhost:8014/heal` checks
