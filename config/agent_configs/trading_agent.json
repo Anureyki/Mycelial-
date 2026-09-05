@@ -1,0 +1,8 @@
+{
+  "agent_id": "trading_agent",
+  "role": "agent",
+  "port": 9016,
+  "capabilities": ["scan_candidates", "vet_candidate", "vet_batch", "fee_viability", "concentration", "capability_surface", "list_rejections", "rejection_stats", "refresh_cache", "query_cache", "cache_stats", "cache_manifest"],
+  "entry_point": "agents.trading_agent.trading_agent:main",
+  "description": "Ranks launch candidates and refuses them. Holds no execution capability, no credential and no capital - discovery and refusal only, sitting below Accounting and Trustee."
+}
