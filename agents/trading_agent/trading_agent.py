@@ -69,6 +69,7 @@ class TradingAgent(AgentBase):
                 "scan_candidates", "vet_candidate", "vet_batch",
                 "fee_viability", "concentration", "capability_surface",
                 "list_rejections", "rejection_stats", "score_predictions",
+                "book_opportunity", "recommend_size", "risk_check",
             ],
             role="agent",
         )
@@ -499,6 +500,263 @@ class TradingAgent(AgentBase):
                                      "misconfigured, not that the candidates are good.")
         return out
 
+    # ================= BOOK =================================================
+    # Bets on outcomes. Never trades momentum. Requests stake; SIZE decides it.
+
+    POLYMARKET = "https://gamma-api.polymarket.com/markets"
+    KALSHI = "https://api.elections.kalshi.com/trade-api/v2/markets"
+    EDGE_THRESHOLD = 0.08        # below this the fee and the spread eat the trade
+    MAX_SPREAD = 0.10
+    MAX_DATA_AGE_HOURS = 48      # the desk wrote this rule itself after a drawdown
+    MAX_OPEN_BOOKS = 7
+
+    def book_opportunity(self, args):
+        """Price a prediction market. REFUSES to manufacture an edge.
+
+        The prompt's first rule is "YOUR NUMBER FIRST, then the price. Reading
+        price first anchors you and your edge becomes a rationalisation." This
+        agent has no forecast model, so it cannot form an independent number -
+        and the honest consequence is that it CANNOT COMPUTE AN EDGE ALONE.
+
+        It returns the market's own probability and every disqualifier it can
+        check. `edge` appears only when the caller supplies `my_prob` that was
+        arrived at without looking at the price. Inventing one from the price
+        and subtracting it from the price is a rationalisation with arithmetic
+        on top, and it would look exactly like an edge to everything downstream.
+        """
+        a = args if isinstance(args, dict) else {}
+        my_probs = a.get("my_prob") or {}
+        limit = min(int(a.get("limit", 20)), 50)
+        try:
+            # ORDER BY LIVE VOLUME, NOT ALL-TIME. `volumeNum` is lifetime
+            # turnover, so it ranks markets that were huge and are now long
+            # dead - the first live call returned 38 of 40 markets that closed
+            # between 227 and 259 days ago. The stale filter caught every one,
+            # which is the filter working and the query being wrong.
+            # `end_date_min` makes the server drop them instead.
+            r = requests.get(self.POLYMARKET, timeout=HTTP_TIMEOUT,
+                             params={"closed": "false", "order": "volume24hr",
+                                     "ascending": "false", "limit": limit,
+                                     "end_date_min": datetime.now(timezone.utc)
+                                     .strftime("%Y-%m-%dT%H:%M:%SZ")})
+            r.raise_for_status()
+            markets = r.json() or []
+        except Exception as exc:
+            return {"error": f"Polymarket unreachable: {type(exc).__name__}: {exc}",
+                    "books": [], "disclaimer": DISCLAIMER}
+
+        now, books, skipped = datetime.now(timezone.utc), [], {}
+
+        def skip(why):
+            skipped[why] = skipped.get(why, 0) + 1
+
+        for m in markets:
+            q = m.get("question")
+            # STALE DATA. A market whose close date has passed is not a market,
+            # and gamma-api returns plenty of them with closed=false.
+            try:
+                end = datetime.fromisoformat(str(m.get("endDate")).replace("Z", "+00:00"))
+                age_h = (now - end).total_seconds() / 3600.0
+            except Exception:
+                skip("unreadable endDate"); continue
+            if age_h > 0:
+                skip(f"already closed ({int(age_h)}h past endDate)"); continue
+            if abs(age_h) > 24 * 365:
+                skip("close date implausible"); continue
+
+            if m.get("acceptingOrders") is False:
+                skip("not accepting orders"); continue
+            liq = float(m.get("liquidityNum") or 0)
+            if liq <= 0:
+                skip("no liquidity"); continue
+            spread = float(m.get("spread") or 1)
+            if spread > self.MAX_SPREAD:
+                skip(f"spread over {self.MAX_SPREAD}"); continue
+
+            prices = m.get("outcomePrices")
+            if isinstance(prices, str):
+                try:
+                    prices = json.loads(prices)
+                except Exception:
+                    prices = None
+            if not prices:
+                skip("no outcome prices"); continue
+            try:
+                market_prob = float(prices[0])
+            except Exception:
+                skip("unparseable price"); continue
+
+            mine = my_probs.get(str(m.get("id"))) or my_probs.get(q)
+            book = {"market_id": m.get("id"), "question": q,
+                    "market_prob": round(market_prob, 4),
+                    "my_prob": mine, "spread": spread,
+                    "liquidity": round(liq, 2), "volume24hr": m.get("volume24hr"),
+                    "hours_to_close": round(-age_h, 1), "venue": "polymarket",
+                    "venue_gap": None}
+            if mine is None:
+                book.update({"edge": None, "action": "NO_ESTIMATE", "stake_request": None,
+                             "why": ("no independent probability supplied. This agent holds no "
+                                     "forecast model, and deriving a number from the price it is "
+                                     "meant to test would be a rationalisation, not an edge.")})
+            else:
+                edge = float(mine) - market_prob
+                qualifies = abs(edge) >= self.EDGE_THRESHOLD
+                book.update({
+                    "edge": round(edge, 4),
+                    "action": "ENTER" if qualifies else "HOLD",
+                    "stake_request": ("size_it" if qualifies else None),
+                    "why": (f"edge {edge:+.1%} against a {self.EDGE_THRESHOLD:.0%} threshold. "
+                            + ("Requesting stake - SIZE decides how much." if qualifies
+                               else "Below threshold; fee and spread eat it."))})
+            books.append(book)
+
+        books.sort(key=lambda b: abs(b.get("edge") or 0), reverse=True)
+        return {"books": books[:self.MAX_OPEN_BOOKS], "examined": len(markets),
+                "qualified": len([b for b in books if b.get("action") == "ENTER"]),
+                "awaiting_estimate": len([b for b in books if b.get("action") == "NO_ESTIMATE"]),
+                "skipped": skipped,
+                "max_open_books": self.MAX_OPEN_BOOKS,
+                "stake_is_not_decided_here": "BOOK requests stake. SIZE decides it.",
+                "disclaimer": DISCLAIMER}
+
+    # ================= SIZE =================================================
+    # One question: how many dollars. Never whether, never when.
+
+    KELLY_CAP_PCT = 6.0
+
+    def recommend_size(self, args):
+        """Dollars, from free cash only, Kelly-shaped and hard-capped.
+
+        NAMED `recommend_size`, NOT `size_position`. This computes a number; it
+        cannot take a position, and the distinction is the one CLAUDE.md's
+        capital doctrine turns on - an agent may act unmediated only if every
+        action available to it reduces exposure, and computing takes no action
+        at all.
+
+        THE 6% CAP IS SCAR TISSUE, NOT A TUNING PARAMETER. The desk this comes
+        from ran a 60% cap, read an intercepted missile strike as a lock, loaded
+        to the cap in three seconds and lost $434.17 on one fill. It rewrote its
+        own rule afterwards. Start at 6; do not pay $434.17 to relearn it.
+
+        LOCKED CAPITAL IS NEVER ALLOCATED, from any argument, from any agent.
+        """
+        a = args if isinstance(args, dict) else {}
+        free_cash = float(a.get("free_cash") or 0)
+        if free_cash <= 0:
+            return {"error": "need free_cash - the spendable balance, not the whole bank",
+                    "dollars": 0, "disclaimer": DISCLAIMER}
+        if a.get("locked_capital"):
+            return {"dollars": 0, "why": ("locked capital was passed to a sizing call. It is "
+                                          "never allocated, from any argument, from any agent."),
+                    "disclaimer": DISCLAIMER}
+
+        bank = float(a.get("bank") or free_cash)
+        cap_pct = float(a.get("size_cap_pct", self.KELLY_CAP_PCT))
+        edge = a.get("edge")
+        conviction = min(max(abs(float(edge)) / 0.20, 0.0), 1.0) if edge is not None else 0.5
+        raw = free_cash * (cap_pct / 100.0) * conviction
+        ceiling = bank * (cap_pct / 100.0)
+        ceiling_applied = raw > ceiling
+        dollars = round(min(raw, ceiling), 2)
+
+        fees = self.fee_viability({"dollars": dollars, "size_cap_pct": cap_pct}) if dollars > 0 else None
+        if not dollars or (fees and fees.get("verdict") == "FEE_FLOOR"):
+            need = round(float(FEE_FLOOR_USD / FEE_RATE), 2)
+            return {"ticker": a.get("ticker"), "dollars": 0,
+                    "percent_of_free_cash": 0, "percent_of_bank": 0,
+                    "exitable": None, "ceiling_applied": False,
+                    "why": (f"a ${dollars:,.2f} ticket costs "
+                            f"{fees['round_trip_pct'] if fees else 0:.2f}% round trip, over the "
+                            f"{MAX_ROUND_TRIP_PCT}% maximum. Never size below what pays its own "
+                            f"fees. Tickets clear the per-trade floor from about ${need:,.0f}; "
+                            f"at a {cap_pct}% cap that implies a bank near "
+                            f"${need / (cap_pct/100):,.0f}."),
+                    "fee_detail": fees, "disclaimer": DISCLAIMER}
+
+        # SIZE DOWN AS LIQUIDITY FALLS. If it is not exitable inside the
+        # slippage budget the size is wrong regardless of conviction.
+        liq = a.get("liquidity_usd")
+        exitable = None
+        if liq is not None:
+            share = dollars / float(liq) if float(liq) else 1.0
+            exitable = share <= float(a.get("max_pool_share", 0.01))
+            if not exitable:
+                capped = round(float(liq) * float(a.get("max_pool_share", 0.01)), 2)
+                return {"ticker": a.get("ticker"), "dollars": capped,
+                        "percent_of_free_cash": round(100 * capped / free_cash, 2),
+                        "percent_of_bank": round(100 * capped / bank, 2),
+                        "exitable": True, "ceiling_applied": True,
+                        "why": (f"cut from ${dollars:,.2f} to ${capped:,.2f}: the larger ticket "
+                                f"was {share:.1%} of the pool. A position you cannot leave "
+                                f"inside the slippage budget is the wrong size however good "
+                                f"the conviction."),
+                        "disclaimer": DISCLAIMER}
+
+        return {"ticker": a.get("ticker"), "dollars": dollars,
+                "percent_of_free_cash": round(100 * dollars / free_cash, 2),
+                "percent_of_bank": round(100 * dollars / bank, 2),
+                "exitable": exitable, "ceiling_applied": ceiling_applied,
+                "one_order_no_ladder": "Meme entries are one order, one size, decided here.",
+                "why": (f"{cap_pct}% ceiling on a ${bank:,.2f} bank, scaled to conviction "
+                        f"{conviction:.2f}"
+                        + (" - ceiling applied" if ceiling_applied else "")
+                        + f". Round trip {fees['round_trip_pct']:.2f}%."),
+                "fee_detail": fees, "disclaimer": DISCLAIMER}
+
+    # ================= RISK =================================================
+    # Monitoring only. It reports what it WOULD close; it cannot close.
+
+    def risk_check(self, args):
+        """The exit condition, computed and reported. Never executed.
+
+        THE RULE: six-hour volume under 20% of the 24-hour average means the
+        book is dead and the position closes. Immediately, fully.
+
+        WHAT THIS AGENT DOES NOT DO IS ACT ON IT. Under CLAUDE.md's capital
+        doctrine a close-only loop is exactly the shape that MAY hold unmediated
+        authority - every action available to it reduces exposure. That
+        exception is written and deliberately not yet implemented, so this
+        returns WOULD_CLOSE and a human closes. A monitor that silently became
+        an actuator is the drift the doctrine exists to prevent.
+
+        UNMEASURABLE IS CLOSE. Two retries then the answer is still CLOSE: a
+        position you cannot measure is a position you do not hold.
+        """
+        a = args if isinstance(args, dict) else {}
+        contract = a.get("contract")
+        if not contract:
+            return {"error": "need a contract to measure"}
+        last_err = None
+        for _ in range(3):
+            try:
+                r = requests.get(f"{DEX_BASE}/tokens/{contract}", timeout=HTTP_TIMEOUT)
+                pairs = (r.json() or {}).get("pairs") or []
+                if not pairs:
+                    last_err = "no pair returned"; continue
+                p = pairs[0]
+                vol = p.get("volume") or {}
+                v24, v6 = float(vol.get("h24") or 0), float(vol.get("h6") or 0)
+                avg6 = v24 / 4.0
+                ratio = (v6 / avg6) if avg6 else 0.0
+                fired = ratio < self.DEAD_VOLUME_RATIO
+                return {"ticker": (p.get("baseToken") or {}).get("symbol"),
+                        "contract": contract,
+                        "action": "WOULD_CLOSE" if fired else "HOLD",
+                        "rule_fired": ("6h volume under 20% of the 24h average" if fired else None),
+                        "volume_6h": v6, "avg_6h": round(avg6, 2), "ratio": round(ratio, 3),
+                        "threshold": self.DEAD_VOLUME_RATIO,
+                        "measurable": True,
+                        "not_executed": ("This agent holds no close capability. WOULD_CLOSE is a "
+                                         "finding for a human to act on, not an order."),
+                        "disclaimer": DISCLAIMER}
+            except Exception as exc:
+                last_err = f"{type(exc).__name__}: {exc}"
+        return {"contract": contract, "action": "WOULD_CLOSE", "measurable": False,
+                "rule_fired": "position could not be measured after three attempts",
+                "why": f"{last_err}. A position you cannot measure is a position you do not hold.",
+                "not_executed": "Reported, not executed - this agent cannot close.",
+                "disclaimer": DISCLAIMER}
+
     # ---- closing the loop: was the refusal right? ------------------------
     #
     # A rejection is a PREDICTION - "this candidate will fail" - and until it is
@@ -644,6 +902,12 @@ class TradingAgent(AgentBase):
             return self.fee_viability(a)
         elif task == "concentration":
             return self.concentration(a)
+        elif task == "book_opportunity":
+            return self.book_opportunity(a)
+        elif task == "recommend_size":
+            return self.recommend_size(a)
+        elif task == "risk_check":
+            return self.risk_check(a)
         elif task == "capability_surface":
             return self.capability_surface(a)
         elif task == "list_rejections":
