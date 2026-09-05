@@ -10,7 +10,15 @@
     "concentration",
     "capability_surface",
     "list_rejections",
-    "rejection_stats"
+    "rejection_stats",
+    "score_predictions",
+    "book_opportunity",
+    "recommend_size",
+    "risk_check",
+    "refresh_cache",
+    "query_cache",
+    "cache_stats",
+    "cache_manifest"
   ],
   "endpoint": "/execute",
   "port": 9016,
@@ -24,5 +32,6 @@
   },
   "public_key": "",
   "owner": "anureyki",
-  "created": "2026-09-05T02:41:20.311793"
+  "created": "2026-09-05T02:41:20.311793",
+  "updated": "2026-09-05T11:31:17.188674"
 }

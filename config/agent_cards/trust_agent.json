@@ -4,6 +4,7 @@
   "version": "1.0.0",
   "capabilities": [
     "parse_trust_document",
+    "assess_instrument",
     "model_trust_relationship",
     "lookup",
     "list_relationships",
@@ -28,5 +29,6 @@
   },
   "public_key": "",
   "owner": "anureyki",
-  "created": "2026-07-31T17:59:12.890278"
+  "created": "2026-07-31T17:59:12.890278",
+  "updated": "2026-09-05T11:31:53.592778"
 }

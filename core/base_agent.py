@@ -73,11 +73,59 @@ class AgentBase:
         self.setup_mqtt()
         self.start_http_server()
 
+    # Fields the RUNNING agent is the authority on. Everything else on a card
+    # is history and is preserved: `created` records when this agent first
+    # existed, and rewriting it would destroy the one fact the card uniquely
+    # holds.
+    _CARD_LIVE_FIELDS = ("capabilities", "port", "role", "endpoint", "mqtt_topics")
+
     def load_or_create_card(self):
+        """The card describes the agent as it is NOW, not as it first booted.
+
+        This used to return an existing card verbatim, so a card was a snapshot
+        of an agent's very first run and never changed again. Measured the day
+        this was fixed: trading_agent's card said 8 capabilities against a
+        constructor of 16, and grow_agent's said 3 against 48 - frozen since a
+        first boot months earlier.
+
+        That made the card the third disagreeing declaration, alongside the
+        constructor and config/agent_configs/. A capability list that depends
+        on which file a caller happens to read is the `undeclared` failure with
+        a longer fuse: dispatch works, the registry publishes something else,
+        and nothing reports the difference.
+
+        The live fields are refreshed from the running agent; history is kept.
+        The file is rewritten ONLY when something actually changed, so a
+        restart does not dirty the working tree for nothing."""
         card_path = os.path.join(CONFIG_DIR, f"{self.agent_id}.json")
         if os.path.exists(card_path):
-            with open(card_path, "r") as f:
-                return json.load(f)
+            try:
+                with open(card_path, "r") as f:
+                    card = json.load(f)
+            except Exception as exc:
+                self.log(f"card unreadable, rebuilding: {exc}")
+                card = {}
+            if card:
+                live = {"capabilities": self.capabilities, "port": self.port,
+                        "role": self.role, "endpoint": "/execute",
+                        "mqtt_topics": {
+                            "publish": f"mycelial/agent/{self.agent_id}/out",
+                            "subscribe": f"mycelial/agent/{self.agent_id}/in"}}
+                changed = {k: v for k, v in live.items() if card.get(k) != v}
+                if changed:
+                    card.update(changed)
+                    card["updated"] = datetime.now().isoformat()
+                    card.setdefault("created", card.get("updated"))
+                    try:
+                        with open(card_path, "w") as f:
+                            json.dump(card, f, indent=2)
+                        self.log(f"card refreshed: {', '.join(sorted(changed))}")
+                    except Exception as exc:
+                        # A card that could not be rewritten is STALE, and the
+                        # caller must not be told otherwise. Say so and carry
+                        # the on-disk version rather than the in-memory one.
+                        self.log(f"card NOT refreshed ({exc}) - published card is stale")
+                return card
         else:
             card = {
                 "agent_id": self.agent_id,
