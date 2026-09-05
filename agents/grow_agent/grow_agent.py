@@ -5770,10 +5770,28 @@ class GrowAgent(AgentBase):
         return {"channel": name, "state": "unreadable", "reported": value,
                 "why": f"no {name} vocabulary matched; recorded, not interpreted"}
 
+    def _channels_from_observation(self, text):
+        """Split one free-text root report across the four channels.
+
+        The grower does not report per-channel - he says "white and thin, no
+        smell". Requiring four named arguments to reach the reasoning is how a
+        verb ends up with the fact sitting three feet away in prose, which is
+        exactly what happened here: root health was reportable to
+        evaluate_reservoir for months and 102 readings carried none of it."""
+        out = {}
+        if not text:
+            return out
+        low = str(text).lower()
+        for name, vocab in self.ROOT_CHANNELS.items():
+            if any(w in low for w in vocab.get("clean", ())) or \
+               any(w in low for w in vocab.get("rot", ())):
+                out[name] = text
+        return out
+
     def assess_root_zone(self, plant_id="current_plant", colour=None, smell=None,
                          texture=None, slime=None, water_temp_f=None,
                          water_temp_c=None, aeration_ok=None, observed_at=None,
-                         note="", persist=True):
+                         observation=None, note="", persist=True):
         """Read a root-zone inspection, and say what it does NOT establish.
 
         The grower's own DWC material makes two claims that decide how this
@@ -5799,6 +5817,12 @@ class GrowAgent(AgentBase):
         best available verdict is `no_rot_indicated` - never `healthy`, which
         is a claim about the plant rather than about the four things looked
         at."""
+        # An explicitly named channel always beats one mined out of free text.
+        mined = self._channels_from_observation(observation)
+        colour = colour if colour is not None else mined.get("colour")
+        texture = texture if texture is not None else mined.get("texture")
+        smell = smell if smell is not None else mined.get("smell")
+        slime = slime if slime is not None else mined.get("slime")
         readings = [self._root_channel("colour", colour),
                     self._root_channel("texture", texture),
                     self._root_channel("smell", smell),
@@ -9184,36 +9208,81 @@ class GrowAgent(AgentBase):
                         f"Reservoir temperature {shown} is well outside the safe range "
                         "(18-22C / 64-72F).")
 
-            root_verdict, root_method = self._classify_qualitative(
-                root_health_text, ROOT_HEALTH_STABLE_KEYWORDS, ROOT_HEALTH_CRITICAL_KEYWORDS, "root health"
-            )
-            scores["root_health"] = self._verdict_score(root_verdict)
-            methods["root_health"] = root_method
-            if root_verdict != "stable":
-                findings.append(f"Root health observation classified as {root_verdict} ({root_method}): \"{root_health_text}\"")
+            # Root health is reasoned by assess_root_zone, not here. Two
+            # keyword tables for the same subject is two sources of truth, and
+            # the one that drifts is always the copy.
+            unreported = []
+            root_zone = None
+            if root_health_text or odor_text or biofilm is not None:
+                root_zone = self.assess_root_zone(
+                    plant_id, observation=root_health_text, smell=odor_text,
+                    slime=biofilm, water_temp_c=reservoir_temp, persist=False)
+                rv = root_zone["verdict"]
+                root_verdict = ("critical" if rv == "rot_indicated"
+                                else "warning" if rv in ("clean_but_temperature_leading",
+                                                         "insufficient_channels")
+                                else "stable")
+                scores["root_health"] = self._verdict_score(root_verdict)
+                methods["root_health"] = f"assess_root_zone:{rv}"
+                if root_verdict != "stable":
+                    findings.append(f"Root zone: {root_zone['reason']}")
+            else:
+                # NOT scored. _classify_qualitative returns ("stable","default")
+                # on empty text, so an unreported root zone used to score a full
+                # 2/2 - identical to roots confirmed white. Every one of the
+                # first 102 readings passed root health that way without the
+                # grower ever having been asked. Absence of a check is not a
+                # pass; it is a hole, and it is named as one.
+                unreported.append("root_health")
+                methods["root_health"] = "not reported"
+                findings.append(
+                    "Root zone NOT reported and therefore NOT scored. Pass "
+                    "root_health (colour, texture), odor and biofilm to include "
+                    "it - in a water-culture system it is the failure mode that "
+                    "moves fastest.")
 
-            odor_verdict, odor_method = self._classify_qualitative(
-                odor_text, ODOR_STABLE_KEYWORDS, ODOR_CRITICAL_KEYWORDS, "reservoir odor"
-            )
-            if biofilm and str(biofilm).lower() not in ("false", "no", "none", "0"):
-                odor_verdict = "critical" if odor_verdict == "stable" else odor_verdict
-                findings.append("Biofilm/slime reported in reservoir.")
-            scores["odor"] = self._verdict_score(odor_verdict)
-            methods["odor"] = odor_method
-            if odor_verdict != "stable" and odor_text:
-                findings.append(f"Odor observation classified as {odor_verdict} ({odor_method}): \"{odor_text}\"")
+            if odor_text or biofilm is not None:
+                odor_verdict, odor_method = self._classify_qualitative(
+                    odor_text, ODOR_STABLE_KEYWORDS, ODOR_CRITICAL_KEYWORDS, "reservoir odor")
+                if biofilm and str(biofilm).lower() not in ("false", "no", "none", "0"):
+                    odor_verdict = "critical" if odor_verdict == "stable" else odor_verdict
+                    findings.append("Biofilm/slime reported in reservoir.")
+                scores["odor"] = self._verdict_score(odor_verdict)
+                methods["odor"] = odor_method
+                if odor_verdict != "stable" and odor_text:
+                    findings.append(f"Odor observation classified as {odor_verdict} ({odor_method}): \"{odor_text}\"")
+            else:
+                unreported.append("odor")
+                methods["odor"] = "not reported"
 
+            # The band is computed over what was actually measured. The old
+            # thresholds were absolute against a fixed five channels, so simply
+            # dropping the unreported ones would have made every reading look
+            # worse rather than less complete.
+            possible = 2 * len(scores)
             stability_score = sum(scores.values())
-            if stability_score >= 8:
+            fraction = (stability_score / possible) if possible else 0.0
+            if not scores:
+                band = "not_assessed"
+            elif fraction >= 0.8:
                 band = "stable"
-            elif stability_score >= 4:
+            elif fraction >= 0.4:
                 band = "warning"
             else:
                 band = "critical"
 
-            if band == "stable":
-                observation = "; ".join(findings) if findings else f"pH, PPM, temperature, and root/odor observations are all within expected range for {stage}."
-                reason = f"All monitored components scored within the stable band for {stage} (score {stability_score}/10)."
+            gap = (f" NOT INCLUDED: {', '.join(unreported)} - not reported, so "
+                   f"this band is over {len(scores)} of 5 components." ) if unreported else ""
+            if band == "not_assessed":
+                observation = "; ".join(findings)
+                reason = ("Nothing measurable was supplied, so no band was computed. "
+                          "This is not a passing reading; it is an absent one.")
+                action = "Supply pH, PPM, temperature, or a root-zone observation."
+            elif band == "stable":
+                observation = ("; ".join(findings) if findings
+                               else f"Every component reported scored within range for {stage}.")
+                reason = (f"All {len(scores)} reported components scored within the stable "
+                          f"band for {stage} (score {stability_score}/{possible}).{gap}")
                 action = "Continue monitoring. No reservoir change needed."
             else:
                 observation = "; ".join(findings) if findings else "One or more reservoir components scored outside the stable band."
@@ -9234,9 +9303,16 @@ class GrowAgent(AgentBase):
             recommendation = self._make_recommendation(observation, reason, action, confidence)
             recommendation.update({
                 "stability_score": stability_score,
+                # The denominator moves with how many components were reported,
+                # so the score is meaningless without it. A caller that reads 4
+                # against a remembered /10 scale reads a different reading than
+                # the one that happened.
+                "stability_score_possible": possible,
                 "stability_band": band,
+                "components_not_reported": unreported,
                 "component_scores": scores,
-                "classification_methods": methods
+                "classification_methods": methods,
+                "root_zone": root_zone
             })
 
             record = {
@@ -9249,6 +9325,14 @@ class GrowAgent(AgentBase):
                     "water_level_change": water_level_change,
                     "root_health": root_health_text, "odor": odor_text, "biofilm": biofilm
                 },
+                # Which components were absent travels with the verdict. A band
+                # computed over three components and one computed over five are
+                # different claims and must not read the same downstream.
+                "unreported": unreported,
+                "components_scored": sorted(scores),
+                "score": stability_score,
+                "score_possible": possible,
+                "root_zone": root_zone,
                 "recommendation": recommendation
             }
             self.store_own_memory(record["id"], json.dumps(record))
