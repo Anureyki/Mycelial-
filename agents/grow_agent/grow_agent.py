@@ -877,7 +877,7 @@ class GrowAgent(AgentBase):
                 "log_training_event", "recommend_feed", "plan_system_transition",
                 "set_grow_system", "get_grow_system", "amend_grow_system",
                 "field_history", "assess_root_zone", "void_reservoir_eval",
-                "reconcile_ec_temperature",
+                "reconcile_ec_temperature", "intake_reading",
                 "get_nutrient_history",
                 "set_inventory", "get_inventory",
                 "check_in", "analyze_consumption", "adjust_to_target_ppm",
@@ -2133,9 +2133,21 @@ class GrowAgent(AgentBase):
 
     def _classify_qualitative(self, text, stable_keywords, critical_keywords, field_label):
         """Keyword match first; falls back to LLM classification via _call_inference
-        when the text doesn't match a known keyword. Returns (verdict, method)."""
-        if not text:
-            return "stable", "default"
+        when the text doesn't match a known keyword. Returns (verdict, method).
+
+        AN EMPTY OBSERVATION RETURNS "unreported", NEVER "stable". It used to
+        return ("stable", "default"), which meant a channel nobody looked at
+        scored identically to one confirmed healthy: 37 reservoir evaluations
+        passed root health that way, and an empty leaf description classified
+        as productive. Absence of a detected problem is not evidence of its
+        absence, and this is the function where that judgement is actually
+        made, so it is the function that has to refuse it.
+
+        Callers must handle "unreported" explicitly. That is the point - a
+        caller that forgets will raise on the verdict map rather than quietly
+        score a hole as health."""
+        if not text or not str(text).strip():
+            return "unreported", "absent"
         verdict = self._classify_by_keywords(text, stable_keywords, critical_keywords)
         if verdict is not None:
             return verdict, "keyword"
@@ -8060,6 +8072,181 @@ class GrowAgent(AgentBase):
     EC_TEMP_COEFF_PER_C = 0.02
     EC_REFERENCE_C = 25.0
 
+    # What a reading can physically be. Not targets - targets are per stage and
+    # per plant. These are the bounds outside which the number is a units
+    # mistake or a typo, and storing it is worse than refusing it.
+    READING_BOUNDS = {
+        "ph":   (3.0, 10.0, "pH"),
+        "ppm":  (0.0, 3000.0, "ppm"),
+        "temp": (4.0, 40.0, "degC"),
+        "humidity": (0.0, 100.0, "%"),
+        "volume_liters": (0.0, 200.0, "L"),
+    }
+    # EC arrives as mS/cm (1.291) or uS/cm (1291) depending on which reading
+    # the meter is showing. Both are in this record already. Magnitude
+    # separates them cleanly - there is no plausible nutrient solution at
+    # 100 mS/cm or at 20 uS/cm - so it is detectable rather than guessable.
+    EC_MS_MAX = 20.0
+    EC_US_MIN = 100.0
+
+    def intake_reading(self, plant_id=None, ph=None, ppm=None, ec=None,
+                       temp_c=None, temp_f=None, humidity=None,
+                       volume_liters=None, tds_scale=None, note="",
+                       persist=True, **extra):
+        """Validate a reading BEFORE it becomes evidence, and cross-check it.
+
+        Built because the grower asked what would happen if he typed these
+        into a dashboard. Probed: log_reading stores ec=1.344 and ec=1344
+        identically, accepts 79.7 as a Celsius reservoir temperature, and
+        range-checks nothing. A thousand-fold error and a near-boiling
+        reservoir both write cleanly and look like data afterwards.
+
+        The strong check is free, because he already supplies both numbers:
+        ppm and EC are the same measurement through a fixed factor. At the
+        0.5 scale this meter uses, 1291 uS must read 645.5 ppm - and it read
+        645. Any real disagreement means a units mistake, a typo, or a meter
+        that has drifted, and which of those it is comes later; that the two
+        disagree is knowable immediately.
+
+        Refuses rather than corrects. A reading this cannot make sense of is
+        handed back with the reason, because silently repairing a number is
+        how a guess becomes a measurement."""
+        problems, notes_out, cleaned = [], [], {}
+
+        if not plant_id:
+            return {"accepted": False,
+                    "problems": ["No plant_id. A reading not attached to a plant is "
+                                 "not a reading, and defaulting one is how a "
+                                 "measurement lands on the wrong plant."]}
+
+        # --- temperature: accept either scale, store C, refuse the ambiguous ---
+        t_c = self._parse_numeric(temp_c)
+        t_f = self._parse_numeric(temp_f)
+        if t_f is not None and t_c is None:
+            t_c = (t_f - 32.0) * 5.0 / 9.0
+            notes_out.append(f"{t_f} F converted to {t_c:.1f} C")
+        elif t_c is not None and t_c > self.READING_BOUNDS["temp"][1]:
+            # 79.7 as "C" is almost certainly Fahrenheit. Say so; do not assume.
+            problems.append(
+                f"temp {t_c} is outside {self.READING_BOUNDS['temp'][0]}-"
+                f"{self.READING_BOUNDS['temp'][1]} C. If this is Fahrenheit it is "
+                f"{(t_c - 32) * 5 / 9:.1f} C - resend it as temp_f. Not converted "
+                f"here: guessing which scale a number is in is exactly the error "
+                f"this refuses to make.")
+            t_c = None
+        if t_c is not None:
+            cleaned["temp"] = round(t_c, 2)
+
+        # --- EC: detect the unit from magnitude, store uS ---
+        ec_v = self._parse_numeric(ec)
+        ec_us = None
+        if ec_v is not None:
+            if ec_v <= self.EC_MS_MAX:
+                ec_us = ec_v * 1000.0
+                notes_out.append(f"EC {ec_v} read as mS/cm = {ec_us:.0f} uS/cm")
+            elif ec_v >= self.EC_US_MIN:
+                ec_us = ec_v
+                notes_out.append(f"EC {ec_v:.0f} read as uS/cm")
+            else:
+                problems.append(
+                    f"EC {ec_v} sits between the mS range (<= {self.EC_MS_MAX}) and "
+                    f"the uS range (>= {self.EC_US_MIN}) and cannot be assigned a "
+                    f"unit. State it as mS or uS.")
+            if ec_us is not None:
+                cleaned["ec_us"] = round(ec_us, 1)
+                cleaned["ec"] = round(ec_us / 1000.0, 4)
+
+        # --- simple bounds ---
+        for key, val in (("ph", ph), ("ppm", ppm), ("humidity", humidity),
+                         ("volume_liters", volume_liters)):
+            v = self._parse_numeric(val)
+            if v is None:
+                continue
+            lo, hi, unit = self.READING_BOUNDS[key]
+            if not (lo <= v <= hi):
+                problems.append(f"{key} {v} is outside the physically plausible "
+                                f"{lo}-{hi} {unit}.")
+            else:
+                cleaned[key] = v
+
+        # --- THE CROSS-CHECK. Two numbers, one measurement, fixed factor. ---
+        scale = self._parse_numeric(tds_scale)
+        if scale is None:
+            try:
+                sysraw = self._unwrap_value(
+                    self.retrieve_own_memory(f"grow_system_{plant_id}"))
+                if sysraw:
+                    rec = json.loads(sysraw)
+                    raw_scale = rec.get("tds_scale")
+                    scale = self._parse_numeric(raw_scale)
+                    if scale is None and raw_scale:
+                        scale = {"0.5": 0.5, "500": 0.5, "nacl": 0.5,
+                                 "0.7": 0.7, "700": 0.7, "kcl": 0.7,
+                                 "442": 0.44}.get(str(raw_scale).strip().lower())
+            except Exception:
+                scale = None
+
+        ppm_v = cleaned.get("ppm")
+        if ppm_v is not None and cleaned.get("ec_us") is not None:
+            if scale:
+                expected = cleaned["ec_us"] * scale
+                delta = ppm_v - expected
+                pct = abs(delta) / expected * 100 if expected else None
+                cross = {"tds_scale": scale, "ppm_expected_from_ec": round(expected, 1),
+                         "ppm_reported": ppm_v, "delta": round(delta, 1),
+                         "delta_pct": round(pct, 2) if pct is not None else None}
+                if pct is not None and pct > 5.0:
+                    cross["agrees"] = False
+                    problems.append(
+                        f"ppm {ppm_v} and EC {cleaned['ec_us']:.0f} uS disagree by "
+                        f"{pct:.1f}% at the {scale} scale (EC implies {expected:.0f} "
+                        f"ppm). They are one measurement through a fixed factor, so "
+                        f"one of the two numbers is wrong, or the scale on the record "
+                        f"is.")
+                else:
+                    cross["agrees"] = True
+                    notes_out.append(
+                        f"ppm and EC agree to {pct:.1f}% at the {scale} scale - two "
+                        f"numbers confirming each other, which is worth more than "
+                        f"either alone.")
+                cleaned["cross_check"] = cross
+            else:
+                notes_out.append(
+                    "ppm and EC both given but no TDS scale is on the record, so "
+                    "they cannot be cross-checked. Run verify_tds_scale once and "
+                    "every future reading checks itself for free.")
+
+        unknown = [k for k in extra if k not in ("stage", "notes", "taken_at",
+                                                 "timestamp", "decision", "reason")]
+        if unknown:
+            problems.append(f"Unrecognised field(s) {unknown}. Refused rather than "
+                            f"dropped: a field silently discarded looks identical to "
+                            f"one that was never sent.")
+
+        out = {"plant_id": plant_id, "accepted": not problems,
+               "cleaned": cleaned, "problems": problems, "notes": notes_out}
+        if note:
+            out["note"] = note
+
+        if problems or not persist:
+            out["stored"] = False
+            if problems:
+                out["why_not_stored"] = ("Refused, not corrected. A number this cannot "
+                                         "make sense of must not become evidence.")
+            return out
+
+        payload = {"plant_id": plant_id}
+        payload.update({k: v for k, v in cleaned.items() if k != "cross_check"})
+        for k in ("stage", "notes", "taken_at", "timestamp", "decision", "reason"):
+            if extra.get(k) is not None:
+                payload[k] = extra[k]
+        if note:
+            payload["notes"] = (payload.get("notes", "") + " " + note).strip()
+        res = self.handle_task("log_reading", payload)
+        out["stored"] = True
+        out["log_reading_result"] = res
+        return out
+
     def reconcile_ec_temperature(self, ec_before=None, temp_before_c=None,
                                  ec_after=None, temp_after_c=None,
                                  meter_has_atc=None, plant_id="current_plant",
@@ -8922,6 +9109,10 @@ class GrowAgent(AgentBase):
             return {"result": self.set_target_band_position(**(args if isinstance(args, dict) else {}))}
         elif task == "target_for_stage":
             return {"result": self.target_for_stage(**(args if isinstance(args, dict) else {}))}
+        elif task == "intake_reading":
+            a = dict(args or {})
+            return {"result": self.intake_reading(**a)}
+
         elif task == "reconcile_ec_temperature":
             a = args or {}
             return {"result": self.reconcile_ec_temperature(
@@ -9492,11 +9683,21 @@ class GrowAgent(AgentBase):
             if odor_text or biofilm is not None:
                 odor_verdict, odor_method = self._classify_qualitative(
                     odor_text, ODOR_STABLE_KEYWORDS, ODOR_CRITICAL_KEYWORDS, "reservoir odor")
+                _biofilm_seen = biofilm is not None
                 if biofilm and str(biofilm).lower() not in ("false", "no", "none", "0"):
-                    odor_verdict = "critical" if odor_verdict == "stable" else odor_verdict
+                    odor_verdict = "critical"
                     findings.append("Biofilm/slime reported in reservoir.")
-                scores["odor"] = self._verdict_score(odor_verdict)
-                methods["odor"] = odor_method
+                elif odor_verdict == "unreported" and _biofilm_seen:
+                    # Biofilm checked and absent is a real observation of the
+                    # reservoir, but it is not a smell. It cannot stand in for
+                    # one, so this scores what was actually looked at.
+                    odor_verdict, odor_method = "stable", "biofilm checked, no odor reported"
+                if odor_verdict == "unreported":
+                    unreported.append("odor")
+                    methods["odor"] = "not reported"
+                else:
+                    scores["odor"] = self._verdict_score(odor_verdict)
+                    methods["odor"] = odor_method
                 if odor_verdict != "stable" and odor_text:
                     findings.append(f"Odor observation classified as {odor_verdict} ({odor_method}): \"{odor_text}\"")
             else:
@@ -9740,7 +9941,12 @@ class GrowAgent(AgentBase):
                 verdict, _method = self._classify_qualitative(
                     symptom_text, LEAF_PRODUCTIVE_KEYWORDS, LEAF_PROBLEM_KEYWORDS, "leaf health"
                 )
-                classification = {"stable": "productive", "warning": "senescent", "critical": "problem"}[verdict]
+                # "inconclusive" for an empty description, never "productive".
+                # Nothing was described, so nothing was assessed, and the two
+                # must not be reported with the same word.
+                classification = {"stable": "productive", "warning": "senescent",
+                                  "critical": "problem",
+                                  "unreported": "inconclusive"}[verdict]
 
             # How much weight the evidence actually carries.
             #
