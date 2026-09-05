@@ -75,6 +75,36 @@
         "basis": "secondhand social post",
         "stamped_at": null
       }
+    },
+    {
+      "citation": "environment-fakes-deficiencies",
+      "text": "'If the environment is off, the feed chart will keep lying to you.' Overwatering: the plant looks thirsty while the medium is wet - roots cannot breathe, so they cannot take up water or nutrients, and adding food feeds a suffocating root system. Heat/light stress: taco'd leaves, bleaching at the very top, damage concentrated under the light; the fix is distance, intensity or heat, NOT CalMag. Cold stress: slows uptake across the board, PURPLE COLOURING, several fake deficiency symptoms at once - 'the plant isn't missing five nutrients, it's just too cold to run the processes that use them.' [UNVERIFIED - reported]",
+      "evidence_grade": "reported",
+      "integrity": {
+        "state": "unknown",
+        "basis": "secondhand social post",
+        "stamped_at": null
+      }
+    },
+    {
+      "citation": "correction-order-one-change-at-a-time",
+      "text": "THE MOST OPERATIONALLY USEFUL CLAIM IN THIS SOURCE, and the one this grow is currently violating. Stated order: 1) fix pH first, then wait and watch. 2) if salts are high, lower EC before adding more of anything. 3) check roots if you can. 4) fix environment if VPD, heat, light or airflow are off. 5) MAKE ONE CHANGE AT A TIME. 'The worst move is changing pH, adding CalMag, flushing, switching bottles, and raising the light all in the same night. Then you have no idea what helped and what made it worse. One change. Observe. Then the next one.' CONVERGENCE: Grow Agent stated this independently on 2026-09-05, in its own words - 'change strength again before a reading lands and the next number cannot be attributed to either change. You lose the ability to say which one did what.' Two lines, one operational rule. [UNVERIFIED as a source; CORROBORATED by this system's own reasoning]",
+      "evidence_grade": "reported",
+      "integrity": {
+        "state": "unknown",
+        "basis": "secondhand, but independently reached by this system",
+        "stamped_at": null
+      }
+    },
+    {
+      "citation": "baseline-is-your-own-plant",
+      "text": "'Learn what your healthy plant looks like at each stage. That's the reference point. The second something drifts, you'll notice it early... The skill is not memorizing 40 deficiency pictures. The skill is reading the UI before you start slamming random items.' Prevention over rescue: a plant kept in range never spends energy repairing damage. NOTE - this is an argument FOR the per-plant record this agent keeps and AGAINST treating any corpus, including this one, as the reference point. The baseline is the plant. [UNVERIFIED - reported]",
+      "evidence_grade": "reported",
+      "integrity": {
+        "state": "unknown",
+        "basis": "secondhand social post",
+        "stamped_at": null
+      }
     }
   ]
 }
