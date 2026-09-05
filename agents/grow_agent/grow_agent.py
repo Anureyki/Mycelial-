@@ -1471,11 +1471,26 @@ class GrowAgent(AgentBase):
             "markers": ("cotyledons_open", "first_true_leaves", "single_blade"),
             "means": "Cotyledons open and the first true leaves are forming.",
         },
+        # SPLIT, because this agent held TWO stage vocabularies that disagreed.
+        # STAGE_MORPHOLOGY_CUES works on blade counts and has early_veg, where
+        # "three blade" is a SEEDLING cue; this map had one undifferentiated
+        # "vegetative" and put three_blade there. A plant therefore jumped from
+        # seedling (200-400 ppm) straight to veg (600-900), skipping the
+        # 400-600 band entirely - which is how gsc_auto_2, at its second set of
+        # true leaves, came to be scored against a band meant for a plant twice
+        # its age. Over-concentration on a young plant is what burned plant #1.
+        "early_veg": {
+            "markers": ("true_leaves_established", "three_blade", "second_true_leaves",
+                        "five_blade"),
+            "means": ("True leaves established and taking over from the cotyledons, but "
+                      "still building the first few nodes. Three- and five-blade leaves. "
+                      "Feed band 400-600 ppm, not the 600-900 of established veg."),
+        },
         "vegetative": {
-            "markers": ("true_leaves_established", "three_blade", "five_blade",
-                        "seven_blade", "node_stacking", "cotyledons_spent"),
-            "means": ("True leaves established and taking over from the cotyledons. "
-                      "The plant is building structure rather than establishing."),
+            "markers": ("seven_blade", "nine_blade", "node_stacking", "cotyledons_spent",
+                        "bushy_growth"),
+            "means": ("Structure-building in earnest - seven-blade leaves, stacked nodes, "
+                      "cotyledons spent. This is the 600-900 band."),
         },
         "preflower": {
             "markers": ("pistils", "pre_flowers", "calyx_at_node"),
@@ -1491,7 +1506,15 @@ class GrowAgent(AgentBase):
         """Record what is visibly present, and let the stage follow from it."""
         a = args if isinstance(args, dict) else {}
         plant_id = str(a.get("plant_id") or "current_plant")
-        seen = [str(m).strip().lower() for m in (a.get("markers") or []) if str(m).strip()]
+        # A STRING IS NOT A LIST OF MARKERS. Passing markers="second set of
+        # true leaves" iterated it character by character and reported
+        # "unrecognised: s, e, c, o, n, d..." - a caller mistake turned into
+        # gibberish instead of an error. Accept a string as one marker, or as
+        # a comma-separated list, and say so.
+        _raw = a.get("markers") or []
+        if isinstance(_raw, str):
+            _raw = [x for x in _raw.replace(",", " ").split()] if "," in _raw else [_raw]
+        seen = [str(m).strip().lower().replace(" ", "_") for m in _raw if str(m).strip()]
         note = str(a.get("note") or "").strip()
         if not seen:
             return {"error": ("observe_stage_markers needs `markers` - what is actually "
