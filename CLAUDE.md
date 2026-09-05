@@ -684,14 +684,33 @@ Before concluding a capability is missing, determine whether it is merely
 unreachable. The two look identical from the outside and have opposite fixes:
 one means build it, the other means declare it.
 
-There are **four** states, not two, and the fourth is the one that hides:
+There are **five** states, not two, and the last two are the ones that hide:
 
-| State | What it means | Fix |
-|-------|---------------|-----|
-| **absent** | nothing implements it | build it |
-| **working** | implemented, declared, routable | nothing |
-| **undeclared** | implemented and dispatching, invisible to the registry, dashboard and router | declare it |
-| **inert knowledge** | the information is held and nothing reasons with it | give it a verb |
+| State | What it means | Fix | How it is found |
+|-------|---------------|-----|-----------------|
+| **absent** | nothing implements it | build it | **partial** - a domain agent with no `reference/<id>/` warns at boot; nothing else checks for absence |
+| **working** | implemented, declared, routable | nothing | - |
+| **undeclared** | implemented and dispatching, invisible to whatever reads the declaration | declare it | `check_declared_matches_dispatched` and `check_declaration_sites_agree` |
+| **inert knowledge** | the information is held and **no verb reasons with it** | give it a verb | **partial** - the boot warning covers corpora only |
+| **unstructured fact** | a verb exists, runs, and **cannot find the fact because it lives in prose** | give the fact a field | **none** |
+
+**The last two look identical and are not.** Both read as "the system held it and
+could not reason with it", so the doctrine's own test applies: they have
+different fixes. Grow loaded 15 corpus sections that no verb ever called - `give
+it a verb` was right. The halo observation had a verb, which ran, and looked, and
+could not find the answer because it sat in a sentence: three attempts to mine it
+out of note text matched an equipment description, then a note referring back to
+an earlier one, then finally the agent's own question *"whether any spot has a
+yellow halo"* read as a report that one was present. Applying `give it a verb`
+there yields nothing, because the verb was already there. **A discrete
+observation belongs in a field. Prose is where facts go to become ambiguous.**
+
+**The `How it is found` column is deliberately honest about its gaps.** A state
+with no detector is a state the system lives in without knowing, and two of the
+five have none or nearly none. Grow ran for months with no reference corpus and
+nothing said a word; the principal found the capability drift by noticing one
+stale config by eye. An empty cell here is a piece of work, not a formatting
+choice - and it is worth more on the page than a table that looks complete.
 
 `undeclared` was measured at **82 capabilities** on 2026-08-31: every one worked
 when called by name, and no router, dashboard or peer agent knew it existed. The
@@ -706,7 +725,7 @@ reports the discrepancy - dead routing terms, inherited verbs that crash, corpus
 sections recording themselves truncated. Declared reality on one side,
 operational reality on the other, and the gap named out loud.
 
-**The fourth state is the subtle one and the doctrine catches it.** Asked *"what
+**`inert knowledge` is the subtle one and the doctrine catches it.** Asked *"what
 can you already do about drying and curing"*, the system answered nothing, and
 the elegant inference is `undeclared`. Checked, it is not: Grow has **zero**
 drying verbs - the harvest track is planned and unstarted - and simultaneously
