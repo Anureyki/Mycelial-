@@ -155,6 +155,46 @@
         "basis": "secondhand social post",
         "stamped_at": null
       }
+    },
+    {
+      "citation": "ebb-and-flow-is-the-cycling-idea",
+      "text": "THE GROWER'S CYCLING QUESTION HAS A NAMED SYSTEM BEHIND IT. Ebb and Flow floods a tray on a timer then drains it completely: 'during the flood phase roots get nutrients. During the drain phase air fills the medium and roots get oxygen. THE CYCLING MATCHES WHAT ROOTS ACTUALLY WANT.' Mediums are highly porous - hydroton, coarse perlite, rockwool - so they drain fast and completely. Timer reliability is critical: a failed timer that stops flooding, or floods continuously, both create problems. [UNVERIFIED - reported]",
+      "evidence_grade": "reported",
+      "integrity": {
+        "state": "unknown",
+        "basis": "secondhand social post",
+        "stamped_at": null
+      }
+    },
+    {
+      "citation": "cycling-splits-into-two-questions",
+      "text": "THE DISTINCTION THAT ANSWERS THE GROWER'S QUESTION, derived by comparing this source to his system. He asked whether aeration should cycle rather than run continuously. That is ONE question wearing the shape of two, and they have different answers. (1) CYCLING THE TOP FEED onto the clay pellets is Ebb and Flow logic applied to the half of his system that IS a medium - flood for nutrients, drain for oxygen, which this source says is what roots want. His pellet zone already behaves this way and it is why the pellets dried when the pump stopped. (2) CYCLING THE AIR STONE is a different proposition entirely: the submerged roots are in DWC, where the same source states aeration must be continuous because 'roots in oxygen deficient solution don't just slow down - they start dying within hours.' His system is a HYBRID and the answer differs by half. Not established, and no controlled trial exists on one plant - but the question is now two questions, which is progress over treating it as one.",
+      "evidence_grade": "reported",
+      "integrity": {
+        "state": "unknown",
+        "basis": "derived from comparing this source to the system record",
+        "stamped_at": null
+      }
+    },
+    {
+      "citation": "system-choice-is-management-capacity",
+      "text": "'Choosing a system comes down to honest assessment of your management capacity.' DWC = best starting point for most people learning hydro; RDWC = step up for multiple plants; NFT = clean if power and equipment are reliable; Ebb and Flow = middle ground with more buffer than NFT; HPA aeroponics = experienced growers chasing the ceiling, where roots in air can start drying within MINUTES of a missed misting cycle. RELEVANT TO THIS GROWER, and he is the one to weigh it: two pump interruptions are now on this record, one of them overnight. In DWC that produced no root damage. In NFT it would have been serious within an hour; in HPA, within minutes. [UNVERIFIED - reported]",
+      "evidence_grade": "reported",
+      "integrity": {
+        "state": "unknown",
+        "basis": "secondhand social post",
+        "stamped_at": null
+      }
+    },
+    {
+      "citation": "hydro-is-a-management-commitment",
+      "text": "Closing claim of the carousel: 'Every hydroponic system is a commitment to active, consistent management in exchange for the performance that direct root zone control provides. SOIL FORGIVES. HYDROPONICS PERFORMS. The difference is whether you're willing to show up, pay attention, and maintain the system your roots are depending on every single day... Get it wrong and it will show you how fast things can go sideways when you're growing in water instead of dirt.' The author adds that he does not run hydroponics himself. [UNVERIFIED - reported, and by the author's own statement not from personal hydroponic practice]",
+      "evidence_grade": "reported",
+      "integrity": {
+        "state": "unknown",
+        "basis": "secondhand; author states he does not run hydro",
+        "stamped_at": null
+      }
     }
   ]
 }
