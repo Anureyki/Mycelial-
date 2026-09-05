@@ -9450,6 +9450,40 @@ class GrowAgent(AgentBase):
             return {"result": out}
 
         elif task == "amend_grow_system":
+            # REMOVAL, because a record that can only GROW is one where a
+            # mistaken entry is permanent. amend merges and set_grow_system
+            # rebuilds from its arguments - dropping every field not passed,
+            # which is the trap this file already documents - so until now
+            # there was no way to take a wrong fact off the system record at
+            # all. Readings can be voided and training events can be voided;
+            # this was the third store with no correction path.
+            #
+            # Requires a reason, like the other two. A field removed without
+            # one is indistinguishable from a field removed because it was
+            # inconvenient.
+            _rm = (args or {}).get("_remove") or []
+            if _rm:
+                if not str((args or {}).get("reason") or "").strip():
+                    return {"error": ("Removing a field from the system record requires a "
+                                      "reason. A record that can be trimmed without one is "
+                                      "not evidence.")}
+                _pid = args.get("plant_id", "current_plant")
+                _key = f"grow_system_{_pid}"
+                try:
+                    _rec = json.loads(self._unwrap_value(self.retrieve_own_memory(_key)) or "{}")
+                except Exception:
+                    _rec = {}
+                _gone = {k: _rec.pop(k) for k in list(_rm) if k in _rec}
+                if _gone:
+                    _rec.setdefault("_removals", []).append({
+                        "at": datetime.now().isoformat(),
+                        "removed": _gone,
+                        "reason": args["reason"],
+                        "by": args.get("removed_by", "principal")})
+                    self.store_own_memory(_key, json.dumps(_rec))
+                return {"removed": list(_gone), "not_present": [k for k in _rm if k not in _gone],
+                        "note": ("The removed values are kept under _removals with the reason. "
+                                 "The record that a wrong fact was once held is itself history.")}
             fields = {k: v for k, v in (args or {}).items() if k != "plant_id"}
             return {"result": self.amend_grow_system(
                 args.get("plant_id", "current_plant"), **fields)}
