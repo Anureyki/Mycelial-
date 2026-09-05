@@ -68,7 +68,7 @@ class TradingAgent(AgentBase):
             capabilities=[
                 "scan_candidates", "vet_candidate", "vet_batch",
                 "fee_viability", "concentration", "capability_surface",
-                "list_rejections", "rejection_stats",
+                "list_rejections", "rejection_stats", "score_predictions",
             ],
             role="agent",
         )
@@ -338,11 +338,24 @@ class TradingAgent(AgentBase):
         ticker = a.get("ticker") or a.get("contract") or "unknown"
         run, skipped = [], []
 
+        # WHAT A DECISION MUST CARRY TO BE TESTABLE LATER.
+        #
+        # The first eight rejections this agent made are unscorable forever,
+        # because the record kept the verdict and threw away the identifiers.
+        # Nothing could look up what was refused or what it looked like at the
+        # time, so "was VET right?" had no way to be asked. A decision that
+        # cannot be revisited is an opinion with a timestamp.
+        baseline = {"contract": a.get("contract"), "chain": a.get("chain"),
+                    "liquidity_usd": a.get("liquidity_usd"), "mcap": a.get("mcap"),
+                    "volume_h24": a.get("volume_h24"), "volume_h6": a.get("volume_h6"),
+                    "price_change_h1": a.get("price_change_h1")}
+
         def reject(check, why, evidence=None):
             rec = {"ticker": ticker, "verdict": "REJECT", "failed_check": check,
                    "why": why, "evidence": evidence,
                    "checks_run": run, "checks_skipped": skipped,
-                   "at": datetime.now(timezone.utc).isoformat(), "disclaimer": DISCLAIMER}
+                   "at": datetime.now(timezone.utc).isoformat(),
+                   "baseline": baseline, "disclaimer": DISCLAIMER}
             self._remember_rejection(rec)
             return rec
 
@@ -412,6 +425,7 @@ class TradingAgent(AgentBase):
 
         verdict = "PASS_PARTIAL" if skipped else "PASS"
         rec = {"ticker": ticker, "verdict": verdict, "failed_check": None,
+               "baseline": baseline,
                "checks_run": run, "checks_skipped": skipped,
                "why": ("Survived every check that could be run. "
                        + ("Skips present, so this is not a clean pass and whatever reads it "
@@ -484,6 +498,108 @@ class TradingAgent(AgentBase):
                                      "discovery surface this usually means the filters are "
                                      "misconfigured, not that the candidates are good.")
         return out
+
+    # ---- closing the loop: was the refusal right? ------------------------
+    #
+    # A rejection is a PREDICTION - "this candidate will fail" - and until it is
+    # scored against what the token actually did, a rejection log is a list of
+    # opinions. The machinery for grading it is inherited from AgentBase, which
+    # got it when it was extracted out of Grow. What lives here is only what
+    # this domain knows: what counts as an outcome, and how long to wait.
+
+    PREDICTION_SUBJECT_KEY = "desk"
+    MIN_HOURS_BEFORE_SCORING = 24
+    DEAD_VOLUME_RATIO = 0.20     # RISK's own rule: h6 under a fifth of the h24 average
+    DEAD_LIQUIDITY_DROP = 0.50   # half the liquidity gone
+
+    def default_prediction_subject(self):
+        return "vet"
+
+    def collect_predictions(self, subject=None):
+        """Every vet decision that recorded enough to be revisited."""
+        out = []
+        for r in self._load_vet():
+            base = r.get("baseline") or {}
+            if not base.get("contract"):
+                continue
+            out.append({"source": "vet", "ticker": r.get("ticker"),
+                        "contract": base["contract"], "timestamp": r.get("at"),
+                        "expected_effect": ("candidate fails" if r.get("verdict") == "REJECT"
+                                            else "candidate survives"),
+                        "vet_verdict": r.get("verdict"), "failed_check": r.get("failed_check"),
+                        "baseline": base})
+        return out
+
+    def gather_observations(self, subject=None):
+        """Current DexScreener state for every contract under test."""
+        contracts = {p["contract"] for p in self.collect_predictions(subject)}
+        obs = {}
+        for c in list(contracts)[:30]:
+            try:
+                r = requests.get(f"{DEX_BASE}/tokens/{c}", timeout=HTTP_TIMEOUT)
+                pairs = (r.json() or {}).get("pairs") or []
+                obs[c] = pairs[0] if pairs else None
+            except Exception as exc:
+                obs[c] = {"_error": f"{type(exc).__name__}: {exc}"}
+        return obs
+
+    def score_one_prediction(self, pred, observations):
+        """Did the refused thing actually die?
+
+        THREE REFUSALS, and they matter more than the score:
+
+        - Too soon is `undetermined`, never a miss. A token refused an hour ago
+          has not had time to prove anything.
+        - A pair that has VANISHED from DexScreener is `unscorable`, NOT a win.
+          Delisting is strong evidence of death and it is not proof, and an
+          agent that credits itself for something it cannot measure is grading
+          its own homework. Unknown is not complete.
+        - A fetch that failed is `unscorable` with the error, distinct from a
+          fetch that succeeded and found nothing.
+        """
+        base = pred.get("baseline") or {}
+        try:
+            age_h = (datetime.now(timezone.utc)
+                     - datetime.fromisoformat(str(pred["timestamp"]))).total_seconds() / 3600.0
+        except Exception:
+            return {**pred, "verdict": "unscorable", "why": "decision timestamp unreadable"}
+        if age_h < self.MIN_HOURS_BEFORE_SCORING:
+            return {**pred, "verdict": "undetermined",
+                    "why": (f"only {age_h:.1f}h since the decision, under the "
+                            f"{self.MIN_HOURS_BEFORE_SCORING}h floor - not yet testable"),
+                    "age_hours": round(age_h, 1)}
+
+        ob = (observations or {}).get(pred["contract"])
+        if isinstance(ob, dict) and ob.get("_error"):
+            return {**pred, "verdict": "unscorable",
+                    "why": f"could not fetch current state: {ob['_error']}"}
+        if ob is None:
+            return {**pred, "verdict": "unscorable",
+                    "why": ("the pair no longer appears on DexScreener. That is strong "
+                            "evidence the token died and it is NOT proof, so this is not "
+                            "counted as a correct refusal.")}
+
+        liq_now = float((ob.get("liquidity") or {}).get("usd") or 0)
+        liq_then = float(base.get("liquidity_usd") or 0)
+        vol = ob.get("volume") or {}
+        v24, v6 = float(vol.get("h24") or 0), float(vol.get("h6") or 0)
+        ratio = (v6 / (v24 / 4.0)) if v24 else 0.0
+
+        liq_collapsed = bool(liq_then) and liq_now < liq_then * (1 - self.DEAD_LIQUIDITY_DROP)
+        vol_dead = ratio < self.DEAD_VOLUME_RATIO
+        died = liq_collapsed or vol_dead
+
+        predicted_failure = pred.get("vet_verdict") == "REJECT"
+        held = (died == predicted_failure)
+        return {**pred, "verdict": "held" if held else "failed",
+                "age_hours": round(age_h, 1),
+                "observed": {"liquidity_then": liq_then, "liquidity_now": round(liq_now, 2),
+                             "volume_ratio_6h_vs_avg": round(ratio, 3),
+                             "liquidity_collapsed": liq_collapsed, "volume_dead": vol_dead,
+                             "died": died},
+                "why": (f"predicted {'failure' if predicted_failure else 'survival'}; "
+                        f"token {'died' if died else 'survived'} "
+                        f"(liq {liq_then:,.0f}->{liq_now:,.0f}, vol ratio {ratio:.2f})")}
 
     # ---- the boundary, made inspectable ---------------------------------
 
