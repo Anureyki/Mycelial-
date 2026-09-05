@@ -19,6 +19,12 @@ CAG_STATE_DIR = os.path.join(BASE, "state", "cag")
 
 # File types read as text into the cache. Anything else is skipped (logged, not crashed on).
 CAG_TEXT_EXTENSIONS = {".txt", ".md", ".json", ".csv"}
+
+# How many DECIDED predictions before a hit rate may be called a reliability.
+# Below it the rate is still reported - the observations happened and hiding
+# them would be its own dishonesty - but the inference from rate to "this agent
+# is X% reliable" is refused. Four-out-of-five is not an eighty percent edge.
+MIN_PREDICTIONS_FOR_RELIABILITY = 5
 CAG_MAX_DOC_CHARS = 200_000  # guard against one huge file blowing up memory
 CAG_TOKEN_RE = re.compile(r"[a-zA-Z0-9§][a-zA-Z0-9§.\-]*")
 
@@ -428,6 +434,8 @@ class AgentBase:
                               "retract_stance", "set_discriminator"):
                     result = self.handle_differential_task(
                         task, args if isinstance(args, dict) else {})
+                elif task == "score_predictions":
+                    result = self.score_predictions(args if isinstance(args, dict) else {})
                 elif task == "base_version":
                     result = self.base_version()
                 elif task == "corpus_currency":
@@ -1013,6 +1021,124 @@ class AgentBase:
         out["image_path"] = str(image_path)
         out["text"] = text
         return out
+
+    # ------------------------------------------------------------------
+    # SCORING PREDICTIONS. Extracted from Grow, where it grew by accident.
+    #
+    # Grow needed to know whether its feed recommendations came true, and what
+    # it built to answer that is not horticultural at all: a way to grade a
+    # recorded expectation against what was later observed, while refusing the
+    # three inferences the data cannot carry. That is an epistemic primitive,
+    # and it belonged in the substrate rather than in one biological agent.
+    #
+    # THE SPLIT, and it is the whole point of the extraction:
+    #
+    #   AgentBase owns  the arithmetic and the refusals - decidable versus not,
+    #                   hit rate absent at zero, unscorable distinct from wrong,
+    #                   the reliability floor, persistence of the scorecard.
+    #   The domain owns what a prediction IS, where observations come from, and
+    #                   how an expected effect is tested. None of that is here.
+    #
+    # THIS DOES NOT MAKE ANY AGENT PREDICT ANYTHING. `collect_predictions`
+    # returns nothing by default, so an agent that records no expectations
+    # answers exactly as it did before this existed. The base class offers the
+    # ability to EVALUATE a prediction where one exists; generating predictions
+    # is a separate capability and is not conferred here.
+    # ------------------------------------------------------------------
+
+    # Result key naming the thing predicted about. Domains that already speak a
+    # noun keep it - Grow says plant_id - so the extraction changes no caller.
+    PREDICTION_SUBJECT_KEY = "subject"
+
+    def collect_predictions(self, subject=None):
+        """Recorded expectations for this subject. DOMAIN HOOK.
+
+        Default is empty, deliberately: most agents record no predictions, and
+        after this refactor they must behave exactly as they did before it."""
+        return []
+
+    def gather_observations(self, subject=None):
+        """What the predictions get tested against. DOMAIN HOOK."""
+        return []
+
+    def score_one_prediction(self, pred, observations):
+        """Grade ONE prediction. DOMAIN HOOK.
+
+        The default refuses rather than guesses. An agent that has not been
+        taught how to test its own expectations does not thereby get to call
+        them held - `unscorable` is the honest verdict and it is not `failed`."""
+        return {**pred, "verdict": "unscorable",
+                "why": ("this agent has no domain rule for testing an expected effect, "
+                        "so the prediction cannot be graded either way"),
+                "checks": []}
+
+    def tally_predictions(self, scored, subject=None, persist=True):
+        """The domain-free part: aggregate, and refuse three specific inferences.
+
+        1. HIT RATE IS ABSENT, NOT ZERO, when nothing was decidable. A rate over
+           zero decided predictions is not 0% and not 100%, it is unknown, and
+           putting a number there is the false confidence this whole file hunts.
+        2. UNSCORABLE IS NOT WRONG. A prediction that stated an intention rather
+           than a measurable outcome is excluded from the denominator instead of
+           counted as a miss - otherwise vague predictions punish the agent that
+           made them and precise ones become the risky choice.
+        3. RELIABILITY IS A SEPARATE CONCLUSION FROM THE RATE. Under the floor
+           the rate is still reported, because the observations did happen; what
+           is refused is the leap from that rate to a claim about the agent."""
+        scored = list(scored or [])
+        tally = {}
+        for r in scored:
+            v = r.get("verdict", "undetermined")
+            tally[v] = tally.get(v, 0) + 1
+        decided = tally.get("held", 0) + tally.get("failed", 0)
+
+        result = {
+            self.PREDICTION_SUBJECT_KEY: subject,
+            "scored": len(scored),
+            "tally": tally,
+            "hit_rate": round(tally.get("held", 0) / decided, 2) if decided else None,
+            "predictions": scored,
+        }
+        if decided and decided < MIN_PREDICTIONS_FOR_RELIABILITY:
+            result["reliability"] = (
+                f"{decided} decided prediction(s) - too few to characterise how "
+                f"reliable this agent's expectations are. The rate describes these "
+                f"predictions only.")
+        if tally.get("unscorable"):
+            result["note"] = (f"{tally['unscorable']} prediction(s) state an intention rather "
+                              "than a measurable outcome. Writing expected_effect with a "
+                              "number and a unit makes it gradeable.")
+        if persist:
+            try:
+                uid = self._uid() if hasattr(self, "_uid") else str(int(time.time() * 1000))
+                self.store_own_memory(f"scorecard_{uid}", json.dumps({
+                    "timestamp": datetime.now().isoformat(),
+                    self.PREDICTION_SUBJECT_KEY: subject,
+                    "evidence_kind": "assessment",
+                    "tally": tally, "hit_rate": result["hit_rate"],
+                }))
+            except Exception as exc:
+                self.log(f"scorecard not persisted: {exc}")
+        return result
+
+    def score_predictions(self, args=None):
+        """Grade this agent's recorded expectations against what happened."""
+        a = args if isinstance(args, dict) else {}
+        subject = (a.get(self.PREDICTION_SUBJECT_KEY) or a.get("subject")
+                   or self.default_prediction_subject())
+        preds = self.collect_predictions(subject)
+        if not preds:
+            return {self.PREDICTION_SUBJECT_KEY: subject, "scored": 0,
+                    "note": ("No prediction has been recorded for this subject. A prediction "
+                             "is an expected_effect attached to a decision - without one "
+                             "there is nothing to grade.")}
+        observations = self.gather_observations(subject)
+        return self.tally_predictions(
+            [self.score_one_prediction(p, observations) for p in preds], subject)
+
+    def default_prediction_subject(self):
+        """What to score when the caller names nothing. DOMAIN HOOK."""
+        return None
 
     def lookup_reference(self, term):
         """A citation or a case name, with its integrity attached.

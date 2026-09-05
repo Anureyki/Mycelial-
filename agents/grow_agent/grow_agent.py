@@ -537,7 +537,10 @@ STAGE_MORPHOLOGY_CUES = {
 # a stated boundary cannot decide the question either way.
 # Below this many decided predictions, a hit rate is a description of those
 # predictions rather than a measure of the agent's reliability.
-MIN_PREDICTIONS_FOR_RELIABILITY = 5
+# Imported rather than redefined: two copies of a threshold is two sources of
+# truth and the copy is the one that drifts. The scoring machinery that reads
+# it now lives on AgentBase.
+from core.base_agent import MIN_PREDICTIONS_FOR_RELIABILITY  # noqa: E402,F401
 
 MEASUREMENT_NOISE = {"ppm": 25.0, "ph": 0.1, "temp": 0.5, "ec": 0.05, "humidity": 3.0}
 
@@ -6582,6 +6585,26 @@ class GrowAgent(AgentBase):
             return "failed", f"{observed:g} is above {target:g}"
         return "inconclusive", f"{observed:g} is within noise (+/-{noise:g}) of {target:g}"
 
+    # ---- prediction-scoring domain hooks --------------------------------
+    # The machinery lives on AgentBase. What stays here is everything only a
+    # gardener knows: which records carry an expectation, what counts as an
+    # observation, and how "raise ppm to 750" is tested against a meter.
+
+    PREDICTION_SUBJECT_KEY = "plant_id"
+
+    def default_prediction_subject(self):
+        return "current_plant"
+
+    def collect_predictions(self, subject=None):
+        return self._collect_predictions(subject or "current_plant")
+
+    def gather_observations(self, subject=None):
+        return sorted(self._get_readings_for_plant(subject or "current_plant"),
+                      key=lambda r: r.get("timestamp") or "")
+
+    def score_one_prediction(self, pred, observations):
+        return self._score_prediction(pred, observations)
+
     def _collect_predictions(self, plant_id):
         """Every recorded expected_effect for this plant, from any record type
         that carries reasoning_context."""
@@ -7591,54 +7614,6 @@ class GrowAgent(AgentBase):
     # ---------- Existing tasks (unchanged) ----------
     def handle_task(self, task, args, sender):
         self.log(f"Task: {task} from {sender}")
-
-        if task == "score_predictions":
-            plant_id = args.get("plant_id", "current_plant") if isinstance(args, dict) else "current_plant"
-            readings = sorted(self._get_readings_for_plant(plant_id),
-                              key=lambda r: r.get("timestamp") or "")
-            preds = self._collect_predictions(plant_id)
-            if not preds:
-                return {"plant_id": plant_id, "scored": 0,
-                        "note": ("No prediction has been recorded for this plant. A prediction "
-                                 "is an expected_effect attached to a decision - without one "
-                                 "there is nothing to grade.")}
-            scored = [self._score_prediction(p, readings) for p in preds]
-            tally = {}
-            for r in scored:
-                tally[r["verdict"]] = tally.get(r["verdict"], 0) + 1
-            decided = tally.get("held", 0) + tally.get("failed", 0)
-            result = {
-                "plant_id": plant_id,
-                "scored": len(scored),
-                "tally": tally,
-                # Deliberately absent when nothing was decidable. A hit rate over
-                # zero decided predictions is not 0% and not 100% - it is unknown,
-                # and reporting a number there would be exactly the false
-                # confidence the resolution guards exist to prevent.
-                "hit_rate": round(tally.get("held", 0) / decided, 2) if decided else None,
-                "predictions": scored,
-            }
-            # A hit rate over a handful of predictions describes those
-            # predictions, not the agent's reliability. Same discipline as the
-            # consumption resolution floor: report the number, refuse the
-            # inference the sample cannot carry.
-            if decided and decided < MIN_PREDICTIONS_FOR_RELIABILITY:
-                result["reliability"] = (
-                    f"{decided} decided prediction(s) - too few to characterise how "
-                    f"reliable this agent's expectations are. The rate describes these "
-                    f"predictions only.")
-            if tally.get("unscorable"):
-                result["note"] = (f"{tally['unscorable']} prediction(s) state an intention rather "
-                                  "than a measurable outcome. Writing expected_effect with a "
-                                  "number and a unit makes it gradeable.")
-            # The scorecard is itself evidence - an assessment, not an event.
-            uid = self._uid()
-            self.store_own_memory(f"scorecard_{uid}", json.dumps({
-                "timestamp": datetime.now().isoformat(),
-                "plant_id": plant_id, "evidence_kind": "assessment",
-                "tally": tally, "hit_rate": result["hit_rate"],
-            }))
-            return result
 
         if task == "volume_history":
             a_ = args if isinstance(args, dict) else {}
