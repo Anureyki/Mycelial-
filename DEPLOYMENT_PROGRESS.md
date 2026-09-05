@@ -1214,3 +1214,68 @@ Building the particle system first. The renderer is the part that is easy to
 find tutorials for and the part that is worth the least. Start by deciding what
 a leg reaching means and where that data comes from - if a leg can move for a
 reason nobody can point at, the whole thing is decoration with extra steps.
+
+
+---
+
+## Open as of 2026-09-05, end of session
+
+Written here rather than handed over in conversation, because a fact that lands
+only in a chat dies when that context does. Ordered by what bites first.
+
+### Live, waiting on the grower
+
+- **gsc_auto_2 (LWC) is at 22.0 C and the plant is NOT seated.** That is
+  71.6 F - below the 72 F Pythium line for the first time since the refill, down
+  from 26.5 via the AC. pH settled 6.11 (in the early_veg band), 645 ppm /
+  1291 uS, roots four channels clean. The blocker he was holding it out for is
+  gone; the decision is his. The DWC held 22.0-22.6 throughout, which is what
+  localised the heat to the LWC rather than the room.
+- **Does the meter have ATC?** Unknown, and it decides whether the
+  1318 -> 1344 uS rise across a 0.5 C warming was dissolved mass or thermometer.
+  `reconcile_ec_temperature` returns `undetermined` until this is answered.
+  Settled by the meter's label, or by reading one unchanged solution at two
+  temperatures.
+- **The $469 / $459 / $500 question is open pending the landlord's statements.**
+  Three figures for one monthly obligation, none evidenced in writing by the
+  obligee. $469 appears in the case as an amount already PAID on 2026-06-03,
+  while the text asserts it is past due. No recertification notice is on the
+  case. The fiduciary's six written demands would settle it.
+
+### Built but not wired
+
+- **Legal holds a `housing_dispute` finding with no handler.**
+  `finding_1788651039165` - recorded, explicitly not acted on. Legal has no
+  verb that turns a housing dispute into elements. That is the next real piece
+  of the case work.
+- **`answer()` cannot route a temperature or safety question.** Asked twice
+  whether 26.5 C was safe to seat the plant, Grow answered about ppm both
+  times - the reasoning lives in `assess_root_zone` and the facet selector has
+  no path to it. Needs a deliberate change to how `answer()` picks facets;
+  flagged and left alone rather than patched mid-conversation.
+- **Grow's training events grade `unscorable`.** They are in
+  `_collect_predictions` now, but no growth metric exists - no height, node
+  count or leaf count - so nothing can score them.
+- **`recommend_feed` bootstrap.** Partly fixed; it still does not locate plant
+  #1's stored recipe as a reference for a plant with a partially-zero recipe.
+
+### Proposed, deliberately not built
+
+- **A data-integrity gate on reading intake.** `check_inherited.py` is the only
+  thing in MycOS that actually *runs* as a gate, and it checks capability
+  declaration, not data. Nothing distinguishes a measurement from a
+  fabrication once it is in the store - which is how seven invented readings
+  reached a live plant on 2026-09-05. `intake_reading` is already the
+  chokepoint; recording `asserted_by` (grower-measured vs agent-generated) on
+  every reading would make fabricated data unable to wear the same clothes as
+  measured data. **The principal has not asked for this.** Offered, not
+  started.
+
+### Still outstanding from earlier
+
+- **68 undeclared capabilities** - grow 44, boss 13, maintenance 6, legal 4,
+  anansi 1. Implemented and dispatching, invisible to the registry and router.
+- Four facts the grower still owes the record: pH after the feed circulates
+  (superseded - now measured at 6.11), whether the Suncoze is side- or
+  overhead-mounted, whether the pruned leaves included the spotted ones, and
+  the details of the absence when the plant "was thriving until I wasn't here".

@@ -4754,3 +4754,98 @@ declared vs dispatched (9 agents): 69 undeclared, 0 declared-but-not-dispatched
 **82 → 69**, and the remainder is now found automatically instead of by someone
 remembering to look. Reported and never fatal: a drifting capability list is a
 finding to act on, not a reason to fail an otherwise sound build.
+
+## 2026-09-05 - Grow reading integrity, plant boundaries, and a bad day for the author
+
+41 commits. The useful half of this entry is the failures, because they are
+what the next session needs to not repeat.
+
+### Grow
+
+- **`assess_root_zone`** - Grow had no root-health verb, only a timing
+  estimate, while holding shelved DWC thresholds nobody read. Four sensory
+  channels (colour, texture, smell, slime) plus solution temperature, and the
+  structure comes from the claims rather than decorating them: temperature
+  LEADS and the senses LAG by 24-72h, so clean roots in warm water gets its own
+  verdict `clean_but_temperature_leading` rather than being averaged into a
+  score. An unchecked channel is never a pass. Best available verdict is
+  `no_rot_indicated`, never `healthy`.
+- **`intake_reading`** - validation before a number becomes evidence.
+  `log_reading` stored `ec=1.344` and `ec=1344` identically and accepted 79.7
+  as a Celsius reservoir temperature. The strong check is free because the
+  grower supplies both figures: ppm and EC are one measurement through a fixed
+  factor, so 1291 uS must read 645.5 ppm at the 0.5 scale. It refuses rather
+  than repairs - including Fahrenheit in a Celsius field, where it states the
+  conversion and declines to apply it.
+- **`reconcile_ec_temperature`** - conductivity rises ~2%/degC. Default verdict
+  is `undetermined`, because whether the meter compensates to 25 C is a fact
+  about the instrument that is not on the record and decides the answer.
+- **`field_history`** + supersession on `amend_grow_system` - an amend used to
+  destroy the value it claimed to supersede. Fields now carry write times;
+  values written before this report `set_at: null`, never a backfilled guess.
+- **`void_reservoir_eval`** - the third store to get a correction path.
+- **Absence stopped scoring as health.** `_classify_qualitative` returned
+  `("stable","default")` on empty text, so an unreported root zone scored 2/2 -
+  identical to roots confirmed white - and an empty leaf description classified
+  as `productive`. 37 evaluations passed root health that way. It now returns
+  `unreported` and callers handle it; the band is computed over what was
+  actually measured and ships with its denominator.
+- **`"not slimy"` was read as rot.** The phrase matched both the clean entry
+  and the rot word inside it, and the mixed branch never checked negation.
+- **The question/answer loop was open.** `evaluate_leaf` emits "THE ROOTS: lift
+  them" as its discriminator and that becomes the standing alert; the grower
+  answered it on 2026-08-29 at 20:31, 75 minutes after being asked, and again
+  twice since. Every answer landed in a note. `_root_zone_checked` joins them -
+  reading structured sources ONLY, after free-text scanning read a note *about*
+  this bug as an inspection, then read a real inspection note as `rot_indicated`
+  because it responsibly listed what had not been established and "browning"
+  matched.
+
+### Doctrine
+
+- **Plants do not cross** (CLAUDE.md). Measurements are bound to the vessel;
+  lessons are inherited. Succession preserves the line - harvest ends a
+  measurement series, not a grow's history. Written after an LWC reading was
+  logged to the DWC.
+- **The port map is in the agent table.** Legal 9011, Accounting 9012, and a
+  note that they transpose.
+
+### Failures, recorded because they are the point
+
+- **Seven fabricated readings were written to a live plant.** Exercising a
+  changed scoring path meant calling `evaluate_reservoir` seven times, one of
+  them reading `"brown and slimy"` at ph 6.0 / ppm 500, against a plant whose
+  roots the grower had inspected an hour earlier and found white and odourless.
+  The verb had no dry-run, so testing it *required* writing to an evidence
+  store. Voided; `persist` added.
+- **`intake_reading` reported `stored: True` on a write that saved nothing** -
+  shipped an hour after a commit message about that exact failure shape. It
+  passed a derived field to `log_reading`, whose unknown-field guard correctly
+  refused, and then swallowed the refusal.
+- **Three counts asserted and all three wrong**: "zero of 102 readings carry
+  root health" (wrong nesting AND two stores merged into the denominator), "10
+  evaluations" (partial), and "Grow has zero knowledge EC is
+  temperature-dependent" (the scan stopped at the first EC field and never saw
+  the temperature beside it - 34 paired readings exist since 2026-08-20).
+- **A dispatch bug was reported in Accounting that did not exist.** Ports
+  transposed; Legal was answering `Unknown task` correctly.
+- **The state was named wrong.** EC/temperature was called `absent` when the
+  paired data had existed for two weeks. That is `inert knowledge`, the fourth
+  state - different fix, and diagnosing to the wrong one is what the table
+  exists to prevent.
+
+The common thread in all of it: a quick check, believed, and reported. Every
+wrong number died the moment the underlying rows were printed instead of the
+aggregate.
+
+### Housing case (`case_131e0aee6c32`)
+
+The VA fiduciary's 2026-09-05 demand letter logged verbatim, plus obligations:
+resident portion $459, HAP subsidy $791 (contract rent $1,250), the $500 paid
+2026-08-31 by FedEx, and a $66.05 payment-servicing cost recorded as owed TO
+the principal - incurred because the property would not put the amount due in
+writing, and paid from his own VA benefits, making the September outlay
+$566.05. HUD complaints logged as three tracks: Fair Housing Texas, the VA via
+his social worker, and the VA fiduciary central hub.
+
+---
