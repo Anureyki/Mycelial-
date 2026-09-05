@@ -877,6 +877,7 @@ class GrowAgent(AgentBase):
                 "log_training_event", "recommend_feed", "plan_system_transition",
                 "set_grow_system", "get_grow_system", "amend_grow_system",
                 "field_history", "assess_root_zone", "void_reservoir_eval",
+                "reconcile_ec_temperature",
                 "get_nutrient_history",
                 "set_inventory", "get_inventory",
                 "check_in", "analyze_consumption", "adjust_to_target_ppm",
@@ -8034,6 +8035,114 @@ class GrowAgent(AgentBase):
                                    f"change is inside instrument error.")})
         return out
 
+    # Conductivity is a property of the solution AND its temperature. Ions move
+    # faster in warm water, so the same dissolved mass reads higher EC when it
+    # warms. The standard coefficient for nutrient solutions is about 2 %/degC
+    # against a 25 C reference, which is what meters compensate to.
+    EC_TEMP_COEFF_PER_C = 0.02
+    EC_REFERENCE_C = 25.0
+
+    def reconcile_ec_temperature(self, ec_before=None, temp_before_c=None,
+                                 ec_after=None, temp_after_c=None,
+                                 meter_has_atc=None, plant_id="current_plant",
+                                 nutrients_added=False, note=""):
+        """How much of an EC change is dissolved mass, and how much is the meter.
+
+        A reservoir with no plant in it and nothing added to it read 1318 uS at
+        26.0 C and 1344 uS at 26.5 C. Read as a ppm figure that is nutrient
+        appearing from nowhere. It is not necessarily anything of the kind:
+        ions carry current faster in warm water, so the same salt reads higher
+        EC as the solution warms, and a half-degree covers roughly half of that
+        rise on its own.
+
+        Which half is real depends on ONE fact about the instrument, not about
+        the water: whether the meter compensates to 25 C. A meter with ATC has
+        already removed the temperature term and its change is real. A meter
+        without it has not, and comparing two of its readings taken at
+        different temperatures compares two different measurements.
+
+        That fact is not on the record, so when it is unknown this returns BOTH
+        readings and names what would settle it, rather than picking the
+        flattering one. A number that depends on an unanswered question is not
+        made truer by choosing an answer."""
+        eb, ea = self._parse_numeric(ec_before), self._parse_numeric(ec_after)
+        tb, ta = self._parse_numeric(temp_before_c), self._parse_numeric(temp_after_c)
+        if eb is None or ea is None:
+            return {"error": "Two EC readings are required."}
+
+        out = {"plant_id": plant_id, "ec_before": eb, "ec_after": ea,
+               "temp_before_c": tb, "temp_after_c": ta,
+               "raw_change": round(ea - eb, 1),
+               "raw_change_pct": round((ea - eb) / eb * 100, 2) if eb else None,
+               "coefficient_pct_per_c": self.EC_TEMP_COEFF_PER_C * 100,
+               "reference_c": self.EC_REFERENCE_C}
+
+        if nutrients_added:
+            out["verdict"] = "not_applicable"
+            out["reason"] = ("Nutrient was added between the readings, so mass changed "
+                             "and this comparison cannot separate the two causes. "
+                             "Same refusal as reconcile_topup.")
+            return out
+
+        if tb is None or ta is None:
+            out["verdict"] = "temperature_unknown"
+            out["reason"] = ("An EC comparison without both temperatures is not a "
+                             "comparison. Record the solution temperature at every "
+                             "EC reading - it is half the measurement.")
+            return out
+
+        def _to_25(ec, t):
+            return ec / (1.0 + self.EC_TEMP_COEFF_PER_C * (t - self.EC_REFERENCE_C))
+
+        comp_b, comp_a = _to_25(eb, tb), _to_25(ea, ta)
+        expected_from_temp = eb * self.EC_TEMP_COEFF_PER_C * (ta - tb)
+        out.update({
+            "if_meter_has_no_atc": {
+                "ec_before_at_25c": round(comp_b, 1),
+                "ec_after_at_25c": round(comp_a, 1),
+                "real_change_at_25c": round(comp_a - comp_b, 1),
+                "change_explained_by_temperature": round(expected_from_temp, 1),
+            },
+            "if_meter_has_atc": {
+                "real_change": round(ea - eb, 1),
+                "why": "ATC already removed the temperature term; the change is dissolved mass.",
+            },
+        })
+
+        if meter_has_atc is True:
+            out["verdict"] = "real_change"
+            out["real_change_us"] = round(ea - eb, 1)
+            out["reason"] = (f"Meter compensates to {self.EC_REFERENCE_C:g} C, so the "
+                             f"{ea - eb:+.0f} uS is dissolved mass, not warming.")
+        elif meter_has_atc is False:
+            resid = comp_a - comp_b
+            out["verdict"] = "partly_temperature"
+            out["real_change_us"] = round(resid, 1)
+            out["reason"] = (
+                f"Uncompensated. Warming {tb:g}->{ta:g} C alone accounts for about "
+                f"{expected_from_temp:+.0f} uS of the observed {ea - eb:+.0f} uS. "
+                f"At a common {self.EC_REFERENCE_C:g} C the readings are "
+                f"{comp_b:.0f} and {comp_a:.0f}, a real change of {resid:+.0f} uS.")
+        else:
+            out["verdict"] = "undetermined"
+            out["real_change_us"] = None
+            out["reason"] = (
+                f"Whether the meter has automatic temperature compensation is NOT on "
+                f"the record, and it decides this. With ATC the change is {ea - eb:+.0f} "
+                f"uS of real dissolved mass. Without it, warming accounts for about "
+                f"{expected_from_temp:+.0f} uS and the real change is {comp_a - comp_b:+.0f} "
+                f"uS. Both are given because choosing one would be inventing the answer.")
+            out["what_would_settle_it"] = (
+                "The meter's own label or manual: ATC, 'automatic temperature "
+                "compensation', or a stated reference of 25 C. Failing that, read the "
+                "same unchanged solution at two temperatures - a compensating meter "
+                "barely moves, an uncompensated one moves about 2 percent per degree.")
+
+        if note:
+            out["note"] = note
+        out["recorded_at"] = datetime.now().isoformat()
+        return out
+
     def verify_tds_scale(self, ppm=None, ec=None, ec_units="uS/cm",
                          plant_id="current_plant", record=False):
         """Work out which conversion the meter is using, from a paired reading.
@@ -8795,6 +8904,16 @@ class GrowAgent(AgentBase):
             return {"result": self.set_target_band_position(**(args if isinstance(args, dict) else {}))}
         elif task == "target_for_stage":
             return {"result": self.target_for_stage(**(args if isinstance(args, dict) else {}))}
+        elif task == "reconcile_ec_temperature":
+            a = args or {}
+            return {"result": self.reconcile_ec_temperature(
+                ec_before=a.get("ec_before"), temp_before_c=a.get("temp_before_c"),
+                ec_after=a.get("ec_after"), temp_after_c=a.get("temp_after_c"),
+                meter_has_atc=a.get("meter_has_atc"),
+                plant_id=a.get("plant_id", "current_plant"),
+                nutrients_added=a.get("nutrients_added", False),
+                note=a.get("note", ""))}
+
         elif task == "verify_tds_scale":
             return {"result": self.verify_tds_scale(**(args if isinstance(args, dict) else {}))}
         elif task == "assess_vpd":

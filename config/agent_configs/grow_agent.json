@@ -58,7 +58,8 @@
     "amend_grow_system",
     "field_history",
     "assess_root_zone",
-    "void_reservoir_eval"
+    "void_reservoir_eval",
+    "reconcile_ec_temperature"
   ],
   "entry_point": "agents.grow_agent.grow_agent:main",
   "description": "Tracks grow stages and suggests nutrient adjustments"
