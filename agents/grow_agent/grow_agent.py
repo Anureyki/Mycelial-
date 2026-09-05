@@ -6667,7 +6667,67 @@ class GrowAgent(AgentBase):
         new_growth = a.get("new_growth_affected")
         if new_growth is None:
             new_growth = "newly established leaves" in text or "new growth" in text
-        halo = a.get("halo")            # None means genuinely unknown
+        # READ THE RECORD BEFORE DECLARING SOMETHING UNKNOWN. This used to take
+        # halo only as an argument, so a fact the grower had already reported -
+        # and that this agent had already written into a note - came back as
+        # UNRESOLVED because nobody passed it again. He said so on 2026-08-07,
+        # a later note repeated that the earlier note recorded no halo, and the
+        # differential still asked for it. Unknown must mean nobody knows, not
+        # that this function was not handed it.
+        halo = a.get("halo")
+        halo_source = None
+        if halo is None:
+            # THE STRUCTURED RECORD FIRST. Mining this out of note prose failed
+            # three times: it read an equipment description, then a note
+            # referring back to an earlier observation, then finally this
+            # agent's own question - "whether any spot has a yellow halo" - as
+            # a report that one was present. A discrete observation belongs in
+            # a field. Prose is where facts go to become ambiguous.
+            try:
+                _sysrec = json.loads(self._unwrap_value(
+                    self.retrieve_own_memory(f"grow_system_{plant_id}")) or "{}")
+            except Exception:
+                _sysrec = {}
+            if isinstance(_sysrec, dict) and _sysrec.get("lesion_halo_present") is not None:
+                halo = bool(_sysrec["lesion_halo_present"])
+                halo_source = ("recorded on the system record: "
+                               + str(_sysrec.get("lesion_halo_basis") or "")[:150])
+        if halo is None and halo_source is None:
+            _neg = _re.compile(r"no (yellow )?halo|without a (yellow )?halo|halo[s]? absent", _re.I)
+            _pos = _re.compile(r"(yellow )?halo (present|around|ring)|has a (yellow )?halo", _re.I)
+            # ONLY THE GROWER'S OWN NOTES COUNT AS OBSERVATION. The first
+            # version searched every note, so this agent's own analytical notes
+            # - which discuss halos at length, including one asking "whether
+            # any spot has a yellow halo" - read as REPORTS of a halo. The
+            # differential then found the record self-contradictory and left it
+            # unresolved, when the only actual observation says no halo.
+            #
+            # A question about a thing is not an observation of it, and an
+            # agent reasoning over its own commentary as though it were
+            # evidence is a confirmation loop with extra steps. Notes carry a
+            # source; use it.
+            _obs = [n for n in notes
+                    if str(n.get("source") or "").startswith("grower")]
+            _saw_neg = any(_neg.search(str(n.get("text") or "")) for n in _obs)
+            _saw_pos = any(_pos.search(str(n.get("text") or "")) for n in _obs)
+            # Only conclude when the record is not self-contradictory.
+            if _saw_neg and not _saw_pos:
+                halo = False
+                halo_source = "read from the record - the grower reports no yellow halo"
+            elif _saw_pos and not _saw_neg:
+                halo = True
+                halo_source = "read from the record - the grower reports a halo"
+            elif _saw_neg and _saw_pos:
+                halo_source = ("the grower has reported BOTH a halo and no halo. "
+                               "Left unresolved rather than picking one.")
+            else:
+                halo_source = "the grower has not reported either way"
+        if halo_source is None:
+            # Only true if the CALLER actually passed it. Setting this in an
+            # else-branch mislabelled a value read from the system record as
+            # caller-supplied - a fact carrying the wrong provenance, which is
+            # the failure this whole file argues against.
+            halo_source = "supplied by the caller"
 
         ev = [{"fact": f"reservoir volume moved {excursion:.1f} L across the record",
                "kind": "measured", "value": excursion} if excursion else None,
@@ -6686,9 +6746,9 @@ class GrowAgent(AgentBase):
                "kind": "measured"} if latest else None,
               {"fact": ("new growth IS affected" if new_growth
                         else "new growth is NOT affected"), "kind": "observed"},
-              {"fact": ("halo present" if halo is True else
-                        "no halo observed" if halo is False else
-                        "halo UNRESOLVED - not looked for yet"),
+              {"fact": (("halo present" if halo is True else
+                         "no halo observed" if halo is False else
+                         "halo UNRESOLVED") + f" ({halo_source})"),
                "kind": "observed" if halo is not None else "absent"}]
         ev = [e for e in ev if e]
 
