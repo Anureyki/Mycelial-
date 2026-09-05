@@ -5876,6 +5876,24 @@ class GrowAgent(AgentBase):
             return {"channel": name, "state": "clean", "reported": value,
                     "matched": clean}
         if clean and rot:
+            # "not slimy" matches the clean phrase "not slimy" AND the rot word
+            # "slimy", and this branch used to call that a mixed report - so a
+            # grower saying the roots are NOT slimy was told rot_indicated.
+            # A rot word that sits INSIDE the clean phrase that matched is the
+            # same words being counted twice, not two findings.
+            swallowed = [w for w in rot if any(w in cw for cw in clean)]
+            if len(swallowed) == len(rot):
+                return {"channel": name, "state": "clean", "reported": value,
+                        "matched": clean,
+                        "why": f"the failing word(s) {swallowed} appear only inside "
+                               f"the clean phrase {clean}, negated"}
+            if neg:
+                # "no brown slime, and firm" - negation cue present and the
+                # clean signs are real. Report it, but say the read was mixed.
+                return {"channel": name, "state": "clean", "reported": value,
+                        "matched": clean,
+                        "why": "negation cue present alongside clean signs; "
+                               "the failing words are being denied, not reported"}
             return {"channel": name, "state": "mixed", "reported": value,
                     "matched": clean + rot,
                     "why": "the report names both a healthy and a failing sign"}
