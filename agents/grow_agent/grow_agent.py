@@ -6853,6 +6853,26 @@ class GrowAgent(AgentBase):
                     "A yellow halo raises suspicion of a pathogen and does not establish "
                     "one - leaf spots arise from abiotic causes too, and a nutrient lesion "
                     "can develop a chlorotic margin. Its ABSENCE is the more useful half."),
+                # A HYPOTHESIS NAMES A DEFICIENCY; A REMEDY NAMES A PRODUCT.
+                # The grower had to point this out. This differential weakens
+                # magnesium_deficiency on mobility grounds, correctly - and the
+                # only calcium source in his inventory is Cal-Mag Plus, which
+                # carries calcium, magnesium AND iron in one bottle. Anything
+                # reading "magnesium weakened" as "do not add the product with
+                # magnesium in it" would refuse the only calcium available over
+                # a co-formulated ingredient nobody said was short.
+                "remedy_vocabulary": (
+                    "Weakening a nutrient hypothesis says NOTHING about whether a "
+                    "multi-nutrient product is the right remedy. Calcium is dosed here "
+                    "with Cal-Mag Plus, which also contains magnesium and iron; that is "
+                    "a property of the bottle, not a claim about the plant. Do not argue "
+                    "against a product because one of its ingredients was ruled out."),
+                "if_transport_dosing_will_not_fix_it": (
+                    "The leading hypothesis is transport, not shortfall. If that holds, "
+                    "more Cal-Mag Plus does not reach the tissue that needs it - the fix "
+                    "is uninterrupted circulation and a reservoir that does not fall. "
+                    "Dosing and delivery are different actions and this differential has "
+                    "not yet chosen between them."),
                 "claims_this_rests_on": [
                     {"citation": c, "verified": False} for c in
                     ("calcium-immobile", "calcium-transport",
