@@ -56,7 +56,8 @@
     "web_search",
     "what_i_know",
     "amend_grow_system",
-    "field_history"
+    "field_history",
+    "assess_root_zone"
   ],
   "entry_point": "agents.grow_agent.grow_agent:main",
   "description": "Tracks grow stages and suggests nutrient adjustments"

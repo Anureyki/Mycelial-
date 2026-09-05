@@ -876,7 +876,7 @@ class GrowAgent(AgentBase):
                 "assess_plant", "validate_environment_targets",
                 "log_training_event", "recommend_feed", "plan_system_transition",
                 "set_grow_system", "get_grow_system", "amend_grow_system",
-                "field_history", "get_nutrient_history",
+                "field_history", "assess_root_zone", "get_nutrient_history",
                 "set_inventory", "get_inventory",
                 "check_in", "analyze_consumption", "adjust_to_target_ppm",
                 "training_quest_status", "source_training_candidates",
@@ -5707,6 +5707,217 @@ class GrowAgent(AgentBase):
         return {"inferred": False,
                 "why": "no volume increase of 1.5x or more in the nutrient history"}
 
+    # What a healthy DWC root zone looks like, and what a failing one looks
+    # like, from the grower's own shelved DWC material. Held as pairs so the
+    # assessment cites the claim it applied rather than paraphrasing it.
+    ROOT_CHANNELS = {
+        "colour":  {"clean": ("white", "off-white", "off white", "cream", "creamy",
+                              "pale", "ivory"),
+                    "rot":   ("brown", "browning", "tan", "rust", "rusty", "grey",
+                              "gray", "black", "dark", "yellowing")},
+        "texture": {"clean": ("fibrous", "thin", "fine", "stringy", "firm", "springy",
+                              "wiry", "threadlike"),
+                    "rot":   ("mushy", "soft", "melting", "disintegrat", "falling apart",
+                              "collaps")},
+        "smell":   {"clean": ("none", "no smell", "odourless", "odorless", "neutral",
+                              "earthy", "clean", "fresh"),
+                    "rot":   ("foul", "sour", "swamp", "sewage", "rotten", "rot",
+                              "sulphur", "sulfur", "stink", "fishy", "musty")},
+        "slime":   {"clean": ("none", "no slime", "not slimy", "dry", "clean"),
+                    "rot":   ("slime", "slimy", "slippery", "film", "snot", "gel",
+                              "mucus", "coating")},
+    }
+
+    # Both figures are `reported`, not verified - they came from a grower's
+    # notes, and this system's rule is that observed outcome outranks them the
+    # moment there is one. Until there is, they are the floor to reason from.
+    ROOT_TEMP_PYTHIUM_F = 72.0     # dwc-temperature-thresholds
+    ROOT_TEMP_STEEP_F = 75.0       # "above 75F the risk climbs fast"
+    ROOT_TEMP_GOOD_F = 65.0
+    ROOT_SURFACING_HOURS = (24, 72)  # dwc-failure-chain-24-72h
+
+    def _root_channel(self, name, value):
+        """Read one sensory channel into clean / rot / unreadable / unchecked.
+
+        `unchecked` and `clean` are deliberately different results. A channel
+        nobody looked at is not a channel that passed, and an assessment that
+        merges them reports health from the absence of a check - which is the
+        same error as a push that fails quietly."""
+        if value is None or (isinstance(value, str) and not value.strip()):
+            return {"channel": name, "state": "unchecked", "reported": None}
+        if isinstance(value, bool):
+            # A bare boolean means "is the rot sign present", which is the only
+            # reading that does not depend on which way the caller was thinking.
+            return {"channel": name, "state": "rot" if value else "clean",
+                    "reported": value}
+        text = str(value).strip().lower()
+        vocab = self.ROOT_CHANNELS.get(name) or {}
+        rot = [w for w in vocab.get("rot", ()) if w in text]
+        clean = [w for w in vocab.get("clean", ()) if w in text]
+        neg = any(c in text for c in self.NEGATION_CUES)
+        if rot and not clean:
+            # "not slimy" and "no brown" are the clean report, phrased by
+            # naming the thing that is absent.
+            return {"channel": name, "state": "clean" if neg else "rot",
+                    "reported": value, "matched": rot, "negated": neg}
+        if clean and not rot:
+            return {"channel": name, "state": "clean", "reported": value,
+                    "matched": clean}
+        if clean and rot:
+            return {"channel": name, "state": "mixed", "reported": value,
+                    "matched": clean + rot,
+                    "why": "the report names both a healthy and a failing sign"}
+        return {"channel": name, "state": "unreadable", "reported": value,
+                "why": f"no {name} vocabulary matched; recorded, not interpreted"}
+
+    def assess_root_zone(self, plant_id="current_plant", colour=None, smell=None,
+                         texture=None, slime=None, water_temp_f=None,
+                         water_temp_c=None, aeration_ok=None, observed_at=None,
+                         note="", persist=True):
+        """Read a root-zone inspection, and say what it does NOT establish.
+
+        The grower's own DWC material makes two claims that decide how this
+        has to be built, and building it any other way would throw them away:
+
+        1. **Temperature leads, the senses lag.** Pythium thrives above 72F and
+           the risk climbs fast above 75F, but browning takes 24 hours to
+           appear and serious damage 48-72. So white, thin, odourless roots in
+           78F water are not reassurance - they are an inspection taken before
+           the damage surfaced. A verdict that averages a clean look together
+           with a bad temperature into one number destroys exactly the signal
+           that would have bought the grower two days.
+
+        2. **A clean inspection has a shelf life.** "Root rot doesn't develop
+           over weeks." This assessment is evidence about the moment it was
+           taken, and it does not survive a temperature spike or a dead air
+           stone. It is therefore returned with what would void it, rather
+           than as a standing state of the plant.
+
+        And the rule this file runs everywhere: a channel nobody checked is
+        not a channel that passed. `unchecked` is reported as its own count,
+        the verdict is capped by how many channels were actually read, and the
+        best available verdict is `no_rot_indicated` - never `healthy`, which
+        is a claim about the plant rather than about the four things looked
+        at."""
+        readings = [self._root_channel("colour", colour),
+                    self._root_channel("texture", texture),
+                    self._root_channel("smell", smell),
+                    self._root_channel("slime", slime)]
+        by_state = {}
+        for r in readings:
+            by_state.setdefault(r["state"], []).append(r["channel"])
+        n_rot = len(by_state.get("rot", []))
+        n_clean = len(by_state.get("clean", []))
+        n_unchecked = len(by_state.get("unchecked", []))
+        n_mixed = len(by_state.get("mixed", []))
+
+        temp_f = self._parse_numeric(water_temp_f)
+        if temp_f is None:
+            tc = self._parse_numeric(water_temp_c)
+            if tc is not None:
+                temp_f = tc * 9 / 5 + 32
+        temp = {"water_temp_f": round(temp_f, 1) if temp_f is not None else None,
+                "pythium_threshold_f": self.ROOT_TEMP_PYTHIUM_F,
+                "steep_risk_f": self.ROOT_TEMP_STEEP_F,
+                "cites": "dwc-temperature-thresholds (reported, unverified)"}
+        if temp_f is None:
+            temp["band"] = "unknown"
+            temp["why"] = ("Not measured. This is the LEADING indicator and the "
+                           "sensory channels lag it by 24-72h, so its absence is "
+                           "the largest gap in this assessment - not a detail.")
+        elif temp_f > self.ROOT_TEMP_STEEP_F:
+            temp["band"] = "steep_risk"
+        elif temp_f > self.ROOT_TEMP_PYTHIUM_F:
+            temp["band"] = "above_pythium_threshold"
+        elif temp_f <= self.ROOT_TEMP_GOOD_F:
+            temp["band"] = "good"
+        else:
+            temp["band"] = "acceptable"
+
+        warm = temp["band"] in ("above_pythium_threshold", "steep_risk")
+
+        if n_rot or n_mixed:
+            verdict = "rot_indicated"
+            reason = (f"{n_rot + n_mixed} of 4 channels report a failing sign: "
+                      f"{', '.join(by_state.get('rot', []) + by_state.get('mixed', []))}.")
+        elif n_clean == 0:
+            verdict = "not_assessed"
+            reason = "No channel was read. Nothing about the root zone is established."
+        elif n_unchecked >= 2:
+            verdict = "insufficient_channels"
+            reason = (f"Only {n_clean} of 4 channels checked "
+                      f"({', '.join(by_state.get('clean', []))}). Unchecked: "
+                      f"{', '.join(by_state.get('unchecked', []))}. Rot can present "
+                      f"in one channel before the others, so a partial pass is "
+                      f"a partial look, not a clean bill.")
+        elif warm:
+            verdict = "clean_but_temperature_leading"
+            reason = (f"{n_clean} of 4 channels clean, AND the solution is "
+                      f"{temp['water_temp_f']}F - above the {self.ROOT_TEMP_PYTHIUM_F}F "
+                      f"threshold. Browning takes "
+                      f"{self.ROOT_SURFACING_HOURS[0]}h to appear and serious damage "
+                      f"{self.ROOT_SURFACING_HOURS[1]}h, so clean roots in warm "
+                      f"solution is consistent with damage that has not surfaced "
+                      f"yet. The temperature is the finding here, not the roots.")
+        elif temp_f is None:
+            verdict = "no_rot_indicated_temperature_unknown"
+            reason = (f"{n_clean} of 4 channels clean and none failing. The "
+                      f"leading indicator was not measured, so this says what the "
+                      f"root zone looks like now and nothing about where it is going.")
+        else:
+            verdict = "no_rot_indicated"
+            reason = (f"All 4 channels clean and solution at {temp['water_temp_f']}F "
+                      f"({temp['band']}). Leading and lagging indicators agree, "
+                      f"which is worth more than either alone.")
+
+        voids = ["a solution temperature above "
+                 f"{self.ROOT_TEMP_PYTHIUM_F}F",
+                 "loss of aeration - pump failure, clogged air stone, power outage",
+                 "light reaching the solution (algae competes for oxygen)"]
+        out = {
+            "plant_id": plant_id,
+            "observed_at": observed_at or datetime.now().isoformat(),
+            "verdict": verdict,
+            "reason": reason,
+            "channels": readings,
+            "checked": n_clean + n_rot + n_mixed + len(by_state.get("unreadable", [])),
+            "unchecked": by_state.get("unchecked", []),
+            "temperature": temp,
+            "aeration_ok": aeration_ok,
+            "shelf_life": {
+                "hours_to_browning": self.ROOT_SURFACING_HOURS[0],
+                "hours_to_serious_damage": self.ROOT_SURFACING_HOURS[1],
+                "voided_by": voids,
+                "note": ("This is evidence about the moment of inspection. The "
+                         "failure chain runs in 24-72h, so it is not a standing "
+                         "state of the plant and must be re-taken after anything "
+                         "in voided_by."),
+            },
+            "cites": ["dwc-temperature-thresholds", "dwc-failure-chain-24-72h"],
+            "evidence_grade": "reported",
+            "grade_note": ("The thresholds are a grower's reported figures, not "
+                           "verified here. Where this plant's own measured "
+                           "outcome disagrees with them, the outcome wins."),
+        }
+        if note:
+            out["note"] = note
+        if aeration_ok is None:
+            out.setdefault("gaps", []).append(
+                "aeration not reported; it is half of the failure chain")
+        if temp_f is None:
+            out.setdefault("gaps", []).append(
+                "solution temperature not measured; it is the leading indicator")
+
+        if persist:
+            key = f"root_zone_{plant_id}_{int(time.time() * 1e6)}"
+            try:
+                self.store_own_memory(key, json.dumps(out))
+                out["stored_as"] = key
+            except Exception as e:
+                out["stored"] = False
+                out["store_error"] = str(e)
+        return out
+
     def estimate_root_establishment(self, plant_id="current_plant", transitioned_on=None):
         """How long until roots bridge the medium and reach the reservoir.
 
@@ -9506,6 +9717,16 @@ class GrowAgent(AgentBase):
 
         elif task == "infer_system_change":
             return {"result": self.infer_system_change(args.get("plant_id", "current_plant"))}
+
+        elif task == "assess_root_zone":
+            a = args or {}
+            return {"result": self.assess_root_zone(
+                a.get("plant_id", "current_plant"),
+                colour=a.get("colour", a.get("color")), smell=a.get("smell"),
+                texture=a.get("texture"), slime=a.get("slime"),
+                water_temp_f=a.get("water_temp_f"), water_temp_c=a.get("water_temp_c"),
+                aeration_ok=a.get("aeration_ok"), observed_at=a.get("observed_at"),
+                note=a.get("note", ""), persist=a.get("persist", True))}
 
         elif task == "estimate_root_establishment":
             return {"result": self.estimate_root_establishment(
