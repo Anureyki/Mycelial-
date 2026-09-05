@@ -70,6 +70,11 @@ class TradingAgent(AgentBase):
                 "fee_viability", "concentration", "capability_surface",
                 "list_rejections", "rejection_stats", "score_predictions",
                 "book_opportunity", "recommend_size", "risk_check",
+                # Inherited from the CAG loader, dispatched by AgentBase.
+                # Declared here because a capability that works and is not
+                # named is invisible to the registry, the router and the
+                # dashboard - which is the whole `undeclared` failure class.
+                "refresh_cache", "query_cache", "cache_stats", "cache_manifest",
             ],
             role="agent",
         )

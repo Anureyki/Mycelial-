@@ -309,6 +309,84 @@ def check_corpus_integrity():
 
 
 
+def check_declaration_sites_agree():
+    """The THREE places a capability list lives, compared against each other.
+
+    check_declared_matches_dispatched() compares the constructor against the
+    dispatch table and reports the gap. It has never looked at the other two
+    declarations, and there are two: config/agent_configs/<id>.json, which the
+    Service Manager and the roster read, and config/agent_cards/<id>.json,
+    written at registration and never rewritten afterwards.
+
+    Measured the day this was added: ELEVEN OF ELEVEN agents disagreed with
+    themselves. legal_agent declared 21 capabilities in its config and 73 in
+    its constructor; grow_agent 9 against 48; anansi 1 against 18. Every one of
+    those passed the existing check, because the existing check was reading a
+    different file from the one the registry reads.
+
+    That is the same fault the tool exists to catch, one layer out: a
+    capability that works, is dispatched, and is invisible to whatever happens
+    to consult the wrong list. Which list a caller gets depends on how it
+    happened to ask - the exact shape CLAUDE.md calls out for
+    _load_reference_docs, where a section carried its integrity by one lookup
+    path and lost it by the other.
+    """
+    import glob
+    import re as _re
+    rows, drifted = [], 0
+    for cf in sorted(glob.glob(os.path.join(ROOT, "config", "agent_configs", "*.json"))):
+        aid = os.path.basename(cf)[:-5]
+        try:
+            cfg = set(json.load(open(cf)).get("capabilities") or [])
+        except Exception:
+            continue
+        src = None
+        for cand in (glob.glob(os.path.join(ROOT, "agents", "*", aid + ".py"))
+                     + glob.glob(os.path.join(ROOT, "agents", aid, "*.py"))):
+            try:
+                t = open(cand).read()
+            except Exception:
+                continue
+            if "capabilities=[" in t:
+                src = t
+                break
+        if not src:
+            continue
+        seg = src[src.index("capabilities=["):]
+        seg = seg[:seg.index("]") + 1]
+        ctor = set(_re.findall(r'"([a-z_]+)"', seg))
+        cardf = os.path.join(ROOT, "config", "agent_cards", aid + ".json")
+        card = set()
+        if os.path.exists(cardf):
+            try:
+                card = set(json.load(open(cardf)).get("capabilities") or [])
+            except Exception:
+                pass
+        missing_from_cfg = sorted(ctor - cfg)
+        missing_from_ctor = sorted(cfg - ctor)
+        stale_card = sorted(ctor - card) if card else []
+        if missing_from_cfg or missing_from_ctor or stale_card:
+            drifted += 1
+            rows.append((aid, len(cfg), len(ctor), len(card),
+                         missing_from_cfg, missing_from_ctor, stale_card))
+
+    print()
+    print("declaration sites (constructor vs agent_configs vs agent_cards):")
+    if not rows:
+        print("  all agents agree with themselves")
+        return 0
+    print("  %d agent(s) disagree with themselves. The registry, the router and"
+          % drifted)
+    print("  the dashboard do not all read the same file.")
+    print("  %-20s %4s %5s %5s  %s" % ("agent", "cfg", "ctor", "card", "not in config"))
+    for aid, nc, nt, nk, mc, mt, sk in rows:
+        note = ", ".join(mc[:4]) + (" ..." if len(mc) > 4 else "") if mc else "-"
+        print("  %-20s %4d %5d %5d  %s" % (aid, nc, nt, nk, note))
+    print("  A capability absent from agent_configs is invisible to whatever reads it,")
+    print("  however well it dispatches. Reported, not failed - this is a finding.")
+    return 0
+
+
 def check_declared_matches_dispatched():
     """Declared reality against operational reality, in both directions.
 
@@ -438,4 +516,5 @@ if __name__ == "__main__":
     _rc2 = check_routing_terms_are_regex() or 0
     _rc3 = check_corpus_integrity() or 0
     _rc4 = check_declared_matches_dispatched() or 0
+    _rc5 = check_declaration_sites_agree() or 0
     sys.exit(_rc or _rc2 or _rc3 or _rc4)
