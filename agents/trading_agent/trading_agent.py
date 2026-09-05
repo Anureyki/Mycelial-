@@ -232,10 +232,32 @@ class TradingAgent(AgentBase):
             r = requests.post(SOLANA_RPC, timeout=HTTP_TIMEOUT,
                               headers={"Content-Type": "application/json"},
                               json={"jsonrpc": "2.0", "id": 1, "method": method, "params": params})
-            body = r.json() if r.content else {}
+            # A NON-JSON BODY IS A STATUS, NOT A PARSE ERROR.
+            #
+            # A wrong or expired key gets an HTML or plain-text 401 from most
+            # providers, and calling .json() on it raised "Expecting value:
+            # line 1 column 1 (char 0)" - which tells the operator nothing and
+            # sends them debugging the wrong layer entirely. This is the same
+            # failure that once put "The string did not match the expected
+            # pattern" in front of the principal for a week: JSON parsing an
+            # error page and reporting the parser's complaint instead of the
+            # server's answer.
+            try:
+                body = r.json() if r.content else {}
+            except ValueError:
+                snippet = (r.text or "").strip().replace("\n", " ")[:120]
+                hint = ""
+                if r.status_code in (401, 403):
+                    hint = " - this is almost certainly a missing, wrong or expired API key"
+                elif r.status_code == 429:
+                    hint = " - rate limited by the provider"
+                raise RuntimeError(
+                    f"{method}: HTTP {r.status_code}, non-JSON body{hint}. Body began: {snippet!r}")
             if "error" in body:
                 raise RuntimeError(f"{method}: rpc error {body['error'].get('code')} "
                                    f"{str(body['error'].get('message'))[:80]}")
+            if "result" not in body:
+                raise RuntimeError(f"{method}: HTTP {r.status_code}, JSON with no result field")
             return body["result"]
 
         try:
