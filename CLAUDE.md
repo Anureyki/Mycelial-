@@ -678,6 +678,54 @@ fall back to the dashboard while claiming the email went. A notification that
 fails quietly is worse than one never attempted, because the domain believes he
 was told.
 
+### Plants do not cross
+
+The principal's rule, in his words: *"Two plants do not cross. They don't
+reference each other... Their nutrients are bound to the plants that they're
+in, and the labels."*
+
+**Measurements are bound. Lessons are inherited.** That is the whole
+distinction, and collapsing it in either direction breaks something:
+
+| Crosses | Never crosses |
+|---------|---------------|
+| What went wrong and why - so the younger plant does not repeat it | A reading, a ppm, a pH, a temperature |
+| A recipe that worked, cited as another plant's history | A nutrient dose, which belongs to the reservoir it went into |
+| A failure mode of the room, the meter, the pump | A stage, an age, a label |
+
+*"If one is older than the other, the younger one has to learn from the older
+one's mistakes so that they're not repeated in repetition."* So the corpus of
+lessons is shared and the series of measurements is not. A lesson carries its
+origin plant; a measurement carries its plant as identity.
+
+**Succession preserves the line.** *"When the second one becomes the senior
+plant because the first one got harvested, the continuity of the history
+continues."* Harvest ends a plant's measurement series and does not end the
+grow's history. The lessons survive the plant that learned them.
+
+The failure this prevents happened the day it was written. An LWC reading -
+645 ppm, 1291 uS, 6.39 pH, 22.6 C - was logged against the DWC because Claude
+inferred the vessel from the order of a conversation instead of asking. The
+principal caught it: *"Don't be fucking up the DWC because those parameters
+are specific."* He is right about the damage: uptake and mass balance are
+DIFFERENCES between consecutive readings, so one foreign row corrupts both
+intervals touching it, and the corruption is invisible afterwards because
+every individual number looks reasonable.
+
+Three rules follow:
+
+1. **A reading with no explicit plant is refused, never defaulted.**
+   `intake_reading` does this. Defaulting a plant id is how a measurement
+   lands on the wrong vessel, and the default is always the plant that was
+   most recently discussed rather than the one that was measured.
+2. **An inferred attribution is not an attribution.** Where the vessel was
+   deduced rather than stated, that is recorded as inferred and the reading is
+   withdrawn if it cannot be confirmed. A temperature on the wrong vessel is
+   worse than a missing one.
+3. **Nutrient records belong to the reservoir.** A dose is an event in one
+   vessel. Reading another plant's recipe as guidance is a lesson; copying its
+   figures is crossing.
+
 ## Absence and unreachability are different findings
 
 Before concluding a capability is missing, determine whether it is merely

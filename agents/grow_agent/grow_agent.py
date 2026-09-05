@@ -8242,7 +8242,7 @@ class GrowAgent(AgentBase):
                 payload[k] = extra[k]
         if note:
             payload["notes"] = (payload.get("notes", "") + " " + note).strip()
-        res = self.handle_task("log_reading", payload)
+        res = self.handle_task("log_reading", payload, "intake_reading")
         out["stored"] = True
         out["log_reading_result"] = res
         return out
