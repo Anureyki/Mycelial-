@@ -331,7 +331,22 @@ def check_feedback_loops():
     import glob
     import re as _re
 
-    rungs = ("verbs", "corpus", "reach", "predict", "grade")
+    # A KNOWLEDGE FLOOR CAN BE INHERITED. The first version of this asked a
+    # binary question - does reference/<id>/ exist - and reported Trading as
+    # having no corpus. But this architecture explicitly supports not owning
+    # one: SHARED_CORPORA mounts a common shelf, and ask_peer_corpus borrows a
+    # sibling's rather than shelving a second copy, because two copies of an
+    # authority is two sources of truth and the copy is the one that drifts.
+    #
+    # So the invariant is NOT "every agent has its own corpus". It is "every
+    # domain capability has an ACCESSIBLE knowledge floor", and the floor may
+    # be local, shared or borrowed provided provenance survives the trip -
+    # which ask_peer_corpus already enforces by refusing anything whose source
+    # does not say it came from a corpus.
+    #
+    # Reporting local-only turned a question about ACCESS into a question about
+    # OWNERSHIP, and those have different answers and different fixes.
+    rungs = ("verbs", "local", "shared", "borrow", "reach", "predict", "grade")
     rows = []
     for cf in sorted(glob.glob(os.path.join(ROOT, "config", "agent_configs", "*.json"))):
         aid = os.path.basename(cf)[:-5]
@@ -353,7 +368,12 @@ def check_feedback_loops():
             continue
         got = {
             "verbs": bool(_re.search(r'task\s*==\s*"', src)),
-            "corpus": os.path.isdir(os.path.join(ROOT, "reference", aid)),
+            "local": os.path.isdir(os.path.join(ROOT, "reference", aid)),
+            "shared": "SHARED_CORPORA" in src,
+            # Inherited by every agent and DISPATCHED by the base class, so the
+            # question is not whether it could be asked to borrow - it is
+            # whether its own reasoning ever does.
+            "borrow": bool(_re.search(r"self\.ask_peer_corpus\(", src)),
             "reach": "lookup_reference" in src,
             "predict": "def collect_predictions" in src,
             "grade": "def score_one_prediction" in src,
@@ -363,13 +383,34 @@ def check_feedback_loops():
     print()
     print("feedback loops (how far each domain closes the loop):")
     print("  %-20s %s" % ("agent", " ".join(r.ljust(7) for r in rungs)))
+    # SCORED ON FIVE RUNGS, NOT SEVEN. local / shared / borrow are ALTERNATIVE
+    # ways to stand on a floor, not three things to collect - requiring all
+    # three would penalise an agent for not duplicating a corpus it can borrow,
+    # which is the behaviour this architecture exists to prevent. Counting them
+    # as separate rungs made 7/7 unreachable and the score meaningless.
+    scored = ("verbs", "floor", "reach", "predict", "grade")
     closed = 0
     for aid, got in rows:
         marks = " ".join(("yes" if got[r] else "-").ljust(7) for r in rungs)
-        n_got = sum(1 for r in rungs if got[r])
-        closed += 1 if n_got == len(rungs) else 0
-        print("  %-20s %s  %d/%d" % (aid, marks, n_got, len(rungs)))
-    print("  %d of %d domains close every measurable rung." % (closed, len(rows)))
+        got["floor"] = got["local"] or got["shared"] or got["borrow"]
+        n_got = sum(1 for r in scored if got[r])
+        closed += 1 if n_got == len(scored) else 0
+        print("  %-20s %s  %d/%d" % (aid, marks, n_got, len(scored)))
+    print("  %d of %d domains close every measurable rung (floor counts once, "
+          "however it is reached)." % (closed, len(rows)))
+    print()
+    print("  knowledge floor (local OR shared OR borrowed - ownership is not the question):")
+    for aid, got in rows:
+        srcs = [k for k in ("local", "shared", "borrow") if got[k]]
+        if srcs:
+            print("    %-20s satisfied via %s%s" % (
+                aid, ", ".join(srcs),
+                "" if got["reach"] else "  - but nothing here calls lookup_reference"))
+        else:
+            print("    %-20s UNRESOLVED - no local corpus, no shared shelf declared, and its"
+                  % aid)
+            print("    %-20s own reasoning never borrows one. Not a missing copy; no floor at all."
+                  % "")
     print("  NOT MEASURED, deliberately: whether held facts are consulted, and whether")
     print("  graded outcomes change the next decision. Neither is decidable from source.")
     return 0
