@@ -2,7 +2,21 @@
   "agent_id": "coding_agent",
   "role": "software_engineering",
   "port": 8001,
-  "capabilities": ["edit_file", "run_command", "crontab", "reason", "reason_and_act"],
+  "capabilities": [
+    "crontab",
+    "edit_file",
+    "evaluate",
+    "fetch_repo",
+    "fix_code",
+    "list_bug_patterns",
+    "read_file",
+    "reason",
+    "reason_and_act",
+    "run_code",
+    "run_command",
+    "scan_bug_patterns",
+    "web_search"
+  ],
   "entry_point": "agents.coding_agent.coding_agent:main",
   "description": "Software Engineering agent"
 }

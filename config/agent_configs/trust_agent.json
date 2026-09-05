@@ -2,7 +2,21 @@
   "agent_id": "trust_agent",
   "role": "agent",
   "port": 9013,
-  "capabilities": ["parse_trust_document", "model_trust_relationship", "lookup", "list_relationships", "get_relationship", "find_relationships", "find_relationships_by_project", "compare_relationships", "refresh_cache", "query_cache", "cache_stats", "cache_manifest"],
+  "capabilities": [
+    "assess_instrument",
+    "cache_manifest",
+    "cache_stats",
+    "compare_relationships",
+    "find_relationships",
+    "find_relationships_by_project",
+    "get_relationship",
+    "list_relationships",
+    "lookup",
+    "model_trust_relationship",
+    "parse_trust_document",
+    "query_cache",
+    "refresh_cache"
+  ],
   "entry_point": "agents.trust_agent.trust_agent:main",
   "description": "Models trust relationships (settlor, trustee, beneficiary, trust property) from trust document text (extraction and structuring only - not legal or fiduciary advice)"
 }

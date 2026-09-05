@@ -6,7 +6,16 @@
     "authenticate",
     "authorize",
     "audit",
-    "issue_token"
+    "issue_token",
+    "flag_finding",
+    "list_findings",
+    "resolve_finding",
+    "check_guard",
+    "reload_guards",
+    "quarantine",
+    "eliminate",
+    "list_pending_approvals",
+    "scan_codebase"
   ],
   "endpoint": "/execute",
   "port": 9010,
@@ -20,5 +29,6 @@
   },
   "public_key": "",
   "owner": "anureyki",
-  "created": "2026-07-31T17:59:12.821540"
+  "created": "2026-07-31T17:59:12.821540",
+  "updated": "2026-09-05T11:34:48.080717"
 }

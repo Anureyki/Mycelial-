@@ -5,11 +5,16 @@
   "capabilities": [
     "store_memory",
     "retrieve_memory",
+    "retrieve_many",
     "knowledge_search",
     "update_memory",
-    "route_model",
-    "find_capability",
-    "is_source_approved"
+    "forget_memory",
+    "pin_memory",
+    "search_docs",
+    "log_session_summary",
+    "get_progress_summary",
+    "consolidate_audit",
+    "get_audit_digests"
   ],
   "endpoint": "/execute",
   "port": 8002,
@@ -23,5 +28,6 @@
   },
   "public_key": "",
   "owner": "anureyki",
-  "created": "2026-07-21T17:59:55.506345"
+  "created": "2026-07-21T17:59:55.506345",
+  "updated": "2026-09-05T11:34:49.730142"
 }

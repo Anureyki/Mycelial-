@@ -2,7 +2,21 @@
   "agent_id": "security_agent",
   "role": "agent",
   "port": 9010,
-  "capabilities": ["authorize", "reload_guards"],
+  "capabilities": [
+    "audit",
+    "authenticate",
+    "authorize",
+    "check_guard",
+    "eliminate",
+    "flag_finding",
+    "issue_token",
+    "list_findings",
+    "list_pending_approvals",
+    "quarantine",
+    "reload_guards",
+    "resolve_finding",
+    "scan_codebase"
+  ],
   "entry_point": "agents.security_agent.security_agent:main",
   "description": "Authorizes every inbound /execute against config/guards.json"
 }

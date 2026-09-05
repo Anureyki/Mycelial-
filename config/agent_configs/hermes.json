@@ -2,7 +2,20 @@
   "agent_id": "hermes",
   "role": "memory",
   "port": 8002,
-  "capabilities": ["store_memory", "retrieve_memory", "search", "update", "forget", "pin"],
+  "capabilities": [
+    "consolidate_audit",
+    "forget_memory",
+    "get_audit_digests",
+    "get_progress_summary",
+    "knowledge_search",
+    "log_session_summary",
+    "pin_memory",
+    "retrieve_many",
+    "retrieve_memory",
+    "search_docs",
+    "store_memory",
+    "update_memory"
+  ],
   "entry_point": "agents.hermes.hermes_interface:main",
   "description": "Memory Intelligence agent"
 }

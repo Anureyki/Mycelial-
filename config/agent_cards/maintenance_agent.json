@@ -1,18 +1,22 @@
 {
   "agent_id": "maintenance_agent",
-  "role": "maintenance",
+  "role": "system_health",
   "version": "1.0.0",
   "capabilities": [
     "check_disk",
     "clean_logs",
-    "clean_vm_images",
-    "clean_apt_cache",
-    "clean_snap",
-    "full_cleanup",
-    "proactive_check",
     "check_updates",
     "apply_updates",
-    "rollback_update"
+    "rollback",
+    "check_errors",
+    "check_container_updates",
+    "update_container",
+    "sample_telemetry",
+    "get_telemetry_history",
+    "predict_disk_full",
+    "scan_unused_docker_resources",
+    "run_cleanup_routine",
+    "analyze_memory_usage"
   ],
   "endpoint": "/execute",
   "port": 8003,
@@ -26,5 +30,6 @@
   },
   "public_key": "",
   "owner": "anureyki",
-  "created": "2026-07-22T04:44:53.641258"
+  "created": "2026-07-22T04:44:53.641258",
+  "updated": "2026-09-05T11:34:50.875811"
 }

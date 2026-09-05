@@ -2,7 +2,26 @@
   "agent_id": "anansi",
   "role": "interface",
   "port": 8081,
-  "capabilities": ["process_request"],
+  "capabilities": [
+    "actions",
+    "advance_campaign",
+    "deadlines",
+    "grow_roster",
+    "grow_snapshot",
+    "ingest_upload",
+    "narrate_contradiction",
+    "notify",
+    "phase_status",
+    "process_request",
+    "receive_mail",
+    "recent_changes",
+    "review_candidate",
+    "system_graph",
+    "training_candidates",
+    "training_quest_status",
+    "voice",
+    "voice_policy"
+  ],
   "entry_point": "agents.anansi.Anansi:main",
   "description": "Unified Interface agent"
 }

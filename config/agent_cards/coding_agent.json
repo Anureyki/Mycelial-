@@ -1,15 +1,21 @@
 {
   "agent_id": "coding_agent",
-  "role": "execution",
+  "role": "software_engineering",
   "version": "1.0.0",
   "capabilities": [
+    "read_file",
     "edit_file",
     "run_command",
-    "crontab_add",
-    "crontab_list",
-    "crontab_remove",
-    "environment_audit",
-    "call_inference"
+    "run_code",
+    "crontab",
+    "reason",
+    "reason_and_act",
+    "fix_code",
+    "evaluate",
+    "fetch_repo",
+    "web_search",
+    "scan_bug_patterns",
+    "list_bug_patterns"
   ],
   "endpoint": "/execute",
   "port": 8001,
@@ -23,5 +29,6 @@
   },
   "public_key": "",
   "owner": "anureyki",
-  "created": "2026-07-21T20:47:28.375380"
+  "created": "2026-07-21T20:47:28.375380",
+  "updated": "2026-09-05T11:34:51.997260"
 }

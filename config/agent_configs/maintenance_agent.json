@@ -2,7 +2,22 @@
   "agent_id": "maintenance_agent",
   "role": "system_health",
   "port": 8003,
-  "capabilities": ["check_disk", "clean_logs", "check_updates", "apply_updates", "rollback"],
+  "capabilities": [
+    "analyze_memory_usage",
+    "apply_updates",
+    "check_container_updates",
+    "check_disk",
+    "check_errors",
+    "check_updates",
+    "clean_logs",
+    "get_telemetry_history",
+    "predict_disk_full",
+    "rollback",
+    "run_cleanup_routine",
+    "sample_telemetry",
+    "scan_unused_docker_resources",
+    "update_container"
+  ],
   "entry_point": "agents.maintenance_agent.maintenance_agent:main",
   "description": "System Health agent"
 }

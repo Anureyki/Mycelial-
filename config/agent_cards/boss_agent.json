@@ -3,18 +3,26 @@
   "role": "orchestrator",
   "version": "1.0.0",
   "capabilities": [
-    "health_check",
-    "process_request",
     "think",
-    "think_and_store",
-    "delegate",
     "store_memory",
     "retrieve_memory",
-    "ag_dqn_decision",
-    "ag_dqn_train",
-    "quantum_simulate",
-    "quantum_capabilities",
-    "alert"
+    "delegate",
+    "process_request",
+    "call_tool",
+    "alert",
+    "check_errors",
+    "process_recommendations",
+    "update_graph",
+    "query_graph",
+    "get_entity_relationships",
+    "get_project_relationships",
+    "aggregate_relationship_view",
+    "answer_question",
+    "publish_event",
+    "refresh_cache",
+    "query_cache",
+    "cache_stats",
+    "cache_manifest"
   ],
   "endpoint": "/execute",
   "port": 8000,
@@ -28,5 +36,6 @@
   },
   "public_key": "",
   "owner": "anureyki",
-  "created": "2026-07-21T17:46:08.845046"
+  "created": "2026-07-21T17:46:08.845046",
+  "updated": "2026-09-05T11:36:04.319642"
 }
