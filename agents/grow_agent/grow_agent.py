@@ -875,7 +875,8 @@ class GrowAgent(AgentBase):
                 "verify_growth_stage",
                 "assess_plant", "validate_environment_targets",
                 "log_training_event", "recommend_feed", "plan_system_transition",
-                "set_grow_system", "get_grow_system", "get_nutrient_history",
+                "set_grow_system", "get_grow_system", "amend_grow_system",
+                "field_history", "get_nutrient_history",
                 "set_inventory", "get_inventory",
                 "check_in", "analyze_consumption", "adjust_to_target_ppm",
                 "training_quest_status", "source_training_candidates",
@@ -971,6 +972,11 @@ class GrowAgent(AgentBase):
     # as such, so the concentration-lag detector read it as an intended baseline
     # and reported the later recipe as a decline when it was a return to normal.
     EVIDENCE_KINDS = ("fact", "event", "reasoning", "note", "assessment", "correction")
+
+    # Superseded values are kept so "what did this replace, and for how long"
+    # is answerable. Capped: a system record is not an audit log, and an
+    # unbounded list would be paid for on every read of every field.
+    MAX_SUPERSEDED = 40
 
     def _reasoning_context(self, args):
         """Optional causal context attached to a domain event. Structured state
@@ -2965,10 +2971,70 @@ class GrowAgent(AgentBase):
         changed = {k: v for k, v in fields.items() if v is not None and record.get(k) != v}
         if not changed:
             return {"changed": {}, "record": record, "note": "nothing to change"}
+
+        # An amend that overwrites a field is the ONLY code that still holds the
+        # value it is destroying. The store keeps one version per key, so a
+        # superseded value and the time it was written are gone the instant this
+        # returns - which is how a record came to assert it superseded a no-fan
+        # state that nothing could then date. Record both here or not at all.
+        now = datetime.now().isoformat()
+        set_at = dict(record.get("field_set_at") or {})
+        superseded = list(record.get("superseded") or [])
+        for k in changed:
+            if k not in record:
+                continue                       # new field, nothing superseded
+            superseded.append({
+                "field": k,
+                "value": record[k],
+                # None, not a guess: fields written before per-field times
+                # existed have no recoverable write time, and "unknown" is the
+                # honest value for one whose whole job is to be checkable.
+                "set_at": set_at.get(k),
+                "replaced_at": now,
+            })
+        superseded = superseded[-self.MAX_SUPERSEDED:]
+        for k in changed:
+            set_at[k] = now
+
         record.update(changed)
-        record["amended_at"] = datetime.now().isoformat()
+        record["field_set_at"] = set_at
+        record["superseded"] = superseded
+        record["amended_at"] = now
         self.store_own_memory(key, json.dumps(record))
-        return {"changed": changed, "record": record}
+        return {"changed": changed, "superseded": superseded[-len(changed):], "record": record}
+
+    def field_history(self, plant_id="current_plant", field=None):
+        """What a system-record field used to say, and when it stopped saying it.
+
+        Answers the question that produced this method: how long did the plant
+        run in the state the record has just replaced? Where `set_at` is null
+        the entry predates per-field timing and the duration is UNKNOWN -
+        which is an answer, and is not the same as zero."""
+        key = f"grow_system_{plant_id}"
+        raw = self._unwrap_value(self.retrieve_own_memory(key))
+        if not raw and plant_id == "current_plant":
+            raw = self._unwrap_value(self.retrieve_own_memory("grow_system"))
+        if not raw:
+            return {"error": f"No system record for {plant_id}."}
+        try:
+            record = json.loads(raw)
+        except Exception as e:
+            return {"error": f"System record unreadable: {e}"}
+        entries = record.get("superseded") or []
+        if field:
+            entries = [e for e in entries if e.get("field") == field]
+        undated = [e for e in entries if not e.get("set_at")]
+        return {
+            "plant_id": plant_id,
+            "field": field,
+            "current": record.get(field) if field else None,
+            "set_at": (record.get("field_set_at") or {}).get(field) if field else None,
+            "superseded": entries,
+            "undated": len(undated),
+            "note": (f"{len(undated)} superseded value(s) have no recorded write time; "
+                     "how long the record held them is unknown, not zero.")
+                    if undated else "every superseded value carries its write time",
+        }
 
     def reconcile_topup(self, plant_id="current_plant", ppm_before=None, ppm_after=None,
                         volume_after=None, volume_added=None, topup_ppm=0.0,
@@ -9511,6 +9577,10 @@ class GrowAgent(AgentBase):
             return {"result": self.amend_grow_system(
                 args.get("plant_id", "current_plant"), **fields)}
 
+        elif task == "field_history":
+            return {"result": self.field_history(
+                args.get("plant_id", "current_plant"), args.get("field"))}
+
         elif task == "measure_working_volume":
             return {"result": self.measure_working_volume(
                 args.get("plant_id", "current_plant"),
@@ -9878,6 +9948,56 @@ class GrowAgent(AgentBase):
             # forward rather than fixing it.
             lagging = self._detect_lagging_nutrients(plant_id=plant_id)
 
+            # A PARTIALLY ZERO RECIPE SCALES ITS ZEROS FOREVER. The guard above
+            # catches a recipe that is entirely empty; it does not catch one
+            # holding Cal-Mag 2.0 alongside FloraGro 0, FloraMicro 0 and
+            # FloraBloom 0 - which is exactly gsc_auto_2, fed Cal-Mag alone.
+            # That recipe passes the `any()` test, then every zero is multiplied
+            # by a stage factor and comes back zero, so the grower asking for
+            # all four nutrients was handed three zeros and no explanation.
+            #
+            # Missing components are bootstrapped from THIS PRINCIPAL'S OWN
+            # earlier recipes rather than from a label - the 2026-08-07 mix at
+            # 5 L in this same LWC is a better reference for this plant than any
+            # bottle's chart, because it is the same product line, the same
+            # water and the same container.
+            _zero = [k for k, v in base.items() if not self._parse_numeric(v)]
+            _boot_note = None
+            if _zero:
+                _ref = None
+                _hist = []
+                for _p in self._get_all_plants():
+                    _k, _ = self._nutrient_keys(_p.get("plant_id", ""))
+                    _r = self._unwrap_value(self.retrieve_own_memory(_k))
+                    if _r:
+                        try:
+                            _hist.append(json.loads(_r))
+                        except Exception:
+                            pass
+                # Prefer a reference that HAS the missing components and records
+                # the volume it was mixed into, so it can be scaled per litre.
+                for _h in _hist:
+                    _n = _h.get("nutrients") or {}
+                    _v = self._parse_numeric(_h.get("reservoir_liters"))
+                    if _v and all(self._parse_numeric(_n.get(k)) for k in _zero):
+                        _ref = (_n, _v)
+                        break
+                if _ref:
+                    _n, _v = _ref
+                    for k in _zero:
+                        base[k] = round(self._parse_numeric(_n[k]) / _v, 4)
+                    _boot_note = (
+                        f"{', '.join(_zero)} had no recorded dose for this plant and were "
+                        f"bootstrapped PER LITRE from an earlier recipe on this grow "
+                        f"({_v} L reference), not from a label. Scaling a zero by a stage "
+                        f"multiplier returns zero, which is what this verb did before.")
+                else:
+                    _boot_note = (
+                        f"{', '.join(_zero)} have no recorded dose for this plant and no "
+                        f"earlier recipe on this grow carries them with a volume, so they "
+                        f"cannot be scaled. They are reported as ZERO because nothing is "
+                        f"known, not because zero is correct.")
+
             suggested, notes = {}, []
             for name, value in base.items():
                 v = self._parse_numeric(value)
@@ -9889,6 +10009,9 @@ class GrowAgent(AgentBase):
                 if name in lagging:
                     mult *= lagging[name]["catchup_multiplier"]
                 suggested[name] = round(v * mult, 1)   # rounded to the dropper below
+
+            if _boot_note:
+                notes.append(_boot_note)
 
             for name, info in lagging.items():
                 if info.get("whole_recipe_regressed"):

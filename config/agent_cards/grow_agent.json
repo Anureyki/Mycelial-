@@ -31,6 +31,8 @@
     "plan_system_transition",
     "set_grow_system",
     "get_grow_system",
+    "amend_grow_system",
+    "field_history",
     "get_nutrient_history",
     "set_inventory",
     "get_inventory",
@@ -69,5 +71,5 @@
   "public_key": "",
   "owner": "anureyki",
   "created": "2026-07-28T23:04:50.187235",
-  "updated": "2026-09-05T16:24:00.911150"
+  "updated": "2026-09-05T17:55:23.430910"
 }

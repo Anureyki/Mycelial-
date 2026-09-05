@@ -54,7 +54,9 @@
     "void_training_event",
     "volume_history",
     "web_search",
-    "what_i_know"
+    "what_i_know",
+    "amend_grow_system",
+    "field_history"
   ],
   "entry_point": "agents.grow_agent.grow_agent:main",
   "description": "Tracks grow stages and suggests nutrient adjustments"
