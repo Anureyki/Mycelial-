@@ -1,0 +1,80 @@
+{
+  "title": "Deficiencies and toxicities - reported thread, @nova2cotton",
+  "source": "REPORTED, SECONDHAND. Instagram carousel 'DEFICIENCIES & TOXICITIES 101' by novacotton / @nova2cotton, supplied 2026-09-05. Same account as the training thread. Accompanying images are AI-generated diagrams illustrating the text, not evidence. This material CONVERGES with a hypothesis the leaf differential reached independently from this plant's own record before any of it was read - which is worth more than either line alone and is still not proof. EXTENDED with parts 5-7 of the same carousel.",
+  "authority_class": "unknown",
+  "authority_class_basis": "Anonymous social-media practitioner. Not a publication, not a study.",
+  "evidence_grade": "reported",
+  "role": "Constrains the candidate space for the leaf differential. Decides nothing.",
+  "sections": [
+    {
+      "citation": "calcium-rides-transpiration",
+      "text": "THE CLAIM THAT MATTERS MOST HERE. 'Calcium rides the transpiration stream. If VPD is too low, airflow is weak, or humidity is high, the plant can have calcium in the pot and still not get it to the growing tips. Sometimes your calcium deficiency is just the plant's delivery system lagging.' Symptoms listed for calcium: twisted leaves, BROWN SPOTTING ON YOUNG TISSUE, burned tips, ugly new shoots - immobile, so new growth first. [UNVERIFIED - reported]",
+      "evidence_grade": "reported",
+      "integrity": {
+        "state": "unknown",
+        "basis": "secondhand social post",
+        "stamped_at": null
+      }
+    },
+    {
+      "citation": "two-transport-failures",
+      "text": "A DISTINCTION THIS SOURCE FORCES, and it refines rather than confirms the open hypothesis. Calcium transport can fail on the SUPPLY side - no water available to carry it, as when a reservoir runs low or a feed stops - or on the DEMAND side, where transpiration is too weak to pull it, from low VPD, weak airflow or high humidity. This source describes the DEMAND side. THIS PLANT'S RECORD DESCRIBES THE SUPPLY SIDE: reservoir fell 15 to 12.84 L, and circulation failed twice including a full night. Its VPD was measured at 1.53 kPa on 2026-08-30, ABOVE the 0.8-1.2 veg band, meaning transpirational pull was strong rather than weak. So the source's mechanism does NOT fit this plant; the same hypothesis fits for the opposite reason. Recorded because a claim that agrees with a conclusion for the wrong reason is not corroboration.",
+      "evidence_grade": "reported",
+      "integrity": {
+        "state": "unknown",
+        "basis": "derived from comparing the source to this record",
+        "stamped_at": null
+      }
+    },
+    {
+      "citation": "ph-and-calcium-availability",
+      "text": "'pH still comes first. Below about 5.5, calcium availability drops hard.' Also: excess calcium competes with magnesium, potassium and manganese - 'more is not automatically better, ratio matters' - and 'dumping CalMag on every problem is the grower version of spamming the same potion on every status effect'. NOTE FOR THIS GROW: pH measured 5.86, above the stated 5.5 threshold, so calcium availability is not implicated by pH here. The coco-binding argument in the same post does NOT apply - this is clay pebbles in DWC, not coco. [UNVERIFIED - reported]",
+      "evidence_grade": "reported",
+      "integrity": {
+        "state": "unknown",
+        "basis": "secondhand social post",
+        "stamped_at": null
+      }
+    },
+    {
+      "citation": "iron-vs-magnesium-location",
+      "text": "'Iron deficiency looks a lot like magnesium deficiency until you check where it starts. Magnesium = older leaves first. Iron = newest leaves first. Green veins, yellow tissue between them, but on the TOP of the plant? Think iron.' And: iron deficiency in cannabis is 'almost never there is no iron in the bottle - it's almost always pH too high', iron precipitating into a form roots cannot use. 'Fix the pH before you start dumping extra iron in.' DOES NOT MATCH THIS PLANT: the symptom here is discrete brown lesions, not interveinal chlorosis with green veins, and pH is 5.86 rather than high. Recorded as a candidate the differential should carry and can currently rule out on distribution. [UNVERIFIED - reported]",
+      "evidence_grade": "reported",
+      "integrity": {
+        "state": "unknown",
+        "basis": "secondhand social post",
+        "stamped_at": null
+      }
+    },
+    {
+      "citation": "manganese-zinc-are-ph-problems",
+      "text": "Manganese: interveinal chlorosis on NEW growth, finer and more mottled than iron; usually a high-pH availability problem, not a missing bottle. Zinc: small distorted new leaves, short internodes, tight clustered growth; high phosphorus is a common reason zinc locks out, so a bloom booster can quietly create a zinc problem. 'Both of these are much more often pH or antagonism issues than I forgot a micronutrient.' DOES NOT MATCH THIS PLANT - the symptom is discrete brown lesions, not chlorosis, and pH is 5.86. [UNVERIFIED - reported]",
+      "evidence_grade": "reported",
+      "integrity": {
+        "state": "unknown",
+        "basis": "secondhand social post",
+        "stamped_at": null
+      }
+    },
+    {
+      "citation": "boron-narrow-window",
+      "text": "A CANDIDATE THE DIFFERENTIAL DID NOT CARRY. Boron deficiency hits growing points: 'twisted, thick, dark new growth, dying tips, ugly flower development. It can even make bud tissue BROWN in a way that looks a little like early rot.' The catch: boron toxicity is easy to create and the gap between too little and too much is smaller than most nutrients - 'this is not the one you want to overcorrect'. Sulfur, molybdenum and copper exist but are uncommon in complete programs; check pH and the bigger players first. [UNVERIFIED - reported]",
+      "evidence_grade": "reported",
+      "integrity": {
+        "state": "unknown",
+        "basis": "secondhand social post",
+        "stamped_at": null
+      }
+    },
+    {
+      "citation": "salt-toxicity-is-total-not-single",
+      "text": "'Salt toxicity / nutrient burn is not a single element problem. It's total dissolved salts getting high enough that roots have to fight the solution just to take up water. Tips and margins burn first because they're the end of the line.' AND THE PRINCIPLE THIS RECORD ALREADY RUNS ON, arrived at independently: 'Burned tips do not turn green again. That damage is already written. New growth after the correction is what tells you if you actually fixed it.' Also: rising runoff EC above input EC means salts are stacking before the leaves show it. RELEVANT HISTORY - this grow has a documented salt event, ppm corrected 441 to 672 in one step on 2026-08-21, with tip burn observed four days later. But tips and margins are not where the current lesions are. [UNVERIFIED - reported]",
+      "evidence_grade": "reported",
+      "integrity": {
+        "state": "unknown",
+        "basis": "secondhand social post",
+        "stamped_at": null
+      }
+    }
+  ]
+}

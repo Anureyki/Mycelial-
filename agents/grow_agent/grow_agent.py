@@ -6798,6 +6798,21 @@ class GrowAgent(AgentBase):
             ("pest",
              "sap-feeding damage",
              "underside inspection with a loupe"),
+            ("boron_deficiency",
+             "boron hits growing points and can brown tissue in a way that mimics early rot - a "
+             "candidate this differential did not carry until a reported source named it. The "
+             "window between too little and too much is narrower than most nutrients, so this is "
+             "the one NOT to correct on suspicion",
+             "does the new growth look twisted, thick or dark as well as spotted? Boron distorts "
+             "structure; a nutrient that only spots without distorting is probably not this. Do "
+             "not dose boron to test the theory"),
+            ("salt_toxicity",
+             "total dissolved salts high enough that roots fight the solution to take up water; "
+             "tips and margins burn first because they are the end of the line. This grow has a "
+             "documented salt event - ppm corrected 441 to 672 in one step on 2026-08-21, tip "
+             "burn observed four days later",
+             "WHERE the damage sits. Salt burns tips and margins; these lesions are mid-blade. "
+             "If margins are clean, this is not the current problem however real the history"),
         ]
         rests_on = {
             "calcium_transport_limitation": "calcium-transport",
@@ -6806,6 +6821,8 @@ class GrowAgent(AgentBase):
             "potassium_deficiency": "magnesium-potassium-mobile",
             "pathogen": "septoria-halo",
             "pest": None,
+            "boron_deficiency": "boron-narrow-window",
+            "salt_toxicity": "salt-toxicity-is-total-not-single",
         }
         for name, mech, disc in hyps:
             cite = rests_on.get(name)
@@ -6859,6 +6876,16 @@ class GrowAgent(AgentBase):
                   "rather than one unlucky night (count approximate, see days)", "supports")
         if halo is False:
             weigh("pathogen", "no halo observed", "contradicts")
+        # Distribution rules the two new candidates out on this plant, and says so
+        # rather than leaving them plausible by default.
+        weigh("salt_toxicity",
+              "the lesions are mid-blade; salt burns tips and margins first, which are the end "
+              "of the transpiration line", "contradicts")
+        if not a.get("distorted_new_growth"):
+            weigh("boron_deficiency",
+                  "no twisted, thick or dark new growth reported - boron distorts structure as "
+                  "well as browning it, and the reported growth surge was vigorous rather than "
+                  "deformed", "contradicts")
         elif halo is True:
             weigh("pathogen", "halo present - raises suspicion, does not settle it",
                   "supports")
