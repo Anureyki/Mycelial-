@@ -40,6 +40,17 @@ describe what IS, while `CHANGELOG.md` holds what happened and
 | Anansi | 8081 | User Interface | Accepts natural language, routes to Boss |
 | Analyzer | 9006 | Outcome Analysis | Scans logs, generates recommendations |
 | Grow | 9009 | Gardener | Tracks plant growth stages, logs readings, suggests nutrient adjustments |
+| Security | 9010 | Guard | Authorises every inbound `/execute` against `config/guards.json` |
+| Legal | 9011 | Counsel | Elements, authorities, claim assessment; owns the statutes and the CFR |
+| Accounting | 9012 | Books | Obligations, payments, equitable interest and control; owns ASC/IFRS/IRM |
+| Trust | 9013 | Fiduciary roles | Settlor, trustee, beneficiary, trust property from instrument text |
+| Trading | 9016 | Desk | Scan, vet, book, size, risk. **No execution verbs exist** - see Capital actuation |
+
+**Legal is 9011 and Accounting is 9012, and they are easy to transpose.** They
+were absent from this table until a session sent `case_add_obligation` to Legal,
+got `Unknown task` back, and reported a dispatch bug in Accounting that did not
+exist. An undocumented port is a guess waiting to be made; `config/agent_configs/`
+is authoritative and this table must track it.
 
 ## Platform Services (Fixed Ports)
 | Service | Port | Purpose |

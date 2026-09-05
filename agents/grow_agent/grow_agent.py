@@ -8236,15 +8236,37 @@ class GrowAgent(AgentBase):
             return out
 
         payload = {"plant_id": plant_id}
-        payload.update({k: v for k, v in cleaned.items() if k != "cross_check"})
+        # Only fields log_reading actually reads. ec_us and cross_check are
+        # derived for the caller; sending them tripped log_reading's own
+        # unknown-field guard, which was right to refuse - and this method then
+        # reported the refusal as a successful save.
+        _passthrough = ("ph", "ppm", "ec", "temp", "humidity", "volume_liters")
+        payload.update({k: v for k, v in cleaned.items() if k in _passthrough})
         for k in ("stage", "notes", "taken_at", "timestamp", "decision", "reason"):
             if extra.get(k) is not None:
                 payload[k] = extra[k]
         if note:
             payload["notes"] = (payload.get("notes", "") + " " + note).strip()
+        # VERIFY THE EFFECT, NOT THE CALL. This returned stored:True on a write
+        # that produced no record - the grower's re-logged LWC reading vanished
+        # while the response said it had been saved, which is the exact failure
+        # shape this project hunts. Count the index across the write.
+        def _n_readings():
+            try:
+                raw = self._unwrap_value(self.retrieve_own_memory("reading_index"))
+                return len(json.loads(raw)) if raw else 0
+            except Exception:
+                return None
+        before = _n_readings()
         res = self.handle_task("log_reading", payload, "intake_reading")
-        out["stored"] = True
+        after = _n_readings()
+        wrote = (before is not None and after is not None and after > before)
+        out["stored"] = bool(wrote)
         out["log_reading_result"] = res
+        if not wrote:
+            out["store_error"] = (
+                f"log_reading did not add a row (index {before} -> {after}). "
+                f"The reading was NOT saved. Its response was: {str(res)[:200]}")
         return out
 
     def reconcile_ec_temperature(self, ec_before=None, temp_before_c=None,
