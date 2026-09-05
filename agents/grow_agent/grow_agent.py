@@ -876,7 +876,8 @@ class GrowAgent(AgentBase):
                 "assess_plant", "validate_environment_targets",
                 "log_training_event", "recommend_feed", "plan_system_transition",
                 "set_grow_system", "get_grow_system", "amend_grow_system",
-                "field_history", "assess_root_zone", "get_nutrient_history",
+                "field_history", "assess_root_zone", "void_reservoir_eval",
+                "get_nutrient_history",
                 "set_inventory", "get_inventory",
                 "check_in", "analyze_consumption", "adjust_to_target_ppm",
                 "training_quest_status", "source_training_candidates",
@@ -5502,6 +5503,116 @@ class GrowAgent(AgentBase):
                     best = {"ts": str(ts)[:10], "text": txt}
         return best
 
+    # How long a root inspection stays evidence. Unlike a pest inspection,
+    # which holds until a new sign appears, this one EXPIRES: the grower's own
+    # DWC material puts browning at 24h and serious damage at 48-72h from a
+    # temperature or oxygen fault, so a clean lift on Tuesday says nothing
+    # about Friday.
+    ROOT_CHECK_FRESH_HOURS = 48
+
+    # A note counts as an inspection only if it says one took place. Deliberately
+    # a marker and not a vocabulary match - see _consider.
+    ROOT_INSPECTION_MARKER = re.compile(
+        r"roots?\s+(were\s+)?inspect|root[\s_-]?zone\s+inspect|root\s+inspection|"
+        r"lift(ed|ing)?\s+(the\s+)?(net\s+pot|roots)|pulled\s+the\s+(net\s+)?pot",
+        re.I)
+
+    def _root_zone_checked(self, plant_id="current_plant", fresh_hours=None):
+        """Has the grower already lifted the roots and reported what he saw?
+
+        This exists because the loop was open. evaluate_leaf's `new_growth_first`
+        pattern emits "THE ROOTS: lift them" as what would settle the diagnosis,
+        and that becomes the standing alert. The grower answered it - 2026-08-29
+        20:31, "NO SMELL. NOT SLIMY.", 75 minutes after being asked, and again
+        on 08-30 and 09-05. Every answer landed in a note. The question is
+        emitted by one verb and the answer is only readable by another, and
+        nothing joined them, so the alert stayed unresolved through three
+        correct answers and Grow kept asking.
+
+        Same shape as `_pests_ruled_out` with one difference that matters: a
+        pest inspection holds until a new sign appears, and a root inspection
+        expires. So this returns the age and whether it is still fresh, and
+        never just "checked".
+
+        The note is only where the words came from - the reading is done by
+        assess_root_zone, so there is one root-health reasoning path and not a
+        second keyword table hidden in a helper."""
+        fresh_h = float(fresh_hours if fresh_hours is not None
+                        else self.ROOT_CHECK_FRESH_HOURS)
+        best = None
+
+        def _consider(ts, text, source, require_marker=False):
+            nonlocal best
+            if not text or not ts:
+                return
+            # A note only counts if it says an inspection HAPPENED. Matching on
+            # root vocabulary alone read a note ABOUT this bug - which quotes
+            # "roots confirmed white" while discussing scoring - as an
+            # inspection of the plant. Commentary that mentions an observation
+            # is not the observation, and mining prose for a discrete fact is
+            # the failure this file already names twice.
+            if require_marker and not self.ROOT_INSPECTION_MARKER.search(text):
+                return
+            if not self._channels_from_observation(text):
+                return          # says it happened but reports no condition
+            if best is None or str(ts) > str(best["at"]):
+                best = {"at": str(ts), "text": text, "source": source}
+
+        # The structured field first. It is the one that is meant to carry this.
+        try:
+            for key in (self._load_reservoir_eval_index() or []):
+                raw = self._unwrap_value(self.retrieve_own_memory(key))
+                if not raw:
+                    continue
+                rec = json.loads(raw)
+                if rec.get("plant_id") not in (plant_id, None):
+                    continue
+                _consider(rec.get("timestamp"),
+                          (rec.get("inputs") or {}).get("root_health"),
+                          "reservoir_eval")
+        except Exception as e:
+            self.log(f"root check: could not read reservoir evals: {e}")
+
+        # Then the notes, which is where the answers have actually been going.
+        try:
+            for n in (self._get_all_notes() or []):
+                if n.get("plant_id") not in (plant_id, None):
+                    continue
+                # ONLY an explicitly categorised inspection. Scanning free text
+                # failed twice in one hour: it read a note ABOUT this bug as an
+                # inspection, and then read a real inspection note as
+                # rot_indicated because the note responsibly listed what had NOT
+                # been established ("whether browning is hidden inside the mat")
+                # and the word browning matched. Careful prose is the worst case
+                # for a keyword scan, not the best. A discrete observation
+                # belongs in a field.
+                if n.get("category") == "root_inspection":
+                    _consider(n.get("created") or n.get("logged_at") or n.get("timestamp"),
+                              n.get("text") or n.get("note"), "note")
+        except Exception as e:
+            self.log(f"root check: could not read notes: {e}")
+
+        if not best:
+            return None
+
+        age_h = None
+        try:
+            age_h = (datetime.now()
+                     - datetime.fromisoformat(str(best["at"])[:19])).total_seconds() / 3600.0
+        except Exception:
+            pass
+
+        zone = self.assess_root_zone(plant_id, observation=best["text"], persist=False)
+        best.update({
+            "age_hours": round(age_h, 1) if age_h is not None else None,
+            # An age that cannot be computed is not fresh. Unknown is never complete.
+            "fresh": bool(age_h is not None and age_h <= fresh_h),
+            "fresh_window_hours": fresh_h,
+            "verdict": zone["verdict"],
+            "channels": {c["channel"]: c["state"] for c in zone["channels"]},
+        })
+        return best
+
     def _leaf_pattern_hit(self, text):
         """The single most significant distribution, or None. A problem outranks
         senescence: an ageing lower leaf is not the headline when something is
@@ -9335,10 +9446,20 @@ class GrowAgent(AgentBase):
                 "root_zone": root_zone,
                 "recommendation": recommendation
             }
-            self.store_own_memory(record["id"], json.dumps(record))
-            index = self._load_reservoir_eval_index()
-            index.append(record["id"])
-            self.store_own_memory("reservoir_eval_index", json.dumps(index))
+            # A verb with no way to run without recording cannot be exercised
+            # without writing to the plant's record. Seven fabricated
+            # evaluations reached gsc_auto_2 - one reading "brown and slimy" -
+            # because testing the scoring path meant calling this seven times
+            # and there was no other way to call it. assess_root_zone,
+            # measure_working_volume and reconcile_topup all take persist;
+            # this one did not, and the store is an evidence store.
+            if args.get("persist", True):
+                self.store_own_memory(record["id"], json.dumps(record))
+                index = self._load_reservoir_eval_index()
+                index.append(record["id"])
+                self.store_own_memory("reservoir_eval_index", json.dumps(index))
+            else:
+                record["persisted"] = False
 
             return {"result": recommendation, "record": record}
 
@@ -9530,6 +9651,34 @@ class GrowAgent(AgentBase):
                 # half of any differential that offers one. Re-asking a grower
                 # to check for mites they have already checked for wastes the
                 # one thing they did right.
+                # Same for the root zone, with one difference: a root check
+                # EXPIRES. The grower answered "no smell, not slimy" 75 minutes
+                # after being asked on 2026-08-29 and the alert stayed standing
+                # anyway, because the answer went to a note and this branch had
+                # no way to see it. A stale check is not silently accepted
+                # either - it is reported as stale, with its age, which is a
+                # different instruction from both "check the roots" and silence.
+                _rz = self._root_zone_checked(plant_id)
+                if _rz and _rz["fresh"] and _rz["verdict"].startswith(
+                        ("no_rot_indicated", "clean_but")):
+                    _rootrx = re.compile(r"THE ROOTS|lift them|slimy|sour", re.I)
+                    def _drop_root(text):
+                        parts = re.split(r'(?<=[.]) +', text or "")
+                        return " ".join(x for x in parts if x and not _rootrx.search(x)).strip()
+                    reason, action = _drop_root(reason), _drop_root(action)
+                    _ch = ", ".join(f"{k} {v}" for k, v in _rz["channels"].items()
+                                    if v != "unchecked")
+                    reason += (f" The root zone was inspected {_rz['age_hours']:.0f}h ago "
+                               f"({_ch}) and read {_rz['verdict']}, so it is not the "
+                               f"open question here - it has been answered.")
+                elif _rz and not _rz["fresh"]:
+                    action += (f" The last root inspection was {_rz['age_hours']:.0f}h ago "
+                               f"and read {_rz['verdict']}; rot develops in 24-72h, so that "
+                               f"is history rather than evidence about today. Re-lift them.")
+                elif _rz and _rz["verdict"] == "rot_indicated":
+                    action += (f" A root inspection {_rz['age_hours']:.0f}h ago already read "
+                               f"rot_indicated. That is the finding, not the leaves.")
+
                 _ruled = self._pests_ruled_out(plant_id)
                 if _ruled:
                     # STRIP the pest sentences rather than appending a
@@ -9801,6 +9950,45 @@ class GrowAgent(AgentBase):
 
         elif task == "infer_system_change":
             return {"result": self.infer_system_change(args.get("plant_id", "current_plant"))}
+
+        elif task == "void_reservoir_eval":
+            # Readings can be voided and training events can be voided; the
+            # reservoir-eval store had no correction path, so a bad entry was
+            # permanent. Seven fabricated evaluations - synthetic root reports
+            # invented to exercise a code path - reached gsc_auto_2's record and
+            # one of them read "brown and slimy". Test data in an evidence store
+            # is indistinguishable from evidence.
+            #
+            # Requires a reason, like the other two, and the record is KEPT with
+            # the reason attached rather than deleted. That a wrong entry was
+            # once held is itself history.
+            _ids = (args or {}).get("eval_ids") or []
+            if not str((args or {}).get("reason") or "").strip():
+                return {"error": "Voiding a reservoir evaluation requires a reason."}
+            idx = self._load_reservoir_eval_index()
+            voided, missing = [], []
+            for _eid in _ids:
+                raw = self._unwrap_value(self.retrieve_own_memory(_eid))
+                if not raw:
+                    missing.append(_eid)
+                    continue
+                try:
+                    rec = json.loads(raw)
+                except Exception:
+                    missing.append(_eid)
+                    continue
+                rec["voided"] = {"at": datetime.now().isoformat(),
+                                 "reason": args["reason"],
+                                 "by": args.get("voided_by", "principal")}
+                self.store_own_memory(_eid, json.dumps(rec))
+                voided.append(_eid)
+            remaining = [k for k in idx if k not in set(voided)]
+            self.store_own_memory("reservoir_eval_index", json.dumps(remaining))
+            return {"voided": voided, "not_found": missing,
+                    "index_before": len(idx), "index_after": len(remaining),
+                    "note": ("Voided evaluations keep their content with the reason "
+                             "attached and are off the index, so nothing reasons "
+                             "with them.")}
 
         elif task == "assess_root_zone":
             a = args or {}

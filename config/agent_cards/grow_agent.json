@@ -34,6 +34,7 @@
     "amend_grow_system",
     "field_history",
     "assess_root_zone",
+    "void_reservoir_eval",
     "get_nutrient_history",
     "set_inventory",
     "get_inventory",
@@ -72,5 +73,5 @@
   "public_key": "",
   "owner": "anureyki",
   "created": "2026-07-28T23:04:50.187235",
-  "updated": "2026-09-05T17:58:54.812172"
+  "updated": "2026-09-05T18:28:54.756357"
 }
