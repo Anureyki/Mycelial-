@@ -1088,7 +1088,13 @@ class AgentBase:
         scored = list(scored or [])
         tally = {}
         for r in scored:
-            v = r.get("verdict", "undetermined")
+            # A MISSING VERDICT IS NOT `undetermined`. That word already means
+            # something precise in at least one domain - "no observation
+            # recorded after this prediction yet" - and quietly mapping an
+            # absent field onto it would file a broken scorer's output as a
+            # real finding. A verdict that was never set is a defect in the
+            # domain hook and must stay visible as one.
+            v = r.get("verdict") or "no_verdict"
             tally[v] = tally.get(v, 0) + 1
         decided = tally.get("held", 0) + tally.get("failed", 0)
 
@@ -1104,6 +1110,12 @@ class AgentBase:
                 f"{decided} decided prediction(s) - too few to characterise how "
                 f"reliable this agent's expectations are. The rate describes these "
                 f"predictions only.")
+        if tally.get("no_verdict"):
+            result["scorer_defect"] = (
+                f"{tally['no_verdict']} scored prediction(s) came back with no verdict field. "
+                f"That is a fault in this agent's score_one_prediction, not a property of the "
+                f"predictions, and those rows are counted in neither the numerator nor the "
+                f"denominator.")
         if tally.get("unscorable"):
             result["note"] = (f"{tally['unscorable']} prediction(s) state an intention rather "
                               "than a measurable outcome. Writing expected_effect with a "
@@ -1118,7 +1130,14 @@ class AgentBase:
                     "tally": tally, "hit_rate": result["hit_rate"],
                 }))
             except Exception as exc:
+                # The scoring itself succeeded, so the caller still gets it -
+                # failing a read because a side-record could not be written
+                # would be the wrong trade. But it does NOT vanish into a log:
+                # the result says the scorecard was not kept, because a silent
+                # persistence failure is how a record quietly stops existing.
                 self.log(f"scorecard not persisted: {exc}")
+                result["scorecard_persisted"] = False
+                result["scorecard_error"] = str(exc)[:200]
         return result
 
     def score_predictions(self, args=None):
