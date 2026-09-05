@@ -154,10 +154,15 @@ LEAF_PATTERNS = (
      r"(brown|tan|rust\w*|necrotic|dead|black)|"
      r"leaf ?spot|(circular|round|irregular)[^.]{0,20}(spot|lesion|blotch)|"
      r"spot\w*[^.]{0,30}(middle|centre|center|interior|blade|between the veins)",
-     "a nutrient or a pathogen, and in a system whose FOLIAGE STAYS DRY the "
-     "two thin to one. A calcium shortfall spots the tissue that expanded while "
-     "the plant was short; calcium is immobile, so the damage is stamped into "
-     "leaves that were open at the time and never reaches back into them again. "
+     "several things, and MOBILITY sorts them faster than colour does. Calcium is "
+     "IMMOBILE - a plant cannot pull it out of an old leaf to build a new one - so "
+     "a calcium problem marks NEW tissue. Magnesium and potassium are MOBILE and "
+     "are withdrawn from old leaves first, so those mark OLD tissue. Which leaves "
+     "are affected therefore separates them before any question about colour. "
+     "And calcium fails in TWO distinct ways that look identical on the blade: too "
+     "little in solution, or enough in solution and impaired transport, because "
+     "calcium moves with water and a reservoir that ran low or a feed that stopped "
+     "will starve new tissue while the meter reads fine. "
      "A pathogen (septoria and its relatives) spreads and usually rings each "
      "spot with a yellow halo - but nearly all foliar fungi need liquid water "
      "sitting on the leaf to establish, so a canopy that is never wetted is "
@@ -166,9 +171,11 @@ LEAF_PATTERNS = (
      "pellet bed wets no leaves, and asserting otherwise was a real error here "
      "- salt crust found on a bucket lid was extended to foliage without asking "
      "whether the foliage ever gets wet. It does not",
-     "Two questions settle it, and neither needs a lab. First, is there a yellow "
-     "halo around any spot? A halo says pathogen; the earlier note on these leaves "
-     "recorded none, and that was one of its three trip conditions. Second, count "
+     "Two questions narrow it, and neither needs a lab. First, is there a yellow "
+     "halo around any spot? A halo SCREENS FOR pathogen - Septoria-type lesions "
+     "usually carry one - but it does not settle anything: leaf spots arise from "
+     "abiotic causes too, and a nutrient lesion can develop a chlorotic margin. "
+     "Absence of a halo is the more useful half of that test. Second, count "
      "them against last time and check whether the NEWEST growth is clean. Spots "
      "that multiply and reach new leaves are alive and spreading. Spots frozen on "
      "leaves that were already open, with clean growth above them, are a record of "
@@ -878,7 +885,7 @@ class GrowAgent(AgentBase):
                 "remove_plant", "list_vision_corrections", "recommend_purchase",
                 "web_search",
                 "prepare_dataset", "fit_linear_model", "predict_linear"
-            ],
+            , "leaf_differential"],
             role="gardener"
         )
         # Listen for probe traffic. Costs nothing when no sensor is publishing.
@@ -6585,6 +6592,164 @@ class GrowAgent(AgentBase):
             return "failed", f"{observed:g} is above {target:g}"
         return "inconclusive", f"{observed:g} is within noise (+/-{noise:g}) of {target:g}"
 
+    def leaf_differential(self, args):
+        """A brown lesion is a SYMPTOM CLASS, not a diagnosis.
+
+        evaluate_leaf answers with one verdict, which is the wrong shape for
+        this question: the same brown spot is produced by a calcium shortfall,
+        by adequate calcium that could not be transported, by magnesium, by
+        potassium, by a pathogen, and by a pest. Naming one of those is a guess
+        wearing a classification's clothes.
+
+        So this opens a DIFFERENTIAL - machinery that already sits on
+        AgentBase, unused by the leaf path until now - and lets the record
+        weigh in on each hypothesis rather than picking a winner.
+
+        WHAT SORTS THEM IS MOBILITY, NOT COLOUR. Calcium is immobile, so a
+        calcium problem marks NEW tissue; magnesium and potassium are mobile
+        and are withdrawn from old leaves first, so they mark OLD tissue. Which
+        leaves are affected therefore does more work than what shade they are.
+
+        AND CALCIUM FAILS TWO WAYS that are identical on the blade: too little
+        in solution, or enough in solution with impaired transport. Calcium
+        moves with water, so a reservoir that ran low or a feed that stopped
+        starves new tissue while the meter reads perfectly. Those need
+        different responses - one is a dose, the other is a delivery fault -
+        and collapsing them is how a grower doses a plant that is not hungry.
+        """
+        a = args if isinstance(args, dict) else {}
+        plant_id = a.get("plant_id", "current_plant")
+        observation = a.get("observation") or "brown necrotic lesions on foliage"
+
+        notes = [n for n in self._get_all_notes() if n.get("plant_id") == plant_id]
+        text = " ".join(str(n.get("text") or "") for n in notes).lower()
+        readings = sorted(self._get_readings_for_plant(plant_id),
+                          key=lambda r: r.get("timestamp") or "")
+        latest = readings[-1] if readings else {}
+
+        # Evidence the record can supply without asking anyone.
+        vols = [self._parse_numeric(r.get("volume_liters")) for r in readings]
+        vols = [v for v in vols if v is not None]
+        excursion = (max(vols) - min(vols)) if len(vols) > 1 else None
+        pests_ruled_out = "pests ruled out" in text
+        delivery_fault = any(w in text for w in ("pump", "air pump was off", "delivery"))
+        new_growth = a.get("new_growth_affected")
+        if new_growth is None:
+            new_growth = "newly established leaves" in text or "new growth" in text
+        halo = a.get("halo")            # None means genuinely unknown
+
+        ev = [{"fact": f"reservoir volume moved {excursion:.1f} L across the record",
+               "kind": "measured", "value": excursion} if excursion else None,
+              {"fact": "pests ruled out by direct underside inspection",
+               "kind": "observed"} if pests_ruled_out else None,
+              {"fact": "a feed/delivery interruption is on the record",
+               "kind": "observed"} if delivery_fault else None,
+              {"fact": f"latest ppm {latest.get('ppm')}, pH {latest.get('ph')}",
+               "kind": "measured"} if latest else None,
+              {"fact": ("new growth IS affected" if new_growth
+                        else "new growth is NOT affected"), "kind": "observed"},
+              {"fact": ("halo present" if halo is True else
+                        "no halo observed" if halo is False else
+                        "halo UNRESOLVED - not looked for yet"),
+               "kind": "observed" if halo is not None else "absent"}]
+        ev = [e for e in ev if e]
+
+        # handle_differential_task, NOT handle_task. The differential verbs are
+        # dispatched by AgentBase on the inbound path and are not part of the
+        # domain handler Grow overrides - calling the wrong one returned an
+        # error object with no id, and the first version of this method
+        # swallowed it and reported an empty differential.
+        opened = self.handle_differential_task("open_differential", {
+            "subject": plant_id, "observation": observation,
+            "observed_by": a.get("observed_by", "principal"), "evidence": ev})
+        did = opened.get("id")
+        if not did:
+            return opened
+
+        hyps = [
+            ("calcium_transport_limitation",
+             "enough calcium in solution, but calcium moves with water and a low "
+             "reservoir or a stopped feed starved new tissue anyway",
+             "does the damage date to a water-level excursion or a delivery fault, "
+             "rather than to a period of low ppm?"),
+            ("calcium_shortfall",
+             "too little calcium in solution while the affected tissue was expanding; "
+             "immobile, so it marks new growth and never reverses in old",
+             "was Cal-Mag below the operating rate while these leaves formed?"),
+            ("magnesium_deficiency",
+             "mobile, withdrawn from old leaves first - rust-brown spotting on OLDER "
+             "tissue, not new",
+             "are the OLDEST leaves affected worse than the newest?"),
+            ("potassium_deficiency",
+             "mobile like magnesium - rusty-brown blotches working from older tissue",
+             "same test as magnesium: oldest leaves first?"),
+            ("pathogen",
+             "Septoria-type leaf spot, which usually carries a yellow halo and SPREADS",
+             "count the lesions against last time and look for a halo. Spread over "
+             "days is the discriminator; a halo only raises suspicion"),
+            ("pest",
+             "sap-feeding damage",
+             "underside inspection with a loupe"),
+        ]
+        for name, mech, disc in hyps:
+            self.handle_differential_task("add_hypothesis", {
+                "id": did, "name": name, "mechanism": mech, "discriminator": disc})
+
+        # THE RETURN VALUE IS CHECKED. The first version of this discarded it,
+        # and every negative stance was written as "against" - not one of the
+        # four the API accepts - so weigh() returned an error object, the error
+        # went in the bin, and the differential came back with pests "plausible"
+        # after a direct inspection had ruled them out. A silent write failure
+        # inside the machinery built to stop silent failures.
+        weigh_errors = []
+
+        def weigh(h, fact, stance):
+            r = self.handle_differential_task("weigh_evidence", {
+                "id": did, "hypothesis": h, "fact": fact, "stance": stance})
+            if isinstance(r, dict) and r.get("error"):
+                weigh_errors.append({"hypothesis": h, "stance": stance,
+                                     "error": r["error"]})
+
+        if pests_ruled_out:
+            weigh("pest", "pests ruled out by direct underside inspection", "contradicts")
+        if new_growth:
+            weigh("calcium_transport_limitation", "new growth IS affected", "supports")
+            weigh("calcium_shortfall", "new growth IS affected", "supports")
+            weigh("magnesium_deficiency", "new growth affected, but magnesium is mobile "
+                  "and marks old tissue first", "contradicts")
+            weigh("potassium_deficiency", "new growth affected, but potassium is mobile "
+                  "and marks old tissue first", "contradicts")
+        if excursion and excursion >= 2.0:
+            weigh("calcium_transport_limitation",
+                  f"reservoir moved {excursion:.1f} L - calcium travels with water",
+                  "supports")
+        if delivery_fault:
+            weigh("calcium_transport_limitation",
+                  "a feed/delivery interruption is on the record", "supports")
+        if halo is False:
+            weigh("pathogen", "no halo observed", "contradicts")
+        elif halo is True:
+            weigh("pathogen", "halo present - raises suspicion, does not settle it",
+                  "supports")
+
+        state = self.handle_differential_task("assess_differential", {"id": did})
+        out_errors = ({"weighing_errors": weigh_errors,
+                       "warning": ("Some evidence did NOT land on its hypothesis. The "
+                                   "differential below is missing it and must not be read "
+                                   "as complete.")} if weigh_errors else {})
+        return {**out_errors, "differential_id": did, "plant_id": plant_id,
+                "observation": observation,
+                "evidence_gathered_from_record": ev,
+                "state": state,
+                "halo_is_a_screen_not_a_law": (
+                    "A yellow halo raises suspicion of a pathogen and does not establish "
+                    "one - leaf spots arise from abiotic causes too, and a nutrient lesion "
+                    "can develop a chlorotic margin. Its ABSENCE is the more useful half."),
+                "why_this_shape": (
+                    "A brown lesion is a symptom class. Naming one cause is a guess wearing "
+                    "a classification's clothes, and the two calcium failures in this list "
+                    "need opposite responses - one is a dose, the other is a delivery fix.")}
+
     # ---- prediction-scoring domain hooks --------------------------------
     # The machinery lives on AgentBase. What stays here is everything only a
     # gardener knows: which records carry an expectation, what counts as an
@@ -7619,6 +7784,9 @@ class GrowAgent(AgentBase):
             a_ = args if isinstance(args, dict) else {}
             return self.volume_history(a_.get("plant_id") or "current_plant",
                                        int(a_.get("limit", 12)))
+
+        if task == "leaf_differential":
+            return self.leaf_differential(args if isinstance(args, dict) else {})
 
         if task == "observe_stage_markers":
             return self.observe_stage_markers(args if isinstance(args, dict) else {})

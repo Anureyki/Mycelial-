@@ -23,6 +23,7 @@
     "get_nutrient_history",
     "get_status",
     "ingest_screenshot",
+    "leaf_differential",
     "list_notes",
     "list_reminders",
     "list_training_candidates",
