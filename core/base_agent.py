@@ -866,6 +866,15 @@ class AgentBase:
                          # become a property carried end to end rather than a
                          # thing a script measures afterwards.
                          "integrity": s.get("integrity"),
+                         # HOW WELL SOURCED, alongside how whole. Different axes:
+                         # `integrity` says whether the passage was stored complete,
+                         # `evidence_grade` says whether anyone opened the document
+                         # it came from. Dropped, a claim authored from model
+                         # knowledge and one read out of a publication are
+                         # indistinguishable to the reader. PATCHED IN BOTH ENTRY
+                         # BUILDERS - this file already records what happens when
+                         # only one of them is fixed.
+                         "evidence_grade": s.get("evidence_grade"),
                          "truncated": s.get("truncated"),
                          "full_length": s.get("full_length"),
                          "text": s.get("text", "")}
@@ -906,6 +915,15 @@ class AgentBase:
                              "citation": s.get("citation"), "page": s.get("page"),
                              "authority_class": doc.get("authority_class"),
                              "integrity": s.get("integrity"),
+                             # HOW WELL SOURCED, alongside how whole. Different axes:
+                             # `integrity` says whether the passage was stored complete,
+                             # `evidence_grade` says whether anyone opened the document
+                             # it came from. Dropped, a claim authored from model
+                             # knowledge and one read out of a publication are
+                             # indistinguishable to the reader. PATCHED IN BOTH ENTRY
+                             # BUILDERS - this file already records what happens when
+                             # only one of them is fixed.
+                             "evidence_grade": s.get("evidence_grade"),
                              "truncated": s.get("truncated"),
                              "full_length": s.get("full_length"),
                              "text": s.get("text", "")})
