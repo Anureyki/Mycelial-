@@ -31,6 +31,7 @@
     "log_reading",
     "log_training_event",
     "log_water_change",
+    "lookup",
     "observe_stage_markers",
     "plan_system_transition",
     "predict_linear",

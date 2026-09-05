@@ -885,7 +885,7 @@ class GrowAgent(AgentBase):
                 "remove_plant", "list_vision_corrections", "recommend_purchase",
                 "web_search",
                 "prepare_dataset", "fit_linear_model", "predict_linear"
-            , "leaf_differential"],
+            , "leaf_differential", "lookup"],
             role="gardener"
         )
         # Listen for probe traffic. Costs nothing when no sensor is publishing.
@@ -6745,6 +6745,14 @@ class GrowAgent(AgentBase):
                     "A yellow halo raises suspicion of a pathogen and does not establish "
                     "one - leaf spots arise from abiotic causes too, and a nutrient lesion "
                     "can develop a chlorotic margin. Its ABSENCE is the more useful half."),
+                "claims_this_rests_on": [
+                    {"citation": c, "verified": False} for c in
+                    ("calcium-immobile", "calcium-transport",
+                     "magnesium-potassium-mobile", "septoria-halo", "abiotic-first")],
+                "claims_note": ("Open any of these with lookup. All are authored rather "
+                                "than quoted and carry integrity `unknown` - the reasoning "
+                                "above is only as good as claims nobody has yet checked "
+                                "against a publication."),
                 "why_this_shape": (
                     "A brown lesion is a symptom class. Naming one cause is a guess wearing "
                     "a classification's clothes, and the two calcium failures in this list "
@@ -7784,6 +7792,24 @@ class GrowAgent(AgentBase):
             a_ = args if isinstance(args, dict) else {}
             return self.volume_history(a_.get("plant_id") or "current_plant",
                                        int(a_.get("limit", 12)))
+
+        if task == "lookup":
+            # Grow held a reference corpus that nothing could open. The boot
+            # warning said so in as many words - "loaded but this agent never
+            # calls lookup_reference, so nothing can reach them" - which is the
+            # inert-knowledge state named in CLAUDE.md: the information is held
+            # and no verb reasons with it.
+            term = args if isinstance(args, str) else (
+                (args or {}).get("term") or (args or {}).get("query") or "")
+            if isinstance(args, list) and args:
+                term = args[0]
+            found = self.lookup_reference(term)
+            return {"source": "reference/grow_agent corpus" if found else
+                            "reference/grow_agent corpus (no headword)",
+                    "results": found or [],
+                    "note": ("Everything in this corpus is AUTHORED, not quoted - written "
+                             "from model knowledge and never checked against a publication. "
+                             "It is a floor to reason from, and a measurement outranks it.")}
 
         if task == "leaf_differential":
             return self.leaf_differential(args if isinstance(args, dict) else {})

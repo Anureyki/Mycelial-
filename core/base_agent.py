@@ -257,7 +257,25 @@ class AgentBase:
             self.log(f"reference: corpus failed to load: {e}")
             return
         n_sections = len(idx.get("by_citation", {}))
+
+        # NOT gated on n_sections. Agents also load reference/_shared/, so an
+        # agent with shared sections and no domain corpus of its own has
+        # n_sections > 0 and slipped past the first version of this check
+        # silently - the same false-negative shape the check exists to remove.
+        # What matters is whether THIS agent has a floor for ITS domain.
+        if getattr(type(self), "ROUTING_TERMS", None):
+            ref_dir = os.path.join(BASE, "reference", self.agent_id)
+            if not os.path.isdir(ref_dir):
+                self.log(f"reference: WARNING - {self.agent_id} declares domain routing "
+                         f"terms but has no reference/{self.agent_id}/ at all. It is "
+                         f"reasoning with no cited floor, so anything it asserts about "
+                         f"its domain has no provenance behind it.")
+
         if not n_sections:
+            # Nothing further to say about a corpus that does not exist. The
+            # absent-corpus warning above runs BEFORE this return, because the
+            # first version of it sat after and could therefore never fire for
+            # the one case it was written to catch.
             return
         try:
             import inspect
@@ -269,6 +287,24 @@ class AgentBase:
             self.log(f"reference: WARNING - {n_sections} sections in "
                      f"reference/{self.agent_id}/ are loaded but this agent "
                      f"never calls lookup_reference, so nothing can reach them")
+
+        # ABSENT AND UNREACHABLE ARE DIFFERENT FINDINGS, and only one of them
+        # was being reported. The warning above fires when a corpus exists and
+        # nothing can open it. A corpus that does not exist at all was silent:
+        # the loader hits `except FileNotFoundError: continue` and says nothing,
+        # so an agent with no floor under it looked exactly like an agent whose
+        # floor was fine.
+        #
+        # Grow ran for months that way. Nothing reported it, and horticultural
+        # claims got written straight into a diagnostic pattern with no source
+        # field, which is the failure CLAUDE.md names in as many words -
+        # nothing is presented to a model as authority without its provenance
+        # attached.
+        #
+        # WHO SHOULD HAVE ONE is derived, not listed. An agent that declares
+        # ROUTING_TERMS is claiming a domain vocabulary, and an agent that
+        # claims a domain should have a floor to reason from. Boss, which holds
+        # no domain skill by design, declares none and is not nagged.
 
     def _lookup_agent(self, agent_id):
         result = self._call_registry_service("lookup", [agent_id])

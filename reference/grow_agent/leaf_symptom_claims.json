@@ -1,0 +1,57 @@
+{
+  "title": "Leaf symptom claims used by the leaf_spot pattern",
+  "source": "AUTHORED, NOT QUOTED. Every claim below was written by Claude from model knowledge while building the leaf_spot pattern and leaf_differential on 2026-09-05. NONE of it was retrieved from, or checked against, a cited publication. It is recorded here so it stops masquerading as authority inside a diagnostic pattern, which is where it currently sits with no source field at all. The principal identified Utah State University Extension hemp materials as reaching the same conclusions independently; that document has NOT been retrieved or opened here, so it corroborates nothing yet - a citation nobody has read is not evidence.",
+  "authority_class": "unknown",
+  "authority_class_basis": "Cannot be set. The work has not been read, and a class filled from a remembered impression is exactly the guessed standing field CLAUDE.md forbids. It becomes `treatise` or `extension_guidance` when a real document is ingested.",
+  "stance": "unknown",
+  "evidence_kind": "authored",
+  "verified": false,
+  "how_to_verify": "Supply the USU Extension hemp publication as a PDF and run tools/ingest_pdf.py. That replaces this file with a citable work, and the claims below become quotable rather than asserted.",
+  "sections": [
+    {
+      "integrity": {
+        "state": "unknown",
+        "basis": "Authored rather than quoted. Nothing vouches for this against a source because no source was opened.",
+        "stamped_at": null
+      },
+      "citation": "calcium-immobile",
+      "text": "Calcium is immobile in the plant: it cannot be withdrawn from older tissue to supply new growth, so a calcium problem marks NEW tissue and never reverses in leaves already damaged.  [UNVERIFIED: authored from model knowledge, not retrieved from any publication. Used by leaf_differential - separates calcium from magnesium and potassium.]"
+    },
+    {
+      "integrity": {
+        "state": "unknown",
+        "basis": "Authored rather than quoted. Nothing vouches for this against a source because no source was opened.",
+        "stamped_at": null
+      },
+      "citation": "calcium-transport",
+      "text": "Calcium moves with water. Adequate calcium in solution can still fail to reach new tissue if water transport is disrupted - a reservoir that ran low, a stopped feed, or impaired roots - so the meter can read correctly while the plant is calcium-starved.  [NOTE] This distinction came from the principal, not from this agent's original pattern, which collapsed both calcium failures into one.  [UNVERIFIED: authored from model knowledge, not retrieved from any publication. Used by leaf_differential - the calcium_transport_limitation hypothesis, which led on this plant and would have been missed entirely without it.]"
+    },
+    {
+      "integrity": {
+        "state": "unknown",
+        "basis": "Authored rather than quoted. Nothing vouches for this against a source because no source was opened.",
+        "stamped_at": null
+      },
+      "citation": "magnesium-potassium-mobile",
+      "text": "Magnesium and potassium are mobile and are withdrawn from older leaves first, so their deficiencies mark OLD tissue. Both can produce rust-brown spotting or blotching.  [UNVERIFIED: authored from model knowledge, not retrieved from any publication. Used by leaf_differential - weakens both when new growth is affected.]"
+    },
+    {
+      "integrity": {
+        "state": "unknown",
+        "basis": "Authored rather than quoted. Nothing vouches for this against a source because no source was opened.",
+        "stamped_at": null
+      },
+      "citation": "septoria-halo",
+      "text": "Septoria-type leaf spot usually presents as a brown lesion with a yellow halo. A halo therefore SCREENS FOR a pathogen and does not establish one: leaf spots also arise from abiotic causes, and a nutrient lesion can develop a chlorotic margin. Spread over days is the stronger discriminator; absence of a halo is the more useful half of the test.  [NOTE] An earlier version of the pattern stated 'a halo says pathogen' as a rule. The principal corrected it to a screening feature. That correction is the reason this file exists.  [UNVERIFIED: authored from model knowledge, not retrieved from any publication. Used by leaf_differential - the pathogen hypothesis.]"
+    },
+    {
+      "integrity": {
+        "state": "unknown",
+        "basis": "Authored rather than quoted. Nothing vouches for this against a source because no source was opened.",
+        "stamped_at": null
+      },
+      "citation": "abiotic-first",
+      "text": "Many cannabis and hemp leaf problems are abiotic - nutrient deficiency, over- or under-watering, environmental stress - rather than pest or pathogen. A symptom-first classifier that reaches for pests is reaching for the less likely branch.  [UNVERIFIED: authored from model knowledge, not retrieved from any publication. Used by leaf_differential - ordering of the candidate list.]"
+    }
+  ]
+}
