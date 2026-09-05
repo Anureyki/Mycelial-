@@ -1,0 +1,28 @@
+{
+  "agent_id": "trading_agent",
+  "role": "agent",
+  "version": "1.0.0",
+  "capabilities": [
+    "scan_candidates",
+    "vet_candidate",
+    "vet_batch",
+    "fee_viability",
+    "concentration",
+    "capability_surface",
+    "list_rejections",
+    "rejection_stats"
+  ],
+  "endpoint": "/execute",
+  "port": 9016,
+  "transport": [
+    "http",
+    "mqtt"
+  ],
+  "mqtt_topics": {
+    "publish": "mycelial/agent/trading_agent/out",
+    "subscribe": "mycelial/agent/trading_agent/in"
+  },
+  "public_key": "",
+  "owner": "anureyki",
+  "created": "2026-09-05T02:41:20.311793"
+}
