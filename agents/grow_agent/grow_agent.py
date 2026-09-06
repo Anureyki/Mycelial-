@@ -338,6 +338,40 @@ TRAINING_EVENT_TYPES = {
     "leaf_removal":  {"severity": "moderate", "removes_capacity": True},
 }
 
+# Spoken-fact capture for the events above. `ingest()` matches these BEFORE any
+# model call, the same way parse_reading() pulls a reservoir number out of
+# conversation - a cut reported in passing must be recorded before a slow vision
+# or reasoning call can drop it. Two rules, both mirrored from parse_reading:
+#
+#   1. Only a PAST-TENSE report of a completed act is logged. "I topped her"
+#      is a fact; "should I top her" and "time to defoliate" are questions and
+#      belong to answer(), not the record. Each pattern below encodes its own
+#      past tense.
+#   2. "topped" collides with "topped up / topped off" - a refill, already
+#      handled by the volume path - so that word carries an explicit exclusion.
+#
+# Anything not in this table (supercropping, mainlining, FIM as its own type)
+# is deliberately absent rather than mapped to a near neighbour: guessing the
+# type would guess the severity, and severity drives the feed reasoning.
+TRAINING_EVENT_TRIGGERS = (
+    ("lollipopping", r"\blollipop(?:ped|p'?d)\b|\b(?:did|done|been|finished|after)\b[^.?!]{0,24}\blollipopp?ing\b"),
+    ("defoliation",  r"\bdefoliated\b|\bdid\s+(?:a|some|the)\s+defoliation\b|\bdefoliation\s+(?:done|complete|finished)\b"),
+    ("topping",      r"\btopped\b(?!\s+(?:up|off|it\s+up|her\s+up|the\s+res\w*|the\s+tank))"),
+    ("topping",      r"\bfimmed\b|\bdid\s+(?:a\s+)?fim\b"),
+    ("lst",          r"\bdid\s+(?:some\s+|a\s+bit\s+of\s+)?(?:lst|low[- ]stress\s+training)\b|"
+                     r"\b(?:tied|bent|trained)\s+(?:her|it|them|the\s+\w+)\s+(?:down|over|back)\b"),
+    ("leaf_removal", r"\b(?:removed|took\s+off|pulled|plucked|stripped|snipped|cut\s+off)\b"
+                     r"[^.?!]{0,28}\b(?:fan\s+)?leaves\b|"
+                     r"\btook\b[^.?!]{0,20}\bleaves\s+off\b"),
+)
+
+# What the capture layer can say about a fact it just wrote. These are the
+# absence-aware states from the README ("nothing found, not checked, incomplete,
+# conflicting, verified clear"), narrowed to the three a single ingested
+# utterance can actually land in. `unknown` is not one of them: a missing field
+# is `incomplete` and says which field, never a silent pass.
+CAPTURE_STATES = ("verified_clear", "incomplete", "conflicting")
+
 # Direction of nutrient emphasis by stage. Deliberately expressed as multipliers
 # on whatever recipe is already recorded rather than absolute ml, because the
 # right absolute numbers depend on the product line, the source water, and the
@@ -877,7 +911,7 @@ class GrowAgent(AgentBase):
                 "log_training_event", "recommend_feed", "plan_system_transition",
                 "set_grow_system", "get_grow_system", "amend_grow_system",
                 "field_history", "assess_root_zone", "void_reservoir_eval",
-                "reconcile_ec_temperature", "intake_reading",
+                "reconcile_ec_temperature", "intake_reading", "when_to_top_up",
                 "get_nutrient_history",
                 "set_inventory", "get_inventory",
                 "check_in", "analyze_consumption", "adjust_to_target_ppm",
@@ -2863,6 +2897,13 @@ class GrowAgent(AgentBase):
     "reading", "readings", "log\\b", "logging", "cadence", "how often",
     # actions
     "transplant", "defoliat", "lollipop", "topping", "water change", "top ?off",
+    # training / pruning events the capture path (parse_training_event) records
+    # from plain speech - declared here so "I topped current_plant this morning"
+    # routes to this agent instead of a keyword-scored guess elsewhere.
+    "topped", "fimmed", "\\bfim\\b", "\\blst\\b", "low.?stress training",
+    "leaf removal", "leaves off", "removed .{0,15}leaves", "pulled .{0,15}leaves",
+    "stripped .{0,15}leaves", "took off .{0,15}leaves",
+    "tied .{0,12}down", "trained .{0,12}down", "bent .{0,12}(over|down)",
     )
 
     _term_cache = {"terms": None, "at": 0}
@@ -3049,6 +3090,229 @@ class GrowAgent(AgentBase):
                      "how long the record held them is unknown, not zero.")
                     if undated else "every superseded value carries its write time",
         }
+
+    def when_to_top_up(self, plant_id="current_plant", current_liters=None,
+                       floor_liters=None, note=""):
+        """When water is due, from this reservoir's own drawdown history.
+
+        `volume_history` holds the measurements and `reconcile_topup` does the
+        arithmetic AFTERWARDS; nothing answered the question asked before the
+        jug comes out. The grower asked it directly and the router sent a
+        volume question to the nutrient-strength facet, which is a separate
+        fault - this at least gives the right answer somewhere.
+
+        Two things decide it and only one is usually remembered.
+
+        The obvious one is the level. The one that actually bites is
+        CONCENTRATION: water leaves and salt does not, so ppm climbs as the
+        reservoir falls, on the same conservation of mass `reconcile_topup`
+        uses in the other direction. A reservoir can be at a perfectly safe
+        level and already outside the stage band, and topping up is then the
+        correction rather than a chore.
+
+        The floor is taken from what this grower ACTUALLY does - the lowest
+        measured volume before a top-up in his own history - not from a
+        number invented here. Where the history has none, it says so.
+
+        What it deliberately does not know: in a TOP-FED DWC the hard floor is
+        the pump intake, because when the pump sucks air delivery does not get
+        worse, it stops - roots in a mediumless basket then get nothing. That
+        depth is not on the system record and cannot be derived from volumes,
+        so it is reported as an unknown rather than guessed around."""
+        hist = self.handle_task("volume_history", {"plant_id": plant_id}, "when_to_top_up")
+        hist = hist.get("result", hist) if isinstance(hist, dict) else {}
+        changes = [c for c in (hist.get("changes") or []) if c.get("measured")]
+
+        sysraw = self._unwrap_value(self.retrieve_own_memory(f"grow_system_{plant_id}"))
+        try:
+            sysrec = json.loads(sysraw) if sysraw else {}
+        except Exception:
+            sysrec = {}
+
+        cur = self._parse_numeric(current_liters)
+        if cur is None:
+            cur = self._parse_numeric(hist.get("current_liters"))
+
+        # The floor this grower actually uses: the lowest volume he has been
+        # measured at immediately before adding water.
+        drawdowns = [c for c in changes if (c.get("delta") or 0) < 0]
+        observed_floor = min((c["liters"] for c in drawdowns), default=None)
+        floor = self._parse_numeric(floor_liters)
+        floor_basis = "supplied by the caller"
+        if floor is None and observed_floor is not None:
+            floor, floor_basis = observed_floor, (
+                f"lowest measured volume before a top-up in this reservoir's own "
+                f"history ({len(drawdowns)} drawdown(s) on record)")
+        if floor is None:
+            floor_basis = "NOT ESTABLISHED - no measured drawdown in the history"
+
+        # Litres per day, from measured drawdowns only. A carried-forward
+        # volume was never measured and cannot evidence a rate.
+        rate = None
+        rate_basis = "not derivable"
+        spans = []
+        for c in drawdowns:
+            d = c.get("delta")
+            frm, at = c.get("from_liters"), str(c.get("at") or "")
+            prior = None
+            for e in changes:
+                if str(e.get("at") or "") < at and e.get("liters") == frm:
+                    prior = e
+            if prior and d:
+                try:
+                    t0 = datetime.fromisoformat(str(prior["at"])[:19])
+                    t1 = datetime.fromisoformat(at[:19])
+                    hrs = (t1 - t0).total_seconds() / 3600.0
+                    if hrs > 1:
+                        spans.append({"from": str(prior["at"])[:16], "to": at[:16],
+                                      "litres": round(abs(d), 2),
+                                      "hours": round(hrs, 1),
+                                      "l_per_day": round(abs(d) / (hrs / 24.0), 2)})
+                except Exception:
+                    pass
+        # THE LIVE INTERVAL. The most recent completed drawdown can be days old
+        # and the plant is bigger than it was; a rate from history alone will
+        # under-call a reservoir that is emptying faster now. If a current
+        # level is supplied, the run from the last known volume to it is itself
+        # a measured interval and is the one that describes today.
+        live = None
+        if cur is not None and changes:
+            # Two rows share the timestamp "2026-09-04T22" - the drawdown to
+            # 12.84 and the top-up back to 15.5 - and max() returned the first,
+            # making the drop negative and skipping the interval silently.
+            # volume_history already resolves this: it publishes the resulting
+            # level and when it changed. Use those, and fall back to the row
+            # scan only if they are absent.
+            _cl = self._parse_numeric(hist.get("current_liters"))
+            _ca = hist.get("last_change_at")
+            if _cl is not None and _ca:
+                newest = {"at": _ca, "liters": _cl}
+            else:
+                newest = max((c for c in changes if c.get("liters")),
+                             key=lambda x: (str(x.get("at") or ""), x.get("liters") or 0))
+            try:
+                # Timestamps in the volume history are not all full ISO - one
+                # reads "2026-09-04T22", which fromisoformat refuses, so the
+                # live interval silently never fired and the answer fell back
+                # to a five-day-old rate. Pad rather than drop the row.
+                _raw = str(newest["at"])[:19]
+                if len(_raw) == 13:
+                    _raw += ":00:00"
+                elif len(_raw) == 16:
+                    _raw += ":00"
+                t0 = datetime.fromisoformat(_raw)
+                hrs = (datetime.now() - t0).total_seconds() / 3600.0
+                drop = (newest.get("liters") or 0) - cur
+                if hrs > 1 and drop > 0:
+                    live = {"from": str(newest["at"])[:16], "to": "now",
+                            "litres": round(drop, 2), "hours": round(hrs, 1),
+                            "l_per_day": round(drop / (hrs / 24.0), 2),
+                            "note": "open interval - the end point is the level the "
+                                    "grower just read, not a logged measurement"}
+            except Exception:
+                pass
+
+        if live:
+            rate = live["l_per_day"]
+            rate_basis = (f"the LIVE interval since {live['from']} - {live['litres']} L "
+                          f"in {live['hours']}h. Used in preference to history because "
+                          f"it describes this plant now.")
+            spans = spans + [live]
+            if spans[:-1]:
+                hist_rate = sum(x["l_per_day"] for x in spans[:-1]) / len(spans[:-1])
+                out_hist = round(hist_rate, 2)
+                if hist_rate and rate / hist_rate >= 1.5:
+                    rate_basis += (f" NOTE: history averages {out_hist} L/day, so uptake "
+                                   f"has risen {rate / hist_rate:.1f}x. A bigger plant "
+                                   f"drinks more; this is expected, and it means a "
+                                   f"cadence set from the old rate arrives late.")
+        elif spans:
+            rate = sum(x["l_per_day"] for x in spans) / len(spans)
+            rate_basis = f"mean of {len(spans)} measured drawdown interval(s)"
+
+        out = {"plant_id": plant_id, "current_liters": cur,
+               "working_liters": self._parse_numeric(sysrec.get("typical_working_liters")),
+               "floor_liters": floor, "floor_basis": floor_basis,
+               "drawdown_l_per_day": round(rate, 2) if rate else None,
+               "drawdown_basis": rate_basis, "intervals": spans}
+
+        if cur is not None and floor is not None:
+            out["litres_to_floor"] = round(cur - floor, 2)
+            if rate and rate > 0:
+                hrs = (cur - floor) / rate * 24.0
+                out["hours_to_floor"] = round(hrs, 1)
+                out["due"] = ("now" if hrs <= 0 else
+                              "within a day" if hrs <= 24 else
+                              f"in about {hrs / 24:.1f} days")
+
+        # Concentration is the half that gets forgotten. Mass is conserved as
+        # water leaves, so ppm climbs against a fixed stage band.
+        # THE LATEST ppm, from the READINGS - not from volume-change events.
+        # Taking it from `changes` picked 583 ppm recorded at the moment of a
+        # top-up on 09-04 and ignored the 740 measured a day later, which put
+        # the projected concentration out by roughly 190 ppm. A volume change
+        # is a subset of the readings, and the subset is not the series.
+        last_ppm = last_vol = last_at = None
+        try:
+            for rk in (self._get_readings_for_plant(plant_id) or []):
+                if rk.get("voided"):
+                    continue
+                v = self._parse_numeric(rk.get("volume_liters"))
+                pp = self._parse_numeric(rk.get("ppm"))
+                at = str(rk.get("timestamp") or "")
+                if pp and v and (last_at is None or at > last_at):
+                    last_ppm, last_vol, last_at = pp, v, at
+            last_at = str(last_at)[:16] if last_at else None
+        except Exception as e:
+            self.log(f"when_to_top_up: could not read readings for ppm: {e}")
+        if last_ppm is None:
+            for j in sorted(changes, key=lambda x: str(x.get("at") or "")):
+                if j.get("ppm") and j.get("liters"):
+                    last_ppm, last_vol, last_at = j["ppm"], j["liters"], str(j.get("at"))[:16]
+        if last_ppm and last_vol and cur:
+            mass = last_ppm * last_vol
+            band = None
+            try:
+                stage = self._stage_for_plant(plant_id)
+                band = (self.handle_task("check_stage", {"stage": stage}, "when_to_top_up")
+                        .get("result", {}) or {}).get("ppm")
+            except Exception:
+                stage = None
+            conc = {"basis": f"conservation of dissolved mass from {last_ppm:g} ppm at "
+                             f"{last_vol:g} L ({last_at}); no nutrient added since",
+                    "dissolved_mass_ppm_litres": round(mass, 0),
+                    "ppm_now_if_only_water_left": round(mass / cur, 0)}
+            if floor:
+                conc["ppm_at_floor"] = round(mass / floor, 0)
+            if band:
+                conc["stage_band"] = band
+                conc["ppm_at_floor_vs_band"] = (
+                    "above the band" if floor and mass / floor > band[1] else
+                    "inside the band" if floor else "unknown")
+                if floor and mass / floor > band[1]:
+                    conc["finding"] = (
+                        f"Concentration reaches the top of the {band[0]}-{band[1]} band "
+                        f"BEFORE the level reaches the floor. The top-up is then a "
+                        f"correction, not a chore, and the level is the wrong thing "
+                        f"to watch.")
+            out["concentration"] = conc
+
+        out["not_established"] = []
+        if str(sysrec.get("spray_ring_wets") or "").strip():
+            out["not_established"].append(
+                "PUMP INTAKE DEPTH. This is a top-fed DWC - the spray ring wets roots "
+                "and clay pellets - so the hard floor is where the pump stops drawing, "
+                "not where the roots leave the water. When a top-feed pump sucks air "
+                "the roots do not get less, they get nothing. That depth is not on the "
+                "system record and cannot be derived from volumes.")
+        if not spans:
+            out["not_established"].append(
+                "Drawdown rate - no measured interval with a usable time span.")
+        if cur is None:
+            out["not_established"].append("Current volume was not supplied or recorded.")
+        if note:
+            out["note"] = note
+        return out
 
     def reconcile_topup(self, plant_id="current_plant", ppm_before=None, ppm_after=None,
                         volume_after=None, volume_added=None, topup_ppm=0.0,
@@ -3663,11 +3927,376 @@ class GrowAgent(AgentBase):
         return out or None
 
     def ingest(self, prompt):
-        """A reservoir reading mentioned in passing is recorded before anything
-        else happens - vision is slow and can time out, and the numbers must not
-        be lost with it. The photo can be retaken; the reservoir at that moment
-        cannot."""
-        return self.log_from_text(prompt or "")
+        """Capture a domain fact stated in conversation before any slow model
+        call - the same reason a reservoir reading is pulled out here: vision
+        reasoning can time out and the fact must not go with it. The photo can
+        be retaken; the cut, and the moment it happened, cannot.
+
+        Two shapes are recognised deterministically: a reservoir reading
+        (parse_reading) and a training/pruning event (parse_training_event).
+        Boss calls this first and only falls through to answer() when nothing
+        was logged.
+        """
+        text = prompt or ""
+        reading = self.log_from_text(text)
+        if reading.get("logged"):
+            return reading
+        ev = self.capture_training_event_from_text(text)
+        if ev.get("logged"):
+            return ev
+        # Nothing recordable. Return the reading result so Boss's fall-through
+        # to answer() is unchanged.
+        return reading
+
+    # ---- Spoken training-event capture ------------------------------------
+    _EVENT_GATE = re.compile(
+        r"\b(should\s+i|shall\s+i|do\s+i|can\s+i|could\s+i|would\s+i|may\s+i|"
+        r"when\s+(?:do|should|can|will|would)\s+i|is\s+it\s+time\s+to|"
+        r"do\s+you\s+(?:think|reckon|recommend|suggest)|thinking\s+(?:about|of)|"
+        r"planning\s+(?:to|on)|plan\s+to|going\s+to|gonna|about\s+to|"
+        r"want\s+to|wanna|need\s+to|have\s+to|"
+        r"don'?t|didn'?t|haven'?t|hasn'?t|won'?t|never\s+|no\s+need)\b",
+        re.IGNORECASE,
+    )
+    _MONTHS = {m: i + 1 for i, m in enumerate(
+        ["jan", "feb", "mar", "apr", "may", "jun",
+         "jul", "aug", "sep", "oct", "nov", "dec"])}
+
+    def parse_training_event(self, text):
+        """Pull a completed training/pruning event out of plain language, or None.
+
+        Deterministic and side-effect free - the writing is done by the caller.
+        Returns {event_type, phrase, occurred_at, date_phrase, date_basis,
+        detail} where occurred_at is an ISO date only when the utterance
+        actually pinned one down; a stated day with no month comes back
+        occurred_at=None with date_basis explaining why, so the caller records
+        it incomplete rather than guessing the month.
+        """
+        t = (text or "").strip()
+        if not t:
+            return None
+        lp = t.lower()
+        # A question or a plan is not a logged event. The one exception is a
+        # completed act with a trailing question - "I topped her, should I
+        # feed?" - so the gate is overridden only when a first-person pronoun
+        # sits DIRECTLY before an affirmative past-tense verb. A negation word
+        # ("I haven't defoliated", "we never topped") lands between the two and
+        # so does not override.
+        if self._EVENT_GATE.search(lp) and not re.search(
+                r"\b(?:i|we)\s+(?:just\s+|already\s+|also\s+|finally\s+|"
+                r"went\s+ahead\s+and\s+)?"
+                r"(?:topped|lollipopped|lollipopp?ed|defoliated|fimmed|removed|"
+                r"pulled|plucked|stripped|snipped|tied|bent|trained)\b", lp):
+            return None
+        event_type = phrase = None
+        for canonical, pat in TRAINING_EVENT_TRIGGERS:
+            m = re.search(pat, lp, re.IGNORECASE)
+            if m:
+                event_type, phrase = canonical, m.group(0).strip()
+                break
+        if not event_type or event_type not in TRAINING_EVENT_TYPES:
+            return None
+        occurred_at, date_phrase, date_basis = self._parse_event_date(lp)
+        return {
+            "event_type": event_type,
+            "phrase": phrase,
+            "occurred_at": occurred_at,
+            "date_phrase": date_phrase,
+            "date_basis": date_basis,
+            "detail": t,
+        }
+
+    def _parse_event_date(self, lp):
+        """(iso_date | None, phrase | None, basis). Never guesses a month."""
+        today = datetime.now().date()
+        m = re.search(r"\b(\d{4})-(\d{1,2})-(\d{1,2})\b", lp)
+        if m:
+            try:
+                d = datetime(int(m.group(1)), int(m.group(2)), int(m.group(3))).date()
+                if d > today:
+                    return None, m.group(0), ("stated date is in the future; a completed "
+                                              "cut cannot be - not resolved")
+                return d.isoformat(), m.group(0), "ISO date stated in the utterance"
+            except ValueError:
+                return None, m.group(0), "stated date does not exist - not resolved"
+        m = re.search(r"\b(\d{1,2})/(\d{1,2})(?:/(\d{2,4}))?\b", lp)
+        if m:
+            mo, day = int(m.group(1)), int(m.group(2))
+            yr = m.group(3)
+            try:
+                if yr:
+                    yr = int(yr) + (2000 if int(yr) < 100 else 0)
+                    d = datetime(yr, mo, day).date()
+                else:
+                    d = datetime(today.year, mo, day).date()
+                    if d > today:                 # "8/21" said in Jan -> last year
+                        d = datetime(today.year - 1, mo, day).date()
+                if d > today:
+                    return None, m.group(0), "stated date is in the future - not resolved"
+                return d.isoformat(), m.group(0), (
+                    "numeric month/day stated" + ("" if yr else "; year taken as the most "
+                    "recent past occurrence"))
+            except ValueError:
+                return None, m.group(0), "stated date does not exist - not resolved"
+        mn = "(" + "|".join(self._MONTHS) + r")[a-z]*"
+        m = (re.search(r"\b" + mn + r"\s+(\d{1,2})(?:st|nd|rd|th)?\b", lp)
+             or re.search(r"\b(\d{1,2})(?:st|nd|rd|th)?\s+(?:of\s+)?" + mn + r"\b", lp))
+        if m:
+            g = m.groups()
+            mon = g[0] if g[0] in self._MONTHS else g[1]
+            day = int(g[1] if g[0] in self._MONTHS else g[0])
+            try:
+                d = datetime(today.year, self._MONTHS[mon], day).date()
+                if d > today:
+                    d = datetime(today.year - 1, self._MONTHS[mon], day).date()
+                return d.isoformat(), m.group(0), "month name and day stated"
+            except ValueError:
+                return None, m.group(0), "stated date does not exist - not resolved"
+        if re.search(r"\b(?:today|this (?:morning|afternoon|evening)|just now|"
+                     r"a (?:little|few minutes?) ago)\b", lp):
+            return today.isoformat(), "today", "relative: today"
+        if re.search(r"\b(?:yesterday|last night)\b", lp):
+            return (today - timedelta(days=1)).isoformat(), "yesterday", "relative: yesterday"
+        m = re.search(r"\b(\d{1,2})\s+days?\s+ago\b", lp)
+        if m:
+            n = int(m.group(1))
+            return (today - timedelta(days=n)).isoformat(), m.group(0), f"relative: {n} days ago"
+        m = re.search(r"\bon the (\d{1,2})(?:st|nd|rd|th)?\b", lp)
+        if m:
+            return None, "the " + m.group(1) + (m.group(0).replace("on the " + m.group(1), "").strip() or ""), (
+                "a day of the month was stated without a month - ambiguous, not resolved")
+        return None, None, "no date was stated in the utterance"
+
+    def capture_training_event_from_text(self, text):
+        """Recognise -> resolve -> de-duplicate -> record -> provenance.
+
+        Returns {"logged": bool, ...}. "logged" is True whenever a fact was
+        written OR an equivalent one already existed (so Boss relays the
+        receipt instead of falling through to a generic answer). A duplicate
+        is refused rather than written twice - two training rows seconds apart
+        corrupt the before/after reasoning around them, the same failure the
+        volume-only readings once caused.
+        """
+        parsed = self.parse_training_event(text)
+        if not parsed:
+            return {"logged": False, "reason": "no training event found in text"}
+
+        event_type = parsed["event_type"]
+        profile = TRAINING_EVENT_TYPES[event_type]
+
+        # --- resolve the plant, never default it silently ---
+        plants = self.active_plants()
+        stated_plant = self._plant_from_text(text)
+        plant_id, plant_basis = None, None
+        if stated_plant:
+            plant_id, plant_basis = stated_plant, "named in the utterance"
+        elif len(plants) == 1:
+            plant_id = plants[0].get("plant_id") or "current_plant"
+            plant_basis = "the sole active plant - inferred"
+        elif not plants:
+            plant_id, plant_basis = "current_plant", "no plant roster yet - inferred"
+
+        # --- a cut with no resolvable plant is REFUSED, never written to a
+        # default. "Plants do not cross": a training row on the wrong vessel
+        # corrupts the before/after around it exactly as a foreign reading
+        # does, and the default is always the plant most recently discussed
+        # rather than the one that was cut. A missing DATE is recoverable
+        # (record it incomplete); a missing PLANT is not (nothing to bind it
+        # to), so the two are handled differently.
+        if plant_id is None:
+            names = ", ".join(p.get("plant_id") for p in plants) or "the plants I track"
+            return {
+                "logged": True,
+                "answered_as": "training_event_refused_no_plant",
+                "capture": {"method": "spoken_ingest", "state": "incomplete",
+                            "missing": ["plant_id"], "trigger_phrase": parsed["phrase"],
+                            "utterance": parsed["detail"],
+                            "basis": "deterministic parse; no model call",
+                            "stamped_at": datetime.now().isoformat(timespec="seconds")},
+                "result": (
+                    f"I heard a {event_type.replace('_', ' ')}"
+                    + (f' dated {parsed["occurred_at"]}' if parsed["occurred_at"] else "")
+                    + f", but not which plant - you have {len(plants)} active "
+                    f"({names}). Nothing was recorded: a cut written to the wrong "
+                    f"vessel corrupts its history. Say which plant and I will log it."),
+            }
+
+        # --- completeness -> one explicit capture state ---
+        missing, inferred = [], {}
+        if plant_basis and "inferred" in plant_basis:
+            inferred["plant_id"] = plant_basis
+        occurred_at = parsed["occurred_at"]
+        if not occurred_at:
+            missing.append("occurred_at")
+        conflicting = "future" in (parsed["date_basis"] or "")
+        state = ("conflicting" if conflicting
+                 else "incomplete" if missing else "verified_clear")
+
+        capture = {
+            "method": "spoken_ingest",
+            "state": state,
+            "stated": ([k for k, v in (("plant_id", stated_plant),
+                                       ("occurred_at", occurred_at)) if v] + ["event_type"]),
+            "missing": missing,
+            "inferred": inferred,
+            "date_basis": parsed["date_basis"],
+            "date_phrase": parsed["date_phrase"],
+            "trigger_phrase": parsed["phrase"],
+            "utterance": parsed["detail"],
+            "basis": "deterministic parse in ingest(); no model call",
+            "stamped_at": datetime.now().isoformat(timespec="seconds"),
+        }
+
+        # --- de-duplicate against what is already recorded ---
+        if plant_id and occurred_at:
+            for e in self._get_all_training_events():
+                if e.get("voided"):
+                    continue
+                if e.get("plant_id", "current_plant") != plant_id:
+                    continue
+                if e.get("event_type") != event_type:
+                    continue
+                if str(e.get("timestamp") or "")[:10] != occurred_at:
+                    continue
+                rec_at = str(e.get("recorded_at") or e.get("timestamp") or "")[:16].replace("T", " ")
+                return {
+                    "logged": True,
+                    "answered_as": "training_event_duplicate",
+                    "duplicate_of": e.get("id"),
+                    "capture": capture,
+                    "record": e,
+                    "result": (
+                        f"Already recorded: a {event_type.replace('_', ' ')} on {plant_id} "
+                        f"dated {occurred_at} (logged {rec_at}). Not re-added - a second row "
+                        f"on the same day corrupts the before/after around it. If this was a "
+                        f"different cut that day, say what tells them apart and I will record it."),
+                }
+
+        # --- write through the existing verb, carrying capture + actor ---
+        call_args = {
+            "plant_id": plant_id or "current_plant",
+            "event_type": event_type,
+            "detail": parsed["detail"],
+            "_capture": capture,
+            "_actor_type": "human",
+            "_actor_id": "principal",
+        }
+        if occurred_at:
+            call_args["occurred_at"] = occurred_at
+        if not occurred_at:
+            call_args["_date_uncertain"] = True
+        written = self.handle_task("log_training_event", call_args, self.agent_id)
+        rec = written.get("record") if isinstance(written, dict) else None
+        if not isinstance(rec, dict):
+            return {"logged": False, "reason": "log_training_event did not return a record",
+                    "detail": written}
+
+        prov = rec.get("provenance") or {}
+        return {
+            "logged": True,
+            "answered_as": ("training_event_incomplete" if state == "incomplete"
+                            else "training_event_conflicting" if state == "conflicting"
+                            else "training_event_captured"),
+            "capture": capture,
+            "record": rec,
+            "provenance": prov,
+            "result": self._training_event_receipt(rec, capture, plant_id, plant_basis,
+                                                   profile, prov, parsed),
+        }
+
+    def _training_event_receipt(self, rec, capture, plant_id, plant_basis,
+                                profile, prov, parsed):
+        """The reply IS the receipt: every field that was stored, shown back so
+        a misheard one is cheap to fix in the seconds after it lands."""
+        et = rec.get("event_type", "")
+        lines = []
+        state = capture["state"]
+        head = {
+            "verified_clear": f"Recorded a {et.replace('_', ' ')} on {plant_id}.",
+            "incomplete": f"Recorded a {et.replace('_', ' ')} on {plant_id or 'an unnamed plant'} as INCOMPLETE.",
+            "conflicting": f"Did NOT record a {et.replace('_', ' ')} - the utterance conflicts with itself.",
+        }[state]
+        lines.append(head)
+        if rec.get("timestamp") and not rec.get("date_uncertain"):
+            when = str(rec["timestamp"])[:10]
+            lines.append(f"  when:       {when}  (from: {capture['date_basis']})")
+        else:
+            dp = capture.get("date_phrase")
+            lines.append("  when:       not recorded" + (
+                f' - you said "{dp}" but not which month; tell me the month and I will stamp it'
+                if dp else " - no date was in what you said"))
+        plabel = plant_id or "-"
+        p = next((x for x in self.active_plants() if x.get("plant_id") == plant_id), {}) or {}
+        if p.get("strain") or p.get("stage"):
+            plabel += f"  ({', '.join(str(x) for x in (p.get('strain'), p.get('stage')) if x)})"
+        if plant_basis and "inferred" in plant_basis:
+            plabel += f"   [{plant_basis}]"
+        lines.append(f"  plant:      {plabel}")
+        lines.append(f"  event type: {et}   (severity {profile['severity']}, "
+                     f"removes capacity: {'yes' if profile['removes_capacity'] else 'no'})")
+        lines.append(f"  stage then: {rec.get('stage_at_event', 'unknown')}   (from the plant record)")
+        if rec.get("detail"):
+            lines.append(f'  detail:     "{rec["detail"]}"')
+        if rec.get("concerns"):
+            lines.append(f"  flagged:    {rec['concerns'][0]}")
+        cap_line = f"  capture:    {state}"
+        if capture.get("missing"):
+            cap_line += f" - missing: {', '.join(capture['missing'])}"
+        cap_line += "  (deterministic parse, no model call)"
+        lines.append(cap_line)
+        if prov.get("ok"):
+            lines.append(f"  provenance: {prov.get('event_id', 'recorded')} "
+                         f"(create, actor human/principal)")
+        elif prov:
+            lines.append(f"  provenance: NOT RECORDED - {prov.get('error', 'unknown')}. "
+                         f"The event is stored; its lineage is not.")
+        if state == "incomplete":
+            lines.append("Nothing was guessed. The event is in the record marked incomplete "
+                         "so it is not lost; reasoning that needs the date skips it until you "
+                         "give one.")
+        elif state == "verified_clear":
+            lines.append("This is exactly what I stored. If a field is wrong, say so now and "
+                         "I will void it rather than leave it in the record.")
+        return "\n".join(lines)
+
+    def _emit_provenance_for_record(self, record, operation, args=None,
+                                    parent_artifact_id=None):
+        """Stamp a domain-state write into the Provenance Service.
+
+        The artifact id is the record's own id, so a modification (a void, a
+        correction) is recorded under a NEW child id pointing back here rather
+        than overwriting - the service refuses an in-place hash change. Actor
+        type comes from the caller: a fact the principal spoke arrives with
+        _actor_type="human"; a direct structured call is the agent acting.
+        Returns a status dict; a Provenance Service outage is reported, never
+        swallowed.
+        """
+        args = args or {}
+        actor_type = args.get("_actor_type") or "agent"
+        actor_id = args.get("_actor_id")
+        content = json.dumps({k: v for k, v in record.items() if k != "provenance"},
+                             sort_keys=True, default=str)
+        try:
+            ev = self.record_provenance_event(
+                operation=operation,
+                actor_type=actor_type,
+                actor_id=actor_id,
+                artifact_id=record["id"],
+                parent_artifact_id=parent_artifact_id,
+                artifact_content=content,
+                metadata={"kind": "training_event",
+                          "plant_id": record.get("plant_id"),
+                          "event_type": record.get("event_type"),
+                          "capture": record.get("capture")},
+            )
+        except Exception as e:                       # pragma: no cover - transport
+            return {"ok": False, "error": str(e), "operation": operation}
+        if isinstance(ev, dict) and ev.get("error"):
+            return {"ok": False, "error": ev["error"], "operation": operation}
+        return {"ok": True, "operation": operation,
+                "event_id": (ev or {}).get("event_id"),
+                "artifact_id": record["id"],
+                "parent_artifact_id": parent_artifact_id}
 
     def log_from_text(self, prompt, plant_id="current_plant"):
         """Record a reading stated in conversation, stamped with the right stage.
@@ -9153,6 +9782,12 @@ class GrowAgent(AgentBase):
             return {"result": self.grow_snapshot(**(args if isinstance(args, dict) else {}))}
         elif task == "void_reading":
             return {"result": self.void_reading(**(args if isinstance(args, dict) else {}))}
+        elif task == "when_to_top_up":
+            a = args or {}
+            return {"result": self.when_to_top_up(
+                a.get("plant_id", "current_plant"), a.get("current_liters"),
+                a.get("floor_liters"), a.get("note", ""))}
+
         elif task == "reconcile_topup":
             return {"result": self.reconcile_topup(**(args if isinstance(args, dict) else {}))}
         elif task == "log_water_change":
@@ -10651,6 +11286,19 @@ class GrowAgent(AgentBase):
                     ev["voided_reason"] = _reason
                     ev["voided_by"] = args.get("voided_by", "principal")
                     ev["voided_at"] = datetime.now().isoformat()
+                    # A void changes domain state, so it gets its own provenance
+                    # event - as a CHILD artifact pointing at the original, never
+                    # an in-place hash change (the service refuses that). The
+                    # child id carries the void so the lineage reads
+                    # create -> modify(void).
+                    child = dict(ev)
+                    child["id"] = f"{ev['id']}::void_{self._uid()}"
+                    child["provenance"] = self._emit_provenance_for_record(
+                        child, "modify",
+                        {"_actor_type": "human",
+                         "_actor_id": args.get("voided_by", "principal")},
+                        parent_artifact_id=ev["id"])
+                    ev["void_provenance"] = child["provenance"]
                     self.store_own_memory(eid, json.dumps(ev))
                     hit += 1
             return {"count": hit, "reason": _reason,
@@ -10735,6 +11383,23 @@ class GrowAgent(AgentBase):
             ctx = self._reasoning_context(args)
             if ctx:
                 record["reasoning_context"] = ctx
+            # Capture integrity, stamped at ingest time by whatever recognised
+            # the fact - carried ON the record so it survives every later read,
+            # the same rule the corpus follows for `integrity`. A spoken event
+            # with no resolved date is marked here so date-dependent reasoning
+            # (recommend_feed's regrowth window) can skip it instead of taking
+            # now() as the cut date.
+            cap = args.get("_capture")
+            if isinstance(cap, dict):
+                record["capture"] = cap
+            if args.get("_date_uncertain") or (isinstance(cap, dict)
+                                               and "occurred_at" in (cap.get("missing") or [])):
+                record["date_uncertain"] = True
+            # Provenance BEFORE the store, hashing the record as it will be
+            # written. A create event, actor from the caller (human when the
+            # principal spoke it). An outage is reported, not hidden.
+            record["provenance"] = self._emit_provenance_for_record(
+                record, "create", args)
             self.store_own_memory(record["id"], json.dumps(record))
             index = self._load_training_event_index()
             index.append(record["id"])
@@ -10789,8 +11454,12 @@ class GrowAgent(AgentBase):
                     "No ratio change recommended.", "medium")}
 
             # Recent capacity-removing training raises nitrogen demand for regrowth.
+            # An event whose date was never resolved (date_uncertain) is excluded:
+            # its timestamp is the moment it was typed, not the cut, so reading a
+            # regrowth window off it would be reasoning from a value nobody stated.
             recent_events = [e for e in self._get_all_training_events()
-                             if e.get("plant_id") == plant_id and e.get("removed_capacity")]
+                             if e.get("plant_id") == plant_id and e.get("removed_capacity")
+                             and not e.get("date_uncertain") and not e.get("voided")]
             regrowth = None
             if recent_events:
                 last = recent_events[-1]

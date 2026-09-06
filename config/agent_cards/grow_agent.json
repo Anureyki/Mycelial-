@@ -37,6 +37,7 @@
     "void_reservoir_eval",
     "reconcile_ec_temperature",
     "intake_reading",
+    "when_to_top_up",
     "get_nutrient_history",
     "set_inventory",
     "get_inventory",
@@ -75,5 +76,5 @@
   "public_key": "",
   "owner": "anureyki",
   "created": "2026-07-28T23:04:50.187235",
-  "updated": "2026-09-05T21:12:20.652562"
+  "updated": "2026-09-06T16:06:38.526562"
 }
