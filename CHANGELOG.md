@@ -4838,6 +4838,44 @@ The common thread in all of it: a quick check, believed, and reported. Every
 wrong number died the moment the underlying rows were printed instead of the
 aggregate.
 
+### The rule that came out of it: print the rows, not the count
+
+**A count is a claim. The rows are the evidence.** Every wrong number in this
+session was an aggregate that was never spot-checked against the records
+underneath it, and every one of them collapsed the first time those records
+were printed:
+
+| Aggregate reported | What the rows said |
+|--------------------|--------------------|
+| "zero of 102 readings carry root health" | 13 of 50, on 08-13, 08-20, 08-21 and 09-05 |
+| "10 evaluations carry it" (the correction) | 13 - a partial count taken mid-session |
+| "Grow has zero knowledge EC is temperature-dependent" | 57 EC records since 08-20, 34 with a paired temperature |
+| "Accounting's dispatch is broken" | 4 obligations returned correctly; the ports were transposed |
+| "the reading was stored" | no row was added; the write had been refused |
+
+The failures are not subtle once the rows are visible. They survived because
+the aggregate was plausible and nothing forced a look underneath - which is the
+same shape as `stability_band: stable` computed from four channels nobody
+reported, and the same shape as a `{"success": true}` that only means `Popen`
+did not raise.
+
+So, as an operating rule for anything this system asserts about the grow, the
+books or a case:
+
+1. **A number in an answer must be traceable to rows that were printed while
+   deriving it.** Not "the store says 13" - the 13 dates, listed.
+2. **Verify the effect, not the call.** `intake_reading` now counts the reading
+   index across a write and reports `stored: false` with the underlying error
+   when no row appears, because it once reported success on a save that
+   produced nothing.
+3. **The principal is entitled to ask for the rows behind any figure**, and
+   that request is never unreasonable. It is the cheapest audit available and
+   it caught five separate errors in one session.
+
+This is `verifiable state outranks narrative` and `false success is the failure
+mode to hunt`, applied to the author's own arithmetic rather than to the
+system's.
+
 ### Housing case (`case_131e0aee6c32`)
 
 The VA fiduciary's 2026-09-05 demand letter logged verbatim, plus obligations:
