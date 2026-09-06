@@ -22,6 +22,25 @@ const STORAGE_KEY = 'mycelial.serverUrl';
 
 function getServerUrl() {
   const saved = localStorage.getItem(STORAGE_KEY);
+  // A SAVED URL THAT CANNOT WORK IS WORSE THAN NONE.
+  //
+  // Phones carry a serverUrl saved before the plaintext LAN listeners were
+  // retired - typically http://<host>:8081, straight at Anansi. Two things
+  // now make that unusable: the agents bind 127.0.0.1 so the port refuses
+  // the LAN, and this page is served over TLS, so an http:// fetch from an
+  // https:// origin is mixed content and the browser blocks it before a
+  // request is ever made. The result is every card reading "Load failed"
+  // with nothing in the server's access log, because nothing was sent.
+  //
+  // The stale value then BEATS the correct same-origin default below, which
+  // needs no configuration at all. So discard it rather than obey it: an
+  // insecure base on a secure page can only fail.
+  if (saved && location.protocol === 'https:' && /^http:\/\//i.test(saved)) {
+    console.warn('[mycelial] discarding insecure saved server URL', saved,
+                 '- falling back to same-origin');
+    localStorage.removeItem(STORAGE_KEY);
+    return '';
+  }
   if (saved) return saved;
   // Served over TLS from the reverse proxy, the API is on the same origin, so
   // "" resolves /execute relatively and there is nothing to configure on the
