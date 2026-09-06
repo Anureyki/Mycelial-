@@ -1279,3 +1279,257 @@ only in a chat dies when that context does. Ordered by what bites first.
   (superseded - now measured at 6.11), whether the Suncoze is side- or
   overhead-mounted, whether the pruned leaves included the spotted ones, and
   the details of the absence when the plant "was thriving until I wasn't here".
+
+
+---
+
+# MYCOS Core - sovereign model family
+
+Recorded 2026-09-06 from the principal's specification. This is a **separate
+repository and a separate programme** from MycOS OS, added here because this
+file holds what is planned and Core is now part of the plan.
+
+## Mission
+
+Build MYCOS Core, a sovereign Transformer-based model family that becomes the
+primary intelligence layer for MycOS. Scale path:
+
+    125M -> 350M -> 1B -> 3B -> 7B
+
+125M is the **engineering milestone, not a product**. Its purpose is to prove
+the model-building pipeline exists and works end to end. It is not expected to
+replace anything.
+
+**Definition of success:** MycOS operates primarily on its own model
+infrastructure without requiring Qwen, DeepSeek, Llama or Mistral as its
+fundamental intelligence layer.
+
+    125M  proves the machinery
+    350M  proves scalability
+    1B    proves useful local capability
+    3B    approaches serious operational capability
+    7B    first real candidate to replace the external models
+
+## The separation that makes this work
+
+    MYCOS Core = capability
+    Hermes     = memory
+    RAG        = retrieved knowledge
+    Agents     = specialization
+    Boss       = orchestration
+    Tools      = interaction with the world
+    Sensors    = observations
+
+Four rules, each of which prevents a specific collapse:
+
+- **Do not encode mutable personal memory into model weights.** That is
+  Hermes's job, and weights cannot be corrected the way a record can.
+- **Boss is not responsible for domain reasoning.** Already doctrine here.
+- **Hermes is not responsible for model reasoning.** It brokers; it does not
+  interpret.
+- **Core is not responsible for orchestration.**
+
+### Repository split
+
+`mycos-core` is a NEW repository. Do not merge it into this one.
+
+| MycOS OS (this repo) | MYCOS Core (new repo) |
+|----------------------|------------------------|
+| Boss, Hermes, Anansi, Grow, Coding, Legal, Accounting, Security, Analyzer, Maintenance | Transformer architecture, tokenizer, model configs |
+| memory systems, RAG, tools | pretraining, continued training, SFT |
+| orchestration, sensors | reasoning / coding / tool-use training |
+| external integrations, UIs | multimodal + vision architecture |
+| runtime infrastructure | evaluation, conversion, inference interfaces |
+| | checkpoint management, model lineage, training docs |
+
+MycOS OS consumes Core through a defined inference interface. Nothing else.
+
+## Phases
+
+**Phase 0 - repository and engineering foundation.** Scaffold
+`configs/ src/mycos_core/ tokenizer/ training/ inference/ multimodal/
+evaluation/ datasets/ scripts/ tests/ docs/ checkpoints/`. Large checkpoints do
+NOT go in Git - track metadata, hashes, configs and lineage in Git, artifacts in
+artifact storage. Establish env, PyTorch, tests, lint, config management,
+experiment tracking, deterministic-where-practical training, checkpoint
+recovery, logging.
+
+**Phase 1 - MYCOS-Core-125M.** Decoder-only causal Transformer written from
+scratch and **randomly initialised**. Not seeded from Llama, Qwen, DeepSeek or
+Mistral. Token embeddings, RoPE or positional encoding, causal self-attention,
+multi-head/grouped attention, FFN, normalisation, residuals, final norm, LM
+head. Architecture **documented, never assumed**. Must: initialise, tokenize,
+forward pass, causal LM loss, backprop, train, checkpoint, reload, generate,
+and run inference independently of Ollama. Ollama may later be an adapter; it
+must never be a dependency of the architecture.
+
+**Phase 2 - tokenizer.** Efficient over natural language, technical language,
+programming languages, shell, Linux, networking, JSON, YAML, SQL, config files,
+maths where practical, tool calls, structured observations, agent
+communication. Reserve interface tokens - `<system> <user> <assistant> <tool>
+<tool_result> <observation> <action> <memory> <image>`. Scheme determined
+experimentally and documented. Version it, then freeze the production one.
+
+**Phase 3 - general pretraining.** Legally usable corpus, separated by
+capability: `language/ code/ reasoning/ mathematics/ systems/ science/
+operations/ tool_use/ vision/`. Objective is causal next-token prediction.
+Track loss, val loss, perplexity, throughput, tokens, GPU utilisation,
+checkpoint size, duration. **Do not advance a generation because training loss
+fell** - behavioural evaluation decides.
+
+**Phase 4 - operational training.** Teach the MycOS operational pattern as a
+*methodology*, not a mandatory output format:
+
+    OBSERVE -> RECORD -> CALCULATE -> COMPARE -> DIAGNOSE -> ACT -> VERIFY -> DOCUMENT
+
+For monitoring, diagnosis, troubleshooting, sysadmin, environmental
+observation, anomaly detection, decision-making, verification.
+
+**Phase 5 - coding.** Python, C/C++, Rust, Bash, PowerShell, JS/TS, SQL,
+Docker, Kubernetes, Terraform, Ansible, Linux, Git, JSON, YAML. Evaluate
+completion, explanation, debugging, refactoring, config generation, test
+generation, system design, command-line reasoning - **scored separately from
+general language**.
+
+**Phase 6 - reasoning.** `Problem -> Known -> Constraints -> Hypotheses ->
+Analysis -> Decision -> Verification`. Evaluate multi-step reasoning,
+arithmetic, logical consistency, constraint handling, diagnosis, comparison,
+uncertainty. **Do not optimise for chain-of-thought imitation** - the goal is
+better reasoning, not longer answers.
+
+**Phase 7 - tool use.** Structured protocol, e.g.
+`{"tool": "get_sensor_data", "arguments": {"node": "grow-01"}}`. Teach the
+cycle `Observation -> Decision -> Tool call -> Tool result -> Interpretation ->
+Next action -> Verification`. Core understands tool *schemas*; MycOS OS remains
+the only thing that actually executes tools.
+
+**Phase 8 - vision.** **Do not remove MoonDream.** Keep it as the existing
+vision subsystem, a benchmark, and - where licensing and provenance permit - a
+source of structured training material. Build the pathway
+`IMAGE -> Vision Encoder -> Visual Tokens -> Core -> Reasoning`.
+
+**Phase 9 - Grow vision training.** Examples structured as image + timestamp +
+plant/environment state + sensor measurements + observed morphology + diagnosis
++ recommended action + **subsequent outcome**. Targets: morphology recognition,
+developmental stage, anomaly detection, visual comparison over time,
+environmental correlation, diagnosis assistance, trend interpretation. Grow
+Agent keeps the domain workflow; Core supplies the multimodal capability.
+
+**Phase 10 - agent capability integration.** Train on generalised capabilities
+used by Anansi, Grow, Coding, Analyzer, Security, Legal, Accounting,
+Maintenance. **Do NOT collapse the agents into one undifferentiated prompt** -
+teach reusable underlying capability; agents stay specialised system
+components.
+
+**Phase 11 - evaluation harness, BEFORE scaling past 125M.**
+`evaluation/{language,coding,reasoning,vision,tool_use,operations,hallucination,robustness,regression}/`.
+Every generation runs the same suite into a comparison matrix across
+125M/350M/1B/3B/7B. **Record regressions. A larger model is not automatically a
+better model.**
+
+**Phase 12 - scaling.** Each size is a **new generation derived from the
+architecture and training programme**, not a resized checkpoint. Preserve
+architecture principles, tokenizer, dataset pipeline, training methodology,
+evaluation methodology, operational doctrine, tool-use conventions, multimodal
+interface, lineage. Distillation and knowledge transfer where appropriate. **Do
+not assume one generation's weights initialise the next.**
+
+## Integration with MycOS OS
+
+Core and OS develop **in parallel**. Do not wait for 7B to integrate.
+
+    MycOS -> Model Interface -> Current Model
+
+The interface accepts any of: the current external model, MoonDream, or Core
+125M/350M/1B/3B/7B. **The OS must not care which foundation model is
+underneath.**
+
+Migration:
+
+    now:      external LM + MoonDream + Core (experimental)
+    then:     Core + MoonDream + external as fallback
+    finally:  Core 7B (language, reasoning, coding, tool use, vision)
+
+**Inference layer** is its own abstraction: `Core -> Inference Engine -> API ->
+MycOS OS`. Local first. Adapters may include PyTorch, Transformers-compatible
+serving, llama.cpp conversion if appropriate, Ollama. **The model stays
+independent of any particular runtime.**
+
+**DigitalOcean target:** MycOS OS, a Core inference server, Hermes, Boss, agent
+services, supporting infrastructure. Do not architect around a permanent
+external model API.
+
+## Model lineage - non-negotiable
+
+Every generation documents: model name, version, parameter count, architecture
+version, tokenizer version, dataset versions, training config, training
+hardware, duration, training tokens, evaluation results, known limitations,
+known data sources, parent/teacher models if any, license/provenance,
+checkpoint hash.
+
+**Never erase ancestry.** If another model contributes data, distilled outputs,
+initialisation or any other material, record the relationship explicitly. The
+goal is technological sovereignty *without pretending provenance does not
+exist* - which is this project's `standing comes from content` rule applied to
+model weights.
+
+## First milestone: MYCOS Core 125M Alpha
+
+    [ ] independent repository exists
+    [ ] Transformer architecture implemented
+    [ ] tokenizer implemented
+    [ ] random initialisation works
+    [ ] forward pass works
+    [ ] causal LM loss works
+    [ ] training loop works
+    [ ] checkpointing works
+    [ ] checkpoint recovery works
+    [ ] text generation works
+    [ ] evaluation harness exists
+    [ ] inference API exists
+    [ ] MycOS OS model interface exists
+    [ ] Core can be plugged into MycOS OS experimentally
+    [ ] model lineage is documented
+
+Scaling work begins only after all of these are satisfied.
+
+## Development rule
+
+**Do not rewrite working MycOS OS components to accommodate Core.** Create
+interfaces. Use adapters. Preserve modularity. The intelligence layer must be
+able to evolve independently of the operating system.
+
+## The constraint this plan has to be built around
+
+Phase 20 requires training hardware to be documented, so it is documented here
+before it becomes a surprise. Measured on this machine 2026-09-06:
+
+| | |
+|---|---|
+| CPU | Intel i5-4570T @ 2.90 GHz, 2 cores / 4 threads |
+| RAM | 7.1 GB total, ~3.0 GB available |
+| GPU | **none** - no nvidia-smi, integrated `renderD128` only |
+| torch | 2.13.0+cu130, `cuda.is_available() == False` |
+| disk | 54 GB, 11 GB free (80% used) |
+
+**Nothing in Phases 1-12 trains on this box.** A 125M model at fp32 is roughly
+0.5 GB of weights plus optimiser state and activations - it does not fit
+alongside the running swarm, and on 2 cores it would not finish in a useful
+time even if it did. Disk at 11 GB free will not hold a pretraining corpus.
+
+This does not change the plan. It changes *where the plan runs*, and that is a
+decision to make deliberately rather than discover halfway through Phase 3:
+
+- **Phase 0 and most of Phase 1 are genuinely local.** Architecture, tokenizer,
+  forward pass, loss, backprop, checkpoint save/reload, generation and the
+  evaluation harness can all be written and unit-tested on CPU against a
+  toy-sized model. That is most of the 125M Alpha checklist.
+- **Actual pretraining needs rented GPU.** Whether that is DigitalOcean GPU
+  droplets, another provider, or a purchased card is an open decision with real
+  cost implications, and it should be priced before Phase 3 rather than after.
+- **Disk is the nearer wall.** 11 GB free will stop a corpus build before
+  compute does.
+
+Recorded as a constraint, not an objection. The principal's own rule applies:
+the divergence between what is planned and what the hardware can do is itself
+the finding, and it is worth more written down than discovered.

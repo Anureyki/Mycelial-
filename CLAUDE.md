@@ -958,6 +958,33 @@ Mycelial runs on a single machine (or VM). To deploy to a cloud server (e.g., Di
 - Analyzer Agent generates recommendations from outcome logs.
 - Service Manager heals on demand (`POST localhost:8014/heal`); nothing runs on a timer.
 
+## MYCOS Core is a separate repository
+
+The sovereign model programme - `mycos-core`, 125M through 7B - is planned in
+`DEPLOYMENT_PROGRESS.md` and belongs in its **own repository**, not this one.
+
+The split is by responsibility. This repo is the operating system: agents,
+memory, RAG, tools, orchestration, sensors, interfaces, runtime. `mycos-core`
+is the model: architecture, tokenizer, training, evaluation, conversion,
+inference interfaces, lineage. MycOS OS consumes Core through a defined
+inference interface and nothing else.
+
+Two rules that bind work in THIS repository:
+
+- **Do not rewrite working MycOS OS components to accommodate Core.** Create
+  interfaces, use adapters, preserve modularity. The intelligence layer must be
+  able to evolve independently of the operating system - which is the same
+  reason `config/model_routing.json` exists and models are interchangeable by
+  design.
+- **The model interface must accept any backend** - the current external model,
+  MoonDream, or any Core generation. The OS does not care which foundation
+  model is underneath it, and any code that starts caring is the bug.
+
+Mutable personal memory stays in Hermes and never goes into weights. Weights
+cannot be corrected the way a record can, and a fact baked into a checkpoint
+has no supersession path - which is the fault `amend_grow_system` was fixed for,
+one layer down.
+
 ## Next Steps (as discussed)
 - Stabilise core (ongoing).
 - Add multi‑tenancy for productisation.
