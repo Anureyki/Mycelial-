@@ -61,7 +61,8 @@
     "void_reservoir_eval",
     "reconcile_ec_temperature",
     "intake_reading",
-    "when_to_top_up"
+    "when_to_top_up",
+    "project_topup"
   ],
   "entry_point": "agents.grow_agent.grow_agent:main",
   "description": "Tracks grow stages and suggests nutrient adjustments"

@@ -911,7 +911,7 @@ class GrowAgent(AgentBase):
                 "log_training_event", "recommend_feed", "plan_system_transition",
                 "set_grow_system", "get_grow_system", "amend_grow_system",
                 "field_history", "assess_root_zone", "void_reservoir_eval",
-                "reconcile_ec_temperature", "intake_reading", "when_to_top_up",
+                "reconcile_ec_temperature", "intake_reading", "when_to_top_up", "project_topup",
                 "get_nutrient_history",
                 "set_inventory", "get_inventory",
                 "check_in", "analyze_consumption", "adjust_to_target_ppm",
@@ -3310,6 +3310,151 @@ class GrowAgent(AgentBase):
                 "Drawdown rate - no measured interval with a usable time span.")
         if cur is None:
             out["not_established"].append("Current volume was not supplied or recorded.")
+        if note:
+            out["note"] = note
+        return out
+
+    def project_topup(self, plant_id="current_plant", volume_to_add=None,
+                      target_volume=None, current_liters=None, current_ppm=None,
+                      topup_ppm=0.0, note=""):
+        """What the ppm will be after adding water, and what a miss would mean.
+
+        The grower's question, exactly: water leaving raises concentration, so
+        does adding DI water bring it back to the original mixture, given no
+        minerals are being added and it is the same water it started with.
+
+        The arithmetic says yes, and says it strictly. Dissolved mass does not
+        change when pure water goes in or when water evaporates out - only the
+        volume it is spread through changes. So:
+
+            ppm_after = (ppm_now * V_now + ppm_topup * V_added) / (V_now + V_added)
+
+        Return the reservoir to the volume at which a ppm was measured and the
+        ppm returns to that number. Not approximately - identically, because
+        the same mass is back in the same volume. Adding DI water is exactly
+        the inverse of evaporation.
+
+        **That identity is the whole diagnostic.** It only holds if the plant
+        took nothing up. Salt the roots absorbed has LEFT the reservoir, and no
+        amount of refilling brings it back, so a measured ppm BELOW the
+        prediction is uptake - the one quantity a single reading can never
+        show, because ppm rising tells you the ratio moved and never whether
+        water left or nutrient did. Refilling is therefore a measurement the
+        grower was going to perform anyway, and the number to write down is
+        the ppm AFTER the water is in and circulated.
+
+        A measured ppm ABOVE the prediction is a different finding and is not
+        uptake: the top-up water was not what it was believed to be, the volume
+        was misread, or the meter has drifted."""
+        cur_v = self._parse_numeric(current_liters)
+        cur_p = self._parse_numeric(current_ppm)
+        add = self._parse_numeric(volume_to_add)
+        tgt = self._parse_numeric(target_volume)
+        tp = self._parse_numeric(topup_ppm) or 0.0
+
+        # Fall back to the record for whatever was not supplied.
+        last = {"ppm": None, "liters": None, "at": None}
+        try:
+            for rk in (self._get_readings_for_plant(plant_id) or []):
+                if rk.get("voided"):
+                    continue
+                v, pp = self._parse_numeric(rk.get("volume_liters")), self._parse_numeric(rk.get("ppm"))
+                at = str(rk.get("timestamp") or "")
+                if pp and v and (last["at"] is None or at > last["at"]):
+                    last = {"ppm": pp, "liters": v, "at": at}
+        except Exception as e:
+            self.log(f"project_topup: could not read readings: {e}")
+
+        # A ppm carries the volume it was measured at. Taking the last reading's
+        # ppm and pairing it with a DIFFERENT current volume double-counts the
+        # concentration: 740 ppm measured at 15.5 L is 791 at 14.5 L, not 740,
+        # and using 740 x 14.5 for the mass under-stated it by 740 ppm-litres
+        # and predicted 692 where the answer is 740. Derive it, and say so.
+        ppm_derived = False
+        if cur_p is None and last["ppm"] and last["liters"] and cur_v:
+            if abs(last["liters"] - cur_v) < 0.05:
+                cur_p = last["ppm"]
+            else:
+                cur_p = last["ppm"] * last["liters"] / cur_v
+                ppm_derived = True
+        elif cur_p is None:
+            cur_p = last["ppm"]
+        if cur_v is None:
+            cur_v = self._parse_numeric(
+                (self.handle_task("volume_history", {"plant_id": plant_id},
+                                  "project_topup").get("result", {}) or {}).get("current_liters"))
+
+        if cur_p is None or cur_v is None:
+            return {"error": "Need a current ppm and a current volume, or a stored "
+                             "reading carrying both.",
+                    "last_reading_found": last}
+
+        if add is None and tgt is not None:
+            add = tgt - cur_v
+        if add is None:
+            return {"error": "Give either volume_to_add or target_volume."}
+        if add <= 0:
+            return {"error": f"volume_to_add is {add}; this projects ADDING water."}
+
+        v_after = cur_v + add
+        mass = cur_p * cur_v
+        ppm_after = (mass + tp * add) / v_after
+
+        out = {
+            "plant_id": plant_id,
+            "current_ppm": round(cur_p, 1), "current_liters": round(cur_v, 2),
+            "topup_ppm": tp, "volume_to_add": round(add, 2),
+            "volume_after": round(v_after, 2),
+            "dissolved_mass_ppm_litres": round(mass, 0),
+            "ppm_after_predicted": round(ppm_after, 1),
+            "basis": ("Conservation of dissolved mass. Pure water changes the volume "
+                      "the salt is spread through and not the salt."),
+        }
+        if ppm_derived:
+            out["current_ppm_derived"] = True
+            out["current_ppm_basis"] = (
+                f"NOT MEASURED at {cur_v:g} L. Derived by conservation of mass from "
+                f"{last['ppm']:g} ppm measured at {last['liters']:g} L on "
+                f"{str(last['at'])[:16]}, assuming only water has left since. If the "
+                f"plant has taken nutrient up, the true figure is lower than this.")
+
+        # Does it return to a ppm this reservoir has actually held?
+        if last["ppm"] and last["liters"]:
+            out["reference_reading"] = {"ppm": last["ppm"], "liters": last["liters"],
+                                        "at": str(last["at"])[:16]}
+            if abs(v_after - last["liters"]) < 0.05 and tp == 0:
+                out["returns_to_original"] = True
+                out["returns_to_original_note"] = (
+                    f"Refilling to {v_after:g} L returns the reading to "
+                    f"{last['ppm']:g} ppm - the same figure measured at the same "
+                    f"volume on {str(last['at'])[:16]} - IF the plant has taken "
+                    f"nothing up. Same mass, same volume, same number.")
+            else:
+                out["returns_to_original"] = False
+                out["returns_to_original_note"] = (
+                    f"This lands at {v_after:g} L, not the {last['liters']:g} L at "
+                    f"which {last['ppm']:g} ppm was measured, so it does not return "
+                    f"to that figure by definition.")
+
+        out["what_a_miss_means"] = {
+            "measured_below_prediction": (
+                "UPTAKE. Salt the roots absorbed has left the reservoir and refilling "
+                "cannot bring it back. The shortfall in ppm-litres is what the plant "
+                "actually ate, and it is the one quantity a single ppm reading can "
+                "never show."),
+            "measured_above_prediction": (
+                "NOT uptake. Either the top-up water was not what it was believed to "
+                "be, the volume was misread, or the meter has drifted."),
+            "how_to_convert": ("uptake in ppm-litres = (predicted - measured) x "
+                               "volume_after. Divide by the days since the reference "
+                               "reading for a daily rate."),
+        }
+        out["take_the_reading"] = (
+            "AFTER the water is in and circulated, not during. A reading taken "
+            "mid-circulation is a number from a solution that is not yet one solution.")
+        if tp != 0:
+            out["topup_note"] = (f"Top-up water is recorded at {tp:g} ppm, not zero, so "
+                                 f"it adds {tp * add:.0f} ppm-litres of its own.")
         if note:
             out["note"] = note
         return out
@@ -9787,6 +9932,13 @@ class GrowAgent(AgentBase):
             return {"result": self.when_to_top_up(
                 a.get("plant_id", "current_plant"), a.get("current_liters"),
                 a.get("floor_liters"), a.get("note", ""))}
+
+        elif task == "project_topup":
+            a = args or {}
+            return {"result": self.project_topup(
+                a.get("plant_id", "current_plant"), a.get("volume_to_add"),
+                a.get("target_volume"), a.get("current_liters"), a.get("current_ppm"),
+                a.get("topup_ppm", 0.0), a.get("note", ""))}
 
         elif task == "reconcile_topup":
             return {"result": self.reconcile_topup(**(args if isinstance(args, dict) else {}))}
