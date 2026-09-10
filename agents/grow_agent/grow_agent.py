@@ -11783,11 +11783,58 @@ class GrowAgent(AgentBase):
             )
             recommendation["classification"] = "feed_recommendation"
             recommendation["current"] = base
-            recommendation["suggested"] = suggested
             recommendation["unit"] = current.get("unit", "ml")
             recommendation["basis"] = current.get("basis")
-            recommendation["reservoir_liters"] = current.get("reservoir_liters")
             recommendation["regrowth_adjustment"] = regrowth
+
+            # RESCALE TO THE WATER THAT IS ACTUALLY IN THERE.
+            #
+            # The stored recipe carries the volume it was mixed for, and this
+            # method scales the RATIO from it - so without this the ml come back
+            # sized for a reservoir that may no longer exist. On 2026-09-10 the
+            # recipe said 15.5 L while the grower had refilled to 13.75, and the
+            # dose returned was 13% over. That is the same fault as a stale
+            # reservoir_liters on the system record, one layer along: two places
+            # hold a volume and the one nothing writes is the one that drifts.
+            #
+            # The system record is authoritative for how much water is in the
+            # vessel now. The recipe is authoritative for the ratio. Neither
+            # substitutes for the other.
+            _recipe_l = self._parse_numeric(current.get("reservoir_liters"))
+            _now_l = None
+            try:
+                _sr = self._unwrap_value(self.retrieve_own_memory(f"grow_system_{plant_id}")) \
+                    or (self._unwrap_value(self.retrieve_own_memory("grow_system"))
+                        if plant_id == "current_plant" else None)
+                if _sr:
+                    _rec = json.loads(_sr)
+                    _now_l = self._parse_numeric(_rec.get("reservoir_liters")) \
+                        or self._parse_numeric(_rec.get("typical_working_liters"))
+            except Exception as e:
+                self.log(f"recommend_feed: could not read current volume: {e}")
+
+            if (_recipe_l and _now_l and abs(_now_l - _recipe_l) > 0.05
+                    and str(current.get("basis", "total")).lower() == "total"):
+                _f = _now_l / _recipe_l
+                recommendation["suggested"] = {k: round(v * _f, 2) for k, v in suggested.items()}
+                recommendation["suggested_for_recipe_volume"] = suggested
+                recommendation["reservoir_liters"] = _now_l
+                recommendation["rescaled"] = {
+                    "recipe_mixed_for_liters": _recipe_l,
+                    "reservoir_holds_liters": _now_l,
+                    "factor": round(_f, 4),
+                    "why": (f"The stored recipe is sized for {_recipe_l:g} L and the vessel "
+                            f"currently holds {_now_l:g} L, so the ratio is kept and the "
+                            f"volume corrected. Dosing the unscaled figures would be "
+                            f"{abs(1 - _f) * 100:.0f}% {'over' if _f < 1 else 'under'}."),
+                }
+            else:
+                recommendation["suggested"] = suggested
+                recommendation["reservoir_liters"] = _recipe_l or _now_l
+                if not _now_l:
+                    recommendation["volume_caveat"] = (
+                        "No current reservoir volume on the system record, so these ml are "
+                        "sized for the volume the stored recipe was mixed for. Check it.")
             return {"result": recommendation}
 
         elif task == "apply_feed_recommendation":
