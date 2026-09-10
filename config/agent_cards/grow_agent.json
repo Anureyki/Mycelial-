@@ -64,7 +64,8 @@
     "leaf_differential",
     "lookup",
     "list_training_events",
-    "void_training_event"
+    "void_training_event",
+    "round_to_instrument"
   ],
   "endpoint": "/execute",
   "port": 9009,

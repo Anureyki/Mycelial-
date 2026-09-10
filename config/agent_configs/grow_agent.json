@@ -64,7 +64,8 @@
     "when_to_top_up",
     "project_topup",
     "plan_feed_for_target",
-    "ppm_per_ml"
+    "ppm_per_ml",
+    "round_to_instrument"
   ],
   "entry_point": "agents.grow_agent.grow_agent:main",
   "description": "Tracks grow stages and suggests nutrient adjustments"

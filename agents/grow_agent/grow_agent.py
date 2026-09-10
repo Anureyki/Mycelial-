@@ -911,7 +911,7 @@ class GrowAgent(AgentBase):
                 "log_training_event", "recommend_feed", "plan_system_transition",
                 "set_grow_system", "get_grow_system", "amend_grow_system",
                 "field_history", "assess_root_zone", "void_reservoir_eval",
-                "reconcile_ec_temperature", "intake_reading", "when_to_top_up", "project_topup", "plan_feed_for_target", "ppm_per_ml",
+                "reconcile_ec_temperature", "intake_reading", "when_to_top_up", "project_topup", "plan_feed_for_target", "ppm_per_ml", "round_to_instrument",
                 "get_nutrient_history",
                 "set_inventory", "get_inventory",
                 "check_in", "analyze_consumption", "adjust_to_target_ppm",
@@ -3409,6 +3409,59 @@ class GrowAgent(AgentBase):
                          "plant - so it is inherited as a lesson, with its origin named.")
         return best
 
+    def round_to_instrument(self, plant_id, doses):
+        """Round a dose to what the grower can actually measure.
+
+        A recommendation of 3.4 ml against a dropper graduated in 0.25 steps is
+        not a dose, it is a number - the grower has to guess, and the guess is
+        the part nobody records. The instrument is on the system record and
+        until now exactly one line in this agent read it, nowhere near the dose
+        path: held, and nothing reasoning with it.
+
+        Returns the rounded doses, the draws each one takes, and how far the
+        total moved - because rounding changes the delivered mass and the ppm
+        that follows from it, and a plan that reports its pre-rounding target
+        is reporting a number that will never be poured."""
+        raw = self._unwrap_value(self.retrieve_own_memory(f"grow_system_{plant_id}")) \
+            or (self._unwrap_value(self.retrieve_own_memory("grow_system"))
+                if plant_id == "current_plant" else None)
+        try:
+            inst = (json.loads(raw) or {}).get("dosing_instrument") if raw else None
+        except Exception:
+            inst = None
+        if not isinstance(inst, dict):
+            return {"doses": doses, "rounded": False,
+                    "why": ("No dosing_instrument on the record, so the figures are left "
+                            "unrounded. Record the dropper or syringe and they will be "
+                            "given in steps it can measure.")}
+        step = self._parse_numeric(inst.get("increment_ml"))
+        draw = self._parse_numeric(inst.get("max_single_draw_ml"))
+        if not step:
+            return {"doses": doses, "rounded": False,
+                    "why": "dosing_instrument has no increment_ml."}
+
+        out, detail = {}, {}
+        for k, v in doses.items():
+            v = self._parse_numeric(v) or 0.0
+            r = round(v / step) * step
+            # Never round a real requirement away to nothing.
+            if v > 0 and r == 0:
+                r = step
+            r = round(r, 4)
+            out[k] = r
+            d = {"asked": round(v, 2), "given": r,
+                 "delta_ml": round(r - v, 2)}
+            if draw:
+                full, rem = divmod(round(r / step), round(draw / step))
+                d["draws"] = (f"{full} x {draw:g} ml" if full else "") + \
+                             (" + " if full and rem else "") + \
+                             (f"{rem * step:g} ml" if rem else "")
+                d["draws"] = d["draws"].strip(" +") or "0"
+            detail[k] = d
+        return {"doses": out, "rounded": True, "increment_ml": step,
+                "max_single_draw_ml": draw, "per_nutrient": detail,
+                "instrument": inst.get("type", "dropper")}
+
     def plan_feed_for_target(self, plant_id="current_plant", target_ppm=None,
                              dose_into_liters=None, final_liters=None,
                              current_ppm=None, note=""):
@@ -3536,8 +3589,18 @@ class GrowAgent(AgentBase):
             out["ratio_caveat"] = (
                 f"Proportions taken from {ratio_from} because {plant_id} has no recipe of "
                 f"its own on record. Strength may cross between plants; a RATIO should not.")
-        out["add_now_ml"] = {k: round(total_ml * r, 2) for k, r in ratio.items()}
-        out["add_now_total_ml"] = round(total_ml, 2)
+        _exact = {k: round(total_ml * r, 2) for k, r in ratio.items()}
+        _rd = self.round_to_instrument(plant_id, _exact)
+        out["add_now_ml"] = _rd["doses"]
+        out["add_now_total_ml"] = round(sum(_rd["doses"].values()), 2)
+        out["dose_exact_ml"] = _exact
+        out["instrument"] = {k: v for k, v in _rd.items() if k != "doses"}
+        # Rounding moves the delivered mass, so the ppm has to be recomputed
+        # from what will ACTUALLY be poured rather than from the ideal figure.
+        if _rd.get("rounded"):
+            add_mass = sum(_rd["doses"].values()) * conc["ppm_l_per_ml"]
+            out["must_add_ppm_litres"] = round(add_mass, 0)
+            out["target_ppm_after_rounding"] = round((have + add_mass) / fin_v, 1)
 
         interim = (have + add_mass) / now_v
         out["ppm_while_you_wait"] = round(interim, 0)
@@ -10218,6 +10281,11 @@ class GrowAgent(AgentBase):
 
         elif task == "ppm_per_ml":
             return {"result": self.ppm_per_ml((args or {}).get("plant_id", "current_plant"))}
+
+        elif task == "round_to_instrument":
+            a = args or {}
+            return {"result": self.round_to_instrument(
+                a.get("plant_id", "current_plant"), a.get("doses") or {})}
 
         elif task == "plan_feed_for_target":
             a = args or {}
