@@ -62,7 +62,9 @@
     "reconcile_ec_temperature",
     "intake_reading",
     "when_to_top_up",
-    "project_topup"
+    "project_topup",
+    "plan_feed_for_target",
+    "ppm_per_ml"
   ],
   "entry_point": "agents.grow_agent.grow_agent:main",
   "description": "Tracks grow stages and suggests nutrient adjustments"

@@ -911,7 +911,7 @@ class GrowAgent(AgentBase):
                 "log_training_event", "recommend_feed", "plan_system_transition",
                 "set_grow_system", "get_grow_system", "amend_grow_system",
                 "field_history", "assess_root_zone", "void_reservoir_eval",
-                "reconcile_ec_temperature", "intake_reading", "when_to_top_up", "project_topup",
+                "reconcile_ec_temperature", "intake_reading", "when_to_top_up", "project_topup", "plan_feed_for_target", "ppm_per_ml",
                 "get_nutrient_history",
                 "set_inventory", "get_inventory",
                 "check_in", "analyze_consumption", "adjust_to_target_ppm",
@@ -3310,6 +3310,223 @@ class GrowAgent(AgentBase):
                 "Drawdown rate - no measured interval with a usable time span.")
         if cur is None:
             out["not_established"].append("Current volume was not supplied or recorded.")
+        if note:
+            out["note"] = note
+        return out
+
+    def ppm_per_ml(self, plant_id="current_plant"):
+        """How much ppm one ml of this grow's mix actually delivers, measured.
+
+        A dose in ml means nothing without this, and it is not on any label -
+        it depends on the product line, the ratio being run and the meter's TDS
+        scale. It is measured from a real event: a known mix into a known
+        volume, read afterwards.
+
+        THIS CROSSES BETWEEN PLANTS AND SAYS SO. The concentration response of
+        a bottle is a property of the PRODUCT and the meter, not of the plant
+        that happened to drink it - so it is a lesson, not a measurement, under
+        the rule that lessons are inherited and measurements are bound. The
+        origin plant is recorded either way, because a lesson that cannot be
+        traced back is indistinguishable from an assumption."""
+        best = None
+        for pid in ({plant_id} | {"current_plant", "gsc_auto_2"}):
+            raw = self._unwrap_value(self.retrieve_own_memory(self._nutrient_keys(pid)[0]))
+            if not raw:
+                continue
+            try:
+                rec = json.loads(raw)
+            except Exception:
+                continue
+            mix = rec.get("nutrients") or {}
+            litres = self._parse_numeric(rec.get("reservoir_liters"))
+            total_ml = sum(self._parse_numeric(v) or 0 for v in mix.values())
+            if not (litres and total_ml):
+                continue
+            # THE MIX MUST HAVE PRODUCED THE WHOLE READING, or the figure is
+            # nonsense. Pairing a small top-up increment with a reading from a
+            # reservoir that was ALREADY loaded credits every dissolved
+            # milligram to the increment: 6.75 ml against 745 ppm at 15.5 L
+            # gave 1,711 ppm-litres per ml, against 253 measured from a clean
+            # mix into fresh water - so every dose derived from it came out
+            # 6.8x too small. A dose that small is not a smaller correction; it
+            # is no correction, delivered with a decimal point.
+            #
+            # Only a mix into a FRESHLY FILLED reservoir can be read this way,
+            # so the recipe must record that it was one. Nothing else qualifies,
+            # and where nothing qualifies this refuses rather than approximates.
+            _fresh = bool(rec.get("fresh_mix") or rec.get("after_reservoir_change"))
+            if not _fresh:
+                _txt = str(rec.get("source_note") or rec.get("note") or "").lower()
+                _fresh = any(k in _txt for k in ("refill", "fresh", "full change",
+                                                "reservoir change", "into 5", "into fresh"))
+            if not _fresh:
+                continue
+
+            # The ppm that mix produced, from the first reading at that volume
+            # after it was set.
+            after = None
+            try:
+                for rd in (self._get_readings_for_plant(pid) or []):
+                    if rd.get("voided"):
+                        continue
+                    pp, vv = self._parse_numeric(rd.get("ppm")), self._parse_numeric(rd.get("volume_liters"))
+                    ts = str(rd.get("timestamp") or "")
+                    # The date the MIX happened, not when the record was typed.
+                    # A recipe written down later has a timestamp after every
+                    # reading it should pair with, which silently matched
+                    # nothing and refused a figure that was sitting right there.
+                    _mixed = str(rec.get("mixed_on") or rec.get("timestamp") or "")[:19]
+                    if pp and vv and ts >= _mixed \
+                            and abs(vv - litres) / litres < 0.12:
+                        if after is None or ts < after[0]:
+                            after = (ts, pp, vv)
+            except Exception:
+                pass
+            if not after:
+                continue
+            mass = after[1] * after[2]
+            per_ml = mass / total_ml
+            cand = {"ppm_l_per_ml": round(per_ml, 1), "origin_plant": pid,
+                    "from_mix_ml": round(total_ml, 2), "into_liters": litres,
+                    "measured_ppm": after[1], "at_liters": after[2],
+                    "measured_at": after[0][:16],
+                    "ratio": {k: round((self._parse_numeric(v) or 0) / total_ml, 4)
+                              for k, v in mix.items()}}
+            if best is None or (pid == plant_id):
+                best = cand
+        if not best:
+            return {"error": ("No CLEAN mix-and-measure pair on record. A ppm-per-ml figure "
+                              "can only come from a known mix into a freshly filled "
+                              "reservoir - pairing a top-up increment with a reading from an "
+                              "already-loaded reservoir credits the whole dissolved mass to "
+                              "the increment and understates every later dose. Record a full "
+                              "change with fresh_mix set, then log a ppm reading at that "
+                              "volume."),
+                    "refused_rather_than_approximated": True}
+        best["crosses_plants"] = best["origin_plant"] != plant_id
+        best["basis"] = ("Product concentration response, measured from a known mix into a "
+                         "known volume. A property of the bottles and the meter, not of the "
+                         "plant - so it is inherited as a lesson, with its origin named.")
+        return best
+
+    def plan_feed_for_target(self, plant_id="current_plant", target_ppm=None,
+                             dose_into_liters=None, final_liters=None,
+                             current_ppm=None, note=""):
+        """Dose NOW into less water, to land in band AFTER a top-up you know is coming.
+
+        The grower's situation, exactly: the water is off, the reservoir is
+        short, and he will fill it the rest of the way when supply returns. He
+        wants the nutrient in now, deliberately over-concentrated, so the
+        pending water dilutes it into range rather than out of it.
+
+        The arithmetic is the same conservation of mass everything else here
+        runs on, and it has one property that makes the plan sound: **the
+        nutrient mass required does not depend on when the water arrives.**
+        Final mass is target x final volume; what is already dissolved stays
+        dissolved; the difference is what to add. Adding it into 13.75 L or
+        into 15 L changes only the reading in between.
+
+        So the method also reports that in-between figure, because it is the
+        one the grower will actually meter while he waits, and a plan that puts
+        the reservoir outside its band for two days to be in band afterwards is
+        a different proposal from one that never leaves it."""
+        tgt = self._parse_numeric(target_ppm)
+        now_v = self._parse_numeric(dose_into_liters)
+        fin_v = self._parse_numeric(final_liters)
+        now_p = self._parse_numeric(current_ppm)
+
+        sysraw = self._unwrap_value(self.retrieve_own_memory(f"grow_system_{plant_id}")) \
+            or (self._unwrap_value(self.retrieve_own_memory("grow_system"))
+                if plant_id == "current_plant" else None)
+        try:
+            sysrec = json.loads(sysraw) if sysraw else {}
+        except Exception:
+            sysrec = {}
+        if now_v is None:
+            now_v = self._parse_numeric(sysrec.get("reservoir_liters"))
+        cap = self._parse_numeric(sysrec.get("reservoir_capacity_liters"))
+
+        if now_p is None:
+            try:
+                latest = None
+                for rd in (self._get_readings_for_plant(plant_id) or []):
+                    if rd.get("voided"):
+                        continue
+                    pp = self._parse_numeric(rd.get("ppm"))
+                    ts = str(rd.get("timestamp") or "")
+                    if pp and (latest is None or ts > latest[0]):
+                        latest = (ts, pp, self._parse_numeric(rd.get("volume_liters")))
+                if latest:
+                    now_p = latest[1]
+                    if now_v is None:
+                        now_v = latest[2]
+            except Exception:
+                pass
+
+        if not (tgt and now_v and now_p):
+            return {"error": "Need target_ppm, the volume to dose into, and the current ppm."}
+        if fin_v is None:
+            fin_v = now_v
+        if cap and fin_v > cap:
+            return {"error": f"final_liters {fin_v:g} exceeds the recorded capacity {cap:g} L."}
+
+        band = None
+        try:
+            stage = self._stage_for_plant(plant_id)
+            band = (self.handle_task("check_stage", {"stage": stage}, "plan_feed_for_target")
+                    .get("result", {}) or {}).get("ppm")
+        except Exception:
+            stage = None
+
+        have = now_p * now_v
+        need = tgt * fin_v
+        add_mass = need - have
+
+        out = {"plant_id": plant_id, "target_ppm": tgt,
+               "dose_into_liters": round(now_v, 2), "final_liters": round(fin_v, 2),
+               "current_ppm": round(now_p, 1),
+               "dissolved_now_ppm_litres": round(have, 0),
+               "dissolved_needed_ppm_litres": round(need, 0),
+               "must_add_ppm_litres": round(add_mass, 0),
+               "water_to_add_later_liters": round(fin_v - now_v, 2),
+               "stage_band": band,
+               "basis": ("Conservation of mass. The nutrient mass required does NOT depend on "
+                         "when the water arrives - only the reading in between changes.")}
+
+        if add_mass <= 0:
+            out["verdict"] = "no_nutrient_needed"
+            out["reason"] = (f"Already holding {have:,.0f} ppm-litres against the "
+                             f"{need:,.0f} that {tgt:g} ppm at {fin_v:g} L needs. Topping up "
+                             f"with water alone lands at {have / fin_v:.0f} ppm.")
+            return out
+
+        conc = self.ppm_per_ml(plant_id)
+        if conc.get("error"):
+            out["verdict"] = "mass_known_dose_unknown"
+            out["reason"] = conc["error"]
+            return out
+
+        total_ml = add_mass / conc["ppm_l_per_ml"]
+        out["ppm_per_ml"] = conc
+        out["add_now_ml"] = {k: round(total_ml * r, 2) for k, r in conc["ratio"].items()}
+        out["add_now_total_ml"] = round(total_ml, 2)
+
+        interim = (have + add_mass) / now_v
+        out["ppm_while_you_wait"] = round(interim, 0)
+        if band:
+            inside = band[0] <= interim <= band[1]
+            out["interim_inside_band"] = inside
+            out["interim_note"] = (
+                f"After dosing and BEFORE the water arrives the reservoir reads about "
+                f"{interim:.0f} ppm at {now_v:g} L. That is "
+                f"{'inside' if inside else 'OUTSIDE'} the {band[0]}-{band[1]} band"
+                + ("." if inside else
+                   " - the plant sits there until the water comes. Dose less now and "
+                   "top up the rest with nutrient later if that is too rich."))
+        out["verdict"] = "dose_planned"
+        out["then"] = (f"When supply returns, add {fin_v - now_v:.2f} L of water and it "
+                       f"falls to {tgt:g} ppm at {fin_v:g} L. Adding plain water cannot "
+                       f"overshoot - it only dilutes.")
         if note:
             out["note"] = note
         return out
@@ -9970,6 +10187,16 @@ class GrowAgent(AgentBase):
             return {"result": self.when_to_top_up(
                 a.get("plant_id", "current_plant"), a.get("current_liters"),
                 a.get("floor_liters"), a.get("note", ""))}
+
+        elif task == "ppm_per_ml":
+            return {"result": self.ppm_per_ml((args or {}).get("plant_id", "current_plant"))}
+
+        elif task == "plan_feed_for_target":
+            a = args or {}
+            return {"result": self.plan_feed_for_target(
+                a.get("plant_id", "current_plant"), a.get("target_ppm"),
+                a.get("dose_into_liters"), a.get("final_liters"),
+                a.get("current_ppm"), a.get("note", ""))}
 
         elif task == "project_topup":
             a = args or {}
