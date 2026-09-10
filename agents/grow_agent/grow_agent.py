@@ -3626,6 +3626,44 @@ class GrowAgent(AgentBase):
         # convenience into a stale number nothing flags. The event that moved
         # the water is the right place to write the new value, and it writes it
         # as MEASURED because that is what conservation just made it.
+        # A DERIVED VOLUME THAT THE VESSEL CANNOT HOLD IS A FAILED MEASUREMENT.
+        #
+        # This method solves for volume_before while TRUSTING volume_added, but
+        # both are read off a sight line and this agent's own cadence reasoning
+        # puts that at about +/-10%. Two eye-read inputs, one equation: it
+        # cannot know which to believe, and it silently believes volume_added.
+        #
+        # On 2026-09-10 that wrote typical_working_liters = 20.3 to a vessel
+        # that has never held more than 15.5 - from a grower who read 9 L,
+        # added to 14 L, and saw 800 -> 603 ppm. The arithmetic was right; an
+        # input was wrong. Persisting the result would have made every later
+        # dose 30% over against a volume that does not exist.
+        #
+        # So the result is checked against what the container is known to hold
+        # before it is allowed to become the standing figure.
+        _cap = (self._parse_numeric(sysrec_pre.get("reservoir_capacity_liters"))
+                if isinstance(sysrec_pre := (json.loads(sysraw) if sysraw else {}), dict) else None)
+        _known = self._parse_numeric(sysrec_pre.get("typical_working_liters")) \
+            if isinstance(sysrec_pre, dict) else None
+        _ceiling = _cap or ((_known * 1.15) if _known else None)
+        if _ceiling and va > _ceiling:
+            out["persisted"] = False
+            out["refused_to_persist"] = (
+                f"Derived volume {va:.1f} L exceeds what this vessel is known to hold "
+                f"({'capacity ' + format(_cap, '.1f') + ' L' if _cap else 'working ' + format(_known, '.1f') + ' L +15%'}). "
+                f"NOT written to the record. Conservation of mass is not wrong here - one "
+                f"of its inputs is. ppm {ppm_before:g} -> {ppm_after:g} is a dilution "
+                f"factor of {ppm_before / ppm_after:.3f}, so a reservoir that finished at "
+                f"the intended level began at that level divided by the factor, and the "
+                f"volume ADDED is what was misread. Re-read the level, or drain and count.")
+            out["consistent_reading"] = {
+                "dilution_factor": round(ppm_before / ppm_after, 3),
+                "note": ("If the fill level is the number you trust, divide it by the "
+                         "dilution factor to get the volume before the pour; the "
+                         "difference is what actually went in."),
+            }
+            return out
+
         if persist:
             try:
                 sysrec = json.loads(sysraw) if sysraw else {}

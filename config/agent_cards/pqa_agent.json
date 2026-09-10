@@ -4,7 +4,9 @@
   "version": "1.0.0",
   "capabilities": [
     "search_web",
-    "search"
+    "search",
+    "browse",
+    "screenshot"
   ],
   "endpoint": "/execute",
   "port": 9007,
@@ -18,5 +20,6 @@
   },
   "public_key": "",
   "owner": "anureyki",
-  "created": "2026-07-24T06:18:47.108581"
+  "created": "2026-07-24T06:18:47.108581",
+  "updated": "2026-09-10T06:43:03.660237"
 }
