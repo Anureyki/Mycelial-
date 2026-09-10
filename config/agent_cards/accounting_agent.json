@@ -3,6 +3,7 @@
   "role": "agent",
   "version": "1.0.0",
   "capabilities": [
+    "veto",
     "assess_assertion",
     "set_lease_terms",
     "reconcile",
@@ -44,5 +45,5 @@
   "public_key": "",
   "owner": "anureyki",
   "created": "2026-07-31T17:59:12.923481",
-  "updated": "2026-09-05T15:15:22.832427"
+  "updated": "2026-09-10T21:34:43.736612"
 }

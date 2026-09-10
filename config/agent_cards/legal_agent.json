@@ -3,6 +3,8 @@
   "role": "agent",
   "version": "1.0.0",
   "capabilities": [
+    "pulse",
+    "veto",
     "parse_contract",
     "model_relationship",
     "extract_parties",
@@ -90,5 +92,5 @@
   "public_key": "",
   "owner": "anureyki",
   "created": "2026-07-31T17:59:12.877063",
-  "updated": "2026-09-05T11:31:51.547597"
+  "updated": "2026-09-10T21:34:43.934083"
 }

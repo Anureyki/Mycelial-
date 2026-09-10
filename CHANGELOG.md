@@ -4887,3 +4887,50 @@ $566.05. HUD complaints logged as three tracks: Fair Housing Texas, the VA via
 his social worker, and the VA fiduciary central hub.
 
 ---
+
+## 2026-09-10 - Inherited pulse and veto
+
+Two verbs on `AgentBase`, reaching every domain agent on restart. **Not two new
+agents** - Scout was already `ingest`, Historian is Hermes plus agent memory,
+Context is the domain card.
+
+`pulse` is a regime gate: may this agent actuate *now*, separately from whether
+the action is sound. A dose can be right on Tuesday and wrong on Wednesday
+without anything about the dose changing. `veto` is the devil's advocate, and it
+is the only verb here whose lean is refuse - every other one exists to produce a
+recommendation, which means without this nothing was looking for the reason not
+to proceed.
+
+`halts_new_actuation` gates opening only; `exits_still_run` is always true. A
+stop that waits for a regime check is not a stop, and CLAUDE.md's direction rule
+already says an agent whose every available action reduces exposure needs no
+permission.
+
+**Boss, Anansi and Hermes answer neither.** They inherit the methods and the
+dispatch excludes them, so the matrix shows `.` - correct, not missing. An
+orchestrator that *can* answer "may this actuate" will eventually be asked, and
+then it is deciding.
+
+**A stub had to be distinguishable from a considered pass**, or the absence of
+an objection reads as the absence of grounds for one. The base bodies carry
+`implemented: false` with `absence_state: "not_checked"`, and the probes require
+`implemented: true`, so four agents correctly read `differs` rather than `ok`.
+
+Bodies written: Grow (stage + cadence; one-hypothesis differential), Legal
+(clock, forum, freeze, open 1692g window; missing 1681s-2(b) predicate, no 604
+purpose, missing 1006.6(e) opt-out, 1006.14(h) after STOP, immunity assumed
+away), Accounting (`posted_label_unsupported`).
+
+Verified live: Legal with an EMPTY finding returns `go_signal 0.25`, `regime
+cold`, `absence_state not_checked`, `halts_new_actuation true`, `exits_still_run
+true` - never a silent go. With `cra_dispute_filed: false` it refuses on
+`no_1681s-2(b)_predicate` citing 15 U.S.C. 1681s-2(b). `check_inherited` reports
+no crash and the static gate passes; all ten running agents report base
+`10927db7b9e0`, matching `core/base_agent.py` on disk.
+
+Only agents with a real body declare the verb. Inherited verbs are not declared
+per-agent here - `routing_terms`, `describe` and `base_version` appear in zero
+configs - so declaring pulse/veto everywhere both broke the three-site agreement
+and claimed a capability the stubs do not have.
+
+---

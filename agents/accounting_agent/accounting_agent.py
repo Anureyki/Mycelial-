@@ -106,6 +106,7 @@ class AccountingAgent(AgentBase):
             agent_id="accounting_agent",
             port=9012,
             capabilities=[
+                "veto",
                 "assess_assertion", "set_lease_terms", "reconcile", "parse_financial_instrument", "assess_tax_liability", "track_account_balance",
                 "lookup", "list_relationships", "get_relationship", "find_relationships",
                 "find_relationships_by_project",
@@ -1213,6 +1214,53 @@ class AccountingAgent(AgentBase):
                 "why": (f"{paid} payment(s) recorded, all by authorised payors and all "
                         f"evidenced. Standing: {ob.get('standing')}."),
                 "payments_recorded": paid}
+
+    def veto(self, finding=None):
+        """Refuse paper that claims a movement of value the books cannot show.
+
+        `posted_label_unsupported` is the register: a document that reads as a
+        payment, a purchase or a discharge, with no ledger event behind it.
+        The label is a claim; the entry is the evidence; and the whole
+        Accounting frame here is that a payment with no evidence reference is
+        contestable and looks identical to good standing if all you keep is
+        the amount.
+
+        Leans refuse. A `pass` is the absence of a ground to object, never a
+        confirmation that value moved."""
+        f = finding if isinstance(finding, dict) else {}
+        label = str(f.get("label") or f.get("claimed") or f.get("classification") or "").lower()
+        moved = f.get("value_moved")
+        ref = f.get("evidence_ref") or f.get("documentation_ref")
+        CLAIMS = ("purchase", "payment", "paid", "discharge", "discharged",
+                  "satisfied", "settled", "tender", "credit applied")
+        hit = next((c for c in CLAIMS if c in label), None)
+        if hit and moved is not True:
+            return {
+                "decision": "refuse", "register": "posted_label_unsupported",
+                "citation": (f"evidence_ref {ref}" if ref else "not_in_corpus"),
+                "reason": (f"Labelled '{hit}' with value_moved={moved!r}. A purchase, "
+                           f"payment or discharge asserts that value MOVED - a funded "
+                           f"account, cash, or a recorded release. Paper that looks like "
+                           f"payment without a matching ledger event is a claim about the "
+                           f"books, not an entry in them."
+                           + ("" if ref else " No evidence reference supplied.")),
+                "absence_state": "nothing_found" if not ref else "incomplete",
+                "implemented": True}
+        if hit and moved is True and not ref:
+            return {
+                "decision": "refuse", "register": "posted_label_unsupported",
+                "citation": "not_in_corpus",
+                "reason": (f"Labelled '{hit}' and value_moved asserted, but with no evidence "
+                           f"reference. An asserted movement with nothing to open is the "
+                           f"same object as an unasserted one to anyone checking later."),
+                "absence_state": "incomplete", "implemented": True}
+        return {"decision": "pass", "register": "accounting",
+                "citation": "not_in_corpus",
+                "reason": ("No unsupported value-movement label found in this finding. Not a "
+                           "confirmation that value moved - only that nothing here claims it "
+                           "did without support."),
+                "absence_state": "verified_clear" if label else "not_checked",
+                "implemented": True}
 
     def handle_task(self, task, args, sender):
         self.log(f"Task {task} from {sender}")

@@ -899,6 +899,8 @@ class GrowAgent(AgentBase):
             agent_id="grow_agent",
             port=9009,
             capabilities=[
+                "pulse",
+                "veto",
                 "log_reading", "check_stage", "observe_stage_markers", "volume_history",
                 "adjust_nutrients",
                 "transition_stage", "log_water_change", "get_status",
@@ -3090,6 +3092,106 @@ class GrowAgent(AgentBase):
                      "how long the record held them is unknown, not zero.")
                     if undated else "every superseded value carries its write time",
         }
+
+    def pulse(self, finding=None):
+        """Regime gate for the grow: stage and cadence.
+
+        Two things decide whether this agent may act on a reservoir now. The
+        STAGE, because a dose is judged against a stage band and a plant whose
+        recorded stage is stale is being fed against the wrong target. And the
+        CADENCE, because acting between readings means the next number cannot
+        be attributed - the change and the intervention arrive together and
+        neither can be read.
+
+        A cold regime never blocks an exit. Draining, diluting and stopping a
+        pump all reduce exposure and run regardless."""
+        pid = (finding or {}).get("plant_id", "current_plant") if isinstance(finding, dict) \
+            else "current_plant"
+        reasons, signal, absence = [], 1.0, "verified_clear"
+        try:
+            stage = self._stage_for_plant(pid)
+        except Exception:
+            stage = None
+        if not stage or stage == "unknown":
+            signal, absence = 0.2, "nothing_found"
+            reasons.append(f"No stage on record for {pid}; every band is judged against one.")
+        try:
+            due = self.handle_task("reading_due", {"plant_id": pid}, "pulse")
+            due = due.get("result", due) if isinstance(due, dict) else {}
+            hrs = self._parse_numeric(due.get("hours_until_due"))
+            last = due.get("last_reading_at")
+            if last:
+                age_h = (datetime.now() - datetime.fromisoformat(str(last)[:19])).total_seconds() / 3600.0
+                if age_h < 24:
+                    signal = min(signal, 0.25)
+                    absence = "incomplete" if absence == "verified_clear" else absence
+                    reasons.append(
+                        f"Last reading {age_h:.0f}h ago. Changing strength before a reading "
+                        f"lands makes the next number unattributable to either change.")
+                elif hrs is not None and hrs < 0:
+                    reasons.append(f"Reading overdue by {abs(hrs):.0f}h - act, then measure.")
+            else:
+                signal = min(signal, 0.3)
+                absence = "not_checked"
+                reasons.append("No reading on record for this plant.")
+        except Exception as exc:
+            signal, absence = min(signal, 0.3), "conflicting"
+            reasons.append(f"Cadence unreadable: {exc}")
+
+        regime = "hot" if signal >= 0.7 else "warm" if signal >= self.PULSE_HALT_BELOW else "cold"
+        return {"go_signal": round(signal, 2), "regime": regime,
+                "reason": " ".join(reasons) or f"Stage '{stage}' recorded and cadence satisfied.",
+                "absence_state": absence,
+                "halts_new_actuation": signal < self.PULSE_HALT_BELOW,
+                "exits_still_run": True, "implemented": True,
+                "plant_id": pid, "stage": stage}
+
+    def veto(self, finding=None):
+        """Refuse a grow action that rests on a differential with one branch.
+
+        A differential carrying a single hypothesis is not a diagnosis, it is
+        the first idea with paperwork. Acting on it forecloses the alternatives
+        it never had - and in this domain the alternatives are cheap to keep
+        open and expensive to lose, because a reservoir dosed on the wrong
+        cause has to be diluted back out.
+
+        Only leans refuse. It does not approve anything; a `pass` here means
+        no ground for refusal was found, not that the action is good."""
+        f = finding if isinstance(finding, dict) else {}
+        pid = f.get("plant_id", "current_plant")
+        did = f.get("differential_id") or f.get("id")
+        try:
+            if did:
+                d = self.handle_differential_task("assess_differential", {"id": did})
+                hyps = (d or {}).get("hypotheses") or []
+                live = [h for h in hyps if h.get("confidence") != "excluded"]
+                if len(live) == 1:
+                    return {"decision": "refuse", "register": "one_hypothesis_differential",
+                            "citation": f"differential {did}",
+                            "reason": (f"Differential {did} carries a single live hypothesis "
+                                       f"({live[0].get('name')}). One branch is not a "
+                                       f"diagnosis - nothing was ruled out, so nothing was "
+                                       f"ruled in."),
+                            "absence_state": "incomplete", "implemented": True}
+                untestable = [h for h in live if h.get("confidence") == "untestable"]
+                if live and len(untestable) == len(live):
+                    return {"decision": "refuse", "register": "no_discriminator",
+                            "citation": f"differential {did}",
+                            "reason": ("Every live hypothesis is untestable - none proposes an "
+                                       "observation that would separate it from the others, so "
+                                       "acting cannot be checked afterwards."),
+                            "absence_state": "incomplete", "implemented": True}
+        except Exception as exc:
+            return {"decision": "pass", "register": "differential_unreadable",
+                    "citation": "not_in_corpus",
+                    "reason": f"Could not read the differential: {exc}",
+                    "absence_state": "conflicting", "implemented": True}
+        return {"decision": "pass", "register": "grow",
+                "citation": "not_in_corpus",
+                "reason": ("No single-branch or undiscriminated differential found for "
+                           f"{pid}. This is not an endorsement of the action."),
+                "absence_state": "verified_clear" if did else "not_checked",
+                "implemented": True}
 
     def when_to_top_up(self, plant_id="current_plant", current_liters=None,
                        floor_liters=None, note=""):

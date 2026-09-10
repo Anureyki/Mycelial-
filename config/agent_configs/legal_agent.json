@@ -75,7 +75,9 @@
     "transaction_layers",
     "triage_source",
     "venues",
-    "verify_quote"
+    "verify_quote",
+    "pulse",
+    "veto"
   ],
   "entry_point": "agents.legal_agent.legal_agent:main",
   "description": "Models legal/financial relationships from contract text (extraction and structuring only - not legal advice)"

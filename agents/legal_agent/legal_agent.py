@@ -176,6 +176,8 @@ class LegalAgent(AgentBase):
             agent_id="legal_agent",
             port=9011,
             capabilities=[
+                "pulse",
+                "veto",
                 "parse_contract", "model_relationship", "extract_parties", "analyze_roles",
                 "query_relationship", "compare_relationships", "lookup",
                 "list_relationships", "get_relationship", "find_relationships",
@@ -3692,6 +3694,144 @@ class LegalAgent(AgentBase):
                     if len(out) >= limit:
                         return out
         return out
+
+    def pulse(self, finding=None):
+        """Regime gate for legal action: clock, forum, freeze, validation window.
+
+        A filing that is right on the merits can be wrong today. Four
+        conditions decide whether this agent may act now, and each of them is
+        about TIMING rather than about whether the position is sound:
+
+        CLOCK - a deadline that has run, or one so close that acting without
+        checking it risks a filing out of time.
+        FORUM - which court or agency has it; acting into the wrong one is not
+        a smaller version of acting into the right one.
+        FREEZE - a stay, an automatic stay, or an agreed standstill. Acting
+        through one converts a procedural position into a sanctionable act.
+        1692g WINDOW - the thirty days after an initial communication in which
+        a consumer may dispute. A collector that continues collection during an
+        unresolved validation request is in a different posture from one that
+        has answered it, and the window is a clock nobody sees unless it is
+        checked.
+
+        Never blocks a withdrawal, a stay request or a cease-communication
+        notice: those reduce exposure."""
+        f = finding if isinstance(finding, dict) else {}
+        reasons, signal, absence = [], 1.0, "verified_clear"
+
+        if f.get("deadline_checked") is not True:
+            signal, absence = min(signal, 0.25), "not_checked"
+            reasons.append("No deadline check recorded for this action. A limitations or "
+                           "response clock that has run is not recoverable afterwards.")
+        elif f.get("days_to_deadline") is not None:
+            try:
+                d = float(f["days_to_deadline"])
+                if d < 0:
+                    signal, absence = 0.0, "verified_clear"
+                    reasons.append(f"Deadline passed {abs(d):.0f} days ago.")
+                elif d <= 3:
+                    signal = min(signal, 0.5)
+                    reasons.append(f"{d:.0f} days to deadline - act, but verify service and form.")
+            except Exception:
+                pass
+
+        if not f.get("forum"):
+            signal, absence = min(signal, 0.4), ("incomplete" if absence == "verified_clear" else absence)
+            reasons.append("No forum identified. Which court or agency holds this decides "
+                           "form, service and timing, and is not a detail of the filing.")
+
+        if f.get("stay") or f.get("freeze") or f.get("automatic_stay"):
+            signal, absence = 0.0, "verified_clear"
+            reasons.append("A stay or freeze is in effect. Acting through one converts a "
+                           "procedural position into a sanctionable act.")
+
+        w = f.get("validation_window_open")
+        if w is True and not f.get("validation_provided"):
+            signal = min(signal, 0.15)
+            absence = "incomplete" if absence == "verified_clear" else absence
+            reasons.append("15 U.S.C. 1692g validation window is open and unanswered. "
+                           "Collection activity during an unresolved dispute is its own "
+                           "violation, independent of the underlying debt.")
+        elif w is None:
+            absence = "not_checked" if absence == "verified_clear" else absence
+            reasons.append("1692g window state not checked.")
+
+        regime = "hot" if signal >= 0.7 else "warm" if signal >= self.PULSE_HALT_BELOW else "cold"
+        return {"go_signal": round(signal, 2), "regime": regime,
+                "reason": " ".join(reasons) or "Clock, forum, freeze and 1692g window all clear.",
+                "absence_state": absence,
+                "halts_new_actuation": signal < self.PULSE_HALT_BELOW,
+                "exits_still_run": True, "implemented": True}
+
+    def veto(self, finding=None):
+        """Refuse a legal step whose statutory predicate is missing.
+
+        Each register below is a step that LOOKS available and is not, because
+        something upstream of it never happened. These are the errors that
+        survive review, because the paperwork is correct and the predicate is
+        the part nobody printed.
+
+        Leans refuse, and never approves: a pass means no ground for refusal
+        was found in the registers it carries, not that the step is sound."""
+        f = finding if isinstance(finding, dict) else {}
+        step = str(f.get("step") or f.get("action") or "").lower()
+
+        if "furnisher" in step or "1681s-2" in step or "s2b" in step:
+            if f.get("cra_dispute_filed") is not True:
+                return {"decision": "refuse", "register": "no_1681s-2(b)_predicate",
+                        "citation": "15 U.S.C. 1681s-2(b)",
+                        "reason": ("The furnisher's reasonable-investigation duty is triggered "
+                                   "by notice from a CONSUMER REPORTING AGENCY, not by a "
+                                   "direct dispute to the furnisher. No CRA dispute is "
+                                   "recorded, so 1681s-2(b) has not been engaged and there is "
+                                   "no private right under 1681s-2(a)."),
+                        "absence_state": "nothing_found" if f.get("cra_dispute_filed") is None
+                                          else "verified_clear",
+                        "implemented": True}
+
+        if "pull" in step or "report" in step or "604" in step or "1681b" in step:
+            if not f.get("permissible_purpose"):
+                return {"decision": "refuse", "register": "no_604_permissible_purpose",
+                        "citation": "15 U.S.C. 1681b(a)",
+                        "reason": ("No permissible purpose stated. A consumer report may only "
+                                   "be obtained for an enumerated purpose, and 'to see what is "
+                                   "there' is not one of them."),
+                        "absence_state": "nothing_found", "implemented": True}
+
+        if "email" in step or "text" in step or "electronic" in step:
+            if f.get("opt_out_provided") is not True:
+                return {"decision": "refuse", "register": "missing_1006.6(e)_opt_out",
+                        "citation": "12 CFR 1026 / Reg F 1006.6(e)",
+                        "reason": ("Electronic communication without a clear and conspicuous "
+                                   "opt-out for that medium. The notice is a condition of the "
+                                   "communication, not a courtesy attached to it."),
+                        "absence_state": "nothing_found", "implemented": True}
+
+        if f.get("cease_communication") is True and ("call" in step or "contact" in step
+                                                     or "communicat" in step):
+            return {"decision": "refuse", "register": "1006.14(h)_after_stop",
+                    "citation": "Reg F 1006.14(h)",
+                    "reason": ("A cease-communication instruction is on record. Contact after "
+                              "STOP is a violation on its own facts regardless of what is "
+                              "owed."),
+                    "absence_state": "verified_clear", "implemented": True}
+
+        if f.get("immunity_waived") is True and not f.get("waiver_authority"):
+            return {"decision": "refuse", "register": "immunity_assumed_away",
+                    "citation": "not_in_corpus",
+                    "reason": ("The finding assumes immunity away without citing the waiver. "
+                               "Sovereign, qualified and statutory immunities are defeated by "
+                               "an identified provision or holding, never by the claim being "
+                               "strong."),
+                    "absence_state": "nothing_found", "implemented": True}
+
+        return {"decision": "pass", "register": "legal",
+                "citation": "not_in_corpus",
+                "reason": ("No missing predicate found among the registers checked: "
+                           "1681s-2(b), 604 purpose, 1006.6(e) opt-out, 1006.14(h) after "
+                           "STOP, immunity waiver. This is not an endorsement of the step."),
+                "absence_state": "not_checked" if not step else "verified_clear",
+                "implemented": True}
 
     def handle_task(self, task, args, sender):
         self.log(f"Task {task} from {sender}")

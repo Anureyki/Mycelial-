@@ -1533,3 +1533,61 @@ decision to make deliberately rather than discover halfway through Phase 3:
 Recorded as a constraint, not an objection. The principal's own rule applies:
 the divergence between what is planned and what the hardware can do is itself
 the finding, and it is worth more written down than discovered.
+
+---
+
+## Inherited pulse + veto (landed 2026-09-10)
+
+**Two verbs on `AgentBase`, not two new agents.** Every domain agent gets them
+by restart. Scout was already `ingest`; Historian is Hermes plus each agent's
+own memory; Context is the domain card. Four more processes to start, supervise
+and keep in sync would have bought nothing a base class does not already
+deliver.
+
+| Verb | Desk | Job |
+|------|------|-----|
+| `pulse` | Pulse | Regime gate - may this agent actuate *now*? |
+| `veto` | Devil's Advocate | Find a reason not to act, given everything else said yes |
+
+**Boss, Anansi and Hermes never answer either.** They inherit the methods so
+nothing crashes internally, and the dispatch excludes them, so `check_inherited`
+shows `.` - which is the correct reading. A regime gate and a refusal argument
+are domain reasoning, and the orchestrator practises no domain.
+
+**Devil's only lean is refuse.** Every other verb here leans toward approving,
+because they exist to produce a recommendation. A system where every component
+looks for a reason to proceed has no component looking for the reason not to.
+
+**A stub is not a pass.** Both base bodies return `implemented: false` with
+`absence_state: "not_checked"`, and the probes require `implemented: true` - so
+an unimplemented body reads as `differs`, never as `ok`. `unknown is never
+complete`, applied to a gate.
+
+**`gate_actuation` is pulse -> veto -> lock, in that order.** Pulse first
+because a cold regime makes the veto's reasoning irrelevant; veto second because
+a refusal outranks a green regime; the lock last and narrowest, because a lock
+held across a call to another agent is how one slow peer stops a swarm. It never
+converts `not_checked` into a go - it reports `unverified` and leaves the
+fail-closed decision to the caller, which for capital is already doctrine.
+
+Locked write is a `fcntl` file lock under `state/locks/`. No Redis - it is not
+present, and adding it to solve a single-process race would be adding an outage
+to prevent a rare one.
+
+### State
+
+    agent              pulse      veto
+    grow_agent         ok         ok        stage + cadence / one-hypothesis differential
+    legal_agent        ok         ok        clock, forum, freeze, 1692g / missing predicates
+    accounting_agent   differs    ok        posted_label_unsupported
+    boss, anansi, hermes   .      .         correct - no domain
+    coding, maintenance, security, trust, trading   differs   differs   stubs, bodies not written
+
+`differs` is the honest reading of a stub and the remaining work is visible in
+it. Trading's bodies (market regime; honey-pot / unlocked size / pulse cold) land
+when that agent runs.
+
+### Phase 0 class
+
+**Inversion, until `check_inherited` shows `ok` on every domain agent that
+actuates.** Four still read `differs`.

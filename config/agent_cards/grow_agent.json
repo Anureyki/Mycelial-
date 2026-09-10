@@ -3,6 +3,8 @@
   "role": "gardener",
   "version": "1.0.0",
   "capabilities": [
+    "pulse",
+    "veto",
     "log_reading",
     "check_stage",
     "observe_stage_markers",
@@ -41,6 +43,7 @@
     "project_topup",
     "plan_feed_for_target",
     "ppm_per_ml",
+    "round_to_instrument",
     "get_nutrient_history",
     "set_inventory",
     "get_inventory",
@@ -64,8 +67,7 @@
     "leaf_differential",
     "lookup",
     "list_training_events",
-    "void_training_event",
-    "round_to_instrument"
+    "void_training_event"
   ],
   "endpoint": "/execute",
   "port": 9009,
@@ -80,5 +82,5 @@
   "public_key": "",
   "owner": "anureyki",
   "created": "2026-07-28T23:04:50.187235",
-  "updated": "2026-09-10T20:53:37.920558"
+  "updated": "2026-09-10T21:34:44.271626"
 }

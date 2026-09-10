@@ -50,6 +50,13 @@ PROBES = [
     ("case_get", {}, None),
     ("case_list", {}, None),
     ("receive_finding", {"kind": "_probe", "payload": {}}, None),
+    # Regime gate and refusal argument. Side-effect free: pulse reads
+    # conditions and veto argues about a finding; neither writes.
+    # An inherited STUB is not a pass. Both verbs carry implemented:false on
+    # the base, and the spec is explicit that an unimplemented body counts as
+    # absent - so the probe looks for the domain marker, not merely a dict.
+    ("pulse", {}, "\"implemented\": true"),
+    ("veto", {"finding": {}}, "\"implemented\": true"),
 ]
 
 # A crash leaks through as one of these. They are the actual finding - an agent

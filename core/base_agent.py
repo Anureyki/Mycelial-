@@ -10,6 +10,11 @@ from datetime import datetime
 from flask import Flask, request, jsonify
 
 BASE = os.path.expanduser("~/mycelial")
+
+# Agents that practise no domain and therefore never answer pulse or veto.
+# They still INHERIT the methods - the exclusion is at dispatch, so an
+# internal caller gets a sane object and an external caller gets nothing.
+NO_DOMAIN_AGENTS = ("boss", "anansi", "hermes")
 CONFIG_DIR = os.path.join(BASE, "config", "agent_cards")
 LOG_FILE = os.path.join(BASE, "logs", "audit.log")
 REGISTRY_FILE = os.path.join(BASE, "state", "registry.json")
@@ -520,6 +525,25 @@ class AgentBase:
                         task, args if isinstance(args, dict) else {})
                 elif task == "score_predictions":
                     result = self.score_predictions(args if isinstance(args, dict) else {})
+                elif task in ("pulse", "veto") and self._practises_no_domain():
+                    # Boss orchestrates, Anansi narrates, Hermes brokers. None of
+                    # the three practises a domain, and a regime gate and a
+                    # refusal argument are domain reasoning - the same rule that
+                    # keeps horticulture vocabulary out of the router. They
+                    # inherit the METHODS, so nothing crashes if something calls
+                    # them internally; what they must not do is ANSWER, because
+                    # an orchestrator that can answer "may this actuate" will
+                    # eventually be asked, and then it is deciding.
+                    # Fall through to handle_task, which answers "Unknown task" -
+                    # so the matrix shows "." (absent), which is the correct
+                    # reading: these three do not own this verb.
+                    result = self.handle_task(task, args, sender)
+                elif task == "pulse":
+                    result = self.pulse((args or {}).get("finding")
+                                        if isinstance(args, dict) else None)
+                elif task == "veto":
+                    result = self.veto((args or {}).get("finding")
+                                       if isinstance(args, dict) else None)
                 elif task == "base_version":
                     result = self.base_version()
                 elif task == "corpus_currency":
@@ -637,6 +661,187 @@ class AgentBase:
     # An agent that knows something the list cannot - the names of the plants it
     # is currently tracking - overrides this to add them at request time.
     ROUTING_TERMS = ()
+
+    # ------------------------------------------------------------------
+    # Pulse and Veto - two inherited verbs, not two new agents.
+    #
+    # Scout is already `ingest`. Historian is Hermes plus each agent's own
+    # memory. Context is the domain card. Adding processes for those would be
+    # four more things to start, supervise and keep in sync with a base class
+    # that already reaches every agent on restart.
+    #
+    # Boss, Anansi and Hermes inherit the METHODS and must never carry a body:
+    # a regime gate and a refusal argument are domain reasoning, and the
+    # orchestrator practises no domain.
+    # ------------------------------------------------------------------
+
+    def _practises_no_domain(self):
+        """True for the orchestration, narration and transport layers.
+
+        Matched on a substring because these three carry several ids across
+        configs and cards - boss/boss_agent, hermes/hermes_interface - and an
+        exact list that misses one silently grants a regime gate to the router,
+        which is the single thing this exclusion exists to prevent."""
+        aid = str(getattr(self, "agent_id", "")).lower()
+        return any(k in aid for k in NO_DOMAIN_AGENTS)
+
+    PULSE_HALT_BELOW = 0.3
+
+    def pulse(self, finding=None):
+        """Regime gate: may this agent actuate *now*?
+
+        Separate from "is this a good idea", which is what every other verb
+        already answers. This asks whether the surrounding conditions permit
+        acting at all - a market regime, a filing clock, a growth stage, a
+        cadence. The same recommendation can be right on Tuesday and wrong on
+        Wednesday without anything about the recommendation changing.
+
+        The base returns a permissive signal with `absence_state:
+        "not_checked"`, and those two facts must be read together. The number
+        is not a finding; the absence_state is. A domain that has not
+        implemented a body has not cleared anything, and
+        `tools/check_inherited.py` reports an unimplemented body as absent
+        rather than as a pass.
+
+        `halts_new_actuation` gates OPENING only. `exits_still_run` is always
+        true and is the whole reason this is a gate rather than a switch: a
+        stop that waits for a regime check is not a stop, and the direction
+        rule in CLAUDE.md already says an agent whose every available action
+        reduces exposure needs no permission."""
+        return {
+            "go_signal": 1.0,
+            "regime": "warm",
+            "reason": (f"{self.agent_id} inherits pulse and has not implemented a body. "
+                       "This is not a clearance - nothing was checked."),
+            "absence_state": "not_checked",
+            "halts_new_actuation": False,
+            "exits_still_run": True,
+            "implemented": False,
+        }
+
+    def veto(self, finding=None):
+        """Devil's advocate: find a reason NOT to act, given everything said yes.
+
+        Every other verb on this platform leans toward approving - they exist
+        to produce a recommendation. This one leans the other way, and that
+        asymmetry is deliberate: a system where every component is looking for
+        a reason to proceed has no component looking for the reason not to.
+
+        A refusal must cite something. `citation` carries the statute, rule or
+        record it rests on, or the literal string "not_in_corpus" - which is
+        itself a finding, because a refusal the agent cannot ground is a
+        different object from one it can.
+
+        The base returns `decision: "pass"` with `absence_state: "not_checked"`
+        and `register: "none"`. That combination is deliberately NOT a real
+        pass: a stub must be distinguishable from a domain that looked and
+        found nothing, or the absence of an objection reads as the absence of
+        grounds for one."""
+        return {
+            "decision": "pass",
+            "register": "none",
+            "citation": "not_in_corpus",
+            "reason": (f"{self.agent_id} inherits veto and has not implemented a body. "
+                       "Nothing was examined, so this is not a considered pass."),
+            "absence_state": "not_checked",
+            "implemented": False,
+        }
+
+    def _actuation_lock(self, name):
+        """One lock around read-available then write-actuation.
+
+        The race is two signals reading the same available balance before
+        either writes, and it is the same class for a dose, a size, or a
+        docket close: read state, decide, write, with a window in between.
+        A file lock under state/ is enough on this box - Redis is not present
+        and introducing it to solve a single-process race would be adding an
+        outage to prevent a rare one."""
+        import fcntl
+        os.makedirs(os.path.join(BASE, "state", "locks"), exist_ok=True)
+        path = os.path.join(BASE, "state", "locks", f"{name}.lock")
+
+        class _Lock:
+            def __enter__(_s):
+                _s.fh = open(path, "w")
+                fcntl.flock(_s.fh, fcntl.LOCK_EX)
+                return _s
+            def __exit__(_s, *a):
+                try:
+                    fcntl.flock(_s.fh, fcntl.LOCK_UN)
+                    _s.fh.close()
+                except Exception:
+                    pass
+                return False
+        return _Lock()
+
+    def gate_actuation(self, action, finding=None, idempotency_key=None):
+        """pulse -> veto -> lock, in that order, before any write that acts.
+
+        Returns {"allowed": bool, ...}. Callers on an actuation path - dose,
+        docket close, size, send - run this and write only inside the lock it
+        hands back.
+
+        THE ORDER IS THE POINT. Pulse first because a cold regime makes the
+        veto's reasoning irrelevant; veto second because a refusal outranks a
+        green regime; the lock last and narrowest, because a lock held across
+        a network call to another agent is how one slow peer stops a swarm.
+
+        An `absence_state` of `not_checked` on EITHER verb does not silently
+        become a go. It is reported as `unverified`, and a caller touching
+        capital is expected to treat that as a stop - `fail-closed is the
+        default in code for anything touching capital` - while a caller
+        touching a grow reading may reasonably proceed and log it. This method
+        does not make that choice for them; it refuses to hide it."""
+        p = self.pulse(finding) or {}
+        v = self.veto(finding) or {}
+        unverified = [n for n, r in (("pulse", p), ("veto", v))
+                      if r.get("absence_state") == "not_checked"]
+
+        out = {"action": action, "pulse": p, "veto": v,
+               "idempotency_key": idempotency_key,
+               "unverified": unverified}
+
+        if v.get("decision") == "refuse":
+            out["allowed"] = False
+            out["blocked_by"] = "veto"
+            out["reason"] = v.get("reason")
+            out["citation"] = v.get("citation")
+        elif p.get("halts_new_actuation"):
+            out["allowed"] = False
+            out["blocked_by"] = "pulse"
+            out["reason"] = p.get("reason")
+            out["regime"] = p.get("regime")
+        else:
+            out["allowed"] = True
+            out["blocked_by"] = None
+        if unverified:
+            out["caveat"] = (
+                f"{', '.join(unverified)} returned absence_state=not_checked - an "
+                f"inherited stub, not a clearance. Nothing was examined. Treat as a "
+                f"stop on any path touching capital.")
+        try:
+            self.record_provenance_event(
+                "actuation_gate",
+                metadata={"action": action, "allowed": out["allowed"],
+                          "blocked_by": out["blocked_by"],
+                          "go_signal": p.get("go_signal"),
+                          "regime": p.get("regime"),
+                          "veto_decision": v.get("decision"),
+                          "citation": v.get("citation"),
+                          "pulse_absence_state": p.get("absence_state"),
+                          "veto_absence_state": v.get("absence_state"),
+                          "idempotency_key": idempotency_key})
+        except Exception as exc:
+            # A provenance service that is down must not decide an actuation,
+            # but the gap is recorded rather than swallowed - `except: pass` on
+            # this path is the defect the spec names.
+            out["provenance_recorded"] = False
+            out["provenance_error"] = str(exc)[:200]
+            self.log(f"gate_actuation: provenance not recorded: {exc}")
+        else:
+            out["provenance_recorded"] = True
+        out["lock"] = self._actuation_lock(f"{self.agent_id}_{action}")
+        return out
 
     def base_version(self):
         """Fingerprint of the shared base class this PROCESS is running.
