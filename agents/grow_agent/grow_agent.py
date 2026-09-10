@@ -3506,9 +3506,37 @@ class GrowAgent(AgentBase):
             out["reason"] = conc["error"]
             return out
 
+        # STRENGTH CROSSES, RATIO DOES NOT.
+        #
+        # ppm-per-ml is a property of the bottles and the meter, so it is a
+        # lesson and may come from another plant. The RATIO is this plant's
+        # recipe - what it is being fed for its stage - and is bound to it.
+        # Taking both from the same borrowed record fed this reservoir the
+        # LWC's mix: that one runs Gro and Micro equal, while the DWC runs
+        # nitrogen-forward for veg. Same total ml, wrong proportions, and
+        # nothing in the output would have said so.
+        ratio = conc.get("ratio") or {}
+        ratio_from = conc.get("origin_plant")
+        try:
+            _own = self._unwrap_value(self.retrieve_own_memory(self._nutrient_keys(plant_id)[0]))
+            if _own:
+                _mix = (json.loads(_own) or {}).get("nutrients") or {}
+                _tot = sum(self._parse_numeric(v) or 0 for v in _mix.values())
+                if _tot > 0:
+                    ratio = {k: (self._parse_numeric(v) or 0) / _tot for k, v in _mix.items()}
+                    ratio_from = plant_id
+        except Exception as e:
+            self.log(f"plan_feed_for_target: could not read own recipe ratio: {e}")
+
         total_ml = add_mass / conc["ppm_l_per_ml"]
         out["ppm_per_ml"] = conc
-        out["add_now_ml"] = {k: round(total_ml * r, 2) for k, r in conc["ratio"].items()}
+        out["ratio_from_plant"] = ratio_from
+        out["ratio"] = {k: round(v, 4) for k, v in ratio.items()}
+        if ratio_from != plant_id:
+            out["ratio_caveat"] = (
+                f"Proportions taken from {ratio_from} because {plant_id} has no recipe of "
+                f"its own on record. Strength may cross between plants; a RATIO should not.")
+        out["add_now_ml"] = {k: round(total_ml * r, 2) for k, r in ratio.items()}
         out["add_now_total_ml"] = round(total_ml, 2)
 
         interim = (have + add_mass) / now_v
