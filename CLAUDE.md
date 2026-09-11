@@ -146,6 +146,7 @@ apply to every agent, not just Grow:
 | Task | Who answers | Replaces |
 |------|-------------|----------|
 | `routing_terms` | each agent declares the words that claim a request for it | a keyword list inside Boss |
+| `roles` (config) | each agent declares the SUBJECTS it owns, exclusively | keyword overlap deciding which department a subject belongs to |
 | `authorize_route` | Boss says whether a route is permitted, and nothing else | Boss forwarding the request itself |
 | `answer(prompt)` | the domain agent picks its own capabilities | Boss's intent patterns and facet ordering |
 | `describe(task, payload)` | the agent puts its own result into words | Boss formatting domain results |
@@ -157,6 +158,35 @@ anywhere. A new domain agent becomes routable by starting up.
 
 Adding a capability to a domain agent must never require editing Boss. If it
 does, the capability is in the wrong place.
+
+**Roles outrank keywords, and the reason is a real routing failure.** The
+matcher scored a term by the length of text it matched, on the sound reasoning
+that a longer term is a more specific claim - `credit report` really does beat
+`repo`. That inverts against a wildcard. Security had declared the pattern
+`is .* allowed`; on *"is the trustee allowed to sell the property"* it matched
+22 characters and won, while Trust scored 5 for the word `trust` and had not
+declared `trustee` at all - **Accounting owned that word**. Two defects, and
+only one was about scoring: a pattern matching a SENTENCE SHAPE is not
+vocabulary, since every domain gets permission questions.
+
+So each agent now declares `roles` in `config/agent_configs/<agent>.json` - the
+subjects it practises, not words that turn up near it - and a named role
+outweighs any keyword total. A wildcard scores only the literal text it
+requires, never the sentence it absorbed.
+
+**A role has exactly one owner, checked at load.** Two agents claiming one
+subject is a routing conflict, and finding it while answering a question means
+a wrong answer already went out. A contested role belongs to **neither** until
+somebody resolves it - letting the alphabetically-first config keep it would
+decide department ownership by accident, silently. That is the `contested` rule
+this file already applies to claims.
+
+**`tools/check_routing.py` is a build gate**, in `ci.yml` and `ci_local.sh`. A
+routing table has no natural alarm: every request gets an answer, and the wrong
+department answering looks exactly like the right one answering. The trustee
+prompt must reach Trust, a perimeter prompt must reach Security, a mixed
+question must surface both with Trust primary, and every declared role must be
+reachable - or the build is red.
 
 ### Anansi routes; Boss governs
 

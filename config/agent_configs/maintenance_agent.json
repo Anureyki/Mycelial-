@@ -19,5 +19,12 @@
     "update_container"
   ],
   "entry_point": "agents.maintenance_agent.maintenance_agent:main",
-  "description": "System Health agent"
+  "description": "System Health agent",
+  "roles": [
+    "disk usage",
+    "log rotation",
+    "system health",
+    "process supervision"
+  ],
+  "_roles_note": "Subjects this agent OWNS. Exactly one agent may own a role; core/roles.py refuses duplicates at load. Declared here and not in code so changing what a department owns is a config edit."
 }

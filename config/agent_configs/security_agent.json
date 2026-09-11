@@ -18,5 +18,18 @@
     "scan_codebase"
   ],
   "entry_point": "agents.security_agent.security_agent:main",
-  "description": "Authorizes every inbound /execute against config/guards.json"
+  "description": "Authorizes every inbound /execute against config/guards.json",
+  "roles": [
+    "threat",
+    "perimeter",
+    "access control",
+    "authentication",
+    "intrusion",
+    "guard rule",
+    "kill switch",
+    "credential",
+    "network access",
+    "attack surface"
+  ],
+  "_roles_note": "Subjects this agent OWNS. Exactly one agent may own a role; core/roles.py refuses duplicates at load. Declared here and not in code so changing what a department owns is a config edit."
 }

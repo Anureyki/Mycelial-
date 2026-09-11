@@ -175,7 +175,24 @@ class DomainRouter:
                     m = re.search(t if ("\\b" in t or "?" in t or "*" in t)
                                   else r"\b" + t, lp)
                     if m:
-                        n += len(m.group(0))
+                        # A WILDCARD MAY NOT SCORE BY WHAT IT SWALLOWED.
+                        #
+                        # Length is a proxy for specificity and that holds for
+                        # a literal term - "credit report" really is a more
+                        # specific claim than "repo". It inverts for a pattern
+                        # containing .* : the Security Agent's `is .* allowed`
+                        # matched 22 characters of "is the trustee allowed to
+                        # sell the property", and the sentence's own length was
+                        # then read as evidence that Security was the subject.
+                        #
+                        # So a wildcard scores the LITERAL text it required,
+                        # not the text it happened to absorb. `is .* allowed`
+                        # is worth len("is allowed"), which is what it actually
+                        # asserts.
+                        if ".*" in t or ".+" in t:
+                            n += len(re.sub(r"\.[*+]\??", "", t))
+                        else:
+                            n += len(m.group(0))
                 except re.error:
                     continue
             if n:
@@ -298,8 +315,67 @@ class DomainRouter:
     # Public surface. Everything above is the matcher; this is what callers use.
     # ------------------------------------------------------------------
 
+    # ------------------------------------------------------------------
+    # ROLES. Declared in config, owned exclusively, and worth more than any
+    # amount of keyword overlap - because a role is a subject the department
+    # PRACTISES, and a keyword is a word that turned up in a sentence.
+    # ------------------------------------------------------------------
+
+    def roles(self):
+        from core.roles import load_roles
+        c = self._domain_cache
+        if c.get("roles") is None or time.time() - c.get("roles_at", 0) > 300:
+            r, conflicts = load_roles()
+            c["roles"], c["roles_at"], c["role_conflicts"] = r, time.time(), conflicts
+            if conflicts:
+                # Loud, and at load. A routing conflict found while answering a
+                # question has already produced a wrong answer.
+                for x in conflicts:
+                    self.log(f"ROLE CONFLICT: {x['role']!r} claimed by "
+                             f"{x['claimed_by']} - owned by NEITHER until resolved")
+        return c["roles"]
+
+    def role_conflicts(self):
+        self.roles()
+        return (self._domain_cache or {}).get("role_conflicts") or []
+
     def domain_for(self, prompt):
-        """-> the one agent id that owns this request, or None."""
+        """-> the one agent id that owns this request, or None.
+
+        A NAMED ROLE ENDS THE DECISION, the same way an owned term does. The
+        difference is that a role is exclusive by construction and declared in
+        config, so it cannot be quietly out-scored by a longer keyword match in
+        another department."""
+        from core.roles import score_roles, matched_roles
+        rs = score_roles(prompt, self.roles())
+        if rs:
+            best = max(rs, key=rs.get)
+            tied = [a for a, n in rs.items() if n == rs[best]]
+            if len(tied) == 1:
+                self.log(f"routing: {best} owns role(s) "
+                         f"{matched_roles(prompt, self.roles()).get(best)} - "
+                         f"decision ends there")
+                return best
+            # A TIE NARROWS THE FIELD; IT DOES NOT OPEN IT.
+            #
+            # Falling straight through to the keyword matcher here sent "is the
+            # trustee's network access a security risk" to ACCOUNTING - an
+            # agent that owns no role in the sentence at all - because the
+            # fallback searched every department instead of the two that
+            # actually claimed something. Two departments owning a role each is
+            # a mixed question, and the answer is one of those two.
+            #
+            # So keywords break the tie AMONG THE TIED OWNERS, and where they
+            # cannot, the first tied owner by role count wins and the pairing
+            # is logged. domains_for() surfaces both regardless, which is the
+            # honest answer to a mixed question.
+            _, _, kscores = self._domain_by_terms(prompt, with_margin=True)
+            among = {a: kscores.get(a, 0) for a in tied}
+            pick = max(among, key=among.get)
+            self.log(f"routing: roles tie between {sorted(tied)}; keyword scores "
+                     f"{among} broke it for {pick}. Both are surfaced by "
+                     f"domains_for - this is a mixed question.")
+            return pick
         return self._domain_for(prompt)
 
     def domains_for(self, prompt, min_share=0.30):
@@ -317,7 +393,14 @@ class DomainRouter:
         at least 30% of what the winner accounts for is making a real claim on
         the sentence; one scoring a tenth of it has caught a stray word.
         """
+        from core.roles import score_roles
         _, _, scores = self._domain_by_terms(prompt, with_margin=True)
+        # Roles are added to the keyword scores rather than replacing them, so
+        # a question naming one department's role and another's vocabulary
+        # surfaces BOTH - which is what a mixed question is - with the role
+        # owner on top because ROLE_WEIGHT dominates.
+        for aid, n in score_roles(prompt, self.roles()).items():
+            scores[aid] = scores.get(aid, 0) + n
         if not scores:
             d = self._domain_for(prompt)
             return [d] if d else []

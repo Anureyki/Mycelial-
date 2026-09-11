@@ -72,5 +72,15 @@
     "quantities"
   ],
   "entry_point": "agents.grow_agent.grow_agent:main",
-  "description": "Tracks grow stages and suggests nutrient adjustments"
+  "description": "Tracks grow stages and suggests nutrient adjustments",
+  "roles": [
+    "reservoir",
+    "nutrient dose",
+    "plant stage",
+    "root zone",
+    "ph band",
+    "feed schedule",
+    "harvest"
+  ],
+  "_roles_note": "Subjects this agent OWNS. Exactly one agent may own a role; core/roles.py refuses duplicates at load. Declared here and not in code so changing what a department owns is a config edit."
 }

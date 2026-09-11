@@ -35,5 +35,17 @@
     "who_owns"
   ],
   "entry_point": "agents.accounting_agent.accounting_agent:main",
-  "description": "Structures financial instruments and cached tax/accounting reference data (extraction and structuring only - not tax or financial advice)"
+  "description": "Structures financial instruments and cached tax/accounting reference data (extraction and structuring only - not tax or financial advice)",
+  "roles": [
+    "ledger",
+    "obligation",
+    "payment evidence",
+    "booking",
+    "chart of accounts",
+    "lease accounting",
+    "true sale",
+    "ownership graph",
+    "tax liability"
+  ],
+  "_roles_note": "Subjects this agent OWNS. Exactly one agent may own a role; core/roles.py refuses duplicates at load. Declared here and not in code so changing what a department owns is a config edit."
 }

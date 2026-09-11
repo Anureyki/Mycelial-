@@ -18,5 +18,12 @@
     "web_search"
   ],
   "entry_point": "agents.coding_agent.coding_agent:main",
-  "description": "Software Engineering agent"
+  "description": "Software Engineering agent",
+  "roles": [
+    "source file",
+    "lint",
+    "test suite",
+    "refactor"
+  ],
+  "_roles_note": "Subjects this agent OWNS. Exactly one agent may own a role; core/roles.py refuses duplicates at load. Declared here and not in code so changing what a department owns is a config edit."
 }

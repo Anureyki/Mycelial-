@@ -42,3 +42,9 @@ jobs:
         # serving the copy it already has. It looks deployed from the server
         # side and is invisible on the device.
         run: python tools/check_shell_version.py
+      - name: Routing must reach the right department
+        # The vocabularies were wrong for weeks and nothing said so.
+        # A routing table has no natural alarm: every request gets an
+        # answer, and the wrong department answering looks exactly
+        # like the right one answering.
+        run: python tools/check_routing.py

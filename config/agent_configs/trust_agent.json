@@ -22,5 +22,19 @@
     "veto"
   ],
   "entry_point": "agents.trust_agent.trust_agent:main",
-  "description": "Models trust relationships (settlor, trustee, beneficiary, trust property) from trust document text (extraction and structuring only - not legal or fiduciary advice)"
+  "description": "Models trust relationships (settlor, trustee, beneficiary, trust property) from trust document text (extraction and structuring only - not legal or fiduciary advice)",
+  "roles": [
+    "trustee",
+    "trust administration",
+    "fiduciary",
+    "fiduciary duty",
+    "beneficiary",
+    "settlor",
+    "property disposition",
+    "trust property",
+    "beneficial interest",
+    "spendthrift",
+    "trust instrument"
+  ],
+  "_roles_note": "Subjects this agent OWNS. Exactly one agent may own a role; core/roles.py refuses duplicates at load. Declared here and not in code so changing what a department owns is a config edit."
 }
