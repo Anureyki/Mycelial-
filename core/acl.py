@@ -78,6 +78,32 @@ def load_acl(path=None, force=False):
             raise ACLUnavailable(f"{p}: {e}") from e
 
 
+def _provenance_for_grant(agent, resource, action, reason):
+    """Record the grant, return its event id. -> None if it could not be written.
+
+    AN ALLOW NEEDS SOMETHING BEHIND IT. The harness refuses to treat an
+    `allowed` event as a positive training example unless its provenance
+    resolves, and rightly: "it was allowed" with nothing behind it is
+    indistinguishable from "nobody checked". Without this, every allow emitted
+    provenance_event: None, every one was quarantined, and the training set was
+    127 negatives and 0 positives - a set whose best model denies everything.
+
+    Only ALLOWS are recorded. A denial is already fully described by its
+    reason, and writing a provenance row for every refused probe would let
+    anyone fill the store by asking for things they cannot have."""
+    try:
+        from core.provenance_schemas import new_provenance_event
+        from core.provenance_manager import ProvenanceManager
+        ev = new_provenance_event(
+            operation="approve", actor_type="agent", agent_id=agent,
+            metadata={"resource": resource, "action": action,
+                      "reason": reason, "layer": "interior_acl"})
+        ProvenanceManager().record_event(ev)
+        return ev["event_id"]
+    except Exception:
+        return None
+
+
 def _observe(event_type, agent, resource, action, decision, reason):
     """Report the decision. This is an EMIT, not a write - core/security_events
     hands it to the harness, which decides what the record says. A component
@@ -85,8 +111,10 @@ def _observe(event_type, agent, resource, action, decision, reason):
     one question that matters: whether it let something through."""
     try:
         from core.security_events import emit
+        prov = (_provenance_for_grant(agent, resource, action, reason)
+                if event_type == "acl_allowed" else None)
         emit(event_type, agent=agent, resource=resource, action=action,
-             decision=decision, reason=reason)
+             decision=decision, reason=reason, provenance_event=prov)
     except Exception as _e:
         # Observation must never change the DECISION - a harness that is down
         # cannot be allowed to deny a request, nor to allow one. But a silent

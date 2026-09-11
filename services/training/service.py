@@ -5,6 +5,8 @@ Manages training jobs: start, stop, status, logs, and metrics.
 Integrates with Policy, Memory, Logging, and Inference services.
 """
 import os
+import sys
+import glob
 import json
 import uuid
 import time
@@ -98,40 +100,100 @@ def run_training_job(job_id, config):
 
     log_to_audit(job_id, "TRAINING_START", f"Started training {model_type} on {dataset}")
 
-    # Simulate training steps
-    steps = epochs * 5  # 5 batches per epoch
-    for step in range(steps):
-        if job.get("stop_requested", False):
-            job["status"] = "stopped"
-            job["stopped_at"] = datetime.now().isoformat()
-            save_jobs()
-            log_to_audit(job_id, "TRAINING_STOP", "Training stopped by user")
-            return
-
-        # Simulate loss decreasing
-        loss = 1.0 / (step + 1)
-        accuracy = min(0.95, 0.5 + step / steps * 0.45)
-        metrics = {"loss": loss, "accuracy": accuracy, "step": step, "epoch": step // 5 + 1}
-        job["metrics"] = metrics
-        job["progress"] = int((step + 1) / steps * 100)
+    # REAL TRAINING, DISPATCHED TO MYCELIAL-CORE.
+    #
+    # What was here reported `loss = 1.0 / (step + 1)` and a final accuracy of
+    # 0.92, hardcoded, with no model loaded and no weight updated. A fabricated
+    # loss curve is worse than no training service at all: it looks like
+    # evidence, it goes down, and nobody asks.
+    #
+    # THE OS STILL DOES NOT TRAIN. CLAUDE.md is explicit that training happens
+    # only in mycelial-core, behind the eval gate, and that this repo consumes
+    # a promoted artifact. So this service remains what it always claimed to
+    # be - a JOB MANAGER - and dispatches. It holds the job record and reports
+    # what actually happened; the weights live in the other repo and never
+    # come back except through promotion.
+    core = os.environ.get("MYCELIAL_CORE",
+                          os.path.expanduser("~/mycelial-core"))
+    trainer = os.path.join(core, "training", "train_on_harness.py")
+    if not os.path.exists(trainer):
+        job["status"] = "failed"
+        job["error"] = (f"mycelial-core not found at {core}. Training is not "
+                        f"performed by the OS; set MYCELIAL_CORE to the core "
+                        f"repository. This is a real failure, not a simulated "
+                        f"run that would have reported a loss curve anyway.")
+        job["completed_at"] = datetime.now().isoformat()
         save_jobs()
+        log_to_audit(job_id, "TRAINING_FAILED", job["error"][:200])
+        return
 
-        # Store metrics in Memory (every 10 steps)
-        if step % 10 == 0:
-            store_memory("training_metrics", f"{job_id}_step_{step}", metrics)
+    records = os.path.join(os.path.dirname(os.path.dirname(
+        os.path.dirname(os.path.abspath(__file__)))), "datasets", "security_eval")
+    cmd = [sys.executable, trainer, "--records", records,
+           "--epochs", str(epochs)]
+    job["command"] = " ".join(cmd)
+    job["progress"] = 5
+    save_jobs()
+    try:
+        proc = subprocess.run(cmd, cwd=core, capture_output=True, text=True,
+                              timeout=3600)
+    except Exception as exc:
+        job["status"] = "failed"
+        job["error"] = str(exc)[:300]
+        job["completed_at"] = datetime.now().isoformat()
+        save_jobs()
+        log_to_audit(job_id, "TRAINING_FAILED", job["error"][:200])
+        return
 
-        time.sleep(0.5)  # Simulate compute time
+    job["stdout_tail"] = (proc.stdout or "")[-2000:]
+    if proc.returncode != 0:
+        job["status"] = "failed"
+        job["error"] = (proc.stderr or proc.stdout or "trainer failed")[-500:]
+        job["completed_at"] = datetime.now().isoformat()
+        save_jobs()
+        log_to_audit(job_id, "TRAINING_FAILED", job["error"][:200])
+        return
+
+    # The run log is the trainer's own record. Read it rather than parsing
+    # stdout - a number scraped from a log line is a number nobody wrote down.
+    runs = sorted(glob.glob(os.path.join(core, "runs", "*.json")))
+    latest = {}
+    for f in reversed(runs):
+        try:
+            d = json.load(open(f))
+        except Exception:
+            continue
+        if d.get("kind") == "harness_security":
+            latest = d
+            break
+    job["metrics"] = {
+        "loss_first": latest.get("loss_first"),
+        "loss_last": latest.get("loss_last"),
+        # THE ACCEPTANCE CRITERION, CARRIED THROUGH. A run that moved no weight
+        # trained nothing, whatever its loss curve said.
+        "weight_delta_l2": latest.get("weight_delta_l2"),
+        "params_changed": latest.get("params_changed"),
+        "pairs_train": latest.get("pairs_train"),
+        "pairs_heldout": latest.get("pairs_heldout"),
+    }
+    job["checkpoint"] = latest.get("checkpoint")
+    job["run_id"] = latest.get("run_id")
+    job["progress"] = 100
+    store_memory("training_metrics", f"{job_id}_final", job["metrics"])
 
     # Training complete
     job["status"] = "completed"
     job["completed_at"] = datetime.now().isoformat()
     job["progress"] = 100
     job["final_metrics"] = {
-        "loss": 0.05,
-        "accuracy": 0.92,
+        "loss": latest.get("loss_last"),
+        "weight_delta_l2": latest.get("weight_delta_l2"),
         "epochs": epochs,
-        "batch_size": batch_size,
-        "learning_rate": learning_rate
+        "checkpoint": latest.get("checkpoint"),
+        "promoted": False,
+        "note": ("Training does not promote. The checkpoint is scored by the "
+                 "evaluation service and the serving pointer moves only on "
+                 "improvement."),
     }
     save_jobs()
 

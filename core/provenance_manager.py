@@ -200,6 +200,24 @@ class ProvenanceManager:
         return event
 
     # ---------- reads ----------
+    def get_event(self, event_id):
+        """-> one event by id, or None.
+
+        ADDED BECAUSE ITS ABSENCE WAS SILENT. The eval harness verifies an
+        emitted provenance id by looking it up, and treats "no lookup is
+        available" as a failure to verify rather than a pass - correctly, since
+        unverifiable and verified must not produce the same record. With no
+        get_event on this class, EVERY allowed decision was unverifiable, so the
+        training set came back 127 negatives and 0 positives: a model trained on
+        it would learn to deny everything and score well doing it.
+
+        A provenance store that can record an event and cannot retrieve one is
+        write-only, which is a log, not a provenance system."""
+        with self._conn() as conn:
+            row = conn.execute(
+                "SELECT * FROM events WHERE event_id = ?", (event_id,)).fetchone()
+        return self._row_to_event(row) if row else None
+
     def get_artifact_history(self, artifact_id):
         with self._conn() as conn:
             artifact_row = self._get_artifact_row(conn, artifact_id)

@@ -4,6 +4,9 @@ Evaluation Service – Pure HTTP service.
 Evaluates models against test datasets and stores metrics.
 """
 import os
+import sys
+import glob
+import subprocess
 import json
 import uuid
 import time
@@ -78,6 +81,15 @@ def store_memory(namespace, key, value):
     except:
         pass
 
+def _serving_checkpoint(core):
+    """What is serving now, from core's own pointer. Not guessed."""
+    try:
+        return json.load(open(os.path.join(core, "models",
+                                           "serving.json")))["checkpoint"]
+    except Exception:
+        return None
+
+
 def run_evaluation(eval_id, config):
     """Background thread that simulates evaluation."""
     job = eval_jobs.get(eval_id)
@@ -93,36 +105,86 @@ def run_evaluation(eval_id, config):
 
     log_to_audit(eval_id, "EVAL_START", f"Evaluating model {model_id} on {test_dataset}")
 
-    # Simulate evaluation steps
-    steps = 20
-    for step in range(steps):
-        if job.get("stop_requested", False):
-            job["status"] = "stopped"
-            job["stopped_at"] = datetime.now().isoformat()
-            save_jobs()
-            log_to_audit(eval_id, "EVAL_STOP", "Evaluation stopped by user")
-            return
-
-        # Simulate increasing metrics
-        progress = int((step + 1) / steps * 100)
-        job["progress"] = progress
-        job["metrics"] = {
-            "accuracy": 0.7 + 0.2 * (step / steps),
-            "f1": 0.65 + 0.25 * (step / steps),
-            "precision": 0.6 + 0.3 * (step / steps),
-            "recall": 0.55 + 0.35 * (step / steps),
-            "step": step
-        }
+    # REAL EVALUATION, DISPATCHED TO MYCELIAL-CORE.
+    #
+    # What was here counted to twenty with a sleep, interpolated four metrics
+    # upward, and finished on a hardcoded accuracy of 0.92 for ANY model on ANY
+    # dataset. A number that is the same whatever you evaluate is not a
+    # measurement; it is a decoration that survives every regression.
+    #
+    # The real scorer runs the checkpoint against HELD-OUT harness events the
+    # model has not seen, and its primary metric is BALANCED accuracy. Plain
+    # accuracy is the trap on this data: it is 87% denials, so a model that
+    # denies everything scores 0.875 and looks respectable. The first real
+    # checkpoint did exactly that - 0.875 decision accuracy, 0.500 balanced,
+    # allowed-recall ZERO.
+    core = os.environ.get("MYCELIAL_CORE", os.path.expanduser("~/mycelial-core"))
+    scorer = os.path.join(core, "training", "eval_checkpoint.py")
+    checkpoint = config.get("checkpoint") or _serving_checkpoint(core)
+    if not os.path.exists(scorer) or not checkpoint:
+        job["status"] = "failed"
+        job["error"] = (f"no scorer at {scorer} or no checkpoint given. "
+                        f"Evaluation is not simulated here any more, so a "
+                        f"missing model is a failed job rather than a 0.92.")
+        job["completed_at"] = datetime.now().isoformat()
         save_jobs()
-        time.sleep(0.3)
+        log_to_audit(eval_id, "EVAL_FAILED", job["error"][:200])
+        return
+
+    records = os.path.join(os.path.dirname(os.path.dirname(
+        os.path.dirname(os.path.abspath(__file__)))), "datasets", "security_eval")
+    cmd = [sys.executable, scorer, "--checkpoint", checkpoint,
+           "--records", records]
+    if config.get("promote"):
+        cmd.append("--promote")
+    job["command"] = " ".join(cmd)
+    job["progress"] = 10
+    save_jobs()
+    try:
+        proc = subprocess.run(cmd, cwd=core, capture_output=True, text=True,
+                              timeout=1800)
+    except Exception as exc:
+        job["status"] = "failed"
+        job["error"] = str(exc)[:300]
+        job["completed_at"] = datetime.now().isoformat()
+        save_jobs()
+        return
+
+    job["stdout_tail"] = (proc.stdout or "")[-1500:]
+    name = os.path.basename(checkpoint.rstrip("/"))
+    try:
+        result = json.load(open(os.path.join(core, "runs", f"eval-{name}.json")))
+    except Exception as exc:
+        job["status"] = "failed"
+        job["error"] = f"scorer wrote no result for {name}: {exc}"
+        job["completed_at"] = datetime.now().isoformat()
+        save_jobs()
+        return
+
+    new = result.get("new") or {}
+    job["progress"] = 100
+    job["verdict"] = result.get("verdict")
+    job["verdict_why"] = result.get("why")
+    job["metrics"] = {
+        "decision_accuracy": new.get("decision_accuracy"),
+        "register_accuracy": new.get("register_accuracy"),
+        "balanced_accuracy": new.get("balanced_accuracy"),
+        "per_class_recall": new.get("per_class_recall"),
+        "heldout": new.get("heldout"),
+    }
+    save_jobs()
 
     # Final metrics (simulated)
     final_metrics = {
-        "accuracy": 0.92,
-        "f1": 0.89,
-        "precision": 0.88,
-        "recall": 0.87,
-        "test_dataset": test_dataset,
+        "decision_accuracy": new.get("decision_accuracy"),
+        "register_accuracy": new.get("register_accuracy"),
+        # PRIMARY. See the note above - plain accuracy rewards the base rate.
+        "balanced_accuracy": new.get("balanced_accuracy"),
+        "per_class_recall": new.get("per_class_recall"),
+        "verdict": result.get("verdict"),
+        "promoted": result.get("verdict") in ("IMPROVED", "FIRST")
+                    and bool(config.get("promote")),
+        "test_dataset": "held-out harness events",
         "model_id": model_id,
         "timestamp": datetime.now().isoformat()
     }
