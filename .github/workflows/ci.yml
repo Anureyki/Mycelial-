@@ -68,3 +68,8 @@ jobs:
         # cannot. Both directions are proven: each detector on its own case,
         # and silence on normal operation.
         run: python tools/check_drift.py
+      - name: Account model is deterministic and admits what it does not know
+        # Two agents tracing one account must produce the same map, or the
+        # map is an opinion. An unverified entry must report itself
+        # incomplete rather than produce a confident one.
+        run: python tools/check_accounts.py

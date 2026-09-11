@@ -385,6 +385,34 @@ class AgentBase:
     # out Legal's token to whoever asked, while nobody could check.
     # ==================================================================
 
+    def trace_account(self, args=None):
+        """-> the four-layer map for an account. Same answer for every agent.
+
+        On the BASE CLASS because the model is cross-domain by construction:
+        Legal reads it to know who owes, Accounting to know whose books a
+        balance belongs on, Trust to know whether a thing called a trust has a
+        fiduciary. Putting the verb on one of them would make the other two ask
+        it for a lookup none of them owns.
+
+        It holds no rules. The layers live in
+        reference/_shared/account_layers.json, versioned and cited, so a
+        statute change is a data change - which is the whole reason the pattern
+        is a schema rather than branches in an agent."""
+        a = args if isinstance(args, dict) else {}
+        acct = a.get("account") or a.get("account_id") or (
+            args if isinstance(args, str) else None)
+        if not acct:
+            return {"error": "trace_account needs an account id",
+                    "absence_state": "nothing_found"}
+        try:
+            from core.account_model import trace
+            return trace(str(acct))
+        except Exception as e:
+            return {"account": acct, "error": str(e)[:200],
+                    "absence_state": "not_checked",
+                    "why": ("The account corpus could not be read. That is not "
+                            "a finding about the account - nothing was traced.")}
+
     def check_permission(self, resource, action="read", agent=None):
         """-> (allowed, reason). Interior. Denies whatever it cannot verify."""
         who = agent or self.agent_id
@@ -630,6 +658,9 @@ class AgentBase:
                     result = self.receive_finding(
                         (args or {}).get("kind"), (args or {}).get("payload") or {},
                         sender) if isinstance(args, dict) else None
+                elif task == "trace_account":
+                    result = self.trace_account(args if isinstance(args, dict)
+                                                else {"account": args})
                 elif task == "unhandled_findings":
                     result = self.unhandled_findings(
                         bool((args or {}).get("include_acted")) if isinstance(args, dict) else False)
