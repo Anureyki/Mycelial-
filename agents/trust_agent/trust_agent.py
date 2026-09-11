@@ -77,6 +77,8 @@ class TrustAgent(AgentBase):
             agent_id="trust_agent",
             port=9013,
             capabilities=[
+                "pulse",
+                "veto",
                 "assess_ilit",
                 "trust_scope",
                 "parse_trust_document", "assess_instrument", "model_trust_relationship", "lookup",
@@ -638,6 +640,275 @@ class TrustAgent(AgentBase):
                     "looking correct."),
         },
     }
+
+    # Works whose passages must never be cited AS the rule. Derived from the
+    # shelf's own claim_layer, not from a hand-list - a work re-ingested with a
+    # different layer changes this automatically.
+    NON_DOCTRINAL_LAYERS = ("explanatory", "normative", "mixed", "unknown")
+
+    def _corpus_layer(self, citation_or_term):
+        """What the corpus says about a cited work: which layer, which class.
+
+        Returns None when nothing on the shelf answers to that name, which is
+        itself a finding - a citation the agent cannot open supports nothing."""
+        try:
+            hits = self.lookup_reference(citation_or_term) or []
+        except Exception as exc:
+            self.log(f"_corpus_layer: {exc}")
+            return None
+
+        # A CITATION OFTEN NAMES THE WORK, NOT A SECTION OF IT.
+        #
+        # lookup_reference matches citations and indexed terms. Somebody citing
+        # "Express Trusts Under the Common Law" is naming the whole book, which
+        # matches no section citation and no doctrine term - so the agent
+        # reported it as absent from a shelf it is sitting on, and refused for
+        # the wrong reason. Being unable to open a work and being able to open
+        # it and finding it is advocacy are different findings with different
+        # fixes.
+        if not hits:
+            needle = re.sub(r'[^a-z0-9 ]', ' ', str(citation_or_term).lower())
+            needle = " ".join(needle.split())
+            if len(needle) >= 6:
+                import glob as _glob, json as _json, os as _os
+                root = _os.path.join(_os.path.expanduser("~/mycelial"),
+                                     "reference", self.agent_id)
+                for fp in _glob.glob(_os.path.join(root, "*.json")):
+                    try:
+                        doc = _json.load(open(fp, encoding="utf-8"))
+                    except Exception:
+                        continue
+                    title = re.sub(r'[^a-z0-9 ]', ' ', str(doc.get("title") or "").lower())
+                    title = " ".join(title.split())
+                    if not title:
+                        continue
+                    if needle in title or title.startswith(needle[:40]):
+                        return {"citation": doc.get("title"),
+                                "claim_layer": doc.get("claim_layer"),
+                                "claim_layer_meaning": doc.get("claim_layer_meaning"),
+                                "authority_class": doc.get("authority_class"),
+                                "matched_by": "document title",
+                                "integrity": None}
+            return None
+        h = hits[0] if isinstance(hits[0], dict) else {}
+        return {"citation": h.get("citation"),
+                "claim_layer": h.get("claim_layer"),
+                "claim_layer_meaning": h.get("claim_layer_meaning"),
+                "authority_class": h.get("authority_class"),
+                "integrity": (h.get("integrity") or {}).get("state")}
+
+    def _record_gate(self, verb, out, finding):
+        """Every refuse AND every pass leaves a trace.
+
+        A pass that is not recorded is indistinguishable afterwards from a
+        question nobody asked, which is the same shape as a referral that looks
+        filed and was dropped."""
+        try:
+            self.record_provenance_event(
+                f"trust_{verb}",
+                metadata={"verb": verb,
+                          "decision": out.get("decision"),
+                          "go_signal": out.get("go_signal"),
+                          "regime": out.get("regime"),
+                          "register": out.get("register"),
+                          "citation": out.get("citation"),
+                          "absence_state": out.get("absence_state"),
+                          "res": (finding or {}).get("res"),
+                          "forum": (finding or {}).get("forum")})
+            out["provenance_recorded"] = True
+        except Exception as exc:
+            out["provenance_recorded"] = False
+            out["provenance_error"] = str(exc)[:160]
+            self.log(f"trust {verb}: provenance not recorded: {exc}")
+        return out
+
+    def pulse(self, finding=None):
+        """Regime gate for trust action: forum, clock, freeze - read against the corpus.
+
+        Three conditions decide whether this agent may act now, and none of
+        them is about whether the position is sound:
+
+        FORUM, because trust administration is governed by the law of a
+        PARTICULAR jurisdiction and this shelf holds two that differ. Delaware
+        and Texas are both here precisely because they are not interchangeable,
+        so acting without naming one is acting under whichever the agent
+        happened to read.
+
+        THE CLOCK, because a limitation or repose period that has run is not
+        recoverable, and because an accounting that starts a period running is
+        an event with a date.
+
+        A FREEZE, because acting through a stay converts a procedural position
+        into a sanctionable act.
+
+        A finding that names no forum and no date returns `incomplete` and a
+        signal below the halt threshold. It is not a pass: nothing was
+        examined, and a gate that treats an empty finding as clear is worse
+        than no gate."""
+        f = finding if isinstance(finding, dict) else {}
+        reasons, signal, absence = [], 1.0, "verified_clear"
+        consulted = []
+
+        forum = str(f.get("forum") or f.get("jurisdiction") or "").strip()
+        if not forum:
+            signal, absence = min(signal, 0.2), "incomplete"
+            reasons.append(
+                "No forum or governing jurisdiction named. This shelf holds the Delaware "
+                "Statutory Trust Act and the Texas Trust Code, which differ - acting "
+                "without naming one means acting under whichever was read first.")
+        else:
+            hit = self._corpus_layer("venue") or self._corpus_layer("jurisdiction")
+            if hit:
+                consulted.append({"term": "venue/jurisdiction", **hit})
+            known = any(k in forum.lower() for k in ("delaware", "de", "texas", "tx"))
+            if not known:
+                signal = min(signal, 0.45)
+                absence = "incomplete" if absence == "verified_clear" else absence
+                reasons.append(
+                    f"Forum '{forum}' is named but no statute for it is on this shelf "
+                    f"(Delaware and Texas only). Reasoning would be by analogy from "
+                    f"another state's code, which is not the same as reading its own.")
+
+        dates = [k for k in ("date", "accrual_date", "breach_date", "accounting_date",
+                             "discovery_date") if f.get(k)]
+        if not dates:
+            signal = min(signal, 0.25)
+            absence = "incomplete" if absence in ("verified_clear",) else absence
+            reasons.append(
+                "No date on the finding. A limitation or repose period cannot be "
+                "computed from nothing, and a period that has run is not recoverable.")
+        else:
+            lim = self._corpus_layer("limitation") or self._corpus_layer("limitations")
+            if lim:
+                consulted.append({"term": "limitation", **lim})
+            days = self._parse_days(f)
+            if days is not None:
+                if days < 0:
+                    signal, absence = 0.0, "verified_clear"
+                    reasons.append(f"The period ran {abs(days)} days ago on the finding's "
+                                   f"own dates.")
+                elif days <= 30:
+                    signal = min(signal, 0.5)
+                    reasons.append(f"{days} days remain. Act, and verify the computation "
+                                   f"against the governing code rather than this estimate.")
+
+        if f.get("freeze") or f.get("stay") or f.get("injunction"):
+            signal, absence = 0.0, "verified_clear"
+            reasons.append("A stay, freeze or injunction is in effect. Acting through one "
+                           "converts a procedural position into a sanctionable act.")
+
+        regime = "hot" if signal >= 0.7 else "warm" if signal >= self.PULSE_HALT_BELOW else "cold"
+        out = {"go_signal": round(signal, 2), "regime": regime,
+               "reason": " ".join(reasons) or
+                         f"Forum '{forum}' named, dates present, no freeze on the record.",
+               "absence_state": absence,
+               "halts_new_actuation": signal < self.PULSE_HALT_BELOW,
+               "exits_still_run": True,
+               "implemented": True,
+               "corpus_consulted": consulted,
+               "forum": forum or None,
+               "dates_given": dates}
+        return self._record_gate("pulse", out, f)
+
+    def _parse_days(self, f):
+        """Days remaining on whatever period the finding itself states.
+
+        Deliberately does NOT infer a limitation period from the statute. The
+        code sections are on the shelf and are cited, but computing a
+        limitations deadline is the kind of answer that must come from a person
+        reading the provision against these facts - so this only arithmetic-checks
+        a period the FINDING supplies."""
+        try:
+            if f.get("days_remaining") is not None:
+                return int(f["days_remaining"])
+            start, period = f.get("accrual_date"), f.get("limitation_days")
+            if start and period:
+                t0 = datetime.fromisoformat(str(start)[:19])
+                return int(period) - (datetime.now() - t0).days
+        except Exception:
+            return None
+        return None
+
+    def veto(self, finding=None):
+        """Refuse a trust claim whose support the corpus contradicts.
+
+        Three registers, each a way a claim looks supported and is not:
+
+        NORMATIVE-AS-RULE. The shelf holds Chandler 1912, two papers written to
+        persuade a tax commissioner that the form is "superior". It is advocacy
+        and is tagged normative. Cited as though it stated the law, it is a
+        brief wearing a citation - and this is the exact confusion the
+        claim_layer axis was added for.
+
+        THEORY-AS-RULE. Sitkoff's economics papers explain WHY fiduciary rules
+        have their shape. A model that explains a rule is not evidence of the
+        rule, and the Cornell article is tagged mixed precisely because the
+        passage has to be read.
+
+        NO RES. An equitable claim runs against a specific thing. Without one
+        there is nothing for a remedy to attach to.
+
+        Leans refuse and never approves. A pass means no ground for refusal was
+        found among these registers, not that the claim is good."""
+        f = finding if isinstance(finding, dict) else {}
+        cites = f.get("citations") or f.get("authorities") or []
+        if isinstance(cites, str):
+            cites = [cites]
+        cited_as_rule = bool(f.get("cited_as_authority") or f.get("cited_as_rule")
+                             or f.get("asserts_rule"))
+
+        for c in cites:
+            info = self._corpus_layer(str(c))
+            if not info:
+                out = {"decision": "refuse", "register": "citation_not_in_corpus",
+                       "citation": "not_in_corpus",
+                       "reason": (f"'{c}' is cited and nothing on this shelf answers to it. "
+                                  f"A provision the agent cannot open cannot support "
+                                  f"anything - that is this system's rule for authority, "
+                                  f"applied to the works it actually holds."),
+                       "absence_state": "nothing_found", "implemented": True}
+                return self._record_gate("veto", out, f)
+            layer = info.get("claim_layer")
+            if layer in self.NON_DOCTRINAL_LAYERS and (cited_as_rule or layer in
+                                                       ("normative", "explanatory")):
+                reg = ("normative_cited_as_rule" if layer == "normative" else
+                       "theory_cited_as_rule" if layer == "explanatory" else
+                       "unclassified_cited_as_rule" if layer in (None, "unknown") else
+                       "mixed_layer_needs_reading")
+                out = {"decision": "refuse", "register": reg,
+                       "citation": f"{info.get('citation')}, {layer}",
+                       "reason": (f"'{c}' is on the shelf with claim_layer {layer}. "
+                                  f"{info.get('claim_layer_meaning') or ''} "
+                                  f"Citing it as a statement of law is citing "
+                                  f"{'an argument' if layer == 'normative' else 'a model'} "
+                                  f"as though it were the rule.").strip(),
+                       "absence_state": "verified_clear", "implemented": True,
+                       "corpus_consulted": [info]}
+                return self._record_gate("veto", out, f)
+
+        if str(f.get("claim_type") or "").lower() in ("equity", "equitable", "constructive_trust",
+                                                      "resulting_trust", "tracing"):
+            if not (f.get("res") or f.get("property") or f.get("account")):
+                out = {"decision": "refuse", "register": "no_res_for_equity_claim",
+                       "citation": "not_in_corpus",
+                       "reason": ("An equitable claim runs against a SPECIFIC thing - a "
+                                  "described property, an identified account, a traced "
+                                  "fund. None is named, so there is nothing for a remedy "
+                                  "to attach to and nothing for the other side to answer."),
+                       "absence_state": "nothing_found", "implemented": True}
+                return self._record_gate("veto", out, f)
+
+        out = {"decision": "pass", "register": "trust",
+               "citation": "not_in_corpus",
+               "reason": ("No ground for refusal found among the registers checked: "
+                          "normative-as-rule, theory-as-rule, uncitable authority, and "
+                          "an equity claim with no res. This is not an endorsement."),
+               "absence_state": "verified_clear" if (cites or f.get("claim_type"))
+                                else "not_checked",
+               "implemented": True,
+               "registers_checked": ["normative_cited_as_rule", "theory_cited_as_rule",
+                                     "citation_not_in_corpus", "no_res_for_equity_claim"]}
+        return self._record_gate("veto", out, f)
 
     def assess_ilit(self, args=None):
         """Check an ILIT against the four things that decide whether it works.
