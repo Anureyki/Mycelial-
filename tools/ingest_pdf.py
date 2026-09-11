@@ -268,6 +268,13 @@ def main():
     ap.add_argument("--source", required=True,
                     help="Provenance and rights, recorded with every section and shown to the model")
     ap.add_argument("--out-dir", default=None)
+    ap.add_argument("--authority-class", default=None,
+                    choices=["federal_statute", "state_statute", "regulation",
+                             "court_rules", "agency_guidance", "treatise", "unknown"],
+                    help="How this work should be WEIGHED. Required unless --treatise "
+                         "implies it. See CLAUDE.md: the claim pipeline weighs whatever "
+                         "it can open as potentially governing, so a work with no class "
+                         "is a commentary that can be read as law.")
     ap.add_argument("--treatise", action="store_true",
                     help="Work has no numbered sections: key by printed page and "
                          "index the authorities each passage cites")
@@ -312,15 +319,49 @@ def main():
     # by subject, not less - nobody looks a duty up by section number they do
     # not already know.
     terms = index_terms(sections)
+    # AUTHORITY CLASS IS NOT OPTIONAL.
+    #
+    # This tool wrote none at all. A licensed treatise went onto the shelf with
+    # authority_class: None, and CLAUDE.md is explicit that the claim pipeline
+    # weighs whatever it can OPEN as potentially governing - so scholarly
+    # commentary describing the Restatements would have been scored as though
+    # it stated them. That is the exact failure the field exists to prevent,
+    # produced by the tool that fills the shelf.
+    #
+    # For a statute or regulation the title IS the citation and fixes the class
+    # definitionally. Anything else must be read, or stay unknown.
+    ac = args.authority_class or ("treatise" if args.treatise else None)
+    if ac is None:
+        t = args.title.lower()
+        if re.search(r'\bu\.?s\.?c\.?\b|\bact of \d{4}\b', t):
+            ac, basis = "federal_statute", "title states a U.S. Code citation - definitional"
+        elif re.search(r'\bcfr\b|regulation [a-z]\b', t):
+            ac, basis = "regulation", "title states a CFR part - definitional"
+        else:
+            ac, basis = "unknown", ("Not derivable from the title, and --authority-class "
+                                    "was not given. UNKNOWN is the honest value; a guess "
+                                    "here launders an assumption into the field the "
+                                    "reasoning layer trusts.")
+    else:
+        basis = (f"--authority-class {ac}" if args.authority_class
+                 else "--treatise: scholarly commentary, describes the law without stating it")
+
     doc = {"title": args.title, "source": args.source,
+           "authority_class": ac,
+           "authority_class_basis": basis,
            "authorities_cited": authorities,
            "term_index": terms,
            "origin_pdf": os.path.basename(args.pdf),
            "pages": total, "sections": sections}
+    for _s in sections:
+        _s.setdefault("authority_class", ac)
     with open(out, "w") as fh:
         json.dump(doc, fh, indent=0)
 
     print(f"  {len(sections)} citation-addressable sections -> {out}")
+    print(f"  authority_class: {ac}  ({basis[:70]})")
+    if ac == "unknown":
+        print("  ^ NOTHING may cite this as governing until the class is set.")
     if authorities:
         print(f"  {len(authorities)} distinct authorities indexed as lookup terms")
     if terms:
