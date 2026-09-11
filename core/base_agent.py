@@ -1086,6 +1086,13 @@ class AgentBase:
                          # BUILDERS - this file already records what happens when
                          # only one of them is fixed.
                          "evidence_grade": s.get("evidence_grade"),
+                         # BOTH builders, deliberately. CLAUDE.md records this exact file
+                         # building entries in two places with only one patched, so a
+                         # section reached by citation carried its state and the same
+                         # section reached by subject term did not - and which one a
+                         # caller got depended on how they happened to ask.
+                         "claim_layer": s.get("claim_layer"),
+                         "claim_layer_meaning": s.get("claim_layer_meaning"),
                          "truncated": s.get("truncated"),
                          "full_length": s.get("full_length"),
                          "text": s.get("text", "")}
@@ -1135,6 +1142,13 @@ class AgentBase:
                              # BUILDERS - this file already records what happens when
                              # only one of them is fixed.
                              "evidence_grade": s.get("evidence_grade"),
+                             # BOTH builders, deliberately. CLAUDE.md records this exact file
+                             # building entries in two places with only one patched, so a
+                             # section reached by citation carried its state and the same
+                             # section reached by subject term did not - and which one a
+                             # caller got depended on how they happened to ask.
+                             "claim_layer": s.get("claim_layer"),
+                             "claim_layer_meaning": s.get("claim_layer_meaning"),
                              "truncated": s.get("truncated"),
                              "full_length": s.get("full_length"),
                              "text": s.get("text", "")})
@@ -1503,13 +1517,43 @@ class AgentBase:
                 continue
             e = dict(e)
             e["integrity"] = source_integrity.read(e)
+            notes = []
             note = source_integrity.caution(e)
             if note:
                 e["caution"] = note
+                notes.append(note)
+
+            # WHAT KIND OF CLAIM THIS PASSAGE MAKES, surfaced the same way and
+            # for the same reason.
+            #
+            # authority_class says how much FORCE a work has. It does not say
+            # whether the passage states a rule, explains why the rule exists,
+            # or argues what the rule should be - and three works shelved
+            # together, all authority_class treatise, came back identical at the
+            # point of citation. One described the Restatements; one was an
+            # economic model of why fiduciary law has its shape; one argued what
+            # it ought to be. An agent citing the second as though it were the
+            # first produces a confident wrong answer, and nothing in the
+            # returned object could have stopped it.
+            layer = e.get("claim_layer")
+            if layer and layer != "doctrinal":
+                meaning = e.get("claim_layer_meaning") or ""
+                warn = (f"CLAIM LAYER: {layer}. {meaning}").strip()
+                e["claim_caution"] = warn
+                notes.append(warn)
+            elif not layer:
+                e["claim_caution"] = (
+                    "CLAIM LAYER: unrecorded. Whether this passage states a rule, "
+                    "explains one, or argues for one was never declared at ingest - "
+                    "so it must not be cited as a statement of law on the strength of "
+                    "being in the corpus.")
+                notes.append(e["claim_caution"])
+
+            if notes:
                 # In the text itself, because a caller that reads `text` and
                 # nothing else is the normal case and must not be able to miss
                 # it. A flag in a sibling field is a flag nobody sees.
-                e["text"] = f"[{note}]\n\n" + str(e.get("text") or "")
+                e["text"] = "".join(f"[{n}]\n\n" for n in notes) + str(e.get("text") or "")
             out.append(e)
         return out
 

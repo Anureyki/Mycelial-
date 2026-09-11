@@ -368,6 +368,14 @@ def main():
     ap.add_argument("--source", required=True,
                     help="Provenance and rights, recorded with every section and shown to the model")
     ap.add_argument("--out-dir", default=None)
+    ap.add_argument("--claim-layer", default=None,
+                    choices=["doctrinal", "explanatory", "normative", "mixed", "unknown"],
+                    help="WHAT KIND OF CLAIM the work makes, which is a different axis "
+                         "from authority_class. doctrinal = states or describes the rule. "
+                         "explanatory = theory about WHY the rule has its shape. "
+                         "normative = argues what the rule SHOULD be. mixed = carries more "
+                         "than one and the passage must be read to tell. Two works can both "
+                         "be authority_class treatise and be these three different things.")
     ap.add_argument("--authority-class", default=None,
                     choices=["federal_statute", "state_statute", "regulation",
                              "court_rules", "agency_guidance", "treatise", "unknown"],
@@ -446,20 +454,51 @@ def main():
         basis = (f"--authority-class {ac}" if args.authority_class
                  else "--treatise: scholarly commentary, describes the law without stating it")
 
+    # CLAIM LAYER: a second axis, because authority_class cannot carry this.
+    #
+    # Three works by the same author were shelved together, all
+    # authority_class treatise, and a passage from each came back looking
+    # identical at the point of citation. One DESCRIBES the rule as the
+    # Restatements state it; one is an economic model of WHY the rule has its
+    # shape; one ARGUES what the rule should be. Citing the second as though it
+    # were the first is how a confident citation becomes a wrong one, and
+    # nothing in the returned object distinguished them.
+    cl = args.claim_layer or ("unknown" if not args.treatise else "unknown")
+    CL_MEANING = {
+        "doctrinal":   "States or describes the rule. Cite for what the law IS.",
+        "explanatory": ("A theory about WHY the rule has its shape. NOT evidence of the "
+                        "rule. Cite for rationale, never for content."),
+        "normative":   ("Argues what the rule SHOULD be. An argument, not a statement of "
+                        "law, and the fact that it is well made is not authority."),
+        "mixed":       ("Carries more than one layer. The PASSAGE has to be read to tell "
+                        "which - the document-level label cannot."),
+        "unknown":     ("Not declared at ingest. Treat any citation from here as "
+                        "unclassified: it may be rationale rather than rule."),
+    }
+
     doc = {"title": args.title, "source": args.source,
            "authority_class": ac,
            "authority_class_basis": basis,
+           "claim_layer": cl,
+           "claim_layer_meaning": CL_MEANING[cl],
            "authorities_cited": authorities,
            "term_index": terms,
            "origin_pdf": os.path.basename(args.pdf),
            "pages": total, "sections": sections}
     for _s in sections:
         _s.setdefault("authority_class", ac)
+        # Stamped on the SECTION, because a passage is what gets cited and a
+        # header nobody reads is not a warning.
+        _s.setdefault("claim_layer", cl)
+        _s.setdefault("claim_layer_meaning", CL_MEANING[cl])
     with open(out, "w") as fh:
         json.dump(doc, fh, indent=0)
 
     print(f"  {len(sections)} citation-addressable sections -> {out}")
     print(f"  authority_class: {ac}  ({basis[:70]})")
+    print(f"  claim_layer: {cl}  ({CL_MEANING[cl][:66]})")
+    if cl == "unknown":
+        print("  ^ pass --claim-layer, or every citation from this work is unclassified.")
     if ac == "unknown":
         print("  ^ NOTHING may cite this as governing until the class is set.")
     if authorities:

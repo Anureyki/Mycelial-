@@ -1,8 +1,10 @@
 {
 "title": "Sitkoff, The Economic Structure of Fiduciary Law (Harvard Olin Discussion Paper 689, 2011)",
-"source": "Robert H. Sitkoff, 'The Economic Structure of Fiduciary Law', Harvard John M. Olin Center, Discussion Paper 689 (March 2011), 13pp. FREELY DISTRIBUTABLE per its cover page. ROLE: ECONOMIC THEORY, NOT DOCTRINE - restates the contractarian model (Cooter & Freedman 1991; Easterbrook & Fischel 1993), explaining WHY fiduciary law has its shape. A model that explains a rule is not evidence of the rule.",
+"source": "Robert H. Sitkoff, Harvard John M. Olin Center Discussion Paper 689 (2011), 13pp. FREELY DISTRIBUTABLE. EXPLANATORY: restates the contractarian economic model (Cooter & Freedman 1991; Easterbrook & Fischel 1993) to explain WHY fiduciary law has its shape. Not evidence of any rule.",
 "authority_class": "treatise",
 "authority_class_basis": "--treatise: scholarly commentary, describes the law without stating it",
+"claim_layer": "explanatory",
+"claim_layer_meaning": "A theory about WHY the rule has its shape. NOT evidence of the rule. Cite for rationale, never for content.",
 "authorities_cited": [
 "Judge Cardozo in Meinhard v. Salmon",
 "Lonergan v. EPE",
@@ -23,43 +25,9 @@
 1,
 2
 ],
-"accessible synthesis": [
-1,
-3
-],
-"institutions generally": [
-1,
-3
-],
-"together have come": [
-1,
-2
-],
-"motivates those papers": [
-1,
-3
-],
 "fischel which together": [
 1,
 2
-],
-"economic contractarian": [
-1,
-2
-],
-"passed since": [
-1,
-2
-],
-"further developing": [
-1,
-3
-],
-"economic theory": [
-1,
-2,
-3,
-12
 ],
 "legal institutions": [
 1,
@@ -69,15 +37,25 @@
 1,
 2
 ],
-"matured further developing": [
+"economic theory": [
+1,
+2,
+3,
+12
+],
+"contractarian model": [
+1,
+2
+],
+"matured further": [
 1,
 3
 ],
-"previously applied": [
+"accessible synthesis": [
 1,
 3
 ],
-"decades have passed": [
+"together have come": [
 1,
 2
 ],
@@ -85,9 +63,37 @@
 1,
 2
 ],
-"contractarian model": [
+"institutions generally": [
+1,
+3
+],
+"further developing": [
+1,
+3
+],
+"economic contractarian": [
 1,
 2
+],
+"matured further developing": [
+1,
+3
+],
+"decades have passed": [
+1,
+2
+],
+"motivates those papers": [
+1,
+3
+],
+"passed since": [
+1,
+2
+],
+"previously applied": [
+1,
+3
 ],
 "economics movement": [
 1,
@@ -97,16 +103,25 @@
 1,
 3
 ],
-"matured further": [
-1,
-3
+"john langbein": [
+2,
+5
 ],
-"agency problem": [
+"fiduciary relationships": [
 2,
 3,
-4,
-5,
-8
+10,
+11
+],
+"fiduciary relationship": [
+2,
+9,
+10,
+12
+],
+"tamar frankel": [
+2,
+3
 ],
 "boston university": [
 2,
@@ -116,64 +131,9 @@
 9,
 11
 ],
-"good faith": [
+"easterbrook daniel": [
 2,
-9,
-11,
-12
-],
-"fiduciary duties": [
-2,
-3,
-6,
-8,
-9,
-10,
-11,
-12
-],
-"disempowerment strategy": [
-2,
-5
-],
-"jonathan klick": [
-2,
-3
-],
-"fiduciary relationship": [
-2,
-9,
-10,
-12
-],
-"fiduciary governance strategy": [
-2,
-5,
-8
-],
-"governance strategy": [
-2,
-5,
-8
-],
-"agency costs": [
-2,
-3,
-5
-],
-"fiduciary relationships": [
-2,
-3,
-10,
-11
-],
-"tamar frankel": [
-2,
-3
-],
-"john langbein": [
-2,
-5
+4
 ],
 "fiduciary obligation": [
 2,
@@ -185,8 +145,49 @@
 9,
 11
 ],
+"disempowerment strategy": [
+2,
+5
+],
+"fiduciary duties": [
+2,
+3,
+6,
+8,
+9,
+10,
+11,
+12
+],
 "fiduciary governance": [
 2,
+5,
+8
+],
+"agency costs": [
+2,
+3,
+5
+],
+"governance strategy": [
+2,
+5,
+8
+],
+"fiduciary duty": [
+2,
+3,
+9
+],
+"fiduciary governance strategy": [
+2,
+5,
+8
+],
+"agency problem": [
+2,
+3,
+4,
 5,
 8
 ],
@@ -197,49 +198,24 @@
 9,
 12
 ],
-"fiduciary duty": [
+"good faith": [
 2,
-3,
-9
+9,
+11,
+12
 ],
-"easterbrook daniel": [
+"jonathan klick": [
 2,
-4
+3
+],
+"another person": [
+3,
+10
 ],
 "agency theory": [
 3,
 4,
 12
-],
-"agent will": [
-3,
-4
-],
-"principal cannot": [
-3,
-5,
-9
-],
-"corporate control": [
-3,
-6
-],
-"agency problems": [
-3,
-5,
-7
-],
-"satisfactory answer": [
-3,
-4
-],
-"principal agency": [
-3,
-12
-],
-"another person": [
-3,
-10
 ],
 "incomplete contracting": [
 3,
@@ -249,17 +225,39 @@
 3,
 4
 ],
+"agency problems": [
+3,
+5,
+7
+],
+"corporate control": [
+3,
+6
+],
+"satisfactory answer": [
+3,
+4
+],
+"principal agency": [
+3,
+12
+],
+"agent will": [
+3,
+4
+],
 "principal agent": [
 3,
 4
 ],
+"principal cannot": [
+3,
+5,
+9
+],
 "particular contingency": [
 4,
 9
-],
-"specialized skills": [
-4,
-6
 ],
 "supra note": [
 4,
@@ -269,11 +267,56 @@
 10,
 11
 ],
+"specialized skills": [
+4,
+6
+],
+"strategy over": [
+5,
+8
+],
+"reinier kraakman": [
+5,
+10
+],
+"hansmann reinier kraakman": [
+5,
+10
+],
+"discretionary powers": [
+5,
+6
+],
 "agent must exercise": [
 5,
 6
 ],
-"discretionary powers": [
+"given broad": [
+5,
+6
+],
+"given broad discretionary": [
+5,
+6
+],
+"best interests": [
+5,
+6,
+9
+],
+"hansmann reinier": [
+5,
+10
+],
+"broad discretionary": [
+5,
+6
+],
+"henry hansmann": [
+5,
+10
+],
+"broad discretionary powers": [
 5,
 6
 ],
@@ -287,48 +330,11 @@
 5,
 10
 ],
-"best interests": [
-5,
+"disgorgement remedy": [
 6,
-9
+12
 ],
-"given broad": [
-5,
-6
-],
-"broad discretionary powers": [
-5,
-6
-],
-"strategy over": [
-5,
-8
-],
-"henry hansmann": [
-5,
-10
-],
-"reinier kraakman": [
-5,
-10
-],
-"hansmann reinier kraakman": [
-5,
-10
-],
-"hansmann reinier": [
-5,
-10
-],
-"given broad discretionary": [
-5,
-6
-],
-"broad discretionary": [
-5,
-6
-],
-"material facts": [
+"self dealing": [
 6,
 9
 ],
@@ -336,13 +342,8 @@
 6,
 7
 ],
-"trusts restatement": [
+"material facts": [
 6,
-7
-],
-"corporate governance analysis": [
-6,
-7,
 9
 ],
 "restatement third": [
@@ -352,10 +353,6 @@
 10,
 11
 ],
-"prudent person": [
-6,
-7
-],
 "estatement third": [
 6,
 7,
@@ -363,17 +360,18 @@
 10,
 11
 ],
-"agency principles": [
-6,
-7
-],
-"disgorgement remedy": [
-6,
-12
-],
-"self dealing": [
+"substantive safeguards": [
 6,
 9
+],
+"corporate governance analysis": [
+6,
+7,
+9
+],
+"trusts restatement": [
+6,
+7
 ],
 "governance analysis": [
 6,
@@ -381,15 +379,20 @@
 8,
 9
 ],
-"substantive safeguards": [
+"agency principles": [
 6,
-9
+7
 ],
-"implementing rules": [
+"prudent person": [
+6,
+7
+],
+"economic analysis": [
 7,
-8
+9,
+12
 ],
-"specific rules": [
+"open ended": [
 7,
 8
 ],
@@ -397,16 +400,15 @@
 7,
 8
 ],
-"open ended": [
+"error costs": [
 7,
 8
 ],
-"economic analysis": [
+"specific rules": [
 7,
-9,
-12
+8
 ],
-"error costs": [
+"implementing rules": [
 7,
 8
 ],
@@ -419,7 +421,15 @@
 10,
 11
 ],
+"external categorization": [
+9,
+10
+],
 "niform trust": [
+9,
+11
+],
+"mandatory rules": [
 9,
 11
 ],
@@ -427,27 +437,7 @@
 9,
 11
 ],
-"uniform power": [
-9,
-11
-],
-"categorization function": [
-9,
-10
-],
-"external categorization": [
-9,
-10
-],
 "third parties": [
-9,
-10
-],
-"mandatory rules": [
-9,
-11
-],
-"internal protective": [
 9,
 10
 ],
@@ -456,9 +446,21 @@
 10,
 11
 ],
+"uniform power": [
+9,
+11
+],
 "trust code": [
 9,
 11
+],
+"categorization function": [
+9,
+10
+],
+"internal protective": [
+9,
+10
 ],
 "cautionary function": [
 9,
@@ -468,15 +470,15 @@
 9,
 10
 ],
-"liability companies": [
-10,
-11
-],
 "limited liability companies": [
 10,
 11
 ],
 "limited liability": [
+10,
+11
+],
+"liability companies": [
 10,
 11
 ],
@@ -505,12 +507,14 @@
 "integrity": {
 "state": "complete",
 "basis": "Full retrieved body of 464 characters stored; under the 60,000 cap, so nothing was cut.",
-"stamped_at": "2026-09-11T02:53:17",
+"stamped_at": "2026-09-11T03:08:25",
 "stored_chars": 464,
 "source_chars": 464,
 "cap_applied": 60000
 },
-"authority_class": "treatise"
+"authority_class": "treatise",
+"claim_layer": "explanatory",
+"claim_layer_meaning": "A theory about WHY the rule has its shape. NOT evidence of the rule. Cite for rationale, never for content."
 },
 {
 "citation": "p. 2",
@@ -521,12 +525,14 @@
 "integrity": {
 "state": "complete",
 "basis": "Full retrieved body of 822 characters stored; under the 60,000 cap, so nothing was cut.",
-"stamped_at": "2026-09-11T02:53:17",
+"stamped_at": "2026-09-11T03:08:25",
 "stored_chars": 822,
 "source_chars": 822,
 "cap_applied": 60000
 },
-"authority_class": "treatise"
+"authority_class": "treatise",
+"claim_layer": "explanatory",
+"claim_layer_meaning": "A theory about WHY the rule has its shape. NOT evidence of the rule. Cite for rationale, never for content."
 },
 {
 "citation": "p. 3",
@@ -537,12 +543,14 @@
 "integrity": {
 "state": "complete",
 "basis": "Full retrieved body of 3,054 characters stored; under the 60,000 cap, so nothing was cut.",
-"stamped_at": "2026-09-11T02:53:17",
+"stamped_at": "2026-09-11T03:08:25",
 "stored_chars": 3054,
 "source_chars": 3054,
 "cap_applied": 60000
 },
-"authority_class": "treatise"
+"authority_class": "treatise",
+"claim_layer": "explanatory",
+"claim_layer_meaning": "A theory about WHY the rule has its shape. NOT evidence of the rule. Cite for rationale, never for content."
 },
 {
 "citation": "p. 4",
@@ -553,12 +561,14 @@
 "integrity": {
 "state": "complete",
 "basis": "Full retrieved body of 3,566 characters stored; under the 60,000 cap, so nothing was cut.",
-"stamped_at": "2026-09-11T02:53:17",
+"stamped_at": "2026-09-11T03:08:25",
 "stored_chars": 3566,
 "source_chars": 3566,
 "cap_applied": 60000
 },
-"authority_class": "treatise"
+"authority_class": "treatise",
+"claim_layer": "explanatory",
+"claim_layer_meaning": "A theory about WHY the rule has its shape. NOT evidence of the rule. Cite for rationale, never for content."
 },
 {
 "citation": "p. 5",
@@ -569,12 +579,14 @@
 "integrity": {
 "state": "complete",
 "basis": "Full retrieved body of 3,130 characters stored; under the 60,000 cap, so nothing was cut.",
-"stamped_at": "2026-09-11T02:53:17",
+"stamped_at": "2026-09-11T03:08:25",
 "stored_chars": 3130,
 "source_chars": 3130,
 "cap_applied": 60000
 },
-"authority_class": "treatise"
+"authority_class": "treatise",
+"claim_layer": "explanatory",
+"claim_layer_meaning": "A theory about WHY the rule has its shape. NOT evidence of the rule. Cite for rationale, never for content."
 },
 {
 "citation": "p. 6",
@@ -585,12 +597,14 @@
 "integrity": {
 "state": "complete",
 "basis": "Full retrieved body of 2,979 characters stored; under the 60,000 cap, so nothing was cut.",
-"stamped_at": "2026-09-11T02:53:17",
+"stamped_at": "2026-09-11T03:08:25",
 "stored_chars": 2979,
 "source_chars": 2979,
 "cap_applied": 60000
 },
-"authority_class": "treatise"
+"authority_class": "treatise",
+"claim_layer": "explanatory",
+"claim_layer_meaning": "A theory about WHY the rule has its shape. NOT evidence of the rule. Cite for rationale, never for content."
 },
 {
 "citation": "p. 7",
@@ -603,12 +617,14 @@
 "integrity": {
 "state": "complete",
 "basis": "Full retrieved body of 3,495 characters stored; under the 60,000 cap, so nothing was cut.",
-"stamped_at": "2026-09-11T02:53:17",
+"stamped_at": "2026-09-11T03:08:25",
 "stored_chars": 3495,
 "source_chars": 3495,
 "cap_applied": 60000
 },
-"authority_class": "treatise"
+"authority_class": "treatise",
+"claim_layer": "explanatory",
+"claim_layer_meaning": "A theory about WHY the rule has its shape. NOT evidence of the rule. Cite for rationale, never for content."
 },
 {
 "citation": "p. 8",
@@ -619,12 +635,14 @@
 "integrity": {
 "state": "complete",
 "basis": "Full retrieved body of 3,314 characters stored; under the 60,000 cap, so nothing was cut.",
-"stamped_at": "2026-09-11T02:53:17",
+"stamped_at": "2026-09-11T03:08:25",
 "stored_chars": 3314,
 "source_chars": 3314,
 "cap_applied": 60000
 },
-"authority_class": "treatise"
+"authority_class": "treatise",
+"claim_layer": "explanatory",
+"claim_layer_meaning": "A theory about WHY the rule has its shape. NOT evidence of the rule. Cite for rationale, never for content."
 },
 {
 "citation": "p. 9",
@@ -635,12 +653,14 @@
 "integrity": {
 "state": "complete",
 "basis": "Full retrieved body of 3,028 characters stored; under the 60,000 cap, so nothing was cut.",
-"stamped_at": "2026-09-11T02:53:17",
+"stamped_at": "2026-09-11T03:08:25",
 "stored_chars": 3028,
 "source_chars": 3028,
 "cap_applied": 60000
 },
-"authority_class": "treatise"
+"authority_class": "treatise",
+"claim_layer": "explanatory",
+"claim_layer_meaning": "A theory about WHY the rule has its shape. NOT evidence of the rule. Cite for rationale, never for content."
 },
 {
 "citation": "p. 10",
@@ -651,12 +671,14 @@
 "integrity": {
 "state": "complete",
 "basis": "Full retrieved body of 3,497 characters stored; under the 60,000 cap, so nothing was cut.",
-"stamped_at": "2026-09-11T02:53:17",
+"stamped_at": "2026-09-11T03:08:25",
 "stored_chars": 3497,
 "source_chars": 3497,
 "cap_applied": 60000
 },
-"authority_class": "treatise"
+"authority_class": "treatise",
+"claim_layer": "explanatory",
+"claim_layer_meaning": "A theory about WHY the rule has its shape. NOT evidence of the rule. Cite for rationale, never for content."
 },
 {
 "citation": "p. 11",
@@ -669,12 +691,14 @@
 "integrity": {
 "state": "complete",
 "basis": "Full retrieved body of 3,582 characters stored; under the 60,000 cap, so nothing was cut.",
-"stamped_at": "2026-09-11T02:53:17",
+"stamped_at": "2026-09-11T03:08:25",
 "stored_chars": 3582,
 "source_chars": 3582,
 "cap_applied": 60000
 },
-"authority_class": "treatise"
+"authority_class": "treatise",
+"claim_layer": "explanatory",
+"claim_layer_meaning": "A theory about WHY the rule has its shape. NOT evidence of the rule. Cite for rationale, never for content."
 },
 {
 "citation": "p. 12",
@@ -687,12 +711,14 @@
 "integrity": {
 "state": "complete",
 "basis": "Full retrieved body of 3,365 characters stored; under the 60,000 cap, so nothing was cut.",
-"stamped_at": "2026-09-11T02:53:17",
+"stamped_at": "2026-09-11T03:08:25",
 "stored_chars": 3365,
 "source_chars": 3365,
 "cap_applied": 60000
 },
-"authority_class": "treatise"
+"authority_class": "treatise",
+"claim_layer": "explanatory",
+"claim_layer_meaning": "A theory about WHY the rule has its shape. NOT evidence of the rule. Cite for rationale, never for content."
 },
 {
 "citation": "p. 13",
@@ -703,12 +729,14 @@
 "integrity": {
 "state": "complete",
 "basis": "Full retrieved body of 2,353 characters stored; under the 60,000 cap, so nothing was cut.",
-"stamped_at": "2026-09-11T02:53:17",
+"stamped_at": "2026-09-11T03:08:25",
 "stored_chars": 2353,
 "source_chars": 2353,
 "cap_applied": 60000
 },
-"authority_class": "treatise"
+"authority_class": "treatise",
+"claim_layer": "explanatory",
+"claim_layer_meaning": "A theory about WHY the rule has its shape. NOT evidence of the rule. Cite for rationale, never for content."
 }
 ]
 }
