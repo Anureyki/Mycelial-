@@ -29,6 +29,7 @@ step "check_routing"                 "$PY" tools/check_routing.py
 step "check_sandbox"                 "$PY" tools/check_sandbox.py
 step "check_acl"                     "$PY" tools/check_acl.py
 step "check_eval"                    "$PY" tools/check_eval.py
+step "check_drift"                   "$PY" tools/check_drift.py
 echo
 if [ "$rc" -eq 0 ]; then echo "ALL GREEN - this is what CI will see."
 else echo "RED - do not claim the build passes."; fi

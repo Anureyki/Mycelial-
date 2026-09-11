@@ -15,7 +15,8 @@
     "quarantine",
     "eliminate",
     "list_pending_approvals",
-    "scan_codebase"
+    "scan_codebase",
+    "drift_scan"
   ],
   "endpoint": "/execute",
   "port": 9010,

@@ -31,7 +31,7 @@ class SecurityAgent(AgentBase):
                           "flag_finding", "list_findings", "resolve_finding",
                           "check_guard", "reload_guards", "quarantine", "eliminate",
                           "list_pending_approvals",
-                          "scan_codebase"],
+                          "scan_codebase", "drift_scan"],
             role="security"
         )
         self.tokens = {}  # simple in-memory token store (persist later)
@@ -312,7 +312,36 @@ class SecurityAgent(AgentBase):
             "next": "call list_findings to review, then resolve_finding to mark as handled",
         }
 
+    def drift_scan(self, args=None):
+        """-> the drift monitor's findings, for the dashboard card.
+
+        SECURITY HOLDS THIS VERB because the monitor watches an interior
+        boundary and Security is the interior guard. It DETECTS ONLY - nothing
+        here revokes a grant or halts an agent, and that restraint is the
+        design. A monitor that acted on its own findings would be an authority
+        nobody granted, and one false positive would take a department offline.
+        It raises; a person decides."""
+        try:
+            from core.drift_monitor import scan
+            out = scan(**(args if isinstance(args, dict) else {}))
+        except Exception as e:
+            # An unreachable monitor is NOT an all-clear. Those must not look
+            # the same on a dashboard.
+            return {"status": "unknown", "alerts": [],
+                    "error": str(e)[:200],
+                    "why": ("The drift monitor could not run. This is not a "
+                            "clean scan - nothing was checked.")}
+        sev = [a.get("severity") for a in out.get("alerts") or []]
+        out["status"] = ("critical" if "critical" in sev
+                         else "alert" if sev else "clear")
+        out["headline"] = (f"{len(sev)} drift alert(s)" if sev
+                           else "no drift detected")
+        return out
+
     def handle_task(self, task, args, sender):
+        if task == "drift_scan":
+            return self.drift_scan(args if isinstance(args, dict) else {})
+
         if task == "issue_token":
             agent_id = args.get("agent_id")
             bootstrap_secret = args.get("bootstrap_secret")

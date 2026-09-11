@@ -15,7 +15,8 @@
     "quarantine",
     "reload_guards",
     "resolve_finding",
-    "scan_codebase"
+    "scan_codebase",
+    "drift_scan"
   ],
   "entry_point": "agents.security_agent.security_agent:main",
   "description": "Authorizes every inbound /execute against config/guards.json",

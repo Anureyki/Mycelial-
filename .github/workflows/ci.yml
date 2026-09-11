@@ -63,3 +63,8 @@ jobs:
         # left the call written, and the observer swallows exceptions. So
         # this makes a real decision and looks for the record.
         run: python tools/check_eval.py
+      - name: Drift monitor detects, and stays quiet when it should
+        # A monitor that has never fired is indistinguishable from one that
+        # cannot. Both directions are proven: each detector on its own case,
+        # and silence on normal operation.
+        run: python tools/check_drift.py

@@ -998,6 +998,41 @@ fails quietly.** Absence of a detected problem is not evidence of its absence.
    `ci.yml` and not to the script turns the script into the same lie in a
    shorter form.
 
+## The drift monitor watches the model, not its answers
+
+The harness observes **decisions**. The eval gate judges **checkpoints**. Both
+look at outputs. Nothing was watching the model as a *requester* — and the
+failure that matters is not a model that answers badly, it is one that learns to
+change what it is graded on.
+
+`core/drift_monitor.py` watches three shapes, exposed as Security's
+`drift_scan`:
+
+| Shape | What it means |
+|-------|---------------|
+| **probing** | the denied-to-granted ratio spikes against the agent's *own* history, or it asks for several resources it has never been granted. One refusal is a mistake; a set is a sweep. |
+| **manufacturing** | events that look like positives arrive with provenance that does not resolve. A positive is worth more to a model than a negative, so unverifiable allows are the cheapest way to make training signal. |
+| **self-authorship** | the model is the actor on `allowed` events **that no ACL grant backs**. The ACL writes an `approve` row for every grant, so an allow with no resolving provenance did not come from the ACL — the record exists because the model's own output put it there. |
+
+**It detects; it does not adjudicate.** Every alert is a threshold breach with
+its numbers attached and no verdict, and nothing here revokes a grant or halts
+an agent. That restraint is the design: a monitor acting on its own findings
+would be an authority nobody granted, and one false positive would take a
+department offline. It raises; a person decides. An unreachable monitor reports
+`status: unknown`, never `clear`.
+
+**The baseline is the agent's own history, not a constant.** A fixed "denials
+over 40% is bad" is wrong the day the ACL changes; comparing against history
+makes the alert mean *this changed*, which is the thing worth knowing.
+
+**Two false positives had to be fixed before it was worth having**, and both are
+the lesson. It first alerted on a clean system because 88 unverifiable
+positives sat in quarantine from *before* the ACL recorded provenance — the
+artifact of a fix, not a model manufacturing signal. Then it alerted on every
+allow the model legitimately received. An alert that fires on normal operation
+is an alert somebody turns off, so `tools/check_drift.py` proves **both**
+directions: each detector on its own case, and silence on ordinary behaviour.
+
 ## Security decisions are observed, not self-reported
 
 `core/security_events.py` lets a component **emit**. `tools/eval_harness.py` is
