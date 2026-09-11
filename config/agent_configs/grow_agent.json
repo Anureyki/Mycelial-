@@ -67,7 +67,8 @@
     "ppm_per_ml",
     "round_to_instrument",
     "pulse",
-    "veto"
+    "veto",
+    "assess_ph"
   ],
   "entry_point": "agents.grow_agent.grow_agent:main",
   "description": "Tracks grow stages and suggests nutrient adjustments"

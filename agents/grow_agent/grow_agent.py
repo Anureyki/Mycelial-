@@ -913,7 +913,7 @@ class GrowAgent(AgentBase):
                 "log_training_event", "recommend_feed", "plan_system_transition",
                 "set_grow_system", "get_grow_system", "amend_grow_system",
                 "field_history", "assess_root_zone", "void_reservoir_eval",
-                "reconcile_ec_temperature", "intake_reading", "when_to_top_up", "project_topup", "plan_feed_for_target", "ppm_per_ml", "round_to_instrument",
+                "reconcile_ec_temperature", "intake_reading", "when_to_top_up", "project_topup", "plan_feed_for_target", "ppm_per_ml", "round_to_instrument", "assess_ph",
                 "get_nutrient_history",
                 "set_inventory", "get_inventory",
                 "check_in", "analyze_consumption", "adjust_to_target_ppm",
@@ -3412,6 +3412,114 @@ class GrowAgent(AgentBase):
                 "Drawdown rate - no measured interval with a usable time span.")
         if cur is None:
             out["not_established"].append("Current volume was not supplied or recorded.")
+        if note:
+            out["note"] = note
+        return out
+
+    def assess_ph(self, plant_id="current_plant", ph=None, note=""):
+        """Where pH sits, which way it is MOVING, and whether the grower's own
+        rule still applies in that direction.
+
+        Grow had no pH verb. Its three near-matches were adjust_nutrients,
+        adjust_to_target_ppm and photo_cadence - none of which is about pH -
+        while the plant record carried both the adjuster inventory and a
+        written pH practice that nothing consulted.
+
+        The practice on this record is that pH self-corrects DOWNWARD when
+        nutrients go in, the GH Flora line being acidic, so the bottles stay
+        shut. That is a sound rule and it has a direction. It answers a pH that
+        is too HIGH. It says nothing about one that is falling on its own, and
+        applying it there makes the problem worse - which is exactly the
+        situation this method exists to name."""
+        cur = self._parse_numeric(ph)
+        hist = []
+        try:
+            for rd in (self._get_readings_for_plant(plant_id) or []):
+                if rd.get("voided"):
+                    continue
+                v = self._parse_numeric(rd.get("ph"))
+                if v:
+                    hist.append((str(rd.get("timestamp") or "")[:16], v))
+        except Exception as exc:
+            self.log(f"assess_ph: could not read history: {exc}")
+        hist.sort()
+        if cur is None and hist:
+            cur = hist[-1][1]
+        if cur is None:
+            return {"error": "No pH supplied and none on the record."}
+
+        band = None
+        try:
+            stage = self._stage_for_plant(plant_id)
+            band = (self.handle_task("check_stage", {"stage": stage}, "assess_ph")
+                    .get("result", {}) or {}).get("ph")
+        except Exception:
+            stage = None
+
+        out = {"plant_id": plant_id, "ph": cur, "stage": stage, "band": band,
+               "readings_on_record": len(hist)}
+        if band:
+            lo, hi = band
+            out["position"] = ("below_band" if cur < lo else
+                               "above_band" if cur > hi else "in_band")
+            out["distance"] = round((lo - cur) if cur < lo else
+                                    (cur - hi) if cur > hi else 0.0, 2)
+
+        # Direction, from the last few readings rather than from one.
+        if len(hist) >= 3:
+            recent = hist[-4:]
+            delta = recent[-1][1] - recent[0][1]
+            out["trend"] = {"from": recent[0], "to": recent[-1],
+                            "change": round(delta, 2),
+                            "direction": ("falling" if delta < -0.05 else
+                                          "rising" if delta > 0.05 else "flat")}
+
+        # Does the grower's own rule apply in this direction?
+        practice = None
+        try:
+            raw = self._unwrap_value(self.retrieve_own_memory(f"grow_system_{plant_id}")) \
+                or (self._unwrap_value(self.retrieve_own_memory("grow_system"))
+                    if plant_id == "current_plant" else None)
+            if raw:
+                rec = json.loads(raw)
+                practice = rec.get("ph_management_practice")
+                out["adjusters_held"] = rec.get("ph_adjusters_held")
+        except Exception:
+            pass
+        if practice:
+            out["recorded_practice"] = str(practice)[:200]
+            if out.get("position") == "below_band":
+                out["practice_does_not_apply"] = (
+                    "The recorded practice is that adding nutrient pulls pH DOWN, so the "
+                    "adjusters stay shut. That rule answers a pH above the band. This one is "
+                    "BELOW it, and feeding is the thing that would push it further down - the "
+                    "self-correction runs the wrong way here.")
+
+        # What dilution will and will not do, measured from this grow.
+        out["dilution_note"] = (
+            "Unbuffered water raises a low pH toward its own, but weakly and less than "
+            "volume alone suggests, because the nutrient solution is buffered. Measured on "
+            "this reservoir: 9 L -> 13.75 L, a 53% increase in water, moved pH 5.24 -> 5.50, "
+            "about +0.26. A further top-up to 15 L is only 9% more water and should be "
+            "expected to buy roughly +0.05 - real, and not enough on its own to reach a "
+            "5.8 floor.")
+        if out.get("position") == "below_band":
+            out["options"] = [
+                "Top up as planned and re-measure. Cheapest, already scheduled, "
+                "probably insufficient alone.",
+                "pH Up, which this grow holds and has never used on this plant. "
+                "Small additions, re-measure between each - an overshoot needs acid "
+                "to correct and that is two interventions where one was needed.",
+                "Accept and watch. 5.5 is the low edge of workable rather than a "
+                "failure; what it costs is availability, and calcium and phosphorus "
+                "are the first to go - which matters on a plant whose differential "
+                "already turned on calcium transport.",
+            ]
+            out["what_would_settle_it"] = (
+                "Whether the fall is the solution acidifying as it concentrates, or the "
+                "roots driving it. Re-measure after the top-up: if dilution alone moves it "
+                "most of the way back, it is the solution; if it keeps falling at a stable "
+                "volume, it is uptake and it will keep happening.")
         if note:
             out["note"] = note
         return out
@@ -10380,6 +10488,11 @@ class GrowAgent(AgentBase):
             return {"result": self.when_to_top_up(
                 a.get("plant_id", "current_plant"), a.get("current_liters"),
                 a.get("floor_liters"), a.get("note", ""))}
+
+        elif task == "assess_ph":
+            a = args or {}
+            return {"result": self.assess_ph(a.get("plant_id", "current_plant"),
+                                             a.get("ph"), a.get("note", ""))}
 
         elif task == "ppm_per_ml":
             return {"result": self.ppm_per_ml((args or {}).get("plant_id", "current_plant"))}
