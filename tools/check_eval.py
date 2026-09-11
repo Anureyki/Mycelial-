@@ -122,7 +122,14 @@ def main():
         shutil.rmtree(tmp, ignore_errors=True)
 
     print("\n  2. no model code path writes a record")
-    # Only the harness may open the records directory or the chain head.
+    # WRITES, NOT MENTIONS. The first version flagged any file containing the
+    # string "security_eval", which caught the training and evaluation job
+    # managers for PASSING THE PATH to a read-only scorer - a false positive
+    # that would have taught everyone to route around the gate. Naming the
+    # store is not touching it; opening it for write is.
+    WRITE_FNS = {"open", "write_text", "write_bytes", "copy", "copy2",
+                 "copyfile", "copytree", "move", "replace", "rename", "unlink",
+                 "remove", "rmtree", "mkdir", "makedirs"}
     bad = []
     for dirpath, dirnames, files in os.walk(ROOT):
         dirnames[:] = [d for d in dirnames
@@ -130,19 +137,30 @@ def main():
         for f in files:
             if not f.endswith(".py"):
                 continue
-            full = os.path.join(dirpath, f)
-            rel = os.path.relpath(full, ROOT)
+            rel = os.path.relpath(os.path.join(dirpath, f), ROOT)
             if rel in ("tools/eval_harness.py", "tools/check_eval.py"):
                 continue
-            src = open(full, encoding="utf-8", errors="replace").read()
-            for marker in ("security_eval", "_head.json", "RECORDS"):
-                if marker in src and "eval_harness" not in rel:
-                    if marker == "RECORDS" and "RECORDS" not in src.split("\n")[0]:
-                        # avoid flagging unrelated constants
-                        if "security_eval" not in src:
-                            continue
-                    bad.append(f"{rel}:{marker}")
-    ck("only the harness touches the record store", not bad, str(bad[:4]))
+            try:
+                tree = ast.parse(open(os.path.join(dirpath, f),
+                                      encoding="utf-8", errors="replace").read())
+            except SyntaxError:
+                continue
+            for node in ast.walk(tree):
+                if not isinstance(node, ast.Call):
+                    continue
+                nm = (node.func.attr if isinstance(node.func, ast.Attribute)
+                      else getattr(node.func, "id", ""))
+                if nm not in WRITE_FNS:
+                    continue
+                strs = [a.value for a in ast.walk(node)
+                        if isinstance(a, ast.Constant) and isinstance(a.value, str)]
+                # os.open with O_WRONLY, or open(..., "w"/"a")
+                writes = (nm != "open") or any(
+                    m in strs for m in ("w", "a", "wb", "ab", "w+", "a+"))
+                if writes and any("security_eval" in x or "_head.json" in x
+                                  for x in strs):
+                    bad.append(f"{rel}:{node.lineno} {nm}()")
+    ck("only the harness WRITES to the record store", not bad, str(bad[:4]))
 
     from core.security_events import SPOOL
     ck("agent code writes to the SPOOL, not the records",
