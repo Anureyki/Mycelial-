@@ -1024,7 +1024,14 @@ Mycelial runs on a single machine (or VM). To deploy to a cloud server (e.g., Di
 
 ## Current Status (July 2026)
 - All core agents and services are functional.
-- Distillation data collection is active.
+- Distillation data collection is active as of 2026-09-11, and was NOT before it.
+  This line previously claimed collection was active while there were zero
+  occurrences of "distillation" in `services/` or `core/`, the inference
+  service persisted nothing, and `datasets/` was empty. `core/distillation.py`
+  now records every `/reason` call as an input-output pair, redacting any
+  prompt that names a live matter or a personal record. A student trained on
+  a dataset that did not exist would have produced a green gate measuring
+  nothing, which is worse than a red one.
 - MCP integration is working.
 - Grow Agent is tracking a real plant.
 - Analyzer Agent generates recommendations from outcome logs.

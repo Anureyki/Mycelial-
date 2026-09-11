@@ -5,6 +5,16 @@ Runs inference using a specified model or the default.
 Supports local Ollama models and cloud models (Claude) via cloud_service.
 """
 import base64
+import sys as _sys
+# The service runs as a script, so the repo root is not on sys.path and
+# `from core...` fails with ModuleNotFoundError. The distillation hook below
+# needs it. Added here rather than in the hook so any future core import works
+# the same way.
+_ROOT = _os_path_root = __import__("os").path.dirname(
+    __import__("os").path.dirname(__import__("os").path.dirname(
+        __import__("os").path.abspath(__file__))))
+if _ROOT not in _sys.path:
+    _sys.path.insert(0, _ROOT)
 import json
 import os
 import re
@@ -321,8 +331,32 @@ def reason_endpoint():
     if not prompt:
         return jsonify({"success": False, "error": "missing_prompt", "message": "No prompt provided"}), 400
 
+    _t0 = time.time()
     result = run_inference(model, prompt, image_path=image_path, capability=capability,
                            temperature=temperature)
+
+    # COLLECT THE TEACHER SIGNAL. Every call through here is one input-output
+    # pair; without this the distillation set stays empty, which is what it
+    # was. Recording is best-effort and must never affect the answer - an
+    # inference that succeeded and a collector that failed are different
+    # events, and the caller is owed the first regardless of the second.
+    try:
+        from core.distillation import record_pair
+        # The endpoint returns the text under "result". Checking "response"
+        # made this a silent no-op: the hook ran, raised nothing, recorded
+        # nothing, and the dataset stayed empty while looking wired up.
+        _out = result.get("result") or result.get("response")
+        if result.get("success") and _out:
+            record_pair(prompt=prompt, output=_out,
+                        model=result.get("model") or model,
+                        capability=capability,
+                        agent=(data.get("sender") or data.get("agent")),
+                        latency_ms=int((time.time() - _t0) * 1000),
+                        verdict=None,
+                        extra={"temperature": temperature})
+    except Exception as _e:
+        app.logger.warning(f"distillation not recorded: {_e}")
+
     return jsonify(result)
 
 
