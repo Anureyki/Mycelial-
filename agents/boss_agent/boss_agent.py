@@ -38,7 +38,7 @@ class BossAgent(AgentBase):
                 "process_recommendations",
                 "update_graph", "query_graph", "get_entity_relationships",
                 "get_project_relationships", "aggregate_relationship_view",
-                "answer_question", "publish_event",
+                "answer_question", "publish_event", "authorize_route",
                 "refresh_cache", "query_cache", "cache_stats", "cache_manifest"
             ],
             role="orchestrator"
@@ -175,77 +175,65 @@ class BossAgent(AgentBase):
 
     _domain_cache = {"map": None, "at": 0, "ttl": 300}
 
-    def _domain_vocabulary(self):
-        """Ask every registered agent what vocabulary claims a request for it.
+    # ==================================================================
+    # BOSS GOVERNS. IT DOES NOT ROUTE, AND IT NO LONGER CARRIES REQUESTS.
+    #
+    # The domain matcher that used to live here is gone - DELETED, not disabled,
+    # because a commented-out router is one uncomment away from being a second
+    # source of routing truth, and this file already knows what two sources of
+    # truth cost. It moved to core/routing.py intact, every comment with it,
+    # and Anansi calls it directly.
+    #
+    # What Boss keeps is the edge that was always the real one: policy. It
+    # answers whether a route is permitted, what that route must carry, and
+    # what gets logged. It never sees the answer and never carries the payload.
+    #
+    # This untangles two things. CLAUDE.md states it for safety loops -
+    # "Supervision and authorisation are different edges" - and the same
+    # confusion lived here one layer up: every request paid a transport hop to
+    # reach a governor, and the governance was invisible inside the forwarding.
+    # It is now a question with an answer somebody can read.
+    # ==================================================================
 
-        Boss holds no domain words of its own. It asks. An agent that declares
-        nothing simply never matches, and a new domain agent becomes routable
-        by starting up - not by editing this file, which is what made the
-        orchestrator accumulate the vocabulary of every domain beneath it."""
-        c = self._domain_cache
-        if c["map"] is not None and time.time() - c["at"] < c.get("ttl", 300):
-            return c["map"]
-        vocab = {}
-        try:
-            resp = requests.post("http://localhost:8004/execute",
-                                 json={"task": "list_agents", "args": [],
-                                       "sender": self.agent_id}, timeout=5)
-            agents = resp.json().get("result", []) if resp.status_code == 200 else []
-        except Exception as e:
-            self.log(f"routing: registry lookup failed: {e}")
-            agents = []
-        silent, declined = [], []
-        owns = {}
-        for a in agents:
-            aid, url = a.get("agent_id"), a.get("url")
-            if not aid or not url or aid == self.agent_id:
-                continue
-            try:
-                r = requests.post(f"{url}/execute",
-                                  json={"task": "routing_terms", "args": {},
-                                        "sender": self.agent_id}, timeout=4)
-                body = r.json() if r.status_code == 200 else {}
-                while isinstance(body, dict) and "terms" not in body and "result" in body:
-                    body = body["result"]
-                terms = (body or {}).get("terms") or []
-                if terms:
-                    vocab[aid] = [t for t in terms if isinstance(t, str) and t]
-                owned = (body or {}).get("owns") or []
-                if isinstance(owned, list) and owned:
-                    owns[aid] = [t for t in owned if isinstance(t, str) and t]
-                elif isinstance(body, dict) and "terms" in body:
-                    declined.append(aid)     # answered, and claims nothing
-                else:
-                    silent.append(aid)       # no usable answer
-            except Exception:
-                silent.append(aid)           # down, or still starting
+    # Domains no request may reach by an automated route. Empty, and that is a
+    # position rather than an oversight: refusing to ROUTE does not prevent an
+    # action, it prevents an answer. The gates that must lean closed sit in
+    # front of actions - capital, hardware, sending to a third party - and they
+    # are enforced where those actions are, not here.
+    ROUTE_DENY = set()
 
-        # An agent that was registered but did not answer is usually still
-        # booting - start_all.sh brings Boss up before most of them. Caching
-        # that gap for the full five minutes left the router blind to every
-        # domain except the one that happened to be ready, so retry soon
-        # instead of freezing an incomplete map.
-        #
-        # Declaring nothing is not the same as failing to answer. Anansi
-        # narrates and Hermes brokers; neither owns a domain, so both answer
-        # with an empty list on purpose and must not keep the router retrying.
-        c["map"], c["at"] = vocab, time.time()
-        c["owns"] = owns
-        c["ttl"] = 30 if silent else 300
-        self.log("routing vocabulary: " +
-                 ", ".join(f"{k}={len(v)}" for k, v in sorted(vocab.items())) +
-                 (f" | claims nothing: {', '.join(sorted(declined))}" if declined else "") +
-                 (f" | silent: {', '.join(sorted(silent))} (retry in 30s)" if silent else "") +
-                 (f" | owns: " + ", ".join(f"{k}={len(v)}" for k, v in sorted(owns.items()))
-                  if owns else ""))
-        return vocab
+    # Domains whose every route is recorded, because the subject matters even
+    # when the answer is routine.
+    ROUTE_LOG = {"legal_agent", "accounting_agent", "trust_agent", "trading_agent"}
 
-    def _owned_terms(self):
-        """The definitive claims, per agent. Populated by the same sweep that
-        builds the vocabulary, so it is never staler than the map it came
-        with."""
-        self._domain_vocabulary()
-        return (self._domain_cache or {}).get("owns", {})
+    def authorize_route(self, args):
+        """-> {allowed, reason, conditions, logged}. Policy only, no transport."""
+        a = args if isinstance(args, dict) else {}
+        domains = [d for d in (a.get("domains") or []) if isinstance(d, str)]
+        if not domains:
+            return {"allowed": False, "reason": "no domain named in the request",
+                    "conditions": [], "logged": False}
+
+        denied = sorted(d for d in domains if d in self.ROUTE_DENY)
+        if denied:
+            self.log(f"POLICY REFUSED route to {denied}")
+            return {"allowed": False,
+                    "reason": f"{', '.join(denied)} may not be reached by an "
+                              f"automated route",
+                    "conditions": [], "logged": True}
+
+        conditions, logged = [], False
+        if any(d in self.ROUTE_LOG for d in domains):
+            logged = True
+            self.log(f"POLICY: route to {sorted(domains)} recorded")
+        if len(domains) > 1:
+            # The POLICY statement of the cross-domain rule. Anansi implements
+            # the check; Boss requires it. A department-versus-department
+            # disagreement that reaches a person as one sentence has had its
+            # most important content deleted in transit.
+            conditions.append("cross_domain_contradiction_check_required")
+        return {"allowed": True, "reason": "permitted", "conditions": conditions,
+                "logged": logged}
 
     def ingest_document(self, args):
         """Take in a document, cut it into clauses, and tell each department
@@ -316,191 +304,6 @@ class BossAgent(AgentBase):
             if doc["meta"].get(k) is not None:
                 out[k] = doc["meta"][k]
         return out
-
-    def _domain_for(self, prompt):
-        """Which department owns this request.
-
-        Intent is RESOLVED first and word-matched only as a fallback. Counting
-        regex hits is why "How's the system today" reached a code model and why
-        "my water is two inches below the net pot" matched nothing about the
-        grow: the terms were written to be matched, not to describe a
-        department. A person should be able to speak plainly.
-
-        The resolver picks from the live registry and can return nothing but an
-        id that exists, so a wrong answer is a wrong ROUTE - recoverable,
-        because the department says it does not own the question - never a
-        wrong fact. See core/intent.py."""
-        # AN OWNED TERM ENDS THE DECISION.
-        #
-        # Boss holds no domain knowledge and cannot judge whether a request is
-        # really Grow's - but Grow can, and a plant it is actually tracking is
-        # not a matter of opinion. So a department is allowed to say "this one
-        # is definitively mine", and that is not a vote to be weighed against a
-        # model's guess or another agent's keyword. It stops the routing.
-        #
-        # Two agents both claiming ownership is a real conflict and is logged
-        # rather than silently resolved - the same reason the claim pipeline has
-        # `contested` instead of quietly lowering a confidence number. It falls
-        # through to the ordinary path so the request still gets answered, but
-        # the collision is on the record and someone can go fix the vocabulary.
-        lp_own = (prompt or "").lower()
-        claimed = []
-        for aid, terms in (self._owned_terms() or {}).items():
-            for t in terms:
-                try:
-                    if re.search(t if ("\\b" in t or "?" in t or "*" in t) else r"\b" + t,
-                                 lp_own):
-                        claimed.append(aid)
-                        break
-                except re.error:
-                    continue
-        if len(set(claimed)) == 1:
-            owner = claimed[0]
-            self.log(f"routing: {owner} OWNS a term in this request - decision ends there")
-            return owner
-        if len(set(claimed)) > 1:
-            self.log(f"routing: OWNERSHIP CONFLICT - {sorted(set(claimed))} all claim to own "
-                     f"a term in this request. Falling through to the ordinary path; the "
-                     f"vocabularies need fixing.")
-
-        pick = self._resolve_intent(prompt)
-        keyword, margin, scores = self._domain_by_terms(prompt, with_margin=True)
-
-        # A DECLARED TERM IS EVIDENCE; A MODEL'S PICK IS A GUESS.
-        #
-        # Intent resolution used to win every disagreement, and on a 1.5B model
-        # it loses badly: "when will gsc 2 flower" went to the SECURITY agent
-        # and "when will the aloe flower" to PQA, while Grow was sitting there
-        # having declared `flower`, `gsc`, `gsc\s*#?\s*2` and `aloe` as its own
-        # routing terms. Neither of the agents chosen claimed anything at all.
-        #
-        # An agent declaring a term is a verifiable statement by the department
-        # that practises the domain. A small model's answer is not checkable
-        # against anything. So where the words point DECISIVELY at one
-        # department - it claims, and by a clear margin over the next - that
-        # wins, and the model is used for what it is actually good at: the
-        # cases where nobody's vocabulary matches, or two match equally.
-        #
-        # This is the same rule as the port outranking the registry row.
-        # A margin threshold was the wrong test - "when will the aloe flower"
-        # gave Grow 2 hits against Trust's 1, a margin of 1, and PQA still won
-        # on the model's say-so. The sharper question is not how much the winner
-        # led by; it is whether the agent the MODEL chose claimed anything at
-        # all. Security and PQA had matched zero terms in requests they were
-        # handed.
-        #
-        # An agent that has not declared one word of the vocabulary in front of
-        # it has said, in the only way this architecture lets it, that the
-        # request is not its own. That silence outranks a guess.
-        if pick and pick != "UNCLEAR" and pick != keyword and keyword \
-                and not scores.get(pick):
-            self.log(f"routing: intent={pick} claimed nothing; keywords={keyword} "
-                     f"matched {scores.get(keyword)} of its own declared terms - "
-                     f"took keywords")
-            return keyword
-        if keyword and margin >= 6 and pick and pick != "UNCLEAR" and pick != keyword:
-            self.log(f"routing: intent={pick} keywords={keyword} (margin {margin}) - "
-                     f"took keywords; a declared term outranks a model guess")
-            return keyword
-        if pick and pick != "UNCLEAR":
-            if keyword and keyword != pick:
-                self.log(f"routing: intent={pick} keywords={keyword} - took intent")
-            return pick
-        return keyword
-
-    def _resolve_intent(self, prompt):
-        try:
-            from core.intent import IntentResolver
-        except Exception:
-            return None
-        if not hasattr(self, "_intent"):
-            self._intent = IntentResolver(log=self.log, roster_fn=self._roster)
-        try:
-            pick, why = self._intent.resolve(prompt)
-            if pick == "UNCLEAR":
-                self.log(f"routing: intent unresolved ({why})")
-            return pick
-        except Exception as e:
-            self.log(f"routing: intent resolver failed, using terms: {e}")
-            return None
-
-    def _roster(self):
-        """Departments as they describe THEMSELVES - declared terms plus the
-        capability names they registered. Nothing about any domain is written
-        down here; a new agent becomes routable by starting up."""
-        out = {}
-        caps = {}
-        try:
-            r = requests.post("http://localhost:8004/execute",
-                              json={"task": "list_agents", "args": [],
-                                    "sender": self.agent_id}, timeout=5)
-            for a in (r.json().get("result", []) if r.ok else []):
-                if a.get("agent_id"):
-                    caps[a["agent_id"]] = a.get("capabilities") or []
-        except Exception as e:
-            self.log(f"routing: registry unreachable for roster: {e}")
-        for aid, terms in self._domain_vocabulary().items():
-            if terms:
-                out[aid] = {"terms": terms, "capabilities": caps.get(aid, [])}
-        return out
-
-    def _domain_by_terms(self, prompt, with_margin=False):
-        """Which department's declared vocabulary the words point at, and by
-        how much.
-
-        The MARGIN is what makes this usable as evidence rather than a tiebreak.
-        One agent matching three of its own declared terms while the next
-        matches one generic word is a decisive signal; two agents matching once
-        each is not, and the difference has to be visible to the caller."""
-        lp = (prompt or "").lower()
-        scores = {}
-        for aid, terms in self._domain_vocabulary().items():
-            n = 0
-            for t in terms:
-                try:
-                    # SCORE BY SPECIFICITY, NOT BY COUNT.
-                    #
-                    # coding_agent's "repo" matched "my credit REPOrt shows a
-                    # late payment" and beat Accounting, which had declared
-                    # "credit report" outright - one hit each, and the tie went
-                    # the wrong way.
-                    #
-                    # Anchoring both ends was the obvious fix and it was wrong:
-                    # many terms are deliberate STEMS - `indemnif`, `enforceab`,
-                    # `reconcil`, `delinquen` - and a trailing \b kills every one
-                    # of them. "What is laches" went to the Security Agent
-                    # inside a minute of trying it.
-                    #
-                    # So keep the prefix match and weigh each hit by how much of
-                    # the sentence it actually accounts for. "credit report" is
-                    # 13 characters of evidence; "repo" is 4. A longer term is a
-                    # more specific claim, which is the thing being measured.
-                    m = re.search(t if ("\\b" in t or "?" in t or "*" in t)
-                                  else r"\b" + t, lp)
-                    if m:
-                        n += len(m.group(0))
-                except re.error:
-                    continue
-            if n:
-                scores[aid] = n
-        if not scores:
-            return (None, 0, {}) if with_margin else None
-        ranked = sorted(scores.items(), key=lambda kv: -kv[1])
-        best, best_n = ranked[0]
-        runner = ranked[1][1] if len(ranked) > 1 else 0
-        return (best, best_n - runner, scores) if with_margin else best
-
-
-
-
-
-
-
-
-
-
-
-
 
     def _format_response(self, task, result, sender):
         if result is None:
@@ -806,13 +609,9 @@ class BossAgent(AgentBase):
         # routing after every restart is a long time when nobody is watching,
         # and the remedy must not be "restart Boss as well".
         if task == "refresh_routing":
-            self._domain_cache["map"] = None
-            self._domain_cache["at"] = 0
-            v = self._domain_vocabulary()
-            return {"refreshed": True, "agents": len(v),
-                    "terms": sum(len(t) for t in v.values()),
-                    "note": ("Vocabulary re-read from every registered agent. Call this "
-                             "after restarting an agent whose routing terms changed.")}
+            # The vocabulary cache moved with the router. Anansi holds it now.
+            return {"error": "routing vocabulary is no longer cached here",
+                    "where": "anansi (8081) - task refresh_routing"}
 
         if task == "ingest_document":
             return self.ingest_document(args if isinstance(args, dict) else {})
@@ -1036,506 +835,20 @@ class BossAgent(AgentBase):
             return {"delegated": True, "response": response}
 
         elif task == "process_request":
-            if isinstance(args, dict):
-                prompt = args.get("prompt", "")
-                metadata = args.get("metadata", {})
-            elif isinstance(args, list) and len(args) > 0:
-                first = args[0]
-                if isinstance(first, str) and first.startswith('{'):
-                    try:
-                        payload = json.loads(first)
-                        prompt = payload.get("prompt", "")
-                        metadata = payload.get("metadata", {})
-                    except:
-                        prompt = first
-                        metadata = {}
-                else:
-                    prompt = str(first)
-                    metadata = {}
-            else:
-                return {"error": "Invalid args format"}
-
-            # Batch upload: metadata.images is a list of {data, name}. The older
-            # single image_base64/image_name pair is still accepted so a stale
-            # cached client keeps working.
-            images = metadata.get("images") if isinstance(metadata, dict) else None
-            if not images and isinstance(metadata, dict) and metadata.get("image_base64"):
-                images = [{"data": metadata["image_base64"], "name": metadata.get("image_name", "upload.jpg")}]
-            image_base64 = images[0]["data"] if images else None
-
-            if not prompt and not image_base64:
-                return {"error": "Missing prompt"}
-
-            self.log(f"Received user prompt: {prompt[:80]}...")
-
-            # --- Image upload (plant photo) ---
-            # Only Grow Agent has a vision pipeline today, so any uploaded image
-            # routes there. Kept as its own branch (not folded into the generic
-            # image_base64 handling below) so a future second vision-capable
-            # agent can be added by branching on prompt content/metadata here
-            # without touching the upload/save plumbing.
-            if images:
-                self.log(f"User uploaded {len(images)} image(s) - routing to grow_agent's vision pipeline")
-                saved, failed = [], 0
-                for im in images:
-                    path = self._save_uploaded_image(im.get("data"), im.get("name", "upload.jpg"))
-                    if path:
-                        saved.append(path)
-                    else:
-                        failed += 1
-                if not saved:
-                    return {"result": "I couldn't process those images - they may be corrupted, empty, or over the 15MB limit."}
-
-                # Which plant the photo is of is Grow's to decide - it holds
-                # the roster. Defaulting to current_plant filed a photo the
-                # grower labelled "Gsc 2" against a different, older plant, and
-                # then assessed a 3-day seedling against a 26-day veg record.
-                plant_id = metadata.get("plant_id")
-                if not plant_id:
-                    _r = self._unwrap(self.send_a2a("grow_agent", "resolve_plant",
-                                                    {"prompt": prompt or ""}),
-                                      key="plant_id") or {}
-                    # AN AMBIGUOUS NAME IS A QUESTION, NOT A DEFAULT.
-                    #
-                    # This fell back to current_plant whenever Grow could not
-                    # decide, which files a photo of one plant against another
-                    # and then assesses it against that plant's age. Grow now
-                    # says WHICH plants a word fits, and the right move is to
-                    # ask - the principal's own framing: *"it doesn't need to
-                    # guess, it can ask me for specification. Grow agent can ask
-                    # questions. It has that right, so that the organization of
-                    # what we're tracking is correct."*
-                    #
-                    # The photos are already saved, so asking costs nothing but
-                    # a sentence, and answering the wrong plant costs a record.
-                    if _r.get("ambiguous"):
-                        # BOSS DOES NOT COMPOSE THE QUESTION.
-                        #
-                        # The first version wrote the sentence here, which is
-                        # the orchestrator practising a domain - it does not
-                        # know a plant from a plant. Grow knows which two a word
-                        # fits and why it matters; Anansi knows how to say it.
-                        # Boss's job is to notice that the domain is blocked and
-                        # get out of the way.
-                        names = ", ".join(os.path.basename(p_) for p_ in saved)
-                        raised = self._unwrap(self.send_a2a("grow_agent", "ask_principal", {
-                            "question": _r.get("ask"),
-                            "options": _r.get("candidates"),
-                            "why": _r.get("why"),
-                            "blocked_on": (f"the photo ({names}) is saved and not filed "
-                                           f"against any plant"),
-                            "ref": {"photos": [os.path.basename(p_) for p_ in saved]},
-                        }), key="question") or {}
-                        return {"result": raised.get("question") or _r.get("ask"),
-                                "evidence": {"raised_by": "grow_agent",
-                                             "question_id": raised.get("id"),
-                                             "blocked_on": raised.get("blocked_on")}}
-                    plant_id = _r.get("plant_id") or "current_plant"
-                    self.log(f"photo attributed to {plant_id} (resolved by grow_agent)")
-
-                # A measurement sent with the photos is logged BEFORE they are
-                # looked at. Vision is slow and can time out; the numbers must
-                # not be lost with it.
-                reading_text = None
-                _r = self._unwrap(self.send_a2a("grow_agent", "log_from_text",
-                                                {"prompt": prompt or "",
-                                                 "plant_id": plant_id}), key="logged")
-                if _r and _r.get("logged"):
-                    self.log(f"Reading found alongside photos - logged first: {_r.get('reading')}")
-                    reading_text = self._format_response("log_reading", _r.get("result"), "grow_agent")
-
-                # VISION RUNS INLINE AND THE ANSWER COMES BACK IN THE SAME TURN.
-                #
-                # This used to hand the work to a background thread and reply
-                # "saved and being looked at now; ask me in a moment", because a
-                # phone browser abandons a long request when the screen locks.
-                # That is a real constraint and it was the wrong trade: the
-                # principal has to remember to come back and ask, and a question
-                # he forgets to re-ask is an assessment that never reached him.
-                # His instruction, plainly: *"this is supposed to respond in the
-                # same chat... I don't care if it takes two minutes."*
-                #
-                # So it waits. What makes that affordable is running the photos
-                # CONCURRENTLY - one takes ~21s in the vision model, and three
-                # sequentially was over a minute, which is what made blocking
-                # untenable. In parallel three cost about what one does.
-                #
-                # A timeout says what actually happened rather than promising a
-                # result later. The photo is already on disk and the reading is
-                # already logged, so nothing is lost either way - but "I could
-                # not finish in time" and "ask me again shortly" are different
-                # claims, and only the first one is true.
-                from concurrent.futures import ThreadPoolExecutor
-
-                def _assess(pth):
-                    try:
-                        r = self.send_a2a("grow_agent", "evaluate_leaf",
-                                          {"plant_id": plant_id, "photo_path": pth},
-                                          timeout=300)
-                        return pth, r, None
-                    except Exception as exc:
-                        self.log(f"vision failed for {pth}: {exc}")
-                        return pth, None, f"{type(exc).__name__}: {exc}"
-
-                results, tellings = [], []
-                with ThreadPoolExecutor(max_workers=min(4, max(1, len(saved)))) as pool:
-                    for pth, raw, err in pool.map(_assess, list(saved)):
-                        name = os.path.basename(pth)
-                        if err or raw is None:
-                            results.append({"photo": name, "assessment": None, "error": err})
-                            tellings.append(f"{name}: I could not finish reading this one - "
-                                            f"{err or 'no response from the grow agent'}.")
-                            continue
-                        said = self._format_response("evaluate_leaf", raw, "grow_agent")
-                        results.append({"photo": name, "assessment": said, "raw": raw})
-                        tellings.append(said if len(saved) == 1 else f"{name}: {said}")
-
-                text = "\n\n".join(t for t in tellings if t) or (
-                    "The photos were saved and nothing came back from the assessment.")
-                if failed:
-                    text += f"\n\n({failed} could not be read and were skipped.)"
-                if reading_text:
-                    text = reading_text + "\n\n" + text
-                return {"result": text, "evidence": {"photos": results, "reading": (_r or {}).get("reading")}}
-
-            # --- README / documentation ---
-            if "readme" in prompt.lower() or "documentation" in prompt.lower():
-                self.log("User asking about README – reading and summarizing")
-                content = self.send_a2a("coding_agent", "read_file", {"path": "~/mycelial/README.md"})
-                if isinstance(content, dict) and "result" in content:
-                    summary_prompt = f"Summarize the following README content in plain text, without the ASCII architecture diagram. Focus on the purpose, core agents, and services:\n\n{content['result']}"
-                    summary = self.send_a2a("coding_agent", "reason", {"prompt": summary_prompt})
-                    text = self._format_response("reason", summary, "coding_agent")
-                    return {"result": text}
-                else:
-                    return {"result": "Could not read README."}
-
-            # Runs BEFORE the task branches below, because an agent's own
-            # declared vocabulary outranks a word Boss happens to recognise.
-            # "What's your analysis on GSC number two plant with the photo I
-            # just uploaded" contains "analyze", so it matched the code-review
-            # branch and spent 120s in a 1.5b code model before timing out -
-            # while grow_agent, which declares "gsc_auto_2" and "plant" and had
-            # the photo, was never asked. Those branches still catch what no
-            # domain claims.
-            # --- The domain that claims this request answers it ---
+            # THE HOP IS GONE. ~300 lines of routing and fan-out were deleted
+            # here, not disabled: Anansi now reads core/routing.py and goes
+            # straight to the department that owns the sentence.
             #
-            # Boss decides WHICH AGENT. It does not decide which of that agent's
-            # capabilities apply - that is domain reasoning, and Boss practises
-            # no domain. Roughly 600 lines of horticulture intent patterns and
-            # 171 of horticulture prose used to live here, and every failure had
-            # the same shape: a new ability in the domain agent was reachable
-            # from exactly one branch of this router, and the user phrased the
-            # question some other way. Patching in another keyword fixed the
-            # sentence and never the class.
-            #
-            # No agent is named below. The domain is whichever agent's own
-            # declared vocabulary claims the request, and adding a capability
-            # there requires no change here.
-            # ORCHESTRATION QUESTIONS ARE BOSS'S OWN, and are settled before
-            # anything is offered to a domain.
-            #
-            # The dashboard asks "system status" and "catch me up on progress".
-            # Domain routing sits above those branches, and grow_agent declares
-            # a get_status capability - so once capability names went into the
-            # routing briefs, "status" read as a grow question and the System
-            # and Progress cards both filled with "that does not name one of the
-            # plants I track". Two cards showing a third card's refusal.
-            #
-            # A department cannot own a question about the departments. This is
-            # not domain vocabulary in the orchestrator; it is the orchestrator
-            # recognising its own subject.
-            _lp = (prompt or "").lower()
-            _orchestration = (
-                any(w in _lp for w in
-                    ("system status", "agent status", "all agents", "everything running",
-                     "how is everything", "status update", "progress",
-                     "catch me up", "recap", "what have you done",
-                     "what's been done", "what needs my approval",
-                     "needs my approval", "awaiting approval"))
-                or _lp.strip() in ("status", "status?"))
-            _domain = None if _orchestration else self._domain_for(prompt)
-            if _orchestration:
-                self.log(f"orchestration question - not offered to any domain: {prompt[:60]}")
-            if _domain:
-                # Anything recordable in the raw input is captured first - only
-                # the domain agent knows what counts as data.
-                _got = self._unwrap(self.send_a2a(_domain, "ingest",
-                                                  {"prompt": prompt}), key="logged")
-                if _got and _got.get("logged"):
-                    self.log(f"{_domain} recorded something from the raw request")
-                    text = self._format_response("log_reading", _got.get("result"), _domain)
-                    return {"result": text, "evidence": _got}
-
-                self.log(f"{_domain} claims this request - asking it to answer")
-                res = self._unwrap(self.send_a2a(_domain, "answer",
-                                                 {"prompt": prompt}, timeout=120))
-                if res and (res.get("text") or "").strip():
-                    return {"result": res["text"],
-                            "evidence": {"agent": _domain,
-                                         "answered_as": res.get("answered_as"),
-                                         "facts": res.get("facts")}}
-                # An agent that has not implemented answer() yet falls through
-                # to the branches below rather than failing the request.
-                self.log(f"{_domain} had no answer - continuing")
-
-            # --- GitHub repo ---
-            if "github" in prompt.lower() or "repo" in prompt.lower() or "repository" in prompt.lower():
-                self.log("User asking about a GitHub repo – delegating to coding_agent.fetch_repo")
-                url_match = re.search(r'https?://github\.com/[^\s]+', prompt)
-                if not url_match:
-                    return {"result": "Please provide a GitHub URL."}
-                url = url_match.group(0)
-                response = self.send_a2a("coding_agent", "fetch_repo", {"url": url})
-                text = self._format_response("fetch_repo", response, "coding_agent")
-                return {"result": text}
-
-            # --- Progress / session recap (from Hermes's session log) ---
-            # Checked before "System status" below since phrasing like "status
-            # update" could otherwise match the wrong branch - progress recap
-            # needs more specific phrasing to win.
-            if any(keyword in prompt.lower() for keyword in
-                   ("progress", "what have you accomplished", "what's been done", "what have you done",
-                    "what's pending", "what's next", "recap", "summary of work", "catch me up")):
-                self.log("User asking for a progress recap – reading Hermes's session log")
-                summary_resp = self.send_a2a("hermes", "get_progress_summary", {"limit": 3})
-                text = self._format_response("progress_recap", summary_resp, "hermes")
-                return {"result": text, "evidence": summary_resp}
-
-            # --- System status (all agents + active projects) ---
-            # Match the SHAPE of a status question, not a list of phrasings.
-            # The list used to be six exact strings, so "How's the system
-            # today" matched none of them and fell all the way through to a
-            # code model, which answered "As a language model, I don't have
-            # feelings." Adding that sentence to the list would have fixed the
-            # sentence and not the class - which is the failure CLAUDE.md
-            # opens with. A subject word plus a state word is the class.
-            _p = prompt.lower()
-            _subject = ("system", "mycos", "mycelial", "agents", "everything",
-                        "services", "stack", "swarm", "platform", "things",
-                        "anything", "departments")
-            _state = ("status", "health", "healthy", "running", "up", "down",
-                      "ok", "okay", "alright", "doing", "how is", "how's",
-                      "hows", "look", "going", "wrong", "broken", "issues")
-            # Some state words carry the subject on their own: "is anything
-            # broken" names no system but is unmistakably about one.
-            _standalone = ("anything broken", "anything down", "anything wrong",
-                           "something broken", "something wrong", "all good",
-                           "everything ok", "everything okay", "any issues",
-                           "anything need", "anything i need")
-            if ((any(w in _p for w in _subject) and any(w in _p for w in _state))
-                    or any(w in _p for w in _standalone)
-                    or _p.strip() in ("status", "status?")):
-                self.log("User asking for system-wide status – aggregating agent health + graph projects")
-                status = self._get_system_status()
-                text = self._format_response("system_status", status, "boss_agent")
-                return {"result": text, "evidence": status}
-
-            # --- Cross-agent relationship document analysis (Legal + Accounting) ---
-            # Must come before the generic "analyze"/"evaluate" code-review branch below -
-            # its single-word "analyze" keyword was silently swallowing every prompt that
-            # started with "Analyze this agreement...", so this branch was unreachable via
-            # natural language despite working correctly when called directly. Specific
-            # multi-word phrases need to be checked before broad single-word ones.
-            if any(keyword in prompt.lower() for keyword in ("analyze this agreement", "analyze this contract", "obligations and financial consequences", "legal and financial consequences")):
-                self.log("User asking for combined legal+financial analysis – delegating to legal_agent + accounting_agent")
-                doc_text = re.sub(
-                    r"^(analyze this (agreement|contract)|what are the (obligations and )?"
-                    r"(legal and )?financial consequences( of)?)[:\s]*",
-                    "", prompt, flags=re.IGNORECASE
-                ).strip() or prompt
-                result = self.handle_task("analyze_relationship_document", {"text": doc_text}, sender)
-                text = self._format_response("analyze_relationship_document", result, "boss_agent")
-                return {"result": text, "evidence": result}
-
-            # --- Evaluation / Lint / Analyze code ---
-            if any(keyword in prompt.lower() for keyword in ("evaluate", "lint", "analyze", "check code", "quality")):
-                self.log("User asking for code evaluation – delegating to coding_agent")
-                response = self.send_a2a("coding_agent", "evaluate", {"path": "~/mycelial"})
-                text = self._format_response("evaluate", response, "coding_agent")
-                return {"result": text}
-
-            # --- Analyze outcomes / recommendations ---
-            if any(keyword in prompt.lower() for keyword in ("analyze outcomes", "analyze", "recommendations", "report")):
-                self.log("User asking for analysis – delegating to analyzer_agent")
-                response = self.send_a2a("analyzer_agent", "generate_recommendations", {})
-                text = self._format_response("generate_recommendations", response, "analyzer_agent")
-                return {"result": text}
-
-            # --- FIX / DEBUG (moved before error check) ---
-            if any(keyword in prompt.lower() for keyword in ("fix", "debug", "troubleshoot", "what is the cause")):
-                self.log("User asking for debugging help – delegating to coding_agent")
-                response = self.send_a2a("coding_agent", "reason", {"prompt": prompt})
-                text = self._format_response("reason", response, "coding_agent")
-                return {"result": text}
-
-            # --- Error / Sentry checks ---
-            if "error" in prompt.lower() or "sentry" in prompt.lower():
-                self.log("User asking about errors – delegating to maintenance_agent")
-                org = metadata.get("org", self.default_org)
-                project = metadata.get("project", self.default_project)
-                match = re.search(r'for\s+([\w-]+)', prompt, re.IGNORECASE)
-                if match:
-                    project = match.group(1)
-                match = re.search(r'org\s+([\w-]+)', prompt, re.IGNORECASE)
-                if match:
-                    org = match.group(1)
-                response = self.send_a2a("maintenance_agent", "check_errors", {"org": org, "project": project})
-                text = self._format_response("check_errors", response, "maintenance_agent")
-                return {"result": text}
-
-            # --- Purchase recommendation (Grow consults Accounting directly;
-            # Boss's only role here is the threshold-escalation gate) ---
-            # Checked before the generic Grow branch below since phrasing like
-            # "should I buy more nutrients" contains "nutrient" and would
-            # otherwise be swallowed by the broader plant/status branch.
-            if any(keyword in prompt.lower() for keyword in ("should i buy", "can i afford", "worth buying", "recommend buying", "recommend a purchase")):
-                self.log("User asking about a purchase – grow_agent consulting accounting_agent directly")
-                cost_match = re.search(r'\$?(\d+(?:\.\d+)?)', prompt)
-                estimated_cost = float(cost_match.group(1)) if cost_match else 0.0
-                item = re.sub(
-                    r'^(should i buy|can i afford|worth buying|recommend buying|recommend a purchase of)?\s*',
-                    '', prompt, flags=re.IGNORECASE
-                )
-                item = re.sub(r'\$?\d+(\.\d+)?', '', item).strip(" ?.!")
-                item = re.sub(r'\b(for|at|costs?|around|about)\s*$', '', item, flags=re.IGNORECASE).strip(" ?.!")
-                item = item or "this item"
-                response = self.send_a2a("grow_agent", "recommend_purchase", {"item": item, "estimated_cost": estimated_cost})
-                text = self._format_response("purchase_recommendation", response, "grow_agent")
-                return {"result": text, "evidence": response}
-
-            # --- What needs a human decision ---
-            # Approval-needing items exist in several places and surface in none
-            # of them: security holds files in state/pending_requests/ that
-            # nobody looks at, and maintenance findings only appear if you happen
-            # to ask for a cleanup. This gathers them into one answer.
-            if any(k in prompt.lower() for k in
-                   ("approval", "approve", "permission", "waiting on me", "needs my ok",
-                    "need my ok", "pending", "sign off", "sign-off", "authorize", "authorise")):
-                self.log("User asking what needs a decision - gathering pending items")
-                pend = self.send_a2a("security_agent", "list_pending_approvals", {}, timeout=30)
-                mem = self.send_a2a("maintenance_agent", "analyze_memory_usage", {}, timeout=90)
-                gathered = {"pending_approvals": pend, "memory": mem}
-                text = self._format_response("pending_decisions", gathered, "boss_agent")
-                return {"result": text, "evidence": gathered}
-
-            # --- Web search ---
-            if any(keyword in prompt.lower() for keyword in ("search", "find", "look up", "google")):
-                self.log("User asking for search – delegating to PQA (or tool)")
-                response = self.send_a2a("pqa_agent", "search", {"query": prompt})
-                if response and not isinstance(response, dict) or response.get("error"):
-                    tool_result = self.call_tool("searxng", "search", {"query": prompt})
-                    text = self._format_response("call_tool", tool_result, "tool")
-                else:
-                    text = self._format_response("search", response, "pqa_agent")
-                return {"result": text}
-
-            # --- Before the generic model: try the domain agent ---
-            #
-            # There used to be a grow fallback here: any unmatched QUESTION was
-            # sent to grow_agent before the generic model. It was a reasonable
-            # patch when word-counting was the only routing mechanism and this
-            # was a grow assistant - the comment it carried listed five real
-            # failures it fixed.
-            #
-            # It is removed because intent is resolved now, and because it had
-            # started causing the thing it was meant to prevent: "how much do I
-            # still owe on rent" routed correctly to accounting, accounting had
-            # no answer, and this caught it and replied about ppm and veg
-            # bands. A domain-specific default inside the orchestrator is the
-            # violation this architecture exists to remove - Boss practises no
-            # domain, so it has no business having a favourite one.
-            #
-            # If the department that claimed a request cannot answer it, that
-            # is the finding. Say it.
-
-            # --- Default: a GENERAL model, never the code model ---
-            #
-            # This used to send every unclaimed request to coding_agent, whose
-            # model is deepseek-coder. That is how "how long until it falls to
-            # 238" came back as a physics free-fall problem, how "DWC" became
-            # "Direct Water Cooker", and how "How's the system today" reached
-            # the grower as "As a language model, I don't have feelings."
-            #
-            # A code model is a specialist. Handing it every question nobody
-            # claimed is not a fallback, it is a misroute with a default
-            # attached. Ask for the `reasoning` capability instead and let the
-            # Inference Service resolve it.
-            # If a department CLAIMED this and simply had no answer, no model
-            # speaks on its behalf. A generic model answering a question that a
-            # domain owns is the two-sources-of-truth failure in miniature: the
-            # grower cannot tell whether they heard from the department that
-            # holds the evidence or from a 1.5B model improvising around it.
-            # "Is the disk filling up" came back as a numbered essay on why
-            # disks fill up, from a model with no access to the disk.
-            _claimed_but_silent = locals().get("_domain")
-            if _claimed_but_silent:
-                _h = {"grow_agent": "the grow", "legal_agent": "legal",
-                      "accounting_agent": "accounting",
-                      "maintenance_agent": "the machine itself",
-                      "trust_agent": "trust", "security_agent": "security",
-                      "coding_agent": "engineering"}.get(_claimed_but_silent,
-                                                        _claimed_but_silent)
-                self.log(f"{_claimed_but_silent} claimed it and had no answer - "
-                         f"not substituting a model")
-                return {"result": f"That one belongs to {_h}, which took the "
-                                  f"question and had no answer for it. The "
-                                  f"routing is right and the capability is "
-                                  f"missing - worth building rather than "
-                                  f"rephrasing.",
-                        "evidence": {"claimed_by": _claimed_but_silent,
-                                     "answered": False}}
-
-            self.log("Nothing claimed this - answering with the general reasoning model")
-            text = ""
-            try:
-                r = requests.post("http://localhost:8005/reason",
-                                  json={"prompt": prompt, "capability": "reasoning"},
-                                  timeout=120)
-                data = r.json() if r.ok else {}
-                if data.get("success"):
-                    text = (data.get("result") or "").strip()
-            except Exception as e:
-                self.log(f"general reasoning model unreachable: {e}")
-
-            # Assistant boilerplate is not an answer. "As a language model I
-            # don't have feelings" reached the grower on a phone in response to
-            # "How's the system today" - a deflection about the model's own
-            # nature, standing in for the status of their system. If that is
-            # what came back, throw it away and say plainly that nothing
-            # claimed the question.
-            _boiler = ("as a language model", "as an ai", "i don't have feelings",
-                       "i do not have feelings", "i'm just a", "i am just a",
-                       "i don't have personal", "i cannot feel")
-            if text and any(b in text.lower() for b in _boiler):
-                self.log("Discarded assistant boilerplate from the general model")
-                text = ""
-            if not text or len(str(text).strip()) < 2:
-                # Two different findings, and collapsing them is a lie. Nobody
-                # claiming a request is a routing gap; a department claiming it
-                # and having nothing to say is a CAPABILITY gap, and the person
-                # deserves to know which one they hit - it tells them whether
-                # to rephrase or to stop asking.
-                _claimed = locals().get("_domain")
-                if _claimed:
-                    _human = {"grow_agent": "the grow", "legal_agent": "legal",
-                              "accounting_agent": "accounting",
-                              "maintenance_agent": "the machine itself",
-                              "trust_agent": "trust", "security_agent": "security",
-                              "coding_agent": "engineering"}.get(_claimed, _claimed)
-                    text = (f"That one belongs to {_human}, which took the "
-                            f"question and had no answer for it. So the routing "
-                            f"is right and the capability is missing - worth "
-                            f"building rather than rephrasing.")
-                else:
-                    text = ("Nothing in the system claimed that one, and I "
-                            "would rather say so than guess at it. Try naming "
-                            "the thing you mean - a plant, a case, the ledger, "
-                            "the machine itself - and it will reach whoever "
-                            "actually owns it.")
-            self.store_own_memory(f"request_{int(time.time())}", prompt)
-            self.store_own_memory(f"response_{int(time.time())}", text)
-            return {"result": text}
+            # This branch is kept as a SIGNPOST rather than removed outright,
+            # because a caller that still points here should be told where
+            # routing went instead of getting "Unknown task" and guessing. It
+            # carries no payload and reaches no department.
+            return {"error": "boss_agent no longer routes user requests",
+                    "where": "anansi (8081) - task process_request",
+                    "why": ("Anansi routes, Boss governs. Boss now answers one "
+                            "routing question, authorize_route, which returns "
+                            "policy and never carries the request."),
+                    "policy_verb": "authorize_route"}
 
         elif task == "call_tool":
             server = args.get("server")

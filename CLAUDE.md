@@ -33,11 +33,11 @@ describe what IS, while `CHANGELOG.md` holds what happened and
 ## Core Agents
 | Agent | Port | Role | Capabilities |
 |-------|------|------|--------------|
-| Boss | 8000 | Orchestrator | Delegates tasks, routes requests, manages workflows |
+| Boss | 8000 | Governor | Route policy (`authorize_route`), case-event typing, threshold escalation. **Does not route user requests** |
 | Coding | 8001 | Software Engineer | Reads/writes files, runs commands, lints, fixes code, evaluates codebase |
 | Hermes | 8002 | Memory/Librarian | Stores/retrieves memories, searches documentation |
 | Maintenance | 8003 | System Health | Disk checks, log cleaning, system updates, error monitoring |
-| Anansi | 8081 | User Interface | Accepts natural language, routes to Boss |
+| Anansi | 8081 | Interface brain | Accepts natural language, routes DIRECTLY to the owning domain, holds user context, checks cross-domain contradictions |
 | Analyzer | 9006 | Outcome Analysis | Scans logs, generates recommendations |
 | Grow | 9009 | Gardener | Tracks plant growth stages, logs readings, suggests nutrient adjustments |
 | Security | 9010 | Guard | Authorises every inbound `/execute` against `config/guards.json` |
@@ -122,7 +122,7 @@ not a Grow-specific arrangement.
 | **Hermes** | Memory transport and policy enforcement. A broker - it does not interpret, summarise or consolidate domain records |
 | **Memory Service** | Evidence and state |
 | **Logging Service** | Operational execution history. Kept separate from domain memory |
-| **Boss** | Orchestration, routing, cross-domain coordination and threshold escalation |
+| **Boss** | Policy and governance: what may be routed, what needs a veto, what gets logged. It does not route and carries no request |
 | **Anansi** | Narration and translation |
 
 ### The orchestrator carries no domain skill
@@ -146,6 +146,7 @@ apply to every agent, not just Grow:
 | Task | Who answers | Replaces |
 |------|-------------|----------|
 | `routing_terms` | each agent declares the words that claim a request for it | a keyword list inside Boss |
+| `authorize_route` | Boss says whether a route is permitted, and nothing else | Boss forwarding the request itself |
 | `answer(prompt)` | the domain agent picks its own capabilities | Boss's intent patterns and facet ordering |
 | `describe(task, payload)` | the agent puts its own result into words | Boss formatting domain results |
 
@@ -157,10 +158,49 @@ anywhere. A new domain agent becomes routable by starting up.
 Adding a capability to a domain agent must never require editing Boss. If it
 does, the capability is in the wrong place.
 
-### Anansi is a storyteller, not a dispatcher
+### Anansi routes; Boss governs
 
-Named for the trickster-storyteller, and the role is the same: translate between
-the user's world and the system's. Two directions -
+**Anansi is the interface brain, and as of 2026-09-11 it ROUTES.** It reads the
+live routing vocabulary and sends a request straight to the department that
+owns it. Boss is no longer a hop: it answers one policy question,
+`authorize_route`, and never carries the payload. 687 lines of routing were
+DELETED from Boss - not disabled, because a commented-out router is one
+uncomment away from being a second source of routing truth.
+
+The matcher itself moved to `core/routing.py` **intact**, and it still holds no
+domain vocabulary of its own - it asks each agent what words it claims. Anansi
+gained a route, not a domain. An interface layer that started keeping its own
+domain words would become the thing Boss was kept from becoming.
+
+This splits two edges that were tangled. This file already says *"Supervision
+and authorisation are different edges"* about safety loops; the same confusion
+lived one layer up, where every request paid a transport hop to reach a
+governor and the governance was invisible inside the forwarding. It is now a
+question with an answer somebody can read.
+
+**Two departments claiming one request is not a tie to be broken.** Anansi asks
+both and runs a contradiction check before speaking. Three shapes count, each
+checkable without understanding either domain: opposed decisions, the same
+field with different values, and a department declaring itself `contested`.
+Both answers are kept and the conflict is named. **Anansi does not adjudicate** -
+it practises no domain and cannot know which department is right, so naming the
+conflict is the whole of its job. This is the `contested` rule from the claim
+pipeline, applied at the point where two answers would otherwise be read out as
+one.
+
+**Standing facts about the PERSON live here; domain facts do not.** Preferences,
+rituals and constraints persist in Hermes under a shared `user_context`
+namespace - shared rather than `agent_anansi`, because a constraint filed under
+one agent is invisible to the department that needed it. Constraints travel with
+every route; preferences do not, since a preference that overrides a
+department's judgement has stopped being a preference. Anansi stores that the
+principal has a dietary constraint; it does not reason about food. That is the
+principal's own correction - *"the domains are remembering their task"* - held
+to: a fact about the person is true regardless of which department is asked, and
+belongs to the interface.
+
+Named for the trickster-storyteller, and the narrating role is unchanged:
+translate between the user's world and the system's. Two directions -
 
 - **Inward:** turn what a person says into what the orchestration layer needs.
 - **Outward:** tell the story of what happened, in plain language, without naming

@@ -19,6 +19,7 @@
     "aggregate_relationship_view",
     "answer_question",
     "publish_event",
+    "authorize_route",
     "refresh_cache",
     "query_cache",
     "cache_stats",
@@ -37,5 +38,5 @@
   "public_key": "",
   "owner": "anureyki",
   "created": "2026-07-21T17:46:08.845046",
-  "updated": "2026-09-05T11:36:04.319642"
+  "updated": "2026-09-11T16:06:37.297400"
 }

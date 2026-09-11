@@ -6,6 +6,11 @@
     "process_request",
     "narrate_contradiction",
     "voice_policy",
+    "remember_user_fact",
+    "user_context",
+    "check_cross_domain",
+    "refresh_routing",
+    "routing_map",
     "notify",
     "receive_mail",
     "ingest_upload",
@@ -35,5 +40,5 @@
   "public_key": "",
   "owner": "anureyki",
   "created": "2026-07-21T17:59:55.506343",
-  "updated": "2026-09-05T11:32:38.124173"
+  "updated": "2026-09-11T16:07:03.584707"
 }

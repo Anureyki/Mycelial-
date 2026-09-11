@@ -20,7 +20,12 @@
     "training_candidates",
     "training_quest_status",
     "voice",
-    "voice_policy"
+    "voice_policy",
+    "remember_user_fact",
+    "user_context",
+    "check_cross_domain",
+    "refresh_routing",
+    "routing_map"
   ],
   "entry_point": "agents.anansi.Anansi:main",
   "description": "Unified Interface agent"

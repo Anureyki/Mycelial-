@@ -22,7 +22,8 @@
     "retrieve_memory",
     "store_memory",
     "think",
-    "update_graph"
+    "update_graph",
+    "authorize_route"
   ],
   "description": "Orchestrator agent"
 }

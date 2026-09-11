@@ -2,6 +2,7 @@
 import sys
 import os
 import time
+import hashlib
 import json
 import uuid
 from datetime import datetime
@@ -36,6 +37,8 @@ class Anansi(AgentBase):
             agent_id="anansi",
             port=8081,
             capabilities=["process_request", "narrate_contradiction", "voice_policy",
+                          "remember_user_fact", "user_context", "check_cross_domain", "refresh_routing",
+                          "routing_map",
                           # Declared because they dispatch. An undeclared verb
                           # works when called and is invisible to the registry,
                           # the dashboard and the router - which is the 82-capability
@@ -434,6 +437,31 @@ class Anansi(AgentBase):
         if task == "notify":
             return self.notify(args if isinstance(args, dict) else {})
 
+        if task == "remember_user_fact":
+            return self.remember_user_fact(args if isinstance(args, dict) else {})
+
+        if task == "user_context":
+            return self.user_context(
+                refresh=bool((args or {}).get("refresh")) if isinstance(args, dict) else False)
+
+        if task == "check_cross_domain":
+            a = args if isinstance(args, dict) else {}
+            return self.check_cross_domain(a.get("prompt", ""), a.get("answers") or {})
+
+        if task == "refresh_routing":
+            # Moved here with the router. An agent that restarts with changed
+            # routing terms is invisible to the cache until its TTL expires,
+            # and the remedy must not be "restart the interface as well".
+            self.router._domain_cache["map"] = None
+            self.router._domain_cache["at"] = 0
+            v = self.router.vocabulary()
+            return {"refreshed": True, "agents": len(v),
+                    "terms": sum(len(t) for t in v.values())}
+
+        if task == "routing_map":
+            return {"vocabulary": {k: len(v) for k, v in self.router.vocabulary().items()},
+                    "note": "Anansi routes directly; Boss governs and is not a hop."}
+
         # The dashboard tracks EVERY plant, not the current one.
         #
         # The Grow card called grow_snapshot with no plant_id, which means
@@ -618,23 +646,420 @@ class Anansi(AgentBase):
         else:
             return {"error": f"Unknown task: {task}"}
 
-    def route_to_orchestrator(self, prompt, metadata):
-        orchestrator = self.find_orchestrator()
-        if not orchestrator:
-            return {"error": "No orchestrator available"}
+    # ==================================================================
+    # DIRECT ROUTING. Anansi routes; Boss governs.
+    #
+    # Boss used to sit between the person and the department as a transport
+    # hop, and it also authorised. Those are different edges - this file's own
+    # architecture notes say so about safety loops - and running them through
+    # one component meant every request paid a governance round trip whether it
+    # needed one or not, while the governance itself was invisible inside the
+    # forwarding.
+    #
+    # Now: Anansi asks the router which department owns the sentence, asks Boss
+    # whether it MAY route there, and goes straight to the department. Boss
+    # answers a policy question and never carries the payload.
+    #
+    # THE ROUTER IS NOT ANANSI'S EITHER. It lives in core/routing.py and holds
+    # no domain vocabulary - it asks each agent what words it claims. Anansi
+    # gained a route, not a domain. An interface layer that started keeping its
+    # own domain words would become the thing Boss was stopped from becoming.
+    # ==================================================================
 
-        self.log(f"Routing to {orchestrator}: {prompt[:50]}...")
+    @property
+    def router(self):
+        if getattr(self, "_router", None) is None:
+            from core.routing import DomainRouter
+            self._router = DomainRouter(self.agent_id, log=self.log)
+        return self._router
+
+    def _policy_check(self, domains, prompt):
+        """Ask Boss whether this route is permitted. Boss governs, not forwards.
+
+        FAILS OPEN, DELIBERATELY, AND ONLY HERE. The swarm guard already works
+        this way and for the same reason: a Boss that is restarting must not
+        stop a grower asking about his reservoir. This is a routing question,
+        not a capital one - CLAUDE.md inverts the default for anything touching
+        money, and that inversion is not undone by this path, because nothing
+        here can move money. An explicit refusal is honoured; an unreachable
+        governor is logged and the request proceeds."""
         try:
-            payload = json.dumps({"prompt": prompt, "metadata": metadata})
-            # Boss may fan requests out to multiple agents sequentially (e.g.
-            # analyze_relationship_document); give this hop more room than the
-            # 120s default so a multi-agent chain doesn't get reported as a
-            # failure when it actually completed on the Boss side.
-            response = self.send_a2a(orchestrator, "process_request", [payload], timeout=280)
-            return response
+            r = self.send_a2a("boss_agent", "authorize_route",
+                              {"domains": list(domains), "prompt": prompt[:400]},
+                              timeout=10)
+            for _ in range(6):
+                if isinstance(r, dict) and "allowed" not in r and "result" in r:
+                    r = r["result"]
+                else:
+                    break
+            if isinstance(r, dict) and r.get("allowed") is False:
+                return {"allowed": False, "reason": r.get("reason") or "policy refused",
+                        "veto_by": "boss_agent"}
+            if isinstance(r, dict):
+                return {"allowed": True, "conditions": r.get("conditions") or [],
+                        "logged": bool(r.get("logged"))}
         except Exception as e:
-            self.log(f"Error routing to orchestrator: {e}")
-            return {"error": str(e)}
+            self.log(f"policy: boss unreachable ({e}) - routing anyway, "
+                     f"an unreachable governor must not halt an interface")
+        return {"allowed": True, "conditions": [], "governor_unreachable": True}
+
+    def _provenance(self, prompt, domains, chosen, metadata, outcome):
+        """Every route writes provenance, through the shared schema.
+
+        `select` is the operation - Anansi chose a department. It is not
+        `execute`: Anansi did not do the domain work and must not appear in the
+        lineage as having authored the answer."""
+        try:
+            from core.provenance_schemas import new_provenance_event
+            from core.provenance_manager import ProvenanceManager
+            ev = new_provenance_event(
+                operation="select",
+                actor_type="agent",
+                agent_id=self.agent_id,
+                actor_id=(metadata or {}).get("user_id") or "default_user",
+                execution_id=(metadata or {}).get("session_id"),
+                metadata={
+                    "prompt_sha256": hashlib.sha256(
+                        (prompt or "").encode("utf-8")).hexdigest(),
+                    "prompt_chars": len(prompt or ""),
+                    "candidate_domains": list(domains),
+                    "routed_to": chosen,
+                    "cross_domain": len(domains) > 1,
+                    "outcome": outcome,
+                    "router": "core.routing.DomainRouter",
+                },
+            )
+            ProvenanceManager().record_event(ev)
+            return ev["event_id"]
+        except Exception as e:
+            # A provenance write that fails must SAY so. A route with no record
+            # and a route whose record was lost look identical afterwards, and
+            # they are different problems.
+            self.log(f"PROVENANCE NOT WRITTEN for route to {chosen}: {e}")
+            return None
+
+    def _ask_domain(self, agent_id, prompt, metadata):
+        """One department, its own verb, its own words.
+
+        CONSTRAINTS RIDE ALONG. A standing constraint is true regardless of
+        which department is asked, and the department is the only thing that
+        can say what it means for its own domain - so it is sent, not applied
+        here. Anansi holds the fact and practises no domain."""
+        payload = {"prompt": prompt}
+        cons = self._constraints_for_request()
+        if cons.get("_unavailable"):
+            payload["constraints_unavailable"] = cons.get("_why") or True
+        elif cons:
+            payload["constraints"] = cons
+        r = self.send_a2a(agent_id, "answer", payload, timeout=240)
+        for _ in range(6):
+            if isinstance(r, dict) and "result" in r and len(r) == 1:
+                r = r["result"]
+            else:
+                break
+        return r
+
+    def route_direct(self, prompt, metadata):
+        """-> the department's answer, or a flagged contradiction. Never a merge."""
+        domains = self.router.domains_for(prompt) or []
+        if not domains:
+            self._provenance(prompt, [], None, metadata, "no_domain_claimed")
+            return {"result": ("No department claims this. That is a gap in what "
+                               "the system can answer, not a refusal - nothing here "
+                               "declared the words you used."),
+                    "routed_to": None, "domains_considered": []}
+
+        policy = self._policy_check(domains, prompt)
+        if not policy.get("allowed"):
+            self._provenance(prompt, domains, None, metadata, "policy_refused")
+            return {"result": f"That request was not permitted: {policy.get('reason')}",
+                    "vetoed_by": policy.get("veto_by"), "domains_considered": domains}
+
+        if len(domains) == 1:
+            chosen = domains[0]
+            self.log(f"routing DIRECT to {chosen} (no Boss hop)")
+            ans = self._ask_domain(chosen, prompt, metadata)
+            self._provenance(prompt, domains, chosen, metadata, "answered")
+            return {"result": ans, "routed_to": chosen, "domains_considered": domains}
+
+        # TWO DEPARTMENTS CLAIM THIS. Ask both; do NOT merge.
+        self.log(f"CROSS-DOMAIN: {domains} both claim this - asking each, then checking")
+        answers = {}
+        for d in domains[:3]:
+            answers[d] = self._ask_domain(d, prompt, metadata)
+        finding = self.check_cross_domain(prompt, answers)
+        self._provenance(prompt, domains, list(answers), metadata,
+                         "contradiction" if finding["contradicted"] else "cross_domain_agreed")
+        return {"result": finding, "routed_to": list(answers),
+                "domains_considered": domains, "cross_domain": True}
+
+    # ------------------------------------------------------------------
+    # PERSISTENT USER CONTEXT
+    #
+    # Anansi is the interface, so it is where a person's standing facts belong -
+    # preferences, rituals, and CONSTRAINTS. Constraints are the reason this is
+    # not a convenience feature: a dietary restriction that has to be restated
+    # every session is a restriction the system will eventually miss, and the
+    # cost of missing a celiac constraint is not a worse answer, it is harm.
+    #
+    # SHARED NAMESPACE, NOT `agent_anansi`. store_own_memory namespaces per
+    # agent, which is exactly the drift the case layer avoids: a constraint
+    # filed under one agent is invisible to every other, so the department that
+    # needed it cannot see it. This talks to Hermes directly, the same way
+    # core/case_manager.py does and for the same reason.
+    #
+    # ANANSI HOLDS THE CHANNEL, NOT THE DOMAIN. It stores that the principal
+    # has coeliac disease; it does not reason about gluten. The constraint
+    # travels with the request to whichever department owns the question, and
+    # that department decides what it means. The principal's own correction -
+    # "Anansi is not necessarily the one that's remembering. The domains are
+    # remembering their task" - is about DOMAIN facts. A standing fact about
+    # the person belongs to the interface, because it is true regardless of
+    # which department is being asked.
+    # ------------------------------------------------------------------
+
+    USER_NS = "user_context"
+    CONTEXT_KINDS = ("preference", "ritual", "constraint")
+
+    def remember_user_fact(self, args):
+        """Store a standing fact about the person. Survives restarts."""
+        a = args if isinstance(args, dict) else {}
+        kind = str(a.get("kind") or "").lower()
+        key, value = a.get("key"), a.get("value")
+        if kind not in self.CONTEXT_KINDS:
+            return {"stored": False,
+                    "error": f"kind must be one of {list(self.CONTEXT_KINDS)}; "
+                             f"got {kind!r}. An unclassified standing fact cannot "
+                             f"be weighed - a preference may be overridden and a "
+                             f"constraint may not."}
+        if not key or value is None:
+            return {"stored": False, "error": "key and value are both required"}
+        rec = {"kind": kind, "key": key, "value": value,
+               "why": a.get("why"), "source": a.get("source") or "stated by the principal",
+               "recorded_at": datetime.now().isoformat()}
+        mem_key = f"{kind}:{key}"
+        try:
+            self.send_a2a("hermes", "store_memory",
+                          [self.USER_NS, mem_key, json.dumps(rec)])
+            # AN INDEX, BECAUSE retrieve_many TAKES KEYS AND NOT A NAMESPACE.
+            # Hermes is a broker and deliberately does not enumerate - so the
+            # writer keeps the list of what it wrote, the same way Grow keeps
+            # reading_index. Without it the first read after a restart returns
+            # nothing and looks exactly like a person who has stated no
+            # constraints.
+            idx = self._context_index()
+            if mem_key not in idx:
+                idx.append(mem_key)
+                self.send_a2a("hermes", "store_memory",
+                              [self.USER_NS, "_index", json.dumps(sorted(idx))])
+        except Exception as e:
+            return {"stored": False, "error": f"hermes unreachable: {e}"}
+        self.log(f"user context: remembered {kind} {key!r}")
+        return {"stored": True, "record": rec}
+
+    def _context_index(self):
+        """-> [keys] written under user_context, or None if it cannot be read.
+
+        None and [] are different answers and are kept apart: an unreadable
+        index means the constraints are unknown, an empty one means there are
+        none."""
+        try:
+            r = self.send_a2a("hermes", "retrieve_memory", [self.USER_NS, "_index"])
+            raw = self._unwrap_value(r)
+            if raw in (None, ""):
+                return []
+            v = json.loads(raw) if isinstance(raw, str) else raw
+            return v if isinstance(v, list) else []
+        except Exception as e:
+            self.log(f"user context: index unreadable ({e})")
+            return None
+
+    def user_context(self, refresh=False):
+        """-> {"preference": {...}, "ritual": {...}, "constraint": {...}}
+
+        Cached briefly per process. A constraint that is one Hermes round trip
+        away from every sentence is a constraint that gets skipped under load."""
+        c = getattr(self, "_ctx_cache", None)
+        if c and not refresh and time.time() - c["at"] < 60:
+            return c["data"]
+        out = {k: {} for k in self.CONTEXT_KINDS}
+        try:
+            keys = self._context_index()
+            if keys is None:
+                raise RuntimeError("context index unreadable")
+            if not keys:
+                self._ctx_cache = {"at": time.time(), "data": out}
+                return out
+            r = self.send_a2a("hermes", "retrieve_many", [self.USER_NS, keys])
+            for _ in range(6):
+                if isinstance(r, dict) and "entries" not in r and "result" in r:
+                    r = r["result"]
+                else:
+                    break
+            # AN ERROR IS NOT AN EMPTY RESULT. The first version of this read
+            # an {"error": ...} dict as "no entries" and returned a clean, empty
+            # context - which is the single most dangerous shape this method
+            # has, because a missing constraint and a person with no
+            # constraints are indistinguishable to every caller downstream.
+            if not isinstance(r, dict) or "entries" not in r:
+                raise RuntimeError(f"hermes returned {str(r)[:120]}")
+            for k, wrapper in (r.get("entries") or {}).items():
+                entry = wrapper.get("entry") if isinstance(wrapper, dict) else None
+                raw = entry.get("value") if isinstance(entry, dict) else entry
+                try:
+                    rec = json.loads(raw) if isinstance(raw, str) else raw
+                except Exception:
+                    continue
+                if isinstance(rec, dict) and rec.get("kind") in out:
+                    out[rec["kind"]][rec.get("key")] = rec
+        except Exception as e:
+            # SAY SO. An empty context and an unreachable store look identical
+            # to a caller, and one of them means a constraint is missing.
+            self.log(f"user context: could not load from Hermes ({e}) - "
+                     f"treating as UNKNOWN, not as empty")
+            return {**out, "_unavailable": True, "_why": str(e)}
+        self._ctx_cache = {"at": time.time(), "data": out}
+        return out
+
+    def _constraints_for_request(self):
+        """Constraints only. They travel with every route; preferences do not,
+        because a preference that overrides a department's judgement is not a
+        preference any more."""
+        ctx = self.user_context()
+        if ctx.get("_unavailable"):
+            return {"_unavailable": True, "_why": ctx.get("_why")}
+        return {k: v.get("value") for k, v in (ctx.get("constraint") or {}).items()}
+
+    # ------------------------------------------------------------------
+    # CROSS-DOMAIN CONTRADICTION CHECKING
+    #
+    # Two departments answering the same question is not a tie to be broken.
+    # CLAUDE.md already settled the principle for claims - "Domains are allowed
+    # to disagree, and disagreement is not resolved by outranking" - and the
+    # outcome there is `contested`, with both readings kept and the conflict
+    # surfaced. This is that rule applied one layer up, at the point where the
+    # answers would otherwise be read out as one.
+    #
+    # The failure it prevents: Legal says the instrument establishes an
+    # interest, Accounting's books do not show it, and the person is told a
+    # single confident sentence assembled from both. The disagreement was the
+    # most important thing either department said, and merging deleted it.
+    #
+    # WHAT COUNTS AS A CONTRADICTION is deliberately narrow. A checker that
+    # flags everything is a checker nobody reads, and "these two answers feel
+    # different" is not a finding. Only three shapes count, and each is
+    # checkable without understanding either domain:
+    #
+    #   opposed decisions   one refuses, the other permits, on the same request
+    #   same field, different value   both name a quantity and disagree past
+    #                       any tolerance either of them declared
+    #   self-declared       a department says contested / conflicting itself
+    #
+    # Anansi does NOT adjudicate. It has no domain and cannot know which
+    # department is right - naming the conflict is the whole of its job here.
+    # ------------------------------------------------------------------
+
+    REFUSE_WORDS = ("refuse", "denied", "not permitted", "prohibited",
+                    "impermissible", "unsupported", "refuted")
+    PERMIT_WORDS = ("permitted", "allowed", "approved", "supported",
+                    "established", "pass")
+
+    @staticmethod
+    def _flatten(obj, prefix="", out=None, depth=0):
+        """field path -> scalar, for comparing two answers field by field."""
+        out = {} if out is None else out
+        if depth > 6:
+            return out
+        if isinstance(obj, dict):
+            for k, v in obj.items():
+                Anansi._flatten(v, f"{prefix}.{k}" if prefix else str(k), out, depth + 1)
+        elif isinstance(obj, (int, float, str, bool)) or obj is None:
+            out[prefix] = obj
+        return out
+
+    @staticmethod
+    def _decision_of(flat):
+        """-> 'refuse' | 'permit' | None, from whatever the department called it."""
+        for k, v in flat.items():
+            if not isinstance(v, str):
+                continue
+            kl, vl = k.lower(), v.lower()
+            if not any(w in kl for w in ("decision", "status", "conclusion", "verdict")):
+                continue
+            if any(w in vl for w in Anansi.REFUSE_WORDS):
+                return "refuse"
+            if any(w in vl for w in Anansi.PERMIT_WORDS):
+                return "permit"
+        return None
+
+    def check_cross_domain(self, prompt, answers):
+        """-> a finding. Both answers kept, the conflict named, nothing merged."""
+        flats = {d: self._flatten(a) for d, a in answers.items()}
+        conflicts = []
+
+        # 1. Opposed decisions.
+        decisions = {d: self._decision_of(f) for d, f in flats.items()}
+        stated = {d: v for d, v in decisions.items() if v}
+        if len(set(stated.values())) > 1:
+            conflicts.append({
+                "kind": "opposed_decisions",
+                "detail": {d: v for d, v in stated.items()},
+                "why": ("One department permits what another refuses, on the same "
+                        "request. Neither is overruled here - Anansi practises no "
+                        "domain and cannot say which is right."),
+            })
+
+        # 2. A department saying so itself.
+        for d, f in flats.items():
+            for k, v in f.items():
+                if isinstance(v, str) and v.lower() in ("contested", "conflicting"):
+                    conflicts.append({"kind": "self_declared", "domain": d,
+                                      "field": k, "value": v,
+                                      "why": f"{d} reported this as {v} on its own."})
+
+        # 3. Same field, different value.
+        doms = list(flats)
+        for i in range(len(doms)):
+            for j in range(i + 1, len(doms)):
+                a, b = doms[i], doms[j]
+                shared = set(flats[a]) & set(flats[b])
+                for k in sorted(shared):
+                    va, vb = flats[a][k], flats[b][k]
+                    if va is None or vb is None or isinstance(va, bool) != isinstance(vb, bool):
+                        continue
+                    if isinstance(va, (int, float)) and isinstance(vb, (int, float)):
+                        hi = max(abs(va), abs(vb)) or 1
+                        if abs(va - vb) / hi > 0.01:
+                            conflicts.append({
+                                "kind": "value_mismatch", "field": k,
+                                "detail": {a: va, b: vb},
+                                "why": (f"Both departments named {k} and gave "
+                                        f"different numbers."),
+                            })
+                    elif va != vb and isinstance(va, str) and len(str(va)) < 60:
+                        conflicts.append({
+                            "kind": "value_mismatch", "field": k,
+                            "detail": {a: va, b: vb},
+                            "why": f"Both departments named {k} and disagree.",
+                        })
+
+        return {
+            "cross_domain": True,
+            "contradicted": bool(conflicts),
+            "domains": list(answers),
+            "conflicts": conflicts,
+            "answers": answers,
+            "resolution": None if conflicts else "domains agree",
+            "note": ("Both answers are kept. A contradiction is surfaced, never "
+                     "resolved by outranking, and never merged into one sentence."
+                     if conflicts else
+                     "Both departments were asked and did not disagree."),
+        }
+
+    def route_to_orchestrator(self, prompt, metadata):
+        """Kept as the name the webapp and older callers use. It no longer
+        reaches an orchestrator - there is no hop to reach."""
+        return self.route_direct(prompt, metadata)
 
     def get_or_create_session(self, session_id):
         if session_id not in self.sessions:
