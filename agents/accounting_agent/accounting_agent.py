@@ -107,6 +107,7 @@ class AccountingAgent(AgentBase):
             port=9012,
             capabilities=[
                 "classify_value_movement",
+                "who_owns",
                 "veto",
                 "assess_assertion", "set_lease_terms", "reconcile", "parse_financial_instrument", "assess_tax_liability", "track_account_balance",
                 "lookup", "list_relationships", "get_relationship", "find_relationships",
@@ -1353,12 +1354,60 @@ class AccountingAgent(AgentBase):
                 "absence_state": "verified_clear" if label else "not_checked",
                 "implemented": True}
 
+
+    # ==================================================================
+    # THE OWNERSHIP GRAPH lives in core/ because it is SHARED. Ownership
+    # structure is the same fact whichever department asks: Trust needs it for
+    # beneficial interest, Legal to know who a counterparty actually is,
+    # Accounting to know whose books a figure belongs on. Three copies of a
+    # corporate tree is three answers to a question that has one.
+    #
+    # Accounting holds the VERB because the financial domain is where the
+    # question is usually asked from, and because this agent already owns
+    # EDGAR in the live column of its corpus. Trust and Legal reach it by A2A -
+    # they do not each grow a copy, for the same reason they borrow an
+    # authority rather than shelving a second one.
+    #
+    # READ-ONLY, AND NOT AS A PROMISE. core/ownership_graph.py contains one
+    # network function and it only issues GETs. There is no credential here and
+    # no write path to EDGAR or to any registry.
+    # ==================================================================
+
+    def who_owns(self, args):
+        """-> a cited ownership graph, or an entity with explicitly empty edges."""
+        a = args if isinstance(args, dict) else {}
+        query = (a.get("query") or a.get("entity") or a.get("name") or "").strip()
+        if not query:
+            return {"error": "who_owns needs an entity: a company name, person, "
+                             "or ticker"}
+        try:
+            from core.ownership_graph import OwnershipGraph
+        except Exception as e:
+            return {"error": f"ownership graph unavailable: {e}",
+                    "absence_state": "not_checked"}
+        try:
+            return OwnershipGraph().who_owns(
+                query,
+                include_insiders=bool(a.get("include_insiders")),
+                agent_id=self.agent_id)
+        except Exception as e:
+            # An error is not an absence of ownership. Say which happened.
+            self.log(f"who_owns({query!r}) failed: {e}")
+            return {"query": query, "error": str(e)[:200],
+                    "absence_state": "not_checked",
+                    "why": ("The lookup failed. That is not a finding about "
+                            "ownership - nothing was determined either way.")}
+
     def handle_task(self, task, args, sender):
         self.log(f"Task {task} from {sender}")
 
         cag_result = self.try_handle_cag_task(task, args)
         if cag_result is not None:
             return cag_result
+
+        if task == "who_owns":
+            return self.who_owns(args if isinstance(args, dict) else
+                                 {"query": args if isinstance(args, str) else ""})
 
         if task == "classify_value_movement":
             return self.classify_value_movement(args if isinstance(args, dict) else {})
