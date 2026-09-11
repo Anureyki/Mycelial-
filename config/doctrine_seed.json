@@ -1,0 +1,50 @@
+{
+  "_why": "Hand-curated doctrine vocabulary, indexed as lookup keys REGARDLESS OF FREQUENCY. Frequency mining finds what a document repeats, which in a scanned law review is the publisher's footer - it found 'electronic copy available' and missed 'spendthrift'. A term of art can appear once and still be the thing somebody looks up. Edit this file; no code change is needed.",
+  "_rule": "A seed term is indexed if it APPEARS in a section. It is never invented: a term absent from the text is absent from the index, so this widens what can be found and never widens what is claimed.",
+
+  "trust_agent": [
+    "spendthrift", "disgorgement", "prudence", "contractarian", "impartiality",
+    "surcharge", "trust protector", "sole interest", "best interest",
+    "settlor", "trustee", "beneficiary", "remainderman", "corpus", "res",
+    "bifurcation", "legal title", "equitable title", "beneficial interest",
+    "donative", "inter vivos", "testamentary", "revocable", "irrevocable",
+    "fiduciary duty", "duty of loyalty", "duty of care", "duty to inform",
+    "duty to account", "no further inquiry", "self-dealing", "conflict of interest",
+    "prudent investor", "portfolio theory", "diversification", "delegation",
+    "directed trust", "divided trusteeship", "co-trustee",
+    "constructive trust", "resulting trust", "purchase money resulting trust",
+    "equitable tracing", "tracing", "subrogation", "marshalling",
+    "cy pres", "deviation", "modification", "termination", "decanting",
+    "asset partitioning", "entity shielding", "creditor protection",
+    "agency costs", "residual claimant", "principal agent", "monitoring",
+    "opportunism", "moral hazard", "adverse selection",
+    "rule against perpetuities", "dynasty trust", "silent trust",
+    "ascertainable standard", "ha ma", "support trust", "discretionary trust",
+    "exculpatory clause", "mandatory rule", "default rule",
+    "make whole", "equitable damages", "accounting", "removal",
+    "standing", "virtual representation", "material purpose",
+    "grantor trust", "ilit", "crummey", "annual exclusion", "three year rule",
+    "incidents of ownership", "pour over", "funded", "unfunded"
+  ],
+
+  "legal_agent": [
+    "permissible purpose", "adverse action", "furnisher", "reinvestigation",
+    "consumer report", "consumer reporting agency", "reseller",
+    "peonage", "debt bondage", "involuntary servitude", "forced labor",
+    "amortize", "amortization", "coercion",
+    "validation notice", "cease communication", "least sophisticated consumer",
+    "laches", "estoppel", "unclean hands", "constructive notice",
+    "sovereign immunity", "qualified immunity", "standing", "ripeness",
+    "reasonable accommodation", "undue hardship", "interactive process",
+    "disparate impact", "disparate treatment", "pretext"
+  ],
+
+  "accounting_agent": [
+    "derecognition", "true sale", "secured borrowing", "contra account",
+    "chattel paper", "receivable", "recourse", "repurchase obligation",
+    "servicing retained", "special purpose entity", "originator",
+    "equitable interest", "beneficial ownership", "control", "custody",
+    "impairment", "allowance", "write off", "charge off",
+    "adverse action", "attempted origination", "posted label"
+  ]
+}

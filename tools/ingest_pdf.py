@@ -178,7 +178,29 @@ STOP_EDGE = {"the","a","an","of","in","to","and","or","is","are","was","were","b
              "there","then","than","also","other","same","own","case","cases","court"}
 
 
-def index_terms(sections, min_freq=None, max_terms=2500):
+def load_seed_vocabulary(agent):
+    """Hand-curated doctrine terms for this domain, indexed regardless of frequency.
+
+    Frequency mining answers "what does this document repeat", and in a scanned
+    law review the answer is the publisher's footer - it indexed "electronic
+    copy available" and missed "spendthrift". Worse, it is structurally blind to
+    a term of art that appears ONCE, which is exactly how a term appears when it
+    is the precise thing somebody needs.
+
+    A seed list turns the indexer from a frequency miner into a domain
+    dictionary. It only ever WIDENS what can be found: a seed term absent from
+    the text is absent from the index, so nothing is claimed that is not there."""
+    path = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
+                        "config", "doctrine_seed.json")
+    try:
+        with open(path, encoding="utf-8") as fh:
+            return [t.lower() for t in (json.load(fh).get(agent) or [])]
+    except Exception as exc:
+        print(f"  seed vocabulary unavailable ({exc}) - frequency terms only")
+        return []
+
+
+def index_terms(sections, min_freq=None, max_terms=2500, seed=()):
     """Doctrine terms a work actually discusses, keyed for exact lookup.
 
     A treatise is addressable by page and by the cases it cites, which is
@@ -199,10 +221,41 @@ def index_terms(sections, min_freq=None, max_terms=2500):
     # Maitland came back with two terms for a whole book on equity.
     if min_freq is None:
         min_freq = 3 if len(sections) >= 60 else 2
+    # PUBLISHING FURNITURE IS NOT VOCABULARY.
+    #
+    # Repetition is the signal here, and the most repeated strings in a scanned
+    # law review are the things printed on every page: "electronic copy
+    # available", "dukeminier supra note", the publisher's name. They indexed
+    # beautifully and address nothing. A term that appears on every page
+    # discriminates between no two pages.
+    FURNITURE = {
+        "supra", "infra", "ibid", "idem", "note", "notes", "hereinafter",
+        "electronic", "copy", "available", "download", "downloaded", "abstract",
+        "journal", "review", "volume", "issue", "article", "press", "university",
+        "oxford", "harvard", "cornell", "chicago", "yale", "stanford", "columbia",
+        "ssrn", "http", "https", "www", "com", "edu", "org", "reprinted",
+        "copyright", "rights", "reserved", "published", "publishing", "edition",
+        "manuscript", "draft", "forthcoming", "footnote", "page", "pages",
+    }
+
     freq, per_section = Counter(), []
     for s_ in sections:
         words = re.findall(r"[a-z]+", (s_.get("text") or "").lower())
         grams = set()
+        # SINGLE WORDS TOO.
+        #
+        # Only bigrams and trigrams were built, so every one-word doctrine term
+        # was unreachable by construction: contractarian, spendthrift,
+        # disgorgement, prudence, bifurcation, impartiality. A term printed as a
+        # section HEADING in the work could not be looked up in it, and the
+        # question fell through to a web search instead - which is the failure
+        # a local corpus exists to prevent.
+        #
+        # Six characters and up, because short words are function words far more
+        # often than they are doctrine, and the furniture list carries the rest.
+        for w in words:
+            if len(w) >= 6 and w not in STOP_EDGE and w not in FURNITURE:
+                grams.add(w)
         for n in (2, 3):
             for i in range(len(words) - n + 1):
                 g = words[i:i + n]
@@ -210,10 +263,39 @@ def index_terms(sections, min_freq=None, max_terms=2500):
                     continue
                 if any(len(w) < 4 for w in g):
                     continue
+                if any(w in FURNITURE for w in g):
+                    continue
                 grams.add(" ".join(g))
         per_section.append(grams)
         freq.update(grams)
     keep = {t for t, c in freq.most_common(max_terms) if c >= min_freq}
+
+    # Seed terms bypass the frequency floor entirely. Present once is enough -
+    # that is the whole point, and it is why this is a dictionary rather than a
+    # counter.
+    seed_hits = 0
+    for i, s_ in enumerate(sections):
+        flat = " ".join(re.findall(r"[a-z]+", (s_.get("text") or "").lower()))
+        for term in seed:
+            if term not in flat:
+                continue
+            # ALWAYS add to `keep`, even when the term is already in this
+            # section's grams. The guard `and term not in per_section[i]` meant a
+            # seed term that the unigram pass had already collected was skipped
+            # here - and since `keep` is built from the frequency floor, a word
+            # appearing twice in a 13-page paper then fell out anyway.
+            # "opportunism", "moral hazard" and "prudence" were all in the text,
+            # all in per_section, and none of them indexed. Bypassing the floor
+            # is the entire purpose of a seed list, so it cannot be conditional
+            # on the floor having already passed.
+            if term not in per_section[i]:
+                per_section[i].add(term)
+            if term not in keep:
+                keep.add(term)
+            seed_hits += 1
+    if seed_hits:
+        print(f"  {seed_hits} seed-term placements from the domain dictionary")
+
     index = {}
     for i, grams in enumerate(per_section):
         for t in grams & keep:
@@ -426,7 +508,7 @@ def main():
     # could reach an 1886 equity treatise. A regulation is MORE worth indexing
     # by subject, not less - nobody looks a duty up by section number they do
     # not already know.
-    terms = index_terms(sections)
+    terms = index_terms(sections, seed=load_seed_vocabulary(args.agent))
     # AUTHORITY CLASS IS NOT OPTIONAL.
     #
     # This tool wrote none at all. A licensed treatise went onto the shelf with
