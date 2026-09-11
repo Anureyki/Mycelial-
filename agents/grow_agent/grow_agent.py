@@ -10439,6 +10439,32 @@ class GrowAgent(AgentBase):
             elif _ec is not None and _ec >= 20:
                 _ec = round(_ec / 1000.0, 3)   # entered in uS/cm
 
+            _stage, _stage_src = args.get("stage"), "supplied by caller"
+            if not _stage:
+                # TWO STORAGE SHAPES FOR ONE FACT, which is why reading it is
+                # not a one-liner. `current_plant` keeps its stage in the
+                # `current_stage` memory key; every other plant keeps it on its
+                # own `plant_<id>` record. check_target_drift already branches
+                # exactly this way - so a lookup that knows only about plant
+                # records misses the stage of the one plant most readings are
+                # for, and lands on "unknown" while the record plainly says veg.
+                _pid = args.get("plant_id", "current_plant")
+                try:
+                    if _pid == "current_plant":
+                        _stage = self._unwrap_value(
+                            self.retrieve_own_memory("current_stage"))
+                        _stage_src = "current_stage record" if _stage else None
+                    else:
+                        _plant = next((x for x in self._get_all_plants()
+                                       if x.get("plant_id") == _pid), None)
+                        _stage = (_plant or {}).get("stage")
+                        _stage_src = "plant record" if _stage else None
+                except Exception as _e:
+                    self.log(f"stage lookup failed: {_e}")
+                    _stage, _stage_src = None, None
+            if not _stage:
+                _stage, _stage_src = "unknown", "not supplied and not on the plant record"
+
             _vol = self._parse_numeric(args.get("volume_liters")
                                        or args.get("reservoir_liters"))
             _vol_src, _vol_age = ("measured", None)
@@ -10475,7 +10501,25 @@ class GrowAgent(AgentBase):
                 # no way to tell whether a falling ppm means the plant is feeding
                 # or the solution is being diluted - see analyze_consumption.
                 "volume_liters": _vol,
-                "stage": args.get("stage", "seedling"),
+                # THE PLANT RECORD KNOWS THE STAGE. THIS USED TO GUESS IT.
+                #
+                # The default was the literal "seedling", so every reading that
+                # arrived without an explicit stage was stamped seedling no
+                # matter what the plant record said. The comment immediately
+                # below records the consequence - "a 25-day-old plant stayed
+                # recorded as a seedling through a month of readings" - and the
+                # fix made then was to RUN a stage check, which does not touch
+                # the field this line writes. So the detection was added and the
+                # cause was left in place: on 2026-09-11 a veg plant took a
+                # reading stamped seedling, two days after the same thing
+                # happened on 2026-09-05.
+                #
+                # A stage is a fact about the plant, held on the plant record.
+                # Read it. Where the record does not say, "unknown" is the
+                # honest value - a guessed stage silently re-bands every
+                # ppm and pH target that reads it.
+                "stage": _stage,
+                "stage_source": _stage_src,
                 "notes": args.get("notes", "")
             }
             ctx = self._reasoning_context(args)
