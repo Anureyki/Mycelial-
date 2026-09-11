@@ -1008,6 +1008,40 @@ another department's files, a browser profile carrying someone else's session -
 and `core/sandbox/channel.py` does not know which backend is underneath, which
 is what makes the phasing a swap rather than a rewrite.
 
+**Permission, not ownership - and the interior fails CLOSED.** The first cut of
+this asked *who owns this secret* and gave it to nobody else. Too blunt: Legal,
+Trust and Accounting all operate in finance and share resources constantly.
+Legal reads Accounting's ledger to test whether an instrument operates as
+claimed; Trust reads it to test whether a beneficial interest is borne out. An
+ownership test can only allow that by pretending the reader owns the books.
+
+So `config/resource_acl.json` gives each resource an owner and three grant
+lists - read, write, execute - and `core/acl.py` enforces them. **Ownership
+survives as the default grant**: the owner always has all three, everyone else
+is explicit. Read and write are separate because a department that could write
+another's ledger could make its own reading true.
+
+**The two layers fail in opposite directions, and that is the design:**
+
+| Layer | Direction | Why |
+|-------|-----------|-----|
+| Perimeter — `check_guard` | **fails OPEN** | A Security Agent that is restarting must not halt a grow reading. An outage should not stop work. |
+| Interior — `check_permission` | **fails CLOSED** | An unreadable ACL, an unknown resource, an unlisted action: all denied. An outage must not *grant* access. |
+
+An unavailable perimeter that denied would take the system down every time
+Security restarts. An unavailable interior that allowed would hand out Legal's
+token to whoever asked, while nobody could check. The interior runs **before**
+the perimeter round trip, so a Security Agent that is down cannot turn a
+permission question into an allow — and `tools/check_acl.py` asserts both
+directions, because a refactor that made them agree would be a security
+regression one way or an availability regression the other.
+
+**An unlisted resource is denied to everyone, including its owner** — a
+resource nobody wrote a rule for is a resource nobody decided about. That is
+correct at runtime and invisible, so the missing entry is caught as a *config
+lint* in CI instead: a grant naming an agent that does not exist is a rule
+pointing at nobody, and fails the build.
+
 **The credential leak came first, and it was not hypothetical.** Every agent
 process inherited the whole `.env`, because `os.environ` is per-process and one
 file was exported into all of them. Measured 2026-09-11: a Trust Agent process

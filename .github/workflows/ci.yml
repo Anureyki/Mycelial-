@@ -52,3 +52,9 @@ jobs:
         # Credential isolation, signed A2A, and a verb set that must not
         # grow by accident. Each verb is a hole in the boundary.
         run: python tools/check_sandbox.py
+      - name: Interior ACL fails closed
+        # Permission, not ownership. The perimeter fails open so an outage
+        # does not stop work; the interior fails closed so an outage does
+        # not grant access. A refactor aligning them is a regression either
+        # way, so both directions are asserted.
+        run: python tools/check_acl.py

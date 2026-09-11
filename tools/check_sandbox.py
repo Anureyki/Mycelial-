@@ -47,9 +47,16 @@ def main():
           "COURTLISTENER_API_TOKEN" in legal)
     check("no cross-department credential visible anywhere",
           not leak_check(m), str(leak_check(m))[:70])
-    unlisted = [k for k in fake if not m.get(k)]
-    check("every listed credential has a named owner",
-          all((m[k] or {}).get("owners") for k in m))
+    # SHAPE CHANGED WITH THE MODEL. The manifest used to carry an `owners`
+    # LIST because ownership was the permission. Under the ACL a resource has
+    # one `owner` plus explicit read/write/execute grants, so asserting the old
+    # key here would fail for every correctly-declared resource - which is
+    # exactly what CI caught on the migration.
+    check("every credential has a named owner",
+          all((m[k] or {}).get("owner") for k in m),
+          str([k for k in m if not (m[k] or {}).get("owner")])[:60])
+    check("permission is a grant, not ownership: read lists exist",
+          all(isinstance((m[k] or {}).get("read"), list) for k in m))
 
     # ---- 2. signed and logged A2A ----
     print("\n  2. A2A artifacts are signed, tamper-evident, and expire")

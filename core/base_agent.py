@@ -369,6 +369,46 @@ class AgentBase:
                     return value
         return ""
 
+    # ==================================================================
+    # THE INTERIOR CHECK. Opposite failure direction to check_guard below,
+    # and the difference is what the failure costs.
+    #
+    #   perimeter   fails OPEN  - a Security Agent that is restarting must not
+    #                             halt a grow reading. An outage should not
+    #                             stop work.
+    #   interior    fails CLOSED - an unreadable ACL, an unknown resource, an
+    #                             unlisted action, all denied. An outage must
+    #                             not GRANT access.
+    #
+    # An unavailable perimeter that denied would take the system down every
+    # time Security restarts. An unavailable interior that allowed would hand
+    # out Legal's token to whoever asked, while nobody could check.
+    # ==================================================================
+
+    def check_permission(self, resource, action="read", agent=None):
+        """-> (allowed, reason). Interior. Denies whatever it cannot verify."""
+        who = agent or self.agent_id
+        try:
+            from core.acl import check
+            allowed, why = check(who, resource, action)
+        except Exception as e:
+            # Even an import failure denies. The interior has no safe default
+            # other than no.
+            self.log(f"ACL check crashed for {who}/{resource}/{action}: {e}")
+            return False, (f"the permission check could not run ({e}); the "
+                           f"interior denies what it cannot verify")
+        if not allowed:
+            self.log(f"PERMISSION DENIED {who} {action} {resource}: {why}")
+        return allowed, why
+
+    def require_permission(self, resource, action="read", agent=None):
+        """Raises rather than returning a flag, for call sites that must not
+        be able to continue past a denial by ignoring a return value."""
+        allowed, why = self.check_permission(resource, action, agent)
+        if not allowed:
+            raise PermissionError(why)
+        return True
+
     def check_guard(self, task, args, sender):
         """Ask the Security Agent whether this request may proceed.
 
@@ -402,6 +442,22 @@ class AgentBase:
         #    an unbounded cache here would be a security regression.
         if os.path.exists(LOCK_FILE):
             return False, "state/LOCKED is present - all requests denied"
+
+        # INTERIOR, BEFORE THE PERIMETER ROUND TRIP. A request that names a
+        # resource is checked against the ACL here and fails closed, so a
+        # Security Agent that is down cannot turn a permission question into
+        # an allow. The perimeter below still fails open for everything else.
+        _res = None
+        if isinstance(args, dict):
+            _res = args.get("resource") or args.get("acl_resource")
+        if _res:
+            _action = (args.get("action") or
+                       ("write" if task.startswith(("set_", "log_", "amend_",
+                                                    "store_", "record_"))
+                        else "read"))
+            _ok, _why = self.check_permission(str(_res), _action)
+            if not _ok:
+                return False, f"interior ACL denied: {_why}"
 
         ck = (self.agent_id, task, sender, str(self._extract_target(args))[:120])
         now = time.time()

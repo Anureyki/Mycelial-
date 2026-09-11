@@ -1,0 +1,62 @@
+{
+  "_why": "PERMISSION, NOT OWNERSHIP. The first version of this asked 'who owns this secret' and gave it to nobody else. That is too blunt for how these departments actually work: Legal, Trust and Accounting all operate in finance and share resources constantly. An agent does not need to OWN a resource to read it - it needs permission, and permission is a grant somebody wrote down.",
+
+  "_model": "Each resource carries an owner and three grant lists. Ownership is the DEFAULT GRANT - the owner always has read, write and execute - and every other agent is explicit. That keeps the common case short without making sharing impossible.",
+
+  "_fails_closed": "This is the INTERIOR. A resource with no entry is denied to everyone, an unreadable file denies everything, and an action not listed is not granted. The perimeter guard (check_guard) still fails OPEN on purpose - a Security Agent that is restarting must not halt a grow reading - and the two directions are deliberate. An outage should not stop work; an outage must not grant access.",
+
+  "resources": {
+    "credential:COURTLISTENER_API_TOKEN": {
+      "kind": "credential", "owner": "legal_agent",
+      "read": [], "write": [], "execute": [],
+      "why": "CourtListener is Legal's live column. No other department queries dockets, so nobody else is granted - but the grant list exists, so granting is an edit and not a rewrite."
+    },
+    "credential:SOLANA_RPC_URL": {
+      "kind": "credential", "owner": "trading_agent",
+      "read": [], "write": [], "execute": [],
+      "sensitivity": "high",
+      "why": "THE URL IS THE CREDENTIAL - it embeds the QuickNode key. Trading only, and no grant list entries."
+    },
+    "credential:SENTRY_ACCESS_TOKEN": {
+      "kind": "credential", "owner": "maintenance_agent",
+      "read": [], "write": [], "execute": [],
+      "why": "Error monitoring is Maintenance's domain."
+    },
+    "credential:ANTHROPIC_API_KEY": {
+      "kind": "credential", "owner": "inference_service",
+      "read": [], "write": [], "execute": [],
+      "why": "Only the Inference Service calls a cloud model. An agent holding this key could bypass config/model_routing.json entirely."
+    },
+    "credential:NOTIFY_SMTP_HOST": {"kind":"credential","owner":"anansi","read":[],"write":[],"execute":[],"why":"Anansi owns every outbound channel."},
+    "credential:NOTIFY_SMTP_USER": {"kind":"credential","owner":"anansi","read":[],"write":[],"execute":[],"why":"Anansi owns every outbound channel."},
+    "credential:NOTIFY_SMTP_PASS": {"kind":"credential","owner":"anansi","read":[],"write":[],"execute":[],"sensitivity":"high","why":"Anansi owns every outbound channel."},
+    "credential:NOTIFY_TO":        {"kind":"credential","owner":"anansi","read":[],"write":[],"execute":[],"why":"Anansi owns every outbound channel."},
+
+    "credential:INFERENCE_MODEL":   {"kind":"config","owner":"inference_service","read":["*"],"write":[],"execute":[],"why":"Not a secret. A model name."},
+    "credential:OLLAMA_KEEP_ALIVE": {"kind":"config","owner":"inference_service","read":["*"],"write":[],"execute":[],"why":"Not a secret. A cache duration."},
+    "credential:VISION_TIMEOUT":    {"kind":"config","owner":"inference_service","read":["*"],"write":[],"execute":[],"why":"Not a secret."},
+    "credential:VISION_IDLE_RELEASE_SECONDS": {"kind":"config","owner":"inference_service","read":["*"],"write":[],"execute":[],"why":"Not a secret."},
+
+    "ledger:finance_shared": {
+      "kind": "ledger", "owner": "accounting_agent",
+      "read": ["legal_agent", "trust_agent"],
+      "write": [],
+      "execute": [],
+      "why": "THE CASE THAT OWNERSHIP GOT WRONG. Accounting owns the books; Legal needs to read them to test whether an instrument operates as claimed, and Trust to test whether a beneficial interest is borne out. Both read, NEITHER writes - a department that could write another's ledger could make its own reading true."
+    },
+
+    "corpus:legal_agent":      {"kind":"corpus","owner":"legal_agent","read":["trust_agent","accounting_agent"],"write":[],"execute":[],
+      "why":"ask_peer_corpus depends on this. A department borrows a sibling's authority rather than shelving a second copy, so read is granted and write never is - two writable copies of an authority is two sources of truth."},
+    "corpus:trust_agent":      {"kind":"corpus","owner":"trust_agent","read":["legal_agent","accounting_agent"],"write":[],"execute":[],"why":"Same borrowing rule."},
+    "corpus:accounting_agent": {"kind":"corpus","owner":"accounting_agent","read":["legal_agent","trust_agent"],"write":[],"execute":[],"why":"Same borrowing rule."},
+    "corpus:grow_agent":       {"kind":"corpus","owner":"grow_agent","read":[],"write":[],"execute":[],"why":"Nothing outside the grow reasons about horticulture."},
+
+    "case:hud_vash": {
+      "kind": "case", "owner": "legal_agent",
+      "read": ["accounting_agent", "trust_agent", "anansi"],
+      "write": ["accounting_agent"],
+      "execute": [],
+      "why": "A case is ONE object shared by several departments - that is the whole design. Accounting writes because it records obligations and payments against the matter; Trust and Anansi read only. The principal's live HUD-VASH matter."
+    }
+  }
+}
