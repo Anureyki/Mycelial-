@@ -102,7 +102,8 @@ def _identity(doc):
         out["kind"] = "state_statute"
         out["state"] = doc["jurisdiction"]
         return out
-    if doc.get("authority_class") in ("doctrine_summary", "treatise", "court_rules"):
+    if doc.get("authority_class") in ("doctrine_summary", "treatise", "court_rules",
+                                     "advocacy"):
         out["kind"] = doc["authority_class"]
     return out
 

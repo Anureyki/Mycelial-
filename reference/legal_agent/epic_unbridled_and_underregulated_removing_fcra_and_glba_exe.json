@@ -1,0 +1,2939 @@
+{
+"title": "EPIC, Unbridled and Underregulated: Removing FCRA and GLBA Exemptions from Privacy Laws to Hold Data Brokers Accountable (July 2025)",
+"source": "Caroline Kraczon (EPIC Law Fellow) & Justin Sherman (EPIC Scholar in Residence), Electronic Privacy Information Center, July 2025. Edited by John Davisson and Caitriona Fitzgerald. Retrieved 2026-09-11 from epic.org. DISCLOSED FUNDING, recorded because the paper discloses it rather than because it is disqualifying: 'This project was supported by funding from Reset.' EPIC is a privacy advocacy organisation and this paper argues a policy position - it is not a neutral survey and does not present itself as one ('we recommend'). COVERAGE NOTE: it cites GLBA at 15 U.S.C. 6801-6805 and 6809, shelved as statute alongside it so its citations can be opened rather than taken on its word.",
+"authority_class": "advocacy",
+"authority_class_basis": "--authority-class advocacy",
+"claim_layer": "mixed",
+"claim_layer_meaning": "Carries more than one layer. The PASSAGE has to be read to tell which - the document-level label cannot.",
+"authorities_cited": [
+"Fee v. Illinois",
+"Harvey v. Resurrection",
+"In Patterson v. Respondus",
+"L.L.C. v. Fed",
+"Patterson v. Respondus",
+"Powell v. DePaul"
+],
+"term_index": {
+"including employment background": [
+0,
+11
+],
+"credit reporting": [
+0,
+1,
+2,
+3,
+4,
+6,
+8,
+11,
+15,
+16,
+17,
+18,
+23
+],
+"purposes including": [
+0,
+11
+],
+"nonprofit basis": [
+0,
+3
+],
+"privacy laws": [
+0,
+1,
+2,
+11,
+12,
+13,
+16,
+18,
+19,
+20,
+21,
+22,
+23
+],
+"medical insurance": [
+0,
+11
+],
+"medical insurance underwriting": [
+0,
+11
+],
+"bank holding company": [
+0,
+6
+],
+"caitriona fitzgerald": [
+0,
+12
+],
+"entire entity": [
+0,
+13,
+20
+],
+"consumer credit": [
+0,
+3,
+9,
+15
+],
+"checks subprime lending": [
+0,
+11
+],
+"basis regularly engages": [
+0,
+3
+],
+"auto dealers": [
+0,
+6
+],
+"financial activities": [
+0,
+6
+],
+"data level": [
+0,
+2,
+13,
+14,
+15,
+16,
+18,
+23
+],
+"bank holding": [
+0,
+6
+],
+"level exemption": [
+0,
+12,
+13,
+14,
+15
+],
+"inferences about": [
+0,
+1
+],
+"consumer reporting agencies": [
+0,
+1,
+2,
+3,
+4,
+5,
+6,
+17,
+21
+],
+"subprime lending": [
+0,
+11
+],
+"financial institution": [
+0,
+1,
+4,
+6,
+7,
+9,
+15,
+18,
+19,
+20,
+21,
+22
+],
+"employment background": [
+0,
+11
+],
+"nonprofit basis regularly": [
+0,
+3
+],
+"specialty consumer reports": [
+0,
+11
+],
+"check cashers": [
+0,
+6
+],
+"cooperative nonprofit basis": [
+0,
+3
+],
+"entity level": [
+0,
+2,
+12,
+13,
+14,
+15,
+16,
+18,
+20,
+23
+],
+"data level exemption": [
+0,
+13,
+14,
+15
+],
+"national consumer": [
+0,
+6,
+11,
+17,
+18
+],
+"consumer reporting agency": [
+0,
+1,
+2,
+3,
+4,
+5,
+6,
+13,
+15,
+17,
+21
+],
+"fees dues": [
+0,
+3
+],
+"background checks": [
+0,
+11
+],
+"tenant screening": [
+0,
+11,
+17
+],
+"only applies": [
+0,
+13
+],
+"bank companies": [
+0,
+6
+],
+"monetary fees": [
+0,
+3
+],
+"fair credit": [
+0,
+1,
+2,
+3,
+4,
+6,
+11,
+15,
+17,
+18
+],
+"data-level exemption": [
+0,
+13,
+14,
+15,
+16,
+18
+],
+"caroline kraczon": [
+0,
+6
+],
+"regularly engages": [
+0,
+3
+],
+"entity-level exemption": [
+0,
+2,
+12,
+13,
+14,
+15,
+16,
+18,
+20,
+23
+],
+"library citing trans": [
+0,
+6
+],
+"defined broadly": [
+0,
+6
+],
+"glba exemptions": [
+0,
+12,
+13,
+14,
+15,
+16,
+19,
+20
+],
+"citing trans union": [
+0,
+6
+],
+"consumer reports": [
+0,
+3,
+4,
+11,
+17
+],
+"fair credit reporting": [
+0,
+1,
+2,
+3,
+4,
+6,
+11,
+15,
+17,
+18
+],
+"lending tenant": [
+0,
+11
+],
+"entity level exemption": [
+0,
+12,
+13,
+14,
+15
+],
+"credit information": [
+0,
+3,
+7
+],
+"holding company": [
+0,
+6
+],
+"employment background checks": [
+0,
+11
+],
+"credit report": [
+0,
+1,
+2,
+3,
+4,
+6,
+7,
+8,
+11,
+15,
+16,
+17,
+18,
+21,
+23
+],
+"interstate commerce": [
+0,
+3
+],
+"reporting agencies": [
+0,
+1,
+2,
+3,
+4,
+5,
+6,
+17,
+21
+],
+"sell credit reports": [
+0,
+1,
+11
+],
+"consumer credit information": [
+0,
+3
+],
+"furnishing consumer reports": [
+0,
+3
+],
+"center fair credit": [
+0,
+6,
+11,
+18
+],
+"monetary fees dues": [
+0,
+3
+],
+"reporting agency": [
+0,
+3,
+4,
+13,
+15,
+17
+],
+"activities regulated": [
+0,
+13,
+15
+],
+"purposes including employment": [
+0,
+11
+],
+"center fair": [
+0,
+6,
+11,
+18
+],
+"subprime lending tenant": [
+0,
+11
+],
+"consumer reporting": [
+0,
+1,
+2,
+3,
+4,
+5,
+6,
+13,
+15,
+17,
+21
+],
+"personal data": [
+0,
+1,
+5,
+7,
+9,
+10,
+11,
+15,
+20,
+21,
+23
+],
+"trans union": [
+0,
+6
+],
+"furnishing consumer": [
+0,
+3
+],
+"insurance underwriting": [
+0,
+10,
+11
+],
+"third parties": [
+0,
+3,
+4,
+6,
+7,
+9,
+10,
+21
+],
+"specific purposes including": [
+0,
+11
+],
+"credit reports": [
+0,
+1,
+2,
+3,
+4,
+7,
+11,
+21
+],
+"specialty consumer": [
+0,
+11
+],
+"evaluating consumer credit": [
+0,
+3
+],
+"sell credit": [
+0,
+1,
+11
+],
+"justin sherman": [
+0,
+3
+],
+"data broker": [
+0,
+1,
+2,
+3,
+5,
+11,
+15,
+16,
+17,
+18,
+23
+],
+"specific purposes": [
+0,
+11
+],
+"basis regularly": [
+0,
+3
+],
+"evaluating consumer": [
+0,
+3
+],
+"consumer report": [
+0,
+1,
+2,
+3,
+4,
+5,
+6,
+7,
+11,
+13,
+15,
+16,
+17,
+21
+],
+"consumers data": [
+0,
+1
+],
+"including employment": [
+0,
+11
+],
+"library citing": [
+0,
+6
+],
+"screening medical insurance": [
+0,
+11
+],
+"checks subprime": [
+0,
+11
+],
+"data brokers": [
+0,
+1,
+2,
+3,
+5,
+15,
+16,
+18,
+23
+],
+"cooperative nonprofit": [
+0,
+3
+],
+"lending tenant screening": [
+0,
+11
+],
+"citing trans": [
+0,
+6
+],
+"specialty consumer reporting agency": [
+0
+],
+"trade comm": [
+0,
+6
+],
+"background checks subprime": [
+0,
+11
+],
+"screening medical": [
+0,
+11
+],
+"tenant screening medical": [
+0,
+11
+],
+"covered data": [
+1,
+13,
+16,
+21,
+22,
+23
+],
+"state privacy legislation": [
+1,
+11,
+21,
+22
+],
+"brokers often": [
+1,
+5
+],
+"gramm-leach-bliley": [
+1,
+3,
+5,
+15,
+17
+],
+"data brokers often": [
+1,
+5
+],
+"sell much": [
+1,
+5
+],
+"financial institutions": [
+1,
+4,
+6,
+7,
+9,
+19,
+20,
+22
+],
+"protections included": [
+1,
+19,
+22
+],
+"harmful data": [
+1,
+2,
+5,
+23
+],
+"access their credit": [
+1,
+22
+],
+"fair credit reporting act": [
+1,
+2,
+3,
+4,
+15,
+17
+],
+"fcra covered data": [
+1,
+22,
+23
+],
+"data brokerage": [
+1,
+3,
+11,
+16,
+23
+],
+"credit score": [
+1,
+4,
+5,
+22
+],
+"glba covered entities": [
+1,
+12,
+13
+],
+"state privacy": [
+1,
+11,
+12,
+13,
+14,
+16,
+18,
+20,
+21,
+22,
+23
+],
+"broker industry": [
+1,
+23
+],
+"glba covered": [
+1,
+12,
+13,
+16,
+19
+],
+"leach bliley": [
+1,
+3,
+5,
+15,
+17
+],
+"beyond what": [
+1,
+8
+],
+"fcra covered": [
+1,
+2,
+18,
+22,
+23
+],
+"general state": [
+1,
+12,
+13,
+14,
+16,
+18,
+21,
+22
+],
+"data including": [
+1,
+10
+],
+"data broker industry": [
+1,
+23
+],
+"gramm leach bliley": [
+1,
+3,
+5,
+15,
+17
+],
+"covered entities": [
+1,
+12,
+13,
+18
+],
+"privacy legislation": [
+1,
+11,
+20,
+21,
+22
+],
+"credit file": [
+1,
+22
+],
+"fcra covers": [
+1,
+21
+],
+"gramm leach": [
+1,
+3,
+5,
+15,
+17
+],
+"general state privacy": [
+1,
+12,
+13,
+14,
+16,
+18,
+21,
+22
+],
+"health information": [
+1,
+20
+],
+"state privacy laws": [
+1,
+11,
+12,
+13,
+16,
+18,
+20,
+21,
+22,
+23
+],
+"employment information": [
+1,
+10
+],
+"regulatory arbitrage": [
+1
+],
+"personal information": [
+1,
+4,
+5,
+6,
+9,
+10,
+11,
+12,
+15,
+20,
+21,
+22,
+23
+],
+"much more": [
+1,
+5,
+21
+],
+"biometric data": [
+1,
+10
+],
+"protections against": [
+2,
+23
+],
+"cras today": [
+2,
+7
+],
+"brokers fulfill": [
+2,
+23
+],
+"receive protections": [
+2,
+23
+],
+"protections against cras": [
+2,
+23
+],
+"protecting americans": [
+2,
+5,
+23
+],
+"documents cfpb": [
+2,
+20
+],
+"place further": [
+2,
+23
+],
+"cfpb should resuscitate": [
+2,
+23
+],
+"federal agencies": [
+2,
+23
+],
+"laws should pass": [
+2,
+23
+],
+"federal trade": [
+2,
+7,
+23
+],
+"potential loopholes": [
+2,
+23
+],
+"financial data congress": [
+2,
+23
+],
+"actions against": [
+2,
+20,
+23
+],
+"data brokers fulfill": [
+2,
+23
+],
+"states should": [
+2,
+23
+],
+"entity level exemptions": [
+2,
+13,
+16,
+18,
+20,
+23
+],
+"without entity": [
+2,
+23
+],
+"consumers credit": [
+2,
+4,
+21
+],
+"actions against data": [
+2,
+23
+],
+"practices rulemaking": [
+2,
+23
+],
+"data brokers violating": [
+2,
+23
+],
+"meaning data": [
+2,
+23
+],
+"consumers from data": [
+2,
+23
+],
+"data practices": [
+2,
+11,
+12,
+22,
+23
+],
+"files consumerfinance": [
+2,
+4,
+20
+],
+"fcra data level": [
+2,
+14,
+15,
+23
+],
+"proposal would clarify": [
+2,
+23
+],
+"consumers lastly federal": [
+2,
+23
+],
+"covered activities": [
+2,
+4
+],
+"general consumer privacy": [
+2,
+23
+],
+"cras must comply": [
+2,
+23
+],
+"financial protection bureau": [
+2,
+4,
+5,
+20
+],
+"without general": [
+2,
+23
+],
+"further lawmakers should": [
+2,
+23
+],
+"activities like selling": [
+2,
+23
+],
+"states should remove": [
+2,
+23
+],
+"gaps states": [
+2,
+23
+],
+"consumers lastly": [
+2,
+23
+],
+"strengthen rules": [
+2,
+23
+],
+"should introduce": [
+2,
+23
+],
+"consumer financial protection": [
+2,
+4,
+5,
+20
+],
+"data level glba": [
+2,
+23
+],
+"first place": [
+2,
+23
+],
+"access consumers": [
+2,
+12
+],
+"level glba": [
+2,
+13,
+23
+],
+"like selling": [
+2,
+23
+],
+"enforcement actions against": [
+2,
+20,
+23
+],
+"protect consumers": [
+2,
+23
+],
+"states with consumer": [
+2,
+23
+],
+"lastly federal agencies": [
+2,
+23
+],
+"should pass": [
+2,
+23
+],
+"should also bring": [
+2,
+23
+],
+"bring enforcement actions": [
+2,
+23
+],
+"states without general": [
+2,
+23
+],
+"laws should evaluate": [
+2,
+23
+],
+"financial data": [
+2,
+20,
+23
+],
+"introduce legislation": [
+2,
+23
+],
+"fcra data": [
+2,
+14,
+15,
+23
+],
+"financial protection": [
+2,
+4,
+5,
+20
+],
+"first place further": [
+2,
+23
+],
+"level exemptions": [
+2,
+13,
+15,
+16,
+18,
+20,
+23
+],
+"cras other data": [
+2,
+23
+],
+"gaps states should": [
+2,
+23
+],
+"against data brokers": [
+2,
+23
+],
+"government agencies": [
+2,
+9,
+11
+],
+"both exercise": [
+2,
+23
+],
+"laws should": [
+2,
+16,
+20,
+23
+],
+"trade commission": [
+2,
+7,
+23
+],
+"like selling demographic": [
+2,
+23
+],
+"consumer financial": [
+2,
+4,
+5,
+20
+],
+"fcra covered financial": [
+2,
+23
+],
+"enormous amounts": [
+2,
+12
+],
+"exemptions from consumer": [
+2,
+23
+],
+"data activities": [
+2,
+16,
+23
+],
+"data congress": [
+2,
+23
+],
+"many data brokers": [
+2,
+3,
+5,
+23
+],
+"covered financial data": [
+2,
+23
+],
+"place further lawmakers": [
+2,
+23
+],
+"equifax experian": [
+2,
+7,
+9
+],
+"americans from harmful": [
+2,
+5,
+23
+],
+"fcra exemptions": [
+2,
+18,
+21,
+23
+],
+"federal trade commission": [
+2,
+7,
+23
+],
+"against cras": [
+2,
+23
+],
+"activities like": [
+2,
+23
+],
+"privacy laws should": [
+2,
+16,
+20,
+23
+],
+"harmful data practices": [
+2,
+23
+],
+"many data": [
+2,
+3,
+5,
+23
+],
+"should remove glba": [
+2,
+23
+],
+"states without": [
+2,
+23
+],
+"general consumer": [
+2,
+23
+],
+"without general consumer": [
+2,
+23
+],
+"enforcement agencies": [
+2,
+7
+],
+"last accessed": [
+2,
+3,
+4,
+7,
+8,
+17
+],
+"consumer privacy": [
+2,
+11,
+12,
+16,
+20,
+23
+],
+"brokers violating": [
+2,
+23
+],
+"against data": [
+2,
+23
+],
+"protection bureau": [
+2,
+4,
+5,
+20
+],
+"cfpb federal": [
+2,
+23
+],
+"should resuscitate": [
+2,
+23
+],
+"lastly federal": [
+2,
+23
+],
+"cfpb should": [
+2,
+23
+],
+"selling demographic": [
+2,
+23
+],
+"enforcement actions": [
+2,
+20,
+23
+],
+"close these gaps": [
+2,
+23
+],
+"cfpb federal trade": [
+2,
+23
+],
+"consumer privacy laws": [
+2,
+20,
+23
+],
+"fcra meaning data": [
+2,
+23
+],
+"should introduce legislation": [
+2,
+23
+],
+"laws without entity": [
+2,
+23
+],
+"meaning data brokers": [
+2,
+23
+],
+"should remove": [
+2,
+20,
+23
+],
+"work number": [
+2,
+3
+],
+"bring enforcement": [
+2,
+23
+],
+"lawmakers should": [
+2,
+23
+],
+"fcra meaning": [
+2,
+23
+],
+"selling demographic data": [
+2,
+23
+],
+"further lawmakers": [
+2,
+23
+],
+"data practices rulemaking": [
+2,
+23
+],
+"remove glba": [
+2,
+23
+],
+"fcra without": [
+2,
+23
+],
+"clarify that many": [
+2,
+23
+],
+"demographic data": [
+2,
+23
+],
+"largest cras": [
+2,
+7
+],
+"should evaluate": [
+2,
+23
+],
+"lawmakers should introduce": [
+2,
+23
+],
+"laws without": [
+2,
+23
+],
+"receive protections against": [
+2,
+23
+],
+"covered financial": [
+2,
+19,
+23
+],
+"data activities like": [
+2,
+23
+],
+"standing": [
+3,
+7,
+15,
+23
+],
+"data contained": [
+3,
+21
+],
+"credit standing": [
+3,
+15
+],
+"consumer data": [
+3,
+9,
+10,
+21
+],
+"credit capacity character": [
+3,
+15
+],
+"reputation personal": [
+3,
+15
+],
+"well beyond": [
+3,
+7,
+8
+],
+"personal characteristics": [
+3,
+10,
+15,
+17
+],
+"credit capacity": [
+3,
+15
+],
+"standing credit capacity": [
+3,
+15
+],
+"character general reputation": [
+3,
+15
+],
+"capacity character general": [
+3,
+15
+],
+"capacity character": [
+3,
+15
+],
+"accessed september": [
+3,
+4
+],
+"last accessed september": [
+3,
+4
+],
+"general reputation": [
+3,
+15,
+17
+],
+"reputation personal characteristics": [
+3,
+15
+],
+"standing credit": [
+3,
+15
+],
+"data will": [
+3,
+23
+],
+"employment data": [
+3,
+9
+],
+"character general": [
+3,
+15
+],
+"credit standing credit": [
+3,
+15
+],
+"general reputation personal": [
+3,
+15
+],
+"inaccurate information": [
+4,
+22
+],
+"know what": [
+4,
+22
+],
+"credit freeze": [
+4,
+21
+],
+"prescreened": [
+4
+],
+"third party": [
+4,
+9,
+15,
+21
+],
+"information consumer reporting": [
+4,
+5
+],
+"permissible purpose": [
+4,
+21
+],
+"information consumer": [
+4,
+5
+],
+"dispute incomplete": [
+4,
+22
+],
+"reporting data": [
+4,
+11,
+23
+],
+"used against": [
+4,
+22
+],
+"releasing information": [
+4,
+21
+],
+"unverifiable information": [
+4,
+22
+],
+"consumers credit reports": [
+4,
+21
+],
+"nationwide consumer reporting": [
+4,
+21
+],
+"delete inaccurate incomplete": [
+4,
+22
+],
+"fcra gives": [
+4,
+22
+],
+"delete inaccurate": [
+4,
+22
+],
+"protect privacy": [
+4,
+12
+],
+"inaccurate incomplete": [
+4,
+22
+],
+"nationwide consumer": [
+4,
+21
+],
+"financial services": [
+5,
+7
+],
+"sell personal": [
+5,
+7
+],
+"data about": [
+5,
+7
+],
+"physical safety": [
+5,
+23
+],
+"history credit": [
+5,
+21
+],
+"credit history": [
+5,
+21
+],
+"sell data": [
+5,
+23
+],
+"sensitive personal": [
+5,
+10,
+11,
+21
+],
+"broad exemptions": [
+6,
+23
+],
+"provide privacy": [
+6,
+22
+],
+"provide strong": [
+6,
+22
+],
+"financial institutions covered": [
+6,
+19
+],
+"companies provide": [
+6,
+10
+],
+"privacy protections": [
+6,
+12,
+19,
+20,
+21,
+22,
+23
+],
+"nonaffiliated third party": [
+6,
+7,
+15,
+21
+],
+"nonaffiliated third": [
+6,
+7,
+15,
+21
+],
+"nonaffiliated third parties": [
+6,
+7,
+21
+],
+"privacy policy": [
+6,
+9,
+10,
+11
+],
+"provide strong privacy": [
+6,
+22
+],
+"nonpublic personal information": [
+6
+],
+"consumers about": [
+6,
+12,
+22
+],
+"privacy notice": [
+6,
+9,
+10,
+11
+],
+"opt out": [
+6,
+7,
+12,
+21,
+22
+],
+"affiliate": [
+6,
+7,
+15,
+21
+],
+"strong privacy protections": [
+6,
+22
+],
+"information held": [
+6,
+20
+],
+"privacy policies": [
+6,
+9
+],
+"glba provides": [
+6,
+7,
+21
+],
+"strong privacy": [
+6,
+22
+],
+"provides specific": [
+6,
+7
+],
+"glba provides specific": [
+6,
+7
+],
+"institutions must provide": [
+6,
+22
+],
+"consumer information": [
+6,
+12
+],
+"financial information": [
+6,
+7,
+9,
+17,
+21
+],
+"institutions covered": [
+6,
+19
+],
+"geolocation data": [
+7,
+9,
+10
+],
+"data security requirements": [
+7,
+15
+],
+"security requirements": [
+7,
+15
+],
+"data security": [
+7,
+15
+],
+"certain data": [
+7,
+12,
+22
+],
+"facial recognition technology": [
+8,
+19
+],
+"facial recognition": [
+8,
+10,
+19
+],
+"most recently": [
+8,
+16
+],
+"recognition technology": [
+8,
+19
+],
+"last months": [
+9,
+10
+],
+"information education information": [
+9,
+10
+],
+"privacy statement last": [
+9,
+10
+],
+"policy experian": [
+9,
+10
+],
+"policy last updated": [
+9,
+10
+],
+"privacy transunion": [
+9,
+10,
+11
+],
+"commercial transaction": [
+9,
+10
+],
+"last updated june": [
+9,
+10
+],
+"privacy policy experian": [
+9,
+10
+],
+"privacy statement equifax": [
+9,
+10
+],
+"public records": [
+9,
+16
+],
+"privacy transunion last": [
+9,
+10,
+11
+],
+"statement equifax": [
+9,
+10
+],
+"commercial information internet": [
+9,
+10
+],
+"third party data": [
+9,
+15
+],
+"data privacy policy": [
+9,
+10
+],
+"drawn from personal": [
+9,
+10
+],
+"statement last": [
+9,
+10
+],
+"policy last": [
+9,
+10
+],
+"related information education": [
+9,
+10
+],
+"last updated july": [
+9,
+10,
+11
+],
+"inferences drawn": [
+9,
+10
+],
+"privacy policy transunion": [
+9,
+10
+],
+"data privacy": [
+9,
+10,
+16,
+20,
+22
+],
+"party data": [
+9,
+15
+],
+"network activity": [
+9,
+10
+],
+"data collected": [
+9,
+12,
+22
+],
+"privacy statement sourcesofpersonaldata": [
+9,
+10
+],
+"statement last updated": [
+9,
+10
+],
+"policy transunion": [
+9,
+10
+],
+"privacy privacy statement": [
+9,
+10
+],
+"equifax privacy": [
+9,
+10
+],
+"education information": [
+9,
+10
+],
+"consumer data privacy": [
+9,
+10
+],
+"related information": [
+9,
+10
+],
+"statement sourcesofpersonaldata": [
+9,
+10
+],
+"privacy statement": [
+9,
+10
+],
+"personal identifiers": [
+9,
+10
+],
+"transunion last updated": [
+9,
+10,
+11
+],
+"privacy policy last": [
+9,
+10
+],
+"commercial information": [
+9,
+10
+],
+"last updated": [
+9,
+10,
+11
+],
+"privacy privacy": [
+9,
+10
+],
+"information internet": [
+9,
+10
+],
+"equifax privacy statement": [
+9,
+10
+],
+"notice transunion": [
+9,
+10,
+11
+],
+"transunion last": [
+9,
+10,
+11
+],
+"information education": [
+9,
+10
+],
+"contact information": [
+9,
+17
+],
+"updated july": [
+9,
+10,
+11
+],
+"privacy notice transunion": [
+9,
+10,
+11
+],
+"updated june": [
+9,
+10
+],
+"sensitive personal information": [
+10,
+11,
+21
+],
+"biometric information": [
+10,
+11,
+19
+],
+"rhode island": [
+11,
+14
+],
+"legislation tracker": [
+11,
+21,
+22
+],
+"legislation tracker iapp": [
+11,
+22
+],
+"give consumers": [
+11,
+22,
+23
+],
+"data collection": [
+11,
+13,
+16
+],
+"iapp state privacy": [
+11,
+21,
+22
+],
+"laws differ": [
+11,
+15
+],
+"privacy legislation tracker": [
+11,
+21,
+22
+],
+"iapp state": [
+11,
+21,
+22
+],
+"credit reporting data": [
+11,
+23
+],
+"minnesota montana": [
+11,
+12,
+13
+],
+"tracker iapp": [
+11,
+22
+],
+"personal information right": [
+12,
+22
+],
+"does include": [
+12,
+21
+],
+"request their data": [
+12,
+22
+],
+"state except california": [
+12,
+13
+],
+"except california": [
+12,
+13
+],
+"connecticut minnesota montana": [
+12,
+13
+],
+"suits against": [
+12,
+18,
+19
+],
+"about certain": [
+12,
+22
+],
+"collected their information": [
+12,
+22
+],
+"provide notice": [
+12,
+21,
+22
+],
+"glba entity": [
+12,
+13,
+14,
+15
+],
+"right to delete": [
+12,
+22
+],
+"every state": [
+12,
+13
+],
+"request that businesses": [
+12,
+22
+],
+"businesses delete": [
+12,
+22
+],
+"except california connecticut": [
+12,
+13
+],
+"about certain data": [
+12,
+22
+],
+"data minimization": [
+12,
+22
+],
+"large entities": [
+12,
+20
+],
+"privacy programs": [
+12,
+22
+],
+"laws currently": [
+12,
+18,
+23
+],
+"california connecticut minnesota": [
+12,
+13
+],
+"information right": [
+12,
+22
+],
+"glba entity level": [
+12,
+13,
+14,
+15
+],
+"certain data practices": [
+12,
+22
+],
+"every state except": [
+12,
+13
+],
+"allow consumers": [
+12,
+15,
+21
+],
+"state except": [
+12,
+13
+],
+"consumers about certain": [
+12,
+22
+],
+"california connecticut": [
+12,
+13
+],
+"delete their personal": [
+12,
+22
+],
+"data from businesses": [
+12,
+22
+],
+"right of access": [
+12,
+22
+],
+"oregon also includes": [
+12,
+13
+],
+"privacy laws currently": [
+12,
+18,
+23
+],
+"connecticut minnesota": [
+12,
+13
+],
+"sensitive data": [
+12,
+22
+],
+"laws include": [
+12,
+15
+],
+"collected data": [
+12,
+22
+],
+"glba data": [
+13,
+14,
+15
+],
+"glba data level": [
+13,
+14,
+15
+],
+"include exemptions": [
+13,
+22
+],
+"fcra exemption": [
+13,
+14,
+15
+],
+"table below": [
+13,
+21
+],
+"entities regulated": [
+13,
+19,
+21
+],
+"laws also include": [
+13,
+18
+],
+"exempt glba": [
+13,
+23
+],
+"glba covered data": [
+13,
+16
+],
+"level exemptions meaning": [
+13,
+15
+],
+"exemptions meaning": [
+13,
+15
+],
+"data level exemptions": [
+13,
+15,
+16,
+18
+],
+"glba exemptions state": [
+14,
+15
+],
+"glba exemption": [
+14,
+15,
+19
+],
+"exemptions state": [
+14,
+15
+],
+"broker registry": [
+15,
+18
+],
+"state data broker": [
+15,
+18
+],
+"broker registry laws": [
+15,
+18
+],
+"data broker registry": [
+15,
+18
+],
+"registry laws": [
+15,
+18
+],
+"state data": [
+15,
+18
+],
+"regulatory gaps": [
+16,
+19
+],
+"search data": [
+16,
+17
+],
+"people search": [
+16,
+17,
+18
+],
+"search data broker": [
+16,
+17
+],
+"federal privacy": [
+16,
+20,
+23
+],
+"privacy bills": [
+16,
+23
+],
+"exemptions included": [
+16,
+18
+],
+"people search data": [
+16,
+17
+],
+"website footer": [
+16,
+17,
+18
+],
+"criminal records": [
+16,
+17
+],
+"health insurance portability": [
+17,
+19
+],
+"insurance portability": [
+17,
+19
+],
+"health insurance": [
+17,
+19
+],
+"information related": [
+17,
+21
+],
+"state level": [
+17,
+18,
+21
+],
+"fcra coverage": [
+18,
+23
+],
+"laws like": [
+18,
+19
+],
+"entity exemptions": [
+19,
+20
+],
+"privacy protections included": [
+19,
+22
+],
+"include entities": [
+19,
+23
+],
+"entities covered": [
+19,
+20,
+21,
+23
+],
+"data held": [
+21,
+22,
+23
+]
+},
+"origin_pdf": "epic-unbridled-2025.pdf",
+"extraction": {
+"extractor": "pypdf",
+"pages": 26,
+"no_text_layer": [],
+"raised": [
+{
+"page": 13,
+"error": "ValueError: invalid literal for int() with base 10: '/Kids'"
+},
+{
+"page": 16,
+"error": "ValueError: invalid literal for int() with base 10: '/Tabs'"
+}
+],
+"recovered": [
+{
+"page": 13,
+"by": "pymupdf",
+"chars": 3336
+},
+{
+"page": 16,
+"by": "pymupdf",
+"chars": 1601
+}
+],
+"lost": [],
+"complete": true
+},
+"pages": 26,
+"sections": [
+{
+"citation": "part 1",
+"kind": "treatise",
+"page": null,
+"authorities": [
+"L.L.C. v. Fed"
+],
+"text": "UNBRIDLED ANDUNBRIDLED AND UNDERREGULATED:UNDERREGULATED: Removing FCRA and GLBA Exemptions from Privacy Laws to Hold Data Brokers Accountable Unbridled and Underregulated: Removing FCRA and GLBA Exemptions from Privacy Laws to Hold Data Brokers Accountable July 2025 Authors: Caroline Kraczon, Law Fellow Justin Sherman, EPIC Scholar in Residence Edited by: John Davisson Caitriona Fitzgerald Acknowledgements: The authors would like to thank Chi Chi Wu and Seth Frotman for their generous feedback on the paper. This project was supported by funding from Reset. Key Terms Consumer Reporting Agency (CRA) \u2014 Defined in the FCRA as \u201cany person which, for monetary fees, dues, or on a cooperative nonprofit basis regularly engages in whole or in part in the practice of assembling or evaluating consumer credit information or other information on consumers for the purpose of furnishing consumer reports to third parties, and which uses any means or facility of interstate commerce for the purpose of preparing or furnishing consumer reports.\u201d1 Data Broker \u2014 A company that collects, aggregates, packages, or makes inferences about and then sells data, which often includes the personal data of consumers. Data-Level Exemption \u2014 An exemption that only applies to activities regulated and authorized by a certain law rather than to an entire entity. Entity-Level Exemption \u2014 An exemption that applies to an entire company if any portion of its business or activities are covered by a certain law. Financial Institution \u2014 Defined broadly in the GLBA as \u201dany institution the business of which is engaging in activities that are financial in nature or incidental to such financial activities as described in section 4(k) of the Bank Holding Company Act of 1956,\u201d2 including consumer reporting agencies and a number of other non-bank companies such as auto dealers and check cashers.3 Specialty Consumer Reporting Agencies \u2014 Companies that sell credit reports for specific purposes, including employment background checks, subprime lending, tenant screening, medical insurance underwriting, guaranteeing consumers\u2019 checks and more.4 1 15 U.S.C. \u00a7 1681a(f). 2 15 U.S.C. \u00a7 6809(3). 3 National Consumer Law Center, Fair Credit Reporting \u00a7\u00a7 18.4.1.3 (10th ed. 2022), updated at www.nclc.org/library (citing Trans Union, L.L.C. v. Fed. Trade Comm\u2019n, 295 F.3d 42, 48, 49 (D.C. Cir. 2002)). 4 National Consumer Law Center, Fair Credit Reporting \u00a7 2.7.3 (10th ed. 2022), updated at www.nclc.org/library; Dan Rutherford, You have a right to see specialty consumer reports too, CFPB (Nov. 29, 2012), https://www.consumerfinance.gov/about-us/blog/you-have-a-right-to-see-specialty-consumer- reports-too/.",
+"integrity": {
+"state": "complete",
+"basis": "Full retrieved body of 2,686 characters stored; under the 60,000 cap, so nothing was cut.",
+"stamped_at": "2026-09-11T05:18:16",
+"stored_chars": 2686,
+"source_chars": 2686,
+"cap_applied": 60000
+},
+"authority_class": "advocacy",
+"claim_layer": "mixed",
+"claim_layer_meaning": "Carries more than one layer. The PASSAGE has to be read to tell which - the document-level label cannot."
+},
+{
+"citation": "p. 1",
+"kind": "treatise",
+"page": 1,
+"authorities": [],
+"text": "I. Introduction Data brokers comprise a multi -billion-dollar industry of companies in the business of collecting, aggregating, packaging, making inferences about, and selling data, including the personal data of consumers. Data bought and sold within the data broker industry includes everything from demographic, financial, and political data to health information, data on children and teenagers, and geolocation and biometric data. The data brokers most well -known to consumers\u2014within the broader, often invisible indust ry\u2014are consumer reporting agencies that sell \u201ccredit reports\u201d and \u201ccredit scores\u201d on people to lenders, landlords, and other purchasers. Consumer reporting agencies (CRAs) are regulated by the 1970 Fair Credit Reporting Act (FCRA), a federal law which gives American citizens the right to access their credit reports once annually and to correct information that is inaccurate. Consumer reporting agencies also fall within the scope of the Gramm-Leach-Bliley Act (GLBA), which regulates financial institutions\u2019 use of personal information. CRAs often sell much more than just credit reports. Prominent CRAs, for example, sell salary and employment information on hundreds of millions of U.S. consumers as well as health, location, and other information that goes far beyond what is traditionally included in a credit file. This raises two important yet under -discussed problems for policymakers, legislators, and consumers. First, all general state privacy laws exempt FCRA -covered data, even though the FCRA covers a much broader spectrum of personal information than consumers might expect. All general state privacy laws also contain an exemption for GLBA-covered entities or data. The protections included in the GLBA and the FCRA are different and often not as expansive as the protections and consumer rights included in general state privacy legislation. Legislators may not be aware that consumer reporting agencies engage in such widespread data brokerage\u2014and may therefore unintentionally let these privacy -invasive and harmful activities off the hook fr om their state privacy law\u2019s rules. Second, it highlights the regulatory grey area in which data brokers often operate, which incentivizes data brokers to claim or disclaim the protections and obligations of different legal frameworks to best suit their purposes. Exemptions in state laws for GLBA- or FCRA-covered data or entities can exacerbate this regulatory arbitrage. This paper proceeds in four parts. It examines the few regulations that govern some data broker business activities, including the GLBA and the FCRA. It then dives into the GLBA- and FCRA-based exemptions in various state privacy laws and how they allow pr ivacy-invasive and harmful data brokerage activities to continue without adequate regulatory coverage. Next, the paper compares the consumer rights and protections included in the GLBA, the FCRA, and state privacy laws, evaluating the negative incentives c reated by the current legislative and regulatory structure governing data brokers. Lastly, it offers recommendations for state legislators, federal legislators in Congress, and federal policymakers:",
+"integrity": {
+"state": "complete",
+"basis": "Full retrieved body of 3,180 characters stored; under the 60,000 cap, so nothing was cut.",
+"stamped_at": "2026-09-11T05:18:16",
+"stored_chars": 3180,
+"source_chars": 3180,
+"cap_applied": 60000
+},
+"authority_class": "advocacy",
+"claim_layer": "mixed",
+"claim_layer_meaning": "Carries more than one layer. The PASSAGE has to be read to tell which - the document-level label cannot."
+},
+{
+"citation": "p. 2",
+"kind": "treatise",
+"page": 2,
+"authorities": [],
+"text": "1. States with consumer privacy laws should evaluate any potential loopholes in the text and explore new legislation to close these gaps. States should remove GLBA and FCRA data- level or entity-level exemptions from consumer privacy laws so that consumers can both exercise their rights under the GLBA and FCRA without issue and receive protections against CRAs\u2019 other data activities (like selling demographic data and non GLBA- or FCRA-covered financial data). 2. Congress and legislatures in states without general consumer privacy laws should pass new laws without entity- or data-level GLBA or FCRA exemptions in the first place. Further, lawmakers should introduce legislation to clarify the coverage of CRAs under the FCRA\u2014and strengthen the rules for consumers. 3. Lastly, federal agencies such as the CFPB, Federal Trade Commission (FTC) and Department of Justice (DOJ) should use their authority to strengthen rules to protect consumers from data brokers. For example, the CFPB should resuscitate its \u201cProtecting Americans from Harmful Data Practices\u201d rulemaking. The Bureau\u2019s 2024 proposal would clarify that many data brokers fulfill the definition of CRAs under the FCRA, meaning data brokers that are CRAs must comply with the FCRA. The CFPB and FTC should also bring enforcement actions against data brokers violating the law. II. Consumer Reporting Agencies and Federal Regulation The major CRAs today include Equifax, Experian, and TransUnion as well as many other companies engaging in GLBA - or FCRA -covered activities, whether they self -identify as CRAs or not. 5 Numerous public and private organizations can and do purchase or access consumers\u2019 credit data. These include lenders, employers and volunteer organizations, government agencies issuing public assistance, landlords and residential real estate management c ompanies, banks, credit unions, payment processors, retail stores, companies marketing to lower -income consumers and subprime credit applications, debt buyers, debt collectors, insurance companies, telecommunications and utility companies, and gaming estab lishments and casinos. 6 Federal, state, and municipal law enforcement agencies can also obtain basic information from credit reports (e.g., name, former address, employer) without a warrant in many cases and can obtain more detailed information from CRAs with a court order or subpoena.7 The largest CRAs gather and sell enormous amounts of credit data on consumers. For example, Equifax operates a subsidiary CRA called \u201cThe Work Number\u201d that gathers employment and salary 5 See, e.g., List of consumer reporting companies, Consumer Financial Protection Bureau, https://www.consumerfinance.gov/consumer-tools/credit-reports-and-scores/consumer-reporting- companies/companies-list/ (last accessed Sept. 29, 2024). 6 2024 List of Consumer Reporting Agencies, Consumer Financial Protection Bureau (2024) https://files.consumerfinance.gov/f/documents/cfpb_consumer-reporting-companies-list_2024.pdf at 3-4. 7 Fair Credit Reporting Act, Department of Justice, https://bja.ojp.gov/program/it/privacy-civil- liberties/authorities/statutes/2349 (last accessed Sept. 29, 2024).",
+"integrity": {
+"state": "complete",
+"basis": "Full retrieved body of 3,171 characters stored; under the 60,000 cap, so nothing was cut.",
+"stamped_at": "2026-09-11T05:18:16",
+"stored_chars": 3171,
+"source_chars": 3171,
+"cap_applied": 60000
+},
+"authority_class": "advocacy",
+"claim_layer": "mixed",
+"claim_layer_meaning": "Carries more than one layer. The PASSAGE has to be read to tell which - the document-level label cannot."
+},
+{
+"citation": "p. 3",
+"kind": "treatise",
+"page": 3,
+"authorities": [],
+"text": "records on hundreds of millions of Americans. By 2022, Equifax reported that it had \u201cover 535 million active and historic records from 2.5 million contributors to The Work Number.\u201d 8 Today, it currently advertises partnerships and integrations with payroll providers ADP, Alight, Avionte, OneSource, ProLiant, WorkDay, and Ultimate Software and boasts having more than 695 million records on consumer employment.9 Data brokerage is an alarmingly unregulated industry. Among the few laws and regulations that apply to many data brokers are the Fair Credit Reporting Act and the Gramm -Leach-Bliley Act, which both address privacy in the financial sector. a. The Fair Credit Reporting Act The FCRA applies to many data brokers, but not all, because not all entities that compile and sell information traditionally contained in consumer reports clearly fall under the FCRA as it is currently construed. For example, a mobile app that sells its us ers\u2019 data with the expectation that it will be used for the sole purpose of targeting advertisements may not be covered by the FCRA. However, a company selling the same data with the expectation that the purchaser of the data will consider the data while m aking a credit decision, for example, would be covered by the FCRA. While the FCRA was written to handle the growth of the credit bureau industry and the need for safeguards and consumer rights around credit reports, many of the data brokers covered under the statute engage in activities well beyond its original scope\u2014creating urgent privacy questions for legislators and policymakers. Congress passed the Fair Credit Reporting Act in 1970 to regulate the emerging credit reporting industry and advance the accuracy, fairness, relevance, proper use, and privacy of consumer data contained in credit reports. 10 The law covers \u201cconsumer reporting agencies,\u201d defined as \u201cany person which, for monetary fees, dues, or on a cooperative nonprofit basis, regularly engages in whole or in part in the practice of assembling or evaluating consumer credit information or othe r information on consumers for the purpose of furnishing consumer reports to third parties, and which uses any means or facility of interstate commerce for the purposes of preparing or furnishing consumer reports.\u201d 11 Congress defined a \u201cconsumer report\u201d as any written, oral, or other communication from a consumer reporting agency about a person\u2019s \u201ccredit worthiness, credit standing, credit capacity, character, general reputation, personal characteristics, or mode of living\u201d used or expected to be used or collected in whole or in part for the purpose of serving as a factor 8 Justin Sherman, Examining data broker Equifax\u2019s relationships with millions of employers, Duke University Sanford School of Public Policy (Aug. 24, 2022) https://techpolicy.sanford.duke.edu/blogroll/examining- data-broker-equifaxs-relationships-with-millions-of-employers/. 9 Partner With Us, The Work Number, https://theworknumber.com/partner-with-us (last accessed September 29, 2024). 10 15 U.S.C. \u00a7\u00a7 1681-1681x. 11 15 U.S. Code \u00a7 1681a(f).",
+"integrity": {
+"state": "complete",
+"basis": "Full retrieved body of 3,095 characters stored; under the 60,000 cap, so nothing was cut.",
+"stamped_at": "2026-09-11T05:18:16",
+"stored_chars": 3095,
+"source_chars": 3095,
+"cap_applied": 60000
+},
+"authority_class": "advocacy",
+"claim_layer": "mixed",
+"claim_layer_meaning": "Carries more than one layer. The PASSAGE has to be read to tell which - the document-level label cannot."
+},
+{
+"citation": "p. 4",
+"kind": "treatise",
+"page": 4,
+"authorities": [],
+"text": "in credit or insurance decisions, employment decisions, and other covered activities. 12 Financial institutions and other decisionmakers were already regularly using consumers\u2019 credit reports to make lending decisions and more\u2014prompting Congress to act. The FCRA gives rights to consumers that include: \u25cf You must be told if information in your file has been used against you. \u25cf You have the right to know what is in your file. \u25cf You have the right to ask for a credit score. \u25cf You have the right to dispute incomplete or inaccurate information. \u25cf Consumer reporting agencies must correct or delete inaccurate, incomplete, or unverifiable information. \u25cf Consumer reporting agencies may not report outdated negative information. \u25cf Access to your file is limited. \u25cf You must give your consent for reports to be provided to employers. \u25cf You may limit \u201cprescreened\u201d offers of credit and insurance you get based on information in your credit report. \u25cf You have a right to place a \u201ccredit freeze\u201d on your credit report with nationwide consumer reporting agencies, which will prohibit a consumer reporting agency from releasing information in your credit report without your express authorization.13 One of the most significant privacy safeguards in the FCRA is the limitation on access to consumer files. CRAs may only furnish consumer reports for one of the permissible purposes expressly set forth in the FCRA.14 Some of the permissible purposes include furnishing a report in response to a court order or subpoena, 15 in accordance with the written instructions of the consumer, 16 or when the recipient intends to use the information for employment, insurance, credit, or other legitimate business purposes.17 A CRA may only furnish a consumer\u2019s file to a third party if the CRA has reason to believe that the third party will use such information for one of the permissible purposes. This limitation prevents CRAs from sharing consumer reporting data for advertisi ng and marketing purposes, for example. Strictly limiting the disclosure of consumer reports helps to protect privacy and to ensure that personal information is only disclosed to third parties who seek access to the data for certain legally defined purposes. 12 15 U.S. Code \u00a7 1681a(d). 13 A Summary of Your Rights Under the Fair Credit Reporting Act, Consumer Financial Protection Bureau, https://files.consumerfinance.gov/f/documents/bcfp_consumer-rights-summary_2018-09.pdf (last accessed September 29, 2024). 14 15 U.S. Code \u00a7 1681b(a). 15 15 U.S. Code \u00a7 1681b(a)(1). 16 15 U.S. Code \u00a7 1681b(a)(2). 17 15 U.S. Code \u00a7 1681b(a)(3).",
+"integrity": {
+"state": "complete",
+"basis": "Full retrieved body of 2,597 characters stored; under the 60,000 cap, so nothing was cut.",
+"stamped_at": "2026-09-11T05:18:16",
+"stored_chars": 2597,
+"source_chars": 2597,
+"cap_applied": 60000
+},
+"authority_class": "advocacy",
+"claim_layer": "mixed",
+"claim_layer_meaning": "Carries more than one layer. The PASSAGE has to be read to tell which - the document-level label cannot."
+},
+{
+"citation": "p. 5",
+"kind": "treatise",
+"page": 5,
+"authorities": [],
+"text": "Further, data brokers often collect and sell much of the same information as traditional CRAs without complying with the FCRA. The CFPB proposed new rules in December 2024 to clarify the scope of the FCRA. Noting that data brokers \u201croutinely sidestep\u201d the FCRA\u2019s requirements while engaging in the types of activities that the FCRA is meant to encompass, 18 the CFPB proposed language to clarify the extent of FCRA\u2019s coverage over data brokers. 19 The proposed rules would have clarified that data brokers which sell data about income, financial tier, credit history, credit score, or debt payments are necessarily consumer reporting agencies covered by the FCRA. 20 Though these proposed rules have since been withdrawn by the Trump Administration, 21 they would have better ensured that data brokers abide by all of the FCRA\u2019s consumer protectionsincluding the above -described restriction on data brokers\u2019 ability to sell personal information. 22 Consumer reporting agencies, including many data brokers, have substantial impacts on consumers\u2019 access to basic services like housing and employment, their financial security, and their privacy and physical safety, making cohesive and comprehensive regul ations essential for consumers. b. The Gramm-Leach-Bliley Act The GLBA was passed in 1999 in response to growing consolidation in the financial services industry. During the two decades prior to the GLBA\u2019s passage, the number of banks in the United States fell while the average size of banks increased. 23 Previously, different types of financial services were typically offered by different companies. For example, a bank might specialize in commercial banking or investment banking, but it may not offer both services. By the late 1990s, it was much more comm on for the same financial services company to offer a variety of financial services and products. As financial services companies grew in size and in the variety of services offered, they also began to collect and maintain more data about their customers. 24 The GLBA aimed to update financial services regulations to better fit the modern, integrated financial system. The law includes a variety of provisions, including provisions allowing more financial integration, limiting the size of banks\u2019 subsidiaries, and establishing Federal Reserve supervision authority over financial holding companies.25 18 CFPB Proposes Rule to Stop Data Brokers from Selling Sensitive Personal Data to Scammers, Stalkers, and Spies, Consumer Financial Protection Bureau (Dec. 3, 2024), https://www.consumerfinance.gov/about- us/newsroom/cfpb-proposes-rule-to-stop-data-brokers-from-selling-sensitive-personal-data-to-scammers- stalkers-and-spies/. 19 Protecting Americans from Harmful Data Broker Practices (Regulation V), Consumer Financial Protection Bureau, CFPB2024-0044 (Dec. 3, 2024). 20 Id. 21 Protecting Americans from Harmful Data Broker Practices (Regulation V); Withdrawal of Proposed Rule, Consumer Financial Protection Bureau, CFPB-2024-0044 (May 15, 2025). 22 Id. 23 Financial Services Modernization Act of 1999 (Gramm-Leach-Bliley), Federal Reserve History (Nov. 22, 2013), https://www.federalreservehistory.org/essays/gramm-leach-bliley-act. 24 Id. 25 Id.",
+"integrity": {
+"state": "complete",
+"basis": "Full retrieved body of 3,224 characters stored; under the 60,000 cap, so nothing was cut.",
+"stamped_at": "2026-09-11T05:18:16",
+"stored_chars": 3224,
+"source_chars": 3224,
+"cap_applied": 60000
+},
+"authority_class": "advocacy",
+"claim_layer": "mixed",
+"claim_layer_meaning": "Carries more than one layer. The PASSAGE has to be read to tell which - the document-level label cannot."
+},
+{
+"citation": "p. 6",
+"kind": "treatise",
+"page": 6,
+"authorities": [
+"L.L.C. v. Fed"
+],
+"text": "Most relevant to this paper is Title V of the GLBA, which covers the privacy of consumer information held by financial institutions. The GLBA governs \u201cnonpublic personal information,\u201d meaning personally identifiable financial information that is not public ly available, held by financial institutions.26 \u201cFinancial institution[s]\u201d are defined broadly in the GLBA as \u201dany institution the business of which is engaging in activities that are financial in nature or incidental to such financial activities as described in section 4(k) of the Bank Holding Company Act of 1956.\u201d 27 Consumer reporting agencies are within the scope of financial institutions covered by the GLBA, as are a number of other non-bank companies such as auto dealers and check cashers.28 The GLBA\u2019s privacy protections rely on notice requirements. Financial institutions must provide a notice to consumers about their privacy policies and practices29 and a notice about how consumers may opt out of disclosure of their nonpublic personal information to nonaffiliated third parties. 30 Regulation P, promulgated by the CFPB pursuant to its authority under the GLBA, provides specific requirements for financial institutions\u2019 disclosures to consumers, aiming to ensure that disclosures are clear, comprehensive, and conspicuous.31 The GLBA\u2019s notice requirements do not provide strong privacy protections to consumers. Given the length and complexity of privacy disclosures, it would be virtually impossible for consumers to read and understand all of the privacy notices provided to them by financial institutions. 32 Even if consumers did read them, consumers are not empowered to negotiate terms with financial institutions. The sole substantive right for consumers is the ability to opt out of nonexempt disclosures of nonpublic personal information to a nonaffiliated t hird party. 33 Otherwise, if a consumer is uncomfortable with a company\u2019s privacy policy, the only option for the consumer is not to use the company\u2019s services. However, choosing not to use the services provided by financial institutions would be nearly impossible for modern consumers because these companies provide a number of essential services, including banking services, insurance policies, mortgages and other loans, and credit reporting. Further, the GLBA contains a number of broad exemptions to its disclosure and opt -out requirements. First, financial institutions are not required to provide privacy or opt-out disclosures 26 15 U.S.C. \u00a7 6809(4). 27 15 U.S.C. \u00a7 6809(3). 28 National Consumer Law Center, Fair Credit Reporting \u00a7\u00a7 18.4.1.3 (10th ed. 2022), updated at www.nclc.org/library (citing Trans Union, L.L.C. v. Fed. Trade Comm\u2019n, 295 F.3d 42, 48, 49 (D.C. Cir. 2002)). 29 15 U.S.C. \u00a7 6803. 30 15 U.S.C. \u00a7 6802. 31 National Consumer Law Center, Fair Credit Reporting \u00a7\u00a7 18.4.1.8 (10th ed. 2022), updated at www.nclc.org/library. 32 Tim Samples, Katherine Ireland, Caroline Kraczon, TL;DR: The Law and Linguistics of Social Platform Terms-of-Use, 39 Berk. Tech. L. J. 47 (2024). 33 National Consumer Law Center, Fair Credit Reporting \u00a7\u00a7 18.4.1.8.1 (10th ed. 2022), updated at www.nclc.org/library.",
+"integrity": {
+"state": "complete",
+"basis": "Full retrieved body of 3,160 characters stored; under the 60,000 cap, so nothing was cut.",
+"stamped_at": "2026-09-11T05:18:16",
+"stored_chars": 3160,
+"source_chars": 3160,
+"cap_applied": 60000
+},
+"authority_class": "advocacy",
+"claim_layer": "mixed",
+"claim_layer_meaning": "Carries more than one layer. The PASSAGE has to be read to tell which - the document-level label cannot."
+},
+{
+"citation": "p. 7",
+"kind": "treatise",
+"page": 7,
+"authorities": [],
+"text": "when sharing a consumer\u2019s financial information in connection with processing or servicing a consumer\u2019s transaction. 34 Second, the GLBA includes a long list of specific exempt disclosures, including disclosures to CRAs in accordance with the FCRA, disclosures of information from a consumer report from a CRA, and disclosures to law enforcement agencies, to name just a few. 35 Third, financial services institutions are exempt from opt -out disclosure requirements when information is disclosed to nonaffiliated third parties providing certain services to the institution.36 Beyond disclosure requirements, the GLBA also includes certain data security requirements. The FTC Safeguards Rule, which was promulgated pursuant to the GLBA, provides specific data security safeguards for financial institutions, and it also requires cove red entities to notify consumers if their financial information was breached.37 c. Well Beyond Credit Information Some of the largest CRAs today sell personal data about consumers that goes far beyond the scope of credit information. This includes data on purchases, browsing histories, network data, geolocation data, and inferred preference and characteristic data on hundreds of millions of U.S. persons. The \u201cBig Three\u201d nationwide CRAs (Equifax, Experian, and TransUnion) by themselves sell a tremendous amount of data in addition to credit reports. Equifax advertises \u201cdata, insights, and efficiencies\u201d for the healthcare industry, including \u201cclear, reliable information about patients and their ability and propensity to pay.\u201d 38 Experian advertises marketing data to automobile dealers, stating that for its North American Vehicle Database \u201cinformation is loaded within 48 hours of receipt from state Departments of Motor Vehicles,\u201d which is offered alongside \u201ca robust combination of vehicle history, vehicles in operation, credit, market, and online/offline behavioral data\u201d needed to get \u201ccomprehensive views\u201d of the market. 39 TransUnion offers an IP tracking service \u2014which it describes as a fraud mitigation tool\u2014that helps purchasers with \u201cclearly understanding the origin and legitimacy of web traffic,\u201d including identifying the use of VPNs and corporate network anonymizers, by collecting \u201cIP data from countries across five continents\u201d incorporated with \u201cpartner data from countries with mobile 34 15 U.S.C. \u00a7 6802(e)(1). 35 15 U.S.C. \u00a7 6802(e). 36 15 U.S.C. \u00a7 6802(a)(2). 37 Id.; FTC Safeguards Rule: What Your Business Needs to Know, Federal Trade Commission (Dec. 2024), https://www.ftc.gov/business-guidance/resources/ftc-safeguards-rule-what-your-business-needs-know. 38 Healthcare, Equifax, https://www.equifax.com/business/healthcare/ (last accessed May 6, 2025) [https://web.archive.org/web/20250709151230/https://www.equifax.com/business/healthcare/]. 39 Auto Dealer Services, Experian, https://www.experian.com/automotive/auto-dealer-services (last accessed May 6, 2025) [https://web.archive.org/web/20250709151141/https://www.experian.com/automotive/auto-dealer-services].",
+"integrity": {
+"state": "complete",
+"basis": "Full retrieved body of 3,035 characters stored; under the 60,000 cap, so nothing was cut.",
+"stamped_at": "2026-09-11T05:18:16",
+"stored_chars": 3035,
+"source_chars": 3035,
+"cap_applied": 60000
+},
+"authority_class": "advocacy",
+"claim_layer": "mixed",
+"claim_layer_meaning": "Carries more than one layer. The PASSAGE has to be read to tell which - the document-level label cannot."
+},
+{
+"citation": "p. 8",
+"kind": "treatise",
+"page": 8,
+"authorities": [],
+"text": "networks.\u201d40 All three of these CRAs offer facial recognition technology (i.e., biometrics analysis) for companies to identify and verify the identities of users,41 with Experian most recently purchasing behavioral analytics firm NeuroID in August 2024 to provide \u201ca new layer of insight into digital behavioral signals and analytics observed for both new and returning users throughout the customer lifecycle, including account openings, logins, and transactions.\u201d 42 The list goes on, well beyond what is typically expected from a credit reporting business. 40 TruValidate IP Intelligence Solutions, Transunion, https://www.transunion.com/solution/truvalidate/digital- insights/ip-intelligence (last accessed May 6, 2025) [https://web.archive.org/web/20250709151427/https://www.transunion.com/solution/truvalidate/digital- insights/ip-intelligence]. 41 Equifax Biometrics, Equifax, https://www.equifax.com.au/business-enterprise/products/equifax-biometrics (last accessed May 6, 2025) [https://web.archive.org/web/20250709151418/https://www.equifax.com.au/business- enterprise/products/equifax-biometrics]; Identity proofing, Experian, https://www.experian.com/business/solutions/identity-solutions/identity-proofing (last accessed May 6, 2025) [https://web.archive.org/web/20250709151458/https://www.experian.com/business/solutions/identity- solutions/identity-proofing]; Document Verification and Facial Biometrics, Transunion, https://www.transunion.co.uk/product/document-verification-facial-biometric (last accessed May 6, 2025) [https://perma.cc/F2N4-BP9T]. 42 Experian acquires behavioral analytics pioneer NeuroID, Experian plc (Aug. 13, 2024), https://www.experianplc.com/newsroom/press-releases/2024/experian-acquires-behavioral-analytics- pioneer-neuroid [https://web.archive.org/web/20250709151753/https://www.experianplc.com/newsroom/press- releases/2024/experian-acquires-behavioral-analytics-pioneer-neuroid].",
+"integrity": {
+"state": "complete",
+"basis": "Full retrieved body of 1,926 characters stored; under the 60,000 cap, so nothing was cut.",
+"stamped_at": "2026-09-11T05:18:16",
+"stored_chars": 1926,
+"source_chars": 1926,
+"cap_applied": 60000
+},
+"authority_class": "advocacy",
+"claim_layer": "mixed",
+"claim_layer_meaning": "Carries more than one layer. The PASSAGE has to be read to tell which - the document-level label cannot."
+},
+{
+"citation": "p. 9",
+"kind": "treatise",
+"page": 9,
+"authorities": [],
+"text": "Based on their privacy policies, Equifax, 43 Experian,44 and TransUnion45 reserve the right to \u2014and in some cases do\u2014sell or share the following types of data: Data Type Equifax \u2014 Sold or Shared? Experian \u2014 Sold or Shared? TransUnion \u2014 Sold or Shared? Personal identifiers YES YES YES Demographic information YES YES YES Commercial transaction data YES YES YES Internet or other network activity YES YES YES Professional or employment data YES YES YES Geolocation data YES46 YES YES Education data YES YES NO Specifically, Equifax, Experian, and TransUnion state in their privacy policies that they sell or share a wide variety of personal information with third parties. \u25cf Equifax states that it may use, disclose, sell, and share name and contact information, identifiers, demographic information, payment information, financial information, commercial information, internet or other similar network activity, professional or employment-related information, education information, inferences drawn from personal data, public records information, and photos with third parties.47 43 Equifax Privacy Statement, Equifax https://www.equifax.com/privacy/privacy-statement/ (last updated June 2025) [https://web.archive.org/web/20250709151821/https://www.equifax.com/privacy/privacy- statement/#SourcesOfPersonalData]. 44 U.S. Consumer Data Privacy Policy, Experian, https://www.experian.com/privacy/us-consumer-data- privacy-policy (last updated June 27, 2025) [https://web.archive.org/web/20250709152057/https://www.experian.com/privacy/us-consumer-data- privacy-policy]. 45 TransUnion LLC Privacy Notice, TransUnion.com, https://www.transunion.com/privacy/transunion (last updated July 1, 2025) [https://perma.cc/FC9T-VFDW]. 46 Interestingly, Equifax does not list the collection of geolocation data under the \u201cPersonal Data Collected\u201d section of its privacy statement. However, under the \u201cCategories of Personal Information Collection\u201d subsection of its \u201cCalifornia Residents Privacy Statement and Notice at Collection,\u201d Equifax states that it has collected in the last 12 months (as of June 2025) \u201cgeolocation data,\u201d sourced \u201cdirectly from you,\u201d as well as from \u201cdevices and browsers,\u201d \u201cemployers,\u201d \u201cfinancial institutions,\u201d \u201cconsumer credit customers,\u201d \u201cthird-party data providers,\u201d \u201cbusiness customers,\u201d \u201cgovernment agencies and contractors,\u201d and \u201cpublic records.\u201d 47 Equifax Privacy Statement, Equifax https://www.equifax.com/privacy/privacy-statement/ (last updated June 2025) [https://web.archive.org/web/20250709151821/https://www.equifax.com/privacy/privacy- statement/#SourcesOfPersonalData].",
+"integrity": {
+"state": "complete",
+"basis": "Full retrieved body of 2,601 characters stored; under the 60,000 cap, so nothing was cut.",
+"stamped_at": "2026-09-11T05:18:16",
+"stored_chars": 2601,
+"source_chars": 2601,
+"cap_applied": 60000
+},
+"authority_class": "advocacy",
+"claim_layer": "mixed",
+"claim_layer_meaning": "Carries more than one layer. The PASSAGE has to be read to tell which - the document-level label cannot."
+},
+{
+"citation": "p. 10",
+"kind": "treatise",
+"page": 10,
+"authorities": [],
+"text": "\u25cf Experian states that it sells or shares personal and online identifiers, commercial transaction information (\u201csuch as records of personal property or products or services purchased, obtained or considered, vehicle information, insurance claims, insurance underwriting information\u201d), internet or other network activity information (\u201csuch as browsing history, search history, interactions with a website, email, application, or advertisement\u201d), geolocation data (including \u201cprecise geolocation\u201d), professional or employed-related information, education information, and inferences of personal characteristics and preferences drawn from personal data.48 \u25cf TransUnion states that it sells or shares personal identifiers, protected class characteristics, commercial information, internet or other electronic network activity, geolocation data, professional or employment information, and inferences drawn from other personal information.49 The companies\u2019 handling of biometric data is not listed in the table above because the statements the companies provide are more difficult to pin down. Equifax says that it \u201cmay share biometric information with other service providers for use in the verification services\u201d but otherwise \u201cwill not disclose face geometry or other biometric information to third parties without first obtaining additional consent.\u201d50 Experian says that it has collected biometric information (such as call recordings, retina/fingerprint scans, or facial recognition data) in the last 12 months from consumers for the purposes of \u201cfraud and identi[t]y theft prevention and protection\u201d and \u201cto detect and protect against security incidents,\u201d but has not sold or shared this data.51 Lower down in its privacy policy, however, Experian states (under the discussion of \u201csensitive personal information\u201d) that it has not processed a consumer\u2019s biometric data for the purpose of uniquely identifying a consumer in the last 12 months.52 It does indeed appear, based on Experian\u2019s statements, that it is collecting consumers\u2019 biometric data\u2014but it is difficult to understand how Experian would be collecting data such as face images or fingerprint scans in ways that are not meant to uniquely identify individual people, when (a) biometric data is typically easily linkable to a specific person and (b) the stated purpose is fraud prevention, which would imply the data is 48 U.S. Consumer Data Privacy Policy, Experian, https://www.experian.com/privacy/us-consumer-data- privacy-policy (last updated June 27, 2025) [https://web.archive.org/web/20250709152057/https://www.experian.com/privacy/us-consumer-data- privacy-policy]. 49 TransUnion LLC Privacy Notice, TransUnion.com, https://www.transunion.com/privacy/transunion (last updated July 1, 2025) [https://perma.cc/FC9T-VFDW]. 50 Equifax Privacy Statement , Equifax https://www.equifax.com/privacy/privacy-statement/ (last updated June 2025) [https://web.archive.org/web/20250709151821/https://www.equifax.com/privacy/privacy- statement/#SourcesOfPersonalData]. 51 U.S. Consumer Data Privacy Policy, Experian, https://www.experian.com/privacy/us-consumer-data- privacy-policy (last updated June 27, 2025) [https://web.archive.org/web/20250709152057/https://www.experian.com/privacy/us-consumer-data- privacy-policy]. 52 Id.",
+"integrity": {
+"state": "complete",
+"basis": "Full retrieved body of 3,286 characters stored; under the 60,000 cap, so nothing was cut.",
+"stamped_at": "2026-09-11T05:18:16",
+"stored_chars": 3286,
+"source_chars": 3286,
+"cap_applied": 60000
+},
+"authority_class": "advocacy",
+"claim_layer": "mixed",
+"claim_layer_meaning": "Carries more than one layer. The PASSAGE has to be read to tell which - the document-level label cannot."
+},
+{
+"citation": "p. 11",
+"kind": "treatise",
+"page": 11,
+"authorities": [],
+"text": "being used to match a person\u2019s claimed identity against their identity stored somewhere else. 53 TransUnion, for its part, is clearer \u2014stating that it collects biometric information (for \u201ccustomer service and quality control\u201d and \u201cto verify your identity\u201d) and does not sell or share it but discloses it \u201cfor a business purpose\u201d to \u201cbiometrics analytics providers\u201d and \u201cgovernment agencies.\u201d54 As detailed above, the \u201cBig Three\u201d CRAs collect extensive personal information going far beyond data that consumers would expect to be included on a credit report. However, the scope of credit reporting data collection and sharing goes far beyond the \u201cBig Three.\u201d A number of other companies operate as CRAs, including specialty CRAs. These companies sell credit reports for specific purposes, including employment background checks, subprime lending, tenant screening, medical insurance underwriting, and more. 55 Specialty CRAs share credit reports containing sensitive personal information, but consumers may not even know that specialty credit reports about them exist.56 It is common for privacy laws or regulations to be passed and then adapted to keep up with technological changes. However, many new state privacy laws in the U.S. have missed this dynamic in the data brokerage industry \u2014and as a result have created major ga ps for consumer privacy and protection. III. State Privacy Laws As of July 1, 2025, 19 states have passed general privacy laws. In general, these laws provide consumers more transparency into how companies collect, use, and share their personal data. The laws also give consumers more control over their personal data, though that control puts the onus on the consumer to take action. These state privacy laws differ in scope and coverage, but most include similar protections for consumers. The following provisions are included in all 19 laws:57 53 As of May 2025, Experian has updated its privacy policy to state that the sensitive personal information disclosures only pertain to certain states. \u201cThis chart below reflects Experian\u2019s data practices with regard to Sensitive Personal Information in states other than Colorado, Connecticut, Delaware, Indiana, Kentucky, Maryland, Minnesota, Montana, Nebraska, New Hampshire, New Jersey, Oregon, Rhode Island, Tennessee, Texas, Utah and Virginia.\u201d 54 TransUnion LLC Privacy Notice, TransUnion.com, https://www.transunion.com/privacy/transunion (last updated July 1, 2025) [https://perma.cc/FC9T-VFDW]. 55 National Consumer Law Center, Fair Credit Reporting \u00a7 2.7.3 (10th ed. 2022), updated at www.nclc.org/library. 56 Dan Rutherford, You have a right to see specialty consumer reports too, CFPB (Nov. 29, 2012), https://www.consumerfinance.gov/about-us/blog/you-have-a-right-to-see-specialty-consumer-reports-too/. 57 US State Privacy Legislation Tracker, IAPP (Jun. 17, 2025), https://iapp.org/resources/article/us-state- privacy-legislation-tracker/ [hereinafter \u201cIAPP State Privacy Legislation Tracker\u201d].",
+"integrity": {
+"state": "complete",
+"basis": "Full retrieved body of 2,986 characters stored; under the 60,000 cap, so nothing was cut.",
+"stamped_at": "2026-09-11T05:18:16",
+"stored_chars": 2986,
+"source_chars": 2986,
+"cap_applied": 60000
+},
+"authority_class": "advocacy",
+"claim_layer": "mixed",
+"claim_layer_meaning": "Carries more than one layer. The PASSAGE has to be read to tell which - the document-level label cannot."
+},
+{
+"citation": "p. 12",
+"kind": "treatise",
+"page": 12,
+"authorities": [],
+"text": "\u25cf Right of access: Consumers have the right to ask businesses if they have collected their information and to request a description of the types of data collected and/or to obtain the collected data. \u25cf Right to delete: Consumers have the right to request that businesses delete their personal information. \u25cf Right to portability: Consumers may request their data from businesses in a portable format so that consumers can switch to another provider. \u25cf Right to opt out of sales: Consumers may opt out of the sale of their personal information. \u25cf Notice and transparency requirements: Businesses must provide notice and transparency to consumers about certain data practices and privacy programs. However, general state privacy laws often do not provide adequate privacy protections to consumers. These laws put very few obligations on the companies collecting and using data to protect privacy, instead putting the onus on consumers in the form of opt -out rights. None of the state privacy laws include a private right of action that would allow consumers to bring suits against companies that violate the privacy rights granted by the laws.58 The state privacy laws currently in place provide some privacy protections for consumers, but they are far from perfect. Stronger state privacy laws would include protections such as robust data minimization obligations on companies, strict regulations on the use of sensitive data, strong civil rights protections, powerful enforcement and regulatory tools, and a private right of action.59 Further, as discussed in the next Part, all of the state privacy laws passed thus far exempt entities when they engage in activities that are regulated and authorized by the FCRA or the GLBA, and every state except California, Connecticut, Minnesota, Montana, and Oregon also includes a GLBA entity-level exemption. As previously discussed, the FCRA and GLBA cover a number of large entities that collect, use, and share enormous amounts of deeply personal consumer information. Failing to hold FCRA- and GLBA-covered entities to the same standard as other entities under state privacy laws represents a significant gap in privacy protections for consumers. IV. Privacy Law Exemptions for FCRA- and GLBA-Covered Entities a. State Privacy Law FCRA and GLBA Exemptions 58 The California Consumer Privacy Act does include a private right of action allowing consumers to sue a business when there has been a data breach, but the private right of action does not extend to other consumer rights. Cal. Civ. Code \u00a7 1798.150. 59 Caitriona Fitzgerald, Kara Williams, and R.J. Cross, The State of Privacy: How State \u201cPrivacy\u201d Laws Fail to Protect Privacy and What They Can Do Better, EPIC & U.S. PIRG Education Fund (Feb. 2024), https://epic.org/state-of-privacy-2025 (This report assigns a letter grade to state privacy laws by evaluating the privacy protective provisions included in the laws. Half of the 14 states evaluated received an \u201cF,\u201d and no states received an \u201cA.\u201d) [hereinafter \u201cThe State of Privacy Report\u201d].",
+"integrity": {
+"state": "complete",
+"basis": "Full retrieved body of 3,048 characters stored; under the 60,000 cap, so nothing was cut.",
+"stamped_at": "2026-09-11T05:18:16",
+"stored_chars": 3048,
+"source_chars": 3048,
+"cap_applied": 60000
+},
+"authority_class": "advocacy",
+"claim_layer": "mixed",
+"claim_layer_meaning": "Carries more than one layer. The PASSAGE has to be read to tell which - the document-level label cannot."
+},
+{
+"citation": "p. 13",
+"kind": "treatise",
+"page": 13,
+"authorities": [],
+"text": "All 19 of the general state privacy laws that have passed as of July 1, 2025 include exemptions for data or entities regulated by the FCRA and the GLBA. All of the FCRA exemption provisions are \u201cdata-level\u201d exemptions rather than \u201centity-level\u201d exemptions, meaning that each exemption only applies to activities regulated and authorized by the FCRA rather than to an entire entity. To qualify for the FCRA exemption, an entity must fulfill the FCRA\u2019s definition of a \u201cconsumer reporting agency,\u201d and the data being collected, sold, or otherwise shared must fulfill the FCRA\u2019s definition of a \u201dconsumer report,\u201d both detailed in Part II(a) of this paper. However, if the same entity collects or shares data that does not fulfill the FCRA\u2019s definition of a consumer report, then it must comply with state privacy laws. All 19 general state privacy laws also include an exemption for GLBA-covered data, and every state except California, Connecticut, Minnesota, Montana, and Oregon also includes a GLBA entity-level exemption. All 19 states include exemptions for data collection, processing, and sharing that is regulated and authorized by the GLBA. In the 14 states with entity-level GLBA exemptions, a company is exempt from the state privacy law if any portion of its business or activities are covered by the GLBA. The table below shows that every general state privacy law includes an FCRA and GLBA data-level exemption, and that most states also exempt GLBA covered entities entirely. The provisions providing those exemptions are included in the table below.",
+"integrity": {
+"state": "complete",
+"basis": "Full retrieved body of 1,563 characters stored; under the 60,000 cap, so nothing was cut.",
+"stamped_at": "2026-09-11T05:18:16",
+"stored_chars": 1563,
+"source_chars": 1563,
+"cap_applied": 60000
+},
+"authority_class": "advocacy",
+"claim_layer": "mixed",
+"claim_layer_meaning": "Carries more than one layer. The PASSAGE has to be read to tell which - the document-level label cannot."
+},
+{
+"citation": "p. 14",
+"kind": "treatise",
+"page": 14,
+"authorities": [],
+"text": "General State Privacy Law FCRA and GLBA Exemptions State FCRA Data- Level Exemption GLBA Data- Level Exemption GLBA Entity- Level Exemption FCRA Exemption Citation GLBA Exemption Citation California X X Cal. Civ. Code \u00a7 1798.145(d) Cal. Civ. Code \u00a7 1798.145(e) Colorado X X X Colo. Rev. Stat. \u00a7 6-1-1304(2)(i)(II) Colo. Rev. Stat. \u00a7 6-1-1304(2)(j)(II), (2)(q) Connecticut X X Conn. Gen. Stat. \u00a7 42-517(b)(11) Conn. Gen. Stat. \u00a7 42-517(a)(6) Delaware X X X 6 Del. Code \u00a7 12D- 103(c)(7) 6 Del. Code \u00a7 12D- 103(b)(2), (c)(14) Indiana X X X Ind. Code \u00a7 24-15- 1-2(9) Ind. Code \u00a7 24-15-1- 1(b)(2) Iowa X X X Iowa Code \u00a7 715D.2(3)(m) Iowa Code \u00a7 715D.2(2) Kentucky X X X Ky. Rev. Stat. \u00a7 367.3613(3)(j) Ky. Rev. Stat. \u00a7 367.3613(2)(b) Maryland X X X Md. Code, Com. Law \u00a7 14- 4603(b)(7) Md. Code, Com. Law \u00a7 14-4603(a)(3) Minnesota X X Minn. Stat. \u00a7 325O.03(2)(a)(8) Minn. Stat. \u00a7 325O.03(2)(a)(9), (2)(a)(16) Montana X X Mont. Code \u00a7 30- 14-2804(2)(k) Mont. Code \u00a7 30-14- 2804(1)(f) Nebraska X X X Neb. Rev. Stat. \u00a7 87-1104(11) Neb. Rev. Stat. \u00a7 87- 1103(2)(b) New Hampshire X X X N.H. Rev. Stat. \u00a7 507-H:3(II)(k) N.H. Rev. Stat. \u00a7 507- H:3(I)(e) New Jersey X X X N.J. Stat. \u00a7 56:8- 166.13(f) N.J. Stat. \u00a7 56:8- 166.13(b) Oregon X X Or. Rev. Stat. \u00a7 646A.572(2)(j) Or. Rev. Stat. \u00a7 646A.572(2)(k)(A), (2)(l) Rhode Island X X X R.I. Gen. Laws \u00a7 6- 48.1-3(e)(11) R.I. Gen. Laws \u00a7 6- 48.1-10(a) Tennessee X X X Tenn. Code Sec. 47-18-3210(a)(16) Tenn. Code Sec. 47- 18-3210(a)(2) Texas X X X Tex. Bus. & Com. Code \u00a7 541.003(11) Tex. Bus. & Com. Code \u00a7 541.002(b)(2) Utah X X X Utah Code \u00a7 13-61- 102(j)(i)(C) Utah Code \u00a7 13-61- 102(2)(k) Virginia X X X Va. Code \u00a7 59.1- 576(C)(10) Va. Code \u00a7 59.1- 576(B)",
+"integrity": {
+"state": "complete",
+"basis": "Full retrieved body of 1,694 characters stored; under the 60,000 cap, so nothing was cut.",
+"stamped_at": "2026-09-11T05:18:16",
+"stored_chars": 1694,
+"source_chars": 1694,
+"cap_applied": 60000
+},
+"authority_class": "advocacy",
+"claim_layer": "mixed",
+"claim_layer_meaning": "Carries more than one layer. The PASSAGE has to be read to tell which - the document-level label cannot."
+},
+{
+"citation": "p. 15",
+"kind": "treatise",
+"page": 15,
+"authorities": [],
+"text": "Four states\u2014California, Vermont, Texas, and Oregon\u2014have also passed data broker registry laws. Though these laws differ in scope, they generally require third-party data brokers (i.e., companies selling personal data that they did not collect from their own customers or users) to register with a state agency, to allow consumers to request that data brokers delete their data or stop collecting and selling their data, and to comply with data security requirements. Vermont\u2019s Data Broker Act contains no exemption for FCRA - or GLBA-regulated entities or a ctivities. California, Texas, and Oregon\u2019s data broker registration laws include FCRA data -level exemptions, meaning that data brokers must comply with these laws except to the extent they are engaging in activities regulated by the FCRA and are in complia nce with the FCRA. California and Oregon also include a GLBA data-level exemption, and Texas includes a GLBA entity-level exemption. State Data Broker Registry Laws\u2019 FCRA & GLBA Exemptions State Law FCRA Exemption Language GLBA Exemption Language California Delete Act Sec. 1(c) \u201cAn entity to the extent that it is covered by the federal Fair Credit Reporting Act\u201d \u201cAn entity to the extent that it is covered by the Gramm-Leach-Bliley Act (Public Law 106-102) and implementing regulations.\u201d Vermont Data Broker Act No exemption No exemption Texas Data Broker Act Sec. 509.003(b) \u201cA consumer reporting agency or other person or entity that furnishes information for inclusion in a consumer credit report or obtains a consumer credit report, but only to the extent the person or entity engages in activity regulated or authorized by the Fair Credit Reporting Act (15 U.S.C. Section 1681et seq.), including the collection, maintenance, disclosure, sale, communication, or use of any personal information bearing on a consumer \u2019s creditworthiness, credit standing, credit capacity, character, general reputation, personal characteristics, or mode of living.\u201d \u201cA financial institution subject to Title V, Gramm-Leach-Bliley Act\u201d Oregon HB 2052 Sec. 1(c)(B) \u201cA consumer reporting agency, as defined in 15 U.S.C. 1681a(f), a person that furnishes information to a consumer reporting agency, as provided in 15 U.S.C. 1681s-2, or a user of a consumer report, as defined in 15 U.S.C. 1681a(d), to the extent that the consumer reporting agency, the person that furnishes information to a consumer reporting agency or the user of a consumer report engages in activities that are subject to regulation under the federal Fair Credit Reporting Act, 15 U.S.C. 1681 et seq.\u201d \u201cA financial institution, an affiliate or a nonaffiliated third party, as those terms are defined in 15 U.S.C. 6809, to the extent that the financial institution, affiliate or nonaffiliated third party engages in activities that are subject to regulation under Title V of the GrammLeach-Bliley Act, 15 U.S.C. 6801 to 6809, and regulations adopted under Title V of the Gramm-Leach-Bliley Act.\u201d",
+"integrity": {
+"state": "complete",
+"basis": "Full retrieved body of 2,966 characters stored; under the 60,000 cap, so nothing was cut.",
+"stamped_at": "2026-09-11T05:18:16",
+"stored_chars": 2966,
+"source_chars": 2966,
+"cap_applied": 60000
+},
+"authority_class": "advocacy",
+"claim_layer": "mixed",
+"claim_layer_meaning": "Carries more than one layer. The PASSAGE has to be read to tell which - the document-level label cannot."
+},
+{
+"citation": "p. 16",
+"kind": "treatise",
+"page": 16,
+"authorities": [],
+"text": "b. Federal Privacy Bill FCRA and GLBA Exemptions The American Privacy Rights Act (APRA), the most recently proposed comprehensive federal privacy bill, also contained FCRA and GLBA exemptions. 60 The FCRA and GLBA exemptions included in APRA were data -level exemptions, similar to the exemptions for FCRA and GLBA covered data included in general state privacy laws. The text of APRA heavily referenced the text of the American Data Privacy and Protec tion Act (ADPPA), which was a comprehensive federal privacy bill introduced in 2022. 61 ADPPA passed out of committee, but it was never ultimately passed into law. Given how past Congressional privacy bills inform future ones (like ADPPA informing APRA), it is likely that FCRA or GLBA exemptions may be carried forward into future proposals. This introduces similar questions and concerns about consumer privacy and abo ut companies\u2019 incentives to comply with consumer safeguards. Data -level exemptions are better for privacy than entity -level exemptions, in that they cover more CRA data brokerage (of non -FCRA- or GLBA-covered data). But they may still incentivize companies to represent or shift their data collection activities to avoid coverage under a future federal privacy law, relying on exemptions and regulatory gaps that legislators did not anticipate or intend to create. V. Analysis a. Data Brokers\u2019 Coverage Claims and Mismatched Compliance Incentives Whether businesses are covered by privacy laws should not be left up to the businesses themselves. Ambiguities in the current regulatory system have afforded some companies the space to speciously claim that they are not subject to the FCRA or the GLBA, ei ther by mischaracterizing their own data activities or posting boilerplate language on their websites to the effect of \u201cdo not use this data for credit reporting purposes as defined under the FCRA.\u201d Pasting a sentence or two into a website footer or terms of service page to disclaim coverage from the FCRA is relatively commonplace, especially for many \u201cpeople search\u201d data brokers (those that compile public records and other data, digitize them, link t hem to specific people, and then post the data online for search and sale by a person\u2019s name, phone number, and so on). For example, the people search data broker PeopleFinder.com advertises for sale, among many other data points, consumers\u2019 home addresses , phone numbers, traffic records, and criminal records. Some of this data meets the FCRA\u2019s description of what can constitute a \u201cconsumer report,\u201d as criminal records alone would constitute information \u2014in the FCRA\u2019s words \u2014about someone\u2019s \u201ccharacter,\u201d 60 H.R. 8818, 118th Cong. (2024). 61 H.R. 8152, 117th Cong. (2022).",
+"integrity": {
+"state": "complete",
+"basis": "Full retrieved body of 2,714 characters stored; under the 60,000 cap, so nothing was cut.",
+"stamped_at": "2026-09-11T05:18:16",
+"stored_chars": 2714,
+"source_chars": 2714,
+"cap_applied": 60000
+},
+"authority_class": "advocacy",
+"claim_layer": "mixed",
+"claim_layer_meaning": "Carries more than one layer. The PASSAGE has to be read to tell which - the document-level label cannot."
+},
+{
+"citation": "p. 17",
+"kind": "treatise",
+"page": 17,
+"authorities": [],
+"text": "\u201cgeneral reputation,\u201d and \u201cpersonal characteristics.\u201d However, PeopleFinder.com puts a disclaimer at the bottom of its website that reads: PeopleFinder.com powered by Intelius does not provide consumer reports and is not a consumer reporting agency as defined by the Fair Credit Reporting Act (FCRA). This site must not be used to determine an individual\u2019s eligibility for credit, insurance, employment, housing or any other purpose covered by the FCRA. Please visit GoodHire for all your employment screening needs.62 The people search data broker Spokeo similarly advertises that it collects six billion \u201cconsumer records,\u201d 600 million court records, 89 million business records, and information related to more than 120 social networks. It says its \u201cinformative reports\u201d a vailable for sale include contact information, \u201cpersonal details,\u201d \u201clocation history,\u201d \u201cwealth data,\u201d \u201cfamily and associates,\u201d criminal records, and \u201csocial media accounts.\u201d Once again, several of these categories \u2014such as \u201cwealth data\u201d and \u201ccriminal records\u201d\u2014would line up with the kinds of data under the FCRA that constitute a credit report. Yet, Spokeo includes a disclaimer on its website footer that reads: Spokeo is not a consumer reporting agency as defined by the Fair Credit Reporting Act (FCRA). Do not use this site to make decisions about credit, employment, tenant screening, or any purpose covered by the FCRA.63 PeopleFinder.com states that it collects and shares financial information,64 and consumer reporting agencies are within the scope of GLBA.65 However, PeopleFinder.com includes the following GLBA disclosure in their Terms of Use:66 In addition to the above restrictions, the Websites, the Related Services and Materials and the Background Information Services may not be used for the following purposes: . . . To use for purposes covered by federal statutes such as Gramm -Leach-Bliley Act , Health Insurance Portability and Accountability Act (HIPAA), Driver\u2019s Privacy Protection Act, the Children\u2019s Online Privacy Protection Act (COPPA), and/or all similar laws on the state level. General statements on the bottom of a website or within terms of use\u2014saying that someone buying data which could easily be used for GLBA or FCRA-related purposes should not do so\u2014should not 62 PeopleFinder.com, https://web.archive.org/web/20250313171616/https://www.peoplefinder.com/ (last accessed March 13, 2025). 63 Spokeo.com, https://web.archive.org/web/20250327155115/https://www.spokeo.com/ (last accessed March 27, 2025). 64 PeopleFinder.com, https://web.archive.org/web/20250313171616/https://www.peoplefinder.com/ (last accessed March 13, 2025). 65 National Consumer Law Center, supra note 24. 66 Id.",
+"integrity": {
+"state": "complete",
+"basis": "Full retrieved body of 2,697 characters stored; under the 60,000 cap, so nothing was cut.",
+"stamped_at": "2026-09-11T05:18:16",
+"stored_chars": 2697,
+"source_chars": 2697,
+"cap_applied": 60000
+},
+"authority_class": "advocacy",
+"claim_layer": "mixed",
+"claim_layer_meaning": "Carries more than one layer. The PASSAGE has to be read to tell which - the document-level label cannot."
+},
+{
+"citation": "p. 18",
+"kind": "treatise",
+"page": 18,
+"authorities": [],
+"text": "be sufficient to avoid GLBA or FCRA coverage. 67 But the presence of these disclaimers suggest that the data sellers are behaving as if their data buyers are listening to their suggestions. Beyond raising questions about whether the brokers actually invest in any mechanisms to try to investigate their b uyers\u2019 compliance, it heightens the risk that said data brokers are not providing legally required rights to consumers as a result. These kinds of scenarios underscore the problem with entities self -labeling their own coverage under a privacy law like the GLBA and the FCRA \u2014and with unnecessary legal ambiguities about which data-selling entities must comply with which provisions under which circumstances. Privacy laws and regulations must be clear about which data brokers are covered under the FCRA and the GLBA and the penalties for noncompliance with the law. Lawmakers must also remember the importance of the incentives for data brokers. If general state privacy laws, and even state data broker deletion laws, are not clear about which entities are covered, how state-level coverage relates to federal laws like the FCRA, and the rights that brokers must provide to consumers as a result, there is a greater risk that data brokers will be incentivized to claim (accurately or not) that they are regulated by the FCRA to avoid compliance with a state law. For instance, consider a state that passes a data deletion law for data brokers that completely exempts FCRA -covered entities. A data broker, like one of the aforementioned people search websites, could remove its website footer language about not being FCRA-covered\u2014and likely get away with changing little about its business practices \u2014in a superficial attempt to avoid providing consumers with broader data deletion rights. However, if any portion of a data broker\u2019s business qualifies it as a financial institution under GLBA, then the data broker is entirely exempt from almost all of the general state privacy laws currently on the books. This is just one example, but it demonstrates how these exemptions can create unintentional incentives and workarounds for data brokers to avoid honoring the privacy rights granted to consumers by law. When evaluating state data broker registry laws, privacy experts have lamented how the often small penalties for non -registration give the shadiest companies little reason to register at all. Including GLBA and FCRA exemptions in state privacy laws creates similar unintended incentives for companies to attempt to skirt regulation. b. Policy Problems Related to Exemptions Included in Other Privacy Laws Some state and federal sector-specific privacy laws also include entity- or data-level exemptions. Below are several examples of privacy lawsuits that have implicated entity-level exemptions. In these cases, individuals brought suits against entities for violating privacy rights provided by state or federal laws. However, the privacy laws in question include entity-level exemptions that 67 National Consumer Law Center, Fair Credit Reporting \u00a7\u00a7 2.3.5.1, 2.5.4.3 (10th ed. 2022), updated at www.nclc.org/library.",
+"integrity": {
+"state": "complete",
+"basis": "Full retrieved body of 3,139 characters stored; under the 60,000 cap, so nothing was cut.",
+"stamped_at": "2026-09-11T05:18:16",
+"stored_chars": 3139,
+"source_chars": 3139,
+"cap_applied": 60000
+},
+"authority_class": "advocacy",
+"claim_layer": "mixed",
+"claim_layer_meaning": "Carries more than one layer. The PASSAGE has to be read to tell which - the document-level label cannot."
+},
+{
+"citation": "p. 19",
+"kind": "treatise",
+"page": 19,
+"authorities": [
+"Fee v. Illinois",
+"Harvey v. Resurrection",
+"In Patterson v. Respondus",
+"Patterson v. Respondus",
+"Powell v. DePaul"
+],
+"text": "ultimately denied individuals the protection of those laws. Looking at these lawsuits demonstrates how including FCRA and GLBA exemptions in privacy laws may introduce harmful regulatory gaps that are counter to the policy objectives of those laws. For example, Illinois\u2019 Biometric Information Privacy Act (BIPA) includes an exemption for entities regulated by the GLBA. Since BIPA\u2019s passage, several cases have arisen in which universities claim that they are financial institutions covered by the GLBA because they offer and administer student loans.68 In each of the cases discussed below, students brought BIPA suits against their universities based on the universities\u2019 use of remote test proctoring software that utilized facial recognition technology, gaze monitoring, microphone recordings, eye monitoring, facial detection tools, and more to surveil students while they took tests remotely. The universities\u2019 arguments have met with mixed success. For example, in Powell v. DePaul University,69 a judge in the Northern District of Illinois dismissed a BIPA suit against DePaul University on the grounds that DePaul is a financial institution covered by the GLBA, making it exempt from the BIPA. However, in both Harvey v. Resurrection University70 and Fee v. Illinois Institute of Technology,71 judges declined to grant motions to dismiss, concluding that whether the universities are financial institutions was a factual question that could not be resolved at the motion to dismiss stage. In Patterson v. Respondus,72 the court also denied the motion to dismiss, rejecting the claim that defendant universities qualified as GLBA covered financial institutions based on the allegations presented by plaintiffs at that stage in the case. As the court explained, entity exemptions such as the GLBA exemption included in the BIPA could have significant impacts on the overall reach of privacy laws like the BIPA, especially if the exemptions are interpreted broadly to include entities who are covered by another law based only on a small portion of their activities.73 To take an example from another statutory context, the Health Insurance Portability and Accountability Act (HIPAA), which protects health privacy, includes an exemption for entities covered by the Family and Educational Rights and Privacy Act (FERPA),74 which protects the privacy of educational records. However, the privacy protections included in FERPA are not as stringent as those provided in HIPAA. For example, a student at the University of Oregon, referred to as Jane Doe in the case, filed a lawsuit under Title IX against her university after being 68 Jonathan Louis Newmark & Austin Collier, Banking on an Exemption: Do Universities Qualify as Financial Institutions Exempt from the Illinois Biometric Information Privacy Act?, Goodwin Privacy Blog (Jan. 3, 2023), https://www.goodwinprivacyblog.com/2023/01/03/banking-on-an-exemption-do-universities-qualify- as-financial-institutions-exempt-from-the-illinois-biometric-information-privacy-act/. 69 Powell v. DePaul Univ., No. 21-C-3001, 2022 U.S. Dist. LEXIS 201296 (N.D. Ill. Nov. 4, 2022). 70 Harvey v. Resurrection University, No. 21-cv-3203, 2022 WL 3716213 (N.D. Ill. Aug. 29, 2022). 71 Fee v. Illinois Institute of Technology, No. 21-cv-02512, 2022 WL 2791818 (N.D. Ill. Jul. 15, 2022). 72 Patterson v. Respondus, Inc., 593 F. Supp. 3d 783 (N.D. Ill. 2022). 73 Id at 819. 74 34 C.F.R. \u00a7 160.103.",
+"integrity": {
+"state": "complete",
+"basis": "Full retrieved body of 3,441 characters stored; under the 60,000 cap, so nothing was cut.",
+"stamped_at": "2026-09-11T05:18:16",
+"stored_chars": 3441,
+"source_chars": 3441,
+"cap_applied": 60000
+},
+"authority_class": "advocacy",
+"claim_layer": "mixed",
+"claim_layer_meaning": "Carries more than one layer. The PASSAGE has to be read to tell which - the document-level label cannot."
+},
+{
+"citation": "p. 20",
+"kind": "treatise",
+"page": 20,
+"authorities": [],
+"text": "sexually assaulted by other students.75 During discovery in the case, the university\u2019s attorneys were able to obtain notes from Jane Doe\u2019s therapy sessions at a university health facility. If Doe saw a therapist off campus, her health records would have been governed by HIPAA. In that case, the university\u2019s attorneys would have needed consent or a court order to obtain Doe\u2019s health records, and it is unlikely that they would have been able to access the therapy notes at all. However, since she saw a therapist at a university health facility, FERPA governed the privacy of the health information at issue because HIPAA exempts entities covered by FERPA. FERPA permits universities to disclose student information internally and externally, and it makes no distinction between health information held by student health facilities and attendance records taken by professors. Because FERPA governed, the university\u2019s lawyers were easily able to obtain detailed notes about Doe\u2019s therapy sessions. In these cases, students were not afforded the same privacy protections as others because some of the data their respective universities handled was covered by a federal law, allowing the entire entity to skirt compliance with BIPA and HIPAA. When passing these laws, legislators likely did not intend to exclude college students from protection. However, the inclusion of entity exemptions\u2014and the expansive interpretations of those exemptions by courts\u2014resulted in universities skirting responsibility for violating the privacy of their students. When lawmakers enact privacy laws, they should take these cases as cautionary tales and avoid introducing exemptions that may be construed far more than intended. This was the message of a recent Consumer Financial Protection Bureau report, which details how financial institutions\u2019 collection and sale of personal information threatens consumer privacy, discusses weaknesses in Federal privacy laws that cover financial institutions, and recommends that states with privacy laws should remove or narrow FCRA and GLBA exemptions.76 A separate report by the Connecticut Attorney General\u2019s office encourages Connecticut lawmakers to scale back entity- level exemptions in the CTDPA for nonprofits and entities covered by GLBA and HIPAA.77 The report states that the exemptions put Connecticut residents at a disadvantage, hinder the state\u2019s Attorney General from upholding CTDPA\u2019s protections, and limit Connecticut\u2019s ability to join other states in consumer protection enforcement actions against large entities.78 Connecticut\u2019s experience serves as a warning to other states that are considering passing privacy legislation not to include expansive exemptions in state privacy laws. 75 Lynn M. Daggett, The Myth of Student Medical Privacy, 14 Harv. L. & Pol'y Rev. 467 (2020). 76 State Consumer Privacy Laws and the Monetization of Consumer Financial Data, Consumer Financial Protection Bureau (Nov. 2024), https://files.consumerfinance.gov/f/documents/cfpb_state-privacy-laws- report_2024-11.pdf. 77 Report to the General Assembly\u2019s Law Committee Pursuant to Public Act 22-15 \u201cAn Act Concerning Personal Data Privacy and Online Monitoring,\u201d State of Connecticut Office of the Attorney General (Feb. 1, 2024), https://portal.ct.gov/-/media/ag/press_releases/2024/ctdpa-final-report.pdf. 78 Id.",
+"integrity": {
+"state": "complete",
+"basis": "Full retrieved body of 3,341 characters stored; under the 60,000 cap, so nothing was cut.",
+"stamped_at": "2026-09-11T05:18:16",
+"stored_chars": 3341,
+"source_chars": 3341,
+"cap_applied": 60000
+},
+"authority_class": "advocacy",
+"claim_layer": "mixed",
+"claim_layer_meaning": "Carries more than one layer. The PASSAGE has to be read to tell which - the document-level label cannot."
+},
+{
+"citation": "p. 21",
+"kind": "treatise",
+"page": 21,
+"authorities": [],
+"text": "c. Consumer Rights: The FCRA vs. The GLBA vs. State Privacy Laws with FCRA Exemptions When a state-level privacy law includes an exemption for data or entities regulated by another law, ideally the other law would provide similar or more stringent privacy protections, especially when the other law covers sensitive personal information. The FCRA covers data held by consumer reporting agencies. As explained in Part II of this paper, that data includes a massive amount of deeply sensitive personal information related to finances, employment history, credit history, arrest records, family members, bankruptcies, and much more. The FCRA does include privacy protections and consumer rights related to covered data, but the FCRA does not have the same protections as current state privacy laws. The GLBA provides even weaker privacy protections than the FCRA. The protections and rights afforded by the FCRA, the GLBA, and state privacy laws are covered in more detail in Parts II and III of this paper, but the comparisons in the table below demonstrate some of the important differences between the protections and rights afforded to individuals. Consumer Data Rights in the FCRA vs. the GLBA vs. General State Privacy Laws Type of Consumer Right The FCRA The GLBA General State Privacy Laws Limitations on third-party access to data Entities covered by the FCRA may only disclose data contained in credit reports if they have a permissible purpose to do so.79 Consumers also have the right to place a credit freeze on reports from the \u201cnationwide\u201d consumer reporting agencies, which prohibits them from releasing information in consumers\u2019 credit reports without their permission.80 A financial institution must provide notice and an opportunity to opt out before sharing nonpublic financial information with nonaffiliated third parties, subject to a number of exceptions.81 All general state privacy laws allow consumers to opt out of the sale of their personal data.82 79 15 U.S.C. \u00a7 1681b. 80 15 U.S.C. \u00a7 1681c-1(i). 81 15 U.S.C. \u00a7 6802(b). 82 IAPP State Privacy Legislation Tracker.",
+"integrity": {
+"state": "complete",
+"basis": "Full retrieved body of 2,089 characters stored; under the 60,000 cap, so nothing was cut.",
+"stamped_at": "2026-09-11T05:18:16",
+"stored_chars": 2089,
+"source_chars": 2089,
+"cap_applied": 60000
+},
+"authority_class": "advocacy",
+"claim_layer": "mixed",
+"claim_layer_meaning": "Carries more than one layer. The PASSAGE has to be read to tell which - the document-level label cannot."
+},
+{
+"citation": "p. 22",
+"kind": "treatise",
+"page": 22,
+"authorities": [],
+"text": "Right to delete or correct data The FCRA requires CRAs to correct or delete inaccurate, incomplete, or unverifiable information, and consumers have the right to dispute incomplete or inaccurate information.83 Not included. All general state privacy laws give consumers the right to request that businesses delete their personal information.84 Right of access The FCRA gives consumers the right to know what is in their file and to request their credit score.85 Not included. All general state privacy laws give consumers the right to ask businesses if they have collected their information and request a description of the types of data collected or obtain the collected data entirely.86 Right of portability Not included. Not included. All general state privacy laws give consumers the right to request their data from businesses so that consumers can switch to other providers.87 Notice and transparency CRAs must tell consumers if information in their credit file has been used against them, and consumers have the right to access their credit file.88 Financial institutions must provide privacy89 and opt-out90 notices to consumers, subject to a number of exceptions. All general state privacy laws require businesses to provide notice to consumers about certain data practices and privacy programs.91 When legislators pass state privacy laws, they do so to provide strong privacy protections for their constituents. Legislators may include exemptions to ensure that entities are not overly burdened with layers of privacy compliance. However, given the breadth and sensitivity of data held by entities that are regulated by the GLBA and the FCRA, exempting GLBA- or FCRA- covered data or entities seriously limits the effect of state privacy laws. This is particularly true as states begin to incorporate stronger protections such as meaningful data minimization rules that go far beyond privacy protections included in the GLBA and the FCRA.92 The GLBA and the FCRA 83 15 U.S.C. \u00a7 1681i. 84 IAPP State Privacy Legislation Tracker. 85 15 U.S.C. \u00a7 1681j. 86 IAPP State Privacy Legislation Tracker. 87 IAPP State Privacy Legislation Tracker. 88 15 U.S.C. \u00a7 1681s-2(a)(7). 89 15 U.S.C. \u00a7 6803. 90 15 U.S.C. \u00a7 6802(b). 91 IAPP State Privacy Legislation Tracker. 92 For example, the Maryland Online Data Privacy Act (MODPA) includes strong privacy protections, including data minimization requirements and use limitations, a prohibition on the sale of sensitive data, civil rights protections, and a ban on targeted advertising to minors.",
+"integrity": {
+"state": "complete",
+"basis": "Full retrieved body of 2,538 characters stored; under the 60,000 cap, so nothing was cut.",
+"stamped_at": "2026-09-11T05:18:16",
+"stored_chars": 2538,
+"source_chars": 2538,
+"cap_applied": 60000
+},
+"authority_class": "advocacy",
+"claim_layer": "mixed",
+"claim_layer_meaning": "Carries more than one layer. The PASSAGE has to be read to tell which - the document-level label cannot."
+},
+{
+"citation": "p. 23",
+"kind": "treatise",
+"page": 23,
+"authorities": [],
+"text": "do not provide the same privacy protections and consumer rights as state privacy laws currently in effect in many states. States unduly limit privacy protections for their constituents when they exempt GLBA- or FCRA-covered data or entities, which include entities that engage in the collection and sale of personal information on a massive scale. Individuals deserve the same protections for personal data held by entities covered by the GLBA or the FCRA as they enjoy for personal data held by other entities. VI. Recommendations As more state privacy laws are passed and more federal privacy bills are proposed, these challenges related to GLBA and FCRA coverage, data brokerage, and expanding consumers\u2019 rights over their data will persist. To proactively tackle these issues, we recommend: 1. States with consumer privacy laws should evaluate any potential loopholes in the text and explore new legislation to close these gaps. States should remove GLBA and FCRA data- level or entity-level exemptions from consumer privacy laws so that consumers can both exercise their rights under the GLBA and FCRA without issue and receive protections against CRAs\u2019 other data activities (like selling demographic data and non GLBA- or FCRA-covered financial data). 2. Congress and legislatures in states without general consumer privacy laws should pass new laws without entity- or data-level GLBA or FCRA exemptions in the first place. Further, lawmakers should introduce legislation to clarify the coverage of CRAs under the FCRA\u2014and strengthen the rules for consumers. 3. Lastly, federal agencies such as the CFPB, Federal Trade Commission (FTC) and Department of Justice (DOJ) should use their authority to strengthen rules to protect consumers from data brokers. For example, the CFPB should resuscitate its \u201cProtecting Americans from Harmful Data Practices\u201d rulemaking. The Bureau\u2019s 2024 proposal would clarify that many data brokers fulfill the definition of CRAs under the FCRA, meaning data brokers that are CRAs must comply with the FCRA. The CFPB and FTC should also bring enforcement actions against data brokers violating the law. The data broker industry\u2019s continued collection, aggregation, and sale of personal data violates individual privacy and creates risks to physical safety, financial wellbeing, cybersecurity, and national security. Better understanding how data brokers regulated by the GLBA and the FCRA gather and sell data\u2014and in particular, how they gather and sell non-credit reporting data\u2014will give consumers, legislators, and policymakers a fuller picture of the risks and allow them to work towards more comprehensive solutions. Consumers deserve robust privacy protections and rights over their own data, regardless of the type of business collecting and processing that information. Legislators should not limit those protections with unnecessary and overly broad exemptions.",
+"integrity": {
+"state": "complete",
+"basis": "Full retrieved body of 2,905 characters stored; under the 60,000 cap, so nothing was cut.",
+"stamped_at": "2026-09-11T05:18:16",
+"stored_chars": 2905,
+"source_chars": 2905,
+"cap_applied": 60000
+},
+"authority_class": "advocacy",
+"claim_layer": "mixed",
+"claim_layer_meaning": "Carries more than one layer. The PASSAGE has to be read to tell which - the document-level label cannot."
+}
+]
+}

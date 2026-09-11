@@ -3950,6 +3950,22 @@ class LegalAgent(AgentBase):
         f = finding if isinstance(finding, dict) else {}
         step = str(f.get("step") or f.get("action") or "").lower()
 
+        # WHAT IS BEING CITED, BEFORE WHAT IS BEING DONE.
+        #
+        # Legal had no claim-layer register, and nothing revealed it while the
+        # shelf was statutes and regulations end to end: every work doctrinal,
+        # so no work could be cited at the wrong layer. The EPIC white paper is
+        # the first work here that argues rather than states, and it argues for
+        # a rule that does not exist - it asks the CFPB to revive a data-broker
+        # proposal the Bureau withdrew. An agent citing its Part VI as current
+        # FCRA coverage would be stating as law the exact thing the paper is
+        # complaining is not law.
+        #
+        # Inherited from AgentBase so Trust and Legal run one implementation.
+        layer_refusal = self.veto_citation_layer(f)
+        if layer_refusal:
+            return layer_refusal
+
         if "furnisher" in step or "1681s-2" in step or "s2b" in step:
             if f.get("cra_dispute_filed") is not True:
                 return {"decision": "refuse", "register": "no_1681s-2(b)_predicate",

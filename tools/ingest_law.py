@@ -298,44 +298,76 @@ def main():
     with open(txt, "w") as fh:
         fh.write(body)
     print(f"  fetched {len(body):,} characters -> {txt}")
+
+    # CLAIM LAYER, alongside authority class, and set at the same moment.
+    #
+    # Every statute this tool acquired arrived with `claim_layer: unknown`,
+    # whose stored meaning is "treat any citation from here as unclassified: it
+    # may be rationale rather than rule". That is exactly backwards for the one
+    # class of work where the layer is not a judgement call. A statute does not
+    # describe the rule or argue for it - it IS the rule, and the citation in
+    # the title fixes that as definitionally as it fixes the authority class.
+    #
+    # 42 federal statutes, 11 regulations and 6 state statutes sat on the
+    # shelves telling every reader they might be somebody's rationale.
+    #
+    # The IRM is the one source here that is NOT doctrinal by construction: it
+    # directs personnel and states agency practice rather than law, so it stays
+    # unknown until somebody reads it, which is the honest value.
+    klass, basis, layer = {
+        "cfr": ("regulation",
+                "Title of the work is a CFR part citation, which fixes the class",
+                "doctrinal"),
+        "usc": ("federal_statute",
+                "Title of the work is a U.S. Code title citation, which fixes the class",
+                "doctrinal"),
+        "usc-section": ("federal_statute",
+                        "Title of the work is a U.S. Code section citation, which fixes "
+                        "the class",
+                        "doctrinal"),
+        "orc": ("state_statute",
+                "Title of the work is an Ohio Revised Code section citation, which fixes "
+                "the class",
+                "doctrinal"),
+        "irm": ("agency_guidance",
+                "Internal Revenue Manual - directs IRS personnel, confers no rights on "
+                "taxpayers, and courts have held it lacks the force of a regulation",
+                "unknown"),
+    }[a.source]
+
+    # PASSED IN, not written over the finished file afterwards.
+    #
+    # The old shape re-opened the JSON and set `authority_class` on the
+    # DOCUMENT only, while ingest_pdf had already stamped every SECTION from
+    # its own guess at the title. For the IRM those disagreed: the document
+    # read `agency_guidance` and all 10,233 sections read None. Both fields are
+    # read at lookup - authority class off the document, claim layer off the
+    # section - so a disagreement between the two levels is a disagreement the
+    # reader cannot see. One ingest, one classification, both levels.
     rc = subprocess.call([sys.executable,
                           os.path.join(ROOT, "tools", "ingest_pdf.py"),
                           txt, "--agent", a.agent, "--title", title,
-                          "--source", source])
+                          "--source", source,
+                          "--authority-class", klass,
+                          "--claim-layer", layer])
     if rc != 0:
         return rc
-
-    # CLAUDE.md requires every work to carry `authority_class` alongside the
-    # basis for it, and nothing was writing either - the existing files were
-    # classified by hand, so anything acquired by this tool arrived unclassified
-    # and the claim pipeline could not weigh it. For a statute or a regulation
-    # the title IS the citation and fixes the class definitionally, which is the
-    # one case where it can be set without reading the text.
-    klass, basis = {
-        "cfr": ("regulation",
-                "Title of the work is a CFR part citation, which fixes the class"),
-        "usc": ("federal_statute",
-                "Title of the work is a U.S. Code title citation, which fixes the class"),
-        "usc-section": ("federal_statute",
-                        "Title of the work is a U.S. Code section citation, which fixes "
-                        "the class"),
-        "orc": ("state_statute",
-                "Title of the work is an Ohio Revised Code section citation, which fixes "
-                "the class"),
-        "irm": ("agency_guidance",
-                "Internal Revenue Manual - directs IRS personnel, confers no rights on "
-                "taxpayers, and courts have held it lacks the force of a regulation"),
-    }[a.source]
     out = _written_path(a.agent, title)
     if out and os.path.exists(out):
         try:
             with open(out, encoding="utf-8") as fh:
                 doc = json.load(fh)
-            doc["authority_class"] = klass
             doc["authority_class_basis"] = basis
+            if layer != "unknown":
+                doc["claim_layer_basis"] = (
+                    "Set from the class, not from the text: a statute or regulation "
+                    "states the rule rather than describing or arguing it, which the "
+                    "citation in the title establishes definitionally.")
+            for sec in doc.get("sections", []):
+                sec["authority_class"] = klass
             with open(out, "w", encoding="utf-8") as fh:
                 json.dump(doc, fh, indent=2)
-            print(f"  authority_class: {klass}")
+            print(f"  authority_class: {klass}   claim_layer: {layer}")
         except Exception as exc:
             print(f"  WARNING: could not stamp authority_class on {out}: {exc}",
                   file=sys.stderr)

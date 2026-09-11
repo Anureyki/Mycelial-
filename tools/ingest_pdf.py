@@ -25,7 +25,7 @@ sections. Run OCR first (tesseract is installed) if so.
 import argparse, json, os, re, sys
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-from core import source_integrity  # noqa: E402
+from core import source_integrity, pdf_text  # noqa: E402
 
 # Citation shapes worth splitting on, most specific first.
 SECTION_PATTERNS = [
@@ -79,25 +79,25 @@ def spacing_looks_broken(pages):
 
 
 def extract_text(path):
-    """Pages of text. A .txt input is treated as OCR output already extracted -
-    Archive.org's _djvu.txt, for instance, which is often spaced correctly
-    where the PDF's own text layer is not."""
+    """-> (pages, extraction record). A .txt input is treated as OCR output
+    already extracted - Archive.org's _djvu.txt, for instance, which is often
+    spaced correctly where the PDF's own text layer is not.
+
+    The record is built by core/pdf_text.py and distinguishes a page that holds
+    no text from a page the extractor could not read. This function used to
+    collapse both into an empty string, which is how the tool that fills the
+    shelf would have dropped two pages of the EPIC white paper and reported a
+    successful ingest."""
     if path.lower().endswith(".txt"):
         raw = open(path, errors="replace").read()
         pages = raw.split("\f") if "\f" in raw else [raw]
-        return pages, sum(1 for p in pages if not p.strip())
-    from pypdf import PdfReader
-    reader = PdfReader(path)
-    pages, empty = [], 0
-    for i, page in enumerate(reader.pages):
-        try:
-            t = page.extract_text() or ""
-        except Exception:
-            t = ""
-        if not t.strip():
-            empty += 1
-        pages.append(t)
-    return pages, empty
+        return pages, {"extractor": "text file (already extracted)",
+                       "pages": len(pages),
+                       "no_text_layer": [i + 1 for i, p in enumerate(pages)
+                                         if not p.strip()],
+                       "raised": [], "recovered": [], "lost": [],
+                       "complete": True}
+    return pdf_text.extract_pages(path)
 
 
 DASHES = dict.fromkeys(map(ord, "\u2010\u2011\u2012\u2013\u2014\u2015"), "-")
@@ -242,20 +242,28 @@ def index_terms(sections, min_freq=None, max_terms=2500, seed=()):
     for s_ in sections:
         words = re.findall(r"[a-z]+", (s_.get("text") or "").lower())
         grams = set()
-        # SINGLE WORDS TOO.
+        # SINGLE WORDS COME FROM THE SEED, NOT FROM COUNTING.
         #
-        # Only bigrams and trigrams were built, so every one-word doctrine term
-        # was unreachable by construction: contractarian, spendthrift,
-        # disgorgement, prudence, bifurcation, impartiality. A term printed as a
-        # section HEADING in the work could not be looked up in it, and the
-        # question fell through to a web search instead - which is the failure
-        # a local corpus exists to prevent.
+        # They were mined by frequency here for a good reason: every one-word
+        # doctrine term was unreachable by construction - contractarian,
+        # spendthrift, disgorgement, prudence, bifurcation, impartiality - and a
+        # term printed as a section HEADING could not be looked up in the work
+        # that headed a section with it.
         #
-        # Six characters and up, because short words are function words far more
-        # often than they are doctrine, and the furniture list carries the rest.
-        for w in words:
-            if len(w) >= 6 and w not in STOP_EDGE and w not in FURNITURE:
-                grams.add(w)
+        # The seed vocabulary now answers that properly, and all eight of those
+        # terms are in it. What the frequency pass adds on top is ordinary
+        # legal English, because counting cannot tell "spendthrift" from
+        # "accordance". Measured on the Texas Trust Code: 652 single-word keys,
+        # of which the first sixty are absence, accept, accepting, accordance,
+        # according, achieve, acknowledged, acting, action, activities, actual,
+        # actually, addition, address, adjust, advance, affairs, affect,
+        # against, another, applicable, applied, applies, applying. A key that
+        # returns a third of the shelf is not a subject index.
+        #
+        # Multi-word grams stay: a phrase disambiguates itself, which is why
+        # "ascertainable standard" and "actual knowledge" survive the same pass
+        # that produced "actually". So frequency keeps what the seed cannot know
+        # in advance, and the seed keeps what frequency cannot recognise.
         for n in (2, 3):
             for i in range(len(words) - n + 1):
                 g = words[i:i + n]
@@ -268,16 +276,64 @@ def index_terms(sections, min_freq=None, max_terms=2500, seed=()):
                 grams.add(" ".join(g))
         per_section.append(grams)
         freq.update(grams)
+    # NO DOCUMENT-FREQUENCY CEILING, and the reason is worth keeping because
+    # the argument for one is good and wrong.
+    #
+    # "A term that addresses every section addresses none" is the rule the
+    # FURNITURE list runs on, and dropping any gram present in more than 40% of
+    # a work's sections looked like the same rule generalised. Measured, it cut
+    # `agency cost`, `agency costs theory`, `dead hand`, `default rules`,
+    # `private trust`, `residual claims`, `settlor standing`, `spendthrift
+    # trusts`, `trust property`, `trust protectors` and `trustee removal` out of
+    # Sitkoff's agency-costs paper - 71 multi-word keys, and the list reads as a
+    # table of contents.
+    #
+    # The flaw is the unit. Within one work, a term on every page does not
+    # discriminate between pages. But this index answers WHICH WORK covers a
+    # subject, across a shelf, and a paper that says "agency costs" in every
+    # section is exactly the paper to return for agency costs. Saturation is the
+    # signal there, not the noise.
     keep = {t for t, c in freq.most_common(max_terms) if c >= min_freq}
 
     # Seed terms bypass the frequency floor entirely. Present once is enough -
     # that is the whole point, and it is why this is a dictionary rather than a
     # counter.
+    # MATCH THE SEED TERM THE WAY THE TEXT IS MATCHED.
+    #
+    # The haystack is rebuilt as `[a-z]+` runs joined by spaces, so every hyphen
+    # and apostrophe in the document is already gone: "entity-level exemption"
+    # is "entity level exemption" by the time anything is compared to it. The
+    # needle was not put through the same mill, so a seed term written with a
+    # hyphen could not match ANY document - unreachable by construction, the
+    # same shape as one-word terms of art before the seed existed.
+    # "entity-level exemption", "data-level exemption" and "gramm-leach-bliley"
+    # were all in the EPIC paper and all returned [no hit].
+    #
+    # A naive plural of the last word is tried too. Terms of art are written
+    # singular in a dictionary and used plural in prose - the paper's own
+    # glossary heads the entry "Specialty Consumer Reporting Agencies". This
+    # widens what can be FOUND and never what is claimed, which is the seed
+    # file's own rule: a term absent from the text stays absent from the index.
+    def _variants(term):
+        flat = " ".join(re.findall(r"[a-z]+", term))
+        if not flat:
+            return ()
+        head, _, last = flat.rpartition(" ")
+        if last.endswith("y") and len(last) > 3:
+            plural = last[:-1] + "ies"
+        elif last.endswith(("s", "x", "z", "ch", "sh")):
+            plural = last + "es"
+        else:
+            plural = last + "s"
+        return (flat, (head + " " + plural).strip())
+
+    seed_variants = [(t, _variants(t)) for t in seed]
+
     seed_hits = 0
     for i, s_ in enumerate(sections):
         flat = " ".join(re.findall(r"[a-z]+", (s_.get("text") or "").lower()))
-        for term in seed:
-            if term not in flat:
+        for term, forms in seed_variants:
+            if not any(f and f in flat for f in forms):
                 continue
             # ALWAYS add to `keep`, even when the term is already in this
             # section's grams. The guard `and term not in per_section[i]` meant a
@@ -460,11 +516,22 @@ def main():
                          "be authority_class treatise and be these three different things.")
     ap.add_argument("--authority-class", default=None,
                     choices=["federal_statute", "state_statute", "regulation",
-                             "court_rules", "agency_guidance", "treatise", "unknown"],
+                             "court_rules", "agency_guidance", "treatise",
+                             "advocacy", "unknown"],
                     help="How this work should be WEIGHED. Required unless --treatise "
                          "implies it. See CLAUDE.md: the claim pipeline weighs whatever "
                          "it can open as potentially governing, so a work with no class "
-                         "is a commentary that can be read as law.")
+                         "is a commentary that can be read as law. "
+                         "advocacy = an interested party arguing a position. It is not a "
+                         "treatise: a treatise expounds the law and an advocacy paper "
+                         "asks for a different one, and the distinction is about standing "
+                         "rather than quality. Set it only after READING - CLAUDE.md "
+                         "records a talk tagged advocacy from its title that argued the "
+                         "opposite of the tag, which is the same error in the other "
+                         "direction.")
+    ap.add_argument("--allow-lost-pages", action="store_true",
+                    help="shelve the work even though a page could not be read "
+                         "by any extractor. The loss is recorded on the document")
     ap.add_argument("--treatise", action="store_true",
                     help="Work has no numbered sections: key by printed page and "
                          "index the authorities each passage cites")
@@ -473,10 +540,20 @@ def main():
     if not os.path.exists(args.pdf):
         sys.exit(f"not found: {args.pdf}")
 
-    pages, empty = extract_text(args.pdf)
+    pages, extraction = extract_text(args.pdf)
     total = len(pages)
+    empty = len(extraction["no_text_layer"])
     chars = sum(len(p) for p in pages)
     print(f"  {total} pages, {chars:,} characters, {empty} pages with no text layer")
+    for line in pdf_text.describe(extraction):
+        print(f"  {line}")
+    # A page no extractor could read is text that is GONE, and nothing
+    # downstream can tell what was on it. The tool already refuses to write an
+    # index it knows is bad; this is the same refusal.
+    if extraction["lost"] and not args.allow_lost_pages:
+        sys.exit("  ABORTING: pages above were lost. Re-run with "
+                 "--allow-lost-pages to shelve it anyway; the loss is then "
+                 "recorded on the document and travels with every citation.")
     if total and empty / total > 0.5:
         print("  WARNING: mostly image pages. This is a scan with no text layer.")
         print("  OCR it first, e.g.:  ocrmypdf in.pdf out.pdf   (tesseract is installed)")
@@ -566,6 +643,7 @@ def main():
            "authorities_cited": authorities,
            "term_index": terms,
            "origin_pdf": os.path.basename(args.pdf),
+           "extraction": extraction,
            "pages": total, "sections": sections}
     for _s in sections:
         _s.setdefault("authority_class", ac)

@@ -40,106 +40,20 @@
 "Zahn v. Transamerica"
 ],
 "term_index": {
-"original": [
-0,
-3,
-6
-],
-"among others": [
-0,
-2,
-6
-],
-"trust protectors": [
+"private trusts": [
 0,
 1,
 2,
-4,
-6
-],
-"settlor standing": [
-0,
-1,
-2,
-4,
-6
-],
-"kopans": [
-0,
-5
-],
-"accepted": [
-0,
-4
-],
-"frankel": [
-0,
-5
-],
-"thomas merrill": [
-0,
-2
-],
-"settlor": [
-0,
-1,
-2,
-3,
-4,
-5,
-6
-],
-"fiduciary litigation trust": [
-0,
-2,
-6
-],
-"trust protector": [
-0,
-1,
-2,
-4,
-6
-],
-"mahoney": [
-0,
-2
-],
-"temporal agency problem": [
-0,
-2,
-6
-],
-"standing fiduciary": [
-0,
-2,
-6
-],
-"dobris": [
-0,
-2,
-3,
-4
-],
-"worthington": [
-0,
-2
-],
-"authorized": [
-0,
 3
 ],
-"trustee manager will": [
+"including among others": [
 0,
+2,
 6
 ],
-"louis kaplow": [
+"daniel fischel": [
 0,
-3,
-5
-],
-"helpful": [
-0,
+2,
 3
 ],
 "least with respect": [
@@ -148,325 +62,9 @@
 3,
 6
 ],
-"whether trust": [
-0,
-2,
-6
-],
-"citation": [
-0,
-4
-],
-"reinier": [
-0,
-1,
-2,
-5
-],
-"thomas": [
-0,
-2,
-3
-],
-"marcel": [
-0,
-2
-],
-"joshua": [
-0,
-2,
-3
-],
-"deborah": [
-0,
-5
-],
-"donative trusts": [
-0,
-1,
-2,
-3,
-4,
-5
-],
-"costs theory": [
-0,
-1,
-2,
-3,
-4,
-5
-],
-"financial": [
-0,
-2,
-3,
-4
-],
-"getzler": [
-0,
-2,
-3
-],
-"american": [
-0,
-1,
-2,
-3,
-4,
-5
-],
 "beneficiaries residual": [
 0,
 6
-],
-"authority": [
-0,
-2,
-3,
-4,
-5,
-6
-],
-"trust invest ment": [
-0,
-3
-],
-"removal": [
-0,
-1,
-2,
-3,
-4,
-6
-],
-"locating managerial": [
-0,
-1,
-3,
-6
-],
-"positive claim": [
-0,
-1,
-3,
-6
-],
-"beneficiaries": [
-0,
-1,
-2,
-3,
-4,
-5,
-6
-],
-"trustee will": [
-0,
-6
-],
-"spendthrift trusts": [
-0,
-2,
-4,
-6
-],
-"trustee removal": [
-0,
-1,
-2,
-4,
-6
-],
-"wishes": [
-0,
-3,
-4,
-6
-],
-"economics": [
-0,
-1,
-2,
-3,
-5,
-6
-],
-"res": [
-0,
-1,
-2,
-3,
-4,
-5,
-6
-],
-"marcel kahan": [
-0,
-2
-],
-"separated whether": [
-0,
-6
-],
-"arises": [
-0,
-6
-],
-"consistent": [
-0,
-1,
-2,
-3,
-4,
-6
-],
-"private trust triggers": [
-0,
-6
-],
-"assistance": [
-0,
-4
-],
-"charitable trusts": [
-0,
-1,
-3,
-4
-],
-"information": [
-0,
-1,
-2,
-3,
-5
-],
-"residual": [
-0,
-1,
-2,
-3,
-4,
-5,
-6
-],
-"settlor standing fiduciary": [
-0,
-2,
-6
-],
-"original wishes": [
-0,
-6
-],
-"david hayton": [
-0,
-2,
-3,
-4
-],
-"called": [
-0,
-2,
-3,
-4,
-6
-],
-"principal": [
-0,
-1,
-2,
-3,
-4,
-6
-],
-"triantis": [
-0,
-2
-],
-"private trust": [
-0,
-1,
-2,
-3,
-4,
-5,
-6
-],
-"sitkoff": [
-0,
-2,
-3,
-5
-],
-"traditional doctrines": [
-0,
-6
-],
-"agency problem whether": [
-0,
-6
-],
-"shavell": [
-0,
-2,
-3
-],
-"agency problem": [
-0,
-1,
-2,
-3,
-4,
-6
-],
-"theory": [
-0,
-1,
-2,
-3,
-4,
-5
-],
-"beneficiaries residual claimants": [
-0,
-6
-],
-"merrill": [
-0,
-2,
-3
-],
-"trusts": [
-0,
-1,
-2,
-3,
-4,
-5,
-6
-],
-"costs approach offers": [
-0,
-6
-],
-"amenable": [
-0,
-1,
-2
-],
-"risk bearing": [
-0,
-1,
-2,
-5,
-6
-],
-"kaplow": [
-0,
-3,
-5
 ],
 "agency costs inherent": [
 0,
@@ -474,934 +72,14 @@
 3,
 6
 ],
-"invest ment": [
-0,
-3
-],
-"inherent": [
-0,
-1,
-3,
-5,
-6
-],
-"agency costs theory": [
-0,
-1,
-2,
-3,
-4,
-5
-],
-"problems": [
-0,
-1,
-2,
-3,
-4,
-5,
-6
-],
-"ongoing": [
-0,
-1,
-2,
-3,
-4,
-5,
-6
-],
-"standing": [
-0,
-1,
-2,
-3,
-4,
-5,
-6
-],
-"cheffins": [
-0,
-3,
-5
-],
-"waggoner": [
-0,
-3
-],
-"extension": [
-0,
-1,
-4
-],
-"demott": [
-0,
-5
-],
-"ongoing debate": [
-0,
-4,
-6
-],
-"research": [
-0,
-2,
-3
-],
-"steven": [
-0,
-2,
-3
-],
-"analysis": [
-0,
-1,
-2,
-3,
-4,
-5,
-6
-],
-"daniel": [
-0,
-1,
-2,
-3
-],
-"closer": [
-0,
-2,
-5,
-6
-],
-"locating managerial authority": [
-0,
-3,
-6
-],
-"posner": [
-0,
-2,
-3,
-4,
-5
-],
-"litigation trust": [
+"offers fresh insights": [
 0,
 2,
 6
-],
-"problem": [
-0,
-1,
-2,
-3,
-4,
-6
-],
-"joel dobris": [
-0,
-4
-],
-"ante instructions": [
-0,
-1,
-3,
-6
-],
-"manage ment": [
-0,
-3,
-4
-],
-"joshua getzler": [
-0,
-2,
-3
-],
-"property": [
-0,
-1,
-2,
-3,
-4,
-5,
-6
-],
-"whether": [
-0,
-2,
-3,
-4,
-5,
-6
-],
-"trust invest": [
-0,
-3
-],
-"agency": [
-0,
-1,
-2,
-3,
-4,
-5,
-6
-],
-"termination settlor standing": [
-0,
-2
-],
-"additional": [
-0,
-2,
-3
-],
-"separated": [
-0,
-2,
-6
-],
-"principal agent problem": [
-0,
-2,
-3
-],
-"agency costs approach": [
-0,
-2,
-3,
-4,
-5,
-6
-],
-"accordingly": [
-0,
-2,
-4,
-5
-],
-"including": [
-0,
-2,
-3,
-4,
-5,
-6
-],
-"annual": [
-0,
-3
-],
-"will remain loyal": [
-0,
-6
-],
-"principal agent": [
-0,
-1,
-2,
-3,
-6
-],
-"london": [
-0,
-4
-],
-"richard": [
-0,
-2,
-3,
-4,
-5
-],
-"insights into recurring": [
-0,
-2,
-6
-],
-"andrew kopans": [
-0,
-5
-],
-"helmholz": [
-0,
-2,
-3
-],
-"donative": [
-0,
-1,
-2,
-3,
-4,
-5,
-6
-],
-"including among": [
-0,
-2,
-6
-],
-"called trust": [
-0,
-2,
-4,
-6
-],
-"managerial": [
-0,
-1,
-2,
-3,
-4,
-5,
-6
-],
-"temporal agency": [
-0,
-2,
-6
-],
-"others": [
-0,
-2,
-3,
-6
-],
-"trustee manager": [
-0,
-6
-],
-"offers fresh": [
-0,
-2,
-6
-],
-"usual agency": [
-0,
-1,
-6
-],
-"private": [
-0,
-1,
-2,
-3,
-4,
-5,
-6
-],
-"minimize": [
-0,
-1,
-2,
-3,
-4,
-5,
-6
-],
-"questions": [
-0,
-2,
-4
-],
-"schoenblum": [
-0,
-4
-],
-"although": [
-0,
-2,
-3,
-4
-],
-"focuses": [
-0,
-2
-],
-"interests": [
-0,
-1,
-2,
-3,
-4,
-5,
-6
-],
-"fiduciary": [
-0,
-1,
-2,
-3,
-4,
-5,
-6
-],
-"impartiality trustee": [
-0,
-2,
-6
-],
-"numerous": [
-0,
-3,
-5
-],
-"fiduciary litigation": [
-0,
-1,
-2,
-4,
-5,
-6
-],
-"agent problem": [
-0,
-2,
-3
-],
-"commercial": [
-0,
-1,
-2,
-3,
-5
-],
-"respect": [
-0,
-1,
-2,
-3,
-4,
-6
-],
-"best interests": [
-0,
-1,
-2,
-3,
-4,
-6
-],
-"termination settlor": [
-0,
-2
-],
-"arises when risk": [
-0,
-6
-],
-"steven shavell": [
-0,
-2,
-3
-],
-"problem whether": [
-0,
-6
-],
-"roberta": [
-0,
-3,
-5
-],
-"support": [
-0,
-2,
-3,
-4,
-5
-],
-"normative": [
-0,
-1,
-2,
-3,
-4,
-6
-],
-"charitable": [
-0,
-1,
-2,
-3,
-4
-],
-"fresh insights": [
-0,
-2,
-6
-],
-"andrew": [
-0,
-4,
-5
-],
-"canadian": [
-0,
-3,
-5
 ],
 "richard posner": [
 0,
 4
-],
-"offers": [
-0,
-2,
-4,
-6
-],
-"usual agency problem": [
-0,
-1,
-6
-],
-"robert": [
-0,
-2,
-3,
-4,
-5
-],
-"manager will": [
-0,
-6
-],
-"termination": [
-0,
-1,
-2,
-3,
-4
-],
-"david english": [
-0,
-4
-],
-"insights": [
-0,
-2,
-3,
-6
-],
-"costs approach": [
-0,
-2,
-3,
-4,
-5,
-6
-],
-"recurring problems": [
-0,
-2,
-6
-],
-"residual claim": [
-0,
-1,
-3,
-5,
-6
-],
-"agency costs": [
-0,
-1,
-2,
-3,
-4,
-5,
-6
-],
-"manage": [
-0,
-1,
-2,
-3,
-4
-],
-"drafts": [
-0,
-2,
-3
-],
-"debate": [
-0,
-2,
-4,
-5,
-6
-],
-"gregory": [
-0,
-2
-],
-"easterbrook": [
-0,
-2,
-3,
-4,
-5,
-6
-],
-"problem that arises": [
-0,
-6
-],
-"frank easterbrook": [
-0,
-2,
-3
-],
-"sarah worthington": [
-0,
-2
-],
-"remain loyal": [
-0,
-6
-],
-"called trust protectors": [
-0,
-2,
-6
-],
-"thomas ulen": [
-0,
-3
-],
-"english": [
-0,
-2,
-3,
-4
-],
-"impartiality": [
-0,
-1,
-2,
-3,
-4,
-5,
-6
-],
-"protectors": [
-0,
-1,
-2,
-4,
-6
-],
-"ronald chester": [
-0,
-2,
-3,
-4
-],
-"including among others": [
-0,
-2,
-6
-],
-"chester": [
-0,
-2,
-3,
-4
-],
-"standing fiduciary litigation": [
-0,
-2,
-6
-],
-"approach offers fresh": [
-0,
-6
-],
-"alexander": [
-0,
-2,
-3,
-4,
-5
-],
-"langbein": [
-0,
-1,
-2,
-3,
-4,
-5
-],
-"brought": [
-0,
-4,
-5
-],
-"participants": [
-0,
-2
-],
-"lindgren": [
-0,
-4
-],
-"suggested": [
-0,
-1,
-3,
-4,
-5,
-6
-],
-"stewart": [
-0,
-1,
-2
-],
-"extent": [
-0,
-1,
-2,
-4,
-6
-],
-"thanks": [
-0,
-5
-],
-"mcchesney": [
-0,
-4
-],
-"remain": [
-0,
-2,
-4,
-6
-],
-"jeffrey": [
-0,
-2,
-3,
-4
-],
-"recurring": [
-0,
-2,
-6
-],
-"family": [
-0,
-2,
-3,
-4
-],
-"instructions": [
-0,
-1,
-3,
-4,
-6
-],
-"traditional": [
-0,
-2,
-3,
-4,
-5,
-6
-],
-"follow": [
-0,
-2
-],
-"fischel": [
-0,
-1,
-2,
-3,
-4,
-5,
-6
-],
-"college": [
-0,
-3
-],
-"steven schwarcz": [
-0,
-3
-],
-"manager": [
-0,
-3,
-4,
-6
-],
-"mative": [
-0,
-2
-],
-"managerial authority": [
-0,
-3,
-6
-],
-"normative claim": [
-0,
-1,
-3,
-6
-],
-"should": [
-0,
-1,
-2,
-3,
-4,
-6
-],
-"costs inherent": [
-0,
-1,
-3,
-6
-],
-"schwarcz": [
-0,
-2,
-3,
-5
-],
-"ronald": [
-0,
-2,
-3,
-4
-],
-"develops": [
-0,
-1,
-2
-],
-"trust triggers": [
-0,
-6
-],
-"doctrines": [
-0,
-1,
-2,
-3,
-4,
-6
-],
-"kraakman": [
-0,
-1,
-2,
-3,
-4,
-5
-],
-"invest": [
-0,
-3
-],
-"bearing": [
-0,
-1,
-2,
-5,
-6
-],
-"claimants": [
-0,
-1,
-2,
-3,
-4,
-5,
-6
-],
-"nicholas": [
-0,
-3
-],
-"george": [
-0,
-2,
-4
-],
-"trustee will remain": [
-0,
-6
-],
-"residual claimant": [
-0,
-1,
-2,
-3,
-4,
-5,
-6
-],
-"temporal": [
-0,
-2,
-3,
-4,
-6
-],
-"romano": [
-0,
-3,
-5
-],
-"tamar frankel": [
-0,
-5
-],
-"approach": [
-0,
-1,
-2,
-3,
-4,
-5,
-6
-],
-"chiefly": [
-0,
-2
-],
-"should minimize": [
-0,
-1,
-3,
-6
-],
-"best interest": [
-0,
-1,
-2,
-3,
-4,
-6
-],
-"roberta romano": [
-0,
-3,
-5
-],
-"daniel fischel": [
-0,
-2,
-3
 ],
 "trustee": [
 0,
@@ -1416,14 +94,223 @@
 0,
 2
 ],
-"summer": [
+"removal": [
+0,
+1,
+2,
+3,
+4,
+6
+],
+"problem whether": [
+0,
+6
+],
+"fiduciary litigation trust": [
+0,
+2,
+6
+],
+"john langbein": [
+0,
+2
+],
+"trustee manager": [
+0,
+6
+],
+"normative claim": [
+0,
+1,
+3,
+6
+],
+"offers fresh": [
+0,
+2,
+6
+],
+"trust invest ment": [
+0,
+3
+],
+"standing": [
+0,
+1,
+2,
+3,
+4,
+5,
+6
+],
+"will remain": [
+0,
+2,
+6
+],
+"frank easterbrook": [
+0,
+2,
+3
+],
+"whether trust": [
+0,
+2,
+6
+],
+"agency costs theory": [
+0,
+1,
+2,
+3,
+4,
+5
+],
+"david hayton": [
+0,
+2,
+3,
+4
+],
+"agent problem": [
+0,
+2,
+3
+],
+"should minimize": [
+0,
+1,
+3,
+6
+],
+"tamar frankel": [
 0,
 5
 ],
-"author": [
+"locating managerial": [
+0,
+1,
+3,
+6
+],
+"locating managerial authority": [
+0,
+3,
+6
+],
+"agency costs": [
+0,
+1,
+2,
+3,
+4,
+5,
+6
+],
+"including among": [
 0,
 2,
+6
+],
+"called trust protectors": [
+0,
+2,
+6
+],
+"agency costs approach": [
+0,
+2,
+3,
+4,
+5,
+6
+],
+"best interests": [
+0,
+1,
+2,
+3,
+4,
+6
+],
+"private trust triggers": [
+0,
+6
+],
+"ronald chester": [
+0,
+2,
+3,
 4
+],
+"donative trusts": [
+0,
+1,
+2,
+3,
+4,
+5
+],
+"problem that arises": [
+0,
+6
+],
+"res": [
+0,
+1,
+2,
+3,
+4,
+5,
+6
+],
+"thomas ulen": [
+0,
+3
+],
+"usual agency problem": [
+0,
+1,
+6
+],
+"manager will": [
+0,
+6
+],
+"fiduciary litigation": [
+0,
+1,
+2,
+4,
+5,
+6
+],
+"agency problem whether": [
+0,
+6
+],
+"approach offers": [
+0,
+6
+],
+"manage ment": [
+0,
+3,
+4
+],
+"standing fiduciary litigation": [
+0,
+2,
+6
+],
+"costs approach offers": [
+0,
+6
+],
+"reinier kraakman": [
+0,
+2,
+5
 ],
 "residual claimants": [
 0,
@@ -1434,63 +321,13 @@
 5,
 6
 ],
-"positive": [
+"trust invest": [
 0,
-1,
-2,
-3,
-4,
-6
+3
 ],
-"reinier kraakman": [
+"insights into recurring": [
 0,
 2,
-5
-],
-"impartiality trustee removal": [
-0,
-2,
-6
-],
-"hayton": [
-0,
-2,
-3,
-4
-],
-"will remain": [
-0,
-2,
-6
-],
-"litigation": [
-0,
-1,
-2,
-3,
-4,
-5,
-6
-],
-"conforms": [
-0,
-1,
-3,
-4,
-6
-],
-"john langbein": [
-0,
-2
-],
-"approach offers": [
-0,
-6
-],
-"locating": [
-0,
-1,
-3,
 6
 ],
 "spendthrift": [
@@ -1501,101 +338,299 @@
 5,
 6
 ],
-"triggers": [
+"trustee will remain": [
 0,
 6
 ],
-"future": [
+"trustee will": [
+0,
+6
+],
+"residual claimant": [
 0,
 1,
 2,
 3,
 4,
-5
+5,
+6
 ],
-"hirsch": [
+"approach offers fresh": [
+0,
+6
+],
+"will remain loyal": [
+0,
+6
+],
+"arises when risk": [
+0,
+6
+],
+"joel dobris": [
+0,
+4
+],
+"sarah worthington": [
+0,
+2
+],
+"costs inherent": [
 0,
 1,
 3,
+6
+],
+"trust protectors": [
+0,
+1,
+2,
 4,
+6
+],
+"ante instructions": [
+0,
+1,
+3,
+6
+],
+"trustee manager will": [
+0,
+6
+],
+"andrew kopans": [
+0,
 5
+],
+"temporal agency problem": [
+0,
+2,
+6
+],
+"standing fiduciary": [
+0,
+2,
+6
+],
+"best interest": [
+0,
+1,
+2,
+3,
+4,
+6
+],
+"beneficiaries residual claimants": [
+0,
+6
+],
+"original wishes": [
+0,
+6
+],
+"donative": [
+0,
+1,
+2,
+3,
+4,
+5,
+6
+],
+"jeffrey schoenblum": [
+0,
+4
+],
+"joshua getzler": [
+0,
+2,
+3
 ],
 "extent that doing": [
 0,
 1,
 6
 ],
-"future work": [
+"impartiality trustee removal": [
 0,
-1
+2,
+6
+],
+"louis kaplow": [
+0,
+3,
+5
+],
+"among others": [
+0,
+2,
+6
+],
+"steven schwarcz": [
+0,
+3
+],
+"steven shavell": [
+0,
+2,
+3
+],
+"thomas merrill": [
+0,
+2
+],
+"agency problem": [
+0,
+1,
+2,
+3,
+4,
+6
+],
+"settlor standing fiduciary": [
+0,
+2,
+6
 ],
 "gregory alexander": [
 0,
 2
 ],
-"private trusts": [
+"separated whether": [
 0,
-1,
-2,
-3
+6
 ],
-"jeffrey schoenblum": [
+"david english": [
 0,
 4
 ],
-"contract": [
+"termination settlor": [
+0,
+2
+],
+"costs approach": [
 0,
 2,
 3,
 4,
+5,
 6
 ],
-"focusing": [
+"ongoing debate": [
+0,
+4,
+6
+],
+"fresh insights": [
+0,
+2,
+6
+],
+"litigation trust": [
+0,
+2,
+6
+],
+"risk bearing": [
 0,
 1,
-2
+2,
+5,
+6
 ],
-"offers fresh insights": [
+"spendthrift trusts": [
+0,
+2,
+4,
+6
+],
+"beneficiary": [
+0,
+1,
+2,
+3,
+4,
+5,
+6
+],
+"roberta romano": [
+0,
+3,
+5
+],
+"impartiality": [
+0,
+1,
+2,
+3,
+4,
+5,
+6
+],
+"managerial authority": [
+0,
+3,
+6
+],
+"settlor standing": [
+0,
+1,
+2,
+4,
+6
+],
+"recurring problems": [
 0,
 2,
 6
 ],
-"organizational": [
+"charitable trusts": [
+0,
+1,
+3,
+4
+],
+"called trust": [
+0,
+2,
+4,
+6
+],
+"residual claim": [
+0,
+1,
+3,
+5,
+6
+],
+"principal agent": [
+0,
 1,
 2,
-3,
-4,
-5
-],
-"qualification gives priority": [
-1,
 3,
 6
 ],
-"application": [
-1,
+"impartiality trustee": [
+0,
 2,
-3,
-5
+6
 ],
-"between trust": [
-1,
-2
-],
-"presents": [
-1,
-2
-],
-"equitable tracing": [
-1,
+"principal agent problem": [
+0,
 2,
-4
+3
 ],
-"abound": [
+"usual agency": [
+0,
 1,
-2
+6
 ],
-"relationships": [
+"trust triggers": [
+0,
+6
+],
+"settlor": [
+0,
 1,
 2,
 3,
@@ -1603,181 +638,17 @@
 5,
 6
 ],
-"total return": [
-1,
+"temporal agency": [
+0,
 2,
-3,
-4
+6
 ],
-"separate": [
-1,
-2,
-3,
-4,
-5
-],
-"collectively": [
-1,
-3
-],
-"partitioning": [
-1,
-2,
-4
-],
-"independent": [
-1,
-2,
-4
-],
-"applicable": [
-1,
-4
-],
-"structure": [
-1,
-2,
-3,
-4,
-5
-],
-"capital markets": [
-1,
-2,
-3
-],
-"legally permissible objectives": [
-1,
-3
-],
-"provision": [
-1,
-2,
-4
-],
-"specific": [
-1,
-2,
-3,
-4,
-5
-],
-"comparative": [
-1,
-2,
-3,
-4
-],
-"united": [
-1,
-2,
-3,
-4
-],
-"express trust": [
-1,
+"marcel kahan": [
+0,
 2
 ],
-"effect": [
-1,
-2,
-3,
-4
-],
-"donative transfers": [
-1,
-3,
-4
-],
-"risk tolerance": [
-1,
-3
-],
-"maitland": [
-1,
-2
-],
-"michael": [
-1,
-2,
-4
-],
-"markets": [
-1,
-2,
-3
-],
-"toronto": [
-1,
-5
-],
-"wachter": [
-1,
-2,
-3
-],
-"underlying": [
-1,
-2,
-3,
-4
-],
-"bainbridge": [
-1,
-3,
-4,
-5
-],
-"transfer": [
-1,
-3,
-4,
-5
-],
-"legal parlance": [
-1,
-2
-],
-"agency theory": [
-1,
-2,
-5
-],
-"monitoring": [
-1,
-2,
-3,
-4,
-5
-],
-"beneficiary tension": [
-1,
-3,
-4
-],
-"surprising": [
-1,
-4
-],
-"trust beneficiaries": [
-1,
-3,
-4,
-5
-],
-"uniform acts": [
-1,
-4
-],
-"parlance": [
-1,
-2
-],
-"cardozo": [
-1,
-5
-],
-"primary": [
+"private trust": [
+0,
 1,
 2,
 3,
@@ -1785,868 +656,69 @@
 5,
 6
 ],
-"informed": [
-1,
-5
-],
-"fama jensen": [
+"trust protector": [
+0,
 1,
 2,
-3,
 4,
-5
+6
 ],
-"eugene": [
-1,
-2
+"future work": [
+0,
+1
 ],
-"central": [
-1,
-5
-],
-"stephen": [
+"trustee removal": [
+0,
 1,
 2,
-3
-],
-"permissible": [
-1,
-3
-],
-"prototypical donative trust": [
-1,
-3
-],
-"duty of care": [
-1,
-3,
-5
-],
-"economic analysis": [
-1,
-2,
-3,
 4,
-5
+6
 ],
-"functional": [
-1,
-2,
-3,
-4
-],
-"vocabulary": [
-1,
-2
-],
-"easter": [
-1,
-2
-],
-"prototypical donative": [
-1,
-3
-],
-"between": [
-1,
-2,
-3,
-4,
-5
-],
-"portfolio": [
-1,
-2,
-3,
-4
-],
-"contractual": [
-1,
-2,
-3
-],
-"relative position": [
-1,
-3
-],
-"william": [
-1,
-3,
-4,
-5
-],
-"applied": [
-1,
-5
-],
-"legally": [
-1,
-3,
-4
-],
-"question": [
-1,
-3,
-4,
-5
-],
-"contractarian nexus": [
-1,
-2
-],
-"return investing": [
-1,
-3
-],
-"administration": [
-1,
-3,
-4
-],
-"commercial trusts": [
-1,
-2
-],
-"legally permissible": [
-1,
-3
-],
-"example": [
-1,
-2,
-3,
-4,
-5
-],
-"litigation incentives": [
-1,
-5
-],
-"express": [
-1,
-2,
-3,
-4
-],
-"easter brook": [
-1,
-2
-],
-"suggested normative approach": [
+"positive claim": [
+0,
 1,
 3,
 6
 ],
-"agency costs analysis": [
+"termination settlor standing": [
+0,
+2
+],
+"costs theory": [
+0,
 1,
 2,
-5,
+3,
+4,
+5
+],
+"remain loyal": [
+0,
 6
 ],
-"economic": [
-1,
-2,
-3,
-4,
-5
-],
-"economic rather": [
-1,
-2
-],
-"accord ingly": [
-1,
-2,
+"invest ment": [
+0,
 3
 ],
-"against": [
-1,
-2,
-3,
-4,
-5
-],
-"theories": [
-1,
-2,
-3
-],
-"ciaries": [
-1,
-2,
-3,
-4,
-5
-],
-"classic": [
+"termination": [
+0,
 1,
 2,
 3,
 4
 ],
-"position": [
-1,
-2,
-3,
-4,
-5
-],
-"alchian": [
-1,
-5
-],
-"separation": [
-1,
-2,
-4
-],
-"qualification": [
-1,
-2,
-3,
-4,
+"traditional doctrines": [
+0,
 6
-],
-"settlor beneficiary tension": [
-1,
-3,
-4
-],
-"largely": [
-1,
-4
-],
-"henry hansmann": [
-1,
-2
-],
-"production": [
-1,
-3
-],
-"wanted": [
-1,
-3,
-4
-],
-"significance": [
-1,
-2
-],
-"present": [
-1,
-2,
-3,
-4,
-5
-],
-"seejohn": [
-1,
-2,
-3
-],
-"transactional": [
-1,
-4
-],
-"states": [
-1,
-2,
-3,
-4
-],
-"perspective": [
-1,
-2,
-3,
-4,
-5
-],
-"jensen residual claims": [
-1,
-2,
-3,
-5
-],
-"tional": [
-1,
-2,
-3
-],
-"american trust": [
-1,
-4
-],
-"models": [
-1,
-2,
-5
-],
-"rule against": [
-1,
-2,
-3,
-4,
-5
-],
-"different": [
-1,
-2,
-3,
-4,
-5
-],
-"edward": [
-1,
-2,
-3,
-4
-],
-"residual claims": [
-1,
-2,
-3,
-4,
-5
-],
-"mattei": [
-1,
-2,
-3,
-4
-],
-"contractarian challenge": [
-1,
-2
-],
-"freedom": [
-1,
-2
-],
-"purposes": [
-1,
-2,
-4,
-5
-],
-"franklin": [
-1,
-5
-],
-"systematic": [
-1,
-2
-],
-"office": [
-1,
-2,
-3,
-4
-],
-"jurisdictional competition": [
-1,
-2
-],
-"shareholder": [
-1,
-2,
-3,
-4,
-5
-],
-"sources cited": [
-1,
-2,
-3,
-4,
-5
-],
-"principal agent relationships": [
-1,
-2
-],
-"transfers": [
-1,
-2,
-3,
-4,
-5
-],
-"shirking": [
-1,
-2,
-4
-],
-"tracing": [
-1,
-2,
-4
-],
-"implies": [
-1,
-2,
-3
-],
-"commercial transactions": [
-1,
-3
-],
-"costs analysis": [
-1,
-2,
-5,
-6
-],
-"functions": [
-1,
-2
-],
-"pursuit": [
-1,
-3
-],
-"dominant": [
-1,
-2,
-3,
-4
-],
-"relationship": [
-1,
-2,
-3,
-4,
-5
-],
-"agement": [
-1,
-5
-],
-"internal": [
-1,
-2,
-3,
-4
-],
-"fama jensen separation": [
-1,
-2,
-4
-],
-"costs model": [
-1,
-2,
-4
-],
-"beneficiaries within": [
-1,
-3
-],
-"corporate": [
-1,
-2,
-3,
-4,
-5
-],
-"investing": [
-1,
-2,
-3,
-4
-],
-"governance": [
-1,
-2,
-3,
-4,
-5
-],
-"trustee relationship": [
-1,
-3
-],
-"donative beneficiaries": [
-1,
-3
-],
-"noting": [
-1,
-2,
-3,
-4,
-5
-],
-"source": [
-1,
-3
-],
-"internal governance": [
-1,
-3,
-4
-],
-"restraints": [
-1,
-3,
-4
-],
-"agency cost analysis": [
-1,
-2,
-3,
-4,
-5
-],
-"modern": [
-1,
-2,
-3,
-4,
-5
-],
-"organi zation": [
-1,
-4
-],
-"settlor beneficiary": [
-1,
-3,
-4
-],
-"donative trust": [
-1,
-2,
-3,
-5
-],
-"introduction": [
-1,
-2,
-3
-],
-"prototypical": [
-1,
-2,
-3
-],
-"literature": [
-1,
-2,
-3,
-4
-],
-"objectives": [
-1,
-3
-],
-"donative private": [
-1,
-2,
-6
-],
-"management": [
-1,
-2,
-3,
-4,
-5,
-6
-],
-"symposium": [
-1,
-2,
-4
-],
-"normative approach": [
-1,
-3,
-6
-],
-"imposed": [
-1,
-2,
-3,
-4,
-5
-],
-"organi": [
-1,
-4
-],
-"sources": [
-1,
-2,
-3,
-4,
-5
-],
-"accord": [
-1,
-2,
-3
-],
-"centuy": [
-1,
-3
-],
-"halbach": [
-1,
-2,
-3,
-4,
-5
-],
-"generally": [
-1,
-2,
-3,
-4,
-5
-],
-"asset partitioning": [
-1,
-2,
-4
-],
-"agent relationships": [
-1,
-2
-],
-"business": [
-1,
-2,
-3,
-4,
-5
-],
-"subject": [
-1,
-2,
-3,
-4
-],
-"exposition": [
-1,
-3
-],
-"demsetz": [
-1,
-2,
-5
-],
-"benefi": [
-1,
-2,
-3,
-4,
-5
-],
-"equitable": [
-1,
-2,
-3,
-4,
-5
-],
-"managerial trust": [
-1,
-2,
-3,
-5
-],
-"connection": [
-1,
-4
-],
-"claims": [
-1,
-2,
-3,
-4,
-5
-],
-"doctrinal": [
-1,
-2,
-3,
-4
-],
-"agency problems": [
-1,
-2,
-5
-],
-"within": [
-1,
-2,
-3,
-4,
-5,
-6
-],
-"rule against perpetuities": [
-1,
-2,
-3,
-4,
-5
-],
-"agency costs model": [
-1,
-2,
-4
-],
-"rather": [
-1,
-2,
-3,
-4
-],
-"applications": [
-1,
-2,
-3
-],
-"transactions": [
-1,
-2,
-3,
-4,
-5
-],
-"benefits": [
-1,
-2,
-3,
-4,
-5
-],
-"fama jensen residual": [
-1,
-2,
-3,
-5
-],
-"gives priority": [
-1,
-3,
-6
-],
-"competition": [
-1,
-2,
-3,
-4
-],
-"analyses": [
-1,
-2,
-5
-],
-"agency cost theories": [
-1,
-2
 ],
 "governance structure": [
 1,
 4
 ],
-"problem when risk": [
-1,
-2
-],
-"tension": [
+"fama jensen residual": [
 1,
 2,
 3,
-4,
-5
-],
-"however": [
-1,
-2,
-3,
-4,
-5
-],
-"foundation": [
-1,
-3,
-4,
-5
-],
-"settlor over": [
-1,
-3,
-6
-],
-"emphasized": [
-1,
-5
-],
-"hansmann": [
-1,
-2,
-3,
-4
-],
-"return": [
-1,
-2,
-3,
-4
-],
-"various": [
-1,
-2,
-3,
-4
-],
-"uniform": [
-1,
-2,
-3,
-4
-],
-"modern trust": [
-1,
-2,
-3
-],
-"contracts": [
-1,
-2,
-3,
-4,
-5
-],
-"perpetuities": [
-1,
-2,
-3,
-4,
-5
-],
-"entity": [
-1,
-2,
-4
-],
-"jensen residual": [
-1,
-2,
-3,
-5
-],
-"legal literature": [
-1,
-2
-],
-"contractarian": [
-1,
-2,
-4,
 5
 ],
 "benefi ciaries": [
@@ -2656,184 +728,45 @@
 4,
 5
 ],
-"viewed": [
+"jurisdictional competition": [
+1,
+2
+],
+"dead hand": [
 1,
 2,
 3,
 4
 ],
-"jensen": [
+"doctrinal rather": [
 1,
-2,
-3,
-4,
-5
+2
+],
+"risk tolerance": [
+1,
+3
 ],
 "information costs": [
 1,
 3
 ],
-"feature": [
+"costs model": [
 1,
 2,
-3,
 4
-],
-"cost theories": [
-1,
-2
-],
-"assets": [
-1,
-2,
-3,
-4
-],
-"external transactional": [
-1,
-4
-],
-"incentives": [
-1,
-2,
-3,
-5
-],
-"qualification gives": [
-1,
-3,
-6
-],
-"permissible objectives": [
-1,
-3
-],
-"consider": [
-1,
-2,
-3,
-4,
-5
-],
-"accompanying text": [
-1,
-2,
-3,
-4,
-6
 ],
 "economic foundations": [
 1,
 2
 ],
-"corporation": [
+"monitoring": [
 1,
 2,
 3,
 4,
 5
 ],
-"developments": [
-1,
-2,
-4
-],
-"accompanying": [
-1,
-2,
-3,
-4,
-6
-],
-"comparing": [
-1,
-2,
-3,
-5
-],
-"extensions": [
-1,
-4
-],
-"modification": [
-1,
-3,
-4,
-6
-],
-"stating": [
-1,
-2,
-3,
-4
-],
-"cost analysis": [
-1,
-2,
-3,
-4,
-5
-],
-"behavior": [
-1,
-3,
-5
-],
-"suggested normative": [
-1,
-3,
-6
-],
-"foundations": [
-1,
-2,
-3
-],
-"trends": [
-1,
-2,
-3,
-4
-],
-"priority": [
-1,
-3,
-6
-],
-"organizations": [
-1,
-2,
-3,
-4,
-5
-],
-"answer": [
-1,
-2,
-3,
-4
-],
-"meckling": [
-1,
-2,
-3,
-4
-],
-"discussing": [
-1,
-2,
-3,
-4,
-5
-],
-"control": [
-1,
-2,
-3,
-4,
-5
-],
-"flexible": [
+"accord ingly": [
 1,
 2,
 3
@@ -2842,119 +775,16 @@
 1,
 2
 ],
-"jonathan": [
-1,
-2,
-3,
-4,
-5
-],
-"primary principal": [
-1,
-3,
-4,
-6
-],
-"tolerance": [
-1,
-3
-],
-"spendthrift trust": [
-1,
-4,
-5
-],
-"total return investing": [
-1,
-3
-],
-"organization": [
+"modern trust": [
 1,
 2,
 3
 ],
-"business organizations": [
-1,
-2,
-3,
-5
-],
-"zation": [
-1,
-4
-],
-"inter ests": [
-1,
-3
-],
-"rather than legal": [
+"agency cost theories": [
 1,
 2
 ],
-"doctrinal rather": [
-1,
-2
-],
-"united states": [
-1,
-2,
-3,
-4
-],
-"trust beneficiaries within": [
-1,
-3
-],
-"external": [
-1,
-2,
-3,
-4
-],
-"relative": [
-1,
-3,
-4,
-5
-],
-"challenge": [
-1,
-2,
-3
-],
-"jensen separation": [
-1,
-2,
-4
-],
-"analytical": [
-1,
-2,
-3
-],
-"similar": [
-1,
-2,
-3,
-4,
-5,
-6
-],
-"agency cost": [
-1,
-2,
-3,
-4,
-5,
-6
-],
-"similarly": [
-1,
-2,
-4,
-5
-],
-"jurisdictional": [
+"legal parlance": [
 1,
 2
 ],
@@ -2965,6 +795,333 @@
 4,
 5
 ],
+"corporate form": [
+1,
+2
+],
+"sources cited": [
+1,
+2,
+3,
+4,
+5
+],
+"total return investing": [
+1,
+3
+],
+"accompanying text": [
+1,
+2,
+3,
+4,
+6
+],
+"commercial trusts": [
+1,
+2
+],
+"qualification gives priority": [
+1,
+3,
+6
+],
+"uniform acts": [
+1,
+4
+],
+"equitable tracing": [
+1,
+2,
+4
+],
+"legally permissible": [
+1,
+3
+],
+"rule against": [
+1,
+2,
+3,
+4,
+5
+],
+"cost analysis": [
+1,
+2,
+3,
+4,
+5
+],
+"spendthrift trust": [
+1,
+4,
+5
+],
+"contractarian": [
+1,
+2,
+4,
+5
+],
+"agency cost": [
+1,
+2,
+3,
+4,
+5,
+6
+],
+"suggested normative approach": [
+1,
+3,
+6
+],
+"organi zation": [
+1,
+4
+],
+"agency problems": [
+1,
+2,
+5
+],
+"trust beneficiaries within": [
+1,
+3
+],
+"legally permissible objectives": [
+1,
+3
+],
+"inter ests": [
+1,
+3
+],
+"external transactional": [
+1,
+4
+],
+"commercial transactions": [
+1,
+3
+],
+"legal literature": [
+1,
+2
+],
+"fama jensen": [
+1,
+2,
+3,
+4,
+5
+],
+"principal agent relationships": [
+1,
+2
+],
+"total return": [
+1,
+2,
+3,
+4
+],
+"economic rather": [
+1,
+2
+],
+"agency costs analysis": [
+1,
+2,
+5,
+6
+],
+"donative private": [
+1,
+2,
+6
+],
+"prototypical donative": [
+1,
+3
+],
+"settlor beneficiary": [
+1,
+3,
+4
+],
+"internal governance": [
+1,
+3,
+4
+],
+"prototypical donative trust": [
+1,
+3
+],
+"permissible objectives": [
+1,
+3
+],
+"cost theories": [
+1,
+2
+],
+"economic analysis": [
+1,
+2,
+3,
+4,
+5
+],
+"litigation incentives": [
+1,
+5
+],
+"business organizations": [
+1,
+2,
+3,
+5
+],
+"agency theory": [
+1,
+2,
+5
+],
+"fama jensen separation": [
+1,
+2,
+4
+],
+"suggested normative": [
+1,
+3,
+6
+],
+"agent relationships": [
+1,
+2
+],
+"restatement": [
+1,
+2,
+3,
+4,
+5,
+6
+],
+"jensen residual claims": [
+1,
+2,
+3,
+5
+],
+"rule against perpetuities": [
+1,
+2,
+3,
+4,
+5
+],
+"problem when risk": [
+1,
+2
+],
+"qualification gives": [
+1,
+3,
+6
+],
+"agency cost analysis": [
+1,
+2,
+3,
+4,
+5
+],
+"between trust": [
+1,
+2
+],
+"uniform act": [
+1,
+4
+],
+"donative beneficiaries": [
+1,
+3
+],
+"duty of care": [
+1,
+3,
+5
+],
+"normative approach": [
+1,
+3,
+6
+],
+"gives priority": [
+1,
+3,
+6
+],
+"agency costs model": [
+1,
+2,
+4
+],
+"donative transfers": [
+1,
+3,
+4
+],
+"jensen residual": [
+1,
+2,
+3,
+5
+],
+"trustee relationship": [
+1,
+3
+],
+"beneficiary tension": [
+1,
+3,
+4
+],
+"henry hansmann": [
+1,
+2
+],
+"settlor over": [
+1,
+3,
+6
+],
+"managerial trust": [
+1,
+2,
+3,
+5
+],
+"contractarian nexus": [
+1,
+2
+],
+"donative trust": [
+1,
+2,
+3,
+5
+],
+"express trust": [
+1,
+2
+],
 "against perpetuities": [
 1,
 2,
@@ -2972,526 +1129,101 @@
 4,
 5
 ],
-"insight": [
+"contractarian challenge": [
 1,
 2
 ],
-"dead hand": [
+"settlor beneficiary tension": [
 1,
-2,
 3,
 4
 ],
-"contribution": [
-1,
-2
-],
-"frederic": [
+"rather than legal": [
 1,
 2
 ],
-"capital": [
+"trust beneficiaries": [
 1,
-2,
-3
-],
-"beneficiary": [
-1,
-2,
 3,
 4,
 5
 ],
-"austin": [
-1,
-2,
-4
-],
-"policy": [
-1,
-4,
-5
-],
-"ownership": [
-1,
-2,
-3,
-5
-],
-"special": [
+"easter brook": [
 1,
 2
 ],
-"indeed": [
+"capital markets": [
 1,
-3,
-4,
-5
+2,
+3
 ],
-"corporate form": [
+"costs analysis": [
 1,
-2
-],
-"remains": [
-2,
-4
-],
-"delegation": [
-2
-],
-"sharing": [
-2,
-3
-],
-"attention": [
-2,
-3,
-4
-],
-"efforts": [
-2,
-4
-],
-"evidence": [
-2,
-4
-],
-"nature": [
-2,
-3,
-5,
-6
-],
-"selection": [
-2,
-3,
-4
-],
-"thought": [
-2,
-3
-],
-"solution": [
-2,
-3
-],
-"paternalistic": [
-2,
-3,
-4
-],
-"resemble": [
-2,
-3,
-5
-],
-"uniform trust": [
-2,
-3,
-4
-],
-"supply": [
-2,
-3
-],
-"professionals": [
-2,
-3
-],
-"context": [
-2,
-3,
-4,
-5
-],
-"fiduci": [
-2,
-4,
-5
-],
-"colell": [
-2,
-3
-],
-"filling": [
-2,
-5
-],
-"principals": [
-2,
-3,
-5
-],
-"clearest": [
-2,
-3
-],
-"mary louise": [
-2,
-4
-],
-"incentive": [
-2,
-3,
-4,
-5
-],
-"economic theory": [
-2,
-3,
-5
-],
-"gertner": [
-2,
-3
-],
-"salience": [
-2,
-4
-],
-"arye bebchuk": [
-2,
-4
-],
-"evolution": [
-2,
-4
-],
-"louise fellows": [
-2,
-4
-],
-"system": [
-2,
-3,
-5
-],
-"framework": [
-2,
-3,
-4,
-6
-],
-"exogenous": [
-2,
-3,
-4
-],
-"uniform trust code": [
-2,
-3,
-4
-],
-"individuals": [
-2,
-3
-],
-"rationales": [
-2,
-4
-],
-"twenty first": [
-2,
-3
-],
-"functional explanation": [
-2,
-4
-],
-"bernheim": [
-2,
-3
-],
-"matter": [
-2,
-3,
-4
-],
-"judicial": [
-2,
-3,
-5
-],
-"perpetual": [
-2,
-4,
-5
-],
-"fiduciaries": [
-2,
-3,
-4,
-5
-],
-"understand": [
-2,
-3
-],
-"recognition": [
-2,
-3,
-4
-],
-"device": [
-2,
-4,
-5
-],
-"oliver hart": [
-2,
-5
-],
-"higher": [
-2,
-3
-],
-"third party": [
-2,
-3,
-4
-],
-"itinera": [
-2,
-3
-],
-"reference": [
-2,
-3,
-4
-],
-"liability": [
-2,
-3,
-4,
-5
-],
-"traditional doctrine": [
-2,
-4
-],
-"possible": [
-2,
-4,
-5
-],
-"unif trust": [
-2,
-3,
-4,
-5
-],
-"series working": [
-2,
-3
-],
-"tractarian": [
-2,
-4,
-5
-],
-"trustee liability": [
-2,
-3
-],
-"hidden": [
-2,
-3
-],
-"trusts prudent investor": [
-2,
-3
-],
-"making": [
-2,
-3,
-4
-],
-"finance": [
-2,
-3
-],
-"dessin": [
-2,
-4
-],
-"contracting": [
-2,
-5
-],
-"individual": [
-2,
-3,
-4,
-5
-],
-"failure": [
-2,
-4,
-5
-],
-"successor": [
-2,
-3,
-4
-],
-"difficult": [
-2,
-3,
-4
-],
-"quality": [
-2,
-3,
-4
-],
-"wealth": [
-2,
-3,
-5
-],
-"distinct": [
-2,
-4
-],
-"either": [
-2,
-3,
-5
-],
-"interested": [
-2,
-5
-],
-"beneficiaries welfare": [
-2,
-3
-],
-"include": [
-2,
-4,
-5
-],
-"irreducible core": [
-2,
-4
-],
-"regularly": [
-2,
-4
-],
-"protect": [
-2,
-3
-],
-"unpublished": [
-2,
-4,
-5
-],
-"flexibility": [
-2,
-3,
-4
-],
-"attorney": [
 2,
 5,
 6
 ],
-"underpin": [
-2,
+"beneficiaries within": [
+1,
 3
 ],
-"welfare": [
+"united states": [
+1,
 2,
 3,
 4
 ],
-"elements": [
+"american trust": [
+1,
+4
+],
+"tracing": [
+1,
 2,
+4
+],
+"return investing": [
+1,
 3
 ],
-"investor standards": [
+"asset partitioning": [
+1,
 2,
+4
+],
+"modification": [
+1,
 3,
-4
-],
-"enforcement": [
-2,
-4,
-5
-],
-"resolves": [
-2,
-4
-],
-"except": [
-2,
-3
-],
-"required": [
-2,
-3,
-4
-],
-"ante constraints": [
-2,
-4
-],
-"reduction": [
-2,
-4
-],
-"lucian arye": [
-2,
-4
-],
-"both within": [
-2,
-3
-],
-"conclusion": [
-2,
 4,
 6
 ],
-"close corporation": [
+"relative position": [
+1,
+3
+],
+"residual claims": [
+1,
 2,
+3,
+4,
 5
 ],
-"distinguishing": [
+"jensen separation": [
+1,
 2,
+4
+],
+"primary principal": [
+1,
 3,
-4
+4,
+6
 ],
-"sometimes": [
-2,
-3,
-4
-],
-"effective": [
-2,
-3,
-4
-],
-"considerations relevant": [
-2,
-4
-],
-"bargained": [
+"form contracts": [
 2,
 3
 ],
-"albeit": [
-2,
-3,
-4
-],
-"contractarians": [
-2,
-5
-],
-"agrees": [
+"difference between": [
 2,
 3
 ],
@@ -3499,903 +1231,45 @@
 2,
 3
 ],
-"increase": [
-2,
-4,
-5
-],
-"conflicts": [
+"several readers": [
 2,
 3
 ],
-"disclosure": [
+"legal agency": [
 2,
-3,
-5
+6
 ],
-"typical": [
-2,
-3,
-4,
-5
-],
-"bargain": [
+"unif trust": [
 2,
 3,
 4,
 5
 ],
-"real prop prob": [
+"credi tors": [
 2,
-3,
-4
-],
-"general": [
-2,
-4
-],
-"gordon": [
-2,
-3,
-4,
 5
 ],
-"together": [
-2,
-3,
-4
-],
-"initial": [
-2,
-3,
-4
-],
-"describing trust": [
-2,
-4,
-5
-],
-"varian intermediate": [
+"beneficial interests": [
 2,
 3
 ],
-"liability rules": [
+"robert cooter": [
 2,
-5
+3
 ],
-"constraints imposed": [
+"separate legal": [
 2,
-4
-],
-"argued": [
-2,
-3,
-4
-],
-"aggregate": [
-2,
-3,
 4
 ],
 "getzler legislative incursions": [
 2,
 3
 ],
-"tection": [
+"deal between": [
 2,
 4
 ],
-"facilitate": [
-2,
-5
-],
-"self dealing": [
-2,
-3,
-5
-],
-"further": [
-2,
-3,
-4,
-5,
-6
-],
-"countries": [
-2,
-3,
-4
-],
-"english approach": [
-2,
-4
-],
-"decisions": [
-2,
-3,
-4,
-5
-],
-"considerations": [
-2,
-3,
-4
-],
-"intention seeking": [
-2,
-3
-],
-"potential": [
-2,
-3,
-4,
-5
-],
-"otherwise": [
-2,
-3,
-4
-],
-"duties": [
-2,
-3,
-4,
-5
-],
-"fiduciae": [
-2,
-3
-],
-"trusts prudent": [
-2,
-3
-],
-"omitted": [
-2,
-4
-],
-"vivos trust": [
-2,
-4
-],
-"trust property": [
-2,
-3,
-4,
-5
-],
-"louise": [
-2,
-4
-],
-"lawyers": [
-2,
-3
-],
-"investor": [
-2,
-3,
-4
-],
-"conception": [
-2,
-3,
-4,
-5
-],
-"aligned": [
-2,
-3
-],
-"conveyance": [
-2,
-4
-],
-"johanson": [
-2,
-3,
-4
-],
-"matthews": [
-2,
-4
-],
-"estates": [
-2,
-3,
-4
-],
-"beneficial": [
-2,
-3,
-4
-],
-"irreducible": [
-2,
-3,
-4
-],
-"reforms": [
-2,
-3,
-4
-],
-"compensa": [
-2,
-3
-],
-"alignment": [
-2,
-4
-],
-"signals": [
-2,
-3
-],
-"exemplary": [
-2,
-3,
-4
-],
-"provided": [
-2,
-3,
-4
-],
-"personally": [
-2,
-3,
-4
-],
-"negotiation costs": [
-2,
-3
-],
-"dukeminier krier": [
-2,
-3,
-4,
-5
-],
-"though": [
-2,
-3,
-4,
-5
-],
-"donative intent": [
-2,
-4
-],
-"modern portfolio theory": [
-2,
-3
-],
-"contrary": [
-2,
-3,
-4
-],
-"continuing": [
-2,
-4
-],
-"collecting illustrative": [
-2,
-4
-],
-"involuntary": [
-2,
-4
-],
-"sophistication": [
-2,
-3
-],
-"offering": [
-2,
-3
-],
-"matters": [
-2,
-3
-],
-"metaphor": [
-2,
-3,
-5
-],
-"involuntary creditors": [
-2,
-4
-],
-"transaction": [
-2,
-3,
-4
-],
-"powers": [
-2,
-3,
-4,
-5
-],
-"closely resemble": [
-2,
-3,
-5
-],
-"asymmetries": [
-2,
-3
-],
-"payoffs": [
-2,
-3
-],
-"various parties": [
-2,
-4
-],
-"require": [
-2,
-3,
-4
-],
-"ante constraints imposed": [
-2,
-4
-],
-"reorganization": [
-2,
-4
-],
-"statement": [
-2,
-4
-],
-"greater": [
-2,
-3,
-4,
-5
-],
-"prudent investor": [
-2,
-3,
-4
-],
-"notably": [
-2,
-3
-],
-"argument": [
-2,
-4
-],
-"function": [
-2,
-3,
-4,
-5,
-6
-],
-"beneficial interest": [
-2,
-3,
-4
-],
-"working paper": [
-2,
-3
-],
-"doctrine": [
-2,
-3,
-4
-],
-"more common": [
-2,
-3
-],
-"concerned": [
-2,
-3,
-4,
-5
-],
-"management skills": [
-2,
-4
-],
-"restrictions": [
-2,
-4
-],
-"portfolio theory": [
-2,
-3
-],
-"persons": [
-2,
-3,
-4
-],
-"relevant": [
-2,
-3,
-4,
-5
-],
-"ascertain whether": [
-2,
-3
-],
-"operating": [
-2,
-3,
-5
-],
-"arguing": [
-2,
-4,
-5
-],
-"full information": [
-2,
-3
-],
-"provide": [
-2,
-3,
-4,
-5
-],
-"leading": [
-2,
-4
-],
-"showing": [
-2,
-3
-],
-"irreducible core content": [
-2,
-4
-],
-"risk sharing problems": [
-2,
-3
-],
-"trusts like": [
-2,
-4
-],
-"obliga": [
-2,
-5
-],
-"oliver": [
-2,
-5
-],
-"hansmann mattei": [
-2,
-3,
-4
-],
-"dealings": [
-2,
-4
-],
-"hidden action": [
-2,
-3
-],
-"reckoning": [
-2,
-3,
-4,
-5
-],
-"business organization": [
-2,
-3
-],
-"intent controls": [
-2,
-3
-],
-"distinguish": [
-2,
-3,
-4,
-5
-],
-"important consideration": [
-2,
-4
-],
-"portfolio management skills": [
-2,
-4
-],
-"third party information": [
-2,
-3
-],
-"organiza": [
-2,
-3,
-5
-],
-"requires": [
-2,
-3,
-4
-],
-"regarding": [
-2,
-3,
-5
-],
-"adverse selection": [
-2
-],
-"assumption": [
-2,
-3,
-4
-],
-"divergence between": [
-2,
-3
-],
-"without": [
-2,
-3,
-4,
-5
-],
-"common": [
-2,
-3,
-4,
-5
-],
-"allen kraakman": [
-2,
-3,
-5
-],
-"cooter": [
-2,
-3,
-5
-],
-"legal stud": [
-2,
-5
-],
-"foregoing example": [
-2,
-3
-],
-"maximize": [
-2,
-3,
-4
-],
-"innovation": [
-2,
-4
-],
-"corporations": [
-2,
-3,
-4,
-5
-],
-"trustee langbein": [
-2,
-4
-],
-"skills": [
-2,
-4
-],
-"bradley": [
-2,
-5
-],
-"advance": [
-2,
-4,
-6
-],
-"necessary": [
-2,
-3,
-4
-],
-"current": [
-2,
-3,
-4
-],
-"varian": [
-2,
-3
-],
-"design": [
-2,
-3
-],
-"cognitive": [
-2,
-4
-],
-"series working paper": [
-2,
-3
-],
-"legal title": [
-2
-],
-"closely": [
-2,
-3,
-5
-],
-"asset protection": [
-2,
-4
-],
-"amateur trustees": [
-2,
-3
-],
-"close corporations": [
-2,
-5
-],
-"core content": [
-2,
-4
-],
-"twenty": [
-2,
-3,
-4
-],
-"examples": [
-2,
-3
-],
-"hypothetical bargain": [
-2,
-3,
-5
-],
-"foregoing": [
-2,
-3,
-4,
-5
-],
-"unif prudent investor": [
-2,
-3
-],
-"classified": [
-2,
-4
-],
-"takeover": [
-2,
-3,
-4
-],
-"concept": [
-2,
-3,
-4,
-5
-],
-"considerable": [
-2,
-3,
-4
-],
-"testamentary": [
-2,
-3,
-4
-],
-"implications": [
-2,
-3,
-4,
-5
-],
-"intention": [
-2,
-3,
-4
-],
-"neither": [
-2,
-4,
-5
-],
-"standard form contracts": [
-2,
-3
-],
-"beneficial interests": [
-2,
-3
-],
-"turnover": [
-2,
-4
-],
-"ilit": [
-2,
-3,
-4,
-5,
-6
-],
-"advances": [
-2,
-4
-],
-"pattern": [
-2,
-6
-],
-"understanding": [
-2,
-3,
-5
-],
-"expected costs": [
-2,
-3
-],
-"trust like": [
-2,
-3
-],
-"conflicting": [
-2,
-3
-],
-"recent": [
-2,
-3,
-4,
-5
-],
-"therefore": [
-2,
-3,
-4,
-5
-],
-"further discussion": [
-2,
-3,
-4,
-5
-],
-"offered": [
-2,
-3
-],
-"depends": [
-2,
-5
-],
-"deal between settlor": [
-2,
-4
-],
-"broader": [
-2,
-4
-],
-"facilitates": [
-2,
-3
-],
-"fiduciary obligation": [
-2,
-3,
-4,
-5
-],
-"third party beneficiary": [
-2,
-3,
-4
-],
-"governance regime": [
-2,
-3,
-4
-],
-"intermediate": [
-2,
-3
-],
-"criticizing": [
-2,
-5
-],
-"varian intermediate microeconomics": [
-2,
-3
-],
-"aspects": [
-2,
-5
-],
-"unlike": [
-2,
-4,
-5
-],
-"dimension": [
-2,
-3,
-5
-],
-"creation": [
-2,
-3,
-4
-],
-"frequently": [
-2,
-4
-],
-"meaning": [
-2,
-3
-],
-"bankruptcy": [
-2,
-4
-],
-"typically": [
-2,
-3,
-4,
-5
-],
-"most notably": [
-2,
-3
-],
-"regime": [
-2,
-3,
-4,
-5
-],
-"equivalent": [
-2,
-3,
-4
-],
-"relevant parties": [
-2,
-3,
-4
-],
-"seeking": [
+"ancestral land": [
 2,
 3,
 4
@@ -4406,80 +1280,25 @@
 4,
 5
 ],
-"former": [
-2,
-3,
-4
-],
-"restatement": [
-2,
-3,
-4,
-5,
-6
-],
-"estate": [
-2,
-3,
-4
-],
-"trust assets": [
+"principal parties": [
 2,
 4
 ],
-"outside": [
-2,
-4
-],
-"insurance": [
+"hidden action": [
 2,
 3
 ],
-"conflicting interests": [
+"important consideration": [
 2,
-3
-],
-"become": [
-2,
-3,
 4
 ],
-"outsiders": [
+"trust code": [
 2,
 3,
 4,
 5
 ],
-"stevens": [
-2,
-4
-],
-"fiduciary obligations": [
-2,
-3,
-5
-],
-"mission": [
-2,
-4
-],
-"effectiveness": [
-2,
-4,
-5
-],
-"increased": [
-2,
-3,
-4
-],
-"relevance": [
-2,
-3,
-5,
-6
-],
-"maximum": [
+"standard form": [
 2,
 3
 ],
@@ -4487,486 +1306,28 @@
 2,
 4
 ],
-"mation": [
+"governance regime": [
+2,
+3,
+4
+],
+"portfolio management skills": [
+2,
+4
+],
+"trust assets": [
+2,
+4
+],
+"peter birks": [
 2,
 3
-],
-"outlining": [
-2,
-4
-],
-"little": [
-2,
-3,
-4,
-5
-],
-"utility": [
-2,
-3,
-5
-],
-"surprisingly": [
-2,
-4
-],
-"points": [
-2,
-3
-],
-"personal liability": [
-2,
-3
-],
-"allocating": [
-2,
-4
-],
-"likely": [
-2,
-3,
-4,
-5,
-6
-],
-"important": [
-2,
-3,
-4
-],
-"boundaries": [
-2,
-4
-],
-"domestic": [
-2,
-4
-],
-"defining": [
-2,
-4
-],
-"party beneficiary": [
-2,
-3,
-4
-],
-"returning": [
-2,
-4
-],
-"reasons": [
-2,
-3,
-4
-],
-"requirement": [
-2,
-3
-],
-"activity": [
-2,
-3
-],
-"century": [
-2,
-3,
-4
-],
-"disclosure rules": [
-2,
-3
-],
-"emphasis": [
-2,
-4
-],
-"choice": [
-2,
-3,
-4,
-5
-],
-"delegate": [
-2,
-4
-],
-"consideration": [
-2,
-3,
-4
-],
-"consent": [
-2,
-3
-],
-"very little": [
-2,
-3
-],
-"drafting": [
-2,
-3,
-4
-],
-"more closely": [
-2,
-3,
-5
-],
-"legislative": [
-2,
-3,
-5
-],
-"prop prob": [
-2,
-3,
-4
-],
-"definition": [
-2,
-3,
-4
-],
-"familiar": [
-2,
-3
-],
-"result": [
-2,
-4,
-5
-],
-"latter": [
-2,
-3,
-4
-],
-"uniform prudent investor": [
-2,
-3,
-4
-],
-"regulating": [
-2,
-4,
-5
-],
-"incursions": [
-2,
-3
-],
-"parkinson": [
-2,
-3
-],
-"england": [
-2,
-4
-],
-"critical": [
-2,
-3,
-4,
-5
-],
-"account": [
-2,
-4
-],
-"trust described": [
-2,
-4
-],
-"commerce": [
-2,
-4
-],
-"statutory reform": [
-2,
-4
-],
-"hypothetical": [
-2,
-3,
-5
-],
-"useful": [
-2,
-3
-],
-"textbook": [
-2,
-3
-],
-"third parties": [
-2,
-3,
-4
-],
-"property ownership": [
-2,
-3
-],
-"pearce": [
-2,
-4
-],
-"affect": [
-2,
-4
-],
-"richard helmholz": [
-2,
-3
-],
-"ancestral": [
-2,
-3,
-4
-],
-"minimizing agency costs": [
-2,
-4
-],
-"fellows": [
-2,
-4
-],
-"through": [
-2,
-3,
-4,
-5
-],
-"modern trusts": [
-2,
-4
-],
-"compensation": [
-2,
-3
-],
-"successor trustee": [
-2,
-3
-],
-"getzler legislative": [
-2,
-3
-],
-"provides": [
-2,
-3,
-4,
-6
-],
-"constraints": [
-2,
-4
-],
-"moral hazard": [
-2
-],
-"discussing agency costs": [
-2,
-3
-],
-"holdings": [
-2,
-3
-],
-"associated": [
-2,
-3,
-4
-],
-"advanced": [
-2,
-4
-],
-"served": [
-2,
-4
-],
-"public": [
-2,
-3,
-4,
-5
-],
-"process": [
-2,
-3,
-4
-],
-"protection": [
-2,
-4
-],
-"difference": [
-2,
-3
-],
-"demonstrates": [
-2,
-3,
-6
-],
-"compensa tion": [
-2,
-3
-],
-"complementary": [
-2,
-3,
-4
-],
-"dynasty trust": [
-2
-],
-"explicit": [
-2,
-3
-],
-"market": [
-2,
-3,
-4,
-5
-],
-"involves": [
-2,
-3
-],
-"decision": [
-2,
-3,
-4,
-5
-],
-"viability": [
-2,
-3
-],
-"simple": [
-2,
-3,
-4
-],
-"insiders": [
-2,
-4
-],
-"relationship between": [
-2,
-4
-],
-"rela tionships": [
-2,
-6
-],
-"alsojohn": [
-2,
-3,
-5
-],
-"courts should": [
-2,
-4
-],
-"empirical": [
-2,
-3,
-4
-],
-"illustrative": [
-2,
-3,
-4
-],
-"dukeminier": [
-2,
-3,
-4,
-5
-],
-"lucian": [
-2,
-4
-],
-"permits": [
-2,
-4
-],
-"unless": [
-2,
-3,
-4
-],
-"unif trust code": [
-2,
-3,
-4,
-5
-],
-"agency relationships": [
-2,
-3,
-6
-],
-"devices": [
-2,
-3,
-4,
-5
-],
-"boilerplate": [
-2,
-4
-],
-"classification": [
-2,
-3
-],
-"contracts metaphor": [
-2,
-3
-],
-"separate legal": [
-2,
-4
-],
-"obligation": [
-2,
-3,
-4,
-5
-],
-"measured": [
-2,
-5
-],
-"necessarily": [
-2,
-4,
-5
 ],
 "merrill smith": [
 2,
 3
 ],
-"form contracts": [
-2,
-3
-],
-"impossibility": [
-2,
-4,
-5
-],
-"statute": [
+"problems associated": [
 2,
 4
 ],
@@ -4974,185 +1335,150 @@
 2,
 4
 ],
+"real prop": [
+2,
+3,
+4
+],
+"mary louise": [
+2,
+4
+],
+"inter vivos trust": [
+2,
+4
+],
+"modern trusts": [
+2,
+4
+],
+"intention seeking": [
+2,
+3
+],
+"legislative incursions": [
+2,
+3
+],
+"core content": [
+2,
+4
+],
+"contractual relationship": [
+2,
+3
+],
+"english trust": [
+2,
+4
+],
+"essay real prop": [
+2,
+3
+],
+"english approach": [
+2,
+4
+],
+"trustee whether": [
+2,
+3
+],
+"exemplary trust": [
+2,
+3,
+4
+],
+"functional explanation": [
+2,
+4
+],
+"alienable residual": [
+2,
+4
+],
+"boundary between": [
+2,
+3
+],
+"oliver hart": [
+2,
+5
+],
+"adverse selection": [
+2
+],
+"trust companies": [
+2,
+4
+],
+"personal liability": [
+2,
+3
+],
+"intent controls": [
+2,
+3
+],
 "trust form": [
 2,
 3,
 4,
 5
 ],
-"mutual": [
-2,
-5
-],
-"donative private trust": [
-2,
-6
-],
-"statutory": [
-2,
-3,
-4,
-5
-],
-"difficulty": [
-2,
-3,
-4,
-5
-],
-"optimal": [
-2,
-3
-],
-"working": [
-2,
-3
-],
-"commentators": [
+"louise fellows": [
 2,
 4
 ],
-"govern ance": [
-2,
-3,
-4,
-5
-],
-"monitor": [
-2,
-3,
-4,
-5
-],
-"party information": [
+"richard helmholz": [
 2,
 3
 ],
-"elsewhere": [
-2,
-5
-],
-"discussing agency": [
+"beneficiaries welfare": [
 2,
 3
 ],
-"commercial context": [
+"itinera fiduciae": [
 2,
 3
 ],
-"tive rather": [
+"modern portfolio theory": [
 2,
 3
 ],
-"subsequent": [
-2,
-4
-],
-"recently": [
+"working paper": [
 2,
 3
 ],
-"direction": [
+"alienable residual claims": [
+2,
+4
+],
+"modern trustee": [
 2,
 3
 ],
-"merely": [
-2,
-3,
-4
-],
-"ability": [
-2,
-4,
-5
-],
-"parties": [
-2,
-3,
-4,
-5
-],
-"friends": [
-2,
-5
-],
-"edwards": [
-2,
-4
-],
-"collecting": [
-2,
-3,
-4
-],
-"thrift": [
-2,
-4
-],
-"formal": [
-2,
-3,
-5
-],
-"carolyn": [
-2,
-4
-],
-"rules that govern": [
-2,
-4
-],
-"materials": [
+"risk sharing": [
 2,
 3
 ],
-"default rule": [
+"between settlor": [
 2,
-3,
-4,
-5
+4
 ],
-"vestment": [
+"twenty first": [
 2,
 3
 ],
-"lucian arye bebchuk": [
+"involuntary creditors": [
 2,
 4
 ],
-"phenomenon": [
-2,
-6
-],
-"fiduciary relationships": [
-2,
-5
-],
-"institutional": [
-2,
-3,
-4,
-5
-],
-"trust governance": [
-2,
-3,
-4,
-5
-],
-"modern prudent investor": [
+"relationship between": [
 2,
 4
 ],
-"origin": [
-2,
-4
-],
-"penalty": [
-2,
-3
-],
-"ground": [
+"uniform prudent": [
 2,
 3,
 4
@@ -5161,317 +1487,19 @@
 2,
 4
 ],
-"knowledge": [
-2,
-3
+"legal title": [
+2
 ],
-"comparing commercial": [
-2,
-3
-],
-"parties with outsiders": [
-2,
-4
-],
-"restatement third": [
-2,
-3,
-4
-],
-"managed": [
-2,
-3
-],
-"explanation": [
-2,
-3,
-4
-],
-"investors": [
-2,
-3
-],
-"efficient": [
-2,
-4
-],
-"absence": [
-2,
-3,
-4
-],
-"courts": [
-2,
-3,
-4,
-5
-],
-"vehicle": [
-2,
-3
-],
-"enforceable": [
+"close corporations": [
 2,
 5
 ],
-"perhaps": [
-2,
-3,
-4,
-5
-],
-"discretionary": [
-2,
-4,
-5
-],
-"transaction costs savings": [
-2,
-3
-],
-"american approach": [
-2,
-4
-],
-"statements": [
-2,
-3
-],
-"creditors": [
-2,
-4,
-5
-],
-"differ": [
-2,
-4
-],
-"probably": [
-2,
-3,
-5
-],
-"easterbrook daniel": [
-2,
-3
-],
-"existence": [
-2,
-4,
-5
-],
-"changes": [
-2,
-4
-],
-"unif prudent": [
-2,
-3
-],
-"struck": [
+"wills trusts": [
 2,
 3,
 4
 ],
-"better": [
-2,
-3,
-4,
-5
-],
-"perfectly": [
-2,
-3,
-4
-],
-"brings": [
-2,
-3,
-4
-],
-"expected": [
-2,
-3,
-4
-],
-"readers": [
-2,
-3
-],
-"controls": [
-2,
-3,
-5
-],
-"relatively": [
-2,
-3,
-4,
-5
-],
-"extensive": [
-2,
-4
-],
-"legal agency": [
-2,
-6
-],
-"trustee whether": [
-2,
-3
-],
-"trustees": [
-2,
-3,
-4,
-5
-],
-"trust companies": [
-2,
-4
-],
-"moreover": [
-2,
-3,
-4,
-5
-],
-"action": [
-2,
-3,
-4,
-5
-],
-"choose": [
-2,
-3,
-4,
-5
-],
-"briefly": [
-2,
-5
-],
-"decision making": [
-2,
-3
-],
-"jensen meckling": [
-2,
-3,
-4
-],
-"company": [
-2,
-3,
-4,
-5
-],
-"understood": [
-2,
-3,
-4,
-5,
-6
-],
-"minimizing": [
-2,
-3,
-4
-],
-"issues": [
-2,
-3,
-4
-],
-"both incentive": [
-2,
-3
-],
-"boundary between": [
-2,
-3
-],
-"princi": [
-2,
-3
-],
-"risk sharing": [
-2,
-3
-],
-"contracts model": [
-2,
-3
-],
-"features": [
-2,
-3,
-4
-],
-"moffat": [
-2,
-4
-],
-"ziomek": [
-2,
-4
-],
-"modern managerial": [
-2,
-3,
-4,
-5
-],
-"stockwell": [
-2,
-4
-],
-"most closely": [
-2,
-3,
-5
-],
-"language": [
-2,
-3
-],
-"tionships": [
-2,
-6
-],
-"historical": [
-2,
-4
-],
-"normally": [
-2,
-4
-],
-"treated": [
-2,
-3
-],
-"crucial": [
-2,
-4
-],
-"helmholz reinhard": [
-2,
-3
-],
-"several": [
-2,
-3
-],
-"earlier": [
-2,
-3,
-4,
-5
-],
-"discussion": [
+"default rule": [
 2,
 3,
 4,
@@ -5481,320 +1509,13 @@
 2,
 3
 ],
-"eclipsed": [
-2,
-5
-],
-"real prop": [
-2,
-3,
-4
-],
-"difference between": [
+"comparing commercial": [
 2,
 3
 ],
-"itinera fiduciae": [
-2,
-3
-],
-"actions": [
-2,
-3,
-4,
-5
-],
-"resources": [
-2,
-3
-],
-"eisenhardt": [
-2,
-3
-],
-"majority": [
-2,
-3,
-4
-],
-"penalty default": [
-2,
-3
-],
-"perfect": [
-2,
-5
-],
-"default": [
-2,
-3,
-4,
-5
-],
-"benefit": [
-2,
-3,
-4,
-5
-],
-"ascertain": [
-2,
-3
-],
-"project": [
-2,
-3
-],
-"impractical": [
-2,
-5
-],
-"breach": [
-2,
-3,
-4
-],
-"agents": [
-2,
-3,
-5
-],
-"highlighting": [
+"trustee langbein": [
 2,
 4
-],
-"correspondence": [
-2,
-4
-],
-"reflect": [
-2,
-3,
-4
-],
-"incomplete": [
-2,
-3
-],
-"proach": [
-2,
-3
-],
-"problems associated": [
-2,
-4
-],
-"trust instrument": [
-2,
-3,
-4
-],
-"robert cooter": [
-2,
-3
-],
-"mandatory": [
-2,
-3,
-4,
-5
-],
-"almost": [
-2,
-3,
-4
-],
-"standards": [
-2,
-3,
-4,
-5
-],
-"allows": [
-2,
-3,
-4
-],
-"complements": [
-2,
-3
-],
-"deal between": [
-2,
-4
-],
-"amateur": [
-2,
-3,
-4
-],
-"voluntary": [
-2,
-4
-],
-"highly": [
-2,
-4
-],
-"disabled": [
-2,
-4
-],
-"professional management": [
-2,
-4
-],
-"richard helmholz reinhard": [
-2,
-3
-],
-"treuhand": [
-2,
-3
-],
-"organizing": [
-2,
-4
-],
-"professional": [
-2,
-3,
-4
-],
-"second": [
-2,
-3,
-4,
-5,
-6
-],
-"organizing device": [
-2,
-4
-],
-"manifestations": [
-2,
-4,
-5
-],
-"english trust": [
-2,
-4
-],
-"wills trusts": [
-2,
-3,
-4
-],
-"alienable residual": [
-2,
-4
-],
-"relations": [
-2,
-3,
-4
-],
-"assume": [
-2,
-3,
-4
-],
-"obligations": [
-2,
-3,
-5
-],
-"observable": [
-2,
-4
-],
-"established": [
-2,
-3
-],
-"another": [
-2,
-3,
-4,
-5
-],
-"discretion": [
-2,
-3,
-4,
-5
-],
-"modern trustee": [
-2,
-3
-],
-"content": [
-2,
-4
-],
-"trust investing": [
-2,
-3
-],
-"possibility": [
-2,
-3,
-4,
-5
-],
-"portant": [
-2,
-3,
-4
-],
-"provisions": [
-2,
-3,
-4
-],
-"modern managerial trust": [
-2,
-3,
-5
-],
-"institutions": [
-2,
-3
-],
-"limits": [
-2,
-3,
-5
-],
-"spective": [
-2,
-4
-],
-"negotiation": [
-2,
-3
-],
-"spend thrift": [
-2,
-4
-],
-"contrast": [
-2,
-3,
-4,
-5
-],
-"consequences": [
-2,
-3,
-4,
-5
-],
-"detailed": [
-2,
-5,
-6
 ],
 "trust investment": [
 2,
@@ -5802,35 +1523,190 @@
 4,
 6
 ],
-"united kingdom": [
+"transaction costs": [
 2,
 3
 ],
-"trend toward": [
-2,
-3,
-4
-],
-"exemplary trust": [
-2,
-3,
-4
-],
-"modern portfolio": [
+"divergence between": [
 2,
 3
 ],
-"cannot": [
+"easterbrook fischel": [
+2,
+3,
+4,
+5,
+6
+],
+"unif prudent investor": [
+2,
+3
+],
+"rela tionships": [
+2,
+6
+],
+"foregoing example": [
+2,
+3
+],
+"trust described": [
+2,
+4
+],
+"trust property": [
 2,
 3,
 4,
 5
 ],
+"fiduciary relationships": [
+2,
+5
+],
+"allen kraakman": [
+2,
+3,
+5
+],
+"self-dealing": [
+2,
+3,
+5
+],
+"necessary because": [
+2,
+3
+],
+"trustee thus": [
+2,
+4
+],
+"considerations relevant": [
+2,
+4
+],
+"delegation": [
+2
+],
+"closely resemble": [
+2,
+3,
+5
+],
+"constraints imposed": [
+2,
+4
+],
+"various parties": [
+2,
+4
+],
+"legal stud": [
+2,
+5
+],
+"fiduciary obligation": [
+2,
+3,
+4,
+5
+],
+"prop prob": [
+2,
+3,
+4
+],
+"further discussion": [
+2,
+3,
+4,
+5
+],
+"beneficial interest": [
+2,
+3,
+4
+],
+"investor standards": [
+2,
+3,
+4
+],
+"more common": [
+2,
+3
+],
+"prudent investor rule": [
+2,
+3
+],
+"real prop prob": [
+2,
+3,
+4
+],
+"default governance": [
+2,
+3
+],
+"restatement third": [
+2,
+3,
+4
+],
 "incen tives": [
 2,
 5
 ],
-"companies": [
+"initial choice": [
+2,
+3
+],
+"property ownership": [
+2,
+3
+],
+"fiduciary obligations": [
+2,
+3,
+5
+],
+"modern managerial": [
+2,
+3,
+4,
+5
+],
+"unif prudent": [
+2,
+3
+],
+"statutory reform": [
+2,
+4
+],
+"varian intermediate microeconomics": [
+2,
+3
+],
+"donative private trust": [
+2,
+6
+],
+"lucian arye": [
+2,
+4
+],
+"expected costs": [
+2,
+3
+],
+"ante constraints": [
+2,
+4
+],
+"dukeminier krier": [
 2,
 3,
 4,
@@ -5840,131 +1716,25 @@
 2,
 3
 ],
+"liability rules": [
+2,
+5
+],
+"agency relationships": [
+2,
+3,
+6
+],
+"uniform trust code": [
+2,
+3,
+4
+],
 "minimizing agency": [
 2,
 4
 ],
-"protector": [
-2,
-4
-],
-"direct": [
-2,
-3
-],
-"certain": [
-2,
-3,
-4
-],
-"revolution": [
-2,
-4
-],
-"intent": [
-2,
-3,
-4
-],
-"scheme": [
-2,
-5
-],
-"interest": [
-2,
-3,
-4,
-5
-],
-"modern prudent": [
-2,
-4
-],
-"equity": [
-2,
-3,
-4
-],
-"ensure": [
-2,
-3,
-4
-],
-"course": [
-2,
-3,
-5
-],
-"preserving": [
-2,
-3
-],
-"settled": [
-2,
-3,
-4
-],
-"uniform prudent": [
-2,
-3,
-4
-],
-"more closely resemble": [
-2,
-5
-],
-"further benefit": [
-2,
-3
-],
-"dynamics": [
-2,
-5
-],
-"holding": [
-2,
-3
-],
-"situations": [
-2,
-4
-],
-"more generally": [
-2,
-3,
-5
-],
-"alienable": [
-2,
-4
-],
-"bebchuk": [
-2,
-4
-],
-"prudent investor rule": [
-2,
-3
-],
-"savings": [
-2,
-3,
-4
-],
-"suggests": [
-2,
-3,
-4
-],
-"cambridge": [
-2,
-5
-],
-"exemplary trust described": [
-2,
-4
-],
-"future interests": [
+"trusts prudent": [
 2,
 3
 ],
@@ -5972,374 +1742,29 @@
 2,
 3
 ],
-"representation": [
+"vivos trust": [
 2,
 4
 ],
-"describing": [
-2,
-3,
-4,
-5
+"dynasty trust": [
+2
 ],
-"easterbrook fischel": [
-2,
-3,
-4,
-5,
-6
-],
-"dealing": [
-2,
-3,
-5
-],
-"alienable residual claims": [
-2,
-4
-],
-"retain": [
-2,
-4
-],
-"substantive": [
-2,
-4
-],
-"reform": [
-2,
-3,
-4,
-5
-],
-"ribstein": [
-2,
-5
-],
-"concern": [
-2,
-4
-],
-"investment": [
-2,
-3,
-4,
-5,
-6
-],
-"kingdom": [
+"tive rather": [
 2,
 3
 ],
-"adverse": [
-2,
-3
-],
-"practical": [
-2,
-3,
-5
-],
-"efficiency": [
+"relevant parties": [
 2,
 3,
 4
 ],
-"institution": [
-2,
-3,
-4
-],
-"loyalty": [
-2,
-3,
-4,
-5
-],
-"observation": [
-2,
-3
-],
-"necessary because": [
-2,
-3
-],
-"limitations": [
+"modern prudent": [
 2,
 4
 ],
-"legislative incursions": [
+"standard form contracts": [
 2,
 3
-],
-"peter birks": [
-2,
-3
-],
-"instrument": [
-2,
-3,
-4
-],
-"reinhard": [
-2,
-3
-],
-"described": [
-2,
-3,
-4
-],
-"corporate trustees": [
-2,
-3,
-4
-],
-"standard form": [
-2,
-3
-],
-"hansmann kraakman": [
-2,
-4
-],
-"douglas bernheim": [
-2,
-3
-],
-"trustee need": [
-2,
-4
-],
-"residual loss": [
-2,
-4
-],
-"costs savings": [
-2,
-3
-],
-"fiduciary relationship": [
-2,
-4,
-5
-],
-"divergence": [
-2,
-3,
-5
-],
-"importance": [
-2,
-4
-],
-"transaction costs": [
-2,
-3
-],
-"douglas": [
-2,
-3
-],
-"governance arrangement": [
-2,
-3
-],
-"sharing problems": [
-2,
-3
-],
-"contractual relationship": [
-2,
-3
-],
-"microeconomics": [
-2,
-3
-],
-"trust code": [
-2,
-3,
-4,
-5
-],
-"beneficiary from alienating": [
-2,
-4
-],
-"succession": [
-2,
-3
-],
-"personam": [
-2,
-3
-],
-"analyzing": [
-2,
-3,
-4,
-5
-],
-"planning": [
-2,
-4
-],
-"govern": [
-2,
-3,
-4,
-5
-],
-"boundary": [
-2,
-3
-],
-"ancestral land": [
-2,
-3,
-4
-],
-"inter vivos trust": [
-2,
-4
-],
-"economist": [
-2,
-5
-],
-"grounds": [
-2,
-4
-],
-"insolvency": [
-2,
-4,
-5
-],
-"credi tors": [
-2,
-5
-],
-"price signals": [
-2,
-3
-],
-"trustee personally": [
-2,
-3,
-4
-],
-"something": [
-2,
-3,
-4
-],
-"principal parties": [
-2,
-4
-],
-"industry": [
-2,
-5
-],
-"alienating": [
-2,
-4
-],
-"default governance": [
-2,
-3
-],
-"manner": [
-2,
-3
-],
-"easier": [
-2,
-3,
-4
-],
-"purpose": [
-2,
-3,
-4,
-5
-],
-"personal": [
-2,
-3,
-4
-],
-"initial choice": [
-2,
-3
-],
-"restatement second": [
-2,
-3,
-4,
-5,
-6
-],
-"dynamic": [
-2,
-5
-],
-"prudent investor standards": [
-2,
-3,
-4
-],
-"hybrid": [
-2,
-4
-],
-"arrangement": [
-2,
-3
-],
-"toward": [
-2,
-3,
-4,
-5
-],
-"surcharge": [
-2,
-3,
-4
-],
-"enforce": [
-2,
-4
-],
-"characteristic": [
-2,
-3
-],
-"portfolio management": [
-2,
-3,
-4
-],
-"investor rule": [
-2,
-3
-],
-"careful": [
-2,
-3
-],
-"resembles": [
-2,
-5
-],
-"standard": [
-2,
-3,
-4,
-5
 ],
 "organizational form": [
 2,
@@ -6347,94 +1772,37 @@
 4,
 5
 ],
-"intergenerational": [
+"very little": [
 2,
 3
 ],
-"prudent": [
+"trustee liability": [
+2,
+3
+],
+"commercial context": [
+2,
+3
+],
+"mary louise fellows": [
+2,
+4
+],
+"testamentary": [
 2,
 3,
 4
 ],
-"political": [
-2,
-3
-],
-"several readers": [
-2,
-3
-],
-"similar analysis": [
-2,
-4
-],
-"because": [
-2,
-3,
-4,
-5
-],
-"recourse": [
-2,
-4
-],
-"discussed": [
+"trust instrument": [
 2,
 3,
 4
 ],
-"commission": [
-2,
-3
-],
-"series": [
-2,
-3
-],
-"implied": [
-2,
-3
-],
-"wilson": [
+"trusts like": [
 2,
 4
 ],
-"rock wachter": [
-2,
-3
-],
-"between settlor": [
-2,
-4
-],
-"beginning": [
-2,
-3,
-4
-],
-"related": [
-2,
-3,
-4
-],
-"intermediate microeconomics": [
-2,
-3
-],
-"living": [
-2,
-4
-],
-"addition": [
-2,
-4,
-6
-],
-"shield": [
-2,
-4
-],
-"limited": [
+"tension between": [
 2,
 3,
 4,
@@ -6445,33 +1813,383 @@
 4,
 5
 ],
-"comparison": [
+"beneficiary from alienating": [
+2,
+4
+],
+"disclosure rules": [
+2,
+3
+],
+"trustee personally": [
+2,
+3,
+4
+],
+"ascertain whether": [
+2,
+3
+],
+"trustee need": [
+2,
+4
+],
+"third party beneficiary": [
+2,
+3,
+4
+],
+"trusts prudent investor": [
+2,
+3
+],
+"restatement second": [
+2,
+3,
+4,
+5,
+6
+],
+"trust like": [
+2,
+3
+],
+"getzler legislative": [
+2,
+3
+],
+"unif trust code": [
 2,
 3,
 4,
 5
 ],
-"essay real prop": [
+"irreducible core content": [
+2,
+4
+],
+"economic theory": [
+2,
+3,
+5
+],
+"portfolio management": [
+2,
+3,
+4
+],
+"hansmann kraakman": [
+2,
+4
+],
+"costs savings": [
 2,
 3
 ],
-"mary louise fellows": [
+"penalty default": [
 2,
-4
+3
 ],
-"entities": [
-2,
-4
-],
-"insolvent": [
-2,
-4
-],
-"enterprise": [
+"more closely resemble": [
 2,
 5
 ],
-"international": [
+"amateur trustees": [
+2,
+3
+],
+"similar analysis": [
+2,
+4
+],
+"minimizing agency costs": [
+2,
+4
+],
+"most closely": [
+2,
+3,
+5
+],
+"easterbrook daniel": [
+2,
+3
+],
+"irreducible core": [
+2,
+4
+],
+"arye bebchuk": [
+2,
+4
+],
+"exemplary trust described": [
+2,
+4
+],
+"conflicting interests": [
+2,
+3
+],
+"collecting illustrative": [
+2,
+4
+],
+"ilit": [
+2,
+3,
+4,
+5,
+6
+],
+"negotiation costs": [
+2,
+3
+],
+"describing trust": [
+2,
+4,
+5
+],
+"asset protection": [
+2,
+4
+],
+"self dealing": [
+2,
+3,
+5
+],
+"professional management": [
+2,
+4
+],
+"helmholz reinhard": [
+2,
+3
+],
+"series working paper": [
+2,
+3
+],
+"united kingdom": [
+2,
+3
+],
+"prudent investor standards": [
+2,
+3,
+4
+],
+"residual loss": [
+2,
+4
+],
+"traditional doctrine": [
+2,
+4
+],
+"compensa tion": [
+2,
+3
+],
+"decision making": [
+2,
+3
+],
+"future interests": [
+2,
+3
+],
+"both incentive": [
+2,
+3
+],
+"american approach": [
+2,
+4
+],
+"sharing problems": [
+2,
+3
+],
+"discussing agency": [
+2,
+3
+],
+"varian intermediate": [
+2,
+3
+],
+"breach of trust": [
+2,
+3,
+4
+],
+"rock wachter": [
+2,
+3
+],
+"price signals": [
+2,
+3
+],
+"modern portfolio": [
+2,
+3
+],
+"modern prudent investor": [
+2,
+4
+],
+"richard helmholz reinhard": [
+2,
+3
+],
+"fiduciary relationship": [
+2,
+4,
+5
+],
+"ante constraints imposed": [
+2,
+4
+],
+"series working": [
+2,
+3
+],
+"hypothetical bargain": [
+2,
+3,
+5
+],
+"portfolio theory": [
+2,
+3
+],
+"third parties": [
+2,
+3,
+4
+],
+"modern managerial trust": [
+2,
+3,
+5
+],
+"corporate trustees": [
+2,
+3,
+4
+],
+"moral hazard": [
+2
+],
+"organizing device": [
+2,
+4
+],
+"discussing agency costs": [
+2,
+3
+],
+"rules that govern": [
+2,
+4
+],
+"third party information": [
+2,
+3
+],
+"courts should": [
+2,
+4
+],
+"spend thrift": [
+2,
+4
+],
+"uniform prudent investor": [
+2,
+3,
+4
+],
+"douglas bernheim": [
+2,
+3
+],
+"further benefit": [
+2,
+3
+],
+"governance arrangement": [
+2,
+3
+],
+"party information": [
+2,
+3
+],
+"third party": [
+2,
+3,
+4
+],
+"surcharge": [
+2,
+3,
+4
+],
+"most notably": [
+2,
+3
+],
+"parties with outsiders": [
+2,
+4
+],
+"donative intent": [
+2,
+4
+],
+"deal between settlor": [
+2,
+4
+],
+"both within": [
+2,
+3
+],
+"intermediate microeconomics": [
+2,
+3
+],
+"more closely": [
+2,
+3,
+5
+],
+"business organization": [
+2,
+3
+],
+"party beneficiary": [
+2,
+3,
+4
+],
+"transaction costs savings": [
+2,
+3
+],
+"trust governance": [
+2,
+3,
+4,
+5
+],
+"contracts metaphor": [
 2,
 3
 ],
@@ -6479,802 +2197,90 @@
 2,
 6
 ],
-"agenda": [
+"investor rule": [
 2,
 3
 ],
-"trusteeship": [
-2,
-3,
-4,
-5
-],
-"admittedly": [
+"contracts model": [
 2,
 3
 ],
-"theoretical": [
+"more generally": [
+2,
+3,
+5
+],
+"full information": [
 2,
 3
 ],
-"person": [
+"uniform trust": [
+2,
+3,
+4
+],
+"hansmann mattei": [
+2,
+3,
+4
+],
+"management skills": [
+2,
+4
+],
+"trust investing": [
 2,
 3
 ],
-"particular": [
-2,
-3,
-4,
-5,
-6
-],
-"follows": [
-2,
-3,
-4
-],
-"appear": [
-2,
-4
-],
-"trustee thus": [
-2,
-4
-],
-"proprietary": [
-2,
-4
-],
-"differences": [
-2,
-5
-],
-"tension between": [
+"govern ance": [
 2,
 3,
 4,
 5
 ],
-"significant": [
+"close corporation": [
 2,
-3,
-4
-],
-"some beneficiaries": [
-3,
 5
 ],
-"trusts restatement second": [
-3,
-4
+"codification": [
+2
 ],
-"terms because": [
-3,
-4
-],
-"aggregate beneficiaries": [
-3,
-4
-],
-"conduct": [
-3,
-5
-],
-"rele vance": [
-3,
-4
-],
-"internal trust governance": [
-3,
-4
-],
-"giving effect": [
-3,
-4
-],
-"accounting": [
+"successor trustee": [
+2,
 3
 ],
-"principle": [
+"lucian arye bebchuk": [
+2,
+4
+],
+"trend toward": [
+2,
 3,
 4
 ],
-"agency cost considerations": [
+"jensen meckling": [
+2,
 3,
 4
 ],
-"appears": [
-3,
-4,
-5
-],
-"regard": [
+"prudent investor": [
+2,
 3,
 4
 ],
-"premature termination": [
-3,
-4
-],
-"adults": [
-3,
-4
-],
-"employee": [
-3,
-5
-],
-"decline": [
-3,
-5
-],
-"waters": [
-3,
-4
-],
-"examination": [
-3,
-4
-],
-"claflin doctrine": [
-3,
-4
-],
-"preferences": [
-3,
-4
-],
-"somewhat": [
-3,
-4
-],
-"substantial": [
-3,
-4
-],
-"trusts however": [
-3,
-5
-],
-"indifferent": [
-3,
-4
-],
-"likewise": [
-3,
-4
-],
-"expanding": [
-3,
-4
-],
-"cussion": [
-3,
-4
-],
-"operates": [
-3,
-4
-],
-"smaller": [
-3,
-5
-],
-"allowed": [
-3,
-4,
-5
-],
-"internal trust": [
-3,
-4
-],
-"trustees should": [
-3,
-4
-],
-"circumstances": [
-3,
-4,
-5
-],
-"section": [
-3,
-4,
-5
-],
-"create": [
-3,
-4
-],
-"explaining": [
-3,
-4
-],
-"thereby": [
-3,
-5
-],
-"reduced": [
-3,
-4
-],
-"bene ficiaries": [
-3,
-4
-],
-"cautious trustees": [
-3,
-4
-],
-"nontrivial": [
-3,
-5
-],
-"improve beneficiary welfare": [
-3,
-4
-],
-"founder": [
-3,
-5
-],
-"property wills": [
-3,
-4
-],
-"deferred gifts": [
-3,
-4
-],
-"trusts might": [
-3,
-5
-],
-"dominant principal": [
-3,
-4
-],
-"profit": [
-3,
-4
-],
-"johnson": [
-3,
-4
-],
-"observed": [
-3,
-4
-],
-"over trust": [
-3,
-4,
-5
-],
-"gifting": [
-3,
-4
-],
-"minimize taxes": [
-3,
-4
-],
-"conservatism": [
-3,
-4
-],
-"trusts unif": [
-3,
-4,
-5
-],
-"emergence": [
-3,
-4,
-5
-],
-"likelihood": [
-3,
-4
-],
-"decisionmaking": [
-3,
-4
-],
-"diversification": [
+"risk sharing problems": [
+2,
 3
-],
-"interesting": [
-3,
-5
-],
-"discussing removal": [
-3,
-4
-],
-"performance": [
-3,
-4
-],
-"settlor this qualification": [
-3,
-6
-],
-"entirely": [
-3,
-4
-],
-"designed": [
-3,
-4
-],
-"testamentary trusts": [
-3,
-4
-],
-"concerns": [
-3,
-4
-],
-"obligation indeed": [
-3,
-5
-],
-"lawyer": [
-3,
-5
-],
-"premature": [
-3,
-4
-],
-"ficiary": [
-3,
-4
-],
-"sections": [
-3,
-4
-],
-"will continue": [
-3,
-4
-],
-"code west": [
-3,
-4
-],
-"commissions": [
-3,
-4
-],
-"erosion": [
-3,
-4
-],
-"improve beneficiary": [
-3,
-4
-],
-"trust benefi ciaries": [
-3,
-5
-],
-"beneficiaries fare better": [
-3,
-4
-],
-"concluding": [
-3,
-4
-],
-"terminated": [
-3,
-4
-],
-"favoring": [
-3,
-4,
-5
-],
-"claimant": [
-3,
-5
-],
-"paradigmatic": [
-3,
-5
-],
-"behavioral": [
-3,
-5
-],
-"motivation": [
-3,
-4
-],
-"lends support": [
-3,
-4
-],
-"probate": [
-3,
-4
-],
-"beneficiaries fare": [
-3,
-4
-],
-"drafted": [
-3,
-4
 ],
 "cooter freedman": [
 3,
 5
 ],
-"toward further": [
+"some beneficiaries": [
 3,
 5
 ],
-"defenses": [
-3,
-4
-],
-"bene ficiary": [
-3,
-4
-],
-"dukeminier johanson": [
-3,
-4
-],
-"supp halbach": [
-3,
-5
-],
-"foregoing analysis": [
-3,
-4
-],
-"first place": [
-3,
-4
-],
-"taking": [
-3,
-5
-],
-"charita": [
-3,
-5
-],
-"fiduciary duties": [
-3,
-4,
-5
-],
-"easily": [
-3,
-4
-],
-"cautious": [
-3,
-4
-],
-"costs associated": [
-3,
-4
-],
-"nations": [
-3,
-4
-],
-"proposing": [
-3,
-5
-],
-"references": [
-3,
-4,
-5
-],
-"surpris": [
-3,
-4
-],
-"langbein have suggested": [
-3,
-5
-],
-"halbach trust investment": [
-3,
-4
-],
-"justified": [
-3,
-4,
-5
-],
-"material purpose": [
-3
-],
-"fare better": [
-3,
-4
-],
-"consequently": [
-3,
-5
-],
-"outright transfer": [
-3,
-5
-],
-"investments": [
-3,
-4
-],
-"actual": [
-3,
-4
-],
-"particular trust": [
-3,
-4
-],
-"claflin": [
-3,
-4
-],
-"corp plan": [
-3,
-4
-],
-"competent adults": [
-3,
-4
-],
-"strategic": [
-3,
-5
-],
-"aggregate beneficiaries fare": [
-3,
-4
-],
-"overall": [
-3,
-4
-],
-"transact": [
-3,
-4
-],
-"judgment": [
-3,
-4
-],
-"exclusive benefit": [
-3,
-5
-],
-"players": [
-3,
-5
-],
-"adoption": [
-3,
-4
-],
-"exclusive": [
-3,
-4,
-5
-],
-"publicly traded corporation": [
-3,
-5
-],
-"paradigmatic shareholder": [
-3,
-5
-],
-"marginal costs": [
-3,
-4
-],
-"cy pres": [
-3
-],
-"revised": [
-3,
-4
-],
-"deferred": [
-3,
-4
-],
-"external relations": [
-3,
-4
-],
-"mandatory rule": [
-3
-],
-"trusts scott": [
-3,
-4
-],
-"prefer": [
-3,
-4
-],
-"pensionsj": [
-3,
-4
-],
-"trusts restatement": [
-3,
-4
-],
-"fundamental": [
-3,
-4
-],
-"discuss": [
-3,
-5
-],
-"halbach significant": [
-3,
-4
-],
-"results": [
-3,
-4
-],
-"true even": [
-3,
-4
-],
-"overarching": [
-3,
-4,
-5
-],
-"permitted": [
-3,
-4
-],
-"explain": [
-3,
-4,
-5
-],
-"characteristics": [
-3,
-5
-],
-"opting": [
-3,
-5
-],
-"prob code west": [
-3,
-4
-],
-"beneficiary welfare": [
-3,
-4
-],
-"donative trust beneficiaries": [
-3,
-5
-],
-"larger": [
-3,
-4,
-5
-],
-"obtain": [
-3,
-4
-],
-"preservation": [
-3,
-4
-],
-"impact": [
-3,
-4,
-5
-],
-"even though": [
-3,
-4,
-5
-],
-"should maximize": [
-3,
-4
-],
-"modified": [
-3,
-4
-],
-"behind": [
-3,
-4
-],
-"prudence": [
-3,
-5
-],
-"reduces": [
-3,
-4
-],
-"more likely": [
-3,
-4,
-5
-],
-"transferee": [
-3,
-4,
-5
-],
-"outsiders with whom": [
-3,
-4
-],
-"preference": [
-3,
-4
-],
-"payments": [
-3,
-4
-],
-"giving": [
-3,
-4
-],
-"modern trend": [
-3,
-5
-],
-"relevant considerations": [
-3,
-4
-],
-"conflict": [
-3,
-4
-],
-"advantageous": [
-3,
-4
-],
-"corporate governance": [
-3,
-5
-],
-"analogy": [
-3,
-4
-],
-"exercise": [
-3,
-4
-],
-"freedman": [
-3,
-5
-],
-"shareholder welfare": [
+"halbach significant trends": [
 3,
 4
 ],
@@ -7282,276 +2288,27 @@
 3,
 4
 ],
-"maximization": [
+"internal trust governance": [
 3,
 4
 ],
-"ative trusts": [
+"improve beneficiary": [
+3,
+4
+],
+"beneficiaries fare better": [
+3,
+4
+],
+"trust provides": [
+3,
+4
+],
+"publicly traded corporation": [
 3,
 5
 ],
-"publicly traded": [
-3,
-5
-],
-"trust corpus": [
-3,
-4,
-5
-],
-"across": [
-3,
-4
-],
-"distribu": [
-3,
-4
-],
-"greater discretion": [
-3,
-4
-],
-"professional trustees": [
-3,
-4
-],
-"percentage": [
-3,
-4
-],
-"exclusive benefit rule": [
-3,
-5
-],
-"signed": [
-3,
-4
-],
-"maintain": [
-3,
-4
-],
-"drawing": [
-3,
-5
-],
-"limitation": [
-3,
-4
-],
-"voting": [
-3,
-5
-],
-"instead": [
-3,
-5
-],
-"supreme": [
-3,
-5
-],
-"cost considerations": [
-3,
-4
-],
-"terminate": [
-3,
-4
-],
-"both sides": [
-3,
-5
-],
-"versus": [
-3,
-4,
-5
-],
-"chance": [
-3,
-4
-],
-"solutions": [
-3,
-4
-],
-"trust terms": [
-3,
-4
-],
-"ative trusts however": [
-3,
-5
-],
-"limiting": [
-3,
-4
-],
-"mckinney": [
-3,
-4
-],
-"overly": [
-3,
-4
-],
-"analysis therefore": [
-3,
-4
-],
-"discounted": [
-3,
-4
-],
-"beyond": [
-3,
-4,
-5
-],
-"nothing": [
-3,
-4
-],
-"suggest": [
-3,
-4
-],
-"supported": [
-3,
-5
-],
-"gratuitous": [
-3,
-4
-],
-"probable": [
-3,
-4
-],
-"surpris ingly": [
-3,
-4
-],
-"positive matter": [
-3,
-4
-],
-"strike": [
-3,
-5
-],
-"transferred": [
-3,
-4
-],
-"shareholders": [
-3,
-4,
-5
-],
-"majoritarian default rules": [
-3,
-5
-],
-"especially": [
-3,
-4,
-5
-],
-"ficiaries": [
-3,
-4
-],
-"continue": [
-3,
-4
-],
-"revocable": [
-3,
-4
-],
-"suggesting": [
-3,
-4
-],
-"codified": [
-3,
-4
-],
-"modest": [
-3,
-5
-],
-"ensuring": [
-3,
-4
-],
-"andersen": [
-3,
-4
-],
-"modify": [
-3,
-4
-],
-"practice": [
-3,
-4,
-5
-],
-"protective": [
-3,
-4,
-5
-],
-"obvious": [
-3,
-4,
-5
-],
-"benefit rule": [
-3,
-5
-],
-"response": [
-3,
-4,
-5
-],
-"conservative": [
-3,
-4
-],
-"number": [
-3,
-5
-],
-"cretion": [
-3,
-4
-],
-"beneficiaries might": [
-3,
-4
-],
-"fiduciary obligation indeed": [
-3,
-5
-],
-"takeover defenses": [
-3,
-4
-],
-"honoring": [
-3,
-4
-],
-"altruism": [
-3,
-4
-],
-"choosing": [
+"aggregate beneficiaries": [
 3,
 4
 ],
@@ -7560,173 +2317,15 @@
 4,
 5
 ],
-"reporter": [
-3,
-4
-],
-"improve": [
-3,
-4
-],
-"trust benefi": [
+"ative trusts however": [
 3,
 5
 ],
-"lawrence": [
-3,
-4,
-5
-],
-"managers": [
-3,
-4,
-5
-],
-"dona tive": [
-3,
-5
-],
-"traded": [
-3,
-5
-],
-"institutional fiduciaries": [
-3,
-4,
-5
-],
-"outright": [
-3,
-5
-],
-"assumed": [
-3,
-4,
-5
-],
-"trusts cmts": [
+"fare better": [
 3,
 4
 ],
-"mechanisms": [
-3,
-4,
-5
-],
-"breaches": [
-3,
-4
-],
-"enough": [
-3,
-4,
-5
-],
-"interests thus": [
-3,
-4
-],
-"clause": [
-3,
-4
-],
-"insure": [
-3,
-4
-],
-"hirsch wang": [
-3,
-5
-],
-"trustee might": [
-3,
-4
-],
-"marginal": [
-3,
-4
-],
-"reduced potential": [
-3,
-4
-],
-"reasonable": [
-3,
-4
-],
-"frequency": [
-3,
-4,
-5
-],
-"delaware": [
-3,
-5
-],
-"ongoing erosion": [
-3,
-4
-],
-"settling": [
-3,
-4
-],
-"majoritarian": [
-3,
-5
-],
-"competent": [
-3,
-4
-],
-"trust over": [
-3,
-4
-],
-"approximate": [
-3,
-4
-],
-"trust deal": [
-3,
-4,
-5
-],
-"trust provides": [
-3,
-4
-],
-"significant trends": [
-3,
-4
-],
-"nevertheless": [
-3,
-5
-],
-"vollmar": [
-3,
-4
-],
-"corpus": [
-3,
-4,
-5
-],
-"payment": [
-3,
-4
-],
-"ordinary": [
-3,
-4
-],
-"generally john": [
-3,
-4,
-5
-],
-"might help": [
+"shareholder welfare": [
 3,
 4
 ],
@@ -7734,119 +2333,75 @@
 3,
 4
 ],
+"langbein have suggested": [
+3,
+5
+],
+"cost considerations": [
+3,
+4
+],
+"mandatory rule": [
+3
+],
 "irrevocable": [
 3,
 4
 ],
-"authorize": [
+"trusts restatement second": [
 3,
 4
 ],
-"anticipated": [
+"hirsch wang": [
 3,
-4
-],
-"simply": [
-3,
-4,
 5
-],
-"compared": [
-3,
-4,
-5
-],
-"sometimes even": [
-3,
-4
 ],
 "exculpatory clause": [
 3
 ],
-"transnat": [
+"settlor this qualification": [
 3,
-4
-],
-"uncertainty": [
-3,
-4
-],
-"exigencies": [
-3,
-4,
-5
-],
-"fiduciary duty": [
-3,
-5
-],
-"uncommon": [
-3,
-5
-],
-"traded corporation": [
-3,
-5
-],
-"receive": [
-3,
-4
-],
-"present value": [
-3,
-4
-],
-"modifica": [
-3,
-4
-],
-"emerging": [
-3,
-4
-],
-"willingness": [
-3,
-4
-],
-"variation": [
-3,
-4
-],
-"probable intent": [
-3,
-4
-],
-"reflects": [
-3,
-4,
-5,
 6
 ],
-"overly cautious": [
+"even though": [
+3,
+4,
+5
+],
+"surpris ingly": [
 3,
 4
 ],
-"scenario": [
-3,
-4
-],
-"majoritarian default": [
+"publicly traded": [
 3,
 5
 ],
-"justify": [
+"trusts scott": [
 3,
 4
 ],
-"halbach significant trends": [
+"bene ficiary": [
 3,
 4
 ],
-"failing": [
+"trusts however": [
+3,
+5
+],
+"trust corpus": [
+3,
+4,
+5
+],
+"aggregate beneficiaries fare": [
 3,
 4
 ],
-"rigidity": [
+"corp plan": [
+3,
+4
+],
+"beneficiary welfare": [
 3,
 4
 ],
@@ -7854,27 +2409,187 @@
 3,
 4
 ],
-"reason": [
+"diversification": [
+3
+],
+"sometimes even": [
 3,
 4
 ],
-"foreclosed": [
+"analysis therefore": [
 3,
 4
 ],
-"clauses": [
+"interests thus": [
 3,
 4
 ],
-"employee benefit": [
+"might help": [
 3,
+4
+],
+"code west": [
+3,
+4
+],
+"toward further": [
+3,
+5
+],
+"dukeminier johanson": [
+3,
+4
+],
+"claflin doctrine": [
+3,
+4
+],
+"cautious trustees": [
+3,
+4
+],
+"reduced potential": [
+3,
+4
+],
+"greater discretion": [
+3,
+4
+],
+"trusts unif": [
+3,
+4,
 5
 ],
 "based conception": [
 3,
 4
 ],
-"alternative": [
+"costs associated": [
+3,
+4
+],
+"marginal costs": [
+3,
+4
+],
+"ative trusts": [
+3,
+5
+],
+"traded corporation": [
+3,
+5
+],
+"obligation indeed": [
+3,
+5
+],
+"exclusive benefit rule": [
+3,
+5
+],
+"prob code": [
+3,
+4
+],
+"majoritarian default": [
+3,
+5
+],
+"ongoing erosion": [
+3,
+4
+],
+"material purpose": [
+3
+],
+"trust benefi": [
+3,
+5
+],
+"halbach trust investment": [
+3,
+4
+],
+"probable intent": [
+3,
+4
+],
+"agency cost considerations": [
+3,
+4
+],
+"terms because": [
+3,
+4
+],
+"should maximize": [
+3,
+4
+],
+"competent adults": [
+3,
+4
+],
+"testamentary trusts": [
+3,
+4
+],
+"present value": [
+3,
+4
+],
+"property wills": [
+3,
+4
+],
+"bene ficiaries": [
+3,
+4
+],
+"halbach significant": [
+3,
+4
+],
+"minimize taxes": [
+3,
+4
+],
+"trusts might": [
+3,
+5
+],
+"fiduciary duty": [
+3,
+4,
+5
+],
+"rele vance": [
+3,
+4
+],
+"significant trends": [
+3,
+4
+],
+"trust over": [
+3,
+4
+],
+"conflict of interest": [
+3
+],
+"institutional fiduciaries": [
+3,
+4,
+5
+],
+"fiduciary obligation indeed": [
+3,
+5
+],
+"trust deal": [
 3,
 4,
 5
@@ -7883,105 +2598,217 @@
 3,
 4
 ],
-"caution": [
+"true even": [
 3,
 4
 ],
-"finding": [
-3,
-4
-],
-"trigger": [
-3,
-4
-],
-"conflict of interest": [
-3
-],
-"publicly": [
+"prudence": [
 3,
 5
+],
+"outright transfer": [
+3,
+5
+],
+"revocable": [
+3,
+4
+],
+"trust terms": [
+3,
+4
+],
+"improve beneficiary welfare": [
+3,
+4
+],
+"dominant principal": [
+3,
+4
+],
+"exclusive benefit": [
+3,
+5
+],
+"professional trustees": [
+3,
+4
+],
+"internal trust": [
+3,
+4
+],
+"trusts cmts": [
+3,
+4
+],
+"more likely": [
+3,
+4,
+5
+],
+"donative trust beneficiaries": [
+3,
+5
+],
+"beneficiaries might": [
+3,
+4
+],
+"corpus": [
+3,
+4,
+5
+],
+"corporate governance": [
+3,
+5
+],
+"lends support": [
+3,
+4
+],
+"over trust": [
+3,
+4,
+5
+],
+"employee benefit": [
+3,
+5
+],
+"majoritarian default rules": [
+3,
+5
+],
+"dona tive": [
+3,
+5
+],
+"giving effect": [
+3,
+4
+],
+"overly cautious": [
+3,
+4
+],
+"trustees should": [
+3,
+4
+],
+"particular trust": [
+3,
+4
+],
+"trust benefi ciaries": [
+3,
+5
+],
+"deferred gifts": [
+3,
+4
+],
+"judicial modification": [
+3
+],
+"beneficiaries fare": [
+3,
+4
+],
+"modern trend": [
+3,
+5
+],
+"takeover defenses": [
+3,
+4
+],
+"positive matter": [
+3,
+4
+],
+"accounting": [
+3
+],
+"relevant considerations": [
+3,
+4
+],
+"both sides": [
+3,
+5
+],
+"first place": [
+3,
+4
+],
+"cy pres": [
+3
+],
+"generally john": [
+3,
+4,
+5
+],
+"outsiders with whom": [
+3,
+4
+],
+"benefit rule": [
+3,
+5
+],
+"fiduciary duties": [
+3,
+4,
+5
+],
+"trusts restatement": [
+3,
+4
+],
+"discussing removal": [
+3,
+4
 ],
 "halbach trust": [
 3,
 4
 ],
-"agreed": [
+"foregoing analysis": [
 3,
 4
 ],
-"settlors": [
+"supp halbach": [
 3,
-4,
 5
 ],
-"intentions": [
+"paradigmatic shareholder": [
+3,
+5
+],
+"external relations": [
 3,
 4
 ],
-"donovan": [
+"will continue": [
 3,
 4
 ],
-"pension": [
-3,
-5
-],
-"controlling": [
-3,
-4,
-5
-],
-"effects": [
-3,
-5
-],
-"prob code": [
+"premature termination": [
 3,
 4
 ],
-"enforcing": [
+"trustee might": [
 3,
 4
 ],
-"responds": [
+"prob code west": [
 3,
 4
 ],
-"depend": [
-3,
-5
-],
-"income": [
-3,
-4,
-5
-],
-"subsection": [
-3,
-4
-],
-"mination": [
-3,
-6
-],
-"cost justified": [
-4,
-5
-],
-"potential agency": [
-4,
-5
-],
-"notwithstanding": [
-4,
-5
-],
-"viable": [
-4,
-5
-],
-"discussing trust": [
+"discretionary trust": [
 4,
 5
 ],
@@ -7989,81 +2816,7 @@
 4,
 5
 ],
-"places": [
-4,
-5
-],
-"discretionary trust": [
-4,
-5
-],
-"deviation": [
-4
-],
-"bishop": [
-4,
-5
-],
-"burden": [
-4,
-5
-],
-"hard edged": [
-4,
-5
-],
-"despite": [
-4,
-5
-],
-"alienate": [
-4,
-5
-],
-"potential agency costs": [
-4,
-5
-],
-"identifiable": [
-4,
-5
-],
-"replace": [
-4,
-5
-],
-"serious": [
-4,
-5
-],
-"different agency": [
-4,
-5
-],
-"ongoing debate over": [
-4,
-6
-],
-"foresee": [
-4,
-5
-],
-"beneficiaries creditors": [
-4,
-5
-],
-"hardly": [
-4,
-5
-],
-"proved": [
-4,
-5
-],
-"virtual representation": [
-4
-],
-"jurisdictions": [
+"perpetual trusts": [
 4,
 5
 ],
@@ -8071,27 +2824,7 @@
 4,
 5
 ],
-"perpetual trusts": [
-4,
-5
-],
-"collective": [
-4,
-5
-],
-"governance devices": [
-4,
-5
-],
-"preferable": [
-4,
-5
-],
-"entitled": [
-4,
-5
-],
-"consequent": [
+"perhaps because": [
 4,
 5
 ],
@@ -8099,75 +2832,7 @@
 4,
 5
 ],
-"reduce": [
-4,
-5
-],
-"collective action": [
-4,
-5
-],
-"successful": [
-4,
-5
-],
-"substitutes": [
-4,
-5
-],
-"free rider": [
-4,
-5
-],
-"objection": [
-4,
-5
-],
-"concerned about": [
-4,
-5
-],
-"managerial agency": [
-4,
-5
-],
-"commentary": [
-4,
-5
-],
-"debate over": [
-4,
-5,
-6
-],
-"encourage": [
-4,
-5
-],
-"calculus": [
-4,
-5
-],
-"trusted": [
-4,
-5
-],
-"sanction": [
-4,
-5
-],
-"support trust": [
-4
-],
-"contingent": [
-4,
-5
-],
-"sheldon": [
-4,
-5
-],
-"beneficiaries cannot": [
+"managerial agency costs": [
 4,
 5
 ],
@@ -8175,19 +2840,45 @@
 4,
 5
 ],
-"managerial agency costs": [
+"beneficiaries creditors": [
 4,
 5
 ],
-"channeled": [
+"deviation": [
+4
+],
+"hard edged": [
 4,
 5
 ],
-"directly": [
+"discussing trust": [
 4,
 5
 ],
-"unborn": [
+"ongoing debate over": [
+4,
+6
+],
+"potential agency": [
+4,
+5
+],
+"co-trustee": [
+4
+],
+"governance devices": [
+4,
+5
+],
+"support trust": [
+4
+],
+"debate over": [
+4,
+5,
+6
+],
+"potential agency costs": [
 4,
 5
 ],
@@ -8195,29 +2886,44 @@
 4,
 5
 ],
-"allowing": [
+"managerial agency": [
 4,
 5
 ],
-"perhaps because": [
+"free rider": [
 4,
 5
 ],
-"nomic analysis": [
-5,
-6
+"beneficiaries cannot": [
+4,
+5
 ],
-"importantly": [
-5,
-6
+"concerned about": [
+4,
+5
 ],
-"duty of loyalty": [
+"cost justified": [
+4,
+5
+],
+"different agency": [
+4,
+5
+],
+"virtual representation": [
+4
+],
+"collective action": [
+4,
 5
 ],
 "no further inquiry": [
 5
 ],
-"client": [
+"duty of loyalty": [
+5
+],
+"nomic analysis": [
 5,
 6
 ]

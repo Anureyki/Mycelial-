@@ -7,149 +7,12 @@
 "claim_layer_meaning": "States or describes the rule. Cite for what the law IS.",
 "authorities_cited": [],
 "term_index": {
-"decedents estates": [
-0,
-30,
-44
-],
-"trusts subchapter": [
-0,
-30,
-44
-],
-"relations chapter treatment": [
-0,
-30,
-44
-],
-"fiduciary relations chapter": [
-0,
-30,
-44
-],
-"statutory": [
-0,
-1,
-2,
-3,
-4,
-5,
-6,
-7,
-8,
-9,
-10,
-11,
-12,
-13,
-14,
-15,
-16,
-17,
-18,
-19,
-20,
-21,
-22,
-23,
-24,
-25,
-27,
-29,
-30,
-31,
-32,
-34,
-35,
-36,
-37,
-38,
-39,
-40,
-41,
-42,
-43,
-44,
-45,
-47,
-48,
-49,
-50,
-51,
-52
-],
-"chapter treatment": [
-0,
-30,
-44
-],
-"trusts": [
-0,
-4,
-7,
-9,
-15,
-23,
-25,
-27,
-30,
-34,
-38,
-39,
-40,
-41,
-44
-],
-"domestic statutory": [
-0,
-14,
-22,
-23,
-34,
-39,
-43
-],
-"delaware": [
-0,
-1,
-2,
-4,
-6,
-7,
-10,
-11,
-12,
-13,
-15,
-21,
-22,
-23,
-25,
-28,
-29,
-30,
-32,
-34,
-43,
-44,
-52
-],
 "title decedents": [
 0,
 30,
 44
 ],
-"relations": [
-0,
-30,
-44
-],
-"relations fiduciary relations": [
-0,
-30,
-44
-],
-"relations chapter": [
+"statutory trusts subchapter": [
 0,
 30,
 44
@@ -160,23 +23,27 @@
 30,
 44
 ],
+"relations chapter": [
+0,
+30,
+44
+],
+"delaware statutory trusts": [
+0,
+30,
+44
+],
+"decedents estates": [
+0,
+30,
+44
+],
 "fiduciary relations": [
 0,
 30,
 44
 ],
-"domestic": [
-0,
-1,
-7,
-14,
-22,
-23,
-34,
-39,
-43
-],
-"fiduciary relations fiduciary": [
+"fiduciary relations chapter": [
 0,
 30,
 44
@@ -198,61 +65,12 @@
 41,
 44
 ],
-"title decedents estates": [
-0,
-30,
-44
-],
 "relations fiduciary": [
 0,
 30,
 44
 ],
-"chapter": [
-0,
-1,
-4,
-6,
-7,
-9,
-10,
-12,
-13,
-15,
-20,
-21,
-22,
-23,
-25,
-26,
-27,
-28,
-29,
-30,
-33,
-43,
-44,
-47
-],
-"subchapter": [
-0,
-6,
-7,
-11,
-13,
-19,
-26,
-30,
-38,
-42,
-44,
-45,
-46,
-47,
-48,
-52
-],
-"delaware statutory trusts": [
+"relations fiduciary relations": [
 0,
 30,
 44
@@ -262,74 +80,230 @@
 23,
 39
 ],
-"fiduciary": [
+"domestic statutory": [
 0,
-6,
-12,
-30,
-44,
-45
+14,
+22,
+23,
+34,
+39,
+43
 ],
-"estates": [
-0,
-30,
-44
-],
-"decedents": [
+"trusts subchapter": [
 0,
 30,
 44
 ],
-"statutory trusts subchapter": [
+"title decedents estates": [
 0,
 30,
 44
 ],
-"treatment": [
+"chapter treatment": [
 0,
 30,
 44
 ],
-"definitions": [
-1,
-45
+"relations chapter treatment": [
+0,
+30,
+44
 ],
-"evidenced": [
-1,
-15,
-40,
-41
+"fiduciary relations fiduciary": [
+0,
+30,
+44
 ],
-"distributed": [
-1,
-8,
-19
-],
-"copies": [
+"trust including": [
 1,
 4,
-13,
+6,
 15,
-19,
-21,
-23
+16,
+45
 ],
-"trustee": [
+"interested person": [
 1,
-3,
+45
+],
+"business trust": [
+1,
+22
+],
+"partnership whether general": [
+1,
+7,
+22,
+34
+],
+"trust within": [
+1,
+8,
+25,
+45,
+52
+],
+"applicable provisions": [
+1,
+7
+],
+"estate investment trust": [
+1,
+22
+],
+"device method": [
+1,
+19
+],
+"more distributed": [
+1,
+19
+],
+"successor statute thereto": [
+1,
+45
+],
+"including without": [
+1,
+13,
+16,
+41
+],
+"solely with respect": [
+1,
+4
+],
+"internal revenue code": [
+1,
+9
+],
+"trust means": [
+1,
+25
+],
+"including without limitation": [
+1,
+13,
+16
+],
+"foreign statutory": [
+1,
+7,
+12,
+14,
+22,
+30,
+31,
+32,
+34,
+35,
+36,
+37,
+38,
+39,
+40,
+41,
+42,
+43
+],
+"paper form": [
+1,
+19
+],
+"real estate investment": [
+1,
+22
+],
+"states internal": [
+1,
+9
+],
+"liability company": [
+1,
+7,
+14,
+22,
+34
+],
+"foreign statutory trust": [
+1,
+7,
+12,
+14,
+22,
+31,
+32,
+34,
+35,
+36,
+37,
+38,
+40,
+41,
+42,
+43
+],
+"revocable": [
+1,
+2,
+4,
+6,
+7,
+11,
+45
+],
+"revenue code": [
+1,
+9
+],
+"states internal revenue": [
+1,
+9
+],
+"unless otherwise provided": [
+1,
 4,
 5,
 6,
-7,
 8,
 10,
 11,
-12,
-14,
 15,
-17,
+21,
+23,
+25,
+26,
+46
+],
+"trust formed": [
+1,
+10,
+12,
+15,
+25
+],
+"irrevocable power": [
+1,
+11
+],
+"statutory trust provided": [
+1,
+34
+],
+"person means": [
+1,
+45
+],
+"beneficial owners": [
+1,
+2,
+3,
+5,
+6,
+8,
+15,
+16,
 19,
-20,
 21,
 23,
 24,
@@ -337,430 +311,58 @@
 27,
 31,
 32,
-35,
-36,
-37,
-40,
 43,
-45,
 46,
 47,
 49,
-51,
-52
-],
-"automated": [
-1,
-47
-],
-"person": [
-1,
-2,
-3,
-4,
-6,
-7,
-8,
-10,
-11,
-12,
-14,
-15,
-16,
-17,
-19,
-20,
-21,
-22,
-23,
-25,
-26,
-32,
-33,
-34,
-35,
-36,
-40,
-43,
-45,
-46,
-48,
-49,
 50,
-51,
-52
+51
 ],
-"instrument including": [
+"limited liability": [
 1,
-5
-],
-"investment company": [
-1,
-4,
-5,
-6,
 7,
-15,
-21,
-23,
-25,
-45,
-47
-],
-"governing instrument": [
-1,
-2,
-3,
-4,
-5,
-6,
-7,
-8,
-9,
-10,
-11,
-15,
-16,
-17,
-18,
-19,
-20,
-21,
+14,
 22,
-23,
-25,
-26,
-28,
-32,
-47
+34
 ],
-"revenue code": [
+"successor provision": [
 1,
+5,
 9
-],
-"registered": [
-1,
-4,
-5,
-6,
-7,
-12,
-13,
-14,
-15,
-21,
-23,
-25,
-32,
-34,
-37,
-40,
-41,
-42,
-47
-],
-"agreement": [
-1,
-3,
-5,
-6,
-15,
-19,
-20,
-21,
-22,
-23,
-25,
-41,
-50
-],
-"involving": [
-1,
-4
-],
-"affairs": [
-1,
-4,
-6,
-8,
-11,
-15,
-19,
-20,
-21,
-22,
-23,
-24,
-25,
-31,
-43
-],
-"effect": [
-1,
-5,
-10,
-15,
-21,
-23,
-25,
-28
-],
-"device": [
-1,
-19
-],
-"receipt": [
-1,
-7,
-12,
-13,
-15,
-25,
-26,
-34,
-40,
-41,
-42
-],
-"unincorporated": [
-1,
-22
-],
-"organization": [
-1,
-4,
-11,
-15,
-31
-],
-"retained": [
-1,
-11
-],
-"solely with respect": [
-1,
-4
-],
-"presumption": [
-1,
-26,
-52
-],
-"databases": [
-1,
-13,
-19
-],
-"interested person": [
-1,
-45
-],
-"activities": [
-1,
-4,
-41,
-43
-],
-"lawful": [
-1,
-26,
-40
-],
-"executes": [
-1,
-12
-],
-"independent": [
-1,
-6,
-25,
-43
-],
-"directly": [
-1,
-4,
-6,
-45,
-48
-],
-"development": [
-1,
-4,
-5,
-6,
-7,
-15,
-21,
-23,
-25,
-47
-],
-"appointed": [
-1,
-6,
-7,
-32,
-41
-],
-"storage": [
-1,
-19
-],
-"conditions": [
-1,
-6,
-25
-],
-"association": [
-1,
-9,
-14,
-22,
-47
-],
-"united states": [
-1,
-4,
-9,
-11,
-15,
-20,
-22
-],
-"provision": [
-1,
-4,
-5,
-6,
-8,
-9,
-12,
-13,
-15,
-17,
-25,
-26,
-28,
-47
-],
-"databases including": [
-1,
-19
-],
-"states": [
-1,
-2,
-4,
-6,
-9,
-11,
-15,
-20,
-22
-],
-"required": [
-1,
-2,
-4,
-6,
-7,
-8,
-10,
-11,
-12,
-13,
-14,
-15,
-19,
-20,
-21,
-22,
-23,
-25,
-32,
-34,
-40,
-41,
-42,
-47,
-48,
-50,
-52
-],
-"venue": [
-1,
-9
-],
-"recipient": [
-1,
-15,
-26,
-40,
-41
 ],
 "adopted thereunder": [
 1,
 45
 ],
-"meaning": [
-1,
-4,
-41
-],
-"including without limitation": [
-1,
-13,
-16
-],
-"person means": [
-1,
-45
-],
-"statement": [
-1,
-4,
-7,
-10,
-15,
-32,
-34,
-35,
-48,
-49,
-50,
-51,
-52
-],
-"delaware business": [
-1,
-7
-],
-"investment trust": [
+"real estate": [
 1,
 22
 ],
-"liability": [
+"business development company": [
 1,
-3,
+4,
+5,
 6,
 7,
-8,
-12,
-14,
-20,
+15,
 21,
-22,
 23,
 25,
-31,
-34
+47
 ],
-"purposes": [
+"series thereof": [
 1,
-2,
+4,
 6,
-7,
-9,
+8,
+32
+],
+"unless otherwise": [
+1,
+4,
+5,
+6,
+8,
 10,
 11,
 15,
@@ -770,25 +372,54 @@
 23,
 25,
 26,
-32,
-34,
-40,
-46,
-48
+46
 ],
-"become": [
+"business entity": [
 1,
-2,
-7,
-8,
+10,
 11,
 15,
 20,
-22,
+21,
 23,
-25,
-34,
-43
+25
+],
+"statutory trust including": [
+1,
+4,
+6,
+15,
+16,
+45
+],
+"trustees beneficial owners": [
+1,
+6,
+27,
+32
+],
+"foreign jurisdiction": [
+1,
+15,
+20,
+22,
+23
+],
+"instrument including": [
+1,
+5
+],
+"united states internal": [
+1,
+9
+],
+"information storage device": [
+1,
+19
+],
+"information storage": [
+1,
+19
 ],
 "res": [
 1,
@@ -838,35 +469,28 @@
 51,
 52
 ],
-"unless": [
+"ilit": [
 1,
+2,
+3,
 4,
-5,
 6,
+7,
 8,
-10,
+9,
 11,
 12,
+14,
 15,
 20,
 21,
 22,
 23,
 25,
-26,
-27,
-46,
-47,
-49,
-50
-],
-"rule adopted": [
-1,
-45
-],
-"device method": [
-1,
-19
+28,
+31,
+32,
+34
 ],
 "beneficial owner": [
 1,
@@ -890,11 +514,7 @@
 43,
 45
 ],
-"governmental": [
-1,
-26
-],
-"business development": [
+"investment company": [
 1,
 4,
 5,
@@ -904,299 +524,47 @@
 21,
 23,
 25,
+45,
 47
 ],
-"certificates": [
+"rule adopted": [
 1,
-7,
-10,
-20,
-22,
-25
+45
 ],
-"process": [
-1,
-4,
-6,
-7,
-13,
-15,
-21,
-23,
-26,
-32,
-34,
-36,
-40,
-41,
-42,
-43
-],
-"voting": [
-1,
-6,
-45,
-46,
-47,
-48,
-49,
-50,
-51,
-52
-],
-"exercise": [
-1,
-5,
-6,
-45,
-46,
-52
-],
-"information storage": [
-1,
-19
-],
-"country": [
-1,
-5,
-15,
-20,
-22,
-23,
-31,
-32
-],
-"within": [
-1,
-4,
-6,
-7,
-8,
-13,
-19,
-25,
-41,
-43,
-45,
-46,
-49,
-52
-],
-"unless otherwise provided": [
-1,
-4,
-5,
-6,
-8,
-10,
-11,
-15,
-21,
-23,
-25,
-26,
-46
-],
-"storage device method": [
-1,
-19
-],
-"regulated": [
-1,
-4,
-5,
-6,
-7,
-14,
-15,
-21,
-23,
-25,
-47
-],
-"trust within": [
-1,
-8,
-25,
-45,
-52
-],
-"successor": [
-1,
-5,
-7,
-9,
-12,
-25,
-34,
-45,
-46
-],
-"trust formed": [
-1,
-10,
-12,
-15,
-25
-],
-"attorney": [
-1,
-11,
-19,
-24,
-38
-],
-"foreign statutory": [
-1,
-7,
-12,
-14,
-22,
-30,
-31,
-32,
-34,
-35,
-36,
-37,
-38,
-39,
-40,
-41,
-42,
-43
-],
-"business trust": [
+"estate investment": [
 1,
 22
 ],
-"thereof": [
+"delaware business": [
 1,
-3,
-4,
-5,
-6,
-7,
-8,
-11,
-12,
-14,
-15,
-16,
-20,
-21,
-22,
-23,
-25,
-32,
-34,
-37,
-38,
-40,
-41,
-52
+7
 ],
-"action": [
+"separate legal entity": [
 1,
-3,
-4,
-6,
-7,
-10,
-14,
-15,
-16,
-20,
-21,
-22,
-23,
-25,
-28,
-34,
-36,
-37,
-41,
-43,
-47
+10
 ],
-"creates": [
-1,
-4
-],
-"mortgage": [
-1,
-43
-],
-"entity means": [
+"investment trust": [
 1,
 22
 ],
-"natural person": [
+"partnership whether": [
 1,
 7,
-25
-],
-"conducted": [
-1,
-32
-],
-"subsection": [
-1,
-4,
-6,
-7,
-8,
-10,
-11,
-13,
-14,
-15,
-19,
-20,
-21,
 22,
-23,
-25,
-26,
-32,
-34,
-40,
-41,
-49,
-52
+34
 ],
-"agreements": [
-1,
-6,
-50
-],
-"beneficial": [
+"beneficial interest": [
 1,
 2,
-3,
-4,
 5,
 6,
 7,
-8,
-10,
-11,
-14,
 15,
 16,
-17,
 18,
-19,
-21,
-23,
-24,
 25,
 26,
-27,
-31,
 32,
-37,
-43,
 44,
 45,
 46,
@@ -1207,292 +575,40 @@
 51,
 52
 ],
-"neither": [
-1,
-4,
-6
-],
-"general": [
+"otherwise provided": [
 1,
 3,
+4,
+5,
 6,
-7,
-22,
-24,
-29,
-34,
-38,
-43,
-52
+8,
+9,
+10,
+11,
+15,
+18,
+19,
+21,
+23,
+25,
+26,
+46
 ],
 "trust business": [
 1,
 8
 ],
-"statutory trust formed": [
-1,
-10,
-12,
-15,
-25
-],
-"excluding": [
-1,
-6,
-47
-],
-"authorized": [
-1,
-4,
-6,
-7,
-10,
-11,
-12,
-15,
-21,
-23,
-25,
-32,
-34,
-35,
-36,
-40,
-41,
-42
-],
-"successor statute": [
-1,
-45
-],
-"business entity": [
-1,
-10,
-11,
-15,
-20,
-21,
-23,
-25
-],
-"limited": [
-1,
-7,
-13,
-14,
-22,
-34
-],
-"referred": [
-1,
-10,
-15,
-21,
-23
-],
-"trustees beneficial owners": [
-1,
-6,
-27,
-32
-],
-"interested": [
-1,
-45,
-47
-],
-"irrevocable": [
-1,
-2,
-4,
-6,
-7,
-11
-],
-"create": [
-1,
-6,
-26
-],
-"statute": [
-1,
-45
-],
-"employees": [
-1,
-6,
-11,
-43
-],
-"statutory trust provided": [
-1,
-34
-],
-"organized": [
-1,
-3,
-5,
-6,
-14,
-15,
-20,
-21,
-25,
-31,
-34
-],
-"real estate investment": [
-1,
-22
-],
-"natural": [
-1,
-7,
-25
-],
-"instruments": [
-1,
-13,
-28
-],
-"corporation": [
-1,
-3,
-4,
-6,
-7,
-9,
-12,
-14,
-22,
-34,
-40,
-45
-],
-"taking": [
-1,
-6,
-51
-],
-"capacity": [
-1,
-3,
-5,
-6,
-20,
-21,
-22,
-23,
-25,
-45,
-48,
-50
-],
 "rule adopted thereunder": [
 1,
 45
 ],
-"provide": [
+"legal entity": [
 1,
-2,
-5,
-6,
-7,
-8,
-10,
-13,
-15,
-20,
-21,
-22,
-23,
-25,
-49,
-52
+10
 ],
-"information": [
+"provisions relating": [
 1,
-6,
-7,
-10,
-12,
-13,
-15,
-19,
-25,
-26,
-34,
-40,
-41,
-52
-],
-"real estate": [
-1,
-22
-],
-"defined": [
-1,
-3,
-11,
-14,
-45
-],
-"containing": [
-1,
-15
-],
-"powers": [
-1,
-6,
-10,
-15,
-19,
-20,
-21,
-22,
-23,
-24,
-25,
-32
-],
-"document": [
-1,
-7,
-12,
-13,
-20,
-22,
-26,
-42
-],
-"status": [
-1,
-5,
-16
-],
-"method": [
-1,
-19,
-25
-],
-"executed": [
-1,
-7,
-10,
-11,
-14,
-15,
-19,
-20,
-21,
-22,
-23,
-25,
-26,
-32,
-34,
-35,
-36
+6
 ],
 "foreign country": [
 1,
@@ -1502,196 +618,17 @@
 22,
 23
 ],
-"respect": [
+"internal revenue": [
 1,
-3,
-4,
-5,
-6,
-7,
-8,
-10,
-11,
-14,
-15,
-21,
-23,
-24,
-25,
-32,
-34,
-35,
-36,
-40,
-41,
-43,
-45,
-46,
-47,
-51,
-52
+9
 ],
-"contain": [
+"without limitation": [
 1,
 6,
-7,
-14,
-34
-],
-"nominee": [
-1,
-4
-],
-"execute": [
-1,
-11,
-26
-],
-"county": [
-1,
-38
-],
-"common": [
-1,
-4,
-7,
-22,
-28,
-45
-],
-"trustees": [
-1,
-3,
-4,
-5,
-6,
-7,
-10,
-11,
-15,
-19,
-20,
-21,
-23,
-24,
-25,
-27,
-31,
-32,
-43,
-45,
-46,
-47,
-49,
-51,
-52
-],
-"unincorporated business": [
-1,
-22
-],
-"controlled": [
-1,
-45
-],
-"including": [
-1,
-2,
-4,
-5,
-6,
-7,
-8,
-11,
 13,
-15,
-16,
-19,
-20,
-22,
-23,
-25,
-26,
-34,
-41,
-45,
-47,
-52
+16
 ],
-"property": [
-1,
-2,
-4,
-5,
-6,
-8,
-10,
-15,
-20,
-21,
-22,
-23,
-25,
-32,
-43
-],
-"single": [
-1,
-10,
-22,
-23
-],
-"transmission": [
-1,
-2,
-6,
-7,
-12,
-15,
-21,
-23,
-26,
-40,
-41
-],
-"development company": [
-1,
-4,
-5,
-6,
-7,
-15,
-21,
-23,
-25,
-47
-],
-"provisions": [
-1,
-4,
-5,
-6,
-7,
-8,
-10,
-11,
-15,
-20,
-22,
-23,
-25,
-26,
-27,
-46
-],
-"limited liability": [
-1,
-7,
-14,
-22,
-34
-],
-"provided": [
+"governing instrument": [
 1,
 2,
 3,
@@ -1703,10 +640,9 @@
 9,
 10,
 11,
-12,
-13,
-14,
 15,
+16,
+17,
 18,
 19,
 20,
@@ -1715,310 +651,69 @@
 23,
 25,
 26,
-34,
-40,
-41,
-45,
-46,
-48,
-49,
-50,
-52
-],
-"includes": [
-1,
-4,
-7,
-15,
-40,
-41,
-45
-],
-"writing": [
-1,
-2,
-3,
-4,
-6,
-7,
-11,
-19,
-20,
-22,
-49,
-52
-],
-"inconsistent": [
-1,
-4
-],
-"benefit": [
-1,
-6,
-46
-],
-"accordance": [
-1,
-4,
-6,
-7,
-8,
-10,
-15,
-20,
-21,
-22,
-23,
-25,
-26,
 28,
 32,
-34,
-40,
-41,
-52
-],
-"payment": [
-1,
-5,
-7,
-8,
-21,
-23
-],
-"holding": [
-1,
-5,
-14,
-15,
-43
-],
-"individual": [
-1,
-5,
-6,
-7,
-25,
-34,
-40
-],
-"partnership": [
-1,
-7,
-9,
-14,
-22,
-34
-],
-"relating": [
-1,
-4,
-6,
-11,
-15,
-25,
 47
 ],
-"hereafter": [
-1,
-4,
-6
-],
-"successor statute thereto": [
+"successor statute": [
 1,
 45
 ],
-"ownership": [
+"irrevocable": [
 1,
-5,
-45
-],
-"united states internal": [
-1,
-9
-],
-"service": [
-1,
+2,
 4,
 6,
 7,
-13,
-15,
-21,
-23,
-32,
-34,
-36,
-40,
-41,
-42,
-43
+11
 ],
-"whether domestic": [
-1,
-7
-],
-"subject": [
-1,
-2,
-3,
-4,
-6,
-16,
-17,
-19,
-20,
-22,
-25,
-27,
-31,
-41,
-43,
-46
-],
-"estate investment trust": [
-1,
-22
-],
-"networks": [
+"storage device method": [
 1,
 19
 ],
-"otherwise": [
+"united states": [
 1,
-2,
+4,
+9,
+11,
+15,
+20,
+22
+],
+"trustee": [
+1,
 3,
 4,
 5,
 6,
 7,
 8,
-9,
 10,
 11,
 12,
 14,
 15,
 17,
-18,
 19,
 20,
 21,
-22,
 23,
 24,
 25,
-26,
+27,
+31,
 32,
-43,
-45,
-46,
-52
-],
-"paragraph": [
-1,
-6,
-7,
-8,
-13,
-15,
-21,
-23,
-25,
-45
-],
-"adopted": [
-1,
-6,
-10,
-25,
-26,
-45,
-52
-],
-"whether general": [
-1,
-7,
-22,
-34
-],
-"irrevocable power": [
-1,
-11
-],
-"estate": [
-1,
-22
-],
-"committee": [
-1,
-6
-],
-"section": [
-1,
-4,
-5,
-6,
-7,
-8,
-10,
-11,
-13,
-14,
-15,
-19,
-20,
-21,
-22,
-23,
-24,
-25,
-26,
-32,
-34,
-39,
-40,
-41,
-42,
-43,
-45,
-46,
-49,
-52
-],
-"certificate": [
-1,
-4,
-7,
-8,
-10,
-11,
-12,
-13,
-14,
-15,
-19,
-20,
-21,
-22,
-23,
-24,
-25,
-26,
-32,
-34,
 35,
 36,
-38,
-42
-],
-"internal revenue code": [
-1,
-9
-],
-"communication": [
-1,
-7
+37,
+40,
+43,
+45,
+46,
+47,
+49,
+51,
+52
 ],
 "statutory trust": [
 1,
@@ -2066,849 +761,7 @@
 51,
 52
 ],
-"including without": [
-1,
-13,
-16,
-41
-],
-"investment": [
-1,
-4,
-5,
-6,
-7,
-15,
-21,
-22,
-23,
-25,
-45,
-47
-],
-"investment adviser": [
-1,
-45
-],
-"persons": [
-1,
-4,
-6,
-8,
-10,
-16,
-19,
-25,
-26,
-27,
-45
-],
-"activity": [
-1,
-43
-],
-"revenue": [
-1,
-9
-],
-"affect": [
-1,
-5,
-8,
-15,
-20,
-21,
-22,
-23,
-25,
-45
-],
-"becoming": [
-1,
-25
-],
-"participation": [
-1,
-6
-],
-"instrumentality": [
-1,
-9
-],
-"beneficial owners": [
-1,
-2,
-3,
-5,
-6,
-8,
-15,
-16,
-19,
-21,
-23,
-24,
-25,
-27,
-31,
-32,
-43,
-46,
-47,
-49,
-50,
-51
-],
-"thereunder": [
-1,
-5,
-45
-],
-"owners": [
-1,
-2,
-3,
-5,
-6,
-8,
-14,
-15,
-16,
-19,
-21,
-23,
-24,
-25,
-27,
-31,
-32,
-43,
-46,
-47,
-49,
-50,
-51
-],
-"deemed": [
-1,
-4,
-5,
-6,
-7,
-11,
-15,
-18,
-20,
-21,
-22,
-23,
-25,
-26,
-28,
-34,
-41,
-43,
-45,
-46,
-52
-],
-"beneficial interest": [
-1,
-2,
-5,
-6,
-7,
-15,
-16,
-18,
-25,
-26,
-32,
-44,
-45,
-46,
-47,
-48,
-49,
-50,
-51,
-52
-],
-"states internal revenue": [
-1,
-9
-],
-"instrument": [
-1,
-2,
-3,
-4,
-5,
-6,
-7,
-8,
-9,
-10,
-11,
-15,
-16,
-17,
-18,
-19,
-20,
-21,
-22,
-23,
-25,
-26,
-28,
-32,
-47
-],
-"united": [
-1,
-4,
-9,
-11,
-15,
-20,
-22
-],
-"statutory trust including": [
-1,
-4,
-6,
-15,
-16,
-45
-],
-"unless otherwise": [
-1,
-4,
-5,
-6,
-8,
-10,
-11,
-15,
-20,
-21,
-22,
-23,
-25,
-26,
-46
-],
-"separate legal entity": [
-1,
-10
-],
-"similar": [
-1,
-12,
-28,
-41,
-43,
-45
-],
-"through": [
-1,
-4,
-7,
-40,
-43,
-45,
-48
-],
-"medium": [
-1,
-12,
-13
-],
-"thereby": [
-1,
-4,
-6,
-7,
-25,
-34,
-41
-],
-"without limitation": [
-1,
-6,
-13,
-16
-],
-"paper form": [
-1,
-19
-],
-"storage device": [
-1,
-19
-],
-"legal entity": [
-1,
-10
-],
-"applicable": [
-1,
-2,
-6,
-7,
-9,
-13,
-20,
-21,
-22,
-23,
-25,
-39,
-42,
-48
-],
-"amended": [
-1,
-4,
-5,
-6,
-7,
-9,
-10,
-12,
-13,
-14,
-15,
-21,
-23,
-25,
-45
-],
-"information storage device": [
-1,
-19
-],
-"provides": [
-1,
-4,
-6,
-8,
-10,
-28,
-32
-],
-"partnership whether general": [
-1,
-7,
-22,
-34
-],
-"entity": [
-1,
-7,
-10,
-11,
-12,
-15,
-20,
-21,
-22,
-23,
-25,
-45
-],
-"trustees beneficial": [
-1,
-6,
-27,
-32
-],
-"created": [
-1,
-21,
-22,
-23,
-45
-],
-"successor provision": [
-1,
-5,
-9
-],
-"more distributed": [
-1,
-19
-],
-"business development company": [
-1,
-4,
-5,
-6,
-7,
-15,
-21,
-23,
-25,
-47
-],
-"separate": [
-1,
-3,
-4,
-6,
-10,
-25,
-32,
-45
-],
-"agency": [
-1,
-9
-],
-"interest": [
-1,
-2,
-5,
-6,
-11,
-15,
-16,
-18,
-19,
-21,
-23,
-25,
-26,
-43,
-44,
-45,
-46,
-47,
-48,
-49,
-50,
-52
-],
-"record": [
-1,
-5,
-6,
-7,
-10,
-12,
-13,
-15,
-40,
-41,
-45,
-51
-],
-"formed": [
-1,
-4,
-5,
-10,
-12,
-14,
-15,
-20,
-21,
-22,
-23,
-25,
-32,
-34
-],
-"authority": [
-1,
-6,
-12,
-16,
-19,
-36
-],
-"company": [
-1,
-4,
-5,
-6,
-7,
-14,
-15,
-21,
-22,
-23,
-25,
-34,
-43,
-45,
-47
-],
-"without": [
-1,
-2,
-6,
-7,
-8,
-13,
-15,
-16,
-23,
-25,
-26,
-34,
-37,
-38,
-41,
-43,
-45,
-49
-],
-"liability company": [
-1,
-7,
-14,
-22,
-34
-],
-"complies": [
-1,
-20,
-22,
-25
-],
-"series": [
-1,
-4,
-5,
-6,
-8,
-12,
-14,
-25,
-32,
-34,
-45,
-47
-],
-"registration": [
-1,
-7,
-12,
-31,
-32,
-33,
-34,
-35,
-36,
-37,
-42,
-43
-],
-"foreign jurisdiction": [
-1,
-15,
-20,
-22,
-23
-],
-"foreign": [
-1,
-5,
-7,
-12,
-14,
-15,
-20,
-22,
-23,
-30,
-31,
-32,
-34,
-35,
-36,
-37,
-38,
-39,
-40,
-41,
-42,
-43
-],
-"agents": [
-1,
-4,
-6,
-7,
-10,
-11,
-43
-],
-"whether": [
-1,
-2,
-4,
-6,
-7,
-8,
-13,
-22,
-25,
-26,
-27,
-32,
-34,
-43,
-45,
-47,
-51,
-52
-],
-"subdivision": [
-1,
-9
-],
-"governing": [
-1,
-2,
-3,
-4,
-5,
-6,
-7,
-8,
-9,
-10,
-11,
-15,
-16,
-17,
-18,
-19,
-20,
-21,
-22,
-23,
-25,
-26,
-28,
-31,
-32,
-47
-],
-"trust means": [
-1,
-25
-],
-"jurisdiction": [
-1,
-4,
-5,
-15,
-20,
-21,
-22,
-23,
-24,
-25,
-31,
-32,
-34,
-38
-],
-"representative": [
-1,
-12,
-14,
-33
-],
-"trust provided": [
-1,
-34
-],
-"statute thereto": [
-1,
-45
-],
-"partnership whether": [
-1,
-7,
-22,
-34
-],
-"purpose": [
-1,
-6,
-10,
-15,
-19,
-20,
-21,
-22,
-23,
-24,
-25,
-26,
-38,
-43,
-45,
-46,
-47,
-49
-],
-"applicable provisions": [
-1,
-7
-],
-"foreign statutory trust": [
-1,
-7,
-12,
-14,
-22,
-31,
-32,
-34,
-35,
-36,
-37,
-38,
-40,
-41,
-42,
-43
-],
-"ilit": [
-1,
-2,
-3,
-4,
-6,
-7,
-8,
-9,
-11,
-12,
-14,
-15,
-20,
-21,
-22,
-23,
-25,
-28,
-31,
-32,
-34
-],
-"business": [
-1,
-4,
-5,
-6,
-7,
-8,
-10,
-11,
-14,
-15,
-19,
-20,
-21,
-22,
-23,
-25,
-32,
-34,
-36,
-37,
-38,
-40,
-41,
-43,
-46,
-47,
-52
-],
-"managed": [
-1,
-6,
-45
-],
-"conduct": [
-1,
-7,
-20,
-22,
-26
-],
-"professional": [
-1,
-6
-],
-"determined": [
-1,
-6,
-9,
-14,
-25,
-26,
-45,
-46,
-47
-],
-"estate investment": [
-1,
-22
-],
-"pursuant": [
-1,
-3,
-4,
-6,
-7,
-8,
-10,
-11,
-13,
-15,
-16,
-19,
-20,
-21,
-22,
-23,
-25,
-26,
-28,
-34,
-40,
-41,
-42,
-45,
-46
-],
-"internal": [
-1,
-4,
-9,
-11,
-20,
-22,
-31,
-43
-],
-"issuance": [
-1,
-4,
-6,
-7,
-33,
-45
-],
-"states internal": [
+"venue": [
 1,
 9
 ],
@@ -2916,124 +769,9 @@
 1,
 10
 ],
-"contained": [
+"storage device": [
 1,
-4,
-7,
-15,
-25,
-47
-],
-"limitation": [
-1,
-3,
-4,
-6,
-8,
-12,
-13,
-16
-],
-"provisions relating": [
-1,
-6
-],
-"revocable": [
-1,
-2,
-4,
-6,
-7,
-11,
-45
-],
-"limited liability company": [
-1,
-7,
-14,
-22,
-34
-],
-"profit": [
-1,
-3,
-6
-],
-"otherwise provided": [
-1,
-3,
-4,
-5,
-6,
-8,
-9,
-10,
-11,
-15,
-18,
-19,
-21,
-23,
-25,
-26,
-46
-],
-"thereto": [
-1,
-4,
-6,
-7,
-10,
-12,
-19,
-22,
-24,
-25,
-32,
-34,
-40,
-45
-],
-"internal revenue": [
-1,
-9
-],
-"series thereof": [
-1,
-4,
-6,
-8,
-32
-],
-"include": [
-1,
-6,
-7,
-10,
-25,
-34,
-43,
-45,
-51,
-52
-],
-"written": [
-1,
-6,
-7,
-13,
-14,
-19,
-23,
-25,
-26,
-34,
-49
-],
-"adviser": [
-1,
-3,
-45
+19
 ],
 "trust pursuant": [
 1,
@@ -3042,88 +780,88 @@
 22,
 25
 ],
-"hereunder": [
+"development company": [
 1,
-15,
-20,
-22
-],
-"trust including": [
-1,
-4,
-6,
-15,
-16,
-45
-],
-"solely": [
-1,
-4,
-6,
-7,
-26,
-28,
-37,
-43,
-45
-],
-"otherwise permitted": [
-2,
-6,
-15,
-20,
-25
-],
-"addition": [
-2,
-4,
-13,
-15,
-20,
-21,
-22,
-23,
-25,
-32
-],
-"making": [
-2,
-6,
-10,
-16,
-35,
-50,
-51
-],
-"beneficiary": [
-2
-],
-"redemption": [
-2,
-18
-],
-"except": [
-2,
-3,
 4,
 5,
 6,
-8,
-9,
-10,
-13,
-14,
-18,
-19,
-20,
+7,
+15,
 21,
-22,
 23,
-26,
-45,
-47,
-49,
-52
+25,
+47
+],
+"whether general": [
+1,
+7,
+22,
+34
+],
+"whether domestic": [
+1,
+7
+],
+"limited liability company": [
+1,
+7,
+14,
+22,
+34
+],
+"unincorporated business": [
+1,
+22
+],
+"entity means": [
+1,
+22
+],
+"investment adviser": [
+1,
+45
+],
+"databases including": [
+1,
+19
+],
+"trustees beneficial": [
+1,
+6,
+27,
+32
+],
+"trust provided": [
+1,
+34
+],
+"business development": [
+1,
+4,
+5,
+6,
+7,
+15,
+21,
+23,
+25,
+47
+],
+"statute thereto": [
+1,
+45
+],
+"statutory trust formed": [
+1,
+10,
+12,
+15,
+25
+],
+"natural person": [
+1,
+7,
+25
 ],
 "provided however": [
 2,
@@ -3135,162 +873,23 @@
 34,
 41
 ],
-"services": [
-2,
-13,
-42,
-43
-],
-"failure": [
-2,
-6,
-7,
-15,
-37
-],
-"consequence": [
-2,
-6,
-20,
-21,
-22,
-23,
-25
-],
-"records": [
-2,
-4,
-6,
-13,
-14,
-19,
-34
-],
-"disability": [
-2,
-11
-],
-"reason": [
-2,
-6,
-8,
-15,
-20,
-21,
-22,
-23,
-25,
-31,
-37,
-43,
-45
-],
-"agreed": [
-2,
-15,
-20,
-21,
-22,
-23,
-26
-],
-"stated": [
-2,
-7,
-11,
-19,
-27,
-32,
-34
-],
-"submitted": [
-2,
-7,
-26,
-52
-],
-"performance": [
-2,
-4,
-6,
-7
-],
-"consequences": [
-2,
-6
-],
-"because": [
-2,
-28,
-45
-],
-"obligation": [
-2,
-3,
-5,
-12,
-15,
-21,
-23,
-45,
-47
-],
-"against": [
-2,
-4,
-5,
-7,
-15,
-17,
-20,
-21,
-22,
-23,
-25,
-32,
-34,
-40,
-41
+"beneficiary": [
+2
 ],
 "specified consequences": [
 2,
 6
 ],
-"option": [
+"extent provided": [
 2,
-49
+6
 ],
-"however": [
+"otherwise permitted": [
 2,
-4,
-9,
-12,
-14,
-25,
-34,
-41
-],
-"extent": [
-2,
-3,
-4,
-5,
 6,
-8,
-9,
-10,
 15,
-18,
-19,
 20,
-21,
-22,
-23,
-25,
-26,
-45,
-47,
-52
+25
 ],
 "cash property": [
 2,
@@ -3301,116 +900,56 @@
 23,
 25
 ],
-"specified": [
-2,
-4,
-6,
-7,
-8,
-10,
-12,
-14,
-15,
-16,
-21,
-23,
-25,
-32,
-45,
-48
-],
-"appraisal": [
-2,
-15
-],
-"penalty": [
-2,
-6
-],
-"necessary": [
-2,
-4,
-6,
-7,
-10,
-12,
-14,
-15,
-19,
-21,
-23,
-25,
-40,
-41,
-50,
-52
-],
-"specific": [
-2,
-5,
-6,
-13
-],
-"perform": [
-2,
-6,
-7
-],
-"penalties": [
-2,
-6,
-11,
-37
-],
-"extent provided": [
-2,
-6
-],
 "death disability": [
 2,
 11
 ],
-"foregoing": [
-2,
+"profit organized": [
+3,
+6
+],
+"person acting pursuant": [
+3,
+6
+],
+"personally liable": [
+3,
+8
+],
+"acting pursuant": [
+3,
+6
+],
+"trust arising": [
+3,
+21,
+23
+],
+"extent otherwise provided": [
+3,
 4,
-12,
-15,
-25,
-26,
-41,
-45
-],
-"permitted": [
-2,
-6,
-7,
-8,
-12,
-15,
-20,
-22,
-25,
-26,
-34
-],
-"portion": [
-2,
-10,
-16
-],
-"amount": [
-2,
-6,
-13,
-42,
-50
-],
-"receive": [
-2,
 5,
-7
+6,
+8,
+9,
+10,
+18,
+19
 ],
-"omission": [
+"personal liability": [
+3,
+20,
+21,
+22,
+23,
+25
+],
+"statutory trust arising": [
+3,
+21,
+23
+],
+"employee manager": [
 3,
 6
 ],
@@ -3425,53 +964,16 @@
 18,
 19
 ],
-"general corporation": [
+"officer employee": [
 3,
-6
-],
-"person acting pursuant": [
-3,
-6
-],
-"acting pursuant": [
-3,
-6
-],
-"extent otherwise provided": [
-3,
-4,
-5,
 6,
-8,
-9,
-10,
-18,
-19
+7
 ],
-"personally liable": [
+"officer employee manager": [
 3,
-8
+6
 ],
-"personal": [
-3,
-4,
-5,
-15,
-20,
-21,
-22,
-23,
-25
-],
-"arising": [
-3,
-21,
-23,
-25,
-36,
-41
-],
-"private": [
+"private corporations": [
 3,
 6
 ],
@@ -3482,232 +984,42 @@
 7,
 34
 ],
-"profit organized": [
+"general corporation": [
 3,
 6
 ],
-"personal liability": [
-3,
-20,
-21,
-22,
-23,
-25
-],
-"personally": [
-3,
-8,
+"plaintiff shall prevail": [
+4,
+15,
 40,
 41
-],
-"manager": [
-3,
-6,
-41
-],
-"employee": [
-3,
-6,
-7,
-45
-],
-"corporations": [
-3,
-6,
-14
-],
-"employee manager": [
-3,
-6
-],
-"liable": [
-3,
-6,
-8,
-25,
-37
-],
-"officer employee manager": [
-3,
-6
-],
-"evidencing": [
-3,
-32
-],
-"entitled": [
-3,
-5,
-6,
-19,
-45,
-46,
-47,
-51
-],
-"officer employee": [
-3,
-6,
-7
-],
-"statutory trust arising": [
-3,
-21,
-23
-],
-"trust arising": [
-3,
-21,
-23
-],
-"private corporations": [
-3,
-6
-],
-"officer": [
-3,
-6,
-7,
-32,
-40,
-45
-],
-"acting": [
-3,
-4,
-5,
-6,
-7,
-25,
-34,
-45,
-46
-],
-"whom service": [
-4,
-7
 ],
 "expenses incurred contracted": [
 4,
 32
 ],
-"appointment": [
-4,
-6,
-7,
-24
-],
-"maintained": [
-4,
-7,
-12,
-32,
-34
-],
-"contract": [
-4,
-5,
-6,
-25,
-28,
-37,
-43,
-45
-],
-"matters": [
-4,
-6,
-11,
-15,
-21,
-23,
-25,
-45,
-47
-],
-"defendant": [
-4,
-15,
-40,
-41
-],
-"existing": [
-4,
-5,
-6,
-15,
-20,
-22,
-23,
-27,
-32,
-47
-],
-"granted": [
-4,
-6,
-11
-],
-"commercial": [
-4,
-7
-],
-"brought": [
-4,
-7
-],
-"secretary": [
-4,
-7,
-10,
-11,
-12,
-13,
-14,
-15,
-20,
-21,
-22,
-23,
-25,
-26,
-32,
-33,
-34,
-35,
-36,
-37,
-38,
-40,
-41,
-42
-],
-"agreeing": [
-4,
-43
-],
-"prevail": [
-4,
-15,
-40,
-41
-],
-"sufficient": [
-4,
-6,
-7,
-8,
-11,
-49
-],
-"existing with respect": [
+"debts liabilities obligations": [
 4,
 32
 ],
-"trust required": [
+"made pursuant": [
 4,
-6,
-25
+15,
+25,
+41
+],
+"delaware trustee": [
+4,
+6
+],
+"address last": [
+4,
+7,
+34
+],
+"right otherwise existing": [
+4,
+6
 ],
 "trust except": [
 4,
@@ -3718,596 +1030,11 @@
 47,
 49
 ],
-"respective": [
-4,
-11
-],
-"attachment": [
-4,
-15
-],
-"effected": [
-4,
-8,
-15,
-26,
-40,
-45
-],
-"together": [
-4,
-14,
-15,
-19,
-21,
-23,
-35,
-36,
-42,
-48
-],
-"addressed": [
-4,
-26
-],
-"violation": [
-4,
-6,
-52
-],
-"consented": [
-4,
-6,
-7,
-25
-],
-"address": [
-4,
-7,
-10,
-12,
-14,
-15,
-19,
-21,
-23,
-25,
-32,
-34,
-41
-],
-"security": [
-4,
-5,
-43,
-45
-],
-"referenced": [
-4,
-7
-],
-"right otherwise existing": [
-4,
-6
-],
-"herein": [
-4,
-6,
-7,
-15
-],
-"reference": [
-4,
-7
-],
-"title notwithstanding": [
-4,
-12
-],
-"defend": [
-4,
-8,
-10
-],
-"limits": [
-4,
-6,
-13
-],
-"associated": [
-4,
-6,
-8,
-13,
-25,
-26,
-32
-],
-"right otherwise": [
-4,
-6
-],
-"statutory trust only": [
-4,
-45
-],
-"authorized persons": [
-4,
-25
-],
-"otherwise existing": [
-4,
-6,
-32
-],
-"respecting": [
-4,
-6,
-7,
-24
-],
-"furnished": [
-4,
-15,
-19,
-21,
-23,
-25,
-41
-],
-"deemed thereby": [
-4,
-7
-],
-"proceeding": [
-4,
-7,
-15,
-21,
-23,
-25,
-37,
-40,
-41,
-43
-],
-"particular series": [
-4,
-32,
-45
-],
-"delaware trustee": [
-4,
-6
-],
-"notice": [
-4,
-6,
-7,
-12,
-13,
-14,
-34,
-49,
-51
-],
-"debts liabilities obligations": [
-4,
-32
-],
-"registered investment company": [
-4,
-5,
-7
-],
-"chancery": [
-4,
-6,
-7,
-10,
-15,
-16,
-24,
-26,
-38
-],
-"enforceable": [
-4,
-25,
-32
-],
-"serves": [
-4,
-7,
-45
-],
-"pending": [
-4,
-25
-],
-"maintain": [
-4,
-7,
-15,
-19,
-25,
-34,
-37,
-40,
-41
-],
-"duties": [
-4,
-6,
-7,
-15,
-20,
-21,
-22,
-23,
-25,
-32
-],
-"prothonotary": [
-4,
-26
-],
-"registered investment": [
-4,
-5,
-7
-],
-"another": [
-4,
-5,
-6,
-7,
-14,
-15,
-20,
-21,
-22,
-23,
-25,
-34,
-45,
-46,
-49
-],
-"assets": [
-4,
-5,
-6,
-7,
-8,
-15,
-20,
-21,
-22,
-23,
-24,
-25,
-32,
-34
-],
-"expenses incurred": [
-4,
-32
-],
-"plaintiff shall prevail": [
-4,
-15,
-40,
-41
-],
-"legal process": [
-4,
-6,
-7,
-34,
-40,
-41
-],
-"series only": [
-4,
-32
-],
-"exclusive": [
-4,
-14
-],
-"security interests": [
-4,
-43
-],
-"trust only": [
-4,
-45
-],
-"election": [
-4,
-6,
-45
-],
-"expenses": [
-4,
-16,
-32,
-49
-],
-"matters relating": [
-4,
-11,
-47
-],
-"execution": [
-4,
-11,
-25
-],
-"transfer": [
-4,
-6,
-10,
-11,
-12,
-13,
-14,
-23,
-25,
-43,
-47
-],
-"section provided": [
-4,
-25
-],
-"particular": [
-4,
-6,
-32,
-45
-],
-"real personal": [
-4,
-15,
-20,
-21,
-22,
-23,
-25
-],
-"trust generally": [
-4,
-32
-],
-"matter": [
-4,
-6,
-10,
-15,
-26,
-47,
-52
-],
-"prescribed": [
-4,
-7,
-15,
-21,
-23,
-28,
-34,
-40,
-41
-],
-"debts liabilities": [
-4,
-15,
-20,
-21,
-22,
-23,
-25,
-32
-],
-"having": [
-4,
-6,
-7,
-10,
-14,
-22,
-23,
-25,
-32,
-34,
-37,
-38,
-41
-],
-"trusts formed": [
-4,
-25
-],
-"restrict": [
-4,
-6
-],
-"statutory trust required": [
-4,
-6
-],
-"incurred": [
-4,
-15,
-20,
-21,
-22,
-23,
-25,
-32
-],
-"distinct": [
-4,
-25
-],
-"notwithstanding": [
-4,
-5,
-7,
-8,
-12,
-13,
-15,
-20,
-22,
-25,
-45
-],
-"interests": [
-4,
-5,
-6,
-7,
-14,
-15,
-18,
-20,
-21,
-22,
-23,
-25,
-32,
-43,
-45,
-46,
-47,
-48,
-49,
-50,
-51,
-52
-],
-"address last": [
-4,
-7,
-34
-],
-"commenced": [
-4,
-20,
-22
-],
-"agent upon whom": [
-4,
-7
-],
 "served with process": [
 4,
 15,
 21,
 23
-],
-"legal force": [
-4,
-7,
-41
-],
-"affects": [
-4,
-6
-],
-"obligations": [
-4,
-6,
-8,
-20,
-21,
-22,
-23,
-25,
-32,
-37
-],
-"sentence": [
-4,
-6,
-7,
-15,
-25
-],
-"return": [
-4,
-12,
-15,
-33,
-40,
-41
-],
-"being made pursuant": [
-4,
-15,
-41
-],
-"statutory trust generally": [
-4,
-32
-],
-"extension": [
-4,
-6
-],
-"validity": [
-4,
-6,
-7,
-15,
-25,
-37,
-41
-],
-"liabilities": [
-4,
-6,
-7,
-8,
-15,
-20,
-21,
-22,
-23,
-25,
-32,
-34
-],
-"internal affairs": [
-4,
-11,
-20,
-22,
-31,
-43
-],
-"serving": [
-4,
-7,
-40
-],
-"plaintiff": [
-4,
-15,
-16,
-21,
-23,
-40,
-41
-],
-"made pursuant": [
-4,
-15,
-25,
-41
 ],
 "statutory trust except": [
 4,
@@ -4318,101 +1045,51 @@
 47,
 49
 ],
-"process upon nonresidents": [
+"authorized persons": [
 4,
-6
+25
 ],
-"nonresidents": [
+"deemed thereby": [
 4,
-6
+7
 ],
-"incurred contracted": [
-4,
-32
-],
-"prevail therein": [
-4,
-15,
-40,
-41
-],
-"address last known": [
-4,
-7,
-34
-],
-"nothing": [
-4,
-6
-],
-"generally": [
-4,
-7,
-32,
-43,
-45,
-47
-],
-"therein": [
+"trust required": [
 4,
 6,
-10,
-11,
+25
+],
+"registered agent": [
+4,
+6,
+7,
 12,
-15,
-25,
-40,
-41
-],
-"being made": [
-4,
-15,
-41
-],
-"proceedings": [
-4,
-15,
-24
-],
-"hereafter provided": [
-4,
-6
-],
-"manner": [
-4,
-6,
-7,
-8,
-11,
-20,
-21,
-22,
+13,
 23,
-25,
-26,
+32,
 34,
 40,
-52
+42
 ],
-"reasonable": [
+"being made pursuant": [
 4,
-7,
-8,
-16,
-19,
-48
+15,
+41
 ],
-"enforceable against": [
+"security interests": [
+4,
+43
+],
+"section provided": [
+4,
+25
+],
+"liabilities obligations": [
 4,
 32
 ],
-"separately": [
+"right otherwise": [
 4,
 6
-],
-"repealed": [
-4,
-27
 ],
 "serve process": [
 4,
@@ -4421,46 +1098,23 @@
 40,
 41
 ],
-"contracted": [
+"being made": [
 4,
 15,
-20,
-21,
-22,
-23,
-25,
-32
-],
-"resident": [
-4,
-7,
-25,
-34
-],
-"preceding": [
-4,
-50
-],
-"liabilities obligations": [
-4,
-32
-],
-"consent": [
-4,
-6,
-7,
-14,
-23,
-34
-],
-"mailing": [
-4,
-7,
-15,
-19,
-34,
-40,
 41
+],
+"legal force": [
+4,
+7,
+41
+],
+"trusts formed": [
+4,
+25
+],
+"agent upon whom": [
+4,
+7
 ],
 "within days": [
 4,
@@ -4469,69 +1123,68 @@
 49,
 52
 ],
-"established": [
+"series only": [
 4,
-5,
-6,
-7,
-8,
-19
+32
 ],
-"indirectly": [
+"real personal": [
 4,
-6,
-45,
-48
+15,
+20,
+21,
+22,
+23,
+25
+],
+"enforceable against": [
+4,
+32
+],
+"expenses incurred": [
+4,
+32
+],
+"internal affairs": [
+4,
+11,
+20,
+22,
+31,
+43
 ],
 "civil action": [
 4,
 41
 ],
-"deposit": [
+"whom service": [
 4,
-14,
-15,
-40,
-41
+7
 ],
-"continuance": [
+"registered investment": [
 4,
-11,
-12,
-13,
-23
+5,
+7
 ],
-"manner provided": [
+"incurred contracted": [
 4,
-6,
-20,
-22,
-25,
-40
+32
+],
+"process upon nonresidents": [
+4,
+6
+],
+"existing with respect": [
+4,
+32
 ],
 "nothing herein": [
 4,
 6
 ],
-"behalf": [
+"address last known": [
 4,
-5,
-6,
-8,
-11,
-19,
-25,
-45
-],
-"register": [
-4,
-14,
-26,
-32,
-34,
-37,
-38,
-41
+7,
+34
 ],
 "last known": [
 4,
@@ -4557,59 +1210,118 @@
 45,
 47
 ],
-"actions": [
+"trust only": [
+4,
+45
+],
+"otherwise existing": [
+4,
+6,
+32
+],
+"legal process": [
 4,
 6,
 7,
-8,
-16
-],
-"served": [
-4,
-7,
-15,
-21,
-23,
+34,
 40,
 41
 ],
-"acceptance": [
+"debts liabilities": [
 4,
-41,
-43
+15,
+20,
+21,
+22,
+23,
+25,
+32
 ],
-"registered agent": [
+"matters relating": [
+4,
+11,
+47
+],
+"trust generally": [
+4,
+32
+],
+"manner provided": [
 4,
 6,
-7,
-12,
-13,
-23,
+20,
+22,
+25,
+40
+],
+"statutory trust required": [
+4,
+6
+],
+"registered investment company": [
+4,
+5,
+7
+],
+"particular series": [
+4,
 32,
-34,
-40,
-42
-],
-"require": [
-5,
-6,
-7,
-15,
-21,
-23,
-25,
-43,
-49,
-52
-],
-"percentage": [
-5,
-6,
-15,
-21,
-23,
-25,
 45
+],
+"hereafter provided": [
+4,
+6
+],
+"statutory trust generally": [
+4,
+32
+],
+"statutory trust only": [
+4,
+45
+],
+"title notwithstanding": [
+4,
+12
+],
+"prevail therein": [
+4,
+15,
+40,
+41
+],
+"business entities": [
+5,
+15,
+20
+],
+"record dates": [
+5,
+6
+],
+"statutory trust property": [
+5,
+8
+],
+"individual capacity": [
+5,
+6
+],
+"entities formed": [
+5,
+15
+],
+"another agreement": [
+5,
+6
+],
+"another interest": [
+5,
+15
+],
+"classes groups": [
+5,
+6
 ],
 "beneficial interests": [
 5,
@@ -4626,77 +1338,9 @@
 51,
 52
 ],
-"statutory trust property": [
+"part thereof": [
 5,
-8
-],
-"groups": [
-5,
-6
-],
-"distribution": [
-5,
-25,
-45
-],
-"another interest": [
-5,
-15
-],
-"entire": [
-5,
-10
-],
-"trust with respect": [
-5,
-21,
-23,
-36,
-47
-],
-"trust property": [
-5,
-8
-],
-"entities formed": [
-5,
-15
-],
-"losses": [
-5,
-6,
-32
-],
-"additional": [
-5,
-6,
-13,
-16,
-45,
-48
-],
-"becomes": [
-5,
-7,
-10,
-11,
-20,
-21,
-22,
-23,
-25
-],
-"issued": [
-5,
-6,
-32,
-45
-],
-"obtain": [
-5,
-7,
-19,
-34
+37
 ],
 "trust owned": [
 5,
@@ -4706,61 +1350,23 @@
 25,
 48
 ],
-"establishment": [
+"trust with respect": [
 5,
-6,
-32
-],
-"individual capacity": [
-5,
-6
-],
-"regulations": [
-5,
-7,
-15,
 21,
 23,
-40,
-41
+36,
+47
 ],
-"equitable": [
-5,
-24
+"legal title": [
+5
 ],
-"allocated": [
-5,
-25
-],
-"business entities formed": [
-5,
-15
-],
-"record dates": [
+"class group": [
 5,
 6
 ],
-"specifically": [
+"trust property": [
 5,
-10,
-47
-],
-"possession": [
-5,
-7,
-31,
-32
-],
-"contemplated": [
-5,
-6,
-8,
-26
-],
-"classes": [
-5,
-6,
-47
+8
 ],
 "statutory trust owned": [
 5,
@@ -4769,399 +1375,21 @@
 23,
 48
 ],
-"allocations": [
+"business entities formed": [
 5,
-25
+15
 ],
-"creditor": [
-5,
-10,
-25
-],
-"business entities": [
-5,
-15,
-20
-],
-"legal title": [
-5
-],
-"entities": [
-5,
-7,
-15,
-20,
-22,
-50
-],
-"amendment": [
-5,
+"persons whose approval": [
 6,
-7,
-10,
-11,
-12,
-13,
-15,
-20,
-25,
-27,
-34
+8
 ],
-"securities": [
-5,
+"instrument provides": [
 6,
-15,
-20,
-21,
-22,
-23,
-25,
-43,
-45,
-47
-],
-"intended": [
-5,
-6,
-7
-],
-"part thereof": [
-5,
-37
-],
-"distributions": [
-5,
-6,
-25
-],
-"nature": [
-5,
-14,
-15,
-19,
-32,
-40,
-41
-],
-"another agreement": [
-5,
-6
-],
-"classes groups": [
-5,
-6
-],
-"class group": [
-5,
-6
-],
-"profits": [
-5,
-6,
-15,
-21,
-23,
-25,
-32
-],
-"related": [
-5,
-7,
-19,
-34,
-52
-],
-"having separate": [
-6,
-32
-],
-"equity": [
-6,
-45,
-47
-],
-"present": [
-6,
-7,
-10,
-47,
-49
-],
-"validly": [
-6,
-28,
-32
-],
-"authorizing": [
-6,
-21,
-23,
-25
-],
-"conflict of interest": [
-6
-],
-"establish": [
-6,
-13,
-26
-],
-"specified property": [
-6,
-32
-],
-"affected": [
-6,
-7,
-10,
-11,
-25,
-34
-],
-"owners trustees": [
-6,
-24
-],
-"duties with respect": [
-6,
-32
-],
-"assigned": [
-6,
-25
-],
-"telephone": [
-6,
-7
-],
-"following": [
-6,
-7,
-11,
-13,
-14,
-22,
-23,
-25,
-42,
-45,
-48,
-51,
-52
-],
-"trustee beneficial": [
-6,
-7
-],
-"included": [
-6,
-7,
-10,
-52
-],
-"quorum": [
-6,
-47
-],
-"trustee beneficial owner": [
-6,
-7
-],
-"dissolution": [
-6,
-8,
-10,
-11,
-15,
-20,
-22,
-25
-],
-"adversely": [
-6,
-10
-],
-"constitutes": [
-6,
-11
-],
-"application": [
-6,
-7,
-10,
-12,
-13,
-14,
-26,
-28,
-32,
-33,
-34,
-35,
-42,
-47
-],
-"conversion": [
-6,
-7,
-10,
-11,
-12,
-13,
-19,
-20,
-21,
-25,
-34
+8
 ],
 "good faith": [
 6,
 19,
-45,
-46,
-47
-],
-"fiduciary duty": [
-6
-],
-"equipment": [
-6,
-43
-],
-"designated series": [
-6,
-32
-],
-"circumstances": [
-6,
-7,
-26,
-32
-],
-"more persons": [
-6,
-10,
-26
-],
-"accomplishment": [
-6,
-8,
-15,
-20
-],
-"delegation": [
-6
-],
-"control": [
-6,
-26,
-44,
-45,
-46,
-47,
-48,
-49,
-50,
-51,
-52
-],
-"validly taken": [
-6,
-28
-],
-"statutory trust will": [
-6,
-23
-],
-"governing instrument does": [
-6,
-21,
-23
-],
-"considered": [
-6,
-47,
-51
-],
-"independent contractors": [
-6,
-43
-],
-"owner thereof": [
-6,
-11
-],
-"determining whether": [
-6,
-26,
-43
-],
-"trust will": [
-6,
-23,
-25
-],
-"events specified": [
-6,
-8
-],
-"existence": [
-6,
-8,
-10,
-11,
-20,
-21,
-22,
-23,
-24,
-25,
-32,
-47
-],
-"effective": [
-6,
-7,
-8,
-10,
-11,
-12,
-13,
-15,
-20,
-21,
-22,
-23,
-25,
-34,
-40,
-42
-],
-"persons whose": [
-6,
-8
-],
-"outstanding": [
-6,
-15,
-20,
-21,
-22,
-23,
-25,
-45,
-47
-],
-"pledge": [
-6,
-45
-],
-"exchange": [
-6,
-13,
-25,
-43,
 45,
 46,
 47
@@ -5172,533 +1400,173 @@
 34,
 45
 ],
-"expressly": [
+"independent contractors": [
 6,
-26,
-27
+43
 ],
-"effectiveness": [
-6,
-10,
-15,
-25
-],
-"construed": [
-6,
-8,
-11,
-14,
-15,
-17,
-20,
-25,
-28
-],
-"approval": [
-6,
-8,
-15,
-21,
-23,
-25,
-45,
-46,
-47,
-49
-],
-"comply": [
-6,
-7,
-12,
-14,
-25
-],
-"further": [
-6,
-7,
-10,
-13,
-14,
-15,
-25,
-34
-],
-"financial": [
-6,
-19,
-48,
-50
-],
-"deems proper": [
+"trustee beneficial owner": [
 6,
 7
 ],
-"persons whose approval": [
+"associated with specified": [
+6,
+32
+],
+"delegation": [
+6
+],
+"losses associated": [
+6,
+32
+],
+"determining whether": [
+6,
+26,
+43
+],
+"conflict of interest": [
+6
+],
+"trust will": [
+6,
+23,
+25
+],
+"having separate": [
+6,
+32
+],
+"fiduciary duty": [
+6
+],
+"governing instrument does": [
+6,
+21,
+23
+],
+"beneficial owner thereof": [
+6,
+11
+],
+"events specified": [
 6,
 8
 ],
-"condition": [
+"accordance with paragraph": [
 6,
-19,
-25
+15
 ],
-"adversely affected": [
+"governing instrument provides": [
 6,
-10
+8
 ],
-"satisfaction": [
+"trustee beneficial": [
 6,
-45
+7
 ],
-"meetings": [
+"duties with respect": [
 6,
-43
+32
 ],
 "instrument does": [
 6,
 21,
 23
 ],
-"majority": [
+"statutory trust will": [
 6,
-45
+23
 ],
-"ratified": [
-6,
-7,
-34
-],
-"associated with specified": [
-6,
-32
-],
-"transaction": [
-6,
-10,
-16,
-26,
-43
-],
-"held directly": [
-6,
-45
-],
-"number": [
-6,
-7,
-13,
-15,
-40,
-41,
-48,
-52
-],
-"forth therein": [
-6,
-12
-],
-"person including": [
-6,
-8
-],
-"transmitted": [
-6,
-12
-],
-"management": [
-6,
-47
-],
-"presented": [
-6,
-47,
-49,
-50
-],
-"directors": [
+"owner thereof": [
 6,
 11
 ],
-"contrary": [
-6,
-27,
-48
-],
-"supervision": [
-6,
-14,
-43
-],
-"instrument provides": [
-6,
-8
-],
-"meeting": [
-6,
-7,
-10,
-46,
-47,
-49,
-50,
-51,
-52
-],
-"determining": [
-6,
-26,
-43,
-48
-],
-"substantially": [
+"more persons": [
 6,
 10,
-15,
-45
-],
-"removal": [
-6
-],
-"happening": [
-6,
-8
-],
-"managers": [
-6,
-11
-],
-"beneficial owner thereof": [
-6,
-11
-],
-"approved": [
-6,
-7,
-15,
-20,
-21,
-22,
-23,
-25,
-34,
-47,
-50
-],
-"requirements": [
-6,
-7,
-10,
-25,
-28,
-50
-],
-"accordance with paragraph": [
-6,
-15
-],
-"future": [
-6,
-7,
-10,
-15,
-20,
-21,
-22,
-23,
-25,
-47
-],
-"losses associated": [
-6,
-32
-],
-"merger": [
-6,
-7,
-10,
-11,
-12,
-13,
-15,
-21,
-23,
-25,
-34,
-45
-],
-"communications": [
-6,
-7,
-34
-],
-"creditors": [
-6,
-15,
-20,
-21,
-22,
-23,
-24
-],
-"direct": [
-6,
-7,
-16,
-25,
-45,
-46,
-52
-],
-"elected": [
-6,
-45,
-47
-],
-"relative": [
-6,
-45
+26
 ],
 "beneficial owners trustees": [
 6,
 24
 ],
-"transact": [
-6,
-7
-],
-"governing instrument provides": [
-6,
-8
-],
-"consolidation": [
-6,
-7,
-10,
-11,
-12,
-13,
-15,
-21,
-23,
-25,
-34,
-45
-],
-"surety": [
-6,
-49
-],
-"proper": [
-6,
-7,
-10,
-38
-],
-"contracts": [
-6,
-43
-],
 "title provided": [
 6,
 45
 ],
-"contractors": [
-6,
-43
-],
-"presence": [
-6,
-40
-],
-"requires": [
-6,
-15,
-26,
-43
-],
-"transferred": [
-6,
-14,
-20,
-21,
-22,
-23,
-25
-],
-"officers": [
-6,
-11
-],
-"thereon": [
-6,
-14
-],
-"connection": [
-6,
-7,
-12,
-15,
-20,
-21,
-22,
-23,
-25
-],
-"claims": [
-6,
-8,
-17
-],
-"approve": [
-6,
-20,
-22,
-47
-],
-"determine": [
-6,
-10,
-15,
-47,
-52
-],
-"compliance": [
-6,
-7,
-10,
-21,
-23,
-25,
-46
-],
-"engaged": [
+"deems proper": [
 6,
 7
 ],
-"events": [
+"designated series": [
+6,
+32
+],
+"specified property": [
+6,
+32
+],
+"persons whose": [
 6,
 8
 ],
-"appoint": [
+"adversely affected": [
 6,
-7,
-10,
-34
-],
-"constitute": [
-6,
-15,
-20,
-22,
-23,
-25,
-43,
-45
-],
-"reasonably": [
-6,
-19,
-25,
-49,
-51,
-52
-],
-"designated": [
-6,
-7,
-10,
-26,
-32,
-34,
-47
-],
-"paragraphs": [
-6,
-45
-],
-"means permitted": [
-6,
-8
-],
-"requirement": [
-6,
-15,
-16,
-41,
-49
-],
-"received": [
-6,
-16,
-26,
-49
-],
-"manage": [
-6,
-11,
-19
-],
-"signed": [
-6,
-11,
-14,
-26,
-33
-],
-"either": [
-6,
-7,
-10,
-11,
-14,
-15,
-25,
-45,
-46,
-47
-],
-"certain": [
-6,
-10,
-20,
-21,
-22,
-23,
-25
+10
 ],
 "whose approval": [
 6,
 8
 ],
-"delivering": [
-7,
-26,
-34,
-40
+"person including": [
+6,
+8
 ],
-"another address": [
+"held directly": [
+6,
+45
+],
+"validly taken": [
+6,
+28
+],
+"removal": [
+6
+],
+"owners trustees": [
+6,
+24
+],
+"means permitted": [
+6,
+8
+],
+"forth therein": [
+6,
+12
+],
+"every statutory trust": [
+7,
+10
+],
+"section filing": [
 7,
 34
 ],
-"resigns": [
+"become effective until": [
 7,
 34
 ],
-"successor registered": [
+"trust filed": [
+7,
+20,
+22
+],
+"trust ratifying": [
 7,
 34
 ],
-"before": [
-7,
-32,
-34,
-40,
-43,
-45,
-47,
-49
-],
-"information last": [
+"until further change": [
 7,
 34
 ],
@@ -5712,110 +1580,14 @@
 23,
 25
 ],
-"address specified": [
-7,
-15,
-21,
-23
-],
-"each foreign statutory": [
+"until days after": [
 7,
 34
 ],
-"limited liability limited": [
+"certificate filed": [
 7,
-22,
-34
-],
-"written notice": [
-7,
-34,
-49
-],
-"filing": [
-7,
-8,
 10,
-11,
 12,
-13,
-14,
-15,
-20,
-21,
-22,
-23,
-25,
-32,
-33,
-34,
-36,
-42
-],
-"resulting person": [
-7,
-10,
-15,
-34,
-45
-],
-"foreign limited": [
-7,
-14,
-34
-],
-"statement that written": [
-7,
-34
-],
-"limited liability partnership": [
-7,
-22,
-34
-],
-"agent shall become": [
-7,
-34
-],
-"agent setting forth": [
-7,
-34
-],
-"registered agent business": [
-7,
-34
-],
-"affected foreign": [
-7,
-34
-],
-"person succeeds": [
-7,
-34
-],
-"aforesaid service": [
-7,
-34
-],
-"location": [
-7,
-19
-],
-"resigning": [
-7,
-34
-],
-"trust affected": [
-7,
-34
-],
-"foreign limited liability": [
-7,
-14,
-34
-],
-"further change": [
-7,
 34
 ],
 "principal place": [
@@ -5824,625 +1596,7 @@
 22,
 52
 ],
-"document filed": [
-7,
-12,
-26
-],
-"days prior": [
-7,
-34
-],
-"certifying": [
-7,
-13,
-34
-],
-"deliver": [
-7,
-26,
-34,
-43,
-48
-],
-"certificate filed": [
-7,
-10,
-12,
-34
-],
-"accept": [
-7,
-12,
-15,
-21,
-23,
-25,
-36
-],
-"days following": [
-7,
-25
-],
-"statutory trust pursuant": [
-7,
-20,
-22,
-25
-],
-"assure": [
-7,
-49
-],
-"least trustee": [
-7,
-25
-],
-"agent business pursuant": [
-7,
-34
-],
-"enforcement": [
-7,
-15,
-21,
-23
-],
-"become effective": [
-7,
-15,
-20,
-22,
-23,
-25,
-34
-],
-"complaint": [
-7,
-16,
-38
-],
-"approving such change": [
-7,
-34
-],
-"affected thereby": [
-7,
-25,
-34
-],
-"registered agent related": [
-7,
-34
-],
-"january": [
-7,
-12
-],
-"officer director": [
-7,
-45
-],
-"paying": [
-7,
-34
-],
-"signification": [
-7,
-41
-],
-"include such information": [
-7,
-34
-],
-"current": [
-7,
-15,
-19,
-21,
-23,
-25
-],
-"further certifying": [
-7,
-34
-],
-"whether general including": [
-7,
-22,
-34
-],
-"delivering such notice": [
-7,
-34
-],
-"approving": [
-7,
-34
-],
-"business address": [
-7,
-25
-],
-"resignation": [
-7,
-34
-],
-"days after": [
-7,
-34,
-49
-],
-"state after": [
-7,
-34
-],
-"foreign statutory trusts": [
-7,
-30,
-34,
-38,
-39,
-40,
-41
-],
-"concerning": [
-7,
-11,
-43
-],
-"effective until": [
-7,
-13,
-34,
-42
-],
-"obtained": [
-7,
-34,
-45,
-47
-],
-"agent before": [
-7,
-34
-],
-"become effective until": [
-7,
-34
-],
-"more statutory trusts": [
-7,
-15,
-25
-],
-"resigned": [
-7,
-13,
-34,
-42
-],
-"registered agent thereof": [
-7,
-34
-],
-"trust filed": [
-7,
-20,
-22
-],
-"general including": [
-7,
-22,
-34
-],
-"operation": [
-7,
-16,
-34
-],
-"designate": [
-7,
-34
-],
-"information last provided": [
-7,
-34
-],
-"time within": [
-7,
-46
-],
-"last provided": [
-7,
-34
-],
-"deemed public": [
-7,
-34
-],
-"likely": [
-7,
-8,
-14,
-16
-],
-"trust fails": [
-7,
-34
-],
-"identified": [
-7,
-12,
-25,
-34,
-47
-],
-"involves": [
-7,
-21,
-23,
-25
-],
-"individual resident": [
-7,
-34
-],
-"statutory trust fails": [
-7,
-34
-],
-"promptly": [
-7,
-10,
-25,
-34,
-35,
-51
-],
-"future effective date": [
-7,
-10,
-15,
-20,
-21,
-22,
-23,
-25
-],
-"qualified": [
-7,
-14,
-38
-],
-"section filing": [
-7,
-34
-],
-"more statutory": [
-7,
-15,
-25
-],
-"enjoin": [
-7,
-38
-],
-"liability partnership": [
-7,
-22,
-34
-],
-"during": [
-7,
-25,
-37
-],
-"foreign corporation": [
-7,
-14,
-34
-],
-"trust ratifying": [
-7,
-34
-],
-"division": [
-7,
-10,
-11,
-12,
-13,
-14,
-15,
-25,
-34
-],
-"director": [
-7,
-40,
-45
-],
-"each foreign": [
-7,
-34
-],
-"within days after": [
-7,
-49
-],
-"agent into another": [
-7,
-34
-],
-"deems appropriate": [
-7,
-12
-],
-"each statutory": [
-7,
-13,
-14,
-42
-],
-"changed": [
-7,
-10,
-20,
-21,
-23,
-25,
-34,
-35
-],
-"documents": [
-7,
-10,
-13,
-19,
-33
-],
-"business office identical": [
-7,
-34
-],
-"each such statutory": [
-7,
-15
-],
-"setting": [
-7,
-15,
-32,
-34,
-40,
-41,
-51
-],
-"every statutory trust": [
-7,
-10
-],
-"registered agent pursuant": [
-7,
-34
-],
 "state stating": [
-7,
-34
-],
-"registered agent before": [
-7,
-34
-],
-"contact": [
-7,
-25,
-29,
-34,
-43,
-52
-],
-"identity": [
-7,
-8,
-25,
-48
-],
-"filing deliver": [
-7,
-34
-],
-"trustees meeting": [
-7,
-10
-],
-"immediately": [
-7,
-20,
-22
-],
-"section shall promptly": [
-7,
-34
-],
-"regarding": [
-7,
-19,
-34
-],
-"manner aforesaid": [
-7,
-34
-],
-"statutory trust whose": [
-7,
-13,
-15,
-21,
-23,
-24,
-42
-],
-"maintaining": [
-7,
-43
-],
-"canceled": [
-7,
-12,
-18,
-24,
-25,
-34
-],
-"legal process against": [
-7,
-34
-],
-"orders": [
-7,
-24,
-41,
-43
-],
-"resign without appointing": [
-7,
-34
-],
-"certificate shall contain": [
-7,
-34
-],
-"access": [
-7,
-13,
-19
-],
-"immediately prior": [
-7,
-20,
-22
-],
-"make such orders": [
-7,
-24
-],
-"certificate executed": [
-7,
-10,
-34,
-35
-],
-"satisfy": [
-7,
-28
-],
-"located": [
-7,
-34
-],
-"resigned registered": [
-7,
-34
-],
-"agent business": [
-7,
-34
-],
-"certificate filed pursuant": [
-7,
-34
-],
-"result": [
-7,
-8,
-10,
-16,
-25,
-34
-],
-"state upon request": [
-7,
-13
-],
-"information regarding": [
-7,
-19,
-34
-],
-"action with respect": [
-7,
-34
-],
-"retain": [
-7,
-15,
-40,
-41
-],
-"within days following": [
-7,
-25
-],
-"resulting person succeeds": [
-7,
-34
-],
-"delivered": [
-7,
-12,
-26,
-40,
-50,
-51
-],
-"trust such information": [
-7,
-34
-],
-"appropriate": [
-7,
-12,
-15,
-20,
-21,
-22,
-23,
-40,
-41
-],
-"until days": [
-7,
-34
-],
-"succeeds": [
-7,
-34
-],
-"agent thereof": [
-7,
-34,
-38
-],
-"after receipt": [
-7,
-34
-],
-"agent filing": [
-7,
-34
-],
-"setting forth": [
-7,
-15,
-32,
-34,
-40,
-41,
-51
-],
-"until days after": [
 7,
 34
 ],
@@ -6451,203 +1605,107 @@
 34,
 40
 ],
-"successor registered agent": [
+"division shall each": [
 7,
 34
 ],
-"enters": [
+"limited including": [
 7,
-26
-],
-"partnership limited": [
-7,
-14
-],
-"request": [
-7,
-13,
-15,
-25,
-47,
-49,
-50,
-52
-],
-"certificate shall include": [
-7,
-34
-],
-"filed pursuant": [
-7,
-34
-],
-"delaware filing": [
-7,
-34
-],
-"company registered": [
-7,
-14
-],
-"granting": [
-7,
-13
-],
-"resign": [
-7,
-34
-],
-"least days": [
-7,
-34,
-40
-],
-"communications contact": [
-7,
-34
-],
-"after january": [
-7,
-12
-],
-"registered agent setting": [
-7,
-34
-],
-"providing": [
-7,
-13,
-50
-],
-"statutory trust ratifying": [
-7,
-34
-],
-"ratifying": [
-7,
-34
-],
-"limited partnership": [
-7,
-14,
 22,
 34
 ],
-"residence": [
-7,
-19
-],
-"identified resulting": [
-7,
-34
-],
-"aforesaid": [
-7,
-10,
-34
-],
-"agent including": [
-7,
-11
-],
-"change": [
-7,
-10,
-14,
-20,
-25,
-34
-],
-"affected foreign statutory": [
-7,
-34
-],
-"agent setting": [
-7,
-34
-],
-"principal": [
-7,
-11,
-15,
-22,
-48,
-52
-],
-"without appointing": [
-7,
-34
-],
-"each statutory trust": [
-7,
-13,
-14,
-42
-],
-"reduction": [
-7,
-45
-],
-"state after receipt": [
-7,
-34
-],
-"office": [
-7,
-10,
-11,
-12,
-14,
-15,
-20,
-21,
-22,
-23,
-25,
-32,
-33,
-34,
-35,
-40,
-48
-],
-"appointing": [
-7,
-15,
-34
-],
-"formation": [
-7,
-15,
-25,
-32,
-34
-],
-"manner aforesaid service": [
-7,
-34
-],
-"directed": [
-7,
-40,
-41,
-52
-],
-"registered agent filing": [
-7,
-34
-],
-"stating": [
-7,
-34,
-51
-],
-"liability limited partnership": [
+"limited liability partnership": [
 7,
 22,
 34
 ],
 "resigned registered agent": [
+7,
+34
+],
+"section shall promptly": [
+7,
+34
+],
+"action with respect": [
+7,
+34
+],
+"information last": [
+7,
+34
+],
+"liability limited": [
+7,
+22,
+34
+],
+"officer director": [
+7,
+45
+],
+"foreign limited liability": [
+7,
+14,
+34
+],
+"each foreign statutory": [
+7,
+34
+],
+"document filed": [
+7,
+12,
+26
+],
+"certificate filed pursuant": [
+7,
+34
+],
+"form prescribed": [
+7,
+34
+],
+"last provided": [
+7,
+34
+],
+"affected thereby": [
+7,
+25,
+34
+],
+"office identical": [
+7,
+34
+],
+"statutory trust fails": [
+7,
+34
+],
+"certificate shall contain": [
+7,
+34
+],
+"successor registered agent": [
+7,
+34
+],
+"state after": [
+7,
+34
+],
+"days prior": [
+7,
+34
+],
+"further action": [
+7,
+15,
+25,
+34
+],
+"domestic partnership": [
 7,
 34
 ],
@@ -6658,34 +1716,92 @@
 34,
 40
 ],
-"statutory trust affected": [
+"become effective": [
 7,
-34
-],
-"each affected": [
-7,
-34
-],
-"public": [
-7,
-12,
-13,
-14,
-34
-],
-"division shall each": [
-7,
-34
-],
-"resulting": [
-7,
-10,
 15,
-21,
+20,
+22,
 23,
 25,
+34
+],
+"aforesaid service": [
+7,
+34
+],
+"days after": [
+7,
 34,
-45
+49
+],
+"agent shall become": [
+7,
+34
+],
+"trust fails": [
+7,
+34
+],
+"agent pursuant": [
+7,
+34
+],
+"another address": [
+7,
+34
+],
+"days following": [
+7,
+25
+],
+"registered agent business": [
+7,
+34
+],
+"certificate shall become": [
+7,
+34
+],
+"business pursuant": [
+7,
+34
+],
+"each statutory trust": [
+7,
+13,
+14,
+42
+],
+"least trustee": [
+7,
+25
+],
+"limited partnership": [
+7,
+14,
+22,
+34
+],
+"within days following": [
+7,
+25
+],
+"state after receipt": [
+7,
+34
+],
+"registered agent thereof": [
+7,
+34
+],
+"successor registered": [
+7,
+34
+],
+"general including": [
+7,
+22,
+34
 ],
 "accept service": [
 7,
@@ -6694,11 +1810,147 @@
 23,
 36
 ],
-"least days prior": [
+"agent into another": [
 7,
 34
 ],
-"acting shall thereafter": [
+"individual resident": [
+7,
+34
+],
+"affected foreign": [
+7,
+34
+],
+"manner aforesaid service": [
+7,
+34
+],
+"each affected": [
+7,
+34
+],
+"until days": [
+7,
+34
+],
+"statutory trust affected": [
+7,
+34
+],
+"domestic corporation": [
+7,
+34
+],
+"delaware filing": [
+7,
+34
+],
+"statutory trust pursuant": [
+7,
+20,
+22,
+25
+],
+"resulting person": [
+7,
+10,
+15,
+34,
+45
+],
+"more statutory": [
+7,
+15,
+25
+],
+"deemed public": [
+7,
+34
+],
+"information last provided": [
+7,
+34
+],
+"agent setting forth": [
+7,
+34
+],
+"company registered": [
+7,
+14
+],
+"further certifying": [
+7,
+34
+],
+"written notice": [
+7,
+34,
+49
+],
+"agent filing": [
+7,
+34
+],
+"agent business": [
+7,
+34
+],
+"business office identical": [
+7,
+34
+],
+"resulting person succeeds": [
+7,
+34
+],
+"agent including": [
+7,
+11
+],
+"legal process against": [
+7,
+34
+],
+"registered agent pursuant": [
+7,
+34
+],
+"effective until days": [
+7,
+34
+],
+"respect thereto": [
+7,
+24,
+34
+],
+"agent business pursuant": [
+7,
+34
+],
+"further change": [
+7,
+34
+],
+"without appointing": [
+7,
+34
+],
+"filed pursuant": [
+7,
+34
+],
+"partnership limited": [
+7,
+14
+],
+"after january": [
+7,
+12
+],
+"trust affected thereby": [
 7,
 34
 ],
@@ -6706,7 +1958,101 @@
 7,
 10
 ],
-"until further": [
+"liability limited partnership": [
+7,
+22,
+34
+],
+"time within": [
+7,
+46
+],
+"certificate executed": [
+7,
+10,
+34,
+35
+],
+"more statutory trusts": [
+7,
+15,
+25
+],
+"approving such change": [
+7,
+34
+],
+"trustees meeting": [
+7,
+10
+],
+"agent related": [
+7,
+34
+],
+"filing deliver": [
+7,
+34
+],
+"address specified": [
+7,
+15,
+21,
+23
+],
+"limited liability limited": [
+7,
+22,
+34
+],
+"acting shall thereafter": [
+7,
+34
+],
+"each statutory": [
+7,
+13,
+14,
+42
+],
+"registered agent filing": [
+7,
+34
+],
+"registered agent related": [
+7,
+34
+],
+"certificate shall include": [
+7,
+34
+],
+"each foreign": [
+7,
+34
+],
+"liability partnership": [
+7,
+22,
+34
+],
+"trust affected": [
+7,
+34
+],
+"agent setting": [
+7,
+34
+],
+"statutory trust ratifying": [
+7,
+34
+],
+"delivering such notice": [
+7,
+34
+],
+"trust such information": [
 7,
 34
 ],
@@ -6720,16 +2066,105 @@
 23,
 25
 ],
-"identical": [
+"make such orders": [
 7,
-28,
+24
+],
+"manner aforesaid": [
+7,
 34
 ],
-"agent related": [
+"least days": [
+7,
+34,
+40
+],
+"include such information": [
 7,
 34
 ],
-"domestic partnership": [
+"agent before": [
+7,
+34
+],
+"least days prior": [
+7,
+34
+],
+"business office": [
+7,
+34
+],
+"domestic partnership whether": [
+7,
+34
+],
+"resign without": [
+7,
+34
+],
+"within days after": [
+7,
+49
+],
+"agent thereof": [
+7,
+34,
+38
+],
+"registered agent setting": [
+7,
+34
+],
+"registered agent before": [
+7,
+34
+],
+"identified resulting person": [
+7,
+34
+],
+"identified resulting": [
+7,
+34
+],
+"whether general including": [
+7,
+22,
+34
+],
+"affected foreign statutory": [
+7,
+34
+],
+"state upon request": [
+7,
+13
+],
+"business address": [
+7,
+25
+],
+"deems appropriate": [
+7,
+12
+],
+"until further": [
+7,
+34
+],
+"immediately prior": [
+7,
+20,
+22
+],
+"effective until": [
+7,
+13,
+34,
+42
+],
+"communications contact": [
 7,
 34
 ],
@@ -6742,7 +2177,12 @@
 24,
 42
 ],
-"office identical": [
+"information regarding": [
+7,
+19,
+34
+],
+"resigned registered": [
 7,
 34
 ],
@@ -6750,114 +2190,84 @@
 7,
 40
 ],
-"agent pursuant": [
+"statement that written": [
 7,
 34
 ],
-"identified resulting person": [
+"future effective date": [
 7,
-34
-],
-"attached": [
-7,
+10,
+15,
 20,
 21,
 22,
 23,
-25,
-26,
-32,
-34
-],
-"form prescribed": [
-7,
-34
-],
-"until further change": [
-7,
-34
-],
-"trust affected thereby": [
-7,
-34
-],
-"thereafter": [
-7,
-15,
-20,
-22,
-34
-],
-"further action": [
-7,
-15,
-25,
-34
-],
-"business office": [
-7,
-34
-],
-"liability limited": [
-7,
-22,
-34
-],
-"domestic partnership whether": [
-7,
-34
-],
-"certificate shall become": [
-7,
-34
-],
-"business pursuant": [
-7,
-34
-],
-"domestic corporation": [
-7,
-34
-],
-"resign without": [
-7,
-34
-],
-"respect thereto": [
-7,
-24,
-34
-],
-"limited including": [
-7,
-22,
-34
-],
-"effective until days": [
-7,
-34
-],
-"completion": [
-8,
-10
-],
-"continued": [
-8,
-10,
 25
 ],
-"cancellation": [
-8,
-10,
-11,
-12,
+"statutory trust whose": [
+7,
 13,
-14,
 15,
+21,
+23,
 24,
-25,
-36,
 42
+],
+"after receipt": [
+7,
+34
+],
+"each such statutory": [
+7,
+15
+],
+"resign without appointing": [
+7,
+34
+],
+"foreign corporation": [
+7,
+14,
+34
+],
+"person succeeds": [
+7,
+34
+],
+"setting forth": [
+7,
+15,
+32,
+34,
+40,
+41,
+51
+],
+"foreign statutory trusts": [
+7,
+30,
+34,
+38,
+39,
+40,
+41
+],
+"foreign limited": [
+7,
+14,
+34
+],
+"incapacity dissolution": [
+8,
+11
+],
+"trust does": [
+8,
+25
+],
+"incapacity dissolution termination": [
+8,
+11
 ],
 "termination": [
 8,
@@ -6869,44 +2279,9 @@
 25,
 47
 ],
-"terminated": [
-8,
-10,
-12,
-15,
-25
-],
 "trust unless": [
 8,
 15
-],
-"statutory trust unless": [
-8,
-15
-],
-"incapacity": [
-8,
-11
-],
-"effecting": [
-8,
-25
-],
-"dissolution termination": [
-8,
-11
-],
-"trust does": [
-8,
-25
-],
-"prosecute": [
-8,
-10
-],
-"prohibits": [
-8,
-25
 ],
 "accordance with subsection": [
 8,
@@ -6918,99 +2293,45 @@
 32,
 41
 ],
-"incapacity dissolution": [
+"dissolution termination": [
 8,
 11
 ],
-"winding": [
+"statutory trust unless": [
 8,
-10
-],
-"completed": [
-8,
-13
-],
-"incapacity dissolution termination": [
-8,
-11
-],
-"therefor": [
-8,
-10,
-22,
-25,
-52
-],
-"distribute": [
-8,
-15,
-20,
-21,
-22,
-23,
-25
-],
-"insufficient": [
-8,
-16
-],
-"responsible": [
-8,
-50
-],
-"bankruptcy": [
-8,
-11
+15
 ],
 "statutory trust within": [
 8,
 45,
 52
 ],
-"time certain": [
+"certificate shall provide": [
 10,
 20,
-21,
 22,
-23,
 25
 ],
-"substantial": [
+"surviving statutory": [
 10,
-45
-],
-"dividing": [
-10,
-25
-],
-"whenever": [
-10,
-15,
-26,
-41
-],
-"settlement": [
-10,
-16
-],
-"amendment thereto": [
-10,
-25
-],
-"receivers": [
-10,
-24
+15
 ],
 "later date": [
 10,
 12
 ],
-"originally": [
+"amendment thereto": [
 10,
-21,
-22,
-23,
 25
+],
+"information required": [
+10,
+15,
+52
+],
+"trust shall continue": [
+10,
+23
 ],
 "original certificate": [
 10,
@@ -7020,110 +2341,9 @@
 23,
 25
 ],
-"surviving": [
-10,
-15,
-25,
-45
-],
-"state prior": [
-10,
-12
-],
-"trustees determine": [
-10,
-47
-],
-"surviving statutory": [
-10,
-15
-],
-"continue": [
-10,
-15,
-21,
-23
-],
-"corrected": [
-10,
-11,
-12,
-13
-],
-"determines": [
-10,
-25
-],
-"surviving statutory trust": [
-10,
-15
-],
-"false when made": [
-10,
-25,
-35
-],
-"information required": [
-10,
-15,
-52
-],
-"documents under chapter": [
-10,
-33
-],
-"described": [
-10,
-13,
-19,
-23,
-35,
-45,
-49
-],
-"becomes aware": [
-10,
-25
-],
 "trust shall file": [
 10,
 25
-],
-"certificate authorized": [
-10,
-12
-],
-"specify": [
-10,
-21,
-23,
-25
-],
-"filing date": [
-10,
-32
-],
-"promptly file": [
-10,
-35
-],
-"cancelled": [
-10,
-14,
-15,
-20,
-21,
-22,
-23
-],
-"initial": [
-10,
-14
-],
-"delaware entity": [
-10,
-12,
-21
 ],
 "corrected certificate": [
 10,
@@ -7131,67 +2351,48 @@
 12,
 13
 ],
+"false when made": [
+10,
+25,
+35
+],
+"surviving statutory trust": [
+10,
+15
+],
+"certificate authorized": [
+10,
+12
+],
+"becomes aware": [
+10,
+25
+],
 "include therein": [
 10,
 25
 ],
-"certificate shall provide": [
+"trustees determine": [
 10,
-20,
-22,
-25
+47
 ],
-"changed making": [
+"delaware entity": [
+10,
+12,
+21
+],
+"promptly file": [
 10,
 35
-],
-"correction": [
-10,
-11,
-12,
-13
-],
-"restated": [
-10,
-11,
-12,
-13
-],
-"original": [
-10,
-12,
-14,
-15,
-21,
-23,
-25,
-33
-],
-"unnecessary": [
-10,
-33
-],
-"trust shall continue": [
-10,
-23
-],
-"state shall make": [
-10,
-33
 ],
 "good standing": [
 10,
 13,
 25
 ],
-"belonging": [
+"state shall make": [
 10,
-15,
-20,
-21,
-22,
-23,
-25
+33
 ],
 "restated certificate": [
 10,
@@ -7199,14 +2400,41 @@
 12,
 13
 ],
-"trust domestication": [
+"restatement": [
+10
+],
+"changed making": [
+10,
+35
+],
+"time certain": [
+10,
+20,
+21,
+22,
+23,
+25
+],
+"state prior": [
+10,
+12
+],
+"filing date": [
+10,
+32
+],
+"documents under chapter": [
+10,
+33
+],
+"authorized pursuant": [
+11,
+42
+],
+"statutory trust domestication": [
 11,
 12,
 13,
-22
-],
-"united states entity": [
-11,
 22
 ],
 "each certificate": [
@@ -7215,18 +2443,9 @@
 13,
 25
 ],
-"statutory trust domestication": [
+"states entity": [
 11,
-12,
-13,
 22
-],
-"domestication": [
-11,
-12,
-13,
-22,
-23
 ],
 "becomes effective": [
 11,
@@ -7235,89 +2454,32 @@
 22,
 23
 ],
-"authorization": [
-11,
-20,
-22
-],
-"authorized pursuant": [
-11,
-42
-],
-"states entity": [
+"united states entity": [
 11,
 22
 ],
-"enforceability": [
+"trust domestication": [
 11,
-25,
-28
-],
-"actual fraud": [
-12,
-33
-],
-"facsimile": [
-12,
-26
-],
-"endorsed": [
-12,
-33
-],
-"certify": [
-12,
-33
-],
-"effective time": [
-12,
-15,
-25
-],
-"filing this endorsement": [
-12,
-33
-],
-"prepare": [
-12,
-33
-],
-"processing": [
-12,
-26
-],
-"signature": [
-12,
-15,
-26,
-40,
-41
-],
-"conclusive": [
-12,
-33
-],
-"judicial": [
-12,
-24,
-26,
-29,
-43,
-52
-],
-"endorsement": [
-12,
-33
-],
-"certified": [
 12,
 13,
-21,
+22
+],
+"person formed": [
+12,
+22,
 23
 ],
-"endorsing": [
+"word filed": [
 12,
 33
+],
+"similarly endorsed": [
+12,
+33
+],
+"after august": [
+12,
+25
 ],
 "actual fraud file": [
 12,
@@ -7327,22 +2489,14 @@
 12,
 33
 ],
-"actual": [
+"actual fraud": [
 12,
 33
 ],
-"similarly endorsed": [
+"state finds": [
 12,
+14,
 33
-],
-"evidence": [
-12,
-21,
-23
-],
-"after august": [
-12,
-25
 ],
 "state deems": [
 12,
@@ -7352,26 +2506,7 @@
 40,
 41
 ],
-"conformed": [
-12,
-14,
-26
-],
-"state finds": [
-12,
-14,
-33
-],
-"word filed": [
-12,
-33
-],
-"absence": [
-12,
-17,
-33
-],
-"similarly": [
+"filing this endorsement": [
 12,
 33
 ],
@@ -7379,54 +2514,12 @@
 12,
 33
 ],
-"august": [
+"effective time": [
 12,
-25,
-45
-],
-"person formed": [
-12,
-22,
-23
-],
-"system": [
-12,
-26,
-47
-],
-"each such certificate": [
-13,
-20,
-22,
+15,
 25
 ],
 "trust whose registered": [
-13,
-42
-],
-"state including": [
-13,
-41
-],
-"requested": [
-13,
-51
-],
-"payable": [
-13,
-16
-],
-"papers": [
-13,
-15,
-40,
-41
-],
-"whose registered": [
-13,
-42
-],
-"whose registered agent": [
 13,
 42
 ],
@@ -7438,145 +2531,45 @@
 13,
 24
 ],
-"filings": [
+"whose registered agent": [
 13,
+42
+],
+"state including": [
+13,
+41
+],
+"whose registered": [
+13,
+42
+],
+"each such certificate": [
+13,
+20,
+22,
 25
 ],
 "accepting service": [
 13,
 42
 ],
-"freedom": [
-13,
-28
-],
 "following fees": [
 13,
 42
 ],
-"reservation": [
-13,
-14,
-27
-],
-"renewal": [
-13,
-14
-],
-"collected": [
-13,
-42
-],
-"period": [
-13,
-14,
-15,
-19,
-25,
-34,
-40,
-41,
-50,
-52
-],
-"accepting": [
-13,
-42
-],
-"trust limited": [
+"foreign corporation partnership": [
 14,
 34
 ],
-"state provided however": [
+"partnership statutory": [
 14,
-41
-],
-"cancellation executed": [
-14,
-36
+34
 ],
 "statutory trust registered": [
 14,
 47
 ],
-"context": [
-14,
-26
-],
-"partnership which written": [
-14,
-34
-],
-"distinguish": [
-14,
-34
-],
-"practice": [
-14,
-41
-],
-"another statutory trust": [
-14,
-20,
-21
-],
-"prevent": [
-14,
-37
-],
-"specifying": [
-14,
-15
-],
-"domestic statutory trust": [
-14,
-22,
-34,
-43
-],
-"like import": [
-14,
-41
-],
-"insurance": [
-14,
-43
-],
-"duplicate": [
-14,
-15,
-40,
-41
-],
-"proposes": [
-14,
-32,
-45,
-48,
-49
-],
-"corporation partnership": [
-14,
-34
-],
-"another statutory": [
-14,
-20,
-21
-],
-"foreign limited partnership": [
-14,
-34
-],
-"subsidiary": [
-14,
-45
-],
-"statutory trust limited": [
-14,
-34
-],
-"federal": [
+"state provided": [
 14,
 41
 ],
@@ -7584,31 +2577,11 @@
 14,
 34
 ],
-"registered formed": [
+"corporation partnership": [
 14,
 34
 ],
-"partnership statutory trust": [
-14,
-34
-],
-"foreign corporation partnership": [
-14,
-34
-],
-"state provided": [
-14,
-41
-],
-"partnership statutory": [
-14,
-34
-],
-"trust registered": [
-14,
-47
-],
-"registered series": [
+"foreign limited partnership": [
 14,
 34
 ],
@@ -7617,74 +2590,61 @@
 23,
 34
 ],
-"import": [
+"partnership statutory trust": [
+14,
+34
+],
+"like import": [
 14,
 41
 ],
-"state deems necessary": [
-15,
-21,
-23,
-40,
-41
+"registered series": [
+14,
+34
 ],
-"action belonging": [
-15,
+"another statutory trust": [
+14,
 20,
-21,
+21
+],
+"statutory trust limited": [
+14,
+34
+],
+"domestic statutory trust": [
+14,
 22,
-23,
-25
-],
-"foregoing sentence": [
-15,
-25
-],
-"courier": [
-15,
-40,
-41
-],
-"converted": [
-15,
-20,
-21,
-22,
-23,
-25
-],
-"furnish": [
-15,
-21,
-23,
+34,
 43
 ],
-"longer than years": [
-15,
-40,
+"state provided however": [
+14,
 41
 ],
-"july shall continue": [
-15,
-21,
-23
-],
-"notwithstanding prior approval": [
-15,
-25
-],
-"remain outstanding": [
-15,
+"another statutory": [
+14,
 20,
-21,
-22,
-23,
-25
+21
 ],
-"addresses": [
-15,
-21,
-23
+"trust limited": [
+14,
+34
+],
+"partnership which written": [
+14,
+34
+],
+"cancellation executed": [
+14,
+36
+],
+"trust registered": [
+14,
+47
+],
+"registered formed": [
+14,
+34
 ],
 "converted into cash": [
 15,
@@ -7694,81 +2654,22 @@
 23,
 25
 ],
-"process setting forth": [
-15,
-41
-],
-"service that includes": [
-15,
-40,
-41
-],
-"causes": [
-15,
-20,
-21,
-22,
-23,
-25,
-36
-],
-"state shall maintain": [
-15,
-40,
-41
-],
-"enclose": [
-15,
-40,
-41
-],
-"resulting trust": [
+"amended pursuant": [
 15,
 25
 ],
-"property real": [
+"action suit": [
 15,
-20,
 21,
-22,
 23,
+37,
+41
+],
+"notwithstanding prior approval": [
+15,
 25
 ],
-"delivery": [
-15,
-26,
-40,
-41,
-49,
-50
-],
-"enforced against": [
-15,
-20,
-21,
-22,
-23,
-25
-],
-"real property": [
-15,
-20,
-21,
-22,
-23,
-25
-],
-"addresses furnished": [
-15,
-21,
-23
-],
-"irrevocably": [
-15,
-21,
-23
-],
-"alphabetical": [
+"return date thereof": [
 15,
 40,
 41
@@ -7779,26 +2680,120 @@
 23,
 41
 ],
-"delivery evidenced": [
-15,
-40,
-41
-],
-"notwithstanding prior": [
+"prior approval": [
 15,
 25
 ],
-"real property vested": [
+"addresses furnished": [
+15,
+21,
+23
+],
+"resulting trust": [
+15,
+25
+],
+"unless otherwise agreed": [
 15,
 20,
 21,
 22,
 23
 ],
-"title docket number": [
+"longer than years": [
 15,
 40,
 41
+],
+"letter shall enclose": [
+15,
+40,
+41
+],
+"terms applies": [
+15,
+25
+],
+"state shall maintain": [
+15,
+40,
+41
+],
+"real property": [
+15,
+20,
+21,
+22,
+23,
+25
+],
+"recipient such letter": [
+15,
+40,
+41
+],
+"means provided": [
+15,
+20,
+25
+],
+"amendment contained": [
+15,
+25
+],
+"action belonging": [
+15,
+20,
+21,
+22,
+23,
+25
+],
+"docket number": [
+15,
+40,
+41
+],
+"preserved unimpaired": [
+15,
+20,
+21,
+22,
+23,
+25
+],
+"state that service": [
+15,
+40,
+41
+],
+"return date": [
+15,
+40,
+41
+],
+"date thereof": [
+15,
+40,
+41
+],
+"papers served": [
+15,
+40,
+41
+],
+"current percentage": [
+15,
+21,
+23,
+25
+],
+"otherwise agreed": [
+15,
+20,
+21,
+22,
+23
 ],
 "lieu thereof": [
 15,
@@ -7808,25 +2803,138 @@
 23,
 25
 ],
-"docket": [
+"property vested": [
+15,
+20,
+21,
+22,
+23
+],
+"whose original certificate": [
+15,
+21,
+23
+],
+"real property vested": [
+15,
+20,
+21,
+22,
+23
+],
+"remain outstanding": [
+15,
+20,
+21,
+22,
+23,
+25
+],
+"trust whose original": [
+15,
+21,
+23
+],
+"july shall continue": [
+15,
+21,
+23
+],
+"title docket number": [
 15,
 40,
 41
+],
+"notwithstanding prior": [
+15,
+25
+],
+"state shall notify": [
+15,
+21,
+23
+],
+"regulations with respect": [
+15,
+21,
+23,
+40,
+41
+],
+"delivery evidenced": [
+15,
+40,
+41
+],
+"require such statutory": [
+15,
+21,
+23,
+25
+],
+"effective notwithstanding": [
+15,
+25
+],
+"process setting": [
+15,
+41
+],
+"period longer": [
+15,
+40,
+41
+],
+"courier service": [
+15,
+40,
+41
+],
+"state deems necessary": [
+15,
+21,
+23,
+40,
+41
+],
+"retain such information": [
+15,
+40,
+41
+],
+"foregoing sentence": [
+15,
+25
 ],
 "trust made pursuant": [
 15,
 25
 ],
-"governed": [
+"entity unless otherwise": [
+15,
+22
+],
+"business entity formed": [
+15,
+20,
+23,
+25
+],
+"service that includes": [
+15,
+40,
+41
+],
+"proceeding shall furnish": [
 15,
 21,
-23,
-25,
-26,
-28,
-32
+23
 ],
-"unimpaired": [
+"without cost": [
+15,
+25
+],
+"property real": [
 15,
 20,
 21,
@@ -7842,254 +2950,44 @@
 23,
 25
 ],
-"preserved": [
-15,
-20,
-21,
-22,
-23,
-25
-],
-"amended pursuant": [
+"address thereof": [
 15,
 25
-],
-"process setting": [
-15,
-41
-],
-"unless otherwise agreed": [
-15,
-20,
-21,
-22,
-23
-],
-"property vested": [
-15,
-20,
-21,
-22,
-23
-],
-"privileges": [
-15,
-20,
-21,
-22,
-23,
-24,
-25,
-45
-],
-"state shall notify": [
-15,
-21,
-23
-],
-"impaired": [
-15,
-20,
-21,
-22,
-23,
-25
-],
-"amendment contained": [
-15,
-25
-],
-"retain such information": [
-15,
-40,
-41
-],
-"remain": [
-15,
-20,
-21,
-22,
-23,
-25,
-45
-],
-"revert": [
-15,
-20,
-21,
-22,
-23,
-25
-],
-"applies": [
-15,
-25,
-46
 ],
 "whose original": [
 15,
 21,
 23
 ],
-"return date": [
-15,
-40,
-41
-],
-"papers served": [
-15,
-40,
-41
-],
-"satisfied": [
-15,
-49
-],
-"action suit": [
-15,
-21,
-23,
-37,
-41
-],
-"entity unless": [
-15,
-22
-],
-"preserved unimpaired": [
-15,
-20,
-21,
-22,
-23,
-25
-],
-"recipient such letter": [
-15,
-40,
-41
-],
-"notify": [
-15,
-21,
-23,
-40,
-41
-],
-"effective notwithstanding": [
-15,
-25
-],
-"proceeding shall furnish": [
-15,
-21,
-23
-],
-"exchanged": [
-15,
-20,
-21,
-22,
-23,
-25
-],
 "trust made": [
 15,
 25
 ],
-"vested": [
-15,
-20,
-21,
-22,
-23,
-25
-],
-"letter shall enclose": [
+"title docket": [
 15,
 40,
 41
 ],
-"address thereof": [
-15,
-25
-],
-"deems necessary": [
+"constituent party": [
 15,
 21,
 23,
-40,
-41
-],
-"amendments": [
-15,
-19,
-27,
-35
-],
-"prior approval": [
-15,
 25
-],
-"terms applies": [
-15,
-25
-],
-"without cost": [
-15,
-25
-],
-"mailed": [
-15,
-21,
-23
-],
-"regulations with respect": [
-15,
-21,
-23,
-40,
-41
-],
-"return date thereof": [
-15,
-40,
-41
-],
-"agrees": [
-15,
-49
-],
-"otherwise agreed": [
-15,
-20,
-21,
-22,
-23
 ],
 "alphabetical record": [
 15,
 40,
 41
 ],
-"trust whose original": [
-15,
-21,
-23
-],
-"entity unless otherwise": [
+"entity unless": [
 15,
 22
 ],
-"docket number": [
+"together with copies": [
 15,
-40,
-41
-],
-"title docket": [
-15,
-40,
-41
+19,
+21,
+23
 ],
 "furnish together": [
 15,
@@ -8102,68 +3000,7 @@
 23,
 25
 ],
-"together with copies": [
-15,
-19,
-21,
-23
-],
-"constituent": [
-15,
-21,
-23,
-25
-],
-"period longer": [
-15,
-40,
-41
-],
-"whose original certificate": [
-15,
-21,
-23
-],
-"state that service": [
-15,
-40,
-41
-],
-"letter": [
-15,
-40,
-41
-],
-"current percentage": [
-15,
-21,
-23,
-25
-],
-"business entity formed": [
-15,
-20,
-23,
-25
-],
-"require such statutory": [
-15,
-21,
-23,
-25
-],
-"constituent party": [
-15,
-21,
-23,
-25
-],
-"courier service": [
-15,
-40,
-41
-],
-"enforced": [
+"enforced against": [
 15,
 20,
 21,
@@ -8171,83 +3008,94 @@
 23,
 25
 ],
-"means provided": [
+"process setting forth": [
 15,
-20,
-25
-],
-"date thereof": [
-15,
-40,
 41
 ],
-"things": [
+"deems necessary": [
 15,
-20,
 21,
-22,
 23,
-25
-],
-"adoption": [
-15,
-25
-],
-"longer": [
-15,
-25,
 40,
-41,
-52
-],
-"standards": [
-16,
-17,
-19
-],
-"restrictions": [
-16,
-17
-],
-"acquired": [
-18,
-43,
-45,
-46,
-47,
-49,
-50
-],
-"purchase": [
-18,
-45
-],
-"position": [
-19,
-51
-],
-"disclosure": [
-19,
-52
-],
-"capable": [
-19,
-26
-],
-"best interest": [
-19
+41
 ],
 "reasonably believe": [
 19,
 52
 ],
-"believe": [
-19,
-52
+"best interest": [
+19
 ],
-"accompanied": [
-19,
-51
+"certificates required": [
+20,
+22
+],
+"person incurred": [
+20,
+21,
+23,
+25
+],
+"document instrument agreement": [
+20,
+22
+],
+"entity incurred": [
+20,
+22
+],
+"entity shall remain": [
+20,
+22
+],
+"trust that complies": [
+20,
+22,
+25
+],
+"except that notwithstanding": [
+20,
+22
+],
+"domicile": [
+20
+],
+"authorization required": [
+20,
+22
+],
+"remain vested": [
+20,
+21,
+22,
+23,
+25
+],
+"chapter except": [
+20,
+22
+],
+"title then each": [
+20,
+22,
+25
+],
+"otherwise came": [
+20,
+22,
+23
+],
+"document instrument": [
+20,
+22
+],
+"first formed": [
+20,
+22
+],
+"complying with subsection": [
+20,
+22
 ],
 "trust shall thereafter": [
 20,
@@ -8260,15 +3108,44 @@
 23,
 25
 ],
-"entity shall remain": [
+"entity incurred prior": [
 20,
 22
 ],
-"chapter except": [
+"trust shall state": [
 20,
-22
+32
+],
+"converted shall remain": [
+20,
+21
+],
+"came into being": [
+20,
+22,
+23
+],
+"privileges powers": [
+20,
+21,
+22,
+23,
+25
 ],
 "entity immediately": [
+20,
+22
+],
+"entity commenced": [
+20,
+22
+],
+"filed simultaneously": [
+20,
+22,
+25
+],
+"instrument agreement": [
 20,
 22
 ],
@@ -8279,11 +3156,7 @@
 23,
 25
 ],
-"trust shall state": [
-20,
-32
-],
-"complying with subsection": [
+"entity immediately prior": [
 20,
 22
 ],
@@ -8293,198 +3166,60 @@
 23,
 25
 ],
-"entity incurred prior": [
-20,
-22
-],
-"entity immediately prior": [
-20,
-22
-],
-"converted shall remain": [
-20,
-21
-],
-"simultaneously": [
-20,
-22,
-25
-],
-"first formed": [
-20,
-22
-],
-"remain vested": [
-20,
-21,
-22,
-23,
-25
-],
-"except that notwithstanding": [
-20,
-22
-],
-"title then each": [
-20,
-22,
-25
-],
-"filed simultaneously": [
-20,
-22,
-25
-],
-"document instrument agreement": [
-20,
-22
-],
 "title each": [
 20,
 22
 ],
-"came into being": [
-20,
-22,
+"delaware pursuant": [
+21,
 23
 ],
-"certificates required": [
-20,
-22
+"facie evidence": [
+21,
+23
 ],
-"person incurred": [
-20,
+"fees prescribed": [
+21,
+23
+],
+"statutory trust incurred": [
+21,
+23
+],
+"trust incurred prior": [
 21,
 23,
 25
 ],
-"document instrument": [
-20,
-22
-],
-"continuation": [
-20,
-22
-],
-"privileges powers": [
-20,
-21,
-22,
-23,
-25
-],
-"otherwise came": [
-20,
-22,
-23
-],
-"instrument agreement": [
-20,
-22
-],
-"authorization required": [
-20,
-22
-],
-"convert": [
-20,
-21
-],
-"complying": [
-20,
-22
-],
-"entity commenced": [
-20,
-22
-],
-"trust that complies": [
-20,
-22,
-25
-],
-"entity incurred": [
-20,
-22
-],
-"instrument specifies": [
+"state under paragraph": [
 21,
 23
 ],
-"prima facie evidence": [
-21,
-23
-],
-"applicable except": [
-21,
-23
-],
-"prima facie": [
-21,
-23
-],
-"matters arising": [
+"consolidation that involves": [
 21,
 23,
 25
-],
-"prohibit": [
-21,
-23,
-25,
-26
-],
-"arising prior": [
-21,
-23,
-25
-],
-"choice": [
-21,
-22,
-23
-],
-"irrevocably appoints": [
-21,
-23
 ],
 "trust incurred": [
 21,
 23,
 25
 ],
-"cessation": [
-21,
-23,
-25
-],
-"resulting cessation": [
-21,
-23,
-25
-],
-"process referred": [
-21,
-23
-],
 "trust shall cease": [
 21,
 23,
 25
 ],
-"delaware pursuant": [
+"applicable except": [
 21,
 23
 ],
-"appoints": [
+"originally filed": [
 21,
-23
+23,
+25
 ],
-"governing instrument specifies": [
-21,
-23
-],
-"trust arising while": [
+"prima facie evidence": [
 21,
 23
 ],
@@ -8498,16 +3233,52 @@
 23,
 25
 ],
-"trust incurred prior": [
+"choice of law": [
+21,
+22,
+23
+],
+"matters arising prior": [
 21,
 23,
 25
 ],
-"facie evidence": [
+"governing instrument specifies": [
 21,
 23
 ],
-"fees prescribed": [
+"resulting cessation": [
+21,
+23,
+25
+],
+"trust arising while": [
+21,
+23
+],
+"instrument specifies": [
+21,
+23
+],
+"prima facie": [
+21,
+23
+],
+"matters arising": [
+21,
+23,
+25
+],
+"irrevocably appoints": [
+21,
+23
+],
+"arising prior": [
+21,
+23,
+25
+],
+"process referred": [
 21,
 23
 ],
@@ -8516,48 +3287,47 @@
 23,
 25
 ],
-"matters arising prior": [
-21,
-23,
-25
-],
-"procedures": [
-21,
-23,
-52
-],
-"originally filed": [
-21,
-23,
-25
-],
-"state under paragraph": [
-21,
+"trust continues": [
+22,
 23
 ],
-"statutory trust incurred": [
-21,
+"otherwise having": [
+22,
 23
 ],
-"specifies": [
-21,
-23,
-25
+"come into being": [
+22,
+23
 ],
-"consolidation that involves": [
-21,
-23,
-25
+"delaware including": [
+22,
+23
 ],
 "having come": [
 22,
 23
 ],
-"statutory trust continues": [
+"single person": [
 22,
 23
 ],
-"delaware including": [
+"delaware constitute": [
+22,
+23
+],
+"person formed incorporated": [
+22,
+23
+],
+"formed incorporated created": [
+22,
+23
+],
+"incorporated created": [
+22,
+23
+],
+"domesticated shall remain": [
 22,
 23
 ],
@@ -8566,31 +3336,11 @@
 23,
 27
 ],
-"delaware constitute": [
-22,
-23
-],
-"otherwise having": [
-22,
-23
-],
-"single person formed": [
-22,
-23
-],
-"equivalent": [
-22,
-26
-],
-"domesticated": [
-22,
-23
-],
 "formed incorporated": [
 22,
 23
 ],
-"formed incorporated created": [
+"statutory trust continues": [
 22,
 23
 ],
@@ -8598,167 +3348,51 @@
 22,
 23
 ],
-"single person": [
+"single person formed": [
 22,
 23
-],
-"come into being": [
-22,
-23
-],
-"trust continues": [
-22,
-23
-],
-"person formed incorporated": [
-22,
-23
-],
-"constituted": [
-22,
-41,
-47
-],
-"continues": [
-22,
-23
-],
-"domesticated shall remain": [
-22,
-23
-],
-"incorporated": [
-22,
-23
-],
-"incorporated created": [
-22,
-23
-],
-"title unless": [
-23,
-50
 ],
 "involves such statutory": [
 23,
 25
 ],
-"proceed": [
-24,
-38
-],
-"cancel": [
-24,
-36
-],
-"motion": [
-24,
-38
+"title unless": [
+23,
+50
 ],
 "attorney general": [
 24,
 38
 ],
-"jointly": [
-25,
-45
-],
-"account": [
-25,
-45
-],
-"year period": [
-25,
-50
-],
-"expiration": [
-25,
-34
-],
 "trust resulting": [
 25,
 45
-],
-"restricts": [
-25,
-26
-],
-"entered": [
-25,
-45,
-50
 ],
 "trust within days": [
 25,
 52
 ],
-"exists": [
+"year period": [
 25,
-32
-],
-"indirect": [
-25,
-45,
-52
-],
-"commerce": [
-26,
-43
-],
-"parties": [
-26,
-38
-],
-"between": [
-26,
-31
-],
-"itself": [
-26,
-34
-],
-"limiting": [
-26,
-41
-],
-"national": [
-26,
-45,
-47
-],
-"conducting": [
-26,
-43
-],
-"section even": [
-26,
-45
-],
-"effected pursuant": [
-26,
-40
-],
-"receiving": [
-26,
-52
-],
-"establishes": [
-26,
-32
+50
 ],
 "without limiting": [
 26,
 41
 ],
-"construction": [
-28,
-43
+"effected pursuant": [
+26,
+40
+],
+"section even": [
+26,
+45
 ],
 "solely because": [
 28,
 45
 ],
-"contact twitter help": [
+"assembly judicial": [
 29,
 43,
 52
@@ -8768,7 +3402,7 @@
 43,
 52
 ],
-"general assembly judicial": [
+"general assembly": [
 29,
 43,
 52
@@ -8778,42 +3412,12 @@
 43,
 52
 ],
-"general assembly": [
-29,
-43,
-52
-],
-"assembly judicial": [
-29,
-43,
-52
-],
-"assembly": [
-29,
-43,
-52
-],
-"delaware general assembly": [
-29,
-43,
-52
-],
-"executive": [
-29,
-43,
-52
-],
 "twitter help": [
 29,
 43,
 52
 ],
-"assembly judicial executive": [
-29,
-43,
-52
-],
-"executive contact twitter": [
+"contact twitter help": [
 29,
 43,
 52
@@ -8823,12 +3427,7 @@
 43,
 52
 ],
-"twitter": [
-29,
-43,
-52
-],
-"judicial executive contact": [
+"assembly judicial executive": [
 29,
 43,
 52
@@ -8838,13 +3437,25 @@
 43,
 52
 ],
-"state territory": [
-31,
-32
+"executive contact twitter": [
+29,
+43,
+52
 ],
-"territory": [
-31,
-32
+"general assembly judicial": [
+29,
+43,
+52
+],
+"judicial executive contact": [
+29,
+43,
+52
+],
+"delaware general assembly": [
+29,
+43,
+52
 ],
 "territory possession": [
 31,
@@ -8854,26 +3465,9 @@
 31,
 32
 ],
-"trust setting forth": [
-32,
-51
-],
-"different": [
-32,
-52
-],
-"statutory trust setting": [
-32,
-51
-],
-"authorized person": [
-32,
-35,
-36
-],
-"intends": [
-32,
-45
+"state territory": [
+31,
+32
 ],
 "trust setting": [
 32,
@@ -8886,19 +3480,32 @@
 41,
 43
 ],
-"offices": [
-34,
-43
+"statutory trust setting": [
+32,
+51
+],
+"authorized person": [
+32,
+35,
+36
+],
+"trust setting forth": [
+32,
+51
 ],
 "person together": [
 36,
 48
 ],
-"state without having": [
+"business without": [
+37,
+38
+],
+"state without": [
 37,
 41
 ],
-"doing business without": [
+"done business": [
 37,
 38
 ],
@@ -8906,56 +3513,24 @@
 37,
 41
 ],
+"doing business without": [
+37,
+38
+],
 "without having": [
 37,
 38,
 41
 ],
-"business without": [
-37,
-38
-],
-"defending": [
-37,
-43
-],
-"state without": [
-37,
-41
-],
-"failed": [
-37,
-38
-],
-"done business": [
-37,
-38
-],
 "without having registered": [
 37,
 41
 ],
-"representations": [
-38,
-48
-],
-"state shall forthwith": [
-40,
+"state without having": [
+37,
 41
 ],
 "years from receipt": [
-40,
-41
-],
-"days before": [
-40,
-49
-],
-"forthwith": [
-40,
-41
-],
-"letter directed": [
 40,
 41
 ],
@@ -8963,37 +3538,30 @@
 40,
 41
 ],
-"carrying": [
-41,
-43
+"letter directed": [
+40,
+41
 ],
-"course": [
-41,
-43,
-46
+"state shall forthwith": [
+40,
+41
+],
+"days before": [
+40,
+49
 ],
 "security interest": [
 43,
 45
 ],
-"acquiring": [
-43,
+"control beneficial interest": [
+44,
 45,
+46,
+47,
 48,
 49,
 50,
-51
-],
-"creating": [
-43,
-45
-],
-"consummated": [
-43,
-48
-],
-"interest acquisitions": [
-44,
 52
 ],
 "control beneficial": [
@@ -9007,115 +3575,24 @@
 51,
 52
 ],
-"control beneficial interest": [
-44,
-45,
-46,
-47,
-48,
-49,
-50,
-52
-],
 "beneficial interest acquisitions": [
 44,
 52
 ],
-"acquisitions": [
+"interest acquisitions": [
 44,
-52
-],
-"interest acquisition within": [
-45,
-52
-],
-"interests within": [
-45,
-46,
-52
-],
-"power with respect": [
-45,
-46
-],
-"acquiring person": [
-45,
-48,
-49,
-50,
-51
-],
-"associate": [
-45,
-50,
-52
-],
-"affiliates": [
-45,
-47
-],
-"securities exchange": [
-45,
-47
-],
-"beneficial interests acquired": [
-45,
-46,
-47,
-49,
-50
-],
-"beneficial interest acquisition": [
-45,
-46,
-47,
-48,
-49,
-50,
-52
-],
-"acquisition": [
-45,
-46,
-47,
-48,
-49,
-50,
-52
-],
-"circumventing": [
-45,
-46,
-47
-],
-"beneficial interests held": [
-45,
-46,
 52
 ],
 "national securities exchange": [
 45,
 47
 ],
-"interest acquisition": [
+"interests within": [
 45,
 46,
-47,
-48,
-49,
-50,
 52
 ],
-"instruction": [
-45,
-46
-],
-"holder": [
-45,
-47,
-52
-],
-"interested beneficial": [
+"interested beneficial interests": [
 45,
 47
 ],
@@ -9126,9 +3603,34 @@
 49,
 50
 ],
+"acquiring person": [
+45,
+48,
+49,
+50,
+51
+],
 "acquisition within": [
 45,
 52
+],
+"beneficial interest acquisition": [
+45,
+46,
+47,
+48,
+49,
+50,
+52
+],
+"beneficial interests held": [
+45,
+46,
+52
+],
+"national securities": [
+45,
+47
 ],
 "control beneficial interests": [
 45,
@@ -9137,7 +3639,46 @@
 51,
 52
 ],
-"circumventing this subchapter": [
+"securities exchange": [
+45,
+47
+],
+"interest acquisition within": [
+45,
+52
+],
+"interest acquisition": [
+45,
+46,
+47,
+48,
+49,
+50,
+52
+],
+"beneficial interests within": [
+45,
+46,
+52
+],
+"beneficial interests acquired": [
+45,
+46,
+47,
+49,
+50
+],
+"equity securities": [
+45,
+47
+],
+"voting power": [
+45,
+46,
+48,
+52
+],
+"interested beneficial": [
 45,
 47
 ],
@@ -9146,56 +3687,19 @@
 46,
 52
 ],
-"member": [
-45,
-48
-],
-"national securities": [
+"circumventing this subchapter": [
 45,
 47
 ],
-"holders": [
+"power with respect": [
 45,
-47,
-49,
-52
-],
-"voting power": [
-45,
-46,
-48,
-52
-],
-"regard": [
-45,
-47
-],
-"beneficial interests within": [
-45,
-46,
-52
-],
-"interested beneficial interests": [
-45,
-47
-],
-"equity securities": [
-45,
-47
-],
-"applied": [
-46,
-52
+46
 ],
 "meeting held": [
 46,
 47
 ],
-"exemption": [
-46,
-47
-],
-"interest acquisition presented": [
+"acquisition presented": [
 47,
 50
 ],
@@ -9203,44 +3707,11 @@
 47,
 52
 ],
-"consideration": [
-47,
-49,
-50
-],
-"associates": [
-47,
-52
-],
-"acquisition presented": [
+"interest acquisition presented": [
 47,
 50
-],
-"accorded": [
-47,
-49,
-50,
-51
-],
-"description": [
-48,
-52
 ],
 "acquiring person statement": [
-48,
-49,
-50,
-51
-],
-"financing": [
-48,
-50
-],
-"occurred": [
-48,
-52
-],
-"person statement": [
 48,
 49,
 50,
@@ -9250,7 +3721,8 @@
 48,
 50
 ],
-"special": [
+"person statement": [
+48,
 49,
 50,
 51
@@ -9258,10 +3730,6 @@
 "special meeting": [
 49,
 50,
-51
-],
-"annual": [
-49,
 51
 ],
 "proxy statement": [

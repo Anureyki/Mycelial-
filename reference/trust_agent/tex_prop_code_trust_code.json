@@ -3136,15 +3136,138 @@
 98,
 133
 ],
-"interested person": [
+"res": [
+2,
 3,
+4,
+5,
+8,
+9,
 14,
+15,
+16,
+19,
+20,
+21,
+22,
+23,
+24,
+25,
+28,
+29,
+30,
+31,
+32,
+33,
+34,
+35,
+36,
+37,
+41,
+46,
+47,
+48,
+49,
+51,
+52,
+53,
+55,
+56,
+59,
+64,
+68,
+71,
+75,
+76,
+77,
+80,
+81,
+82,
+83,
+84,
+85,
+86,
+88,
+92,
+93,
+94,
+95,
+96,
 98,
+99,
 100,
 101,
 104,
+106,
+108,
+109,
+110,
+112,
+113,
+114,
+115,
+116,
+117,
+120,
+124,
+125,
+127,
+128,
 129,
-131
+130,
+131,
+133,
+134,
+135,
+136,
+139,
+140,
+141,
+142,
+143,
+145,
+146,
+147,
+148,
+149,
+150,
+151,
+152,
+153,
+154,
+155,
+156,
+157,
+158,
+159,
+160,
+161,
+163,
+164,
+165,
+166,
+167,
+168,
+170,
+172,
+173,
+174,
+177,
+178,
+181
+],
+"constructive trust": [
+2,
+115
+],
+"resulting trust": [
+2
+],
+"more persons": [
+3,
+35,
+58,
+71
 ],
 "beneficiary means": [
 3,
@@ -3152,50 +3275,110 @@
 85,
 139
 ],
-"property held": [
+"another person": [
 3,
-18,
-34,
-84,
-139,
-167
-],
-"judicial proceedings": [
-3,
-30,
-165
-],
-"fiduciary relationship": [
-3,
-93,
-106
-],
-"each person": [
-3,
-98,
-146
-],
-"individual retirement account": [
-3,
-93,
-158
-],
-"trust including": [
-3,
+6,
+9,
+19,
+21,
+48,
 88,
-108,
-111,
-115
+93,
+163
 ],
 "profit sharing": [
 3,
 106,
 158
 ],
-"became subject": [
+"section internal": [
 3,
-160,
-161
+29,
+81,
+93,
+107,
+158
+],
+"beneficiary": [
+3,
+9,
+13,
+14,
+15,
+18,
+19,
+20,
+21,
+23,
+24,
+26,
+28,
+31,
+33,
+34,
+35,
+36,
+37,
+41,
+46,
+48,
+51,
+52,
+53,
+55,
+56,
+57,
+58,
+77,
+80,
+81,
+85,
+87,
+88,
+92,
+97,
+100,
+103,
+104,
+108,
+110,
+112,
+114,
+115,
+116,
+117,
+122,
+123,
+127,
+129,
+130,
+131,
+133,
+134,
+135,
+139,
+141,
+142,
+143,
+145,
+146,
+147,
+149,
+150,
+152,
+153,
+154,
+156,
+161,
+166,
+167,
+169,
+170,
+173,
+174,
+177,
+178,
+181
 ],
 "trust trustee": [
 3,
@@ -3213,6 +3396,233 @@
 49,
 50
 ],
+"individual retirement": [
+3,
+93,
+158
+],
+"testamentary trust": [
+3,
+31,
+34,
+130
+],
+"section internal revenue": [
+3,
+29,
+81,
+93,
+107,
+158
+],
+"benefit plan": [
+3,
+19,
+93
+],
+"individual retirement account": [
+3,
+93,
+158
+],
+"person holding": [
+3,
+21,
+110,
+127
+],
+"stock bonus": [
+3,
+106,
+158
+],
+"trust means": [
+3,
+32,
+34,
+89,
+139
+],
+"breach of trust": [
+3,
+41,
+100,
+108,
+109,
+113,
+114,
+115,
+116,
+118
+],
+"testamentary": [
+3,
+6,
+12,
+19,
+21,
+31,
+34,
+52,
+53,
+55,
+56,
+130
+],
+"trust including": [
+3,
+88,
+108,
+111,
+115
+],
+"trustee": [
+3,
+6,
+9,
+11,
+13,
+14,
+17,
+18,
+19,
+20,
+21,
+25,
+26,
+28,
+29,
+30,
+31,
+32,
+33,
+34,
+35,
+36,
+37,
+38,
+41,
+42,
+43,
+44,
+45,
+46,
+47,
+48,
+49,
+50,
+52,
+56,
+58,
+60,
+61,
+62,
+63,
+64,
+65,
+66,
+67,
+68,
+69,
+70,
+71,
+72,
+73,
+74,
+75,
+76,
+77,
+78,
+79,
+80,
+81,
+82,
+84,
+85,
+86,
+87,
+88,
+89,
+90,
+91,
+92,
+93,
+94,
+95,
+96,
+97,
+98,
+99,
+100,
+101,
+102,
+103,
+104,
+105,
+108,
+109,
+110,
+111,
+112,
+113,
+114,
+115,
+116,
+117,
+118,
+119,
+120,
+122,
+123,
+124,
+125,
+126,
+127,
+128,
+129,
+130,
+131,
+133,
+135,
+139,
+141,
+142,
+143,
+145,
+147,
+148,
+149,
+150,
+151,
+152,
+153,
+154,
+155,
+156,
+157,
+158,
+159,
+160,
+161,
+162,
+163,
+164,
+165,
+166,
+167,
+168,
+169,
+173,
+174,
+175,
+176,
+177,
+178,
+179,
+180,
+181,
+182
+],
 "market value": [
 3,
 97,
@@ -3224,26 +3634,173 @@
 34,
 139
 ],
-"person holding": [
+"trustee means": [
+3,
+34,
+130
+],
+"interested person": [
+3,
+14,
+98,
+100,
+101,
+104,
+129,
+131
+],
+"successor trustee": [
+3,
+100,
+101,
+102,
+109
+],
+"judicial proceedings": [
+3,
+30,
+165
+],
+"settlor": [
+3,
+7,
+9,
+12,
+13,
+14,
+19,
+20,
+21,
+22,
+23,
+25,
+27,
+28,
+30,
+32,
+34,
+37,
+40,
+49,
+52,
+56,
+59,
+81,
+85,
+88,
+89,
+93,
+97,
+103,
+108,
+114,
+120,
+127,
+130,
+139,
+142,
+149,
+163
+],
+"ilit": [
+3,
+14,
+31,
+32,
+46,
+48,
+54,
+55,
+57,
+71,
+83,
+98,
+105,
+108,
+109,
+112,
+113,
+114,
+115,
+116,
+117,
+119,
+122,
+124,
+125,
+126,
+127,
+129,
+134,
+145,
+150
+],
+"venue": [
 3,
 21,
-110,
-127
+29,
+32,
+49,
+81,
+85,
+88,
+93,
+107,
+130,
+144,
+158,
+160
 ],
-"individual retirement": [
+"fiduciary relationship": [
 3,
 93,
-158
+106
 ],
-"more persons": [
+"became subject": [
 3,
-35,
-58,
-71
+160,
+161
 ],
-"person entitled": [
+"each person": [
 3,
-37,
+98,
+146
+],
+"revenue code": [
+3,
+21,
+29,
+49,
+81,
+85,
+88,
+93,
+107,
+144,
+158,
+160
+],
+"internal revenue code": [
+3,
+21,
+29,
+49,
+81,
+85,
+88,
+93,
+107,
+144,
+158,
+160
+],
+"section definitions": [
+3,
+34,
+85,
+89,
+90,
+110,
 139
 ],
 "retirement account": [
@@ -3251,24 +3808,23 @@
 93,
 158
 ],
-"section internal": [
+"accounting": [
 3,
-29,
-81,
-93,
-107,
-158
-],
-"another person": [
-3,
-6,
-9,
-19,
-21,
-48,
-88,
-93,
-163
+100,
+104,
+105,
+129,
+139,
+144,
+152,
+153,
+158,
+161,
+162,
+164,
+165,
+167,
+168
 ],
 "trust property": [
 3,
@@ -3307,6 +3863,49 @@
 127,
 165
 ],
+"property held": [
+3,
+18,
+34,
+84,
+139,
+167
+],
+"person entitled": [
+3,
+37,
+139
+],
+"termination": [
+3,
+26,
+27,
+28,
+32,
+33,
+50,
+51,
+85,
+86,
+98,
+110,
+129,
+141,
+143,
+145,
+146,
+148,
+158,
+165,
+166
+],
+"personal representative": [
+3,
+21,
+52,
+120,
+139
+],
 "internal revenue": [
 3,
 21,
@@ -3322,102 +3921,11 @@
 158,
 160
 ],
-"personal representative": [
+"funded": [
 3,
-21,
-52,
-120,
-139
+31
 ],
-"section internal revenue": [
-3,
-29,
-81,
-93,
-107,
-158
-],
-"trustee means": [
-3,
-34,
-130
-],
-"benefit plan": [
-3,
-19,
-93
-],
-"revenue code": [
-3,
-21,
-29,
-49,
-81,
-85,
-88,
-93,
-107,
-144,
-158,
-160
-],
-"section definitions": [
-3,
-34,
-85,
-89,
-90,
-110,
-139
-],
-"internal revenue code": [
-3,
-21,
-29,
-49,
-81,
-85,
-88,
-93,
-107,
-144,
-158,
-160
-],
-"testamentary trust": [
-3,
-31,
-34,
-130
-],
-"stock bonus": [
-3,
-106,
-158
-],
-"successor trustee": [
-3,
-100,
-101,
-102,
-109
-],
-"trust means": [
-3,
-32,
-34,
-89,
-139
-],
-"before january": [
-5,
-29,
-97,
-159,
-160,
-161
-],
-"created before january": [
+"created before": [
 5,
 29,
 97
@@ -3428,10 +3936,18 @@
 160,
 161
 ],
-"created before": [
+"created before january": [
 5,
 29,
 97
+],
+"before january": [
+5,
+29,
+97,
+159,
+160,
+161
 ],
 "inter vivos": [
 6,
@@ -3455,11 +3971,6 @@
 112,
 117
 ],
-"reasonable time": [
-14,
-162,
-176
-],
 "trustee does": [
 14,
 43,
@@ -3472,6 +3983,11 @@
 14,
 59,
 114
+],
+"reasonable time": [
+14,
+162,
+176
 ],
 "texas uniform": [
 15,
@@ -3526,6 +4042,11 @@
 21,
 143
 ],
+"estates code": [
+20,
+90,
+129
+],
 "trust terminates": [
 20,
 23,
@@ -3533,39 +4054,83 @@
 34,
 139
 ],
-"estates code": [
-20,
-90,
-129
-],
 "spendthrift trust": [
 20,
 21,
 28
 ],
-"third party": [
+"spendthrift": [
+20,
 21,
-77,
-145,
-147,
-168
+28,
+47,
+116
+],
+"legal title": [
+20
+],
+"trust income": [
+21,
+33,
+142
 ],
 "ascertainable standard": [
 21,
 34,
 88
 ],
-"trust after": [
-21,
-31,
-43,
-145,
-160
-],
 "general power": [
 21,
 133,
 145
+],
+"beneficial interest": [
+21
+],
+"presently exercisable": [
+21,
+133,
+145
+],
+"education support": [
+21,
+34,
+88
+],
+"revocable": [
+21,
+22,
+23,
+25,
+34,
+51,
+52,
+103
+],
+"meaning assigned": [
+21,
+85,
+89,
+90,
+110,
+139
+],
+"health education": [
+21,
+34,
+88
+],
+"trust under section": [
+21,
+29,
+34,
+45,
+47,
+48,
+49,
+50,
+128,
+129
 ],
 "trust estate": [
 21,
@@ -3581,55 +4146,36 @@
 135,
 144
 ],
-"health education": [
+"third party": [
 21,
-34,
-88
+77,
+145,
+147,
+168
 ],
-"education support": [
+"trust after": [
 21,
+31,
+43,
+145,
+160
+],
+"irrevocable": [
+21,
+22,
+23,
+25,
 34,
-88
+103
 ],
 "health education support": [
 21,
 34,
 88
 ],
-"presently exercisable": [
-21,
-133,
-145
-],
-"meaning assigned": [
-21,
-85,
-89,
-90,
-110,
-139
-],
-"trust under section": [
-21,
-29,
-34,
-45,
-47,
-48,
-49,
-50,
-128,
-129
-],
-"trust income": [
-21,
-33,
-142
-],
-"trust becomes": [
+"rule against perpetuities": [
 22,
-23,
-85
+23
 ],
 "governing instrument": [
 22,
@@ -3640,11 +4186,10 @@
 77,
 93
 ],
-"effective date": [
+"trust becomes": [
 22,
-31,
-41,
-128
+23,
+85
 ],
 "second trust": [
 22,
@@ -3664,6 +4209,12 @@
 48,
 49,
 50
+],
+"effective date": [
+22,
+31,
+41,
+128
 ],
 "charitable trust": [
 22,
@@ -3704,13 +4255,6 @@
 127,
 128
 ],
-"written instrument": [
-25,
-31,
-38,
-77,
-117
-],
 "trust unless": [
 25,
 48,
@@ -3720,15 +4264,28 @@
 175,
 182
 ],
+"written instrument": [
+25,
+31,
+38,
+77,
+117
+],
 "express terms": [
 25,
 52,
 56
 ],
-"make distributions": [
-29,
-37,
-86
+"modification": [
+25,
+28,
+110
+],
+"material purpose": [
+28
+],
+"judicial modification": [
+28
 ],
 "section applies": [
 29,
@@ -3736,6 +4293,14 @@
 85,
 114,
 146
+],
+"make distributions": [
+29,
+37,
+86
+],
+"self-dealing": [
+29
 ],
 "charitable trusts": [
 29,
@@ -3751,6 +4316,19 @@
 89,
 131,
 135
+],
+"each beneficiary": [
+31,
+87,
+104,
+135,
+146
+],
+"receive distributions": [
+31,
+81,
+97,
+164
 ],
 "trustee shall allocate": [
 31,
@@ -3768,6 +4346,19 @@
 163,
 164
 ],
+"property received": [
+31,
+55,
+150,
+153
+],
+"manner provided": [
+31,
+134,
+159,
+160,
+161
+],
 "written notice": [
 31,
 37,
@@ -3781,12 +4372,11 @@
 41,
 135
 ],
-"each beneficiary": [
+"real estate": [
 31,
-87,
-104,
-135,
-146
+81,
+89,
+150
 ],
 "judicial proceeding": [
 31,
@@ -3794,40 +4384,25 @@
 127,
 139
 ],
-"real estate": [
-31,
-81,
-89,
-150
-],
 "trust will": [
 31,
 32,
 143
-],
-"receive distributions": [
-31,
-81,
-97,
-164
-],
-"manner provided": [
-31,
-134,
-159,
-160,
-161
 ],
 "writing delivered": [
 31,
 97,
 108
 ],
-"property received": [
-31,
-55,
-150,
-153
+"subsection does": [
+32,
+84,
+88
+],
+"reasonable diligence": [
+32,
+37,
+136
 ],
 "trust funds": [
 32,
@@ -3841,16 +4416,6 @@
 116,
 126,
 182
-],
-"reasonable diligence": [
-32,
-37,
-136
-],
-"subsection does": [
-32,
-84,
-88
 ],
 "trust fund": [
 32,
@@ -3874,6 +4439,11 @@
 178,
 179
 ],
+"notice to beneficiaries": [
+33,
+133,
+135
+],
 "section does": [
 33,
 41,
@@ -3891,33 +4461,30 @@
 155,
 156
 ],
-"more beneficiaries": [
+"presumptive remainder": [
 34,
-143,
-178
+35,
+36,
+37
 ],
-"section distribution": [
+"term does": [
 34,
-37,
-38,
-41,
-42,
-45,
-46,
-47,
-48,
-49,
-50,
-145,
-150
+149,
+159,
+164
 ],
-"limited discretion": [
+"current beneficiaries": [
+34,
+35,
+36,
+37
+],
+"trustee with limited": [
 34,
 36,
 37,
 38,
 41,
-42,
 45,
 46,
 47,
@@ -3941,18 +4508,6 @@
 48,
 49,
 50
-],
-"current beneficiaries": [
-34,
-35,
-36,
-37
-],
-"distribution under section": [
-34,
-37,
-38,
-41
 ],
 "trustee with full": [
 34,
@@ -3982,15 +4537,16 @@
 49,
 50
 ],
-"first trust": [
+"limited discretion": [
 34,
-35,
 36,
 37,
 38,
-40,
-43,
+41,
+42,
 45,
+46,
+47,
 48,
 49,
 50
@@ -4003,28 +4559,16 @@
 47,
 48
 ],
-"trustee with limited": [
+"distribution under section": [
 34,
-36,
 37,
 38,
-41,
-45,
-46,
-47,
-48,
-49,
-50
+41
 ],
-"charitable entity": [
+"more beneficiaries": [
 34,
-85,
-89
-],
-"remainder beneficiary": [
-34,
-37,
-139
+143,
+178
 ],
 "second trust trustee": [
 34,
@@ -4041,17 +4585,48 @@
 49,
 50
 ],
-"presumptive remainder": [
+"section distribution": [
+34,
+37,
+38,
+41,
+42,
+45,
+46,
+47,
+48,
+49,
+50,
+145,
+150
+],
+"remainder beneficiary": [
+34,
+37,
+139
+],
+"charitable entity": [
+34,
+85,
+89
+],
+"first trust": [
 34,
 35,
 36,
-37
+37,
+38,
+40,
+43,
+45,
+48,
+49,
+50
 ],
-"term does": [
-34,
-149,
-159,
-164
+"presumptive remainder beneficiaries": [
+35,
+36,
+37
 ],
 "trustee shall exercise": [
 35,
@@ -4070,10 +4645,11 @@
 146,
 170
 ],
-"presumptive remainder beneficiaries": [
-35,
-36,
-37
+"conflict of interest": [
+37,
+117,
+133,
+134
 ],
 "return receipt": [
 37,
@@ -4090,11 +4666,6 @@
 85,
 135
 ],
-"certified mail": [
-37,
-85,
-135
-],
 "mail return receipt": [
 37,
 85,
@@ -4106,6 +4677,11 @@
 135
 ],
 "receipt requested": [
+37,
+85,
+135
+],
+"certified mail": [
 37,
 85,
 135
@@ -4141,7 +4717,14 @@
 143,
 162
 ],
-"exercise reasonable care": [
+"duty to inform": [
+46
+],
+"prudence": [
+48,
+182
+],
+"reasonable care": [
 48,
 113,
 174,
@@ -4152,7 +4735,7 @@
 114,
 126
 ],
-"reasonable care": [
+"exercise reasonable": [
 48,
 113,
 174,
@@ -4160,14 +4743,23 @@
 ],
 "fiduciary duty": [
 48,
+93,
 110,
-114
+114,
+141,
+142,
+165,
+166
 ],
-"exercise reasonable": [
+"exercise reasonable care": [
 48,
 113,
 174,
 181
+],
+"mandatory rule": [
+48,
+114
 ],
 "marital deduction": [
 49,
@@ -4175,6 +4767,20 @@
 158,
 162,
 170
+],
+"annual exclusion": [
+49,
+88
+],
+"standing": [
+49,
+65,
+88,
+93,
+98,
+115,
+130,
+161
 ],
 "notwithstanding subsection": [
 49,
@@ -4192,12 +4798,12 @@
 147,
 158
 ],
-"instrument executed": [
+"trust instrument executed": [
 51,
 52,
 56
 ],
-"trust instrument executed": [
+"instrument executed": [
 51,
 52,
 56
@@ -4210,10 +4816,11 @@
 55,
 56
 ],
-"provides otherwise": [
+"certain nontestamentary transfers": [
 52,
-56,
-98
+53,
+55,
+56
 ],
 "certain nontestamentary": [
 52,
@@ -4221,7 +4828,31 @@
 55,
 56
 ],
+"nontestamentary transfers": [
+52,
+53,
+55,
+56
+],
 "beneficiary under certain": [
+52,
+53,
+55,
+56
+],
+"provides otherwise": [
+52,
+56,
+98
+],
+"former spouse": [
+52,
+53,
+54,
+55,
+56
+],
+"certain policies": [
 52,
 53,
 55,
@@ -4239,45 +4870,15 @@
 55,
 56
 ],
-"certain policies": [
-52,
-53,
-55,
-56
-],
-"former spouse": [
-52,
-53,
-54,
-55,
-56
-],
-"certain nontestamentary transfers": [
-52,
-53,
-55,
-56
-],
 "representative capacity": [
 52,
 124,
 125
 ],
-"nontestamentary transfers": [
-52,
-53,
-55,
-56
-],
 "immediately before": [
 53,
 146,
 149
-],
-"applies only": [
-56,
-85,
-114
 ],
 "section applies only": [
 56,
@@ -4293,6 +4894,11 @@
 97,
 130
 ],
+"applies only": [
+56,
+85,
+114
+],
 "reasonable compensation": [
 58,
 118,
@@ -4303,17 +4909,11 @@
 77,
 154
 ],
-"uniform prudent investor": [
+"trustee considers": [
 65,
-93,
-95,
-96,
-171
-],
-"extend beyond": [
-65,
-70,
-71
+68,
+79,
+142
 ],
 "uniform prudent": [
 65,
@@ -4322,11 +4922,22 @@
 96,
 171
 ],
-"trustee considers": [
+"chapter uniform prudent": [
 65,
-68,
-79,
-142
+93,
+95,
+96
+],
+"chapter uniform": [
+65,
+93,
+95,
+96
+],
+"extend beyond": [
+65,
+70,
+71
 ],
 "prudent investor": [
 65,
@@ -4340,17 +4951,17 @@
 180,
 182
 ],
-"chapter uniform": [
+"uniform prudent investor": [
 65,
 93,
 95,
-96
+96,
+171
 ],
-"chapter uniform prudent": [
-65,
-93,
-95,
-96
+"trustee with itself": [
+66,
+92,
+97
 ],
 "corporate trustee": [
 66,
@@ -4360,11 +4971,6 @@
 97,
 98,
 130
-],
-"trustee with itself": [
-66,
-92,
-97
 ],
 "best interest": [
 68,
@@ -4376,10 +4982,11 @@
 89,
 165
 ],
-"date specified": [
+"lawful manner": [
 77,
-147,
-158
+159,
+160,
+161
 ],
 "trustee before": [
 77,
@@ -4387,6 +4994,22 @@
 159,
 160,
 161
+],
+"delegation": [
+77,
+103,
+181
+],
+"date specified": [
+77,
+147,
+158
+],
+"removal": [
+77,
+100,
+101,
+115
 ],
 "another state": [
 77,
@@ -4398,33 +5021,22 @@
 111,
 127
 ],
-"lawful manner": [
-77,
-159,
-160,
-161
-],
 "separate fund": [
 80,
 97,
 158,
 167
 ],
-"trustee regarding": [
-84,
-108,
-120
-],
-"trustee regarding environmental": [
-84,
-108,
-120
-],
 "environmental laws": [
 84,
 108,
 120,
 166
+],
+"trustee regarding environmental": [
+84,
+108,
+120
 ],
 "regarding environmental": [
 84,
@@ -4436,6 +5048,16 @@
 108,
 120
 ],
+"trustee regarding": [
+84,
+108,
+120
+],
+"section charitable": [
+85,
+89,
+110
+],
 "trustee determines": [
 85,
 142,
@@ -4443,11 +5065,6 @@
 157,
 165,
 166
-],
-"section charitable": [
-85,
-89,
-110
 ],
 "individual capacity": [
 87,
@@ -4469,16 +5086,6 @@
 96,
 150
 ],
-"investment trust": [
-93,
-96,
-150
-],
-"trust company": [
-93,
-106,
-107
-],
 "fiduciary duties": [
 93,
 141,
@@ -4490,6 +5097,16 @@
 93,
 158,
 163
+],
+"investment trust": [
+93,
+96,
+150
+],
+"trust company": [
+93,
+106,
+107
 ],
 "trustee unless": [
 94,
@@ -4523,15 +5140,15 @@
 107,
 150
 ],
-"trust committed": [
-109,
-114,
-116
-],
 "predecessor trustee": [
 109,
 124,
 125
+],
+"trust committed": [
+109,
+114,
+116
 ],
 "without knowledge": [
 115,
@@ -4554,6 +5171,12 @@
 124,
 125
 ],
+"surcharge": [
+129
+],
+"situs": [
+130
+],
 "action under section": [
 130,
 131,
@@ -4569,37 +5192,6 @@
 153,
 166
 ],
-"income beneficiary": [
-139,
-147,
-149,
-153,
-156
-],
-"accounting period": [
-139,
-153,
-158,
-162,
-164
-],
-"mandatory income interest": [
-139,
-149,
-153,
-161
-],
-"interest begins": [
-139,
-147,
-148
-],
-"mandatory income": [
-139,
-149,
-153,
-161
-],
 "interest ends": [
 139,
 145,
@@ -4607,23 +5199,11 @@
 149,
 168
 ],
-"income interest begins": [
-139,
-147,
-148
-],
 "income interest ends": [
 139,
 145,
 147,
 149,
-168
-],
-"disbursements made": [
-139,
-145,
-163,
-166,
 168
 ],
 "principal asset": [
@@ -4641,6 +5221,39 @@
 159,
 164
 ],
+"accounting period": [
+139,
+153,
+158,
+162,
+164
+],
+"income beneficiary": [
+139,
+147,
+149,
+153,
+156
+],
+"disbursements made": [
+139,
+145,
+163,
+166,
+168
+],
+"mandatory income interest": [
+139,
+149,
+153,
+161
+],
+"mandatory income": [
+139,
+149,
+153,
+161
+],
 "income interest": [
 139,
 142,
@@ -4652,6 +5265,19 @@
 161,
 165,
 168
+],
+"interest begins": [
+139,
+147,
+148
+],
+"income interest begins": [
+139,
+147,
+148
+],
+"uniform act": [
+140
 ],
 "section trustee": [
 141,
@@ -4679,16 +5305,11 @@
 158,
 166
 ],
-"disbursements from principal": [
+"section disbursements": [
 145,
 153,
 166,
 168
-],
-"terminating event": [
-145,
-146,
-147
 ],
 "principal receipts": [
 145,
@@ -4696,16 +5317,24 @@
 163,
 169
 ],
-"disbursements from income": [
-145,
-165,
-166
-],
-"section disbursements": [
+"disbursements from principal": [
 145,
 153,
 166,
 168
+],
+"accrual": [
+145
+],
+"terminating event": [
+145,
+146,
+147
+],
+"disbursements from income": [
+145,
+165,
+166
 ],
 "section determination": [
 146,
@@ -4717,9 +5346,9 @@
 153,
 158
 ],
-"becomes subject": [
+"successive income": [
 147,
-158,
+148,
 168
 ],
 "successive income interest": [
@@ -4727,9 +5356,9 @@
 148,
 168
 ],
-"successive income": [
+"becomes subject": [
 147,
-148,
+158,
 168
 ],
 "section character": [
@@ -4745,13 +5374,7 @@
 159,
 164
 ],
-"section business": [
-150,
-156,
-163,
-167
-],
-"asset backed": [
+"asset backed securities": [
 150,
 151,
 155,
@@ -4759,12 +5382,17 @@
 159,
 164
 ],
-"section asset backed": [
+"securities applies": [
+150,
+151,
+155
+],
+"section asset": [
 150,
 159,
 164
 ],
-"securities applies": [
+"backed securities applies": [
 150,
 151,
 155
@@ -4776,26 +5404,27 @@
 163,
 167
 ],
-"backed securities applies": [
+"section business": [
 150,
-151,
-155
+156,
+163,
+167
+],
+"section asset backed": [
+150,
+159,
+164
 ],
 "taxable income": [
 150,
 169,
 170
 ],
-"asset backed securities": [
+"asset backed": [
 150,
 151,
 155,
 157,
-159,
-164
-],
-"section asset": [
-150,
 159,
 164
 ],
@@ -4806,6 +5435,12 @@
 155,
 160,
 163
+],
+"resources timber": [
+152,
+155,
+157,
+159
 ],
 "natural resources timber": [
 152,
@@ -4820,12 +5455,6 @@
 159,
 160
 ],
-"resources timber": [
-152,
-155,
-157,
-159
-],
 "disbursements described": [
 153,
 166,
@@ -4836,7 +5465,40 @@
 160,
 161
 ],
+"section deferred compensation": [
+155,
+156,
+157,
+159
+],
+"deferred compensation": [
+155,
+156,
+157,
+158,
+159,
+164
+],
 "compensation annuities": [
+155,
+156,
+157,
+158,
+159,
+164
+],
+"liquidating asset": [
+155,
+157,
+159
+],
+"minerals water": [
+155,
+157,
+159,
+160
+],
+"deferred compensation annuities": [
 155,
 156,
 157,
@@ -4852,42 +5514,9 @@
 159,
 164
 ],
-"minerals water": [
-155,
-157,
-159,
-160
-],
-"section deferred compensation": [
-155,
-156,
-157,
-159
-],
-"deferred compensation annuities": [
-155,
-156,
-157,
-158,
-159,
-164
-],
 "section deferred": [
 155,
 156,
-157,
-159
-],
-"deferred compensation": [
-155,
-156,
-157,
-158,
-159,
-164
-],
-"liquidating asset": [
-155,
 157,
 159
 ],
@@ -4903,6 +5532,11 @@
 166,
 169
 ],
+"trustee before january": [
+159,
+160,
+161
+],
 "lawful manner used": [
 159,
 160,
@@ -4914,7 +5548,7 @@
 161,
 163
 ],
-"trustee before january": [
+"manner used": [
 159,
 160,
 161
@@ -4923,11 +5557,6 @@
 159,
 167,
 168
-],
-"manner used": [
-159,
-160,
-161
 ],
 "asset whose": [
 159,
@@ -4939,15 +5568,30 @@
 166,
 174
 ],
-"prudent investor rule": [
-173,
-180,
-182
+"monitoring": [
+166
+],
+"default rule": [
+173
 ],
 "investor rule": [
 173,
 180,
 182
+],
+"prudent investor rule": [
+173,
+180,
+182
+],
+"risk and return": [
+174
+],
+"diversification": [
+175
+],
+"impartiality": [
+178
 ]
 },
 "claim_layer": "doctrinal",

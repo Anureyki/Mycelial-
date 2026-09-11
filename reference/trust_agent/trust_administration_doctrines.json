@@ -116,13 +116,69 @@
 }
 ],
 "term_index": {
+"res": [
+0,
+3,
+4
+],
+"trustee": [
+0,
+1,
+3,
+4,
+5,
+6
+],
+"settlor": [
+0,
+3,
+6
+],
+"beneficiary": [
+1,
+4,
+5
+],
 "independent judgment": [
 1,
 6
 ],
+"testamentary": [
+2
+],
+"inter vivos": [
+2
+],
+"revocable": [
+2
+],
+"irrevocable": [
+2
+],
+"beneficial interest": [
+3
+],
+"default rule": [
+3
+],
+"resulting trust": [
+3
+],
 "someone else": [
 3,
 6
+],
+"breach of trust": [
+4
+],
+"fiduciary duty": [
+4
+],
+"accounting": [
+5
+],
+"duty to account": [
+5
 ]
 },
 "claim_layer": "doctrinal",

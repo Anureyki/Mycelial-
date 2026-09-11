@@ -340,10 +340,28 @@ In Accounting it is the live column: 26 U.S.C. and 26 CFR are the floor, and
 the IRM is how the floor gets administered against real books.
 
 Every work therefore carries `authority_class` - `federal_statute`,
-`state_statute`, `regulation`, `court_rules`, `agency_guidance`, `treatise` -
-alongside `authority_class_basis` saying how that was determined. For a statute
-or regulation the title *is* the citation and fixes the class definitionally;
-anything else must be read, or stay `unknown`.
+`state_statute`, `regulation`, `court_rules`, `agency_guidance`, `treatise`,
+`advocacy` - alongside `authority_class_basis` saying how that was determined.
+For a statute or regulation the title *is* the citation and fixes the class
+definitionally; anything else must be read, or stay `unknown`.
+
+**`advocacy` is not a worse treatise, it is a different standing.** A treatise
+expounds the law; an advocacy paper asks for a different one. EPIC's *Unbridled
+and Underregulated* states the FCRA accurately in Part II and in Part VI asks
+the CFPB to revive a data-broker rule the Bureau withdrew - so citing its
+recommendations as current coverage would state as law the exact thing the
+paper is complaining is not law. It ranks below every other class, and `unknown`
+now ranks below *it*: "read, and it argues" and "nobody ever classified this"
+used to share one slot, which made the determination invisible in the one place
+it changes how a passage is weighed.
+
+And the second axis is not optional either. `claim_layer` arrived after most of
+the corpus was built, so 60 of 91 works carried it as `None` - not `unknown`,
+absent - which reads at lookup as a missing key rather than as a caution. A
+statute is `doctrinal` by the same definitional logic that fixes its class: it
+does not describe the rule or argue for it, it **is** the rule.
+`tools/stamp_claim_layer.py` settles exactly that case and leaves everything
+else `unknown`, because a treatise or a piece of guidance has to be read.
 
 **Acquiring law is one command.** `tools/ingest_law.py` fetches and ingests any
 CFR part, U.S. Code title, or IRM part from the official source. It is

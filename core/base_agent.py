@@ -1184,14 +1184,28 @@ class AgentBase:
         "doctrine_summary": 3,     # secondary
         "treatise": 3,             # secondary - Pomeroy, Maitland
         "dictionary": 4,           # secondary, and the oldest thing here
+        # ADVOCACY IS A CLASS, NOT A MISSING ONE. An interested party's white
+        # paper arguing what the law should be governs nothing, so it ranks
+        # below every work above it - but "read, and it argues" is a finding,
+        # and "nobody ever classified this" is a gap. They used to share the
+        # fallback slot, which made the determination invisible in the one
+        # place it changes how a passage is weighed.
+        "advocacy": 5,
     }
+
+    # Unknown sits BELOW every named class, including advocacy. It used to be
+    # 5, the same number advocacy now holds, on the reasoning that unknown
+    # sorts last - which stopped being true the moment a named class was added
+    # at 5. A fallback that collides with a real value is a ranking bug waiting
+    # for its second entry.
+    UNKNOWN_AUTHORITY_RANK = 9
 
     def _authority_rank(self, entry):
         """Lower is more authoritative. Unknown sorts last rather than first -
         a work whose class was never determined must not outrank one that
-        declares itself a statute."""
+        declares itself a statute, nor one that declares itself advocacy."""
         cls = str((entry or {}).get("authority_class") or "").lower()
-        return self.AUTHORITY_RANK.get(cls, 5)
+        return self.AUTHORITY_RANK.get(cls, self.UNKNOWN_AUTHORITY_RANK)
 
     # ------------------------------------------------------------------
     # A domain agent with a question.
@@ -1549,6 +1563,24 @@ class AgentBase:
                     "being in the corpus.")
                 notes.append(e["claim_caution"])
 
+            # WHO IS SPEAKING, alongside what kind of claim they are making.
+            #
+            # claim_layer says a passage argues rather than states. It does not
+            # say the arguer is a party with a position, and for advocacy that
+            # is the load-bearing fact: the EPIC white paper states the FCRA
+            # accurately in Part II and asks for a different FCRA in Part VI,
+            # so its layer is `mixed` and a reader who sees only the layer is
+            # told the passage must be read - not that it was written to
+            # persuade. Ranking already places it below everything; ranking is
+            # invisible to whoever reads one entry.
+            if str(e.get("authority_class") or "").lower() == "advocacy":
+                e["authority_caution"] = (
+                    "STANDING: advocacy. Written by an interested party to argue a "
+                    "position, not by a court, a legislature or an agency. It governs "
+                    "nothing. Where it states a rule, cite the rule's own source - "
+                    "which is why the authorities it relies on are shelved alongside it.")
+                notes.append(e["authority_caution"])
+
             if notes:
                 # In the text itself, because a caller that reads `text` and
                 # nothing else is the normal case and must not be able to miss
@@ -1556,6 +1588,159 @@ class AgentBase:
                 e["text"] = "".join(f"[{n}]\n\n" for n in notes) + str(e.get("text") or "")
             out.append(e)
         return out
+
+    # ------------------------------------------------------------------
+    # WHAT LAYER IS THIS CITATION, AND CAN THE SHELF OPEN IT AT ALL.
+    #
+    # This lived in the Trust Agent, which is where the need first appeared:
+    # eleven works on one shelf, three of them arguing rather than stating, and
+    # a veto register to refuse any of them cited as the rule.
+    #
+    # CLAUDE.md's rule decides where it belongs. "A fix made in one agent for a
+    # fault that lives in the base class is not a fix; it is a second place for
+    # the bug to hide." Nothing here is about trusts. Legal had no layer
+    # register at all, which went unnoticed while its shelf was statutes and
+    # regulations end to end - every work doctrinal, so nothing could be cited
+    # at the wrong layer. Shelving one advocacy paper made the gap live, and
+    # Accounting will reach the same point the moment it holds a guide rather
+    # than a standard.
+    # ------------------------------------------------------------------
+    NON_DOCTRINAL_LAYERS = ("explanatory", "normative", "mixed", "unknown")
+
+    def corpus_layer(self, citation_or_term):
+        """What this agent's own shelf says about a cited work: layer, class.
+
+        Returns None when nothing on the shelf answers to that name, which is
+        itself a finding - a citation the agent cannot open supports nothing."""
+        try:
+            hits = self.lookup_reference(citation_or_term) or []
+        except Exception as exc:
+            self.log(f"corpus_layer: {exc}")
+            return None
+
+        # A CITATION OFTEN NAMES THE WORK, NOT A SECTION OF IT.
+        #
+        # lookup_reference matches citations and indexed terms. Somebody citing
+        # "Express Trusts Under the Common Law" is naming the whole book, which
+        # matches no section citation and no doctrine term - so the agent
+        # reported it as absent from a shelf it is sitting on, and refused for
+        # the wrong reason. Being unable to open a work and being able to open
+        # it and finding it is advocacy are different findings with different
+        # fixes.
+        if not hits:
+            # SHORT-FORM TITLES ARE HOW PEOPLE ACTUALLY CITE.
+            #
+            # Substring and prefix matching both require the citation to be a
+            # contiguous run of the shelved title, and nobody cites that way.
+            # "Schanzenbach & Sitkoff, ESG Investing" is the natural short form
+            # of "Schanzenbach & Sitkoff, The Law and Economics of ESG Investing
+            # by a Fiduciary (Harvard Olin Discussion Paper 971, 2018)" - every
+            # word of it is in the title, in order, and neither test matched.
+            # The agent then refused as though the work were absent from a shelf
+            # it is sitting on, which is the wrong FINDING even though it is the
+            # right direction: "acquire this" and "cite what it cites" are
+            # different instructions.
+            #
+            # Subset instead: every significant word of the citation must appear
+            # in the title. That is still conservative - a missing word is a
+            # miss - and it is not similarity scoring, which CLAUDE.md forbids
+            # for reference retrieval. Where several works qualify the most
+            # specific title wins, and a tie means ambiguity rather than a
+            # lucky pick, so nothing is returned.
+            needle = re.sub(r'[^a-z0-9 ]', ' ', str(citation_or_term).lower())
+            tokens = {w for w in needle.split() if len(w) >= 4}
+            if len(tokens) >= 2:
+                import glob as _glob
+                root = os.path.join(os.path.dirname(os.path.dirname(
+                    os.path.abspath(__file__))), "reference", self.agent_id)
+                best, best_len, ambiguous = None, None, False
+                for fp in _glob.glob(os.path.join(root, "*.json")):
+                    try:
+                        with open(fp, encoding="utf-8") as fh:
+                            doc = json.load(fh)
+                    except Exception:
+                        continue
+                    raw = str(doc.get("title") or "")
+                    title = " ".join(re.sub(r'[^a-z0-9 ]', ' ', raw.lower()).split())
+                    if not title:
+                        continue
+                    if not tokens <= set(title.split()):
+                        continue
+                    if best_len is None or len(title) < best_len:
+                        best, best_len, ambiguous = doc, len(title), False
+                    elif len(title) == best_len:
+                        ambiguous = True
+                if best is not None and not ambiguous:
+                    return {"citation": best.get("title"),
+                            "claim_layer": best.get("claim_layer"),
+                            "claim_layer_meaning": best.get("claim_layer_meaning"),
+                            "authority_class": best.get("authority_class"),
+                            "matched_by": "document title",
+                            "integrity": None}
+            return None
+        h = hits[0] if isinstance(hits[0], dict) else {}
+        return {"citation": h.get("citation"),
+                "claim_layer": h.get("claim_layer"),
+                "claim_layer_meaning": h.get("claim_layer_meaning"),
+                "authority_class": h.get("authority_class"),
+                "integrity": (h.get("integrity") or {}).get("state")}
+
+    def veto_citation_layer(self, finding):
+        """-> a refusal dict, or None when these registers find no ground.
+
+        Two grounds, and they are different findings: a citation this shelf
+        cannot open at all, and one it can open and finds is an argument, a
+        model, or unclassified. The first means acquire it; the second means
+        cite what it cites.
+
+        `authority_class: advocacy` refuses on its own even when the passage
+        reads as doctrinal, because an interested party restating a rule is
+        still the interested party's restatement - the rule has its own source
+        and that is the thing to cite."""
+        f = finding if isinstance(finding, dict) else {}
+        cites = f.get("citations") or f.get("authorities") or []
+        if isinstance(cites, str):
+            cites = [cites]
+        cited_as_rule = bool(f.get("cited_as_authority") or f.get("cited_as_rule")
+                             or f.get("asserts_rule"))
+
+        for c in cites:
+            info = self.corpus_layer(str(c))
+            if not info:
+                return {"decision": "refuse", "register": "citation_not_in_corpus",
+                        "citation": "not_in_corpus",
+                        "reason": (f"'{c}' is cited and nothing on this shelf answers "
+                                   f"to it. A provision the agent cannot open cannot "
+                                   f"support anything - that is this system's rule for "
+                                   f"authority, applied to the works it actually holds."),
+                        "absence_state": "nothing_found", "implemented": True}
+            layer = info.get("claim_layer")
+            klass = str(info.get("authority_class") or "").lower()
+            if klass == "advocacy" and cited_as_rule:
+                return {"decision": "refuse", "register": "advocacy_cited_as_rule",
+                        "citation": f"{info.get('citation')}, advocacy",
+                        "reason": (f"'{c}' is on this shelf as advocacy - an interested "
+                                   f"party arguing a position. Where it states a rule "
+                                   f"correctly it is still restating somebody else's "
+                                   f"rule, so cite that source. It governs nothing."),
+                        "absence_state": "verified_clear", "implemented": True,
+                        "corpus_consulted": [info]}
+            if layer in self.NON_DOCTRINAL_LAYERS and (cited_as_rule or layer in
+                                                       ("normative", "explanatory")):
+                reg = ("normative_cited_as_rule" if layer == "normative" else
+                       "theory_cited_as_rule" if layer == "explanatory" else
+                       "unclassified_cited_as_rule" if layer in (None, "unknown") else
+                       "mixed_layer_needs_reading")
+                return {"decision": "refuse", "register": reg,
+                        "citation": f"{info.get('citation')}, {layer}",
+                        "reason": (f"'{c}' is on the shelf with claim_layer {layer}. "
+                                   f"{info.get('claim_layer_meaning') or ''} "
+                                   f"Citing it as a statement of law is citing "
+                                   f"{'an argument' if layer == 'normative' else 'a model'} "
+                                   f"as though it were the rule.").strip(),
+                        "absence_state": "verified_clear", "implemented": True,
+                        "corpus_consulted": [info]}
+        return None
 
     def _lookup_reference_raw(self, term):
         """Match a citation or case name. Integrity is added by the caller."""

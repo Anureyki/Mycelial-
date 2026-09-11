@@ -644,58 +644,19 @@ class TrustAgent(AgentBase):
     # Works whose passages must never be cited AS the rule. Derived from the
     # shelf's own claim_layer, not from a hand-list - a work re-ingested with a
     # different layer changes this automatically.
-    NON_DOCTRINAL_LAYERS = ("explanatory", "normative", "mixed", "unknown")
+    # NON_DOCTRINAL_LAYERS is inherited from AgentBase. It was defined here
+    # and moved up with _corpus_layer; a second identical copy is the "two
+    # sources of truth and the copy is the one that drifts" failure in one
+    # tuple.
 
     def _corpus_layer(self, citation_or_term):
-        """What the corpus says about a cited work: which layer, which class.
+        """Delegates to AgentBase.corpus_layer.
 
-        Returns None when nothing on the shelf answers to that name, which is
-        itself a finding - a citation the agent cannot open supports nothing."""
-        try:
-            hits = self.lookup_reference(citation_or_term) or []
-        except Exception as exc:
-            self.log(f"_corpus_layer: {exc}")
-            return None
-
-        # A CITATION OFTEN NAMES THE WORK, NOT A SECTION OF IT.
-        #
-        # lookup_reference matches citations and indexed terms. Somebody citing
-        # "Express Trusts Under the Common Law" is naming the whole book, which
-        # matches no section citation and no doctrine term - so the agent
-        # reported it as absent from a shelf it is sitting on, and refused for
-        # the wrong reason. Being unable to open a work and being able to open
-        # it and finding it is advocacy are different findings with different
-        # fixes.
-        if not hits:
-            needle = re.sub(r'[^a-z0-9 ]', ' ', str(citation_or_term).lower())
-            needle = " ".join(needle.split())
-            if len(needle) >= 6:
-                import glob as _glob, json as _json, os as _os
-                root = _os.path.join(_os.path.expanduser("~/mycelial"),
-                                     "reference", self.agent_id)
-                for fp in _glob.glob(_os.path.join(root, "*.json")):
-                    try:
-                        doc = _json.load(open(fp, encoding="utf-8"))
-                    except Exception:
-                        continue
-                    title = re.sub(r'[^a-z0-9 ]', ' ', str(doc.get("title") or "").lower())
-                    title = " ".join(title.split())
-                    if not title:
-                        continue
-                    if needle in title or title.startswith(needle[:40]):
-                        return {"citation": doc.get("title"),
-                                "claim_layer": doc.get("claim_layer"),
-                                "claim_layer_meaning": doc.get("claim_layer_meaning"),
-                                "authority_class": doc.get("authority_class"),
-                                "matched_by": "document title",
-                                "integrity": None}
-            return None
-        h = hits[0] if isinstance(hits[0], dict) else {}
-        return {"citation": h.get("citation"),
-                "claim_layer": h.get("claim_layer"),
-                "claim_layer_meaning": h.get("claim_layer_meaning"),
-                "authority_class": h.get("authority_class"),
-                "integrity": (h.get("integrity") or {}).get("state")}
+        This method was written here first and then lifted into the base class
+        unchanged, because nothing in it was about trusts and Legal needed the
+        identical check. The name is kept so the call sites below read as they
+        did; the logic has one home."""
+        return self.corpus_layer(citation_or_term)
 
     def _record_gate(self, verb, out, finding):
         """Every refuse AND every pass leaves a trace.

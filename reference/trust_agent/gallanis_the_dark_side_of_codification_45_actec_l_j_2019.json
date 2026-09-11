@@ -7,91 +7,11 @@
 "claim_layer_meaning": "Argues what the rule SHOULD be. An argument, not a statement of law, and the fact that it is well made is not authority.",
 "authorities_cited": [],
 "term_index": {
-"reasonably": [
+"codification": [
 0,
 1
 ],
-"anniversary": [
-0,
-1
-],
-"dark side": [
-0,
-1
-],
-"institute": [
-0,
-1
-],
-"uniform": [
-0,
-1
-],
-"influence": [
-0,
-1
-],
-"illinois": [
-0,
-1
-],
-"promulgation": [
-0,
-1
-],
-"probate": [
-0,
-1
-],
-"thirty": [
-0,
-1
-],
-"judgment": [
-0,
-1
-],
-"uniformlaws": [
-0,
-1
-],
-"estates": [
-0,
-1
-],
-"american": [
-0,
-1
-],
-"approved": [
-0,
-1
-],
-"gallanis": [
-0,
-1
-],
-"estate": [
-0,
-1
-],
-"enacted": [
-0,
-1
-],
-"enacting jurisdiction": [
-0,
-1
-],
-"twentieth": [
-0,
-1
-],
-"information": [
-0,
-1
-],
-"enacting": [
+"uniform act": [
 0,
 1
 ],
@@ -99,11 +19,7 @@
 0,
 1
 ],
-"trusts": [
-0,
-1
-],
-"interest": [
+"twentieth anniversary": [
 0,
 1
 ],
@@ -111,63 +27,36 @@
 0,
 1
 ],
-"thomas": [
+"enacting jurisdiction": [
 0,
 1
 ],
-"because": [
+"dark side": [
 0,
 1
 ],
-"codification": [
-0,
+"rule against perpetuities": [
 1
 ],
-"determining": [
-0,
-1
-],
-"jurisdictions": [
-0,
-1
-],
-"states": [
-0,
-1
-],
-"twentieth anniversary": [
-0,
-1
-],
-"jurisdiction": [
-0,
-1
-],
-"default rule": [
-1
-],
-"duty to inform": [
-1
-],
-"mandatory rule": [
-1
-],
-"standing": [
-1
-],
-"beneficiary": [
-1
-],
-"breach of trust": [
-1
-],
-"prudent investor": [
+"modification": [
 1
 ],
 "conflict of interest": [
 1
 ],
-"ilit": [
+"mandatory rule": [
+1
+],
+"prudent investor": [
+1
+],
+"beneficiary": [
+1
+],
+"restatement": [
+1
+],
+"duty to inform": [
 1
 ],
 "revocable": [
@@ -176,13 +65,19 @@
 "settlor": [
 1
 ],
-"modification": [
+"standing": [
+1
+],
+"ilit": [
+1
+],
+"breach of trust": [
+1
+],
+"default rule": [
 1
 ],
 "irrevocable": [
-1
-],
-"rule against perpetuities": [
 1
 ],
 "trustee": [

@@ -1,200 +1,370 @@
 {
-  "title": "Deficiencies and toxicities - reported thread, @nova2cotton",
-  "source": "REPORTED, SECONDHAND. Instagram carousel 'DEFICIENCIES & TOXICITIES 101' by novacotton / @nova2cotton, supplied 2026-09-05. Same account as the training thread. Accompanying images are AI-generated diagrams illustrating the text, not evidence. This material CONVERGES with a hypothesis the leaf differential reached independently from this plant's own record before any of it was read - which is worth more than either line alone and is still not proof. EXTENDED with parts 5-7 of the same carousel.",
-  "authority_class": "unknown",
-  "authority_class_basis": "Anonymous social-media practitioner. Not a publication, not a study.",
-  "evidence_grade": "reported",
-  "role": "Constrains the candidate space for the leaf differential. Decides nothing.",
-  "sections": [
-    {
-      "citation": "calcium-rides-transpiration",
-      "text": "THE CLAIM THAT MATTERS MOST HERE. 'Calcium rides the transpiration stream. If VPD is too low, airflow is weak, or humidity is high, the plant can have calcium in the pot and still not get it to the growing tips. Sometimes your calcium deficiency is just the plant's delivery system lagging.' Symptoms listed for calcium: twisted leaves, BROWN SPOTTING ON YOUNG TISSUE, burned tips, ugly new shoots - immobile, so new growth first. [UNVERIFIED - reported]",
-      "evidence_grade": "reported",
-      "integrity": {
-        "state": "unknown",
-        "basis": "secondhand social post",
-        "stamped_at": null
-      }
-    },
-    {
-      "citation": "two-transport-failures",
-      "text": "A DISTINCTION THIS SOURCE FORCES, and it refines rather than confirms the open hypothesis. Calcium transport can fail on the SUPPLY side - no water available to carry it, as when a reservoir runs low or a feed stops - or on the DEMAND side, where transpiration is too weak to pull it, from low VPD, weak airflow or high humidity. This source describes the DEMAND side. THIS PLANT'S RECORD DESCRIBES THE SUPPLY SIDE: reservoir fell 15 to 12.84 L, and circulation failed twice including a full night. Its VPD was measured at 1.53 kPa on 2026-08-30, ABOVE the 0.8-1.2 veg band, meaning transpirational pull was strong rather than weak. So the source's mechanism does NOT fit this plant; the same hypothesis fits for the opposite reason. Recorded because a claim that agrees with a conclusion for the wrong reason is not corroboration.",
-      "evidence_grade": "reported",
-      "integrity": {
-        "state": "unknown",
-        "basis": "derived from comparing the source to this record",
-        "stamped_at": null
-      }
-    },
-    {
-      "citation": "ph-and-calcium-availability",
-      "text": "'pH still comes first. Below about 5.5, calcium availability drops hard.' Also: excess calcium competes with magnesium, potassium and manganese - 'more is not automatically better, ratio matters' - and 'dumping CalMag on every problem is the grower version of spamming the same potion on every status effect'. NOTE FOR THIS GROW: pH measured 5.86, above the stated 5.5 threshold, so calcium availability is not implicated by pH here. The coco-binding argument in the same post does NOT apply - this is clay pebbles in DWC, not coco. [UNVERIFIED - reported]",
-      "evidence_grade": "reported",
-      "integrity": {
-        "state": "unknown",
-        "basis": "secondhand social post",
-        "stamped_at": null
-      }
-    },
-    {
-      "citation": "iron-vs-magnesium-location",
-      "text": "'Iron deficiency looks a lot like magnesium deficiency until you check where it starts. Magnesium = older leaves first. Iron = newest leaves first. Green veins, yellow tissue between them, but on the TOP of the plant? Think iron.' And: iron deficiency in cannabis is 'almost never there is no iron in the bottle - it's almost always pH too high', iron precipitating into a form roots cannot use. 'Fix the pH before you start dumping extra iron in.' DOES NOT MATCH THIS PLANT: the symptom here is discrete brown lesions, not interveinal chlorosis with green veins, and pH is 5.86 rather than high. Recorded as a candidate the differential should carry and can currently rule out on distribution. [UNVERIFIED - reported]",
-      "evidence_grade": "reported",
-      "integrity": {
-        "state": "unknown",
-        "basis": "secondhand social post",
-        "stamped_at": null
-      }
-    },
-    {
-      "citation": "manganese-zinc-are-ph-problems",
-      "text": "Manganese: interveinal chlorosis on NEW growth, finer and more mottled than iron; usually a high-pH availability problem, not a missing bottle. Zinc: small distorted new leaves, short internodes, tight clustered growth; high phosphorus is a common reason zinc locks out, so a bloom booster can quietly create a zinc problem. 'Both of these are much more often pH or antagonism issues than I forgot a micronutrient.' DOES NOT MATCH THIS PLANT - the symptom is discrete brown lesions, not chlorosis, and pH is 5.86. [UNVERIFIED - reported]",
-      "evidence_grade": "reported",
-      "integrity": {
-        "state": "unknown",
-        "basis": "secondhand social post",
-        "stamped_at": null
-      }
-    },
-    {
-      "citation": "boron-narrow-window",
-      "text": "A CANDIDATE THE DIFFERENTIAL DID NOT CARRY. Boron deficiency hits growing points: 'twisted, thick, dark new growth, dying tips, ugly flower development. It can even make bud tissue BROWN in a way that looks a little like early rot.' The catch: boron toxicity is easy to create and the gap between too little and too much is smaller than most nutrients - 'this is not the one you want to overcorrect'. Sulfur, molybdenum and copper exist but are uncommon in complete programs; check pH and the bigger players first. [UNVERIFIED - reported]",
-      "evidence_grade": "reported",
-      "integrity": {
-        "state": "unknown",
-        "basis": "secondhand social post",
-        "stamped_at": null
-      }
-    },
-    {
-      "citation": "salt-toxicity-is-total-not-single",
-      "text": "'Salt toxicity / nutrient burn is not a single element problem. It's total dissolved salts getting high enough that roots have to fight the solution just to take up water. Tips and margins burn first because they're the end of the line.' AND THE PRINCIPLE THIS RECORD ALREADY RUNS ON, arrived at independently: 'Burned tips do not turn green again. That damage is already written. New growth after the correction is what tells you if you actually fixed it.' Also: rising runoff EC above input EC means salts are stacking before the leaves show it. RELEVANT HISTORY - this grow has a documented salt event, ppm corrected 441 to 672 in one step on 2026-08-21, with tip burn observed four days later. But tips and margins are not where the current lesions are. [UNVERIFIED - reported]",
-      "evidence_grade": "reported",
-      "integrity": {
-        "state": "unknown",
-        "basis": "secondhand social post",
-        "stamped_at": null
-      }
-    },
-    {
-      "citation": "environment-fakes-deficiencies",
-      "text": "'If the environment is off, the feed chart will keep lying to you.' Overwatering: the plant looks thirsty while the medium is wet - roots cannot breathe, so they cannot take up water or nutrients, and adding food feeds a suffocating root system. Heat/light stress: taco'd leaves, bleaching at the very top, damage concentrated under the light; the fix is distance, intensity or heat, NOT CalMag. Cold stress: slows uptake across the board, PURPLE COLOURING, several fake deficiency symptoms at once - 'the plant isn't missing five nutrients, it's just too cold to run the processes that use them.' [UNVERIFIED - reported]",
-      "evidence_grade": "reported",
-      "integrity": {
-        "state": "unknown",
-        "basis": "secondhand social post",
-        "stamped_at": null
-      }
-    },
-    {
-      "citation": "correction-order-one-change-at-a-time",
-      "text": "THE MOST OPERATIONALLY USEFUL CLAIM IN THIS SOURCE, and the one this grow is currently violating. Stated order: 1) fix pH first, then wait and watch. 2) if salts are high, lower EC before adding more of anything. 3) check roots if you can. 4) fix environment if VPD, heat, light or airflow are off. 5) MAKE ONE CHANGE AT A TIME. 'The worst move is changing pH, adding CalMag, flushing, switching bottles, and raising the light all in the same night. Then you have no idea what helped and what made it worse. One change. Observe. Then the next one.' CONVERGENCE: Grow Agent stated this independently on 2026-09-05, in its own words - 'change strength again before a reading lands and the next number cannot be attributed to either change. You lose the ability to say which one did what.' Two lines, one operational rule. [UNVERIFIED as a source; CORROBORATED by this system's own reasoning]",
-      "evidence_grade": "reported",
-      "integrity": {
-        "state": "unknown",
-        "basis": "secondhand, but independently reached by this system",
-        "stamped_at": null
-      }
-    },
-    {
-      "citation": "baseline-is-your-own-plant",
-      "text": "'Learn what your healthy plant looks like at each stage. That's the reference point. The second something drifts, you'll notice it early... The skill is not memorizing 40 deficiency pictures. The skill is reading the UI before you start slamming random items.' Prevention over rescue: a plant kept in range never spends energy repairing damage. NOTE - this is an argument FOR the per-plant record this agent keeps and AGAINST treating any corpus, including this one, as the reference point. The baseline is the plant. [UNVERIFIED - reported]",
-      "evidence_grade": "reported",
-      "integrity": {
-        "state": "unknown",
-        "basis": "secondhand social post",
-        "stamped_at": null
-      }
-    },
-    {
-      "citation": "dwc-temperature-thresholds",
-      "text": "PRECISE NUMBERS, and they are the most directly applicable claim in anything supplied today. 'Solution temperature controls dissolved oxygen. Cold water holds more oxygen than warm water. At 65F you're in a good range. ABOVE 72F Pythium starts thriving and oxygen levels drop. ABOVE 75F the risk climbs fast.' And: 'Roots in oxygen deficient solution don't just slow down - they start dying within hours.' [UNVERIFIED - reported]",
-      "evidence_grade": "reported",
-      "integrity": {
-        "state": "unknown",
-        "basis": "secondhand social post",
-        "stamped_at": null
-      }
-    },
-    {
-      "citation": "dwc-failure-chain-24-72h",
-      "text": "'The speed of growth in DWC is matched by the speed of failure. Root rot doesn't develop over weeks. A TEMPERATURE SPIKE ABOVE 72F COMBINED WITH REDUCED OXYGENATION (pump failure, clogged air stone, power outage) can show browning in 24 hours and serious damage in 48-72 hours.' Healthy DWC roots are white to off-white, fibrous and nearly odourless; infected roots turn brown, slimy and smell foul. Beneficial bacteria compete with Pythium but 'won't save bad temperature or oxygen management'. Reservoir must stay completely lightproof - algae competes for oxygen. Full reservoir changes every 1-2 weeks. [UNVERIFIED - reported]",
-      "evidence_grade": "reported",
-      "integrity": {
-        "state": "unknown",
-        "basis": "secondhand social post",
-        "stamped_at": null
-      }
-    },
-    {
-      "citation": "dwc-solution-level-one-inch",
-      "text": "'Keep the solution level about an inch below the net pot once roots are down. Too high and you restrict oxygen at the base of the stem. Too low and young roots struggle to reach solution.' Roots develop in three zones: submerged, a surface zone where bubbling gives the best mix of water and air, and air roots above the solution. NOTE AGAINST THIS GROW'S RECORD: the gap here was reported as about TWO inches on 2026-08-21, twice the figure this source gives - though roots have since reached down and the surface zone has moved. [UNVERIFIED - reported]",
-      "evidence_grade": "reported",
-      "integrity": {
-        "state": "unknown",
-        "basis": "secondhand social post",
-        "stamped_at": null
-      }
-    },
-    {
-      "citation": "rdwc-shared-risk",
-      "text": "RDWC connects multiple containers to one control reservoir. Advantages: pH and EC adjusted once affect every plant, larger total volume buffers against the rapid swings small individual buckets suffer, one system instead of eight. 'The trade off is SHARED RISK. Root rot in one container can circulate to every plant. A pump failure or major leak affects the entire system at once.' NOT THIS GROW'S SYSTEM - a single bucket with a top-feed recirculation line - but directly relevant if gsc_auto_2 is ever joined to it, because this grow has already had two pump failures and shared risk would have made both of them everyone's. [UNVERIFIED - reported]",
-      "evidence_grade": "reported",
-      "integrity": {
-        "state": "unknown",
-        "basis": "secondhand social post",
-        "stamped_at": null
-      }
-    },
-    {
-      "citation": "nft-not-this-system",
-      "text": "NFT runs a thin film along a sloped channel (1:30 to 1:40) with roots in humid air above it. Critical vulnerability is flow interruption: 'because the film is thin and roots aren't submerged, a pump failure or power outage leaves roots drying out quickly. Stress can start within an hour.' NOT THIS GROW'S SYSTEM, and the contrast is the point - in NFT the overnight outage would have been catastrophic within an hour. Here the roots hang in solution, which is exactly the reason the grower gave for reading the risk as lower than it looked. [UNVERIFIED - reported]",
-      "evidence_grade": "reported",
-      "integrity": {
-        "state": "unknown",
-        "basis": "secondhand social post",
-        "stamped_at": null
-      }
-    },
-    {
-      "citation": "ebb-and-flow-is-the-cycling-idea",
-      "text": "THE GROWER'S CYCLING QUESTION HAS A NAMED SYSTEM BEHIND IT. Ebb and Flow floods a tray on a timer then drains it completely: 'during the flood phase roots get nutrients. During the drain phase air fills the medium and roots get oxygen. THE CYCLING MATCHES WHAT ROOTS ACTUALLY WANT.' Mediums are highly porous - hydroton, coarse perlite, rockwool - so they drain fast and completely. Timer reliability is critical: a failed timer that stops flooding, or floods continuously, both create problems. [UNVERIFIED - reported]",
-      "evidence_grade": "reported",
-      "integrity": {
-        "state": "unknown",
-        "basis": "secondhand social post",
-        "stamped_at": null
-      }
-    },
-    {
-      "citation": "cycling-splits-into-two-questions",
-      "text": "THE DISTINCTION THAT ANSWERS THE GROWER'S QUESTION, derived by comparing this source to his system. He asked whether aeration should cycle rather than run continuously. That is ONE question wearing the shape of two, and they have different answers. (1) CYCLING THE TOP FEED onto the clay pellets is Ebb and Flow logic applied to the half of his system that IS a medium - flood for nutrients, drain for oxygen, which this source says is what roots want. His pellet zone already behaves this way and it is why the pellets dried when the pump stopped. (2) CYCLING THE AIR STONE is a different proposition entirely: the submerged roots are in DWC, where the same source states aeration must be continuous because 'roots in oxygen deficient solution don't just slow down - they start dying within hours.' His system is a HYBRID and the answer differs by half. Not established, and no controlled trial exists on one plant - but the question is now two questions, which is progress over treating it as one.",
-      "evidence_grade": "reported",
-      "integrity": {
-        "state": "unknown",
-        "basis": "derived from comparing this source to the system record",
-        "stamped_at": null
-      }
-    },
-    {
-      "citation": "system-choice-is-management-capacity",
-      "text": "'Choosing a system comes down to honest assessment of your management capacity.' DWC = best starting point for most people learning hydro; RDWC = step up for multiple plants; NFT = clean if power and equipment are reliable; Ebb and Flow = middle ground with more buffer than NFT; HPA aeroponics = experienced growers chasing the ceiling, where roots in air can start drying within MINUTES of a missed misting cycle. RELEVANT TO THIS GROWER, and he is the one to weigh it: two pump interruptions are now on this record, one of them overnight. In DWC that produced no root damage. In NFT it would have been serious within an hour; in HPA, within minutes. [UNVERIFIED - reported]",
-      "evidence_grade": "reported",
-      "integrity": {
-        "state": "unknown",
-        "basis": "secondhand social post",
-        "stamped_at": null
-      }
-    },
-    {
-      "citation": "hydro-is-a-management-commitment",
-      "text": "Closing claim of the carousel: 'Every hydroponic system is a commitment to active, consistent management in exchange for the performance that direct root zone control provides. SOIL FORGIVES. HYDROPONICS PERFORMS. The difference is whether you're willing to show up, pay attention, and maintain the system your roots are depending on every single day... Get it wrong and it will show you how fast things can go sideways when you're growing in water instead of dirt.' The author adds that he does not run hydroponics himself. [UNVERIFIED - reported, and by the author's own statement not from personal hydroponic practice]",
-      "evidence_grade": "reported",
-      "integrity": {
-        "state": "unknown",
-        "basis": "secondhand; author states he does not run hydro",
-        "stamped_at": null
-      }
-    }
-  ]
+"title": "Deficiencies and toxicities - reported thread, @nova2cotton",
+"source": "REPORTED, SECONDHAND. Instagram carousel 'DEFICIENCIES & TOXICITIES 101' by novacotton / @nova2cotton, supplied 2026-09-05. Same account as the training thread. Accompanying images are AI-generated diagrams illustrating the text, not evidence. This material CONVERGES with a hypothesis the leaf differential reached independently from this plant's own record before any of it was read - which is worth more than either line alone and is still not proof. EXTENDED with parts 5-7 of the same carousel.",
+"authority_class": "unknown",
+"authority_class_basis": "Anonymous social-media practitioner. Not a publication, not a study.",
+"evidence_grade": "reported",
+"role": "Constrains the candidate space for the leaf differential. Decides nothing.",
+"sections": [
+{
+"citation": "calcium-rides-transpiration",
+"text": "THE CLAIM THAT MATTERS MOST HERE. 'Calcium rides the transpiration stream. If VPD is too low, airflow is weak, or humidity is high, the plant can have calcium in the pot and still not get it to the growing tips. Sometimes your calcium deficiency is just the plant's delivery system lagging.' Symptoms listed for calcium: twisted leaves, BROWN SPOTTING ON YOUNG TISSUE, burned tips, ugly new shoots - immobile, so new growth first. [UNVERIFIED - reported]",
+"evidence_grade": "reported",
+"integrity": {
+"state": "unknown",
+"basis": "secondhand social post",
+"stamped_at": null
+},
+"claim_layer": "unknown",
+"claim_layer_meaning": "Not declared at ingest. Treat any citation from here as unclassified: it may be rationale rather than rule."
+},
+{
+"citation": "two-transport-failures",
+"text": "A DISTINCTION THIS SOURCE FORCES, and it refines rather than confirms the open hypothesis. Calcium transport can fail on the SUPPLY side - no water available to carry it, as when a reservoir runs low or a feed stops - or on the DEMAND side, where transpiration is too weak to pull it, from low VPD, weak airflow or high humidity. This source describes the DEMAND side. THIS PLANT'S RECORD DESCRIBES THE SUPPLY SIDE: reservoir fell 15 to 12.84 L, and circulation failed twice including a full night. Its VPD was measured at 1.53 kPa on 2026-08-30, ABOVE the 0.8-1.2 veg band, meaning transpirational pull was strong rather than weak. So the source's mechanism does NOT fit this plant; the same hypothesis fits for the opposite reason. Recorded because a claim that agrees with a conclusion for the wrong reason is not corroboration.",
+"evidence_grade": "reported",
+"integrity": {
+"state": "unknown",
+"basis": "derived from comparing the source to this record",
+"stamped_at": null
+},
+"claim_layer": "unknown",
+"claim_layer_meaning": "Not declared at ingest. Treat any citation from here as unclassified: it may be rationale rather than rule."
+},
+{
+"citation": "ph-and-calcium-availability",
+"text": "'pH still comes first. Below about 5.5, calcium availability drops hard.' Also: excess calcium competes with magnesium, potassium and manganese - 'more is not automatically better, ratio matters' - and 'dumping CalMag on every problem is the grower version of spamming the same potion on every status effect'. NOTE FOR THIS GROW: pH measured 5.86, above the stated 5.5 threshold, so calcium availability is not implicated by pH here. The coco-binding argument in the same post does NOT apply - this is clay pebbles in DWC, not coco. [UNVERIFIED - reported]",
+"evidence_grade": "reported",
+"integrity": {
+"state": "unknown",
+"basis": "secondhand social post",
+"stamped_at": null
+},
+"claim_layer": "unknown",
+"claim_layer_meaning": "Not declared at ingest. Treat any citation from here as unclassified: it may be rationale rather than rule."
+},
+{
+"citation": "iron-vs-magnesium-location",
+"text": "'Iron deficiency looks a lot like magnesium deficiency until you check where it starts. Magnesium = older leaves first. Iron = newest leaves first. Green veins, yellow tissue between them, but on the TOP of the plant? Think iron.' And: iron deficiency in cannabis is 'almost never there is no iron in the bottle - it's almost always pH too high', iron precipitating into a form roots cannot use. 'Fix the pH before you start dumping extra iron in.' DOES NOT MATCH THIS PLANT: the symptom here is discrete brown lesions, not interveinal chlorosis with green veins, and pH is 5.86 rather than high. Recorded as a candidate the differential should carry and can currently rule out on distribution. [UNVERIFIED - reported]",
+"evidence_grade": "reported",
+"integrity": {
+"state": "unknown",
+"basis": "secondhand social post",
+"stamped_at": null
+},
+"claim_layer": "unknown",
+"claim_layer_meaning": "Not declared at ingest. Treat any citation from here as unclassified: it may be rationale rather than rule."
+},
+{
+"citation": "manganese-zinc-are-ph-problems",
+"text": "Manganese: interveinal chlorosis on NEW growth, finer and more mottled than iron; usually a high-pH availability problem, not a missing bottle. Zinc: small distorted new leaves, short internodes, tight clustered growth; high phosphorus is a common reason zinc locks out, so a bloom booster can quietly create a zinc problem. 'Both of these are much more often pH or antagonism issues than I forgot a micronutrient.' DOES NOT MATCH THIS PLANT - the symptom is discrete brown lesions, not chlorosis, and pH is 5.86. [UNVERIFIED - reported]",
+"evidence_grade": "reported",
+"integrity": {
+"state": "unknown",
+"basis": "secondhand social post",
+"stamped_at": null
+},
+"claim_layer": "unknown",
+"claim_layer_meaning": "Not declared at ingest. Treat any citation from here as unclassified: it may be rationale rather than rule."
+},
+{
+"citation": "boron-narrow-window",
+"text": "A CANDIDATE THE DIFFERENTIAL DID NOT CARRY. Boron deficiency hits growing points: 'twisted, thick, dark new growth, dying tips, ugly flower development. It can even make bud tissue BROWN in a way that looks a little like early rot.' The catch: boron toxicity is easy to create and the gap between too little and too much is smaller than most nutrients - 'this is not the one you want to overcorrect'. Sulfur, molybdenum and copper exist but are uncommon in complete programs; check pH and the bigger players first. [UNVERIFIED - reported]",
+"evidence_grade": "reported",
+"integrity": {
+"state": "unknown",
+"basis": "secondhand social post",
+"stamped_at": null
+},
+"claim_layer": "unknown",
+"claim_layer_meaning": "Not declared at ingest. Treat any citation from here as unclassified: it may be rationale rather than rule."
+},
+{
+"citation": "salt-toxicity-is-total-not-single",
+"text": "'Salt toxicity / nutrient burn is not a single element problem. It's total dissolved salts getting high enough that roots have to fight the solution just to take up water. Tips and margins burn first because they're the end of the line.' AND THE PRINCIPLE THIS RECORD ALREADY RUNS ON, arrived at independently: 'Burned tips do not turn green again. That damage is already written. New growth after the correction is what tells you if you actually fixed it.' Also: rising runoff EC above input EC means salts are stacking before the leaves show it. RELEVANT HISTORY - this grow has a documented salt event, ppm corrected 441 to 672 in one step on 2026-08-21, with tip burn observed four days later. But tips and margins are not where the current lesions are. [UNVERIFIED - reported]",
+"evidence_grade": "reported",
+"integrity": {
+"state": "unknown",
+"basis": "secondhand social post",
+"stamped_at": null
+},
+"claim_layer": "unknown",
+"claim_layer_meaning": "Not declared at ingest. Treat any citation from here as unclassified: it may be rationale rather than rule."
+},
+{
+"citation": "environment-fakes-deficiencies",
+"text": "'If the environment is off, the feed chart will keep lying to you.' Overwatering: the plant looks thirsty while the medium is wet - roots cannot breathe, so they cannot take up water or nutrients, and adding food feeds a suffocating root system. Heat/light stress: taco'd leaves, bleaching at the very top, damage concentrated under the light; the fix is distance, intensity or heat, NOT CalMag. Cold stress: slows uptake across the board, PURPLE COLOURING, several fake deficiency symptoms at once - 'the plant isn't missing five nutrients, it's just too cold to run the processes that use them.' [UNVERIFIED - reported]",
+"evidence_grade": "reported",
+"integrity": {
+"state": "unknown",
+"basis": "secondhand social post",
+"stamped_at": null
+},
+"claim_layer": "unknown",
+"claim_layer_meaning": "Not declared at ingest. Treat any citation from here as unclassified: it may be rationale rather than rule."
+},
+{
+"citation": "correction-order-one-change-at-a-time",
+"text": "THE MOST OPERATIONALLY USEFUL CLAIM IN THIS SOURCE, and the one this grow is currently violating. Stated order: 1) fix pH first, then wait and watch. 2) if salts are high, lower EC before adding more of anything. 3) check roots if you can. 4) fix environment if VPD, heat, light or airflow are off. 5) MAKE ONE CHANGE AT A TIME. 'The worst move is changing pH, adding CalMag, flushing, switching bottles, and raising the light all in the same night. Then you have no idea what helped and what made it worse. One change. Observe. Then the next one.' CONVERGENCE: Grow Agent stated this independently on 2026-09-05, in its own words - 'change strength again before a reading lands and the next number cannot be attributed to either change. You lose the ability to say which one did what.' Two lines, one operational rule. [UNVERIFIED as a source; CORROBORATED by this system's own reasoning]",
+"evidence_grade": "reported",
+"integrity": {
+"state": "unknown",
+"basis": "secondhand, but independently reached by this system",
+"stamped_at": null
+},
+"claim_layer": "unknown",
+"claim_layer_meaning": "Not declared at ingest. Treat any citation from here as unclassified: it may be rationale rather than rule."
+},
+{
+"citation": "baseline-is-your-own-plant",
+"text": "'Learn what your healthy plant looks like at each stage. That's the reference point. The second something drifts, you'll notice it early... The skill is not memorizing 40 deficiency pictures. The skill is reading the UI before you start slamming random items.' Prevention over rescue: a plant kept in range never spends energy repairing damage. NOTE - this is an argument FOR the per-plant record this agent keeps and AGAINST treating any corpus, including this one, as the reference point. The baseline is the plant. [UNVERIFIED - reported]",
+"evidence_grade": "reported",
+"integrity": {
+"state": "unknown",
+"basis": "secondhand social post",
+"stamped_at": null
+},
+"claim_layer": "unknown",
+"claim_layer_meaning": "Not declared at ingest. Treat any citation from here as unclassified: it may be rationale rather than rule."
+},
+{
+"citation": "dwc-temperature-thresholds",
+"text": "PRECISE NUMBERS, and they are the most directly applicable claim in anything supplied today. 'Solution temperature controls dissolved oxygen. Cold water holds more oxygen than warm water. At 65F you're in a good range. ABOVE 72F Pythium starts thriving and oxygen levels drop. ABOVE 75F the risk climbs fast.' And: 'Roots in oxygen deficient solution don't just slow down - they start dying within hours.' [UNVERIFIED - reported]",
+"evidence_grade": "reported",
+"integrity": {
+"state": "unknown",
+"basis": "secondhand social post",
+"stamped_at": null
+},
+"claim_layer": "unknown",
+"claim_layer_meaning": "Not declared at ingest. Treat any citation from here as unclassified: it may be rationale rather than rule."
+},
+{
+"citation": "dwc-failure-chain-24-72h",
+"text": "'The speed of growth in DWC is matched by the speed of failure. Root rot doesn't develop over weeks. A TEMPERATURE SPIKE ABOVE 72F COMBINED WITH REDUCED OXYGENATION (pump failure, clogged air stone, power outage) can show browning in 24 hours and serious damage in 48-72 hours.' Healthy DWC roots are white to off-white, fibrous and nearly odourless; infected roots turn brown, slimy and smell foul. Beneficial bacteria compete with Pythium but 'won't save bad temperature or oxygen management'. Reservoir must stay completely lightproof - algae competes for oxygen. Full reservoir changes every 1-2 weeks. [UNVERIFIED - reported]",
+"evidence_grade": "reported",
+"integrity": {
+"state": "unknown",
+"basis": "secondhand social post",
+"stamped_at": null
+},
+"claim_layer": "unknown",
+"claim_layer_meaning": "Not declared at ingest. Treat any citation from here as unclassified: it may be rationale rather than rule."
+},
+{
+"citation": "dwc-solution-level-one-inch",
+"text": "'Keep the solution level about an inch below the net pot once roots are down. Too high and you restrict oxygen at the base of the stem. Too low and young roots struggle to reach solution.' Roots develop in three zones: submerged, a surface zone where bubbling gives the best mix of water and air, and air roots above the solution. NOTE AGAINST THIS GROW'S RECORD: the gap here was reported as about TWO inches on 2026-08-21, twice the figure this source gives - though roots have since reached down and the surface zone has moved. [UNVERIFIED - reported]",
+"evidence_grade": "reported",
+"integrity": {
+"state": "unknown",
+"basis": "secondhand social post",
+"stamped_at": null
+},
+"claim_layer": "unknown",
+"claim_layer_meaning": "Not declared at ingest. Treat any citation from here as unclassified: it may be rationale rather than rule."
+},
+{
+"citation": "rdwc-shared-risk",
+"text": "RDWC connects multiple containers to one control reservoir. Advantages: pH and EC adjusted once affect every plant, larger total volume buffers against the rapid swings small individual buckets suffer, one system instead of eight. 'The trade off is SHARED RISK. Root rot in one container can circulate to every plant. A pump failure or major leak affects the entire system at once.' NOT THIS GROW'S SYSTEM - a single bucket with a top-feed recirculation line - but directly relevant if gsc_auto_2 is ever joined to it, because this grow has already had two pump failures and shared risk would have made both of them everyone's. [UNVERIFIED - reported]",
+"evidence_grade": "reported",
+"integrity": {
+"state": "unknown",
+"basis": "secondhand social post",
+"stamped_at": null
+},
+"claim_layer": "unknown",
+"claim_layer_meaning": "Not declared at ingest. Treat any citation from here as unclassified: it may be rationale rather than rule."
+},
+{
+"citation": "nft-not-this-system",
+"text": "NFT runs a thin film along a sloped channel (1:30 to 1:40) with roots in humid air above it. Critical vulnerability is flow interruption: 'because the film is thin and roots aren't submerged, a pump failure or power outage leaves roots drying out quickly. Stress can start within an hour.' NOT THIS GROW'S SYSTEM, and the contrast is the point - in NFT the overnight outage would have been catastrophic within an hour. Here the roots hang in solution, which is exactly the reason the grower gave for reading the risk as lower than it looked. [UNVERIFIED - reported]",
+"evidence_grade": "reported",
+"integrity": {
+"state": "unknown",
+"basis": "secondhand social post",
+"stamped_at": null
+},
+"claim_layer": "unknown",
+"claim_layer_meaning": "Not declared at ingest. Treat any citation from here as unclassified: it may be rationale rather than rule."
+},
+{
+"citation": "ebb-and-flow-is-the-cycling-idea",
+"text": "THE GROWER'S CYCLING QUESTION HAS A NAMED SYSTEM BEHIND IT. Ebb and Flow floods a tray on a timer then drains it completely: 'during the flood phase roots get nutrients. During the drain phase air fills the medium and roots get oxygen. THE CYCLING MATCHES WHAT ROOTS ACTUALLY WANT.' Mediums are highly porous - hydroton, coarse perlite, rockwool - so they drain fast and completely. Timer reliability is critical: a failed timer that stops flooding, or floods continuously, both create problems. [UNVERIFIED - reported]",
+"evidence_grade": "reported",
+"integrity": {
+"state": "unknown",
+"basis": "secondhand social post",
+"stamped_at": null
+},
+"claim_layer": "unknown",
+"claim_layer_meaning": "Not declared at ingest. Treat any citation from here as unclassified: it may be rationale rather than rule."
+},
+{
+"citation": "cycling-splits-into-two-questions",
+"text": "THE DISTINCTION THAT ANSWERS THE GROWER'S QUESTION, derived by comparing this source to his system. He asked whether aeration should cycle rather than run continuously. That is ONE question wearing the shape of two, and they have different answers. (1) CYCLING THE TOP FEED onto the clay pellets is Ebb and Flow logic applied to the half of his system that IS a medium - flood for nutrients, drain for oxygen, which this source says is what roots want. His pellet zone already behaves this way and it is why the pellets dried when the pump stopped. (2) CYCLING THE AIR STONE is a different proposition entirely: the submerged roots are in DWC, where the same source states aeration must be continuous because 'roots in oxygen deficient solution don't just slow down - they start dying within hours.' His system is a HYBRID and the answer differs by half. Not established, and no controlled trial exists on one plant - but the question is now two questions, which is progress over treating it as one.",
+"evidence_grade": "reported",
+"integrity": {
+"state": "unknown",
+"basis": "derived from comparing this source to the system record",
+"stamped_at": null
+},
+"claim_layer": "unknown",
+"claim_layer_meaning": "Not declared at ingest. Treat any citation from here as unclassified: it may be rationale rather than rule."
+},
+{
+"citation": "system-choice-is-management-capacity",
+"text": "'Choosing a system comes down to honest assessment of your management capacity.' DWC = best starting point for most people learning hydro; RDWC = step up for multiple plants; NFT = clean if power and equipment are reliable; Ebb and Flow = middle ground with more buffer than NFT; HPA aeroponics = experienced growers chasing the ceiling, where roots in air can start drying within MINUTES of a missed misting cycle. RELEVANT TO THIS GROWER, and he is the one to weigh it: two pump interruptions are now on this record, one of them overnight. In DWC that produced no root damage. In NFT it would have been serious within an hour; in HPA, within minutes. [UNVERIFIED - reported]",
+"evidence_grade": "reported",
+"integrity": {
+"state": "unknown",
+"basis": "secondhand social post",
+"stamped_at": null
+},
+"claim_layer": "unknown",
+"claim_layer_meaning": "Not declared at ingest. Treat any citation from here as unclassified: it may be rationale rather than rule."
+},
+{
+"citation": "hydro-is-a-management-commitment",
+"text": "Closing claim of the carousel: 'Every hydroponic system is a commitment to active, consistent management in exchange for the performance that direct root zone control provides. SOIL FORGIVES. HYDROPONICS PERFORMS. The difference is whether you're willing to show up, pay attention, and maintain the system your roots are depending on every single day... Get it wrong and it will show you how fast things can go sideways when you're growing in water instead of dirt.' The author adds that he does not run hydroponics himself. [UNVERIFIED - reported, and by the author's own statement not from personal hydroponic practice]",
+"evidence_grade": "reported",
+"integrity": {
+"state": "unknown",
+"basis": "secondhand; author states he does not run hydro",
+"stamped_at": null
+},
+"claim_layer": "unknown",
+"claim_layer_meaning": "Not declared at ingest. Treat any citation from here as unclassified: it may be rationale rather than rule."
+}
+],
+"claim_layer": "unknown",
+"claim_layer_meaning": "Not declared at ingest. Treat any citation from here as unclassified: it may be rationale rather than rule.",
+"claim_layer_basis": "Not declared at ingest and not derivable from the class. This work has to be read before it can be classed; UNKNOWN is the honest value, and a citation from here is unclassified until somebody reads it.",
+"term_index": {
+"unverified reported": [
+0,
+2,
+3,
+4,
+5,
+6,
+7,
+9,
+10,
+11,
+12,
+13,
+14,
+15,
+17,
+18
+],
+"first unverified reported": [
+0,
+5
+],
+"tips ugly": [
+0,
+5
+],
+"first unverified": [
+0,
+5
+],
+"burned tips": [
+0,
+6
+],
+"discrete brown": [
+3,
+4
+],
+"interveinal chlorosis": [
+3,
+4
+],
+"roots cannot": [
+3,
+7
+],
+"brown lesions": [
+3,
+4
+],
+"match this plant": [
+3,
+4
+],
+"discrete brown lesions": [
+3,
+4
+],
+"plant looks": [
+7,
+9
+],
+"heat light": [
+7,
+8
+],
+"oxygen deficient": [
+10,
+16
+],
+"slow down": [
+10,
+16
+],
+"oxygen deficient solution": [
+10,
+16
+],
+"deficient solution": [
+10,
+16
+],
+"dying within": [
+10,
+16
+],
+"start dying within": [
+10,
+16
+],
+"within hours": [
+10,
+16
+],
+"dying within hours": [
+10,
+16
+],
+"down they start": [
+10,
+16
+],
+"just slow": [
+10,
+16
+],
+"just slow down": [
+10,
+16
+],
+"start dying": [
+10,
+16
+],
+"pump failure": [
+11,
+13,
+14
+],
+"power outage": [
+11,
+14
+],
+"what roots": [
+15,
+16
+]
+}
 }

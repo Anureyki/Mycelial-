@@ -154,24 +154,20 @@ def extract(path):
         return open(path, errors="replace").read(), {"method": "read", "pages": 1}
     if low.endswith((".png", ".jpg", ".jpeg", ".tif", ".tiff", ".webp")):
         return _ocr_image(path)
-    from pypdf import PdfReader
-    reader = PdfReader(path)
-    pages, empty = [], 0
-    for page in reader.pages:
-        try:
-            t = page.extract_text() or ""
-        except Exception:
-            t = ""
-        if not t.strip():
-            empty += 1
-        pages.append(t)
-    meta = {"method": "pypdf", "pages": len(pages), "pages_without_text": empty}
-    if empty:
-        # Say it. A scanned lease silently read as empty is the worst possible
-        # outcome: every later question answers "no such clause".
-        meta["warning"] = (f"{empty} of {len(pages)} page(s) have no text layer. "
-                           f"Those pages are NOT in the text below. Run OCR "
-                           f"(tesseract) over the scan before relying on this.")
+    from core import pdf_text
+    pages, record = pdf_text.extract_pages(path)
+    empty = len(record["no_text_layer"])
+    meta = {"method": "pypdf", "pages": len(pages),
+            "pages_without_text": empty, "extraction": record}
+    # Say it. A scanned lease silently read as empty is the worst possible
+    # outcome: every later question answers "no such clause".
+    #
+    # And say WHICH failure it was. A page with no text layer needs OCR; a page
+    # the extractor choked on has a perfectly good text layer and OCR is the
+    # wrong advice - which is why the two are no longer one counter.
+    notes = pdf_text.describe(record)
+    if notes:
+        meta["warning"] = " ".join(notes)
     return "\f".join(pages), meta
 
 
