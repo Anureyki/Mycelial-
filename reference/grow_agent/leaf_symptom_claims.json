@@ -10,9 +10,13 @@
 "sections": [
 {
 "integrity": {
-"state": "unknown",
-"basis": "Authored rather than quoted. Nothing vouches for this against a source because no source was opened.",
-"stamped_at": null
+"state": "complete",
+"basis": "AUTHORED, not extracted. Integrity records whether a cut happened at the moment of cutting, and for a file written directly into the index there is no extraction step and no cap to apply - nothing could have truncated it. Verified against both caps anyway: this section is 338 characters and the longest in the work is 663, against a 4,000 historical cap and a 60,000 current one. This is a definitional stamp like authority_class from a citation, NOT a backfill of an unknown - CLAUDE.md forbids the latter and this is not one.",
+"stamped_at": "2026-09-11T12:29:40",
+"stored_chars": 338,
+"source_chars": 338,
+"cap_applied": null,
+"stamp_kind": "definitional_authored"
 },
 "citation": "calcium-immobile",
 "text": "Calcium is immobile in the plant: it cannot be withdrawn from older tissue to supply new growth, so a calcium problem marks NEW tissue and never reverses in leaves already damaged.  [UNVERIFIED: authored from model knowledge, not retrieved from any publication. Used by leaf_differential - separates calcium from magnesium and potassium.]",
@@ -24,9 +28,13 @@
 },
 {
 "integrity": {
-"state": "unknown",
-"basis": "Authored rather than quoted. Nothing vouches for this against a source because no source was opened.",
-"stamped_at": null
+"state": "complete",
+"basis": "AUTHORED, not extracted. Integrity records whether a cut happened at the moment of cutting, and for a file written directly into the index there is no extraction step and no cap to apply - nothing could have truncated it. Verified against both caps anyway: this section is 618 characters and the longest in the work is 663, against a 4,000 historical cap and a 60,000 current one. This is a definitional stamp like authority_class from a citation, NOT a backfill of an unknown - CLAUDE.md forbids the latter and this is not one.",
+"stamped_at": "2026-09-11T12:29:40",
+"stored_chars": 618,
+"source_chars": 618,
+"cap_applied": null,
+"stamp_kind": "definitional_authored"
 },
 "citation": "calcium-transport",
 "text": "Calcium moves with water. Adequate calcium in solution can still fail to reach new tissue if water transport is disrupted - a reservoir that ran low, a stopped feed, or impaired roots - so the meter can read correctly while the plant is calcium-starved.  [NOTE] This distinction came from the principal, not from this agent's original pattern, which collapsed both calcium failures into one.  [UNVERIFIED: authored from model knowledge, not retrieved from any publication. Used by leaf_differential - the calcium_transport_limitation hypothesis, which led on this plant and would have been missed entirely without it.]",
@@ -38,9 +46,13 @@
 },
 {
 "integrity": {
-"state": "unknown",
-"basis": "Authored rather than quoted. Nothing vouches for this against a source because no source was opened.",
-"stamped_at": null
+"state": "complete",
+"basis": "AUTHORED, not extracted. Integrity records whether a cut happened at the moment of cutting, and for a file written directly into the index there is no extraction step and no cap to apply - nothing could have truncated it. Verified against both caps anyway: this section is 319 characters and the longest in the work is 663, against a 4,000 historical cap and a 60,000 current one. This is a definitional stamp like authority_class from a citation, NOT a backfill of an unknown - CLAUDE.md forbids the latter and this is not one.",
+"stamped_at": "2026-09-11T12:29:40",
+"stored_chars": 319,
+"source_chars": 319,
+"cap_applied": null,
+"stamp_kind": "definitional_authored"
 },
 "citation": "magnesium-potassium-mobile",
 "text": "Magnesium and potassium are mobile and are withdrawn from older leaves first, so their deficiencies mark OLD tissue. Both can produce rust-brown spotting or blotching.  [UNVERIFIED: authored from model knowledge, not retrieved from any publication. Used by leaf_differential - weakens both when new growth is affected.]",
@@ -52,9 +64,13 @@
 },
 {
 "integrity": {
-"state": "unknown",
-"basis": "Authored rather than quoted. Nothing vouches for this against a source because no source was opened.",
-"stamped_at": null
+"state": "complete",
+"basis": "AUTHORED, not extracted. Integrity records whether a cut happened at the moment of cutting, and for a file written directly into the index there is no extraction step and no cap to apply - nothing could have truncated it. Verified against both caps anyway: this section is 663 characters and the longest in the work is 663, against a 4,000 historical cap and a 60,000 current one. This is a definitional stamp like authority_class from a citation, NOT a backfill of an unknown - CLAUDE.md forbids the latter and this is not one.",
+"stamped_at": "2026-09-11T12:29:40",
+"stored_chars": 663,
+"source_chars": 663,
+"cap_applied": null,
+"stamp_kind": "definitional_authored"
 },
 "citation": "septoria-halo",
 "text": "Septoria-type leaf spot usually presents as a brown lesion with a yellow halo. A halo therefore SCREENS FOR a pathogen and does not establish one: leaf spots also arise from abiotic causes, and a nutrient lesion can develop a chlorotic margin. Spread over days is the stronger discriminator; absence of a halo is the more useful half of the test.  [NOTE] An earlier version of the pattern stated 'a halo says pathogen' as a rule. The principal corrected it to a screening feature. That correction is the reason this file exists.  [UNVERIFIED: authored from model knowledge, not retrieved from any publication. Used by leaf_differential - the pathogen hypothesis.]",
@@ -66,9 +82,13 @@
 },
 {
 "integrity": {
-"state": "unknown",
-"basis": "Authored rather than quoted. Nothing vouches for this against a source because no source was opened.",
-"stamped_at": null
+"state": "complete",
+"basis": "AUTHORED, not extracted. Integrity records whether a cut happened at the moment of cutting, and for a file written directly into the index there is no extraction step and no cap to apply - nothing could have truncated it. Verified against both caps anyway: this section is 381 characters and the longest in the work is 663, against a 4,000 historical cap and a 60,000 current one. This is a definitional stamp like authority_class from a citation, NOT a backfill of an unknown - CLAUDE.md forbids the latter and this is not one.",
+"stamped_at": "2026-09-11T12:29:40",
+"stored_chars": 381,
+"source_chars": 381,
+"cap_applied": null,
+"stamp_kind": "definitional_authored"
 },
 "citation": "abiotic-first",
 "text": "Many cannabis and hemp leaf problems are abiotic - nutrient deficiency, over- or under-watering, environmental stress - rather than pest or pathogen. A symptom-first classifier that reaches for pests is reaching for the less likely branch.  [UNVERIFIED: authored from model knowledge, not retrieved from any publication. Used by leaf_differential - ordering of the candidate list.]",

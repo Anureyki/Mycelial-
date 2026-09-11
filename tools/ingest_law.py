@@ -35,11 +35,39 @@ TMP = os.environ.get("CLAUDE_JOB_DIR", "/tmp") + "/tmp"
 
 
 def _get(url, timeout=180, tries=3):
+    """Fetch, transparently decompressing.
+
+    ACCEPT-ENCODING IS NOT OPTIONAL ANY MORE. eCFR's /full/ endpoint began
+    answering every request without one with HTTP 406 and this body:
+
+        This endpoint requires response compression. Send an Accept-Encoding
+        header that permits compression.
+
+    urllib sends no Accept-Encoding of its own, so every CFR acquisition and
+    every re-ingest through this tool failed - loudly, which is the one good
+    thing about it. Asking for gzip means handling gzip, because a server that
+    honours the header returns bytes that are not text."""
     for a in range(tries):
         try:
-            r = urllib.request.Request(url, headers={"User-Agent": UA})
-            return urllib.request.urlopen(r, timeout=timeout).read()
-        except Exception as e:
+            r = urllib.request.Request(url, headers={
+                "User-Agent": UA,
+                "Accept-Encoding": "gzip, deflate",
+                "Accept": "*/*",
+            })
+            resp = urllib.request.urlopen(r, timeout=timeout)
+            raw = resp.read()
+            enc = (resp.headers.get("Content-Encoding") or "").lower()
+            if "gzip" in enc:
+                import gzip as _gzip
+                raw = _gzip.decompress(raw)
+            elif "deflate" in enc:
+                import zlib as _zlib
+                try:
+                    raw = _zlib.decompress(raw)
+                except _zlib.error:
+                    raw = _zlib.decompress(raw, -_zlib.MAX_WBITS)
+            return raw
+        except Exception:
             if a == tries - 1:
                 raise
             time.sleep(2 + a * 4)

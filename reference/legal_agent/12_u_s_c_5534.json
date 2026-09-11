@@ -1,30 +1,48 @@
 {
-"title": "12 U.S.C. \u00a7 5534",
-"source": "United States Code title 12 section 5534, retrieved from Cornell LII (law.cornell.edu). The statutory text is a U.S. government work and is public domain; Cornell's annotations are excluded.",
-"authorities_cited": [],
-"term_index": {
-"standing": [
-0
-],
-"credit score": [
-0
-]
-},
-"origin_pdf": "usc12_5534.txt",
-"pages": 1,
-"sections": [
-{
-"citation": "\u00a7 5534.",
-"kind": "section_sign",
-"page": 1,
-"text": "\u00a7 5534. Response to consumer complaints and inquiries. (a) Timely regulator response to consumers The Bureau shall establish, in consultation with the appropriate Federal regulatory agencies, reasonable procedures to provide a timely response to consumers , in writing where appropriate, to complaints against, or inquiries concerning, a covered person , including\u2014 (1) steps that have been taken by the regulator in response to the complaint or inquiry of the consumer ; (2) any responses received by the regulator from the covered person ; and (3) any follow-up actions or planned follow-up actions by the regulator in response to the complaint or inquiry of the consumer . (b) Timely response to regulator by covered person A covered person subject to supervision and primary enforcement by the Bureau pursuant to section 5515 of this title shall provide a timely response, in writing where appropriate, to the Bureau, the prudential regulators, and any other agency having jurisdiction over such covered person concerning a consumer complaint or inquiry, including\u2014 (1) steps that have been taken by the covered person to respond to the complaint or inquiry of the consumer; (2) responses received by the covered person from the consumer; and (3) follow-up actions or planned follow-up actions by the covered person to respond to the complaint or inquiry of the consumer. (c) Provision of information to consumers (1) In general A covered person subject to supervision and primary enforcement by the Bureau pursuant to section 5515 of this title shall, in a timely manner, comply with a consumer request for information in the control or possession of such covered person concerning the consumer financial product or service that the consumer obtained from such covered person, including supporting written documentation, concerning the account of the consumer. (2) Exceptions A covered person subject to supervision and primary enforcement by the Bureau pursuant to section 5515 of this title , a prudential regulator, and any other agency having jurisdiction over a covered person subject to supervision and primary enforcement by the Bureau pursuant to section 5515 of this title may not be required by this section to make available to the consumer\u2014 (A) any confidential commercial information, including an algorithm used to derive credit scores or other risk scores or predictors; (B) any information collected by the covered person for the purpose of preventing fraud or money laundering, or detecting or making any report regarding other unlawful or potentially unlawful conduct; (C) any information required to be kept confidential by any other provision of law; or (D) any nonpublic or confidential information, including confidential supervisory information. (d) Agreements with other agencies The Bureau shall enter into a memorandum of understanding with any affected Federal regulatory agency regarding procedures by which any covered person , and the prudential regulators , and any other agency having jurisdiction over a covered person, including the Secretary of the Department of Housing and Urban Development and the Secretary of Education, shall comply with this section.",
-"claim_layer": "doctrinal",
-"claim_layer_meaning": "States or describes the rule. Cite for what the law IS."
-}
-],
-"authority_class": "federal_statute",
-"authority_class_basis": "Title of the work is a U.S. Code section citation, which fixes the class",
-"claim_layer": "doctrinal",
-"claim_layer_meaning": "States or describes the rule. Cite for what the law IS.",
-"claim_layer_basis": "Set from the authority class, not from the text: a statute, regulation or set of court rules states the rule rather than describing or arguing it, which the citation in the title establishes definitionally."
+  "title": "12 U.S.C. \u00a7 5534",
+  "source": "United States Code title 12 section 5534, retrieved from Cornell LII (law.cornell.edu). The statutory text is a U.S. government work and is public domain; Cornell's annotations are excluded.",
+  "authority_class": "federal_statute",
+  "authority_class_basis": "Title of the work is a U.S. Code section citation, which fixes the class",
+  "claim_layer": "doctrinal",
+  "claim_layer_meaning": "States or describes the rule. Cite for what the law IS.",
+  "authorities_cited": [],
+  "term_index": {
+    "standing": [
+      0
+    ],
+    "credit score": [
+      0
+    ]
+  },
+  "origin_pdf": "usc12_5534.txt",
+  "extraction": {
+    "extractor": "text file (already extracted)",
+    "pages": 1,
+    "no_text_layer": [],
+    "raised": [],
+    "recovered": [],
+    "lost": [],
+    "complete": true
+  },
+  "pages": 1,
+  "sections": [
+    {
+      "citation": "\u00a7 5534.",
+      "kind": "section_sign",
+      "page": 1,
+      "text": "\u00a7 5534. Response to consumer complaints and inquiries. (a) Timely regulator response to consumers The Bureau shall establish, in consultation with the appropriate Federal regulatory agencies, reasonable procedures to provide a timely response to consumers , in writing where appropriate, to complaints against, or inquiries concerning, a covered person , including\u2014 (1) steps that have been taken by the regulator in response to the complaint or inquiry of the consumer ; (2) any responses received by the regulator from the covered person ; and (3) any follow-up actions or planned follow-up actions by the regulator in response to the complaint or inquiry of the consumer . (b) Timely response to regulator by covered person A covered person subject to supervision and primary enforcement by the Bureau pursuant to section 5515 of this title shall provide a timely response, in writing where appropriate, to the Bureau, the prudential regulators, and any other agency having jurisdiction over such covered person concerning a consumer complaint or inquiry, including\u2014 (1) steps that have been taken by the covered person to respond to the complaint or inquiry of the consumer; (2) responses received by the covered person from the consumer; and (3) follow-up actions or planned follow-up actions by the covered person to respond to the complaint or inquiry of the consumer. (c) Provision of information to consumers (1) In general A covered person subject to supervision and primary enforcement by the Bureau pursuant to section 5515 of this title shall, in a timely manner, comply with a consumer request for information in the control or possession of such covered person concerning the consumer financial product or service that the consumer obtained from such covered person, including supporting written documentation, concerning the account of the consumer. (2) Exceptions A covered person subject to supervision and primary enforcement by the Bureau pursuant to section 5515 of this title , a prudential regulator, and any other agency having jurisdiction over a covered person subject to supervision and primary enforcement by the Bureau pursuant to section 5515 of this title may not be required by this section to make available to the consumer\u2014 (A) any confidential commercial information, including an algorithm used to derive credit scores or other risk scores or predictors; (B) any information collected by the covered person for the purpose of preventing fraud or money laundering, or detecting or making any report regarding other unlawful or potentially unlawful conduct; (C) any information required to be kept confidential by any other provision of law; or (D) any nonpublic or confidential information, including confidential supervisory information. (d) Agreements with other agencies The Bureau shall enter into a memorandum of understanding with any affected Federal regulatory agency regarding procedures by which any covered person , and the prudential regulators , and any other agency having jurisdiction over a covered person, including the Secretary of the Department of Housing and Urban Development and the Secretary of Education, shall comply with this section.",
+      "integrity": {
+        "state": "complete",
+        "basis": "Full retrieved body of 3,196 characters stored; under the 60,000 cap, so nothing was cut.",
+        "stamped_at": "2026-09-11T12:28:33",
+        "stored_chars": 3196,
+        "source_chars": 3196,
+        "cap_applied": 60000
+      },
+      "authority_class": "federal_statute",
+      "claim_layer": "doctrinal",
+      "claim_layer_meaning": "States or describes the rule. Cite for what the law IS."
+    }
+  ],
+  "claim_layer_basis": "Set from the class, not from the text: a statute or regulation states the rule rather than describing or arguing it, which the citation in the title establishes definitionally."
 }

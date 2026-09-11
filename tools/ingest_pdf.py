@@ -516,8 +516,9 @@ def main():
                          "be authority_class treatise and be these three different things.")
     ap.add_argument("--authority-class", default=None,
                     choices=["federal_statute", "state_statute", "regulation",
-                             "court_rules", "agency_guidance", "treatise",
-                             "advocacy", "unknown"],
+                             "court_rules", "case_law", "agency_guidance",
+                             "agency_instruction", "treatise", "doctrine_summary",
+                             "dictionary", "advocacy", "unknown"],
                     help="How this work should be WEIGHED. Required unless --treatise "
                          "implies it. See CLAUDE.md: the claim pipeline weighs whatever "
                          "it can open as potentially governing, so a work with no class "
@@ -528,7 +529,13 @@ def main():
                          "rather than quality. Set it only after READING - CLAUDE.md "
                          "records a talk tagged advocacy from its title that argued the "
                          "opposite of the tag, which is the same error in the other "
-                         "direction.")
+                         "direction. "
+                         "The set here must match AUTHORITY_RANK in "
+                         "core/base_agent.py: that map already ranked "
+                         "agency_instruction, doctrine_summary and dictionary "
+                         "while this list refused to write them, so a work the "
+                         "system knows how to WEIGH could not be re-ingested "
+                         "with the class it already had. DoDI 1000.30 hit it.")
     ap.add_argument("--allow-lost-pages", action="store_true",
                     help="shelve the work even though a page could not be read "
                          "by any extractor. The loss is recorded on the document")

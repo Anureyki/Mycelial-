@@ -15,8 +15,17 @@
 "page": 1,
 "text": "self-settled trust. A trust the settlor creates for their own benefit. The general rule, and the one that decides most disputes: a settlor who is also a beneficiary CANNOT put assets beyond the reach of their own creditors by the act of settling them, and a spendthrift clause does not change that as to the settlor's own interest. Creditors reach the MAXIMUM the trustee COULD distribute to the settlor-beneficiary, whether or not the trustee would ever exercise the discretion that far. See Restatement of Trusts s 156(2), carried into Restatement (Second) s 156(2) and UTC s 505(a)(2).",
 "standing": "doctrine",
-"claim_layer": "unknown",
-"claim_layer_meaning": "Not declared at ingest. Treat any citation from here as unclassified: it may be rationale rather than rule."
+"claim_layer": "doctrinal",
+"claim_layer_meaning": "States or describes the rule. Cite for what the law IS.",
+"integrity": {
+"state": "complete",
+"basis": "AUTHORED, not extracted. Integrity records whether a cut happened at the moment of cutting, and for a file written directly into the index there is no extraction step and no cap to apply - nothing could have truncated it. Verified against both caps anyway: this section is 588 characters and the longest in the work is 888, against a 4,000 historical cap and a 60,000 current one. This is a definitional stamp like authority_class from a citation, NOT a backfill of an unknown - CLAUDE.md forbids the latter and this is not one.",
+"stamped_at": "2026-09-11T12:29:40",
+"stored_chars": 588,
+"source_chars": 588,
+"cap_applied": null,
+"stamp_kind": "definitional_authored"
+}
 },
 {
 "citation": "retained beneficial enjoyment",
@@ -24,8 +33,17 @@
 "page": 1,
 "text": "retained beneficial enjoyment. What the transferor can still practically obtain from the property, as opposed to what the instrument says on its face they are entitled to. In transfer-tax analysis this is the hinge: an interest the settlor's creditors can reach is an interest the settlor has retained, because the settlor can realise it by incurring a debt. Treas. Reg. s 20.2036-1(c) makes the point in terms - retained enjoyment includes EXPRESS OR IMPLIED UNDERSTANDINGS, not only rights reserved in the document.",
 "standing": "doctrine",
-"claim_layer": "unknown",
-"claim_layer_meaning": "Not declared at ingest. Treat any citation from here as unclassified: it may be rationale rather than rule."
+"claim_layer": "doctrinal",
+"claim_layer_meaning": "States or describes the rule. Cite for what the law IS.",
+"integrity": {
+"state": "complete",
+"basis": "AUTHORED, not extracted. Integrity records whether a cut happened at the moment of cutting, and for a file written directly into the index there is no extraction step and no cap to apply - nothing could have truncated it. Verified against both caps anyway: this section is 517 characters and the longest in the work is 888, against a 4,000 historical cap and a 60,000 current one. This is a definitional stamp like authority_class from a citation, NOT a backfill of an unknown - CLAUDE.md forbids the latter and this is not one.",
+"stamped_at": "2026-09-11T12:29:40",
+"stored_chars": 517,
+"source_chars": 517,
+"cap_applied": null,
+"stamp_kind": "definitional_authored"
+}
 },
 {
 "citation": "term versus assurance",
@@ -33,8 +51,17 @@
 "page": 1,
 "text": "term versus assurance. A DRAFTED CLAUSE is a term of the instrument: it binds the trustee, it is visible on the face of the document, it can be construed by a court and defended by a fiduciary. AN ORAL ASSURANCE BINDS NO ONE. Where the trustees told the settlor at execution that they would pay income on request unless they believed she was acting under compulsion, that assurance is testimony about intent - it is not a provision, and the trustee retained absolute discretion whatever was said. The settlor therefore received no enforceable right, and the understanding became evidence AGAINST her position rather than protection of it. This is the practical lesson of Paolozzi: the compulsion logic sat in a 1938 Massachusetts trust as a conversation, not as a clause.",
 "standing": "doctrine",
-"claim_layer": "unknown",
-"claim_layer_meaning": "Not declared at ingest. Treat any citation from here as unclassified: it may be rationale rather than rule."
+"claim_layer": "doctrinal",
+"claim_layer_meaning": "States or describes the rule. Cite for what the law IS.",
+"integrity": {
+"state": "complete",
+"basis": "AUTHORED, not extracted. Integrity records whether a cut happened at the moment of cutting, and for a file written directly into the index there is no extraction step and no cap to apply - nothing could have truncated it. Verified against both caps anyway: this section is 771 characters and the longest in the work is 888, against a 4,000 historical cap and a 60,000 current one. This is a definitional stamp like authority_class from a citation, NOT a backfill of an unknown - CLAUDE.md forbids the latter and this is not one.",
+"stamped_at": "2026-09-11T12:29:40",
+"stored_chars": 771,
+"source_chars": 771,
+"cap_applied": null,
+"stamp_kind": "definitional_authored"
+}
 },
 {
 "citation": "creditor-access tax symmetry",
@@ -42,8 +69,17 @@
 "page": 1,
 "text": "creditor-access tax symmetry. Creditor access and transfer-tax treatment are TWO PHASES OF ONE DETERMINATION, not two questions. If state law lets creditors reach the interest, the transferor has retained enjoyment for federal transfer-tax purposes; if creditors cannot reach it, the transfer is complete. The consequence is a whipsaw the planner must state out loud: the same facts that make a trust effective against creditors make the gift complete and taxable, and the facts that defeat the gift-tax deficiency are the facts that expose the assets. Practical availability converts what the Commissioner called a mere expectancy into a retained interest. Equity and the tax law both value the position by WHAT THE HOLDER CAN ACTUALLY OBTAIN, not by the enforceable right stated on the face of the document - which is 'equity regards substance over form' operating in a revenue setting.",
 "standing": "doctrine",
-"claim_layer": "unknown",
-"claim_layer_meaning": "Not declared at ingest. Treat any citation from here as unclassified: it may be rationale rather than rule."
+"claim_layer": "doctrinal",
+"claim_layer_meaning": "States or describes the rule. Cite for what the law IS.",
+"integrity": {
+"state": "complete",
+"basis": "AUTHORED, not extracted. Integrity records whether a cut happened at the moment of cutting, and for a file written directly into the index there is no extraction step and no cap to apply - nothing could have truncated it. Verified against both caps anyway: this section is 888 characters and the longest in the work is 888, against a 4,000 historical cap and a 60,000 current one. This is a definitional stamp like authority_class from a citation, NOT a backfill of an unknown - CLAUDE.md forbids the latter and this is not one.",
+"stamped_at": "2026-09-11T12:29:40",
+"stored_chars": 888,
+"source_chars": 888,
+"cap_applied": null,
+"stamp_kind": "definitional_authored"
+}
 },
 {
 "citation": "duress provision",
@@ -51,8 +87,17 @@
 "page": 1,
 "text": "duress provision. Also anti-duress clause. A term directing the trustee to disregard instructions given under compulsion, so a settlor ordered by a court to repatriate assets can plead impossibility. What the reported cases actually do with it: the impossibility defence fails where the impossibility is of the settlor's own making, and the contemnor carries the burden of production. A duress provision protects the RES while exposing the PERSON - equity acts in personam and the settlor is the one standing in the courtroom. It should be presented as a trade, never as protection.",
 "standing": "doctrine",
-"claim_layer": "unknown",
-"claim_layer_meaning": "Not declared at ingest. Treat any citation from here as unclassified: it may be rationale rather than rule."
+"claim_layer": "doctrinal",
+"claim_layer_meaning": "States or describes the rule. Cite for what the law IS.",
+"integrity": {
+"state": "complete",
+"basis": "AUTHORED, not extracted. Integrity records whether a cut happened at the moment of cutting, and for a file written directly into the index there is no extraction step and no cap to apply - nothing could have truncated it. Verified against both caps anyway: this section is 582 characters and the longest in the work is 888, against a 4,000 historical cap and a 60,000 current one. This is a definitional stamp like authority_class from a citation, NOT a backfill of an unknown - CLAUDE.md forbids the latter and this is not one.",
+"stamped_at": "2026-09-11T12:29:40",
+"stored_chars": 582,
+"source_chars": 582,
+"cap_applied": null,
+"stamp_kind": "definitional_authored"
+}
 },
 {
 "citation": "Paolozzi v. Commissioner, 23 T.C. 182 (1954)",
@@ -60,8 +105,17 @@
 "page": 1,
 "text": "Paolozzi v. Commissioner, 23 T.C. 182 (1954). U.S. Tax Court (Van Fossan, J.), filed 29 October 1954. Gift tax deficiency of $24,511.97 for 1938. On 21 June 1938 the petitioner transferred $276,821.66 in cash and securities into a Massachusetts trust of which she was sole life beneficiary; the trustees were to pay her so much of the net income as they in their ABSOLUTE DISCRETION should decide was best for her interest, with an accumulation power, remainders to her issue, and a spendthrift clause. HELD: because Massachusetts creditors could reach the maximum the trustees could pay her, she retained beneficial enjoyment and the gift was INCOMPLETE - so no gift tax. ROUTINELY CITED BACKWARDS. The taxpayer did not win because the trust protected her assets. She won by PROVING IT DID NOT.",
 "standing": "persuasive - federal",
-"claim_layer": "unknown",
-"claim_layer_meaning": "Not declared at ingest. Treat any citation from here as unclassified: it may be rationale rather than rule."
+"claim_layer": "doctrinal",
+"claim_layer_meaning": "States or describes the rule. Cite for what the law IS.",
+"integrity": {
+"state": "complete",
+"basis": "AUTHORED, not extracted. Integrity records whether a cut happened at the moment of cutting, and for a file written directly into the index there is no extraction step and no cap to apply - nothing could have truncated it. Verified against both caps anyway: this section is 795 characters and the longest in the work is 888, against a 4,000 historical cap and a 60,000 current one. This is a definitional stamp like authority_class from a citation, NOT a backfill of an unknown - CLAUDE.md forbids the latter and this is not one.",
+"stamped_at": "2026-09-11T12:29:40",
+"stored_chars": 795,
+"source_chars": 795,
+"cap_applied": null,
+"stamp_kind": "definitional_authored"
+}
 },
 {
 "citation": "Ware v. Gulda, 331 Mass. 68, 117 N.E.2d 137 (1954)",
@@ -69,8 +123,17 @@
 "page": 1,
 "text": "Ware v. Gulda, 331 Mass. 68, 117 N.E.2d 137 (1954). Creditors of a settlor-beneficiary reach the maximum the trustee could distribute to them. The state-law rule that supplied the answer in Paolozzi.",
 "standing": "controlling - Massachusetts",
-"claim_layer": "unknown",
-"claim_layer_meaning": "Not declared at ingest. Treat any citation from here as unclassified: it may be rationale rather than rule."
+"claim_layer": "doctrinal",
+"claim_layer_meaning": "States or describes the rule. Cite for what the law IS.",
+"integrity": {
+"state": "complete",
+"basis": "AUTHORED, not extracted. Integrity records whether a cut happened at the moment of cutting, and for a file written directly into the index there is no extraction step and no cap to apply - nothing could have truncated it. Verified against both caps anyway: this section is 199 characters and the longest in the work is 888, against a 4,000 historical cap and a 60,000 current one. This is a definitional stamp like authority_class from a citation, NOT a backfill of an unknown - CLAUDE.md forbids the latter and this is not one.",
+"stamped_at": "2026-09-11T12:29:40",
+"stored_chars": 199,
+"source_chars": 199,
+"cap_applied": null,
+"stamp_kind": "definitional_authored"
+}
 },
 {
 "citation": "Morgan v. Commissioner, 309 U.S. 78, 80 (1940)",
@@ -78,8 +141,17 @@
 "page": 1,
 "text": "Morgan v. Commissioner, 309 U.S. 78, 80 (1940). State law creates property interests; federal law determines their tax consequences. The reason a federal tax outcome can turn entirely on a state creditor-rights rule.",
 "standing": "binding - Supreme Court",
-"claim_layer": "unknown",
-"claim_layer_meaning": "Not declared at ingest. Treat any citation from here as unclassified: it may be rationale rather than rule."
+"claim_layer": "doctrinal",
+"claim_layer_meaning": "States or describes the rule. Cite for what the law IS.",
+"integrity": {
+"state": "complete",
+"basis": "AUTHORED, not extracted. Integrity records whether a cut happened at the moment of cutting, and for a file written directly into the index there is no extraction step and no cap to apply - nothing could have truncated it. Verified against both caps anyway: this section is 216 characters and the longest in the work is 888, against a 4,000 historical cap and a 60,000 current one. This is a definitional stamp like authority_class from a citation, NOT a backfill of an unknown - CLAUDE.md forbids the latter and this is not one.",
+"stamped_at": "2026-09-11T12:29:40",
+"stored_chars": 216,
+"source_chars": 216,
+"cap_applied": null,
+"stamp_kind": "definitional_authored"
+}
 },
 {
 "citation": "Commissioner v. Estate of Bosch, 387 U.S. 456 (1967)",
@@ -87,8 +159,17 @@
 "page": 1,
 "text": "Commissioner v. Estate of Bosch, 387 U.S. 456 (1967). How a federal court determines unsettled state law: the highest state court's decisions control, and lower state court rulings are data rather than binding.",
 "standing": "binding - Supreme Court",
-"claim_layer": "unknown",
-"claim_layer_meaning": "Not declared at ingest. Treat any citation from here as unclassified: it may be rationale rather than rule."
+"claim_layer": "doctrinal",
+"claim_layer_meaning": "States or describes the rule. Cite for what the law IS.",
+"integrity": {
+"state": "complete",
+"basis": "AUTHORED, not extracted. Integrity records whether a cut happened at the moment of cutting, and for a file written directly into the index there is no extraction step and no cap to apply - nothing could have truncated it. Verified against both caps anyway: this section is 210 characters and the longest in the work is 888, against a 4,000 historical cap and a 60,000 current one. This is a definitional stamp like authority_class from a citation, NOT a backfill of an unknown - CLAUDE.md forbids the latter and this is not one.",
+"stamped_at": "2026-09-11T12:29:40",
+"stored_chars": 210,
+"source_chars": 210,
+"cap_applied": null,
+"stamp_kind": "definitional_authored"
+}
 },
 {
 "citation": "Herzog v. Commissioner, 116 F.2d 591 (2d Cir. 1941)",
@@ -96,8 +177,17 @@
 "page": 1,
 "text": "Herzog v. Commissioner, 116 F.2d 591 (2d Cir. 1941). Contrary result under New York law. DISTINGUISHED, NOT OVERRULED - which is the point: the outcome moves with the state creditor rule, so the same instrument can be a completed gift in one state and not in another.",
 "standing": "limiting - scope",
-"claim_layer": "unknown",
-"claim_layer_meaning": "Not declared at ingest. Treat any citation from here as unclassified: it may be rationale rather than rule."
+"claim_layer": "doctrinal",
+"claim_layer_meaning": "States or describes the rule. Cite for what the law IS.",
+"integrity": {
+"state": "complete",
+"basis": "AUTHORED, not extracted. Integrity records whether a cut happened at the moment of cutting, and for a file written directly into the index there is no extraction step and no cap to apply - nothing could have truncated it. Verified against both caps anyway: this section is 267 characters and the longest in the work is 888, against a 4,000 historical cap and a 60,000 current one. This is a definitional stamp like authority_class from a citation, NOT a backfill of an unknown - CLAUDE.md forbids the latter and this is not one.",
+"stamped_at": "2026-09-11T12:29:40",
+"stored_chars": 267,
+"source_chars": 267,
+"cap_applied": null,
+"stamp_kind": "definitional_authored"
+}
 },
 {
 "citation": "Estate of Uhl, 241 F.2d 867 (7th Cir. 1957)",
@@ -105,8 +195,17 @@
 "page": 1,
 "text": "Estate of Uhl, 241 F.2d 867 (7th Cir. 1957). Section 2036 inclusion limited to the PORTION creditors could reach - the retained interest is measured, not assumed to be the whole.",
 "standing": "persuasive - federal",
-"claim_layer": "unknown",
-"claim_layer_meaning": "Not declared at ingest. Treat any citation from here as unclassified: it may be rationale rather than rule."
+"claim_layer": "doctrinal",
+"claim_layer_meaning": "States or describes the rule. Cite for what the law IS.",
+"integrity": {
+"state": "complete",
+"basis": "AUTHORED, not extracted. Integrity records whether a cut happened at the moment of cutting, and for a file written directly into the index there is no extraction step and no cap to apply - nothing could have truncated it. Verified against both caps anyway: this section is 178 characters and the longest in the work is 888, against a 4,000 historical cap and a 60,000 current one. This is a definitional stamp like authority_class from a citation, NOT a backfill of an unknown - CLAUDE.md forbids the latter and this is not one.",
+"stamped_at": "2026-09-11T12:29:40",
+"stored_chars": 178,
+"source_chars": 178,
+"cap_applied": null,
+"stamp_kind": "definitional_authored"
+}
 },
 {
 "citation": "Treas. Reg. 20.2036-1(c)",
@@ -114,8 +213,17 @@
 "page": 1,
 "text": "Treas. Reg. 20.2036-1(c). Retained enjoyment includes express OR IMPLIED understandings. Now held in this corpus at 26 CFR Part 20.",
 "standing": "rule - federal",
-"claim_layer": "unknown",
-"claim_layer_meaning": "Not declared at ingest. Treat any citation from here as unclassified: it may be rationale rather than rule."
+"claim_layer": "doctrinal",
+"claim_layer_meaning": "States or describes the rule. Cite for what the law IS.",
+"integrity": {
+"state": "complete",
+"basis": "AUTHORED, not extracted. Integrity records whether a cut happened at the moment of cutting, and for a file written directly into the index there is no extraction step and no cap to apply - nothing could have truncated it. Verified against both caps anyway: this section is 131 characters and the longest in the work is 888, against a 4,000 historical cap and a 60,000 current one. This is a definitional stamp like authority_class from a citation, NOT a backfill of an unknown - CLAUDE.md forbids the latter and this is not one.",
+"stamped_at": "2026-09-11T12:29:40",
+"stored_chars": 131,
+"source_chars": 131,
+"cap_applied": null,
+"stamp_kind": "definitional_authored"
+}
 },
 {
 "citation": "11 U.S.C. 548(e)",
@@ -123,8 +231,17 @@
 "page": 1,
 "text": "11 U.S.C. 548(e). Ten-year lookback for transfers to a self-settled trust made with actual intent to hinder, delay or defraud. Added by BAPCPA 2005, and the reason a domestic asset protection trust does not become safe merely because a state limitation period has run.",
 "standing": "statute - federal",
-"claim_layer": "unknown",
-"claim_layer_meaning": "Not declared at ingest. Treat any citation from here as unclassified: it may be rationale rather than rule."
+"claim_layer": "doctrinal",
+"claim_layer_meaning": "States or describes the rule. Cite for what the law IS.",
+"integrity": {
+"state": "complete",
+"basis": "AUTHORED, not extracted. Integrity records whether a cut happened at the moment of cutting, and for a file written directly into the index there is no extraction step and no cap to apply - nothing could have truncated it. Verified against both caps anyway: this section is 268 characters and the longest in the work is 888, against a 4,000 historical cap and a 60,000 current one. This is a definitional stamp like authority_class from a citation, NOT a backfill of an unknown - CLAUDE.md forbids the latter and this is not one.",
+"stamped_at": "2026-09-11T12:29:40",
+"stored_chars": 268,
+"source_chars": 268,
+"cap_applied": null,
+"stamp_kind": "definitional_authored"
+}
 },
 {
 "citation": "FTC v. Affordable Media, 179 F.3d 1228 (9th Cir. 1999)",
@@ -132,8 +249,17 @@
 "page": 1,
 "text": "FTC v. Affordable Media, 179 F.3d 1228 (9th Cir. 1999). Settlors were co-trustees of a Cook Islands trust. Impossibility defence FAILED because the impossibility was of their own making; civil contempt affirmed.",
 "standing": "persuasive - federal",
-"claim_layer": "unknown",
-"claim_layer_meaning": "Not declared at ingest. Treat any citation from here as unclassified: it may be rationale rather than rule."
+"claim_layer": "doctrinal",
+"claim_layer_meaning": "States or describes the rule. Cite for what the law IS.",
+"integrity": {
+"state": "complete",
+"basis": "AUTHORED, not extracted. Integrity records whether a cut happened at the moment of cutting, and for a file written directly into the index there is no extraction step and no cap to apply - nothing could have truncated it. Verified against both caps anyway: this section is 211 characters and the longest in the work is 888, against a 4,000 historical cap and a 60,000 current one. This is a definitional stamp like authority_class from a citation, NOT a backfill of an unknown - CLAUDE.md forbids the latter and this is not one.",
+"stamped_at": "2026-09-11T12:29:40",
+"stored_chars": 211,
+"source_chars": 211,
+"cap_applied": null,
+"stamp_kind": "definitional_authored"
+}
 },
 {
 "citation": "In re Lawrence, 279 F.3d 1294 (11th Cir. 2002)",
@@ -141,8 +267,17 @@
 "page": 1,
 "text": "In re Lawrence, 279 F.3d 1294 (11th Cir. 2002). Self-created impossibility is no defence. Lawrence was incarcerated for civil contempt for roughly six years.",
 "standing": "persuasive - federal",
-"claim_layer": "unknown",
-"claim_layer_meaning": "Not declared at ingest. Treat any citation from here as unclassified: it may be rationale rather than rule."
+"claim_layer": "doctrinal",
+"claim_layer_meaning": "States or describes the rule. Cite for what the law IS.",
+"integrity": {
+"state": "complete",
+"basis": "AUTHORED, not extracted. Integrity records whether a cut happened at the moment of cutting, and for a file written directly into the index there is no extraction step and no cap to apply - nothing could have truncated it. Verified against both caps anyway: this section is 157 characters and the longest in the work is 888, against a 4,000 historical cap and a 60,000 current one. This is a definitional stamp like authority_class from a citation, NOT a backfill of an unknown - CLAUDE.md forbids the latter and this is not one.",
+"stamped_at": "2026-09-11T12:29:40",
+"stored_chars": 157,
+"source_chars": 157,
+"cap_applied": null,
+"stamp_kind": "definitional_authored"
+}
 },
 {
 "citation": "In re Huber, 493 B.R. 798 (Bankr. W.D. Wash. 2013)",
@@ -150,8 +285,17 @@
 "page": 1,
 "text": "In re Huber, 493 B.R. 798 (Bankr. W.D. Wash. 2013). Alaska DAPT set aside. The forum state applied ITS OWN law on the conflicts analysis, plus 11 U.S.C. s 548(e).",
 "standing": "persuasive - federal",
-"claim_layer": "unknown",
-"claim_layer_meaning": "Not declared at ingest. Treat any citation from here as unclassified: it may be rationale rather than rule."
+"claim_layer": "doctrinal",
+"claim_layer_meaning": "States or describes the rule. Cite for what the law IS.",
+"integrity": {
+"state": "complete",
+"basis": "AUTHORED, not extracted. Integrity records whether a cut happened at the moment of cutting, and for a file written directly into the index there is no extraction step and no cap to apply - nothing could have truncated it. Verified against both caps anyway: this section is 162 characters and the longest in the work is 888, against a 4,000 historical cap and a 60,000 current one. This is a definitional stamp like authority_class from a citation, NOT a backfill of an unknown - CLAUDE.md forbids the latter and this is not one.",
+"stamped_at": "2026-09-11T12:29:40",
+"stored_chars": 162,
+"source_chars": 162,
+"cap_applied": null,
+"stamp_kind": "definitional_authored"
+}
 },
 {
 "citation": "Toni 1 Trust v. Wacker, 413 P.3d 1199 (Alaska 2018)",
@@ -159,8 +303,17 @@
 "page": 1,
 "text": "Toni 1 Trust v. Wacker, 413 P.3d 1199 (Alaska 2018). Alaska's own supreme court held that Alaska's exclusive-jurisdiction statute CANNOT BIND THE COURTS OF OTHER STATES. A state cannot legislate other forums out of hearing the case.",
 "standing": "controlling - Alaska, and instructive everywhere",
-"claim_layer": "unknown",
-"claim_layer_meaning": "Not declared at ingest. Treat any citation from here as unclassified: it may be rationale rather than rule."
+"claim_layer": "doctrinal",
+"claim_layer_meaning": "States or describes the rule. Cite for what the law IS.",
+"integrity": {
+"state": "complete",
+"basis": "AUTHORED, not extracted. Integrity records whether a cut happened at the moment of cutting, and for a file written directly into the index there is no extraction step and no cap to apply - nothing could have truncated it. Verified against both caps anyway: this section is 232 characters and the longest in the work is 888, against a 4,000 historical cap and a 60,000 current one. This is a definitional stamp like authority_class from a citation, NOT a backfill of an unknown - CLAUDE.md forbids the latter and this is not one.",
+"stamped_at": "2026-09-11T12:29:40",
+"stored_chars": 232,
+"source_chars": 232,
+"cap_applied": null,
+"stamp_kind": "definitional_authored"
+}
 },
 {
 "citation": "Restatement of Trusts 156(2)",
@@ -168,64 +321,136 @@
 "page": 1,
 "text": "Restatement of Trusts 156(2). The rule Ware adopts: where the settlor is a beneficiary, creditors reach the maximum the trustee could pay. Carried into Restatement (Second) s 156(2) and UTC s 505(a)(2). SECONDARY - and ALI-copyrighted, so the text is not held here.",
 "standing": "secondary",
-"claim_layer": "unknown",
-"claim_layer_meaning": "Not declared at ingest. Treat any citation from here as unclassified: it may be rationale rather than rule."
+"claim_layer": "doctrinal",
+"claim_layer_meaning": "States or describes the rule. Cite for what the law IS.",
+"integrity": {
+"state": "complete",
+"basis": "AUTHORED, not extracted. Integrity records whether a cut happened at the moment of cutting, and for a file written directly into the index there is no extraction step and no cap to apply - nothing could have truncated it. Verified against both caps anyway: this section is 265 characters and the longest in the work is 888, against a 4,000 historical cap and a 60,000 current one. This is a definitional stamp like authority_class from a citation, NOT a backfill of an unknown - CLAUDE.md forbids the latter and this is not one.",
+"stamped_at": "2026-09-11T12:29:40",
+"stored_chars": 265,
+"source_chars": 265,
+"cap_applied": null,
+"stamp_kind": "definitional_authored"
+}
 },
 {
 "citation": "a settlor cannot be his own beneficiary and his own shield",
 "kind": "principle",
 "page": 3,
 "text": "a settlor cannot be his own beneficiary and his own shield. Spendthrift protection is a doctrine for THIRD-PARTY beneficiaries. Self-settled, it collapses. Ware v. Gulda states it as settled policy: a settlor cannot place property in trust for his own benefit and keep it beyond the reach of creditors. The lineage runs back to the Statute of 13 Elizabeth (1571) and the equitable prohibition on transfers in fraud of creditors - so this is not a modern tax rule, it is four and a half centuries of the same objection.",
-"claim_layer": "unknown",
-"claim_layer_meaning": "Not declared at ingest. Treat any citation from here as unclassified: it may be rationale rather than rule."
+"claim_layer": "doctrinal",
+"claim_layer_meaning": "States or describes the rule. Cite for what the law IS.",
+"integrity": {
+"state": "complete",
+"basis": "AUTHORED, not extracted. Integrity records whether a cut happened at the moment of cutting, and for a file written directly into the index there is no extraction step and no cap to apply - nothing could have truncated it. Verified against both caps anyway: this section is 518 characters and the longest in the work is 888, against a 4,000 historical cap and a 60,000 current one. This is a definitional stamp like authority_class from a citation, NOT a backfill of an unknown - CLAUDE.md forbids the latter and this is not one.",
+"stamped_at": "2026-09-11T12:29:40",
+"stored_chars": 518,
+"source_chars": 518,
+"cap_applied": null,
+"stamp_kind": "definitional_authored"
+}
 },
 {
 "citation": "equity reads substance not the words of the instrument",
 "kind": "principle",
 "page": 3,
 "text": "equity reads substance not the words of the instrument. The Paolozzi trust contained an EXPRESS spendthrift clause: income was not to be 'attachable or trusteeable by the creditors of the beneficiary'. It was worth nothing against her own creditors. Note precisely what happened - the clause was NOT CONSTRUED AWAY. It was held INEFFECTIVE AS TO THE SETTLOR. A court that construes a clause is reading it; a court that holds it ineffective is refusing to let a label do work the arrangement does not do. Conduct over labels, operating in a trust register.",
-"claim_layer": "unknown",
-"claim_layer_meaning": "Not declared at ingest. Treat any citation from here as unclassified: it may be rationale rather than rule."
+"claim_layer": "doctrinal",
+"claim_layer_meaning": "States or describes the rule. Cite for what the law IS.",
+"integrity": {
+"state": "complete",
+"basis": "AUTHORED, not extracted. Integrity records whether a cut happened at the moment of cutting, and for a file written directly into the index there is no extraction step and no cap to apply - nothing could have truncated it. Verified against both caps anyway: this section is 555 characters and the longest in the work is 888, against a 4,000 historical cap and a 60,000 current one. This is a definitional stamp like authority_class from a citation, NOT a backfill of an unknown - CLAUDE.md forbids the latter and this is not one.",
+"stamped_at": "2026-09-11T12:29:40",
+"stored_chars": 555,
+"source_chars": 555,
+"cap_applied": null,
+"stamp_kind": "definitional_authored"
+}
 },
 {
 "citation": "creditors reach the ceiling of the power not the record of its exercise",
 "kind": "principle",
 "page": 3,
 "text": "creditors reach the ceiling of the power not the record of its exercise. Restatement s 156(2): creditors reach 'the maximum amount which the trustee under the terms of the trust could pay to him or apply for his benefit'. NON-EXERCISE IS NO DEFENCE. The operative fact is CAPACITY, not conduct - what the trustee COULD do, not what the trustee has done. Governance over ownership. This is why a discretionary trust that has never made a distribution is not thereby protective.",
-"claim_layer": "unknown",
-"claim_layer_meaning": "Not declared at ingest. Treat any citation from here as unclassified: it may be rationale rather than rule."
+"claim_layer": "doctrinal",
+"claim_layer_meaning": "States or describes the rule. Cite for what the law IS.",
+"integrity": {
+"state": "complete",
+"basis": "AUTHORED, not extracted. Integrity records whether a cut happened at the moment of cutting, and for a file written directly into the index there is no extraction step and no cap to apply - nothing could have truncated it. Verified against both caps anyway: this section is 476 characters and the longest in the work is 888, against a 4,000 historical cap and a 60,000 current one. This is a definitional stamp like authority_class from a citation, NOT a backfill of an unknown - CLAUDE.md forbids the latter and this is not one.",
+"stamped_at": "2026-09-11T12:29:40",
+"stored_chars": 476,
+"source_chars": 476,
+"cap_applied": null,
+"stamp_kind": "definitional_authored"
+}
 },
 {
 "citation": "a discretionary fiduciary power is not an immunity",
 "kind": "principle",
 "page": 3,
 "text": "a discretionary fiduciary power is not an immunity. Discretion exists for the benefit of the beneficiary. Where settlor and beneficiary MERGE in one person, equity treats the power as exercised to its maximum rather than letting the trustee's inaction build a shelter the settlor could not build directly. The maxim behind it is that equity does not permit indirectly what it forbids directly.",
-"claim_layer": "unknown",
-"claim_layer_meaning": "Not declared at ingest. Treat any citation from here as unclassified: it may be rationale rather than rule."
+"claim_layer": "doctrinal",
+"claim_layer_meaning": "States or describes the rule. Cite for what the law IS.",
+"integrity": {
+"state": "complete",
+"basis": "AUTHORED, not extracted. Integrity records whether a cut happened at the moment of cutting, and for a file written directly into the index there is no extraction step and no cap to apply - nothing could have truncated it. Verified against both caps anyway: this section is 393 characters and the longest in the work is 888, against a 4,000 historical cap and a 60,000 current one. This is a definitional stamp like authority_class from a citation, NOT a backfill of an unknown - CLAUDE.md forbids the latter and this is not one.",
+"stamped_at": "2026-09-11T12:29:40",
+"stored_chars": 393,
+"source_chars": 393,
+"cap_applied": null,
+"stamp_kind": "definitional_authored"
+}
 },
 {
 "citation": "practical availability converts expectancy into interest",
 "kind": "principle",
 "page": 3,
 "text": "practical availability converts expectancy into interest. The Commissioner argued the settlor held a mere expectancy. The characterisation FAILED because the interest was REACHABLE. Equity values the position by what the holder can actually obtain, not by the enforceable right stated on the face of the document. This is the same measuring rule as 'equity regards substance over form', applied to valuation rather than to construction.",
-"claim_layer": "unknown",
-"claim_layer_meaning": "Not declared at ingest. Treat any citation from here as unclassified: it may be rationale rather than rule."
+"claim_layer": "doctrinal",
+"claim_layer_meaning": "States or describes the rule. Cite for what the law IS.",
+"integrity": {
+"state": "complete",
+"basis": "AUTHORED, not extracted. Integrity records whether a cut happened at the moment of cutting, and for a file written directly into the index there is no extraction step and no cap to apply - nothing could have truncated it. Verified against both caps anyway: this section is 436 characters and the longest in the work is 888, against a 4,000 historical cap and a 60,000 current one. This is a definitional stamp like authority_class from a citation, NOT a backfill of an unknown - CLAUDE.md forbids the latter and this is not one.",
+"stamped_at": "2026-09-11T12:29:40",
+"stored_chars": 436,
+"source_chars": 436,
+"cap_applied": null,
+"stamp_kind": "definitional_authored"
+}
 },
 {
 "citation": "equity does not permit indirectly what it forbids directly",
 "kind": "maxim",
 "page": 3,
 "text": "equity does not permit indirectly what it forbids directly. A maxim. An arrangement that reaches a forbidden result by an indirect route is treated as the forbidden result. It is the answer to every structure whose only virtue is that no single step is unlawful - here, the answer to a discretionary power used as a shelter the settlor could not have created outright.",
-"claim_layer": "unknown",
-"claim_layer_meaning": "Not declared at ingest. Treat any citation from here as unclassified: it may be rationale rather than rule."
+"claim_layer": "doctrinal",
+"claim_layer_meaning": "States or describes the rule. Cite for what the law IS.",
+"integrity": {
+"state": "complete",
+"basis": "AUTHORED, not extracted. Integrity records whether a cut happened at the moment of cutting, and for a file written directly into the index there is no extraction step and no cap to apply - nothing could have truncated it. Verified against both caps anyway: this section is 368 characters and the longest in the work is 888, against a 4,000 historical cap and a 60,000 current one. This is a definitional stamp like authority_class from a citation, NOT a backfill of an unknown - CLAUDE.md forbids the latter and this is not one.",
+"stamped_at": "2026-09-11T12:29:40",
+"stored_chars": 368,
+"source_chars": 368,
+"cap_applied": null,
+"stamp_kind": "definitional_authored"
+}
 },
 {
 "citation": "Statute of 13 Elizabeth (1571)",
 "kind": "authority",
 "page": 3,
 "text": "Statute of 13 Elizabeth (1571). 13 Eliz. c. 5. The fraudulent-conveyance statute from which the modern prohibition on transfers in fraud of creditors descends, through the Uniform Fraudulent Transfer Act and now the Uniform Voidable Transactions Act. Cited here because the self-settled trust objection is its direct descendant rather than a twentieth-century invention.",
-"claim_layer": "unknown",
-"claim_layer_meaning": "Not declared at ingest. Treat any citation from here as unclassified: it may be rationale rather than rule."
+"claim_layer": "doctrinal",
+"claim_layer_meaning": "States or describes the rule. Cite for what the law IS.",
+"integrity": {
+"state": "complete",
+"basis": "AUTHORED, not extracted. Integrity records whether a cut happened at the moment of cutting, and for a file written directly into the index there is no extraction step and no cap to apply - nothing could have truncated it. Verified against both caps anyway: this section is 370 characters and the longest in the work is 888, against a 4,000 historical cap and a 60,000 current one. This is a definitional stamp like authority_class from a citation, NOT a backfill of an unknown - CLAUDE.md forbids the latter and this is not one.",
+"stamped_at": "2026-09-11T12:29:40",
+"stored_chars": 370,
+"source_chars": 370,
+"cap_applied": null,
+"stamp_kind": "definitional_authored"
+}
 }
 ],
 "term_index": {
@@ -449,7 +674,7 @@
 23
 ]
 },
-"claim_layer": "unknown",
-"claim_layer_meaning": "Not declared at ingest. Treat any citation from here as unclassified: it may be rationale rather than rule.",
-"claim_layer_basis": "Not declared at ingest and not derivable from the class. This work has to be read before it can be classed; UNKNOWN is the honest value, and a citation from here is unclassified until somebody reads it."
+"claim_layer": "doctrinal",
+"claim_layer_meaning": "States or describes the rule. Cite for what the law IS.",
+"claim_layer_basis": "READ 2026-09-11. States the operative rule directly - 'a settlor who is also a beneficiary CANNOT put assets beyond the reach of their own creditors by the act of settling them'. Doctrinal layer, doctrine_summary force."
 }

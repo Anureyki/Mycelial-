@@ -14,8 +14,17 @@
 "kind": "doctrine",
 "page": 1,
 "text": "substance over form (tax). The same maxim equity applies to instruments, applied by the Commissioner and the courts to transactions: the tax consequence follows what a transaction DOES, not what it is called. The IRS invokes it constantly, and the Internal Revenue Manual directs examiners to look past the form of an arrangement. NOTE THE ASYMMETRY - the Commissioner may generally assert substance over form against a taxpayer, while a taxpayer who chose a form is usually held to it. Drafting a structure and then arguing its substance differs is the weaker side of this doctrine, not the stronger one.",
-"claim_layer": "unknown",
-"claim_layer_meaning": "Not declared at ingest. Treat any citation from here as unclassified: it may be rationale rather than rule."
+"claim_layer": "doctrinal",
+"claim_layer_meaning": "States or describes the rule. Cite for what the law IS.",
+"integrity": {
+"state": "complete",
+"basis": "AUTHORED, not extracted. Integrity records whether a cut happened at the moment of cutting, and for a file written directly into the index there is no extraction step and no cap to apply - nothing could have truncated it. Verified against both caps anyway: this section is 605 characters and the longest in the work is 733, against a 4,000 historical cap and a 60,000 current one. This is a definitional stamp like authority_class from a citation, NOT a backfill of an unknown - CLAUDE.md forbids the latter and this is not one.",
+"stamped_at": "2026-09-11T12:29:40",
+"stored_chars": 605,
+"source_chars": 605,
+"cap_applied": null,
+"stamp_kind": "definitional_authored"
+}
 },
 {
 "citation": "economic substance doctrine",
@@ -23,8 +32,17 @@
 "page": 1,
 "text": "economic substance doctrine. CODIFIED at 26 U.S.C. s 7701(o) in 2010, having been judge-made since Gregory. A transaction has economic substance only if BOTH prongs are met - the test is CONJUNCTIVE: (1) it changes in a meaningful way, apart from federal income tax effects, the taxpayer's economic position; AND (2) the taxpayer has a substantial purpose, apart from federal income tax effects, for entering into it. Failing either prong fails the doctrine. The penalty is s 6662(b)(6) at 20%, rising to 40% under s 6662(i) if the transaction was not adequately disclosed - and it is STRICT LIABILITY: s 6664(c)(2) removes the reasonable-cause defence. There is no opinion letter that cures a transaction lacking economic substance.",
 "standing": "statute - federal",
-"claim_layer": "unknown",
-"claim_layer_meaning": "Not declared at ingest. Treat any citation from here as unclassified: it may be rationale rather than rule."
+"claim_layer": "doctrinal",
+"claim_layer_meaning": "States or describes the rule. Cite for what the law IS.",
+"integrity": {
+"state": "complete",
+"basis": "AUTHORED, not extracted. Integrity records whether a cut happened at the moment of cutting, and for a file written directly into the index there is no extraction step and no cap to apply - nothing could have truncated it. Verified against both caps anyway: this section is 733 characters and the longest in the work is 733, against a 4,000 historical cap and a 60,000 current one. This is a definitional stamp like authority_class from a citation, NOT a backfill of an unknown - CLAUDE.md forbids the latter and this is not one.",
+"stamped_at": "2026-09-11T12:29:40",
+"stored_chars": 733,
+"source_chars": 733,
+"cap_applied": null,
+"stamp_kind": "definitional_authored"
+}
 },
 {
 "citation": "Gregory v. Helvering, 293 U.S. 465 (1935)",
@@ -32,8 +50,17 @@
 "page": 1,
 "text": "Gregory v. Helvering, 293 U.S. 465 (1935). The foundational case. The reorganisation complied with the literal words of the statute and was still disregarded, because it served no business purpose beyond tax avoidance. Also the source of the other half of the rule, which is often forgotten: a taxpayer's legal right to decrease taxes by means the law permits is not doubted. The doctrine polices transactions without substance; it does not tax people for choosing an efficient lawful route.",
 "standing": "binding - Supreme Court",
-"claim_layer": "unknown",
-"claim_layer_meaning": "Not declared at ingest. Treat any citation from here as unclassified: it may be rationale rather than rule."
+"claim_layer": "doctrinal",
+"claim_layer_meaning": "States or describes the rule. Cite for what the law IS.",
+"integrity": {
+"state": "complete",
+"basis": "AUTHORED, not extracted. Integrity records whether a cut happened at the moment of cutting, and for a file written directly into the index there is no extraction step and no cap to apply - nothing could have truncated it. Verified against both caps anyway: this section is 491 characters and the longest in the work is 733, against a 4,000 historical cap and a 60,000 current one. This is a definitional stamp like authority_class from a citation, NOT a backfill of an unknown - CLAUDE.md forbids the latter and this is not one.",
+"stamped_at": "2026-09-11T12:29:40",
+"stored_chars": 491,
+"source_chars": 491,
+"cap_applied": null,
+"stamp_kind": "definitional_authored"
+}
 },
 {
 "citation": "Helvering v. Clifford, 309 U.S. 331 (1940)",
@@ -41,8 +68,17 @@
 "page": 1,
 "text": "Helvering v. Clifford, 309 U.S. 331 (1940). A grantor who retained substantial control over a short-term trust remained the owner of its income for tax purposes despite the trust's form. The origin of the grantor-trust rules and the direct ancestor of every argument that retained control defeats a transfer.",
 "standing": "binding - Supreme Court",
-"claim_layer": "unknown",
-"claim_layer_meaning": "Not declared at ingest. Treat any citation from here as unclassified: it may be rationale rather than rule."
+"claim_layer": "doctrinal",
+"claim_layer_meaning": "States or describes the rule. Cite for what the law IS.",
+"integrity": {
+"state": "complete",
+"basis": "AUTHORED, not extracted. Integrity records whether a cut happened at the moment of cutting, and for a file written directly into the index there is no extraction step and no cap to apply - nothing could have truncated it. Verified against both caps anyway: this section is 308 characters and the longest in the work is 733, against a 4,000 historical cap and a 60,000 current one. This is a definitional stamp like authority_class from a citation, NOT a backfill of an unknown - CLAUDE.md forbids the latter and this is not one.",
+"stamped_at": "2026-09-11T12:29:40",
+"stored_chars": 308,
+"source_chars": 308,
+"cap_applied": null,
+"stamp_kind": "definitional_authored"
+}
 },
 {
 "citation": "Lucas v. Earl, 281 U.S. 111 (1930)",
@@ -50,8 +86,17 @@
 "page": 1,
 "text": "Lucas v. Earl, 281 U.S. 111 (1930). Assignment of income. The fruit cannot be attributed to a different tree from that on which it grew - income is taxed to the person who earns it, whatever contract redirects the payment.",
 "standing": "binding - Supreme Court",
-"claim_layer": "unknown",
-"claim_layer_meaning": "Not declared at ingest. Treat any citation from here as unclassified: it may be rationale rather than rule."
+"claim_layer": "doctrinal",
+"claim_layer_meaning": "States or describes the rule. Cite for what the law IS.",
+"integrity": {
+"state": "complete",
+"basis": "AUTHORED, not extracted. Integrity records whether a cut happened at the moment of cutting, and for a file written directly into the index there is no extraction step and no cap to apply - nothing could have truncated it. Verified against both caps anyway: this section is 222 characters and the longest in the work is 733, against a 4,000 historical cap and a 60,000 current one. This is a definitional stamp like authority_class from a citation, NOT a backfill of an unknown - CLAUDE.md forbids the latter and this is not one.",
+"stamped_at": "2026-09-11T12:29:40",
+"stored_chars": 222,
+"source_chars": 222,
+"cap_applied": null,
+"stamp_kind": "definitional_authored"
+}
 },
 {
 "citation": "Commissioner v. Court Holding Co., 324 U.S. 331 (1945)",
@@ -59,8 +104,17 @@
 "page": 1,
 "text": "Commissioner v. Court Holding Co., 324 U.S. 331 (1945). The incidence of taxation depends on the substance of a transaction, and the whole transaction is examined rather than each formally separate step. The step-transaction doctrine's ancestor.",
 "standing": "binding - Supreme Court",
-"claim_layer": "unknown",
-"claim_layer_meaning": "Not declared at ingest. Treat any citation from here as unclassified: it may be rationale rather than rule."
+"claim_layer": "doctrinal",
+"claim_layer_meaning": "States or describes the rule. Cite for what the law IS.",
+"integrity": {
+"state": "complete",
+"basis": "AUTHORED, not extracted. Integrity records whether a cut happened at the moment of cutting, and for a file written directly into the index there is no extraction step and no cap to apply - nothing could have truncated it. Verified against both caps anyway: this section is 245 characters and the longest in the work is 733, against a 4,000 historical cap and a 60,000 current one. This is a definitional stamp like authority_class from a citation, NOT a backfill of an unknown - CLAUDE.md forbids the latter and this is not one.",
+"stamped_at": "2026-09-11T12:29:40",
+"stored_chars": 245,
+"source_chars": 245,
+"cap_applied": null,
+"stamp_kind": "definitional_authored"
+}
 },
 {
 "citation": "Frank Lyon Co. v. United States, 435 U.S. 561 (1978)",
@@ -68,8 +122,17 @@
 "page": 1,
 "text": "Frank Lyon Co. v. United States, 435 U.S. 561 (1978). THE LIMITING CASE, and the one to cite when the doctrine is being over-read. Where there is a genuine multi-party transaction with economic substance, compelled or encouraged by business realities, imbued with tax-independent considerations, and not shaped solely by tax-avoidance features, the form the parties chose is respected. Substance over form is not a licence to recharacterise every arrangement the Commissioner dislikes.",
 "standing": "binding - Supreme Court",
-"claim_layer": "unknown",
-"claim_layer_meaning": "Not declared at ingest. Treat any citation from here as unclassified: it may be rationale rather than rule."
+"claim_layer": "doctrinal",
+"claim_layer_meaning": "States or describes the rule. Cite for what the law IS.",
+"integrity": {
+"state": "complete",
+"basis": "AUTHORED, not extracted. Integrity records whether a cut happened at the moment of cutting, and for a file written directly into the index there is no extraction step and no cap to apply - nothing could have truncated it. Verified against both caps anyway: this section is 485 characters and the longest in the work is 733, against a 4,000 historical cap and a 60,000 current one. This is a definitional stamp like authority_class from a citation, NOT a backfill of an unknown - CLAUDE.md forbids the latter and this is not one.",
+"stamped_at": "2026-09-11T12:29:40",
+"stored_chars": 485,
+"source_chars": 485,
+"cap_applied": null,
+"stamp_kind": "definitional_authored"
+}
 },
 {
 "citation": "grantor trust rules",
@@ -77,40 +140,85 @@
 "page": 1,
 "text": "grantor trust rules. 26 U.S.C. ss 671-679. SUBSTANCE OVER FORM, CODIFIED FOR TRUSTS. Where the grantor retains specified powers, trust income is taxed to the GRANTOR however irrevocable the instrument says it is. The operative sections are a checklist for reading an indenture: s 674 power to control beneficial enjoyment; s 675 administrative powers, including dealing with the corpus for less than adequate consideration and borrowing without adequate security; s 676 power to revoke; s 677 income held or distributable for the grantor or the grantor's spouse; s 678 a person other than the grantor holding a power of withdrawal. Note what these sections test: POWERS THE INSTRUMENT ALLOCATES, not labels it uses.",
 "standing": "statute - federal",
-"claim_layer": "unknown",
-"claim_layer_meaning": "Not declared at ingest. Treat any citation from here as unclassified: it may be rationale rather than rule."
+"claim_layer": "doctrinal",
+"claim_layer_meaning": "States or describes the rule. Cite for what the law IS.",
+"integrity": {
+"state": "complete",
+"basis": "AUTHORED, not extracted. Integrity records whether a cut happened at the moment of cutting, and for a file written directly into the index there is no extraction step and no cap to apply - nothing could have truncated it. Verified against both caps anyway: this section is 715 characters and the longest in the work is 733, against a 4,000 historical cap and a 60,000 current one. This is a definitional stamp like authority_class from a citation, NOT a backfill of an unknown - CLAUDE.md forbids the latter and this is not one.",
+"stamped_at": "2026-09-11T12:29:40",
+"stored_chars": 715,
+"source_chars": 715,
+"cap_applied": null,
+"stamp_kind": "definitional_authored"
+}
 },
 {
 "citation": "control is allocated by the instrument",
 "kind": "principle",
 "page": 1,
 "text": "control is allocated by the instrument. For an irrevocable trust, control is decided by what the indenture actually confers - who may amend, who may remove and replace the trustee, who holds powers of appointment, whether distributions run to an ascertainable standard or to absolute discretion, and who may add beneficiaries. Each of those is a term a court can read and a section of ss 671-679 can attach to. An intention stated in a recital, or a purpose described to the settlor at execution, allocates nothing.",
-"claim_layer": "unknown",
-"claim_layer_meaning": "Not declared at ingest. Treat any citation from here as unclassified: it may be rationale rather than rule."
+"claim_layer": "doctrinal",
+"claim_layer_meaning": "States or describes the rule. Cite for what the law IS.",
+"integrity": {
+"state": "complete",
+"basis": "AUTHORED, not extracted. Integrity records whether a cut happened at the moment of cutting, and for a file written directly into the index there is no extraction step and no cap to apply - nothing could have truncated it. Verified against both caps anyway: this section is 515 characters and the longest in the work is 733, against a 4,000 historical cap and a 60,000 current one. This is a definitional stamp like authority_class from a citation, NOT a backfill of an unknown - CLAUDE.md forbids the latter and this is not one.",
+"stamped_at": "2026-09-11T12:29:40",
+"stored_chars": 515,
+"source_chars": 515,
+"cap_applied": null,
+"stamp_kind": "definitional_authored"
+}
 },
 {
 "citation": "administration is evidence",
 "kind": "principle",
 "page": 1,
 "text": "administration is evidence. How a trust is actually administered for the beneficiary is evidence of what the arrangement really is - distributions actually made, requests actually honoured, whether the trustee ever exercised independent judgment, whether trust and personal funds stayed separate. Treas. Reg. 20.2036-1(c) reaches EXPRESS OR IMPLIED understandings, and an implied understanding is proved by conduct. A well-drafted instrument administered as the settlor's chequebook is a self-settled arrangement whatever the deed says. Conduct over labels.",
-"claim_layer": "unknown",
-"claim_layer_meaning": "Not declared at ingest. Treat any citation from here as unclassified: it may be rationale rather than rule."
+"claim_layer": "doctrinal",
+"claim_layer_meaning": "States or describes the rule. Cite for what the law IS.",
+"integrity": {
+"state": "complete",
+"basis": "AUTHORED, not extracted. Integrity records whether a cut happened at the moment of cutting, and for a file written directly into the index there is no extraction step and no cap to apply - nothing could have truncated it. Verified against both caps anyway: this section is 557 characters and the longest in the work is 733, against a 4,000 historical cap and a 60,000 current one. This is a definitional stamp like authority_class from a citation, NOT a backfill of an unknown - CLAUDE.md forbids the latter and this is not one.",
+"stamped_at": "2026-09-11T12:29:40",
+"stored_chars": 557,
+"source_chars": 557,
+"cap_applied": null,
+"stamp_kind": "definitional_authored"
+}
 },
 {
 "citation": "step transaction doctrine",
 "kind": "doctrine",
 "page": 1,
 "text": "step transaction doctrine. Formally separate steps that are components of a single integrated plan are collapsed and taxed as one transaction. Three tests are used - binding commitment, mutual interdependence, and end result - and courts differ on which applies. Relevant to any structure whose protection depends on the sequence of transfers rather than on their substance.",
-"claim_layer": "unknown",
-"claim_layer_meaning": "Not declared at ingest. Treat any citation from here as unclassified: it may be rationale rather than rule."
+"claim_layer": "doctrinal",
+"claim_layer_meaning": "States or describes the rule. Cite for what the law IS.",
+"integrity": {
+"state": "complete",
+"basis": "AUTHORED, not extracted. Integrity records whether a cut happened at the moment of cutting, and for a file written directly into the index there is no extraction step and no cap to apply - nothing could have truncated it. Verified against both caps anyway: this section is 374 characters and the longest in the work is 733, against a 4,000 historical cap and a 60,000 current one. This is a definitional stamp like authority_class from a citation, NOT a backfill of an unknown - CLAUDE.md forbids the latter and this is not one.",
+"stamped_at": "2026-09-11T12:29:40",
+"stored_chars": 374,
+"source_chars": 374,
+"cap_applied": null,
+"stamp_kind": "definitional_authored"
+}
 },
 {
 "citation": "assignment of income",
 "kind": "doctrine",
 "page": 1,
 "text": "assignment of income. Income is taxed to whoever earns it or owns the property producing it. Redirecting the payment by contract or by trust does not move the tax unless the underlying income-producing PROPERTY has genuinely been transferred. Lucas v. Earl for services; Helvering v. Horst for property income.",
-"claim_layer": "unknown",
-"claim_layer_meaning": "Not declared at ingest. Treat any citation from here as unclassified: it may be rationale rather than rule."
+"claim_layer": "doctrinal",
+"claim_layer_meaning": "States or describes the rule. Cite for what the law IS.",
+"integrity": {
+"state": "complete",
+"basis": "AUTHORED, not extracted. Integrity records whether a cut happened at the moment of cutting, and for a file written directly into the index there is no extraction step and no cap to apply - nothing could have truncated it. Verified against both caps anyway: this section is 310 characters and the longest in the work is 733, against a 4,000 historical cap and a 60,000 current one. This is a definitional stamp like authority_class from a citation, NOT a backfill of an unknown - CLAUDE.md forbids the latter and this is not one.",
+"stamped_at": "2026-09-11T12:29:40",
+"stored_chars": 310,
+"source_chars": 310,
+"cap_applied": null,
+"stamp_kind": "definitional_authored"
+}
 }
 ],
 "term_index": {
@@ -162,7 +270,7 @@
 10
 ]
 },
-"claim_layer": "unknown",
-"claim_layer_meaning": "Not declared at ingest. Treat any citation from here as unclassified: it may be rationale rather than rule.",
-"claim_layer_basis": "Not declared at ingest and not derivable from the class. This work has to be read before it can be classed; UNKNOWN is the honest value, and a citation from here is unclassified until somebody reads it."
+"claim_layer": "doctrinal",
+"claim_layer_meaning": "States or describes the rule. Cite for what the law IS.",
+"claim_layer_basis": "READ 2026-09-11. States the rule as applied - 'the tax consequence follows what a transaction DOES, not what it is called'. Doctrinal layer, doctrine_summary force."
 }

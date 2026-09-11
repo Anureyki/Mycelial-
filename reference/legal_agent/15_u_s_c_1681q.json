@@ -1,30 +1,48 @@
 {
-"title": "15 U.S.C. \u00a7 1681q",
-"source": "United States Code title 15 section 1681q, retrieved from Cornell LII (law.cornell.edu). The statutory text is a U.S. government work and is public domain; Cornell's annotations are excluded.",
-"authorities_cited": [],
-"term_index": {
-"consumer reporting agency": [
-0
-],
-"consumer report": [
-0
-]
-},
-"origin_pdf": "usc15_1681q.txt",
-"pages": 1,
-"sections": [
-{
-"citation": "\u00a7 1681q.",
-"kind": "section_sign",
-"page": 1,
-"text": "\u00a7 1681q. Obtaining information under false pretenses. Any person who knowingly and willfully obtains information on a consumer from a consumer reporting agency under false pretenses shall be fined under title 18, imprisoned for not more than 2 years, or both.",
-"claim_layer": "doctrinal",
-"claim_layer_meaning": "States or describes the rule. Cite for what the law IS."
-}
-],
-"authority_class": "federal_statute",
-"authority_class_basis": "Title of the work is a U.S. Code section citation, which fixes the class",
-"claim_layer": "doctrinal",
-"claim_layer_meaning": "States or describes the rule. Cite for what the law IS.",
-"claim_layer_basis": "Set from the authority class, not from the text: a statute, regulation or set of court rules states the rule rather than describing or arguing it, which the citation in the title establishes definitionally."
+  "title": "15 U.S.C. \u00a7 1681q",
+  "source": "United States Code title 15 section 1681q, retrieved from Cornell LII (law.cornell.edu). The statutory text is a U.S. government work and is public domain; Cornell's annotations are excluded.",
+  "authority_class": "federal_statute",
+  "authority_class_basis": "Title of the work is a U.S. Code section citation, which fixes the class",
+  "claim_layer": "doctrinal",
+  "claim_layer_meaning": "States or describes the rule. Cite for what the law IS.",
+  "authorities_cited": [],
+  "term_index": {
+    "consumer report": [
+      0
+    ],
+    "consumer reporting agency": [
+      0
+    ]
+  },
+  "origin_pdf": "usc15_1681q.txt",
+  "extraction": {
+    "extractor": "text file (already extracted)",
+    "pages": 1,
+    "no_text_layer": [],
+    "raised": [],
+    "recovered": [],
+    "lost": [],
+    "complete": true
+  },
+  "pages": 1,
+  "sections": [
+    {
+      "citation": "\u00a7 1681q.",
+      "kind": "section_sign",
+      "page": 1,
+      "text": "\u00a7 1681q. Obtaining information under false pretenses. Any person who knowingly and willfully obtains information on a consumer from a consumer reporting agency under false pretenses shall be fined under title 18, imprisoned for not more than 2 years, or both.",
+      "integrity": {
+        "state": "complete",
+        "basis": "Full retrieved body of 259 characters stored; under the 60,000 cap, so nothing was cut.",
+        "stamped_at": "2026-09-11T12:28:40",
+        "stored_chars": 259,
+        "source_chars": 259,
+        "cap_applied": 60000
+      },
+      "authority_class": "federal_statute",
+      "claim_layer": "doctrinal",
+      "claim_layer_meaning": "States or describes the rule. Cite for what the law IS."
+    }
+  ],
+  "claim_layer_basis": "Set from the class, not from the text: a statute or regulation states the rule rather than describing or arguing it, which the citation in the title establishes definitionally."
 }

@@ -1,33 +1,51 @@
 {
-"title": "15 U.S.C. \u00a7 1681n",
-"source": "United States Code title 15 section 1681n, retrieved from Cornell LII (law.cornell.edu). The statutory text is a U.S. government work and is public domain; Cornell's annotations are excluded.",
-"authorities_cited": [],
-"term_index": {
-"consumer reporting agency": [
-0
-],
-"consumer report": [
-0
-],
-"permissible purpose": [
-0
-]
-},
-"origin_pdf": "usc15_1681n.txt",
-"pages": 1,
-"sections": [
-{
-"citation": "\u00a7 1681n.",
-"kind": "section_sign",
-"page": 1,
-"text": "\u00a7 1681n. Civil liability for willful noncompliance. (a) In general Any person who willfully fails to comply with any requirement imposed under this subchapter with respect to any consumer is liable to that consumer in an amount equal to the sum of\u2014 (1) (A) any actual damages sustained by the consumer as a result of the failure or damages of not less than $100 and not more than $1,000; or (B) in the case of liability of a natural person for obtaining a consumer report under false pretenses or knowingly without a permissible purpose, actual damages sustained by the consumer as a result of the failure or $1,000, whichever is greater; (2) such amount of punitive damages as the court may allow; and (3) in the case of any successful action to enforce any liability under this section, the costs of the action together with reasonable attorney\u2019s fees as determined by the court. (b) Civil liability for knowing noncompliance Any person who obtains a consumer report from a consumer reporting agency under false pretenses or knowingly without a permissible purpose shall be liable to the consumer reporting agency for actual damages sustained by the consumer reporting agency or $1,000, whichever is greater. (c) Attorney\u2019s fees Upon a finding by the court that an unsuccessful pleading, motion, or other paper filed in connection with an action under this section was filed in bad faith or for purposes of harassment, the court shall award to the prevailing party attorney\u2019s fees reasonable in relation to the work expended in responding to the pleading, motion, or other paper. (d) Clarification of willful noncompliance For the purposes of this section, any person who printed an expiration date on any receipt provided to a consumer cardholder at a point of sale or transaction between December 4, 2004 , and June 3, 2008 , but otherwise complied with the requirements of section 1681c(g) of this title for such receipt shall not be in willful noncompliance with section 1681c(g) of this title by reason of printing such expiration date on the receipt.",
-"claim_layer": "doctrinal",
-"claim_layer_meaning": "States or describes the rule. Cite for what the law IS."
-}
-],
-"authority_class": "federal_statute",
-"authority_class_basis": "Title of the work is a U.S. Code section citation, which fixes the class",
-"claim_layer": "doctrinal",
-"claim_layer_meaning": "States or describes the rule. Cite for what the law IS.",
-"claim_layer_basis": "Set from the authority class, not from the text: a statute, regulation or set of court rules states the rule rather than describing or arguing it, which the citation in the title establishes definitionally."
+  "title": "15 U.S.C. \u00a7 1681n",
+  "source": "United States Code title 15 section 1681n, retrieved from Cornell LII (law.cornell.edu). The statutory text is a U.S. government work and is public domain; Cornell's annotations are excluded.",
+  "authority_class": "federal_statute",
+  "authority_class_basis": "Title of the work is a U.S. Code section citation, which fixes the class",
+  "claim_layer": "doctrinal",
+  "claim_layer_meaning": "States or describes the rule. Cite for what the law IS.",
+  "authorities_cited": [],
+  "term_index": {
+    "permissible purpose": [
+      0
+    ],
+    "consumer report": [
+      0
+    ],
+    "consumer reporting agency": [
+      0
+    ]
+  },
+  "origin_pdf": "usc15_1681n.txt",
+  "extraction": {
+    "extractor": "text file (already extracted)",
+    "pages": 1,
+    "no_text_layer": [],
+    "raised": [],
+    "recovered": [],
+    "lost": [],
+    "complete": true
+  },
+  "pages": 1,
+  "sections": [
+    {
+      "citation": "\u00a7 1681n.",
+      "kind": "section_sign",
+      "page": 1,
+      "text": "\u00a7 1681n. Civil liability for willful noncompliance. (a) In general Any person who willfully fails to comply with any requirement imposed under this subchapter with respect to any consumer is liable to that consumer in an amount equal to the sum of\u2014 (1) (A) any actual damages sustained by the consumer as a result of the failure or damages of not less than $100 and not more than $1,000; or (B) in the case of liability of a natural person for obtaining a consumer report under false pretenses or knowingly without a permissible purpose, actual damages sustained by the consumer as a result of the failure or $1,000, whichever is greater; (2) such amount of punitive damages as the court may allow; and (3) in the case of any successful action to enforce any liability under this section, the costs of the action together with reasonable attorney\u2019s fees as determined by the court. (b) Civil liability for knowing noncompliance Any person who obtains a consumer report from a consumer reporting agency under false pretenses or knowingly without a permissible purpose shall be liable to the consumer reporting agency for actual damages sustained by the consumer reporting agency or $1,000, whichever is greater. (c) Attorney\u2019s fees Upon a finding by the court that an unsuccessful pleading, motion, or other paper filed in connection with an action under this section was filed in bad faith or for purposes of harassment, the court shall award to the prevailing party attorney\u2019s fees reasonable in relation to the work expended in responding to the pleading, motion, or other paper. (d) Clarification of willful noncompliance For the purposes of this section, any person who printed an expiration date on any receipt provided to a consumer cardholder at a point of sale or transaction between December 4, 2004 , and June 3, 2008 , but otherwise complied with the requirements of section 1681c(g) of this title for such receipt shall not be in willful noncompliance with section 1681c(g) of this title by reason of printing such expiration date on the receipt.",
+      "integrity": {
+        "state": "complete",
+        "basis": "Full retrieved body of 2,058 characters stored; under the 60,000 cap, so nothing was cut.",
+        "stamped_at": "2026-09-11T12:28:38",
+        "stored_chars": 2058,
+        "source_chars": 2058,
+        "cap_applied": 60000
+      },
+      "authority_class": "federal_statute",
+      "claim_layer": "doctrinal",
+      "claim_layer_meaning": "States or describes the rule. Cite for what the law IS."
+    }
+  ],
+  "claim_layer_basis": "Set from the class, not from the text: a statute or regulation states the rule rather than describing or arguing it, which the citation in the title establishes definitionally."
 }
