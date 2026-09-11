@@ -244,6 +244,21 @@ def split_treatise(pages):
             chunks.append((page_no, body))
         page_no = lines[b].strip() if b < len(lines) else None
         start = b + 1
+    # FALL BACK TO THE PDF'S OWN PAGE BOUNDARIES.
+    #
+    # Splitting on a bare page number alone assumes a SCANNED book, where OCR
+    # leaves the printed folio on its own line. A born-digital paper has no such
+    # marker, so no break is found, the whole work becomes one chunk, and
+    # MAX_SECTION then truncates it - 37,613 characters in, 36,661 stored, one
+    # section called "part 1". That is not an index, it is the blob this tool
+    # exists to avoid, and it looks like coverage on the shelf.
+    #
+    # `pages` is already one string per page. Where the folio scan finds no
+    # structure, use it.
+    if len([c for c in chunks if c[1].strip()]) < 2 and len(pages) > 1:
+        # str, not int: page_no flows into `(page_no or "").isdigit()` below.
+        chunks = [(str(i + 1), pg) for i, pg in enumerate(pages) if pg.strip()]
+
     sections = []
     for page_no, body in chunks:
         flat = dehyphenate(re.sub(r'\s+', ' ', body).strip())
