@@ -385,6 +385,41 @@ class AgentBase:
     # out Legal's token to whoever asked, while nobody could check.
     # ==================================================================
 
+    def answer_from_source(self, term, compose, require_citation=True):
+        """Retrieve, compose, and REFUSE BEFORE SHIPPING if the two disagree.
+
+            self.answer_from_source("clean hands",
+                lambda e: f"Unclean hands bars relief. {e['citation_token']}")
+
+        `compose` is handed the entry and must put the entry's own citation
+        token into what it returns. That is the point: an answer that cannot
+        name the thing it was built from was not built from it in any sense a
+        reader can check.
+
+        THE CHECK RUNS BEFORE THE ANSWER LEAVES. After is not a check, it is a
+        post-mortem - the answer already went out and the correction has to
+        chase it. A refused answer costs a retry; a wrong one cited to the
+        wrong source costs whatever was done on the strength of it.
+
+        This does NOT verify that the answer is correct. It verifies the answer
+        is GROUNDED in the source it named - quotations present, authorities
+        present, citation resolving. A paraphrase still needs a reader, and
+        passing here is not a finding of accuracy."""
+        from core.retrieval_citation import cite, enforce
+        entry = cite(self, term)
+        if not entry:
+            return {"shipped": False, "refused": True,
+                    "reasons": [f"nothing on this shelf answers to {term!r}"],
+                    "absence_state": "nothing_found",
+                    "why": ("No source, so nothing to cite and nothing to "
+                            "ship. That is a gap in the corpus, not an answer.")}
+        try:
+            text = compose(entry)
+        except Exception as e:
+            return {"shipped": False, "refused": True,
+                    "reasons": [f"composition failed: {str(e)[:120]}"]}
+        return enforce(text, entry, agent=self)
+
     def trace_account(self, args=None):
         """-> the four-layer map for an account. Same answer for every agent.
 

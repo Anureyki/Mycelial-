@@ -73,3 +73,8 @@ jobs:
         # map is an opinion. An unverified entry must report itself
         # incomplete rather than produce a confident one.
         run: python tools/check_accounts.py
+      - name: Retrieval still finds the right source
+        # Accuracy asks whether the ANSWER looks right and never whether the
+        # SOURCE was. Retrieval has no natural alarm: a lookup that returns
+        # the wrong entry returns an entry, and the answer reads fine.
+        run: python tools/check_retrieval.py

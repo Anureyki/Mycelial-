@@ -1,0 +1,127 @@
+{
+  "_what": "Known-good retrievals. EXPECTATIONS ARE SET BY REVIEW, not captured from output - capturing what the system does today records its bugs as its contract. rank_at_capture 0 means the expected work was first; a positive rank is a KNOWN ORDERING DEFECT recorded rather than blessed.",
+  "_gate": "tools/check_retrieval.py. A term whose expected work stops appearing AT ALL is a regression and fails the build. A term whose rank gets WORSE than recorded also fails. Improving is always allowed.",
+  "fixtures": {
+    "legal_agent::clean hands": {
+      "agent": "legal_agent",
+      "term": "clean hands",
+      "expect_title": "Equity - maxims and substantive doctrines, indexed by name",
+      "rank_at_capture": 0,
+      "hits_at_capture": 1,
+      "first_at_capture": "Equity - maxims and substantive doctrines, indexed by name"
+    },
+    "legal_agent::he who seeks equity must do equity": {
+      "agent": "legal_agent",
+      "term": "he who seeks equity must do equity",
+      "expect_title": "Equity - maxims and substantive doctrines, indexed by name",
+      "rank_at_capture": 0,
+      "hits_at_capture": 1,
+      "first_at_capture": "Equity - maxims and substantive doctrines, indexed by name"
+    },
+    "legal_agent::laches": {
+      "agent": "legal_agent",
+      "term": "laches",
+      "expect_title": "Equity - maxims and substantive doctrines, indexed by name",
+      "rank_at_capture": 0,
+      "hits_at_capture": 1,
+      "first_at_capture": "Equity - maxims and substantive doctrines, indexed by name"
+    },
+    "legal_agent::permissible purpose": {
+      "agent": "legal_agent",
+      "term": "permissible purpose",
+      "expect_title": "15 U.S.C. \u00a7 1681b",
+      "rank_at_capture": 0,
+      "hits_at_capture": 4,
+      "first_at_capture": "15 U.S.C. \u00a7 1681b"
+    },
+    "legal_agent::consumer report": {
+      "agent": "legal_agent",
+      "term": "consumer report",
+      "expect_title": "15 U.S.C. \u00a7 1681a",
+      "rank_at_capture": 2,
+      "hits_at_capture": 4,
+      "first_at_capture": "12 U.S.C. \u00a7 2605"
+    },
+    "legal_agent::nonpublic personal information": {
+      "agent": "legal_agent",
+      "term": "nonpublic personal information",
+      "expect_title": "15 U.S.C. \u00a7 6801",
+      "rank_at_capture": 0,
+      "hits_at_capture": 4,
+      "first_at_capture": "15 U.S.C. \u00a7 6801"
+    },
+    "legal_agent::data broker": {
+      "agent": "legal_agent",
+      "term": "data broker",
+      "expect_title": "EPIC, Unbridled and Underregulated: Removing FCRA and GLBA Exemptions from Privacy Laws to Hold Data Brokers Accountable (July 2025)",
+      "rank_at_capture": 1,
+      "hits_at_capture": 4,
+      "first_at_capture": "38 CFR Part 1 - General Provisions"
+    },
+    "legal_agent::reasonable accommodation": {
+      "agent": "legal_agent",
+      "term": "reasonable accommodation",
+      "expect_title": "42 U.S.C. \u00a7 3604",
+      "rank_at_capture": 0,
+      "hits_at_capture": 4,
+      "first_at_capture": "42 U.S.C. \u00a7 3604",
+      "_corrected": "My review was wrong, not the retrieval. 42 U.S.C. 3604(f)(3)(B) CREATES the reasonable-accommodation duty; 24 CFR Part 100 implements it. The statute belongs first and the system had it right. Recorded because a fixture set that only ever catches the system is a fixture set nobody checks."
+    },
+    "trust_agent::spendthrift": {
+      "agent": "trust_agent",
+      "term": "spendthrift",
+      "expect_title": "Texas Trust Code - Tex. Prop. Code ch. 111-117",
+      "rank_at_capture": 0,
+      "hits_at_capture": 4,
+      "first_at_capture": "Texas Trust Code - Tex. Prop. Code ch. 111-117"
+    },
+    "trust_agent::self-dealing": {
+      "agent": "trust_agent",
+      "term": "self-dealing",
+      "expect_title": "Texas Trust Code - Tex. Prop. Code ch. 111-117",
+      "rank_at_capture": 0,
+      "hits_at_capture": 4,
+      "first_at_capture": "Texas Trust Code - Tex. Prop. Code ch. 111-117"
+    },
+    "trust_agent::conflict of laws": {
+      "agent": "trust_agent",
+      "term": "conflict of laws",
+      "expect_title": "Gallanis, American Revolutions in the Law of Trusts (ACTEC L.J. vol. 51 no. 2, 2026) - PRE-PUBLICATION DRAFT",
+      "rank_at_capture": 0,
+      "hits_at_capture": 4,
+      "first_at_capture": "Gallanis, American Revolutions in the Law of Trusts (ACTEC L.J. vol. 51 no. 2, 2026) - PRE-PUBLICATION DRAFT"
+    },
+    "trust_agent::esg": {
+      "agent": "trust_agent",
+      "term": "esg",
+      "expect_title": "Schanzenbach & Sitkoff, The Law and Economics of ESG Investing by a Fiduciary (Harvard Olin Discussion Paper 971, 2018)",
+      "rank_at_capture": 0,
+      "hits_at_capture": 4,
+      "first_at_capture": "Schanzenbach & Sitkoff, The Law and Economics of ESG Investing by a Fiduciary (Harvard Olin Discussion Paper 971, 2018)"
+    },
+    "trust_agent::contractarian": {
+      "agent": "trust_agent",
+      "term": "contractarian",
+      "expect_title": "Niles-Weed & Sitkoff, The Twenty-First Century Revolution in Conflict of Trust Laws, 97 N.Y.U. L. Rev. 1013 (2023)",
+      "rank_at_capture": 0,
+      "hits_at_capture": 4,
+      "first_at_capture": "Niles-Weed & Sitkoff, The Twenty-First Century Revolution in Conflict of Trust Laws, 97 N.Y.U. L. Rev. 1013 (2023)"
+    },
+    "trust_agent::situs": {
+      "agent": "trust_agent",
+      "term": "situs",
+      "expect_title": "Texas Trust Code - Tex. Prop. Code ch. 111-117",
+      "rank_at_capture": 0,
+      "hits_at_capture": 4,
+      "first_at_capture": "Texas Trust Code - Tex. Prop. Code ch. 111-117"
+    },
+    "trust_agent::prudence": {
+      "agent": "trust_agent",
+      "term": "prudence",
+      "expect_title": "Texas Trust Code - Tex. Prop. Code ch. 111-117",
+      "rank_at_capture": 0,
+      "hits_at_capture": 4,
+      "first_at_capture": "Texas Trust Code - Tex. Prop. Code ch. 111-117"
+    }
+  }
+}
