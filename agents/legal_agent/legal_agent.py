@@ -3848,8 +3848,29 @@ class LegalAgent(AgentBase):
         ownership, control and custody are different, and each of them is
         different from a right asserted against nothing in particular."""
         f = finding if isinstance(finding, dict) else {}
+        # ACCEPT BOTH SHAPES. pulse and veto on this agent take
+        # {"finding": {...}} and this verb takes the fields directly, so a
+        # caller who learned one surface sends the wrong one to the other and
+        # gets "no res identified" for a filing that named a res. A refusal
+        # that is really an argument-shape mismatch is the worst kind: it
+        # states a rule that was never tested.
+        if set(f) <= {"finding"} and isinstance(f.get("finding"), dict):
+            f = f["finding"]
         res = f.get("res") or f.get("property") or f.get("account")
         out = {"disclaimer": DISCLAIMER}
+
+        def _observe(decision, reason):
+            """Emit; the harness decides the record. A refusal for want of a
+            res or a payment is the clearest negative example this domain
+            produces - it states the rule in the act of applying it."""
+            try:
+                from core.security_events import emit
+                emit("claim_refused" if decision == "refused" else "claim_accepted",
+                     agent=self.agent_id, resource="equity:claim",
+                     action="assess", decision=decision, reason=reason)
+            except Exception as _e:
+                import sys as _s
+                print(f"CLAIM EVENT NOT OBSERVED ({_e})", file=_s.stderr)
         if not res:
             out.update({
                 "conclusion": "refused",
@@ -3862,11 +3883,109 @@ class LegalAgent(AgentBase):
                 "note": ("This is a refusal on form, not a view on the merits. A claim "
                          "with a res may still fail; one without cannot be heard."),
             })
+            _observe("refused", out["reason"])
+            return out
+
+        # A RES IS HALF THE CLAIM. THE OTHER HALF IS A PAYMENT.
+        #
+        # The res answers "against what". It does not answer "on what ground",
+        # and in equity the ground is almost always that somebody's money
+        # discharged somebody else's obligation. `equity imputes an intent to
+        # fulfil an obligation` and `equity looks on that as done which ought
+        # to be done` are both on the shelf, and neither reaches a claimant who
+        # cannot say what they paid.
+        #
+        # The failure this prevents is the plausible one: a filing that names a
+        # property, asserts an equitable interest in it, and never identifies
+        # the payment that created the interest. It reads like a claim and
+        # cannot be answered, because there is nothing for the other side to
+        # dispute.
+        payment = (f.get("payment") or f.get("amount_paid")
+                   or f.get("payment_ref") or f.get("discharged"))
+        if not payment:
+            out.update({
+                "conclusion": "refused",
+                "res": res,
+                "reason": ("A res is named and no payment is. An equitable interest "
+                           "is not conjured by pointing at property - it arises "
+                           "because a specific payment discharged a specific "
+                           "obligation. Without one there is no ground, only a "
+                           "destination."),
+                "what_would_settle_it": ("Name the payment: how much, when, by whom, "
+                                         "and which debt it discharged. Accounting's "
+                                         "payment ledger records exactly those four."),
+                "note": ("Refusal on form, not merits. NO MAXIMS AND NO "
+                         "SUBROGATION ARGUMENT IS REACHED FROM HERE - a claim "
+                         "that cannot state its payment does not get to invoke "
+                         "the doctrine that turns on one."),
+            })
+            _observe("refused", out["reason"])
+            return out
+
+        out.update({"conclusion": "res_and_payment_identified",
+                    "res": res, "payment": payment,
+                    "next": ("Which right is asserted over it - ownership, control, "
+                             "custody, security interest, priority? They are different "
+                             "and collapsing them is the standard error."),
+                    "subrogation": self.assess_subrogation(f)})
+        _observe("accepted", f"res {res} and payment {payment} both named")
+        return out
+
+    # SUBROGATION ELEMENTS. Who paid, who benefited, whose shoes.
+    #
+    # The doctrine is already on the shelf under `equitable subrogation`, and a
+    # shelf entry nothing reasons with is the `inert knowledge` state this
+    # system has a name for. These are the four questions the entry itself
+    # raises, made answerable.
+    SUBROGATION_ELEMENTS = ("payor", "beneficiary", "debt_discharged", "not_volunteer")
+
+    def assess_subrogation(self, finding=None):
+        """-> which elements are established and which are missing.
+
+        THE VOLUNTEER RULE IS THE ONE THAT DECIDES MOST CASES, and it is the
+        one claimants skip. The corpus entry says it plainly: one who pays
+        another's debt `NOT AS A VOLUNTEER and not as a mere stranger` may be
+        substituted to the creditor's rights. A payment made with no interest
+        to protect and under no compulsion buys sympathy and no priority.
+
+        Missing is reported as MISSING, never as weak. An element nobody
+        addressed and an element that was addressed and failed are different
+        findings with different fixes."""
+        f = finding if isinstance(finding, dict) else {}
+        got, missing = {}, []
+        for e in self.SUBROGATION_ELEMENTS:
+            v = f.get(e)
+            if e == "not_volunteer":
+                # Established only by an affirmative ground, never by silence.
+                v = f.get("interest_protected") or f.get("legal_compulsion") or f.get(e)
+            if v:
+                got[e] = v
+            else:
+                missing.append(e)
+        cite = None
+        try:
+            hits = self.lookup_reference("equitable subrogation") or []
+            cite = (hits[0] or {}).get("title") if hits else None
+        except Exception:
+            cite = None
+        out = {"elements_established": got, "elements_missing": missing,
+               "authority": cite or "not_in_corpus",
+               "disclaimer": DISCLAIMER}
+        if missing:
+            out["conclusion"] = "incomplete"
+            out["reason"] = (f"Subrogation needs all four. Missing: {missing}. "
+                             f"An unaddressed element is not a weak element.")
+            if "not_volunteer" in missing:
+                out["volunteer_warning"] = (
+                    "Nothing states an interest the payor was protecting or a "
+                    "legal compulsion to pay. A volunteer who discharges "
+                    "another's debt is not subrogated, however real the payment "
+                    "- and this is the element most claims omit.")
         else:
-            out.update({"conclusion": "res_identified", "res": res,
-                        "next": ("Which right is asserted over it - ownership, control, "
-                                 "custody, security interest, priority? They are different "
-                                 "and collapsing them is the standard error.")})
+            out["conclusion"] = "elements_stated"
+            out["note"] = ("All four are stated. Stated is not proved: each still "
+                           "needs evidence, and the volunteer question is decided "
+                           "on facts a filing cannot assert its way past.")
         return out
 
     def pulse(self, finding=None):

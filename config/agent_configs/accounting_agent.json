@@ -32,7 +32,9 @@
     "track_account_balance",
     "veto",
     "classify_value_movement",
-    "who_owns"
+    "who_owns",
+    "log_payment",
+    "payment_ledger"
   ],
   "entry_point": "agents.accounting_agent.accounting_agent:main",
   "description": "Structures financial instruments and cached tax/accounting reference data (extraction and structuring only - not tax or financial advice)",

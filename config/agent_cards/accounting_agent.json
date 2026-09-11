@@ -5,6 +5,8 @@
   "capabilities": [
     "classify_value_movement",
     "who_owns",
+    "log_payment",
+    "payment_ledger",
     "veto",
     "assess_assertion",
     "set_lease_terms",
@@ -47,5 +49,5 @@
   "public_key": "",
   "owner": "anureyki",
   "created": "2026-07-31T17:59:12.923481",
-  "updated": "2026-09-11T16:15:09.560001"
+  "updated": "2026-09-11T20:27:19.935882"
 }

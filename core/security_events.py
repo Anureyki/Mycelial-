@@ -52,6 +52,12 @@ EVENT_TYPES = (
     "veto_fired", "veto_passed",
     "artifact_signed", "artifact_rejected",
     "route_selected", "route_refused",
+    # The combat stack. Legal refusing a claim and Accounting characterising a
+    # payment are security-relevant because they are the two places a filing
+    # gets built - and a claim refused for want of a res or a payment is
+    # exactly the negative example worth keeping.
+    "claim_refused", "claim_accepted",
+    "payment_classified",
 )
 
 

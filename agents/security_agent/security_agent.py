@@ -31,7 +31,8 @@ class SecurityAgent(AgentBase):
                           "flag_finding", "list_findings", "resolve_finding",
                           "check_guard", "reload_guards", "quarantine", "eliminate",
                           "list_pending_approvals",
-                          "scan_codebase", "drift_scan"],
+                          "scan_codebase", "drift_scan",
+                          "start_drift_watch", "drift_status"],
             role="security"
         )
         self.tokens = {}  # simple in-memory token store (persist later)
@@ -56,6 +57,20 @@ class SecurityAgent(AgentBase):
             # ... more policies
         }
         self.log("🔐 Security Agent started.")
+
+        # STARTED AT BOOT. A monitor somebody has to remember to run is a
+        # monitor that is off when it matters, and the first attempt at this
+        # edit silently did not land - the agent came up reporting
+        # running: False and nothing said why.
+        #
+        # Failure to start is LOGGED LOUDLY and does not stop the agent.
+        # Blocking actions is the job that cannot be interrupted; watching
+        # intent is the job that must not be silently absent.
+        try:
+            self.start_drift_watch()
+        except Exception as _e:
+            self.log(f"DRIFT WATCH DID NOT START ({_e}) - nothing is observing "
+                     f"intent. This is not a clean state.")
 
     def _load_or_create_bootstrap_secret(self):
         """Only callers who can read this local, 0600 file may mint tokens.
@@ -312,6 +327,71 @@ class SecurityAgent(AgentBase):
             "next": "call list_findings to review, then resolve_finding to mark as handled",
         }
 
+    # THE WATCHER RUNS FOR THE LIFE OF THE AGENT.
+    #
+    # Started at boot rather than on request, because a monitor somebody has to
+    # remember to run is a monitor that is off when it matters. It wakes on
+    # spool growth, not on a clock - see core/drift_watch.py for why this
+    # system does not add a timer.
+    _watcher = None
+
+    def start_drift_watch(self, args=None):
+        from core.drift_watch import DriftWatcher
+        if self._watcher and self._watcher.status()["running"]:
+            return {"already_running": True, "status": self._watcher.status()}
+        self._watcher = DriftWatcher(on_alert=self._on_drift, log=self.log)
+        started = self._watcher.start()
+        return {"started": started, "status": self._watcher.status()}
+
+    def _on_drift(self, result):
+        """Record the alert where a person will see it. Do not act on it.
+
+        Security CAN quarantine, and deliberately does not do so from here. An
+        alert is a threshold breach, and wiring a threshold to an enforcement
+        verb means one false positive takes a department offline - which is
+        exactly how a monitor gets turned off."""
+        for a in result.get("alerts") or []:
+            try:
+                # VIA handle_task, because flag_finding is a dispatch branch on
+                # this agent and not a method - self.flag_finding raised
+                # AttributeError, was swallowed by this very except, and the
+                # alert fired while nothing was filed. The log said so; the
+                # first place I looked was the wrong file.
+                # MAPPED ONTO THE FIELDS flag_finding ACTUALLY KEEPS.
+                #
+                # It stores summary, severity, location and recommendation and
+                # silently drops everything else - so the first version filed
+                # findings with `recommendation: None`, losing the reasoning
+                # AND the explicit statement that nothing was acted on. A
+                # finding that says a threshold broke, without saying that
+                # breaking it is not a verdict, is the one sentence somebody
+                # acts on. State travels with the fact or the fact is gone.
+                res = self.handle_task("flag_finding", {
+                    "severity": a.get("severity", "medium"),
+                    "summary": f"drift: {a.get('kind')} {a.get('agent') or ''}".strip(),
+                    "location": json.dumps(a.get("detail"))[:400],
+                    "recommendation": (
+                        f"{a.get('why', '')} "
+                        f"NO ACTION TAKEN - the monitor detects, it does not "
+                        f"adjudicate. Investigate before revoking anything; a "
+                        f"threshold breach is not a finding of intent."),
+                    "reporter": "drift_monitor",
+                }, sender="security_agent")
+                # AND CHECK THE RETURN. flag_finding answers an invalid call
+                # with an error DICT rather than raising, so a try/except sees
+                # nothing wrong while nothing is filed.
+                if isinstance(res, dict) and res.get("error"):
+                    self.log(f"DRIFT FINDING REFUSED: {res['error']}")
+            except Exception as e:
+                self.log(f"could not file drift finding: {e}")
+
+    def drift_status(self, args=None):
+        if not self._watcher:
+            return {"running": False,
+                    "why": ("The watcher has not been started. That is not a "
+                            "clean scan - nothing is being observed.")}
+        return self._watcher.status()
+
     def drift_scan(self, args=None):
         """-> the drift monitor's findings, for the dashboard card.
 
@@ -339,6 +419,12 @@ class SecurityAgent(AgentBase):
         return out
 
     def handle_task(self, task, args, sender):
+        if task == "start_drift_watch":
+            return self.start_drift_watch(args if isinstance(args, dict) else {})
+
+        if task == "drift_status":
+            return self.drift_status(args if isinstance(args, dict) else {})
+
         if task == "drift_scan":
             return self.drift_scan(args if isinstance(args, dict) else {})
 

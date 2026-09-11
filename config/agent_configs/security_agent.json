@@ -16,7 +16,9 @@
     "reload_guards",
     "resolve_finding",
     "scan_codebase",
-    "drift_scan"
+    "drift_scan",
+    "start_drift_watch",
+    "drift_status"
   ],
   "entry_point": "agents.security_agent.security_agent:main",
   "description": "Authorizes every inbound /execute against config/guards.json",

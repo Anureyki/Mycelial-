@@ -16,7 +16,9 @@
     "eliminate",
     "list_pending_approvals",
     "scan_codebase",
-    "drift_scan"
+    "drift_scan",
+    "start_drift_watch",
+    "drift_status"
   ],
   "endpoint": "/execute",
   "port": 9010,

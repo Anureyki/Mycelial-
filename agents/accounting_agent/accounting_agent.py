@@ -107,7 +107,7 @@ class AccountingAgent(AgentBase):
             port=9012,
             capabilities=[
                 "classify_value_movement",
-                "who_owns",
+                "who_owns", "log_payment", "payment_ledger",
                 "veto",
                 "assess_assertion", "set_lease_terms", "reconcile", "parse_financial_instrument", "assess_tax_liability", "track_account_balance",
                 "lookup", "list_relationships", "get_relationship", "find_relationships",
@@ -1373,6 +1373,140 @@ class AccountingAgent(AgentBase):
     # no write path to EDGAR or to any registry.
     # ==================================================================
 
+    # ==================================================================
+    # PAYMENT VERSUS BENEFIT.
+    #
+    # A ledger that records only amounts answers "what moved". The question
+    # that decides an equitable claim is "who was relieved of what", and those
+    # are not the same question. Money leaving an account is a fact; whose
+    # obligation it discharged is the claim.
+    #
+    # A PAYMENT WITH NO BENEFICIARY IS A GIFT. Not a weak claim, not a claim
+    # pending evidence - a different thing entirely, and calling it a claim is
+    # how a filing gets built on a transfer nobody can characterise. A gift is
+    # complete when made and creates no continuing right in the giver.
+    #
+    # A PAYMENT WITH A BENEFICIARY IS A CLAIM, and the principal's point about
+    # clocks is the reason this matters: silence lapses, a stated claim does
+    # not lapse the same way. Limitations still run and this agent does not
+    # compute them - Legal owns clocks - but a payment recorded with its
+    # beneficiary and the debt it discharged is a claim that can be pleaded
+    # years later, while the same payment recorded as a bare amount is a
+    # transfer nobody can explain.
+    # ==================================================================
+
+    PAYMENT_KIND = ("claim", "gift", "unclassifiable")
+
+    def log_payment(self, args=None):
+        """Record a payment with who benefited. -> the classified record."""
+        a = args if isinstance(args, dict) else {}
+        amount = a.get("amount")
+        payer = a.get("payer") or a.get("paid_by")
+        beneficiary = a.get("beneficiary") or a.get("benefited")
+        debt = a.get("debt_discharged") or a.get("discharged") or a.get("obligation")
+
+        if amount in (None, "") or not payer:
+            return {"logged": False,
+                    "error": ("amount and payer are both required. A payment "
+                              "with no payer is not a payment, it is a number."),
+                    "absence_state": "nothing_found"}
+
+        if not beneficiary:
+            kind = "gift"
+            why = ("NO BENEFICIARY NAMED, so this is recorded as a GIFT. A gift "
+                   "is complete when made and creates no continuing right in "
+                   "the giver - it is not a weak claim awaiting evidence, it is "
+                   "a different thing. If somebody was in fact relieved of an "
+                   "obligation, name them and it becomes a claim.")
+        elif not debt:
+            kind = "unclassifiable"
+            why = ("A beneficiary is named and no obligation is. Somebody "
+                   "received value, and without the debt it discharged there is "
+                   "nothing to say it was DUE from them - which is the whole of "
+                   "an equitable claim. Neither gift nor claim until that is "
+                   "stated.")
+        else:
+            kind = "claim"
+            why = (f"{payer} discharged an obligation of {beneficiary}. That is "
+                   f"the shape a subrogation or unjust-enrichment claim is built "
+                   f"on: payment, beneficiary, and the debt relieved.")
+
+        rec = {
+            "payment_id": f"pay_{self._uid()}" if hasattr(self, "_uid")
+                          else f"pay_{int(__import__('time').time()*1000)}",
+            "recorded_at": datetime.now().isoformat(),
+            "amount": amount, "currency": a.get("currency", "USD"),
+            "payer": payer, "beneficiary": beneficiary,
+            "debt_discharged": debt,
+            "kind": kind, "why": why,
+            "evidence_ref": a.get("evidence_ref"),
+            # EVIDENCE IS SEPARATE FROM CHARACTERISATION. A claim with no
+            # evidence reference is still a claim and is still contestable -
+            # CLAUDE.md already says a payment with no evidence reference is
+            # contestable, and that is about PROOF, not about what it is.
+            "evidence_state": ("referenced" if a.get("evidence_ref")
+                               else "no_evidence_reference"),
+            "note": a.get("note"),
+        }
+        try:
+            self.store_own_memory(f"payment_{rec['payment_id']}", json.dumps(rec))
+            idx = self._unwrap_value(self.retrieve_own_memory("payment_index"))
+            idx = json.loads(idx) if idx else []
+            idx.append(rec["payment_id"])
+            self.store_own_memory("payment_index", json.dumps(idx))
+            rec["stored"] = True
+        except Exception as e:
+            rec["stored"] = False
+            rec["store_error"] = str(e)[:160]
+        try:
+            from core.security_events import emit
+            emit("payment_classified", agent=self.agent_id,
+                 resource=f"payment:{rec['payment_id']}", action="classify",
+                 decision=("allowed" if kind == "claim" else "denied"),
+                 reason=why)
+        except Exception as _e:
+            import sys as _s
+            print(f"PAYMENT EVENT NOT OBSERVED ({_e})", file=_s.stderr)
+        self.log(f"payment {rec['payment_id']} classified {kind}")
+        rec["logged"] = True
+        return rec
+
+    def payment_ledger(self, args=None):
+        """-> every recorded payment, split by what it is."""
+        a = args if isinstance(args, dict) else {}
+        try:
+            idx = self._unwrap_value(self.retrieve_own_memory("payment_index"))
+            idx = json.loads(idx) if idx else []
+        except Exception as e:
+            return {"error": f"ledger unreadable: {e}",
+                    "absence_state": "not_checked"}
+        rows = []
+        for pid in idx:
+            raw = self._unwrap_value(self.retrieve_own_memory(f"payment_{pid}"))
+            if not raw:
+                continue
+            try:
+                rows.append(json.loads(raw))
+            except Exception:
+                continue
+        if a.get("beneficiary"):
+            rows = [r for r in rows if r.get("beneficiary") == a["beneficiary"]]
+        by = {k: [r for r in rows if r.get("kind") == k] for k in self.PAYMENT_KIND}
+        return {
+            "payments": len(rows),
+            "claims": len(by["claim"]),
+            "gifts": len(by["gift"]),
+            "unclassifiable": len(by["unclassifiable"]),
+            "claim_total": sum(float(r.get("amount") or 0) for r in by["claim"]),
+            "gift_total": sum(float(r.get("amount") or 0) for r in by["gift"]),
+            "rows": rows if a.get("rows") else None,
+            "note": ("Gifts are listed because they are not claims, not because "
+                     "they are pending. Unclassifiable means a beneficiary was "
+                     "named and the obligation was not - the gap is stated "
+                     "rather than resolved either way."),
+            "absence_state": "verified_clear" if rows else "nothing_found",
+        }
+
     def who_owns(self, args):
         """-> a cited ownership graph, or an entity with explicitly empty edges."""
         a = args if isinstance(args, dict) else {}
@@ -1404,6 +1538,12 @@ class AccountingAgent(AgentBase):
         cag_result = self.try_handle_cag_task(task, args)
         if cag_result is not None:
             return cag_result
+
+        if task == "log_payment":
+            return self.log_payment(args if isinstance(args, dict) else {})
+
+        if task == "payment_ledger":
+            return self.payment_ledger(args if isinstance(args, dict) else {})
 
         if task == "who_owns":
             return self.who_owns(args if isinstance(args, dict) else
