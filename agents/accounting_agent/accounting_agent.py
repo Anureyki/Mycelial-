@@ -1395,7 +1395,20 @@ class AccountingAgent(AgentBase):
     # transfer nobody can explain.
     # ==================================================================
 
-    PAYMENT_KIND = ("claim", "gift", "unclassifiable")
+    # A FOURTH KIND, ADDED WHEN REAL DATA DID NOT FIT THE THREE.
+    #
+    # A 4% VA fiduciary fee came in and classified as `unclassifiable`: a
+    # beneficiary is named and no debt of theirs is discharged. The
+    # classification was correct for the model and the MODEL was short. A fee
+    # for services rendered is neither a gift (the payer got something) nor a
+    # claim (nobody's obligation was relieved) - it is consideration, and
+    # calling it either would put a wrong characterisation in the one field an
+    # equitable claim turns on.
+    #
+    # It matters which: a gift creates no continuing right, a claim does, and
+    # CONSIDERATION creates a right only if the service was not rendered. That
+    # is a different question with a different proof.
+    PAYMENT_KIND = ("claim", "gift", "consideration", "unclassifiable")
 
     def log_payment(self, args=None):
         """Record a payment with who benefited. -> the classified record."""
@@ -1418,6 +1431,13 @@ class AccountingAgent(AgentBase):
                    "the giver - it is not a weak claim awaiting evidence, it is "
                    "a different thing. If somebody was in fact relieved of an "
                    "obligation, name them and it becomes a claim.")
+        elif a.get("service_received") or a.get("for_services"):
+            kind = "consideration"
+            why = (f"{payer} paid {beneficiary} FOR SERVICES, not to discharge "
+                   f"an obligation of theirs. Consideration: no continuing "
+                   f"right arises from the payment itself. A right arises only "
+                   f"if the service was not rendered, which is a different "
+                   f"question needing different proof.")
         elif not debt:
             kind = "unclassifiable"
             why = ("A beneficiary is named and no obligation is. Somebody "
@@ -1492,10 +1512,12 @@ class AccountingAgent(AgentBase):
         if a.get("beneficiary"):
             rows = [r for r in rows if r.get("beneficiary") == a["beneficiary"]]
         by = {k: [r for r in rows if r.get("kind") == k] for k in self.PAYMENT_KIND}
+        _consideration = by.get("consideration") or []
         return {
             "payments": len(rows),
             "claims": len(by["claim"]),
             "gifts": len(by["gift"]),
+            "consideration": len(_consideration),
             "unclassifiable": len(by["unclassifiable"]),
             "claim_total": sum(float(r.get("amount") or 0) for r in by["claim"]),
             "gift_total": sum(float(r.get("amount") or 0) for r in by["gift"]),

@@ -1,0 +1,1496 @@
+{
+  "title": "38 CFR Part 13 - Fiduciary Activities",
+  "source": "Electronic CFR, title 38 part 13, as of 2026-09-08, retrieved from ecfr.gov. Federal regulation - public domain.",
+  "authority_class": "regulation",
+  "authority_class_basis": "Title of the work is a CFR part citation, which fixes the class",
+  "claim_layer": "doctrinal",
+  "claim_layer_meaning": "States or describes the rule. Cite for what the law IS.",
+  "authorities_cited": [],
+  "term_index": {
+    "being less": [
+      0,
+      2
+    ],
+    "injury disease": [
+      0,
+      1,
+      2
+    ],
+    "fiduciary matters": [
+      0,
+      3,
+      7,
+      26
+    ],
+    "well being": [
+      0,
+      2,
+      7,
+      8,
+      10
+    ],
+    "veterans affairs": [
+      0,
+      15,
+      26
+    ],
+    "fiduciary program": [
+      0,
+      1,
+      2,
+      3,
+      5,
+      6,
+      8,
+      10,
+      23
+    ],
+    "part authority": [
+      0,
+      9,
+      10
+    ],
+    "interest income": [
+      1,
+      14
+    ],
+    "being unable": [
+      1,
+      5,
+      9,
+      18
+    ],
+    "regional office": [
+      1,
+      4,
+      22,
+      23,
+      26
+    ],
+    "fiduciary account": [
+      1,
+      11
+    ],
+    "veterans service": [
+      1,
+      2,
+      3
+    ],
+    "written notice": [
+      1,
+      2,
+      15,
+      21,
+      22,
+      23,
+      24,
+      25
+    ],
+    "notice will": [
+      1,
+      21
+    ],
+    "investment derived": [
+      1,
+      14
+    ],
+    "determine whether": [
+      1,
+      5,
+      6,
+      8,
+      14,
+      21
+    ],
+    "legal guardian": [
+      1,
+      5,
+      9,
+      10,
+      22,
+      23,
+      25
+    ],
+    "benefit funds": [
+      1,
+      4,
+      8,
+      10,
+      13,
+      15,
+      17,
+      20,
+      21,
+      25
+    ],
+    "financial affairs": [
+      1,
+      2,
+      5,
+      9
+    ],
+    "funds maintained": [
+      1,
+      20
+    ],
+    "entity appointed": [
+      1,
+      10
+    ],
+    "rating authority": [
+      1,
+      6,
+      24
+    ],
+    "funds under management": [
+      1,
+      7,
+      10,
+      13,
+      15,
+      17,
+      20,
+      21,
+      23,
+      25
+    ],
+    "restricted withdrawal": [
+      1,
+      15,
+      24
+    ],
+    "fiduciary matter": [
+      1,
+      2,
+      3,
+      5,
+      7
+    ],
+    "withdrawal agreement": [
+      1,
+      15,
+      24
+    ],
+    "financial institution": [
+      1,
+      11,
+      20
+    ],
+    "will provide": [
+      1,
+      15,
+      21,
+      22,
+      23,
+      25
+    ],
+    "will include": [
+      1,
+      5
+    ],
+    "written decision": [
+      1,
+      22
+    ],
+    "restricted withdrawal agreement": [
+      1,
+      15,
+      24
+    ],
+    "notice regarding": [
+      2,
+      15
+    ],
+    "account balance": [
+      2,
+      18,
+      20
+    ],
+    "budget under control": [
+      2,
+      8,
+      10,
+      15,
+      20,
+      26
+    ],
+    "field examination": [
+      2,
+      3,
+      5,
+      6,
+      7,
+      8
+    ],
+    "claims agent": [
+      2,
+      3,
+      4,
+      5,
+      22,
+      23,
+      25
+    ],
+    "attorney claims": [
+      2,
+      4,
+      5
+    ],
+    "fiduciary receives": [
+      2,
+      13,
+      22,
+      25
+    ],
+    "annual accounting": [
+      2,
+      5,
+      10,
+      11,
+      15,
+      17,
+      20,
+      21
+    ],
+    "good faith": [
+      2,
+      10,
+      23
+    ],
+    "credible information": [
+      2,
+      21
+    ],
+    "good faith effort": [
+      2,
+      23
+    ],
+    "fiduciary prescribed": [
+      2,
+      3,
+      5,
+      15,
+      21,
+      24
+    ],
+    "written notice regarding": [
+      2,
+      15
+    ],
+    "attorney claims agent": [
+      2,
+      4,
+      5
+    ],
+    "determination regarding": [
+      2,
+      3,
+      5,
+      10,
+      22
+    ],
+    "benefits without": [
+      2,
+      6,
+      24
+    ],
+    "reissue benefits": [
+      2,
+      23
+    ],
+    "recurring monthly": [
+      2,
+      13
+    ],
+    "benefits however": [
+      2,
+      3
+    ],
+    "benefits with limited": [
+      2,
+      6
+    ],
+    "successor fiduciary": [
+      2,
+      4,
+      5,
+      23,
+      24,
+      25
+    ],
+    "recognized veterans service": [
+      2,
+      3
+    ],
+    "veterans appeals": [
+      2,
+      5,
+      26
+    ],
+    "accredited attorney claims": [
+      2,
+      5
+    ],
+    "accredited attorney": [
+      2,
+      3,
+      5
+    ],
+    "beneficiary requests": [
+      2,
+      24
+    ],
+    "faith effort": [
+      2,
+      23
+    ],
+    "control number": [
+      2,
+      20,
+      26
+    ],
+    "supervised direct payment": [
+      2,
+      5,
+      6,
+      8,
+      24
+    ],
+    "direct payment": [
+      2,
+      3,
+      5,
+      6,
+      8,
+      24
+    ],
+    "recognized veterans": [
+      2,
+      3
+    ],
+    "supervised direct": [
+      2,
+      5,
+      6,
+      8,
+      24
+    ],
+    "regarding supervised direct": [
+      2,
+      8
+    ],
+    "current fiduciary": [
+      2,
+      3
+    ],
+    "regarding supervised": [
+      2,
+      8
+    ],
+    "written report": [
+      3,
+      20,
+      21
+    ],
+    "fiduciary appointment": [
+      3,
+      5,
+      14
+    ],
+    "regarding further": [
+      3,
+      21
+    ],
+    "procedures prescribed": [
+      3,
+      4,
+      10
+    ],
+    "chapter authority": [
+      3,
+      26
+    ],
+    "report regarding": [
+      3,
+      7,
+      20
+    ],
+    "action including": [
+      3,
+      23
+    ],
+    "regarding further action": [
+      3,
+      21
+    ],
+    "written report regarding": [
+      3,
+      20
+    ],
+    "claims agents": [
+      3,
+      22
+    ],
+    "proposed fiduciary": [
+      3,
+      5
+    ],
+    "fiduciary regarding": [
+      3,
+      24
+    ],
+    "manager will": [
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      14,
+      15,
+      20,
+      21,
+      22,
+      23,
+      24,
+      25
+    ],
+    "further action": [
+      3,
+      21,
+      22
+    ],
+    "deems appropriate": [
+      4,
+      22
+    ],
+    "standing": [
+      4
+    ],
+    "jurisdiction over": [
+      4,
+      14,
+      22
+    ],
+    "immediate need": [
+      4,
+      5
+    ],
+    "office director": [
+      4,
+      22,
+      23,
+      26
+    ],
+    "regional office director": [
+      4,
+      22,
+      23,
+      26
+    ],
+    "section will": [
+      4,
+      6,
+      18
+    ],
+    "temporary supervision": [
+      5,
+      6
+    ],
+    "serve without": [
+      5,
+      14
+    ],
+    "manager will consider": [
+      5,
+      6,
+      25
+    ],
+    "following order": [
+      5,
+      18
+    ],
+    "benefit payments": [
+      5,
+      8,
+      10,
+      19,
+      24
+    ],
+    "beneficiary described": [
+      5,
+      17
+    ],
+    "benefit payment": [
+      5,
+      14,
+      15
+    ],
+    "provides fiduciary services": [
+      5,
+      14
+    ],
+    "beneficiary receives": [
+      5,
+      10
+    ],
+    "information regarding": [
+      5,
+      10
+    ],
+    "face interview": [
+      5,
+      7
+    ],
+    "individual refuses": [
+      5,
+      9
+    ],
+    "provides fiduciary": [
+      5,
+      14
+    ],
+    "fiduciary under paragraph": [
+      5,
+      6,
+      15
+    ],
+    "manager will conduct": [
+      5,
+      6,
+      21
+    ],
+    "annual amount": [
+      5,
+      21
+    ],
+    "face meeting": [
+      5,
+      21
+    ],
+    "consider whether": [
+      5,
+      6
+    ],
+    "beneficiary does": [
+      5,
+      6,
+      14
+    ],
+    "will conduct": [
+      5,
+      6,
+      21
+    ],
+    "credit report": [
+      5,
+      15
+    ],
+    "chief officer": [
+      5,
+      13,
+      20
+    ],
+    "expedited appointment": [
+      5,
+      25
+    ],
+    "will make": [
+      5,
+      23,
+      25
+    ],
+    "surety bond": [
+      5,
+      15,
+      23,
+      24
+    ],
+    "manager determines": [
+      5,
+      6,
+      9,
+      20,
+      21,
+      22,
+      24
+    ],
+    "beneficiary until": [
+      5,
+      24,
+      25
+    ],
+    "united states": [
+      5,
+      12,
+      13,
+      15,
+      20,
+      21,
+      23
+    ],
+    "fiduciary services": [
+      5,
+      14,
+      24
+    ],
+    "paid directly": [
+      5,
+      8
+    ],
+    "will consider": [
+      5,
+      6,
+      25
+    ],
+    "manager will make": [
+      5,
+      25
+    ],
+    "fiduciary appointed": [
+      5,
+      8,
+      11
+    ],
+    "section authority": [
+      6,
+      15,
+      23
+    ],
+    "fund usage": [
+      6,
+      10
+    ],
+    "will consist": [
+      6,
+      21
+    ],
+    "regarding fiduciary matters": [
+      7,
+      26
+    ],
+    "field examinations": [
+      7,
+      8
+    ],
+    "will order": [
+      7,
+      8
+    ],
+    "regarding fiduciary": [
+      7,
+      10,
+      26
+    ],
+    "manager will order": [
+      7,
+      8
+    ],
+    "special circumstances": [
+      8,
+      15
+    ],
+    "control numbers": [
+      8,
+      10,
+      15
+    ],
+    "state agency": [
+      9,
+      15
+    ],
+    "funds according": [
+      10,
+      17
+    ],
+    "values preferences": [
+      10,
+      13
+    ],
+    "fiduciary fees": [
+      10,
+      14
+    ],
+    "within days": [
+      10,
+      15,
+      17,
+      21,
+      23,
+      24
+    ],
+    "medical care": [
+      10,
+      11
+    ],
+    "beneficiary including": [
+      10,
+      22
+    ],
+    "fiduciary accounts": [
+      10,
+      11
+    ],
+    "separate financial": [
+      10,
+      11
+    ],
+    "best interest": [
+      10,
+      13,
+      21
+    ],
+    "care support": [
+      10,
+      22
+    ],
+    "after receipt": [
+      11,
+      19
+    ],
+    "following fiduciaries": [
+      11,
+      13
+    ],
+    "fiduciary serves": [
+      11,
+      21
+    ],
+    "fiduciary relationship": [
+      11,
+      13,
+      25
+    ],
+    "trust powers": [
+      12,
+      15
+    ],
+    "trust company": [
+      12,
+      15
+    ],
+    "accounting requirements": [
+      12,
+      20
+    ],
+    "trust powers organized": [
+      12,
+      15
+    ],
+    "powers organized": [
+      12,
+      15
+    ],
+    "bank with trust": [
+      12,
+      15
+    ],
+    "beneficiary funds": [
+      13,
+      15,
+      23
+    ],
+    "benefits paid": [
+      13,
+      21
+    ],
+    "benefit paid": [
+      14,
+      22,
+      23
+    ],
+    "personal funds": [
+      14,
+      18
+    ],
+    "fiduciary misused": [
+      14,
+      22,
+      23,
+      24
+    ],
+    "manager with jurisdiction": [
+      14,
+      15
+    ],
+    "jurisdiction determines": [
+      14,
+      24
+    ],
+    "section reasonable": [
+      14,
+      17
+    ],
+    "bond prescribed": [
+      15,
+      24
+    ],
+    "later than days": [
+      15,
+      20,
+      21,
+      22,
+      24,
+      25
+    ],
+    "beneficiary exceeds": [
+      15,
+      20
+    ],
+    "beneficiary written": [
+      15,
+      24
+    ],
+    "general except": [
+      15,
+      16,
+      20
+    ],
+    "puerto rico": [
+      15,
+      20
+    ],
+    "without regard": [
+      15,
+      18
+    ],
+    "beneficiary written notice": [
+      15,
+      24
+    ],
+    "days after": [
+      15,
+      20,
+      21,
+      22,
+      23,
+      24,
+      25
+    ],
+    "accounting prescribed": [
+      15,
+      20
+    ],
+    "manager will provide": [
+      15,
+      21,
+      22,
+      25
+    ],
+    "fiduciary must submit": [
+      17,
+      20,
+      21
+    ],
+    "final accounting": [
+      17,
+      24,
+      25
+    ],
+    "fiduciary does": [
+      19,
+      20,
+      23
+    ],
+    "accounting period": [
+      20,
+      21
+    ],
+    "within days after": [
+      21,
+      23,
+      24
+    ],
+    "good cause": [
+      21,
+      24
+    ],
+    "total amount": [
+      21,
+      23
+    ],
+    "more beneficiaries": [
+      21,
+      22,
+      23
+    ],
+    "accounting within": [
+      21,
+      23
+    ],
+    "accounting within days": [
+      21,
+      23
+    ],
+    "additional information": [
+      21,
+      22
+    ],
+    "accredited representative": [
+      22,
+      23,
+      25
+    ],
+    "representative attorney": [
+      22,
+      23,
+      25
+    ],
+    "final decision": [
+      22,
+      26
+    ],
+    "accredited representative attorney": [
+      22,
+      23,
+      25
+    ],
+    "misuse occurred": [
+      22,
+      23
+    ],
+    "individual fiduciary": [
+      22,
+      23
+    ],
+    "regarding reissuance": [
+      22,
+      23
+    ],
+    "entity serving": [
+      22,
+      23
+    ],
+    "fiduciary service": [
+      22,
+      23,
+      26
+    ],
+    "misuse determination": [
+      22,
+      23,
+      26
+    ],
+    "decision regarding": [
+      22,
+      23
+    ],
+    "negligence determination": [
+      23,
+      26
+    ],
+    "claims agent written": [
+      23,
+      25
+    ],
+    "agent written notice": [
+      23,
+      25
+    ],
+    "agent written": [
+      23,
+      25
+    ],
+    "instructions regarding": [
+      24,
+      25
+    ],
+    "after transferring": [
+      24,
+      25
+    ],
+    "transferring funds": [
+      24,
+      25
+    ],
+    "otherwise instructed": [
+      24,
+      25
+    ],
+    "manager provides": [
+      24,
+      25
+    ],
+    "days after transferring": [
+      24,
+      25
+    ],
+    "after transferring funds": [
+      24,
+      25
+    ]
+  },
+  "origin_pdf": "38cfr13.txt",
+  "extraction": {
+    "extractor": "text file (already extracted)",
+    "pages": 1,
+    "no_text_layer": [],
+    "raised": [],
+    "recovered": [],
+    "lost": [],
+    "complete": true
+  },
+  "pages": 1,
+  "sections": [
+    {
+      "citation": "\u00a7 13.10",
+      "kind": "section_sign",
+      "page": 1,
+      "text": "\u00a7 13.10 Purpose and applicability of other regulations. (a) Purpose. The regulations in this part implement the Department of Veterans Affairs' (VA) fiduciary program, which is authorized by 38 U.S.C. chapters 55 and 61. The purpose of the fiduciary program is to protect certain VA beneficiaries who, as a result of injury, disease, or infirmities of advanced age, or by reason of being less than the age of majority, cannot manage their VA benefits. Under this program, VA oversees these vulnerable beneficiaries to ensure their well-being, and appoints and oversees fiduciaries who manage these beneficiaries' benefits. (b) Applicability of other regulations. Fiduciary matters arise after VA has determined that a beneficiary is entitled to benefits, and decisions on fiduciary matters are not decisions on claims for VA monetary benefits. Accordingly, VA's regulations governing the adjudication of claims for benefits, see 38 CFR part 3, do not apply to fiduciary matters unless VA has prescribed applicability in this part. (Authority: 38 U.S.C. 501)",
+      "integrity": {
+        "state": "complete",
+        "basis": "Full retrieved body of 1,057 characters stored; under the 60,000 cap, so nothing was cut.",
+        "stamped_at": "2026-09-11T23:51:39",
+        "stored_chars": 1057,
+        "source_chars": 1057,
+        "cap_applied": 60000
+      },
+      "authority_class": "regulation",
+      "claim_layer": "doctrinal",
+      "claim_layer_meaning": "States or describes the rule. Cite for what the law IS."
+    },
+    {
+      "citation": "\u00a7 13.20",
+      "kind": "section_sign",
+      "page": 1,
+      "text": "\u00a7 13.20 Definitions. The following definitions apply to this part: Dependent means a beneficiary's spouse as defined by this section, a beneficiary's child as defined by \u00a7 3.57 of this chapter, or a beneficiary's parent as defined by \u00a7 3.59 of this chapter, who does not have an income sufficient for reasonable maintenance and who obtains support for such maintenance from the beneficiary. Fiduciary means an individual or entity appointed by VA to receive VA benefits on behalf of a beneficiary for the use and benefit of the beneficiary and the beneficiary's dependents. Hub Manager means the individual who has authority to oversee the activities of a VA Fiduciary Hub or the Veterans Service Center Manager of the Manila, Philippines, VA Regional Office. In the fiduciary program means, with respect to a beneficiary, that the beneficiary: (1) Has been rated by VA as incapable of managing his or her own VA benefits as a result of injury, disease, or the infirmities of advanced age; (2) Has been determined by a court with jurisdiction as being unable to manage his or her own financial affairs; or (3) Is less than the age of majority. Rating authority means VA employees who have authority under \u00a7 3.353 of this chapter to determine whether a beneficiary can manage his or her VA benefits. Relative means a person who is an adopted child or is related to a beneficiary by blood or marriage, as defined by this chapter. Restricted withdrawal agreement means a written contract between VA, a fiduciary, and a financial institution in which the fiduciary has VA benefit funds under management for a beneficiary, under which certain funds cannot be withdrawn without the consent of the Hub Manager. Spouse means a husband or wife whose marriage, including common law marriage and same-sex marriage, meets the requirements of 38 U.S.C. 103(c). VA benefit funds under management means the combined value of the VA funds maintained in a fiduciary account or accounts managed by a fiduciary for a beneficiary under \u00a7 13.200 and any VA funds invested by the fiduciary for the beneficiary under \u00a7 13.210, to include any interest income and return on investment derived from any account. Written notice means that VA will provide to the beneficiary and the beneficiary's representative and legal guardian, if any, a written decision in a fiduciary matter that is appealable under \u00a7 13.600. Such notice will include: (1) A clear statement of the decision, (2) The reason(s) for the decision, (3) A summary of the evidence considered in reaching the decision, and (4) The necessary procedures and time limits to initiate an appeal of the decision. (Authority: 38 U.S.C. 501)",
+      "integrity": {
+        "state": "complete",
+        "basis": "Full retrieved body of 2,670 characters stored; under the 60,000 cap, so nothing was cut.",
+        "stamped_at": "2026-09-11T23:51:39",
+        "stored_chars": 2670,
+        "source_chars": 2670,
+        "cap_applied": 60000
+      },
+      "authority_class": "regulation",
+      "claim_layer": "doctrinal",
+      "claim_layer_meaning": "States or describes the rule. Cite for what the law IS."
+    },
+    {
+      "citation": "\u00a7 13.30",
+      "kind": "section_sign",
+      "page": 1,
+      "text": "\u00a7 13.30 Beneficiary rights. Except as prescribed in this part, a beneficiary in the fiduciary program is entitled to the same rights afforded any other VA beneficiary. (a) General policy. Generally, a beneficiary has the right to manage his or her own VA benefits. However, due to a beneficiary's injury, disease, or infirmities of advanced age or by reason of being less than the age of majority, VA may determine that the beneficiary is unable to manage his or her benefits without VA supervision or the assistance of a fiduciary. Or a court with jurisdiction might determine that a beneficiary is unable to manage his or her financial affairs. Under any of these circumstances, VA will apply the provisions of this part to ensure that VA benefits are being used to maintain the well-being of the beneficiary and the beneficiary's dependents. (b) Specific rights. The rights of beneficiaries in the fiduciary program include, but are not limited to, the right to: (1) Receive direct payment of recurring monthly benefits until VA appoints a fiduciary if the beneficiary reaches the age of majority or older; (2) Receive written notice regarding VA's appointment of a fiduciary or any other decision on a fiduciary matter that affects VA's provision of benefits to the beneficiary; (3) Appeal to the Board of Veterans' Appeals VA's appointment of a fiduciary; (4) Be informed of the fiduciary's name, telephone number, mailing address, and email address; (5) Contact his or her fiduciary and request a disbursement of funds for current or foreseeable needs or consideration for payment of previously incurred expenses, account balance information, or other information or assistance consistent with the responsibilities of the fiduciary prescribed in \u00a7 13.140; (6) Obtain from his or her fiduciary a copy of the fiduciary's VA-approved annual accounting; (7) Have VA reissue benefits misused by a fiduciary if VA is negligent in appointing or overseeing the fiduciary or if the fiduciary who misused the benefits meets the criteria prescribed in \u00a7 13.410; (8) Appeal to the Board of Veterans' Appeals VA's determination regarding its own negligence in misuse and reissuance of benefits matters; (9) Submit to VA a reasonable request for appointment of a successor fiduciary. For purposes of this paragraph, reasonable request means a good faith effort to seek replacement of a fiduciary, if: (i) The beneficiary's current fiduciary receives a fee deducted from the beneficiary's account under \u00a7 13.220 and the beneficiary requests an unpaid volunteer fiduciary who ranks higher in the order of preference under \u00a7 13.100(e); (ii) The beneficiary requests removal of his or her fiduciary under \u00a7 13.500(a)(1)(iii) and supervised direct payment of benefits under \u00a7 13.110; or (iii) The beneficiary provides credible information that the current fiduciary is not acting in the beneficiary's interest or is unable to effectively serve the beneficiary due to a personality conflict or disagreement and VA is not able to obtain resolution; (10)(i) Be removed from the fiduciary program and receive direct payment of benefits without VA supervision provided that the beneficiary: (A) Is rated by VA as able to manage his or her own benefits; or (B) Is determined by a court with jurisdiction as able to manage his or her financial affairs if the beneficiary is in the fiduciary program as a result of a court order and not a decision by VA's rating agency; or (C) Attains the age of majority; (ii) Have a fiduciary removed and receive direct payment of benefits with VA supervision as prescribed in \u00a7 13.110 regarding supervised direct payment and \u00a7 13.500 regarding removal of fiduciaries generally, provided that the beneficiary establishes the ability to manage his or her own benefits with limited and temporary VA supervision; and (11) Be represented by a VA-accredited attorney, claims agent, or representative of a VA-recognized veterans service organization. This includes the right to have a representative present during a field examination and the right to be represented in the appeal of a fiduciary matter under \u00a7 13.600. (Authority: 38 U.S.C. 501) (Approved by the Office of Management and Budget under control number 2900-0017)",
+      "integrity": {
+        "state": "complete",
+        "basis": "Full retrieved body of 4,235 characters stored; under the 60,000 cap, so nothing was cut.",
+        "stamped_at": "2026-09-11T23:51:39",
+        "stored_chars": 4235,
+        "source_chars": 4235,
+        "cap_applied": 60000
+      },
+      "authority_class": "regulation",
+      "claim_layer": "doctrinal",
+      "claim_layer_meaning": "States or describes the rule. Cite for what the law IS."
+    },
+    {
+      "citation": "\u00a7 13.40",
+      "kind": "section_sign",
+      "page": 1,
+      "text": "\u00a7 13.40 Representation of beneficiaries in the fiduciary program. The provisions of 38 CFR 14.626 through 14.629 and 14.631 through 14.637 regarding accreditation and representation of VA claimants and beneficiaries in proceedings before VA are applicable to representation of beneficiaries before VA in fiduciary matters governed by this part. (a) Accreditation. Only VA-accredited attorneys, claims agents, and accredited representatives of VA-recognized veterans service organizations who have complied with the power-of-attorney requirements in \u00a7 14.631 of this chapter may represent beneficiaries before VA in fiduciary matters. (b) Standards of conduct. Accredited individuals who represent beneficiaries in fiduciary matters must comply with the general and specific standards of conduct prescribed in \u00a7 14.632(a) through (c) of this chapter, and attorneys must also comply with the standards prescribed in \u00a7 14.632(d). For purposes of this section: (1) A fiduciary matter is not a claim for VA benefits. However, the term claimant in \u00a7 14.632 of this chapter includes VA beneficiaries who are in the fiduciary program, and the term claim in \u00a7 14.632 includes a fiduciary matter that is pending before VA. (2) The provisions of \u00a7 14.632(c)(7) through (9) of this chapter mean that an accredited individual representing a beneficiary in a fiduciary matter may not: (i) Delay or refuse to cooperate in the processing of a fiduciary appointment or any other fiduciary matter, including but not limited to a field examination prescribed by \u00a7 13.120 and the investigation of a proposed fiduciary prescribed by \u00a7 13.100; (ii) Mislead, threaten, coerce, or deceive a beneficiary in the fiduciary program or a proposed or current fiduciary regarding payment of benefits or the rights of beneficiaries in the fiduciary program; or (iii) Engage in, or counsel or advise a beneficiary or proposed or current fiduciary to engage in, acts or behavior prejudicial to the fair and orderly conduct of administrative proceedings before VA. (3) The Hub Manager will submit a written report regarding an alleged violation of the standards of conduct prescribed in this section to the VA Chief Counsel who administers the accreditation program for a determination regarding further action, including suspension or cancellation of accreditation under \u00a7 14.633 of this chapter, and notification to any agency, court, or bar to which the attorney, agent, or representative is admitted to practice. (c) Fees. Except as prescribed in paragraphs (c)(1)(i) through (iii) of this section, an accredited attorney or claims agent may charge a reasonable fixed or hourly fee for representation services provided to a beneficiary in a fiduciary matter, provided that the fee meets the requirements of \u00a7 14.636 of this chapter. (1) The following provisions of \u00a7 14.636 of this chapter do not apply in fiduciary matters: (i) Fees under \u00a7 14.636(e) of this chapter, to the extent that the regulation authorizes a fee based on a percentage of benefits recovered; (ii) The presumptions prescribed by \u00a7 14.636(f) of this chapter based upon a percentage of a past-due benefit amount. In fiduciary matters, the reasonableness of a fixed or hourly-rate fee will be determined based upon application of the reasonableness factors prescribed in \u00a7 14.636(e); and (iii) Direct payment of fees by VA out of past-due benefits under \u00a7 14.636(g)(2) and (h) of this chapter. (2) An accredited attorney or claims agent who wishes to charge a fee for representing a beneficiary in a fiduciary matter must comply with the fee agreement filing requirement prescribed in \u00a7 14.636(g)(3) of this chapter. (3) VA, the beneficiary, or the beneficiary's fiduciary may challenge the reasonableness of a fee charged by an accredited attorney or claims agent using the procedures prescribed in \u00a7 14.636(i) of this chapter. (Authority: 38 U.S.C. 501, 38 U.S.C. chapter 59)",
+      "integrity": {
+        "state": "complete",
+        "basis": "Full retrieved body of 3,915 characters stored; under the 60,000 cap, so nothing was cut.",
+        "stamped_at": "2026-09-11T23:51:39",
+        "stored_chars": 3915,
+        "source_chars": 3915,
+        "cap_applied": 60000
+      },
+      "authority_class": "regulation",
+      "claim_layer": "doctrinal",
+      "claim_layer_meaning": "States or describes the rule. Cite for what the law IS."
+    },
+    {
+      "citation": "\u00a7 13.50",
+      "kind": "section_sign",
+      "page": 1,
+      "text": "\u00a7 13.50 Suspension of benefits. (a) Notwithstanding the beneficiary rights prescribed in \u00a7 13.30, the Hub Manager will temporarily suspend payment of benefits and hold such benefits in the U.S. Treasury to the credit of the beneficiary or take other action that the Hub Manager deems appropriate to prevent exploitation of VA benefit funds or to ensure that the beneficiary's needs are being met, if: (1) The beneficiary or the beneficiary's attorney, claims agent, or representative withholds cooperation in any of the appointment and oversight procedures prescribed in this part; or (2) VA removes the beneficiary's fiduciary for any reason prescribed in \u00a7 13.500(b) and is unable to appoint a successor fiduciary before the beneficiary has an immediate need for disbursement of funds. (b) All or any part of the funds held in the U.S. Treasury to the beneficiary's credit under paragraph (a) of this section will be disbursed under the order and in the discretion of the VA Regional Office Director who has jurisdiction over the fiduciary hub or regional office for the benefit of the beneficiary or the beneficiary's dependents. (Authority: 38 U.S.C. 501, 512, 5502, 5504)",
+      "integrity": {
+        "state": "complete",
+        "basis": "Full retrieved body of 1,176 characters stored; under the 60,000 cap, so nothing was cut.",
+        "stamped_at": "2026-09-11T23:51:39",
+        "stored_chars": 1176,
+        "source_chars": 1176,
+        "cap_applied": 60000
+      },
+      "authority_class": "regulation",
+      "claim_layer": "doctrinal",
+      "claim_layer_meaning": "States or describes the rule. Cite for what the law IS."
+    },
+    {
+      "citation": "\u00a7 13.100",
+      "kind": "section_sign",
+      "page": 1,
+      "text": "\u00a7 13.100 Fiduciary appointments. (a) Authority. Except as prescribed in paragraph (b) of this section, the Hub Manager will appoint a fiduciary for a beneficiary who: (1) Has been rated by VA as being unable to manage his or her VA benefits, (2) Has been determined by a court with jurisdiction as being unable to manage his or her financial affairs, or (3) Has not reached age of majority. (b) Exceptions. The Hub Manager will not appoint a fiduciary for a beneficiary who: (1) Is eligible for supervised direct payment under \u00a7 13.110, or (2) Is not a beneficiary described in paragraph (a)(1) or (a)(2) of this section and has not reached age of majority, but (i) Is serving in the Armed Forces of the United States, or (ii) Has been discharged from service in the Armed Forces of the United States, or (iii) Qualifies for survivors' benefits as a surviving spouse. (c) Retroactive benefit payments. The Hub Manager will withhold any retroactive, one-time, or other lump-sum benefit payment awarded to a beneficiary described in paragraph (a) of this section until the Hub Manager has appointed a fiduciary for the beneficiary and, if applicable, the fiduciary has obtained a surety bond under \u00a7 13.230. (d) Initial appointment. In appointing a fiduciary, the Hub Manager will make every effort to appoint the person, agency, organization, or institution that will best serve the interest of the beneficiary. The Hub Manager will consider the results of a field examination, which will include a face-to-face meeting with the beneficiary and the beneficiary's dependents at their residence when practicable, and will conduct the investigation prescribed in paragraph (f) of this section. The Hub Manager will also consider whether: (1) VA benefits can be paid directly to the beneficiary with limited and temporary supervision by VA, as prescribed in \u00a7 13.110; (2) The circumstances require appointment of a temporary fiduciary under paragraph (h) of this section; and (3) The proposed fiduciary is complying with the responsibilities of a fiduciary prescribed in \u00a7 13.140 with respect to all beneficiaries in the fiduciary program currently being served by the proposed fiduciary and whether the proposed fiduciary can handle an additional appointment without degrading service for any other beneficiary. (e) Order of preference in appointing a fiduciary. The Hub Manager will consider individuals and entities for appointment in the following order of preference, provided that the proposed fiduciary is qualified and willing to serve and the appointment would serve the beneficiary's interest: (1) The preference stated by the beneficiary in the fiduciary program, if the beneficiary has the capacity to state such a preference. If the beneficiary has a legal guardian appointed to handle his or her affairs, the Hub Manager will presume that the beneficiary does not have the capacity to state a preference and will consider individuals and entities in the order of preference prescribed in paragraphs (e)(2) through (10) of this section; (2) The beneficiary's spouse; (3) A relative who has care or custody of the beneficiary or his or her funds; (4) Any other relative of the beneficiary; (5) Any friend, acquaintance, or other person who is willing to serve as fiduciary for the beneficiary without a fee; (6) The chief officer of a public or private institution in which the beneficiary receives care or which has custody of the beneficiary; (7) The bonded officer of an Indian reservation, if applicable; (8) An individual or entity who has been appointed by a court with jurisdiction to handle the beneficiary's affairs; (9) An individual or entity who is not willing to serve without a fee; or (10) A temporary fiduciary, if necessary. (f) Investigation of a proposed fiduciary. Except as prescribed in paragraph (f)(3) of this section, before appointing a fiduciary for a beneficiary in the fiduciary program, the Hub Manager will conduct an investigation regarding the proposed fiduciary's qualifications. (1) The investigation will include: (i) To the extent practicable, a face-to-face interview of the proposed fiduciary; (ii) A review of a credit report on the proposed fiduciary issued by a credit reporting agency no more than 30 days prior to the date of the proposed appointment; (iii) A criminal background check to determine whether the proposed fiduciary has been convicted of any offense which would be a bar to serving as a fiduciary under \u00a7 13.130 or which the Hub Manager may consider and weigh under the totality of the circumstances regarding the proposed fiduciary's qualifications; (iv) Obtaining proof of the proposed fiduciary's identity and relationship to the beneficiary, if any; and (v) A determination regarding the need for surety bond under \u00a7 13.230 and the proposed fiduciary's ability to obtain such a bond. (2) The Hub Manager may, at any time after the initial appointment or reappointment of the fiduciary for a beneficiary, repeat all or part of the investigation prescribed by paragraph (f)(1) of this section to ensure that the fiduciary continues to meet the qualifications for service and there is no current bar to service under \u00a7 13.130. (3) The Hub Manager must conduct the requirements of paragraphs (f)(1)(i),(ii) and (iii) for every subsequent appointment of the fiduciary for each beneficiary. (4) VA will not conduct the investigation prescribed by paragraph (f) of this section if the proposed fiduciary is an entity, such as the trust department of a bank that provides fiduciary services. (g) Expedited appointment. The Hub Manager may waive the requirements of paragraphs (f)(1)(i) through (iii) of this section and expedite the appointment of a proposed fiduciary if the Hub Manager determines that an expedited appointment would be in the beneficiary's interest and: (1) The proposed fiduciary is: (i) The beneficiary's parent (natural, adopted, or step-parent) and the beneficiary is less than the age of majority, or (ii) The beneficiary's spouse; or (2) The annual amount of VA benefits the proposed fiduciary would manage for the beneficiary does not exceed the amount specified in 38 U.S.C. 5507(c)(2)(D), as adjusted by VA pursuant to 38 U.S.C. 5312. (h) Temporary fiduciary appointments. (1) The Hub Manager may appoint a temporary fiduciary for a period not to exceed 120 days in any of the following circumstances: (i) VA has removed a fiduciary for cause under \u00a7 13.500 and cannot expedite the appointment of a successor fiduciary, and the beneficiary has an immediate need for fiduciary services; or (ii) The Hub Manager determines that the beneficiary has an immediate need for fiduciary services and it would not be in the beneficiary's or the beneficiary's dependents' interest to pay benefits to the beneficiary until a fiduciary is appointed. (2) Any temporary fiduciary appointed under this paragraph (h) must be: (i) An individual or entity that has already been subject to the procedures for appointment in paragraphs (d) and (f) of this section, and (ii) Performing satisfactorily as a fiduciary for at least one other VA beneficiary for whom the fiduciary has submitted an annual accounting that VA has approved. (i) Authorization for disclosure of information. The Hub Manager will: (1) Obtain from every proposed fiduciary who is an individual a written authorization for VA to disclose to the beneficiary information regarding any fiduciary matter that may be appealed under \u00a7 13.600, including but not limited to the fiduciary's qualifications for appointment under \u00a7 13.100 or misuse of benefits under \u00a7 13.400. Such disclosures may occur in VA's correspondence with the beneficiary, in a VA fiduciary appointment or misuse of benefits decision, in a statement of the case for purposes of appeal under \u00a7 13.600, or upon request by the beneficiary, the beneficiary's guardian, or the beneficiary's accredited attorney, claims agent, or representative; (2) Notify the proposed fiduciary that the disclosed information may be used by the beneficiary in appealing a VA appointment or misuse decision to the Board of Veterans' Appeals under \u00a7 13.600; and (3) Terminate consideration of a proposed fiduciary if the individual refuses to provide the authorization prescribed in paragraph (i)(1) of this section. Such refusal is a bar to serving as a fiduciary for a beneficiary under \u00a7 13.130(b). (Authority: 38 U.S.C. 501, 5502, 5506, 5507)",
+      "integrity": {
+        "state": "complete",
+        "basis": "Full retrieved body of 8,427 characters stored; under the 60,000 cap, so nothing was cut.",
+        "stamped_at": "2026-09-11T23:51:39",
+        "stored_chars": 8427,
+        "source_chars": 8427,
+        "cap_applied": 60000
+      },
+      "authority_class": "regulation",
+      "claim_layer": "doctrinal",
+      "claim_layer_meaning": "States or describes the rule. Cite for what the law IS."
+    },
+    {
+      "citation": "\u00a7 13.110",
+      "kind": "section_sign",
+      "page": 1,
+      "text": "\u00a7 13.110 Supervised direct payment. (a) Authority. The Hub Manager may authorize the payment of VA benefits directly to an adult beneficiary in the fiduciary program who has reached the age of majority if the Hub Manager determines, based upon a field examination, that the beneficiary can manage his or her VA benefits with limited and temporary VA supervision. In making this determination, the Hub Manager will consider: (1) Whether the beneficiary is aware of his or her monthly income; (2) Whether the beneficiary is aware of his or her fixed monthly expenses such as rent, mortgage, utilities, clothing, food, and medical bills; (3) The beneficiary's ability to: (i) Allocate appropriate funds to fixed monthly expenses and discretionary items; (ii) Pay monthly bills in a timely manner; and (iii) Conserve excess funds; and (4) Any other information that demonstrates the beneficiary's actual ability to manage his or her VA benefits with limited VA supervision. (b) Supervision. The limited and temporary supervision of beneficiaries receiving direct payment under paragraph (a) of this section will consist of: (1) Assistance in the development of a budget regarding the beneficiary's income and expenses, (2) Assistance with creating a fund usage report to aid the beneficiary in tracking his or her income and expenses, and (3) Periodic reviews of the beneficiary's fund usage report, as required by the Hub Manager. (c) Reassessment. The Hub Manager will reassess the beneficiary's ability to manage his or her VA benefits at or before the end of the first 12-month period of supervision. Based upon a field examination, an evaluation of the factors listed in paragraph (a) of this section, and the results of the supervision prescribed in paragraph (b) of this section, the Hub Manager will determine whether the beneficiary can manage his or her benefits without VA supervision. (1) If the beneficiary demonstrates the ability to manage his or her VA benefits without supervision, the Hub Manager will prepare a report that summarizes the findings and refer the matter with a recommendation and supporting evidence to the rating authority for application of \u00a7 3.353(b)(3) of this chapter regarding reevaluation of ability to manage VA benefits and \u00a7 3.353(d) of this chapter regarding the presumption of ability to manage VA benefits without restriction. (2) If the beneficiary does not demonstrate the ability to manage his or her VA benefits without VA supervision, the Hub Manager will: (i) Appoint a fiduciary, or (ii) Continue supervised direct payment for not longer than one additional 12-month period based upon evidence that additional supervision might assist the beneficiary in developing the ability to manage his or her own VA benefits. At the conclusion of the additional period of supervised direct payment, the Hub Manager will conduct the reassessment prescribed by paragraph (c) of this section and either recommend reevaluation under paragraph (c)(1) of this section or appoint a fiduciary under paragraph (c)(2)(i) of this section. (Authority: 38 U.S.C. 501, 5502)",
+      "integrity": {
+        "state": "complete",
+        "basis": "Full retrieved body of 3,098 characters stored; under the 60,000 cap, so nothing was cut.",
+        "stamped_at": "2026-09-11T23:51:39",
+        "stored_chars": 3098,
+        "source_chars": 3098,
+        "cap_applied": 60000
+      },
+      "authority_class": "regulation",
+      "claim_layer": "doctrinal",
+      "claim_layer_meaning": "States or describes the rule. Cite for what the law IS."
+    },
+    {
+      "citation": "\u00a7 13.120",
+      "kind": "section_sign",
+      "page": 1,
+      "text": "\u00a7 13.120 Field examinations. (a) Authority. The Hub Manager will order a field examination regarding fiduciary matters within the Hub Manager's jurisdiction for any of the reasons prescribed in paragraph (c) of this section. For purposes of this section, field examination means the inquiry, investigation, or monitoring activity conducted by designated fiduciary hub or other qualified VA personnel who are authorized to: (1) Interview beneficiaries, dependents, and other interested persons regarding fiduciary matters; (2) Interview proposed fiduciaries and current fiduciaries regarding their qualifications, performance, or compliance with VA regulations; (3) Conduct investigations and examine witnesses regarding any fiduciary matter; (4) Take affidavits; (5) Administer oaths and affirmations; (6) Certify copies of public or private documents; and (7) Aid claimants and beneficiaries in the preparation of claims for VA benefits or other fiduciary or claim-related material. (b) Scope of field examinations. Field examinations may include, but are not limited to: (1) Assessing a beneficiary's and the beneficiary's dependents' welfare and physical and mental well-being, environmental and social conditions, and overall financial situation, based upon visiting the beneficiary's current residence and conducting a face-to-face interview of the beneficiary and the beneficiary's dependents, when practicable; (i) The Hub Manager will waive the requirements of paragraph (b)(1) of this section if the Veterans Health Administration (VHA) has approved the fiduciary as the beneficiary's family caregiver, and VHA's status report regarding the beneficiary indicates the beneficiary is in an excellent situation. (ii) The provisions of paragraph (b)(1)(i) of this section do not apply when the Hub Manager has information that a fiduciary, who is also the beneficiary's VHA-designated family caregiver, is misusing a beneficiary's VA funds under management, is neglecting a beneficiary, or has failed to comply with the requirements of \u00a7 13.140, or there is insufficient evidence to determine the beneficiary's well-being. (2) Assessing the beneficiary's ability to manage his or her own VA benefits with only limited VA supervision ( see",
+      "integrity": {
+        "state": "complete",
+        "basis": "Full retrieved body of 2,243 characters stored; under the 60,000 cap, so nothing was cut.",
+        "stamped_at": "2026-09-11T23:51:39",
+        "stored_chars": 2243,
+        "source_chars": 2243,
+        "cap_applied": 60000
+      },
+      "authority_class": "regulation",
+      "claim_layer": "doctrinal",
+      "claim_layer_meaning": "States or describes the rule. Cite for what the law IS."
+    },
+    {
+      "citation": "\u00a7 13.110",
+      "kind": "section_sign",
+      "page": 1,
+      "text": "\u00a7 13.110 regarding supervised direct payment); (3) Collecting and reviewing financial documentation, including income and expenditure information; (4) Providing any necessary assistance to the beneficiary with issues affecting current or additional VA benefits, claims, and non-VA matters that may affect or conflict with VA benefits; (5) Making appropriate referrals in cases of actual or suspected physical or mental abuse, neglect, or other harm to a beneficiary; (6) Investigating, when necessary, allegations that a beneficiary's fiduciary has engaged in misconduct or misused VA benefits to include but not limited to allegations regarding: (i) Theft or misappropriation of funds, (ii) Failure to comply with the responsibilities of a fiduciary as prescribed in \u00a7 13.140, (iii) Other allegations of inappropriate fund management by a fiduciary, and (iv) Other special circumstances which require a visit with or onsite review of the fiduciary, such as a change in an award of benefits or benefit status, or non-fiduciary program matters. (c) Reasons for conducting field examinations. A Hub Manager will order a field examination to: (1) Determine whether benefits should be paid directly to a beneficiary under \u00a7 13.110 or to a fiduciary appointed for the beneficiary under \u00a7 13.100; (2) Determine whether benefit payments should continue to be made directly to a beneficiary under \u00a7 13.110 or to a fiduciary on behalf of a beneficiary; or (3) Ensure the well-being of a beneficiary in the fiduciary program or to protect a beneficiary's VA benefit funds. (Authority: U.S.C. 501, 512, 5502, 5506, 5507, 5711) (Approved by the Office of Management and Budget under control numbers 2900-0815 and 2900-0803)",
+      "integrity": {
+        "state": "complete",
+        "basis": "Full retrieved body of 1,711 characters stored; under the 60,000 cap, so nothing was cut.",
+        "stamped_at": "2026-09-11T23:51:39",
+        "stored_chars": 1711,
+        "source_chars": 1711,
+        "cap_applied": 60000
+      },
+      "authority_class": "regulation",
+      "claim_layer": "doctrinal",
+      "claim_layer_meaning": "States or describes the rule. Cite for what the law IS."
+    },
+    {
+      "citation": "\u00a7 13.130",
+      "kind": "section_sign",
+      "page": 1,
+      "text": "\u00a7 13.130 Bars to serving as a fiduciary. (a) An individual or entity may not serve as a fiduciary for a VA beneficiary if the individual or entity: (1) Misused or misappropriated a beneficiary's VA benefits while serving as the beneficiary's fiduciary; (2) Has been convicted of a felony offense. For purposes of this paragraph, felony offense means a criminal offense for which the minimum period of imprisonment is 1 year or more, regardless of the actual sentence imposed or the actual time served. However, such conviction is not a bar to serving as a fiduciary for a beneficiary if all of the following conditions are met: (i) The conviction occurred more than 10 years preceding the proposed date of appointment; (ii) The conviction did not involve any of the following offenses: (A) Fraud; (B) Theft; (C) Bribery; (D) Embezzlement; (E) Identity theft; (F) Money laundering; (G) Forgery; (H) The abuse of or neglect of another person; or (I) Any other financial crime; (iii) There is no other person or entity who is willing and qualified to serve; and (iv) The Hub Manager determines that the nature of the conviction is such that appointment of the individual poses no risk to the beneficiary and is in the beneficiary's interest. (b) An individual may not serve as a fiduciary for a VA beneficiary if the individual: (1) Refuses or neglects to provide the authorization for VA disclosure of information prescribed in \u00a7 13.100(i); (2) Is unable to manage his or her own Federal or state benefits and is in a Federal or state agency's fiduciary, representative payment, or similar program; (3) Has been adjudicated by a court with jurisdiction as being unable to manage his or her own financial affairs; (4) Is incarcerated in a Federal, state, local, or other penal institution or correctional facility, sentenced to home confinement, released from incarceration to a half-way house, or on house arrest or in custody in any facility awaiting trial on pending criminal charges; (5) Has felony charges pending; (6) Has been removed as legal guardian by a state court for misconduct; (7) Is under the age of majority; or (8) Knowingly violates or refuses to comply with the regulations in this part. (Authority: 38 U.S.C. 501, 5502, 5506, 5507, 6101, 6106)",
+      "integrity": {
+        "state": "complete",
+        "basis": "Full retrieved body of 2,261 characters stored; under the 60,000 cap, so nothing was cut.",
+        "stamped_at": "2026-09-11T23:51:39",
+        "stored_chars": 2261,
+        "source_chars": 2261,
+        "cap_applied": 60000
+      },
+      "authority_class": "regulation",
+      "claim_layer": "doctrinal",
+      "claim_layer_meaning": "States or describes the rule. Cite for what the law IS."
+    },
+    {
+      "citation": "\u00a7 13.140",
+      "kind": "section_sign",
+      "page": 1,
+      "text": "\u00a7 13.140 Responsibilities of fiduciaries. Any individual or entity appointed by VA as a fiduciary to receive VA benefit payments on behalf of a beneficiary in the fiduciary program must fulfill certain responsibilities associated with the services of a fiduciary. These responsibilities include: (a) General. (1) Fiduciaries appointed by VA to manage the VA funds of a beneficiary are also responsible for monitoring the beneficiary's well-being and using available funds to ensure that the beneficiary's needs are met. Fiduciaries owe VA and beneficiaries the duties of good faith and candor and must administer a beneficiary's funds under management in accordance with paragraph (b) of this section. In all cases, the fiduciary must disburse or otherwise manage funds according to the best interests of the beneficiary and the beneficiary's dependents and in light of the beneficiary's unique circumstances, needs, desires, beliefs, and values. (2) The fiduciary must take all reasonable precautions to protect the beneficiary's private information contained in the fiduciary's paper and electronic records. (i) For purposes of this section: (A) Reasonable precautions means protecting against any unauthorized access to or use of the beneficiary's private information that may result in substantial harm or inconvenience to the beneficiary; and (B) Private information means a beneficiary's first name and last name or first initial and last name in combination with any one or more of the following data elements that relate to such beneficiary: VA claim number, Social Security number, date of birth, address, driver's license number or state-issued identification card number, or financial account number or credit card or debit card number, with or without any required security code, access code, personal identification number, or password, that would permit access to the beneficiary's account. (ii) At a minimum, fiduciaries must place reasonable restrictions upon access to paper records containing the beneficiary's private information, including storage of such records in locked facilities, storage areas, or containers. (iii) For electronic records containing the beneficiary's private information, the fiduciary must: (A) Use unique identifications and passwords, which are not vendor-supplied default identifications and passwords, for computer, network, or online site access that are reasonably designed to maintain the security of the beneficiary's information and the fiduciary's financial transactions; (B) Control access to data security passwords to ensure that such passwords are kept in a location and format that do not compromise the security of the beneficiary's private information; and (C) For records containing private information on a computer system that is connected to the internet, keep reasonably up-to-date firewall and virus protection and operating system security patches to maintain the integrity of the beneficiary's private information and prevent unauthorized disclosure. For purposes of this section, a system is reasonably updated if the fiduciary installs software updates immediately upon release by the original equipment or software manufacturer, uses internet browser security settings suitable for transmission of private information, and maintains password-protected wireless connections or other networks. (iv) The fiduciary must keep all paper and electronic records relating to the fiduciary's management of VA benefit funds for the beneficiary for the duration of service as fiduciary for the beneficiary and for a minimum of 2 years from the date that VA removes the fiduciary under \u00a7 13.500 or from the date that the fiduciary withdraws as fiduciary for the beneficiary under \u00a7 13.510. (b) Financial responsibilities. The fiduciary's primary financial responsibilities include, but are not limited to: (1) The use of the beneficiary's VA benefit funds under management only for the care, support, education, health, and welfare of the beneficiary and his or her dependents. Except as authorized under \u00a7 13.220 regarding fiduciary fees, a fiduciary may not derive a personal financial benefit from management or use of the beneficiary's funds; (2) Protection of the beneficiary's VA benefits from loss or diversion; (3) Except as prescribed in \u00a7 13.200 regarding fiduciary accounts, maintenance of separate financial accounts to prevent commingling of the beneficiary's funds with the fiduciary's own funds or the funds of any other beneficiary for whom the fiduciary has funds under management; (4) Determination of the beneficiary's just debts. For purposes of this section, just debts mean the beneficiary's legitimate, legally enforceable debts; (5) Timely payment of the beneficiary's just debts, provided that the fiduciary has VA benefit funds under management for the beneficiary to cover such debts; (6) Providing the beneficiary with information regarding VA benefit funds under management for the beneficiary, including fund usage, upon request; (7) Providing the beneficiary with a copy of the annual accounting approved by VA under \u00a7 13.280; (8) Ensuring that any best-interest determination regarding the use of funds is consistent with VA policy, which recognizes that beneficiaries in the fiduciary program are entitled to the same standard of living as any other beneficiary with the same or similar financial resources, and that the fiduciary program is not primarily for the purpose of preserving funds for the beneficiary's heirs or disbursing funds according to the fiduciary's own beliefs, values, preferences, and interests; and (9) Protecting the beneficiary's funds from the claims of creditors as described in \u00a7 13.270. (c) Non-financial responsibilities. The fiduciary's primary non-financial responsibilities include, but are not limited to: (1) Contacting social workers, mental health professionals, or the beneficiary's legal guardian regarding the beneficiary, when necessary; (2) To the extent possible, ensuring the beneficiary receives appropriate medical care; (3) Correcting any discord or uncomfortable living or other situations when possible; (4) Acknowledging and addressing any complaints or concerns of the beneficiary to the best of the fiduciary's ability; (5) Reporting to the appropriate authorities, including any legal guardian, any type of known or suspected abuse of the beneficiary; (6) Maintaining contact with the beneficiary for purposes of assessing the beneficiary's capabilities, limitations, needs, and opportunities; (7) Being responsive to the beneficiary and ensuring the beneficiary and his or her legal guardian have the fiduciary's current contact information. (d) The fiduciary's responsibilities to VA. Any fiduciary who has VA benefit funds under management on behalf of a beneficiary in the fiduciary program must: (1) If the fiduciary is also appointed by a court, annually provide to the fiduciary hub with jurisdiction a certified copy of the accounting(s) provided to the court or facilitate the hub's receipt of such accountings; (2) Notify the fiduciary hub regarding any change in the beneficiary's circumstances, to include the beneficiary's relocation, the beneficiary's serious illness, or any other significant change in the beneficiary's circumstances which might adversely impact the beneficiary's well-being; (3) Provide documentation or verification of any records concerning the beneficiary or matters relating to the fiduciary's responsibilities within 30 days of a VA request, unless otherwise directed by the Hub Manager; (4) When necessary, appear before VA for face-to-face meetings; and (5) Comply with the policies and procedures prescribed in this part. (Authority: 38 U.S.C. 501, 512, 5502, 5507, 5509, 5711) (Approved by the Office of Management and Budget under control numbers 2900-0017 and 2900-0085)",
+      "integrity": {
+        "state": "complete",
+        "basis": "Full retrieved body of 7,860 characters stored; under the 60,000 cap, so nothing was cut.",
+        "stamped_at": "2026-09-11T23:51:39",
+        "stored_chars": 7860,
+        "source_chars": 7860,
+        "cap_applied": 60000
+      },
+      "authority_class": "regulation",
+      "claim_layer": "doctrinal",
+      "claim_layer_meaning": "States or describes the rule. Cite for what the law IS."
+    },
+    {
+      "citation": "\u00a7 13.200",
+      "kind": "section_sign",
+      "page": 1,
+      "text": "\u00a7 13.200 Fiduciary accounts. Except as prescribed in paragraph (b) of this section, any fiduciary appointed by VA to receive payments on behalf of a beneficiary must deposit the beneficiary's VA benefits in a fiduciary account that meets the requirements prescribed in paragraph (a) of this section. (a) Separate accounts. Except as prescribed in paragraph (b) of this section, a fiduciary must establish and maintain a separate financial institution account for each VA beneficiary that the fiduciary serves. The fiduciary must not commingle a beneficiary's funds with the fiduciary's funds or any other beneficiary's funds, either upon or after receipt. The account must be: (1) Established for direct deposit of VA benefits, (2) Established in a Federally-insured financial institution, and in Federally-insured accounts when funds qualify for such deposit insurance, and (3) Titled in the beneficiary's and fiduciary's names and note the existence of the fiduciary relationship. (b) Exceptions. The general rule prescribed in paragraph (a) of this section regarding establishment and maintenance of separate accounts does not apply to the following fiduciaries: (1) The beneficiary's spouse; (2) State or local Government entities; (3) Institutions, such as public or private medical care facilities, nursing homes, or other residential care facilities, when an annual accounting is not required. See",
+      "integrity": {
+        "state": "complete",
+        "basis": "Full retrieved body of 1,404 characters stored; under the 60,000 cap, so nothing was cut.",
+        "stamped_at": "2026-09-11T23:51:39",
+        "stored_chars": 1404,
+        "source_chars": 1404,
+        "cap_applied": 60000
+      },
+      "authority_class": "regulation",
+      "claim_layer": "doctrinal",
+      "claim_layer_meaning": "States or describes the rule. Cite for what the law IS."
+    },
+    {
+      "citation": "\u00a7 13.280",
+      "kind": "section_sign",
+      "page": 1,
+      "text": "\u00a7 13.280 regarding accounting requirements; or (4) A trust company or a bank with trust powers organized under the laws of the United States or a state. (Authority: U.S.C. 501, 5502, 5509, 5711)",
+      "integrity": {
+        "state": "complete",
+        "basis": "Full retrieved body of 194 characters stored; under the 60,000 cap, so nothing was cut.",
+        "stamped_at": "2026-09-11T23:51:39",
+        "stored_chars": 194,
+        "source_chars": 194,
+        "cap_applied": 60000
+      },
+      "authority_class": "regulation",
+      "claim_layer": "doctrinal",
+      "claim_layer_meaning": "States or describes the rule. Cite for what the law IS."
+    },
+    {
+      "citation": "\u00a7 13.210",
+      "kind": "section_sign",
+      "page": 1,
+      "text": "\u00a7 13.210 Fiduciary investments. (a) General. A fiduciary must conserve or invest any VA benefits that the fiduciary receives on behalf of a beneficiary, whether such benefits are in the form of recurring monthly payments or a one-time payment, if the beneficiary or the beneficiary's dependents do not need the benefits for current maintenance, reasonably foreseeable expenses, or reasonable improvements in the beneficiary's and the beneficiary's dependents' standard of living. Conservation of beneficiary funds is for the purpose of addressing unforeseen circumstances or planning for future care needs given the beneficiary's disabilities, circumstances, and eligibility for care furnished by the Government at Government expense. Fiduciaries should not conserve VA benefit funds under management for a beneficiary based primarily upon the interests of the beneficiary's heirs or according to the fiduciary's own values, preferences, and interests. (b) Types of investments. An investment must be prudent and in the best interest of the beneficiary. Authorized investments include United States savings bonds or interest or dividend-paying accounts insured under Federal law. Any such investment must be clearly titled in the beneficiary's and fiduciary's names and identify the fiduciary relationship. (c) Exceptions. The general rules regarding investment of VA benefits do not apply to the following fiduciaries: (1) The beneficiary's spouse, and (2) The chief officer of an institution in which the beneficiary is being furnished hospital treatment or institutional, nursing, or domiciliary care. VA benefits paid to the chief officer may not be invested. (Authority: 38 U.S.C. 501, 5502)",
+      "integrity": {
+        "state": "complete",
+        "basis": "Full retrieved body of 1,696 characters stored; under the 60,000 cap, so nothing was cut.",
+        "stamped_at": "2026-09-11T23:51:39",
+        "stored_chars": 1696,
+        "source_chars": 1696,
+        "cap_applied": 60000
+      },
+      "authority_class": "regulation",
+      "claim_layer": "doctrinal",
+      "claim_layer_meaning": "States or describes the rule. Cite for what the law IS."
+    },
+    {
+      "citation": "\u00a7 13.220",
+      "kind": "section_sign",
+      "page": 1,
+      "text": "\u00a7 13.220 Fiduciary fees. (a) Authority. The Hub Manager with jurisdiction over a fiduciary appointment may determine whether a fee is necessary to obtain the services of a fiduciary. A fee is necessary only if no other person or entity is qualified and willing to serve without a fee and the beneficiary's interests would be served by the appointment of a qualified paid fiduciary. The Hub Manager will not authorize a fee if the fiduciary: (1) Is a spouse, dependent, or other relative of the beneficiary; or (2) Will receive any other form of payment in connection with providing fiduciary services for the beneficiary. (b) Limitation on fees. The Hub Manager will authorize a fiduciary to whom a fee is payable under paragraph (a) of this section to deduct from the beneficiary's account a reasonable monthly fee for fiduciary services rendered. (1) For purposes of this section, reasonable monthly fee means a monetary amount that is authorized by the Hub Manager and does not exceed 4 percent of the monthly VA benefit paid to the fiduciary on behalf of the beneficiary for a month in which the fiduciary is eligible under paragraph (b)(2) of this section to collect a fee. (2) A monthly fee may be collected for any month during which the fiduciary: (i) Provides fiduciary services on behalf of the beneficiary, (ii) Receives a recurring VA benefit payment for the beneficiary, and (iii) Is authorized by the Hub Manager to receive a fee for fiduciary services. (3) Fees may not be computed based upon: (i) Any one-time, retroactive, or lump-sum payment made to the fiduciary on behalf of the beneficiary; (ii) Any funds conserved by the fiduciary for the beneficiary in the beneficiary's account under \u00a7 13.200 or invested by the fiduciary for the beneficiary under \u00a7 13.210, to include any interest income and return on investment derived from any account; or (iii) Any funds transferred to the fiduciary by a prior fiduciary for the beneficiary, or from the personal funds of patients or any other source. (4) The Hub Manager will not authorize a fee for any month for which: (i) VA or a court with jurisdiction determines that the fiduciary misused or misappropriated benefits, or (ii) The beneficiary does not receive a VA benefit payment. However, the Hub Manager may authorize a fee for a month in which the beneficiary did not receive a benefit payment if VA later issues benefits for that month and the fiduciary: (A) Receives VA approval to collect a fee for the month for which payment was made, (B) Provided fiduciary services during the month for which payment was made, and (C) Was the beneficiary's fiduciary when VA made the retroactive payment. (Authority: 38 U.S.C. 501, 5502, 6101, 6106)",
+      "integrity": {
+        "state": "complete",
+        "basis": "Full retrieved body of 2,712 characters stored; under the 60,000 cap, so nothing was cut.",
+        "stamped_at": "2026-09-11T23:51:39",
+        "stored_chars": 2712,
+        "source_chars": 2712,
+        "cap_applied": 60000
+      },
+      "authority_class": "regulation",
+      "claim_layer": "doctrinal",
+      "claim_layer_meaning": "States or describes the rule. Cite for what the law IS."
+    },
+    {
+      "citation": "\u00a7 13.230",
+      "kind": "section_sign",
+      "page": 1,
+      "text": "\u00a7 13.230 Protection of beneficiary funds. (a) General. Except as prescribed in paragraph (c) of this section, within 60 days of appointment, the fiduciary must furnish to the fiduciary hub with jurisdiction a corporate surety bond that is conditioned upon faithful discharge of all of the responsibilities of a fiduciary prescribed in \u00a7 13.140 and meets the requirements of paragraph (d) of this section, if the VA benefit funds that are due and to be paid for the beneficiary will exceed $25,000 at the time of appointment. The Hub Manager will not authorize the release of a retroactive, one-time, or other pending lump-sum benefit payment to the fiduciary until the fiduciary has furnished the bond prescribed by this section. (b) Accumulated funds. The provisions of paragraph (a) of this section, which require a fiduciary to furnish a surety bond, apply in any case in which the accumulation over time of VA benefit funds under management by a fiduciary for a beneficiary exceeds $25,000. Except as prescribed in paragraph (c) of this section, within 60 days of accumulated funds exceeding the prescribed threshold, the fiduciary will furnish to the fiduciary hub a bond that meets the requirements of paragraph (d) of this section. (c) Exceptions. (1) The provisions of paragraphs (a) and (b) of this section do not apply to: (i) A fiduciary that is a trust company or a bank with trust powers organized under the laws of the United States or a state; (ii) A fiduciary who is the beneficiary's spouse; (iii) A fiduciary in the Commonwealth of Puerto Rico, Guam, or another territory of the United States, or in the Republic of the Philippines, who has entered into a restricted withdrawal agreement in lieu of a surety bond; (iv) A fiduciary that is also appointed by a court and has obtained a state-court bond, as referenced in 38 CFR 14.709, sufficient to cover both VA and non-VA funds; or (v) A fiduciary that is also a state agency with existing, state-mandated liability insurance or a blanket bond sufficient to cover both VA and non-VA funds. (2) The Hub Manager may, at any time, require the fiduciary to obtain a bond described in paragraph (a) of this section and meeting the requirements of paragraph (d) of this section, without regard to the amount of VA benefit funds under management by the fiduciary for the beneficiary, if special circumstances indicate that obtaining a bond would be in the beneficiary's interest. Such special circumstances may include but are not limited to: (i) A marginal credit report for the fiduciary; or (ii) A fiduciary's misdemeanor criminal conviction either before or after appointment for any offense listed in \u00a7 13.130(a)(2)(ii); (d) Bond requirements. A bond furnished by a fiduciary under paragraph (a) or (b) of this section must meet the following requirements: (1) The bond must be a corporate surety bond in an amount sufficient to cover the value of the VA benefit funds under management by the fiduciary for the beneficiary. (2) After furnishing the prescribed bond to the fiduciary hub, the fiduciary must: (i) Adjust the bond amount to account for any increase or decrease of more than 20 percent in the VA benefit funds under management by the fiduciary for the beneficiary; and (ii) Furnish proof of the adjustment to the fiduciary hub not later than 60 days after a change in circumstance described in paragraph (d)(2)(i) of this section. (3) The bond furnished by the fiduciary must also: (i) Identify the fiduciary, the beneficiary, and the bonding company; and (ii) Contain a statement that the bond is payable to the Secretary of Veterans Affairs. (e) Periodic proof of bond. A fiduciary must furnish proof of adequate bonding: (1) With each annual accounting prescribed by \u00a7 13.280; and (2) At any other time the Hub Manager with jurisdiction requests proof. (f) Liability. (1) Except as otherwise provided by the terms of the bond, the surety and the fiduciary guaranteed by the surety are jointly and severally liable for any misappropriation or misuse of VA benefits by the fiduciary. (2) VA may collect on the bond regardless of any prior reissuance of benefits by VA under \u00a7 13.410 and until liability under the terms of the bond is exhausted. (g) Bond expenses \u2014(1) Authority. The fiduciary may deduct from the beneficiary's account any expense related to obtaining, maintaining, or adjusting a bond prescribed by this section. (2) Notice. The Hub Manager will provide the beneficiary written notice regarding any bond furnished at the beneficiary's expense under paragraph (a), (b), or (c)(2) of this section or adjusted under paragraph (d)(2) of this section. (Authority: 38 U.S.C. 501, 5502, 5507) (Approved by the Office of Management and Budget under control numbers 2900-0017 and 2900-0804) [83 FR 32738, July 13, 2018, as amended at 87 FR 29673, May 16, 2022]",
+      "integrity": {
+        "state": "complete",
+        "basis": "Full retrieved body of 4,848 characters stored; under the 60,000 cap, so nothing was cut.",
+        "stamped_at": "2026-09-11T23:51:39",
+        "stored_chars": 4848,
+        "source_chars": 4848,
+        "cap_applied": 60000
+      },
+      "authority_class": "regulation",
+      "claim_layer": "doctrinal",
+      "claim_layer_meaning": "States or describes the rule. Cite for what the law IS."
+    },
+    {
+      "citation": "\u00a7 13.240",
+      "kind": "section_sign",
+      "page": 1,
+      "text": "\u00a7 13.240 Funds of beneficiaries less than the age of majority. (a) General. Except as prescribed in paragraph (b) of this section, a fiduciary who receives VA benefits on behalf of a beneficiary who is less than the age of majority may use the benefits only for the use and benefit of that beneficiary and only if the fiduciary first determines that the person or persons who have custody of the beneficiary and are responsible for the beneficiary's needs are unable to provide for those needs. (b) Education benefits. A fiduciary who receives VA education benefits on behalf of a beneficiary who is less than the age of majority may use the benefits for the beneficiary's education regardless of the ability of the person or persons who have custody of the beneficiary to pay for the beneficiary's education. (Authority: 38 U.S.C. 501, 5502)",
+      "integrity": {
+        "state": "complete",
+        "basis": "Full retrieved body of 842 characters stored; under the 60,000 cap, so nothing was cut.",
+        "stamped_at": "2026-09-11T23:51:39",
+        "stored_chars": 842,
+        "source_chars": 842,
+        "cap_applied": 60000
+      },
+      "authority_class": "regulation",
+      "claim_layer": "doctrinal",
+      "claim_layer_meaning": "States or describes the rule. Cite for what the law IS."
+    },
+    {
+      "citation": "\u00a7 13.250",
+      "kind": "section_sign",
+      "page": 1,
+      "text": "\u00a7 13.250 Funds of deceased beneficiaries. (a) General. When a beneficiary who has a fiduciary dies without leaving a valid will and without heirs, all VA benefit funds under management by the fiduciary for the deceased beneficiary on the date of death, less any deductions authorized by paragraph (c) of this section, must be returned to VA if such funds would escheat to a state. (b) Accountings. Upon the death of a beneficiary described in paragraph (a) for whom the fiduciary must return to VA all benefit funds under management, less any deductions authorized under paragraph (c) of this section, or upon the death of any beneficiary for whom a fiduciary was required to submit an annual accounting to VA under \u00a7 13.280, the fiduciary must submit a final accounting to the fiduciary hub with jurisdiction within 90 days of the beneficiary's death. (c) Expenses. The fiduciary may deduct a reasonable fee from the deceased beneficiary's account for purposes of determining whether the beneficiary's funds under management would escheat to a state under state law or whether the deceased beneficiary left a valid will or is survived by heirs. For the purpose of this section, reasonable fee means an amount customarily charged by attorneys or other professionals authorized to do such work in the state where the deceased beneficiary had his or her permanent place of residence. (d) Estate matters. Upon the death of a beneficiary who has a valid will or heirs, the fiduciary must hold the remaining funds under management in trust for the deceased beneficiary's estate until the will is probated or heirs are ascertained, and disburse the funds according to applicable state law. (Authority: U.S.C. 501, 5502)",
+      "integrity": {
+        "state": "complete",
+        "basis": "Full retrieved body of 1,713 characters stored; under the 60,000 cap, so nothing was cut.",
+        "stamped_at": "2026-09-11T23:51:39",
+        "stored_chars": 1713,
+        "source_chars": 1713,
+        "cap_applied": 60000
+      },
+      "authority_class": "regulation",
+      "claim_layer": "doctrinal",
+      "claim_layer_meaning": "States or describes the rule. Cite for what the law IS."
+    },
+    {
+      "citation": "\u00a7 13.260",
+      "kind": "section_sign",
+      "page": 1,
+      "text": "\u00a7 13.260 Personal funds of patients. (a) Distribution of funds. Benefits deposited by VA in the personal funds of patients account for a veteran who was rated by VA as being unable to manage his or her VA benefits and who died leaving an account balance are payable to an eligible person. For purposes of this section, eligible person means an individual living at the time the account balance is distributed in the following order of preference: (1) The deceased veteran's spouse, as defined by \u00a7 3.1000(d)(1) of this chapter; (2) The veteran's children (in equal shares), as defined by \u00a7 3.57 of this chapter, but without regard to age or marital status; or (3) The veteran's dependent parents (in equal shares) or surviving parent, as defined by \u00a7 3.59 of this chapter, provided that the parents were or parent was dependent within the meaning of \u00a7 3.250 of this chapter on the date of the veteran's death. (4) Any balance remaining in the personal funds of patients account that cannot be distributed in accordance with paragraphs (a)(1) through (3) of this section will be used by VA to reimburse anyone who bore the expense of the veteran's last sickness or burial or will be deposited to the credit of the applicable current VA appropriation. (b) Application. A person who seeks distribution of a deceased veteran's funds from the personal funds of patients account under paragraph (a) of this section must file an application with VA not later than 5 years after the veteran's death. If any person who seeks such distribution is under a legal disability that prevents him or her from filing an application at the time of the veteran's death, the 5-year period will run from the date of termination or removal of the legal disability. (Authority: 38 U.S.C. 501, 5502)",
+      "integrity": {
+        "state": "complete",
+        "basis": "Full retrieved body of 1,774 characters stored; under the 60,000 cap, so nothing was cut.",
+        "stamped_at": "2026-09-11T23:51:39",
+        "stored_chars": 1774,
+        "source_chars": 1774,
+        "cap_applied": 60000
+      },
+      "authority_class": "regulation",
+      "claim_layer": "doctrinal",
+      "claim_layer_meaning": "States or describes the rule. Cite for what the law IS."
+    },
+    {
+      "citation": "\u00a7 13.270",
+      "kind": "section_sign",
+      "page": 1,
+      "text": "\u00a7 13.270 Creditors' claims. Under 38 U.S.C. 5301(a)(1), VA benefit payments are exempt, both before and after receipt by the beneficiary, from the claims of creditors and taxation. The fiduciary should invoke this defense in applicable circumstances. If the fiduciary does not do so, the Hub Manager may refer the matter to the District Counsel for evaluation and appropriate legal action. (Authority: 38 U.S.C. 501, 512, 5301)",
+      "integrity": {
+        "state": "complete",
+        "basis": "Full retrieved body of 427 characters stored; under the 60,000 cap, so nothing was cut.",
+        "stamped_at": "2026-09-11T23:51:39",
+        "stored_chars": 427,
+        "source_chars": 427,
+        "cap_applied": 60000
+      },
+      "authority_class": "regulation",
+      "claim_layer": "doctrinal",
+      "claim_layer_meaning": "States or describes the rule. Cite for what the law IS."
+    },
+    {
+      "citation": "\u00a7 13.280",
+      "kind": "section_sign",
+      "page": 1,
+      "text": "\u00a7 13.280 Accountings. (a) General. Except as prescribed in paragraph (d) of this section, a fiduciary for a beneficiary must submit to the fiduciary hub with jurisdiction an annual accounting regarding the VA benefit funds under management by the fiduciary for the beneficiary if: (1) The amount of VA benefit funds under management for the beneficiary exceeds $10,000; (2) The fiduciary deducts a fee authorized under \u00a7 13.220 from the beneficiary's account; (3) The beneficiary is being paid VA compensation benefits at a total disability rating (100 percent), whether schedular, extra-schedular, or based on individual unemployability; or (4) The Hub Manager determines an accounting is necessary to ensure the fiduciary has properly managed the beneficiary's funds. (b) Scope of accounting. For purposes of this section, accounting means the fiduciary's written report regarding the income and funds under management by the fiduciary for the beneficiary during the accounting period prescribed by the Hub Manager. The accounting prescribed by this section pertains to all activity in the beneficiary's accounts, regardless of the source of funds maintained in those accounts. An accounting consists of: (1) A beginning inventory or account balance, (2) An itemization of income, (3) An itemization of expenses, (4) An ending inventory or account balance, (5) Copies of financial institution documents reflecting receipts, expenditures, and beginning and ending balances, and (6) Receipts, when required by the Hub Manager. (c) Submission requirements. Fiduciaries must submit annual accountings to the fiduciary hub as follows: (1) The fiduciary must submit accountings on the appropriate VA form not later than 30 days after the end of the accounting period prescribed by the Hub Manager. (2) The fiduciary must submit a corrected or supplemental accounting not later than 14 days after the date of VA notice of an accounting discrepancy. (d) Exceptions. The provisions of this section that generally require the submission of an annual accounting do not apply to a fiduciary who is: (1) The beneficiary's spouse; (2) A chief officer of a Federal institution; (3) A chief officer of a non-VA facility receiving benefits for a beneficiary institutionalized in the facility and: (i) The beneficiary's monthly care, maintenance, and personal use expenses equal or exceed the amount of the beneficiary's monthly VA benefit; and (ii) The amount of VA benefit funds under management by the fiduciary does not exceed $10,000; or (4) A fiduciary who receives benefits on behalf of a beneficiary and both permanently resides outside of the United States or in the Commonwealth of Puerto Rico or the Republic of the Philippines, and the fiduciary was appointed outside of the United States or in the Commonwealth of Puerto Rico or the Republic of the Philippines. (e) Failure to comply with accounting requirements. The Hub Manager will treat any willful neglect or refusal to file proper accountings as prima facie evidence of embezzlement or misappropriation of VA benefits. Such evidence is grounds for starting a misuse investigation under \u00a7 13.400. (Authority: 38 U.S.C. 501, 5502, 5509, 6101) (Approved by the Office of Management and Budget under control number 2900-0017)",
+      "integrity": {
+        "state": "complete",
+        "basis": "Full retrieved body of 3,274 characters stored; under the 60,000 cap, so nothing was cut.",
+        "stamped_at": "2026-09-11T23:51:39",
+        "stored_chars": 3274,
+        "source_chars": 3274,
+        "cap_applied": 60000
+      },
+      "authority_class": "regulation",
+      "claim_layer": "doctrinal",
+      "claim_layer_meaning": "States or describes the rule. Cite for what the law IS."
+    },
+    {
+      "citation": "\u00a7 13.300",
+      "kind": "section_sign",
+      "page": 1,
+      "text": "\u00a7 13.300 Onsite reviews. (a) Periodic onsite reviews. (1) The Hub Manager will conduct a periodic, scheduled, onsite review of any fiduciary in the United States, whether the fiduciary is an individual or an entity, if: (i) The fiduciary serves 20 or more beneficiaries, and (ii) The total annual amount of recurring VA benefits paid to the fiduciary for such beneficiaries exceeds the threshold established in 38 U.S.C. 5508 as adjusted by VA under 38 U.S.C. 5312. (2) The Hub Manager must complete at least one periodic onsite review triennially if the fiduciary meets the requirements of paragraph (a)(1) of this section. (3) VA will provide the fiduciary with written notice of the periodic onsite review at least 30 days before the scheduled review date. The notice will: (i) Inform the fiduciary of the pending review and the fiduciary's obligation under this part to cooperate in the onsite review process, and (ii) Request that the fiduciary make available for review all relevant records, including but not limited to case files, bank statements, accountings, ledgers, check registers, receipts, bills, and any other items necessary to determine that the fiduciary has been acting in the best interest of VA beneficiaries and meeting the responsibilities of fiduciaries prescribed in \u00a7 13.140. (b) Unscheduled onsite reviews. The Hub Manager may conduct unscheduled onsite reviews of any fiduciary, regardless of the number of beneficiaries served by the fiduciary or the total amount of VA benefit funds under management by the fiduciary, if: (1) VA receives from any source credible information that the fiduciary has misused or is misusing VA benefits; (2) The fiduciary's annual accounting is seriously delinquent. For purposes of this section, seriously delinquent means the fiduciary failed to submit the required accounting within 120 days after the ending date of the annual accounting period; (3) VA receives from any source credible information that the fiduciary is not adequately performing the responsibilities of a fiduciary prescribed in \u00a7 13.140; or (4) The Hub Manager determines that an unscheduled onsite review is necessary to ensure that the fiduciary is acting in the interest of the beneficiary or beneficiaries served by the fiduciary. (c) Procedures. (1) Onsite reviews will consist of the following: (i) A face-to-face meeting with the fiduciary. In the case of a fiduciary that is an entity, the face-to-face meeting will be with a representative of the entity; (ii) A review of all relevant records maintained by the fiduciary, including but not limited to case files, bank statements, accountings, ledgers, check registers, receipts, bills, and any other items necessary to determine whether the fiduciary has been acting in the interest of VA beneficiaries; and (iii) Interviews of beneficiaries, the fiduciary's employees, and other individuals as determined necessary by the Hub Manager. (2) Not later than 30 days after completing a periodic or unscheduled onsite review, the Hub Manager will provide the fiduciary a written report of VA's findings, recommendations for correction of deficiencies, requests for additional information, and notice of VA's intent regarding further action. (3) Unless good cause for an extension is shown, not later than 30 days after the date that VA mails the report prescribed by paragraph (d)(2) of this section, the fiduciary must submit to the fiduciary hub a response to any VA request for additional information or recommendation for corrective action. (4) The Hub Manager will remove the fiduciary for all VA beneficiaries whom the fiduciary serves if the fiduciary: (i) Refuses to cooperate with VA during a periodic or unscheduled onsite review, (ii) Is unable to produce necessary records, (iii) Fails to respond to a VA request for additional information or recommendation for corrective action, or (iv) Is found during an onsite review to have misused VA benefits. (Authority: 38 U.S.C. 501, 5508)",
+      "integrity": {
+        "state": "complete",
+        "basis": "Full retrieved body of 3,983 characters stored; under the 60,000 cap, so nothing was cut.",
+        "stamped_at": "2026-09-11T23:51:39",
+        "stored_chars": 3983,
+        "source_chars": 3983,
+        "cap_applied": 60000
+      },
+      "authority_class": "regulation",
+      "claim_layer": "doctrinal",
+      "claim_layer_meaning": "States or describes the rule. Cite for what the law IS."
+    },
+    {
+      "citation": "\u00a7 13.400",
+      "kind": "section_sign",
+      "page": 1,
+      "text": "\u00a7 13.400 Misuse of benefits. (a) Definition of misuse. Misuse of benefits by a fiduciary occurs in any case in which the fiduciary receives payment of benefits for the use and benefit of a beneficiary and the beneficiary's dependents, if any, and uses any part of such payment for a use other than the use and benefit of the beneficiary or the beneficiary's dependents. For the purpose of this section, use and benefit means any expenditure reasonably intended for the care, support, or maintenance of the beneficiary or the beneficiary's dependents. Such expenditures may include the fiduciary's efforts to improve the beneficiary's standard of living under rules prescribed in this part. (b) Misuse determinations. Upon receipt of information from any source regarding possible misuse of VA benefits by a fiduciary, the Hub Manager may, upon his or her discretion, investigate the matter and issue a misuse determination in writing. This decision will: (1) Identify the beneficiary, (2) Identify the fiduciary, (3) State whether the fiduciary is an individual fiduciary serving 10 or more beneficiaries or a corporation or other entity serving one or more beneficiaries, (4) Identify the source of the information, (5) Describe in detail the facts found as a result of the investigation, (6) State the reasons for the Hub Manager's determination regarding whether the fiduciary misused any part of the beneficiary's benefit paid to the fiduciary, and (7) If the Hub Manager determines that the fiduciary did misuse any part of the beneficiary's benefit, identify the months in which such misuse occurred. (c) Notice. The Hub Manager will provide written notice of the misuse determination prescribed in paragraph (b) of this section, including a copy of the Hub Manager's written decision, an explanation regarding the reconsideration procedure prescribed in paragraph (d) of this section, and the beneficiary's right to appeal under \u00a7 13.600, to: (1) The fiduciary; (2) The beneficiary or the beneficiary's legal guardian, and the beneficiary's accredited representative, attorney, or claims agents; (3) The court of jurisdiction if the fiduciary is also the beneficiary's court-appointed guardian and/or conservator; and (4) The Director of the Pension and Fiduciary Service. (d) Finality and reconsideration of misuse determinations. (1) The Hub Manager's misuse determination is a final decision, unless: (i) The Hub Manager receives a written request for reconsideration from the fiduciary or the beneficiary not later than 30 days after the date that the Hub Manager mailed notice of his or her misuse determination; or (ii) The Hub Manager receives a notice of disagreement from the beneficiary not later than 1 year after the date that the Hub Manager mailed notice of his or her misuse determination. (2) The fiduciary or the beneficiary may submit additional information pertinent to reconsideration of the misuse determination and not previously considered by the Hub Manager, provided that the additional information is submitted with the written reconsideration request. (3) The Hub Manager will close the record regarding reconsideration at the end of the 30-day period described in paragraph (d)(1)(i) of this section and furnish a timely request submitted by the fiduciary or the beneficiary, including any new information, to the Director of the VA Regional Office with jurisdiction over the fiduciary hub for a final decision. (4) In making the misuse determination on reconsideration, the Regional Office Director's decision will be based upon a review of the information of record as of the date of the Hub Manager's misuse determination and any new information submitted with the request. The decision will: (i) Identify the beneficiary, (ii) Identify the fiduciary, (iii) Identify if the fiduciary is also the beneficiary's court-appointed guardian or conservator, (iv) Identify the date of the Hub Manager's prior decision, (v) Describe in detail the facts found as a result of the Director's review of the Hub Manager's decision and any new information submitted with the reconsideration request, and (vi) State the reasons for the Director's final decision, which may affirm, modify, or overturn the Hub Manager's decision. (5) The Hub Manager will provide written notice of the Regional Office Director's final decision on reconsideration to: (i) The fiduciary, (ii) The beneficiary or the beneficiary's legal guardian, and the beneficiary's accredited representative, attorney, or claims agent; (iii) The court, if the fiduciary is also the beneficiary's court-appointed guardian or conservator; and (iv) The Director of the Pension and Fiduciary Service. (e) Reporting of misuse. Except as prescribed in \u00a7 1.204 of this chapter, which requires VA management officials to promptly report possible criminal matters involving felonies to the VA Office of Inspector General, reporting of misuse cases will occur as follows: (1) Not later than 30 days after a final determination is made under paragraph (d) of this section that a fiduciary has misused VA benefits, the Director of the VA Regional Office who has jurisdiction over the fiduciary hub will notify the VA Office of Inspector General for purposes of any further action that the Inspector General deems appropriate under separate authority, and the court of jurisdiction if the fiduciary is also the beneficiary's court-appointed legal guardian and/or conservator. (2) For purposes of application of \u00a7 13.410 regarding reissuance and recoupment of benefits, the Office of Inspector General will advise the Director of the Pension and Fiduciary Service of any final decision regarding prosecution of a fiduciary who misused VA benefits and any final judgment of a court in such a prosecution not later than 30 days after the decision is made or judgment is entered. (Authority: 38 U.S.C. 501, 5502, 6106)",
+      "integrity": {
+        "state": "complete",
+        "basis": "Full retrieved body of 5,889 characters stored; under the 60,000 cap, so nothing was cut.",
+        "stamped_at": "2026-09-11T23:51:39",
+        "stored_chars": 5889,
+        "source_chars": 5889,
+        "cap_applied": 60000
+      },
+      "authority_class": "regulation",
+      "claim_layer": "doctrinal",
+      "claim_layer_meaning": "States or describes the rule. Cite for what the law IS."
+    },
+    {
+      "citation": "\u00a7 13.410",
+      "kind": "section_sign",
+      "page": 1,
+      "text": "\u00a7 13.410 Reissuance and recoupment of misused benefits. (a) General. (1) If the Hub Manager or the Regional Office Director upon reconsideration determines that a fiduciary described in paragraph (a)(2) of this section misused any part of a beneficiary's benefit paid to the fiduciary, the Regional Office Director will reissue benefits to the beneficiary's successor fiduciary in an amount equal to the amount of funds misused. (2) This paragraph (a) applies to a fiduciary that is: (i) An individual who served 10 or more beneficiaries during any month in which misuse occurred; or (ii) A corporation or other entity serving one or more beneficiaries. (b) Negligence. In any case in which the Hub Manager or the Regional Office Director upon reconsideration determines that an individual fiduciary who served fewer than 10 beneficiaries during any month in which misuse occurred misused a beneficiary's funds under management by the fiduciary, the Hub Manager will refer the matter to the Director, Pension and Fiduciary Service, for a determination of whether VA negligence caused the misuse. The Regional Office Director will reissue benefits to the beneficiary's successor fiduciary in an amount equal to the amount of funds misused if the Director of the Pension and Fiduciary Service determines that VA negligence caused the misuse. The Pension and Fiduciary Service Director's negligence determination will be based upon a review of the VA information of record as of the date of the Hub Manager's or Regional Office Director's misuse determination. For purposes of this section, VA negligence causes misuse when: (1) The Hub Manager failed to properly investigate or monitor the fiduciary; for example, when: (i) The Hub Manager failed to review the fiduciary's accounting within 60 days after the date on which the accounting was scheduled for review. The date that an accounting is scheduled for review is the date the fiduciary hub receives the accounting; (ii) The Hub Manager did not decide whether to investigate an allegation of misuse within 60 days of receipt of the allegation; (iii) After deciding to investigate an allegation of misuse and finding misuse, the Hub Manager failed to initiate action within 60 days of receipt of the misuse allegation to terminate the fiduciary. (2) Actual negligence by VA is shown. For purposes of this section, actual negligence means the Hub Manager's failure to exercise toward a beneficiary in the fiduciary program the care which a reasonable or prudent person would exercise in the circumstances, or the Hub Manager's taking action that a reasonable or prudent person would not take. The Regional Office Director shall reissue benefits based on actual negligence if the Director of the Pension and Fiduciary Service determines that: (i) The Hub Manager owed a duty to the beneficiary under this part, (ii) The Hub Manager's action or failure to act was negligent, and (iii) The Hub Manager's negligence proximately caused the misuse of benefits by the fiduciary. For purposes of this section, proximate cause means that the misuse would not have occurred but for the Hub Manager's negligence. (c) Recoupment of misused benefits. In all cases in which the Hub Manager or Regional Office Director upon reconsideration determines that a fiduciary misused benefits, VA will make a good faith effort to recoup the total amount of misused benefits from the fiduciary. (1) For purposes of this section, good faith effort means that the Hub Manager will: (i) Recover any misused benefits from the surety company, if a surety bond was in place regarding protection of beneficiary funds; or (ii) In cases in which no surety bond was in place and the fiduciary does not repay all misused benefits within the time prescribed by the Hub Manager in consultation with the fiduciary: (A) Request the creation of a debt to the United States in the amount of any misused benefits that remain unpaid; and (B) Coordinate further recoupment action, including collection of any debt owed by the fiduciary to the United States as a result of the misuse, with the appropriate Federal and state agencies. (2) VA will pay benefits recouped under paragraph (c) of this section to the beneficiary's successor fiduciary after deducting any amount reissued under paragraph (a) or (b) of this section. (d) Notice. The Hub Manager, or in the case of a negligence determination, the Director of the Pension and Fiduciary Service, will provide the beneficiary or the beneficiary's legal guardian, and the beneficiary's accredited representative, attorney or claims agent written notice of any decision regarding reissuance or recoupment of benefits under this section. (Authority: 38 U.S.C. 501, 6106, 6107)",
+      "integrity": {
+        "state": "complete",
+        "basis": "Full retrieved body of 4,733 characters stored; under the 60,000 cap, so nothing was cut.",
+        "stamped_at": "2026-09-11T23:51:39",
+        "stored_chars": 4733,
+        "source_chars": 4733,
+        "cap_applied": 60000
+      },
+      "authority_class": "regulation",
+      "claim_layer": "doctrinal",
+      "claim_layer_meaning": "States or describes the rule. Cite for what the law IS."
+    },
+    {
+      "citation": "\u00a7 13.500",
+      "kind": "section_sign",
+      "page": 1,
+      "text": "\u00a7 13.500 Removal of fiduciaries. (a) The Hub Manager may remove a fiduciary if the Hub Manager determines that fiduciary services are no longer required for a beneficiary or removal is in the beneficiary's interest. Reasons for removal include, but are not limited to: (1) Beneficiary reasons. (i) A VA rating authority determines that the beneficiary can manage his or her own VA benefits without VA supervision or appointment of a fiduciary; (ii) The beneficiary requests appointment of a successor fiduciary under \u00a7 13.100; (iii) The beneficiary requests supervised direct payment of benefits under \u00a7 13.110; or (iv) The beneficiary dies. (2) Fiduciary reasons. (i) The fiduciary's further service is barred under \u00a7 13.130; (ii) The fiduciary fails to maintain his or her qualifications or does not adequately perform the responsibilities of a fiduciary prescribed in \u00a7 13.140; (iii) The fiduciary fails to timely submit a complete accounting as prescribed in \u00a7 13.280; (iv) VA or a court with jurisdiction determines that the fiduciary misused or misappropriated VA benefits; (v) The fiduciary fails to respond to a VA request for information within 30 days after such request is made, unless the Hub Manager grants an extension based upon good cause shown by the fiduciary; (vi) The fiduciary is unable or unwilling to provide the surety bond prescribed by \u00a7 13.230 or, if applicable, enter into a restricted withdrawal agreement; (vii) The fiduciary no longer meets the requirements for appointment under \u00a7 13.100; or (viii) The fiduciary is unable or unwilling to manage the beneficiary's benefit payments, accounts, or investments. (b) Procedures. (1) If the Hub Manager determines that it is necessary to remove a fiduciary and appoint a successor fiduciary, the Hub Manager will: (i) Provide the fiduciary and the beneficiary written notice of the removal; and (ii) Instruct the fiduciary regarding the fiduciary's responsibilities prior to transfer of funds to a successor fiduciary or provide other instructions to the fiduciary. (2) The fiduciary must: (i) Continue as fiduciary for the beneficiary until the Hub Manager provides the fiduciary with the name and address of the successor fiduciary and instructions regarding the transfer of funds to the successor fiduciary; and (ii) Not later than 30 days after transferring funds to the successor fiduciary or as otherwise instructed by the Hub Manager, provide the fiduciary hub a final accounting. (Authority: 38 U.S.C. 501, 5502, 5507, 6106)",
+      "integrity": {
+        "state": "complete",
+        "basis": "Full retrieved body of 2,508 characters stored; under the 60,000 cap, so nothing was cut.",
+        "stamped_at": "2026-09-11T23:51:39",
+        "stored_chars": 2508,
+        "source_chars": 2508,
+        "cap_applied": 60000
+      },
+      "authority_class": "regulation",
+      "claim_layer": "doctrinal",
+      "claim_layer_meaning": "States or describes the rule. Cite for what the law IS."
+    },
+    {
+      "citation": "\u00a7 13.510",
+      "kind": "section_sign",
+      "page": 1,
+      "text": "\u00a7 13.510 Fiduciary withdrawals. (a) General. A fiduciary may not withdraw as fiduciary for a beneficiary until the fiduciary receives notice from the Hub Manager regarding transfer of the beneficiary's funds to a successor fiduciary. (b) Voluntary withdrawal. (1) Subject to the limitation prescribed in paragraph (a) of this section, a fiduciary who has VA benefit funds under management for a beneficiary may withdraw from the fiduciary relationship with the beneficiary at any time if the fiduciary: (i) Provides the fiduciary hub with jurisdiction written notice of the fiduciary's intent to withdraw as fiduciary for the beneficiary; (ii) Describes the reasons for withdrawal; (iii) Continues as fiduciary for the beneficiary until the Hub Manager provides the fiduciary with the name and address of the successor fiduciary and instructions regarding the transfer of funds to the successor fiduciary; and (iv) Not later than 30 days after transferring funds to the successor fiduciary or as otherwise instructed by the Hub Manager, provides the fiduciary hub with jurisdiction a final accounting. (2) Upon receipt of the notice of intent to withdraw prescribed in paragraph (b)(1)(i) of this section, the Hub Manager will make a reasonable effort under the circumstances to expedite the appointment of a successor fiduciary. In determining the extent to which the fiduciary hub must expedite the appointment of a successor fiduciary, the Hub Manager will consider: (i) The reasons for the withdrawal request provided under paragraph (b)(1)(ii) of this section; (ii) The number of beneficiaries affected; (iii) The relationship between the affected beneficiary or beneficiaries and the fiduciary; and (iv) Whether expedited appointment of a successor fiduciary is necessary to protect the interests of the beneficiary or beneficiaries. (c) Notice. If a fiduciary requests to withdraw from service for a beneficiary, the Hub Manager will provide the beneficiary or the beneficiary's legal guardian, and the beneficiary's accredited representative, attorney, or claims agent written notice of the withdrawal request and the procedures for appointment of a successor fiduciary. (Authority: 38 U.S.C. 501, 5502)",
+      "integrity": {
+        "state": "complete",
+        "basis": "Full retrieved body of 2,211 characters stored; under the 60,000 cap, so nothing was cut.",
+        "stamped_at": "2026-09-11T23:51:39",
+        "stored_chars": 2211,
+        "source_chars": 2211,
+        "cap_applied": 60000
+      },
+      "authority_class": "regulation",
+      "claim_layer": "doctrinal",
+      "claim_layer_meaning": "States or describes the rule. Cite for what the law IS."
+    },
+    {
+      "citation": "\u00a7 13.600",
+      "kind": "section_sign",
+      "page": 1,
+      "text": "\u00a7 13.600 Appeals. Except as prescribed in paragraph (a) of this section, VA decisions regarding fiduciary matters are committed to the Secretary of Veterans Affairs' discretion by law, as delegated to subordinate officials under this part, and cannot be appealed to the Board of Veterans' Appeals or any court. (a) Appealable decisions. A beneficiary may appeal to the Board of Veterans' Appeals the following decisions: (1) The Hub Manager's appointment of a fiduciary under \u00a7 13.100; (2) The Hub Manager's removal of a fiduciary under \u00a7 13.500; (3) The Hub Manager's misuse determination under \u00a7 13.400; (4) The VA Regional Office Director's final decision upon reconsideration of a misuse determination under \u00a7 13.400(d); and (5) The Director of the Pension and Fiduciary Service's negligence determination for purposes of reissuance of benefits under \u00a7 13.410. (b) Procedures. (1) VA decisions regarding fiduciary matters are final, subject only to the right of appeal prescribed in this section. (2) The initiation and processing of appeals under this section are governed by parts 19 and 20 of this chapter. (Authority: 38 U.S.C. 501) (Approved by the Office of Management and Budget under control number 2900-0085)",
+      "integrity": {
+        "state": "complete",
+        "basis": "Full retrieved body of 1,221 characters stored; under the 60,000 cap, so nothing was cut.",
+        "stamped_at": "2026-09-11T23:51:39",
+        "stored_chars": 1221,
+        "source_chars": 1221,
+        "cap_applied": 60000
+      },
+      "authority_class": "regulation",
+      "claim_layer": "doctrinal",
+      "claim_layer_meaning": "States or describes the rule. Cite for what the law IS."
+    }
+  ],
+  "claim_layer_basis": "Set from the class, not from the text: a statute or regulation states the rule rather than describing or arguing it, which the citation in the title establishes definitionally."
+}

@@ -201,14 +201,15 @@
           "status_note": "38 U.S.C. 1110 is in force."
         },
         "fiduciary": {
-          "entity": "the VA-appointed fiduciary",
+          "entity": "[REDACTED-FIDUCIARY-NAME] (VA-appointed fiduciary)",
           "sector": "appointed",
-          "evidence": "stated_by_principal",
-          "citation": "38 U.S.C. 5502",
-          "note": "The principal has told this system he has a VA-appointed fiduciary. Recorded as stated_by_principal rather than cited: 5502 is the authority for the appointment, and WHO was appointed and on what finding is in the appointment record, which this system has not read.",
-          "status": "unknown",
-          "status_evidence": "unverified",
-          "status_note": "THE PRINCIPAL STATED AN APPOINTMENT EXISTS. Whether it is still in force has NOT been checked, and this is the field that decides whether the appointment binds. Unknown is deliberate: 'we did not look' and 'it still binds' are opposite findings and only one is safe to act on. Settled by the appointment record or a VA revocation notice."
+          "evidence": "cited",
+          "citation": "VA Form 21P-555, Certificate of Legal Capacity to Receive and Disburse Benefits and Fee Authorization, signed 2025-01-30 by [REDACTED-SIGNER-NAME], Lincoln Fiduciary Hub Manager",
+          "note": "Appointed under 38 U.S.C. 5502 / 38 CFR part 13. The certificate is the authority to release benefits to the fiduciary; the underlying incompetency determination is a separate record this system has not read.",
+          "status": "active",
+          "status_evidence": "cited",
+          "status_note": "ACTIVE AS OF THE CERTIFICATE, WHICH IS NOT THE SAME AS ACTIVE TODAY. The document is dated 2025-01-30 and this reading is 2026-09-11 - about 19 months later. A VA fiduciary appointment continues until VA replaces or removes the fiduciary, so `active` is the right reading, and status_as_of carries the vintage so nobody mistakes an old certificate for a current confirmation. A successor appointment or a removal under 38 CFR 13.500 would supersede this and would be its own document.",
+          "status_as_of": "2025-01-30"
         },
         "servicer": {
           "entity": "Department of Veterans Affairs",
@@ -217,7 +218,7 @@
           "citation": "38 U.S.C. 1110",
           "status": "active",
           "status_evidence": "cited",
-          "status_note": "VA administers by statute."
+          "status_note": "VA remains the servicer. The certificate directs payment TO the fiduciary - it does not make the fiduciary the servicer of the benefit, and it does not move the obligation."
         },
         "debt_holder": {
           "entity": "the United States",
@@ -237,7 +238,17 @@
           "status_evidence": "cited"
         }
       },
-      "_why_this_entry_exists": "THREE ENTITIES STACKED ON ONE ACCOUNT, which is the shape the acceptance case asks for - VA as identifier and servicer, an appointed fiduciary holding control, and the United States carrying the obligation. It is also the principal's own account, and the useful finding is the boring one: control moved and the debt did not."
+      "_why_this_entry_exists": "THREE ENTITIES STACKED ON ONE ACCOUNT, which is the shape the acceptance case asks for - VA as identifier and servicer, an appointed fiduciary holding control, and the United States carrying the obligation. It is also the principal's own account, and the useful finding is the boring one: control moved and the debt did not.",
+      "_instrument": {
+        "form": "VA Form 21P-555 (MAR 2017), supersedes VA Form 21-555 (MAR 1999)",
+        "signed": "2025-01-30",
+        "signed_by": "[REDACTED-SIGNER-NAME], Lincoln Fiduciary Hub Manager",
+        "hub": "Lincoln Fiduciary Hub, Lincoln NE",
+        "disbursement": "ALL MONTHLY",
+        "fee_authorized_percent": 4,
+        "remarks_verbatim": "Cancel Direct Deposit. PTA task set.",
+        "_identifiers_withheld": "The VA file number on this form IS the Social Security number. It is deliberately not recorded here: an ownership map needs to know THAT there is a file, never the number, and a corpus entry is the wrong place for an SSN."
+      }
     }
   },
   "_status_field": "Every layer carries status: active / revoked / superseded / expired / unknown / never_existed. UNKNOWN IS THE DEFAULT AND IS NOT ACTIVE - a layer nobody checked must not read as binding. An appointment that has been revoked is the difference between a claim and a gift, and a map that shows structure without status points at dead appointments."

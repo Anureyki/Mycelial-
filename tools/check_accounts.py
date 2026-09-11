@@ -68,15 +68,21 @@ def main():
     # binding - and the assertion had to change rather than the code, because
     # counting an appointment nobody confirmed would be the overstatement the
     # status field exists to prevent.
+    # THREE AGAIN, and by evidence rather than by assumption. The appointment
+    # certificate (VA Form 21P-555, 2025-01-30) arrived and settled the status
+    # that had been `unknown`. This assertion has now been correct, then wrong,
+    # then correct again - and each change was a document arriving, which is
+    # what a status field is for.
     ck("only BINDING entities are counted",
-       a["entities_stacked_count"] == 2 and a["carries_the_debt"],
+       a["entities_stacked_count"] == 3 and a["carries_the_debt"],
        f"{a['entities_stacked_count']} binding, debt={a['carries_the_debt']}")
-    ck("the unverified appointment is SURFACED, not silently dropped",
-       any(u["layer"] == "fiduciary" for u in a.get("unverified_status") or []),
-       "a layer that names an entity and cannot say whether it binds is the "
-       "one a reader must chase")
-    ck("confirming the appointment would make it three",
-       len(a["entities_stacked"]) + len(a.get("unverified_status") or []) == 3)
+    ck("nothing is left unverified on this account",
+       not a.get("unverified_status"),
+       str([u["layer"] for u in a.get("unverified_status") or []]))
+    ck("a status backed by a document carries its date",
+       any(l["layer"] == "fiduciary" and l.get("status_as_of")
+           for l in a["layers"]),
+       "active as of a certificate is not active today, and the map says which")
 
     print("\n  4. unverified is reported, never filled")
     for aid in ("trulink_card", "usps_money_order"):
@@ -144,8 +150,15 @@ def main():
     ck("an active appointment appears in must_revoke",
        any(r["layer"] == "fiduciary" for r in must_revoke(active)),
        "the Form 56 problem: appointment AND power of attorney both come off")
+    # ON ITS OWN FIXTURE, NOT ON LIVE DATA. This asserted against the real VA
+    # entry while that entry's status was unknown - and then a certificate
+    # arrived, settled it to active, and the test failed for the best possible
+    # reason. A gate whose expectation depends on data that can legitimately
+    # improve is a gate that goes red when the system gets better.
+    unconfirmed = copy.deepcopy(live)
+    unconfirmed["layers"]["fiduciary"]["status"] = "unknown"
     ck("an unverified appointment does NOT appear in must_revoke",
-       not any(r["layer"] == "fiduciary" for r in must_revoke(live)),
+       not any(r["layer"] == "fiduciary" for r in must_revoke(unconfirmed)),
        "pointing somebody at a revocation nobody confirmed is needed is worse "
        "than saying the status is unknown")
 
