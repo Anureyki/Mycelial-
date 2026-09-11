@@ -4080,7 +4080,49 @@ class GrowAgent(AgentBase):
                         "action": "Re-check the source water's ppm."})
             return out
 
-        if va is not None:
+        # BOTH GIVEN IS AN OVER-DETERMINED SYSTEM, AND THAT IS FREE EVIDENCE.
+        #
+        # This used to read `if va is not None` and silently drop `vadd`. A
+        # caller who supplied both got back a volume_added it had not sent and
+        # nothing saying its own figure had been discarded - the same shape
+        # intake_reading refuses on, one verb over: "a field silently discarded
+        # looks identical to one that was never sent".
+        #
+        # Worse, the discard threw away the one check worth having. The two
+        # routes agree ONLY if the whole ppm fall was dilution. On 2026-09-11
+        # they disagreed by 35% - 1.25 L poured against 1.69 L back-solved -
+        # and that gap is precisely the uptake and meter-temperature terms the
+        # conservation model does not carry. Reported instead of hidden, it
+        # says "this reservoir was not a sealed jar between the two readings",
+        # which is the finding.
+        disagreement = None
+        if va is not None and vadd is not None:
+            v_before_ratio = va * (pa - tp) / (pb - tp)
+            v_added_ratio = va - v_before_ratio
+            v_before_stated = va - vadd
+            gap = v_added_ratio - vadd
+            gap_pct = (abs(gap) / vadd * 100.0) if vadd else None
+            disagreement = {
+                "volume_added_stated": round(vadd, 2),
+                "volume_added_from_ppm": round(v_added_ratio, 2),
+                "volume_before_stated": round(v_before_stated, 2),
+                "volume_before_from_ppm": round(v_before_ratio, 2),
+                "gap_liters": round(gap, 2),
+                "gap_pct_of_stated": round(gap_pct, 1) if gap_pct is not None else None,
+                "means": ("The two routes agree only if NOTHING but water changed the "
+                          "ppm. They disagree, so something else did - uptake between "
+                          "the readings, a temperature difference on a meter without "
+                          "ATC, or both. The back-solved figure is the contaminated "
+                          "one: anything that lowers ppm_after lowers it further, so "
+                          "it UNDERSTATES the starting volume."),
+                "which_to_trust": ("A poured or level-read volume is an observation. "
+                                   "The back-solved one is a model output that assumes "
+                                   "the reservoir was a sealed jar. Prefer the "
+                                   "observation and keep this gap as the finding."),
+            }
+            # The STATED volume wins. It was measured; the other was inferred.
+            v_before, v_added = v_before_stated, vadd
+        elif va is not None:
             v_before = va * (pa - tp) / (pb - tp)
             v_added = va - v_before
         else:
@@ -4097,6 +4139,7 @@ class GrowAgent(AgentBase):
             "volume_before_range": [round(v_before * (1 - rel), 2), round(v_before * (1 + rel), 2)],
             "volume_after_liters": round(va, 2),
             "volume_added_liters": round(v_added, 2),
+            "routes_disagree": disagreement,
             "meter_tolerance_pct": tol,
             "dissolved_mass_before_ppm_l": round(pb * v_before, 0),
             "dissolved_mass_after_ppm_l": round(pa * va, 0),
