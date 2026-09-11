@@ -990,10 +990,13 @@ Mycelial runs on a single machine (or VM). To deploy to a cloud server (e.g., Di
 - Analyzer Agent generates recommendations from outcome logs.
 - Service Manager heals on demand (`POST localhost:8014/heal`); nothing runs on a timer.
 
-## MYCOS Core is a separate repository
+## Mycelial Core is a separate repository
 
-The sovereign model programme - `mycos-core`, 125M through 7B - is planned in
+The sovereign model programme - `mycelial-core`, 125M through 7B - is planned in
 `DEPLOYMENT_PROGRESS.md` and belongs in its **own repository**, not this one.
+It was named `mycos-core` until 2026-09-11; the rename preserved history, and
+one repo was kept rather than two, because two repositories for one purpose is
+the two-sources-of-truth failure this file spends most of its length preventing.
 
 The split is by responsibility. This repo is the operating system: agents,
 memory, RAG, tools, orchestration, sensors, interfaces, runtime. `mycos-core`
@@ -1016,6 +1019,16 @@ Mutable personal memory stays in Hermes and never goes into weights. Weights
 cannot be corrected the way a record can, and a fact baked into a checkpoint
 has no supersession path - which is the fault `amend_grow_system` was fixed for,
 one layer down.
+
+**The boundary runs one way, and it is enforced in the other repository rather
+than promised here.** The OS is the CONSUMER: it imports a promoted weights
+artifact and never trains. `mycelial-core/tools/check_boundary.py` fails that
+repo's build if any code path there writes into this one, imports `agents`,
+`core`, `services` or `webapp`, or runs a subprocess against this directory -
+tested against a deliberate violation. The eval contract is deliberately
+DUPLICATED there rather than imported from here: two copies of a test is a
+divergence something can check for, while one import is a coupling that would
+mean this repo could not change without risking a training run.
 
 ## Next Steps (as discussed)
 - Stabilise core (ongoing).
