@@ -896,6 +896,20 @@ fails quietly.** Absence of a detected problem is not evidence of its absence.
    the paths that happened to come to mind. A red check outranks a claim of
    "verified working".
 
+   **Then it happened again, larger, and the second time the rule was already
+   written above.** CI sat red for **23 runs across two episodes** - 15 on
+   2026-09-05, then 9 from 2026-09-06 to 09-11 - while commit messages reported
+   "gate rc=0" as though the build were green. It was not a failing check that
+   went unnoticed; it was that `check_inherited.py --static` is **one of four
+   steps**, and running one by hand and calling it the build is the same
+   false-success shape as a push that fails quietly. The principal found it by
+   reading the Actions page, which nobody here had opened.
+
+   So: **`./tools/ci_local.sh` runs all four steps in ci.yml order.** Claiming a
+   commit is clean means running that, not a step of it. A step added to
+   `ci.yml` and not to the script turns the script into the same lie in a
+   shorter form.
+
 ## Guards (replaces the retired `hooks/`)
 
 Every inbound `/execute` passes through `AgentBase.check_guard()`, which asks the Security Agent (9010) to authorize it. Deny rules live in `config/guards.json` (denylist — no matching rule means allowed).
