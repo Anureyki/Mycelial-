@@ -1591,3 +1591,19 @@ when that agent runs.
 
 **Inversion, until `check_inherited` shows `ok` on every domain agent that
 actuates.** Four still read `differs`.
+
+### Blocked: state broker registration corpus
+
+`broker_registration` is declared with an EMPTY jurisdiction list and
+`ingested: false`. TX, CA, VT and OR are recorded under
+`jurisdictions_intended`, not `jurisdictions`, because a jurisdiction named
+with nothing behind it is a false claim of coverage - the reasoning layer reads
+the list, not the shelf.
+
+**Blocked on plumbing, not licensing.** `tools/ingest_law.py` supports `cfr`,
+`usc` and `irm`; it has no state fetcher. State enactments are edicts of
+government and uncopyrightable (*Georgia v. Public.Resource.Org*, 590 U.S. 255
+(2020)), so the text is free to take - there is simply nothing that takes it.
+
+Until a state fetcher exists, any broker-registration question is
+`not_in_corpus`.

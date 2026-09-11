@@ -176,6 +176,9 @@ class LegalAgent(AgentBase):
             agent_id="legal_agent",
             port=9011,
             capabilities=[
+                "assess_peonage",
+                "assess_equity_claim",
+                "corpora",
                 "pulse",
                 "veto",
                 "parse_contract", "model_relationship", "extract_parties", "analyze_roles",
@@ -3695,6 +3698,177 @@ class LegalAgent(AgentBase):
                         return out
         return out
 
+    # ------------------------------------------------------------------
+    # Credit, compelled labour, and broker registration are THREE corpora,
+    # deliberately not one shelf.
+    #
+    # They overlap in the fact pattern - a debt, a credit file, somebody
+    # brokering - and share nothing in what governs. Shelving them together
+    # invites a claim to borrow force from a statute that does not reach it,
+    # which is the failure `guidance is not authority` already names one
+    # domain over.
+    # ------------------------------------------------------------------
+    CORPORA = {
+        "credit_access": {
+            "covers": "credit access, adverse action, permissible purpose, resale",
+            "authorities": ["15 U.S.C. 1681 et seq. (FCRA)",
+                            "15 U.S.C. 1691 et seq. (ECOA)",
+                            "12 CFR 1002 (Reg B)", "12 CFR 1022 (Reg V)"],
+            "authority_class": "federal_statute/regulation",
+        },
+        "compelled_labour": {
+            "covers": "compelled labour tied to a debt",
+            "authorities": ["18 U.S.C. ch. 77", "18 U.S.C. 1581 (peonage)",
+                            "18 U.S.C. 1589 (forced labor)", "18 U.S.C. 1590"],
+            "authority_class": "federal_statute",
+            "warning": ("Criminal statutes. A civil claim borrowing their language "
+                        "does not borrow their elements."),
+        },
+        "broker_registration": {
+            "covers": "state broker registration and licensure",
+            # DECLARED EMPTY ON PURPOSE.
+            #
+            # This shelf listed TX, CA, VT and OR before a single statute from any
+            # of them was ingested. A jurisdiction named with nothing behind it is
+            # a false claim of coverage - the reasoning layer reads the list, not
+            # the shelf, and would have cited a registry this system cannot open.
+            # `A citation is not an authority until the text is in hand` applies to
+            # the shelf itself, not only to the individual cite.
+            #
+            # tools/ingest_law.py fetches cfr, usc and irm. It has no state
+            # fetcher, so these cannot be ingested with what exists today - which
+            # is the actual finding, and is worth more here than four optimistic
+            # abbreviations.
+            "jurisdictions": [],
+            "jurisdictions_intended": ["TX", "CA", "VT", "OR"],
+            "ingested": False,
+            "authority_class": "state_statute",
+            "status": ("NO STATUTES INGESTED. Nothing on this shelf can be opened, so "
+                       "nothing on it may be cited. Treat any broker-registration "
+                       "question as not_in_corpus."),
+            "blocked_on": ("tools/ingest_law.py supports cfr/usc/irm only. A state "
+                           "fetcher is needed - state enactments are edicts of "
+                           "government and uncopyrightable (Georgia v. Public.Resource."
+                           "Org, 590 U.S. 255 (2020)), so the obstacle is plumbing, "
+                           "not licensing."),
+            "warning": "State-specific. A registry in one state governs nothing in another.",
+        },
+    }
+
+    # Agency guidance, shelved as such, with its own history attached - because
+    # a withdrawn proposal quoted as current law is the exact failure the
+    # authority_class field exists to prevent.
+    AGENCY_GUIDANCE = {
+        "cfpb_broker_as_cra_2024": {
+            "what": "CFPB proposal treating certain data brokers as consumer reporting agencies",
+            "proposed": "2024-12",
+            "withdrawn": "2025-05",
+            "authority_class": "agency_guidance",
+            "status": "WITHDRAWN - NOT CURRENT LAW",
+            "how_to_use": ("Cite it as what an agency once proposed and then withdrew. "
+                           "It states a position, not a rule, and it no longer states "
+                           "even that. A claim resting on it rests on nothing "
+                           "enforceable."),
+        },
+    }
+
+    # Its own rule, not a sub-clause of the FCRA shelf.
+    REG_V_1022_142 = {
+        "citation": "12 CFR 1022.142",
+        "what": ("Blocks adverse items in a consumer report that RESULT FROM human "
+                 "trafficking, when the consumer submits the required victim "
+                 "determination documentation."),
+        "trigger": "victim determination documentation is FILED",
+        "why_separate": ("It is a blocking rule with its own documentary trigger, not a "
+                         "dispute or an accuracy provision. Folding it into 1681i "
+                         "reasoning loses the trigger, and the trigger is the whole "
+                         "mechanism."),
+        "authority_class": "regulation",
+        "in_corpus": True,
+        "verified": ("Opened 2026-09-11 via legal lookup: 12 CFR 1022.142 returns from "
+                     "reference/legal_agent with authority_class regulation and its own "
+                     "truncation caveat attached. The rule cites something this system "
+                     "can actually open."),
+    }
+
+    PEONAGE_ELEMENTS = ("a debt exists",
+                        "services are pledged against it",
+                        "coercion is present",
+                        "the debt does not amortize")
+
+    def assess_peonage(self, finding=None):
+        """Four elements, and all four or nothing.
+
+        Peonage and debt bondage are not 'a debt that felt coercive'. The
+        element that does the work and gets dropped is the last one: a debt
+        that AMORTIZES is a loan, however harsh its terms. One whose balance
+        cannot be worked off is the thing the statute is about.
+
+        Returns `insufficient_evidence` naming which elements are missing,
+        because a partial match is a named gap and not a weak claim."""
+        f = finding if isinstance(finding, dict) else {}
+        got = {
+            "a debt exists": bool(f.get("debt_exists")),
+            "services are pledged against it": bool(f.get("services_pledged")),
+            "coercion is present": bool(f.get("coercion")),
+            "the debt does not amortize": f.get("amortizes") is False,
+        }
+        missing = [k for k, v in got.items() if not v]
+        out = {"elements": got, "missing": missing,
+               "corpus": "compelled_labour",
+               "authorities": self.CORPORA["compelled_labour"]["authorities"],
+               "disclaimer": DISCLAIMER}
+        if missing:
+            out["conclusion"] = "insufficient_evidence"
+            out["reason"] = (f"{len(missing)} of 4 elements not established: "
+                             f"{'; '.join(missing)}.")
+            if "the debt does not amortize" in missing:
+                out["load_bearing"] = (
+                    "Amortization is the element that separates a harsh loan from "
+                    "peonage, and it is the one most often skipped. "
+                    f"amortizes={f.get('amortizes')!r} - if it amortizes, this is a "
+                    "credit claim and belongs in the credit_access corpus.")
+        else:
+            out["conclusion"] = "all_elements_present"
+            out["reason"] = ("All four elements are asserted. This is the point at which "
+                             "the claim becomes worth developing - it is not a finding "
+                             "that the offence occurred.")
+            out["caution"] = self.CORPORA["compelled_labour"]["warning"]
+        return out
+
+    def assess_equity_claim(self, finding=None):
+        """An equity claim needs a named res. No res, no claim.
+
+        `credit owed by equity right` with nothing identified is not a weak
+        claim, it is not a claim - equity acts on a specific thing. A court
+        cannot impose a constructive trust on an abstraction, and the first
+        question asked of one is always WHAT, held by WHOM.
+
+        This is the ontology CLAUDE.md already carries, applied at the door:
+        ownership, control and custody are different, and each of them is
+        different from a right asserted against nothing in particular."""
+        f = finding if isinstance(finding, dict) else {}
+        res = f.get("res") or f.get("property") or f.get("account")
+        out = {"disclaimer": DISCLAIMER}
+        if not res:
+            out.update({
+                "conclusion": "refused",
+                "reason": ("No res identified. An equitable claim runs against a SPECIFIC "
+                           "thing - a described property, an identified account, a traced "
+                           "fund. Without one there is nothing for a remedy to attach to "
+                           "and nothing for the other side to answer."),
+                "what_would_settle_it": ("Name the property or account: what it is, where "
+                                         "it is held, and who holds it."),
+                "note": ("This is a refusal on form, not a view on the merits. A claim "
+                         "with a res may still fail; one without cannot be heard."),
+            })
+        else:
+            out.update({"conclusion": "res_identified", "res": res,
+                        "next": ("Which right is asserted over it - ownership, control, "
+                                 "custody, security interest, priority? They are different "
+                                 "and collapsing them is the standard error.")})
+        return out
+
     def pulse(self, finding=None):
         """Regime gate for legal action: clock, forum, freeze, validation window.
 
@@ -3834,6 +4008,14 @@ class LegalAgent(AgentBase):
                 "implemented": True}
 
     def handle_task(self, task, args, sender):
+        if task == "assess_peonage":
+            return self.assess_peonage(args if isinstance(args, dict) else {})
+        if task == "assess_equity_claim":
+            return self.assess_equity_claim(args if isinstance(args, dict) else {})
+        if task == "corpora":
+            return {"corpora": self.CORPORA, "agency_guidance": self.AGENCY_GUIDANCE,
+                    "reg_v_1022_142": self.REG_V_1022_142, "disclaimer": DISCLAIMER}
+
         self.log(f"Task {task} from {sender}")
 
         cag_result = self.try_handle_cag_task(task, args)

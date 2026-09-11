@@ -3,6 +3,9 @@
   "role": "agent",
   "version": "1.0.0",
   "capabilities": [
+    "assess_peonage",
+    "assess_equity_claim",
+    "corpora",
     "pulse",
     "veto",
     "parse_contract",
@@ -92,5 +95,5 @@
   "public_key": "",
   "owner": "anureyki",
   "created": "2026-07-31T17:59:12.877063",
-  "updated": "2026-09-10T21:34:43.934083"
+  "updated": "2026-09-11T02:21:40.040215"
 }

@@ -15,7 +15,9 @@
     "model_trust_relationship",
     "parse_trust_document",
     "query_cache",
-    "refresh_cache"
+    "refresh_cache",
+    "assess_ilit",
+    "trust_scope"
   ],
   "entry_point": "agents.trust_agent.trust_agent:main",
   "description": "Models trust relationships (settlor, trustee, beneficiary, trust property) from trust document text (extraction and structuring only - not legal or fiduciary advice)"

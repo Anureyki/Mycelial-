@@ -106,6 +106,7 @@ class AccountingAgent(AgentBase):
             agent_id="accounting_agent",
             port=9012,
             capabilities=[
+                "classify_value_movement",
                 "veto",
                 "assess_assertion", "set_lease_terms", "reconcile", "parse_financial_instrument", "assess_tax_liability", "track_account_balance",
                 "lookup", "list_relationships", "get_relationship", "find_relationships",
@@ -941,6 +942,74 @@ class AccountingAgent(AgentBase):
     OCCASIONED_BY = {"tenant_conduct", "landlord_condition", "routine_or_preventive", "unknown"}
     FAULT_STATUS = {"adjudicated", "admitted", "alleged", "unestablished"}
 
+    def classify_value_movement(self, args):
+        """Did value actually MOVE, or does a document merely say so?
+
+        `classify_charge` answers what a charge IS in a lease. This answers a
+        different question that was not being asked at all: whether a label of
+        purchase, payment or discharge is backed by an event in the books.
+
+        A purchase, a payment and a discharge are all assertions that value
+        moved - a funded account, cash, or a recorded release. Paper that reads
+        that way with no matching ledger event is `posted_label_unsupported`,
+        and the two are indistinguishable in a file folder while being entirely
+        different in a set of books.
+
+        Refuses the label rather than qualifying it. `classification: purchase,
+        confidence: low` is the shape that buries a finding in a field nobody
+        reads."""
+        from core.evidence_classes import classify_evidence, EVIDENCE_CLASSES
+        a = args if isinstance(args, dict) else {}
+        out = dict(classify_evidence(a))
+        out["disclaimer"] = DISCLAIMER
+
+        cls = out.get("evidence_class")
+
+        if cls == "credit_decision_event":
+            out["books_as"] = "attempted_origination"
+            out["refused_labels"] = ["purchase", "asset", "payment"]
+            out["why"] = (
+                "A denied application is a DECISION, not a transaction. It is booked "
+                "as attempted_origination: the attempt is real and evidences that "
+                "credit was sought, from whom and when, but nothing was received so "
+                "there is no contra account and no asset.")
+
+        elif cls == "posted_label_unsupported":
+            out["accepted"] = False
+            out["why"] = (
+                f"Refused. '{out.get('claimed')}' asserts that value moved. Supply the "
+                f"funded account, the cash movement or the recorded release and this "
+                f"becomes an entry; without one it stays a claim about the books "
+                f"rather than an entry in them.")
+
+        elif cls == "unbooked_instrument":
+            out["accepted"] = False
+            out["must_ask"] = EVIDENCE_CLASSES["unbooked_instrument"]["must_ask"]
+            out["true_sale_test"] = {
+                "sold": ("The originator DERECOGNIZES. Control passed; the receivable "
+                         "leaves the originator's balance sheet and appears on the "
+                         "buyer's."),
+                "pledged": ("It STAYS on the originator's books with a secured "
+                            "borrowing against it. The paper moved; the asset did not."),
+                "do_not_infer_from": (
+                    "File copies, an assignment stamp, or possession of the original. "
+                    "A transfer document is evidence that a transfer was DOCUMENTED. "
+                    "Whether it was a true sale turns on what happened to control and "
+                    "to the risk of loss, and those are answered from the agreement's "
+                    "terms and the parties' conduct, not from who holds the folder."),
+                "undetermined_until": "recourse, repurchase obligations and servicing "
+                                      "retained are all known",
+            }
+
+        elif cls == "community_report":
+            out["accepted"] = False
+            out["authority_class"] = None
+            out["why"] = ("Shelved as somebody's account of their own outcome. It may "
+                          "point at a document worth obtaining; it is never a result "
+                          "and never an authority.")
+
+        return out
+
     def classify_charge(self, args):
         """What a charge actually is, derived from its characteristics rather
         than read off the code someone posted it under.
@@ -959,6 +1028,28 @@ class AccountingAgent(AgentBase):
 
         if not description:
             return {"error": "classify_charge needs a description of the charge.",
+                    "disclaimer": DISCLAIMER}
+
+        # A VALUE-MOVEMENT LABEL IS NOT A CHARGE CLASSIFICATION.
+        #
+        # This method answers what a charge IS within a lease - who performed
+        # the work, what occasioned it, whether a clause authorises passing it
+        # on. "Purchase", "payment" and "discharge" are assertions that value
+        # MOVED, which is a different question with a different evidence
+        # requirement, and answering it here would let the lease frame quietly
+        # certify a transaction it never examined.
+        _VM = ("purchase", "payment", "paid", "discharge", "discharged",
+               "satisfied", "settled", "credit applied")
+        _hit = next((c for c in _VM if c in posted.lower() or c in description.lower()), None)
+        if _hit and a.get("value_moved") is not True:
+            return {"error": f"'{_hit}' is a claim that value moved, not a charge class.",
+                    "evidence_class": "posted_label_unsupported",
+                    "route_to": "classify_value_movement",
+                    "why": ("A purchase, payment or discharge asserts a funded account, "
+                            "cash, or a recorded release. This method reasons about lease "
+                            "charges and has no way to see any of those, so answering "
+                            "would be the lease frame certifying a transaction it never "
+                            "examined."),
                     "disclaimer": DISCLAIMER}
         if performed_by not in self.PERFORMED_BY:
             return {"error": f"performed_by must be one of: {sorted(self.PERFORMED_BY)}",
@@ -1268,6 +1359,9 @@ class AccountingAgent(AgentBase):
         cag_result = self.try_handle_cag_task(task, args)
         if cag_result is not None:
             return cag_result
+
+        if task == "classify_value_movement":
+            return self.classify_value_movement(args if isinstance(args, dict) else {})
 
         if task == "classify_charge":
             return self.classify_charge(args if isinstance(args, dict) else {})

@@ -77,6 +77,8 @@ class TrustAgent(AgentBase):
             agent_id="trust_agent",
             port=9013,
             capabilities=[
+                "assess_ilit",
+                "trust_scope",
                 "parse_trust_document", "assess_instrument", "model_trust_relationship", "lookup",
                 "list_relationships", "get_relationship", "find_relationships",
                 "find_relationships_by_project", "compare_relationships",
@@ -595,7 +597,96 @@ class TrustAgent(AgentBase):
             "disclaimer": DISCLAIMER,
         }
 
+    # ------------------------------------------------------------------
+    # Trust owns TITLE AND ROLES. Not money movement, not tax outcomes.
+    #
+    # Who holds what, in what capacity, for whose benefit. The moment it
+    # starts reasoning about whether a payment cleared it is doing
+    # Accounting's job with none of Accounting's evidence.
+    # ------------------------------------------------------------------
+    OWNS = ("policy ownership (ILIT)", "LLC and holding structure",
+            "beneficiaries", "fiduciary roles")
+
+    ILIT_RULES = {
+        "irrevocable": {
+            "rule": "The trust is irrevocable. The settlor cannot retain the power to revoke.",
+            "why": ("A retained power to revoke is a retained incident of ownership, and "
+                    "the whole structure exists to put the policy outside the estate. A "
+                    "revocable 'ILIT' is a revocable trust holding a policy."),
+        },
+        "premiums_from_funded_gifts": {
+            "rule": ("The TRUST pays the premiums, from its own funds, which arrive as "
+                     "gifts made to the trust using the annual exclusion."),
+            "why": ("The settlor paying a premium directly is the settlor paying a "
+                    "premium - the money never became trust property. The gift has to "
+                    "land in the trust first, and the trust has to write the cheque."),
+            "watch": ("An annual-exclusion gift requires a present interest, which is "
+                      "why Crummey withdrawal rights exist. Whether they were properly "
+                      "noticed is a question about the trust's conduct, not its terms."),
+        },
+        "three_year_lookback": {
+            "rule": ("Life insurance proceeds are pulled back into the estate if the "
+                     "insured transferred an existing policy within three years of death."),
+            "why": ("It bites on TRANSFERRED policies. A policy the trust applied for and "
+                    "owned from inception was never transferred, which is why sequence "
+                    "matters more than paperwork here."),
+        },
+        "beneficiaries": {
+            "rule": "Heirs are the beneficiaries of the trust; the trust is the beneficiary of the policy.",
+            "why": ("Naming heirs directly on the policy routes the proceeds around the "
+                    "trust and defeats the structure while leaving every document "
+                    "looking correct."),
+        },
+    }
+
+    def assess_ilit(self, args=None):
+        """Check an ILIT against the four things that decide whether it works.
+
+        Each returns established / insufficient_evidence / contradicted rather
+        than a score, because three of the four are about CONDUCT - who paid,
+        when it was transferred, who was named - and conduct is either
+        evidenced or it is not.
+
+        Trust answers title and roles. It does not compute a tax outcome and
+        does not say whether the estate inclusion happened; it says whether the
+        structural preconditions are on the record."""
+        a = args if isinstance(args, dict) else {}
+        out, gaps = {}, []
+        for key, spec in self.ILIT_RULES.items():
+            val = a.get(key)
+            if val is True:
+                state = "established"
+            elif val is False:
+                state = "contradicted"
+            else:
+                state = "insufficient_evidence"
+                gaps.append(key)
+            out[key] = {"state": state, "rule": spec["rule"], "why": spec["why"]}
+            if spec.get("watch"):
+                out[key]["watch"] = spec["watch"]
+        res = {"elements": out, "gaps": gaps,
+               "owns": list(self.OWNS),
+               "does_not_answer": ("whether any premium actually cleared, and any tax "
+                                   "outcome. The first is Accounting's - it needs a "
+                                   "ledger event, which this agent cannot see. The "
+                                   "second is nobody's here."),
+               "disclaimer": DISCLAIMER}
+        res["conclusion"] = ("structurally_sound_on_the_record" if not gaps
+                             and all(v["state"] == "established" for v in out.values())
+                             else "insufficient_evidence")
+        if gaps:
+            res["reason"] = (f"{len(gaps)} element(s) with nothing attached: "
+                             f"{', '.join(gaps)}. An element with no evidence is a named "
+                             f"gap, not a failure and not a pass.")
+        return res
+
     def handle_task(self, task, args, sender):
+        if task == "assess_ilit":
+            return self.assess_ilit(args if isinstance(args, dict) else {})
+        if task == "trust_scope":
+            return {"owns": list(self.OWNS), "ilit_rules": self.ILIT_RULES,
+                    "disclaimer": DISCLAIMER}
+
         if task == "assess_instrument":
             return self.assess_instrument(args if isinstance(args, dict) else {})
 

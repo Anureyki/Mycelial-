@@ -3,6 +3,8 @@
   "role": "agent",
   "version": "1.0.0",
   "capabilities": [
+    "assess_ilit",
+    "trust_scope",
     "parse_trust_document",
     "assess_instrument",
     "model_trust_relationship",
@@ -30,5 +32,5 @@
   "public_key": "",
   "owner": "anureyki",
   "created": "2026-07-31T17:59:12.890278",
-  "updated": "2026-09-10T21:33:05.851373"
+  "updated": "2026-09-11T02:21:39.778422"
 }

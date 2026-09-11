@@ -4934,3 +4934,62 @@ configs - so declaring pulse/veto everywhere both broke the three-site agreement
 and claimed a capability the stubs do not have.
 
 ---
+
+## 2026-09-11 - Finance department lockdown
+
+Five evidence classes in `core/evidence_classes.py`, shared by Accounting,
+Legal and Trust, each naming what is MISSING rather than what a document is
+called: `credit_decision_event`, `attempted_origination`, `community_report`,
+`posted_label_unsupported`, `unbooked_instrument`.
+
+**Accounting.** `classify_value_movement` refuses a label of purchase, payment
+or discharge unless value actually moved - a funded account, cash, or a
+recorded release. A denied application books as `attempted_origination`, never
+a purchase and never an asset, because the attempt is real and the transaction
+did not happen. Unpaid chattel paper flags `unbooked_instrument` and asks whose
+books should show it. True sale derecognizes; pledged stays; and neither is
+inferred from file copies, because a transfer document evidences that a
+transfer was DOCUMENTED.
+
+The existing `classify_charge` is lease-shaped - `performed_by`,
+`occasioned_by`, `fault_status` - and had no way to see a funded account, so it
+now refuses a value-movement label and routes it rather than letting the lease
+frame certify a transaction it never examined.
+
+**Legal.** Three corpora, deliberately separate: credit access (FCRA, ECOA, Reg
+B, Reg V), compelled labour (18 U.S.C. ch. 77), and state broker registration.
+The CFPB broker-as-CRA proposal is shelved as `agency_guidance` with
+`WITHDRAWN - NOT CURRENT LAW`. Reg V 1022.142 stands as its own rule with its
+own documentary trigger.
+
+Peonage requires four elements and names which are missing, flagging
+amortization as load-bearing: a debt that amortizes is a loan, however harsh,
+and that is the element most often skipped. An equity claim with no named res
+is refused on form - equity acts on a specific thing, and a remedy needs
+something to attach to.
+
+**Trust.** Four ILIT elements, each established / insufficient_evidence /
+contradicted, and an explicit statement of what it does NOT answer: whether a
+premium cleared (Accounting's, it needs a ledger event) or any tax outcome.
+
+**Ingestion rule** inherited on `AgentBase` as `ingest_class`, so every domain
+answers identically. Live data is an instrument you can open. Community
+testimony is `community_report` and may never be authority.
+
+### Two flags, and the principal was right to hold the commit on them
+
+He stopped the commit over both, on the grounds that a rule citing a section it
+cannot open is a hallucination waiting to happen. Checked rather than argued:
+
+- **Reg V 1022.142 was already in the corpus.** The "0 files" reported earlier
+  came from grepping FILENAMES, not content - the same error made about root
+  health, EC temperature dependence and pH earlier in this record. Legal's
+  lookup opens it, returns `authority_class: regulation`, and carries its own
+  truncation caveat. The flag was a false alarm I raised myself.
+- **The state broker shelf was genuinely empty**, and cannot be filled with
+  what exists: `ingest_law.py` handles cfr/usc/irm and has no state fetcher. So
+  the jurisdictions are declared EMPTY with `ingested: false` and the intended
+  four moved to `jurisdictions_intended`. An empty registry declared as coverage
+  is a false claim; declared as a gap it is a piece of work.
+
+---

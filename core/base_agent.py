@@ -574,6 +574,9 @@ class AgentBase:
                     result = self.receive_finding(
                         (args or {}).get("kind"), (args or {}).get("payload") or {},
                         sender) if isinstance(args, dict) else None
+                elif task == "ingest_class":
+                    result = self.ingest_class((args or {}).get("doc") or args
+                                               if isinstance(args, dict) else {})
                 elif task == "ingest":
                     result = self.ingest(args.get("prompt") or ""
                                          if isinstance(args, dict) else "")
@@ -1853,6 +1856,30 @@ class AgentBase:
         return {"recorded": fid, "acted": False,
                 "note": f"{self.agent_id} recorded this {kind} but has no handler "
                         "for it yet - it is stored, not acted on."}
+
+    def ingest_class(self, doc=None):
+        """What kind of evidence is this, and may it ever be authority?
+
+        The rule, inherited so every domain answers it the same way: **live
+        data is an instrument you can OPEN.** A recorded satisfaction, a wire,
+        a court order, a denial letter, a CRA disclosure. Community testimony
+        and redacted sealed files are `community_report` or `unknown` - never
+        success, never authority.
+
+        This is `lived data outranks documentation` with its precondition made
+        explicit. Lived data has to BE data. A description of an outcome is not
+        the outcome, and the failure it prevents is a forum post read as
+        precedent because it described a win."""
+        try:
+            from core.evidence_classes import classify_evidence, INGESTION_RULE, NEVER_AUTHORITY
+        except Exception as exc:
+            return {"error": f"evidence taxonomy unavailable: {exc}"}
+        out = dict(classify_evidence(doc if isinstance(doc, dict) else {}))
+        out["ingestion_rule"] = INGESTION_RULE
+        out["may_be_authority"] = out.get("evidence_class") not in NEVER_AUTHORITY
+        if not out["may_be_authority"]:
+            out["authority_class"] = None
+        return out
 
     def ingest(self, prompt):
         """Absorb anything recordable in raw user input, or return None.
