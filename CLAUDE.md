@@ -998,6 +998,64 @@ fails quietly.** Absence of a detected problem is not evidence of its absence.
    `ci.yml` and not to the script turns the script into the same lie in a
    shorter form.
 
+## Each agent runs in its own sandbox
+
+**Phase 1 is Docker. Phase 2 is Firecracker, and the difference is the kernel.**
+A container shares the host's, so a kernel escape crosses a container boundary
+and does not cross a microVM one. Until then this is a real boundary against
+every threat that is not a kernel escape - a stolen credential, a read of
+another department's files, a browser profile carrying someone else's session -
+and `core/sandbox/channel.py` does not know which backend is underneath, which
+is what makes the phasing a swap rather than a rewrite.
+
+**The credential leak came first, and it was not hypothetical.** Every agent
+process inherited the whole `.env`, because `os.environ` is per-process and one
+file was exported into all of them. Measured 2026-09-11: a Trust Agent process
+could read Legal's `COURTLISTENER_API_TOKEN` (40 chars) and Trading's
+`SOLANA_RPC_URL` (98 chars) - and this file already records that for Solana
+**the URL is the credential**. So the acceptance test *"a compromised Trust VM
+cannot read Legal's credentials"* was failing at the PROCESS level, before any
+question about VMs. Containerising first would have containerised the leak.
+
+`config/credential_owners.json` names an owner for every secret and
+`core/sandbox/credentials.py` enforces it, **deny by default**: a key with no
+entry is visible to nobody, because a secret whose owner nobody wrote down is a
+secret nobody is accountable for. A key shared between agents is shared *on
+purpose* with the reason recorded - sharing by accident and sharing by decision
+look identical at runtime, and only that file can tell them apart.
+
+**The channel is a closed verb set, not a filter.** `fs.read`, `fs.write`,
+`fs.list`, `proc.exec`, `net.fetch`, `browser.goto/read/click`. Every verb is a
+hole in the boundary, so the question for each is not whether it is useful but
+whether it is worth a hole. `proc.exec` takes an **argv list** against an
+allowlisted binary and never a command string, because a command string is a
+shell and a shell is every verb at once. There is deliberately no `env.get` -
+credentials are injected at launch and never fetchable, or the manifest becomes
+a suggestion - and no `net.post`, because sending to a third party is already
+refused structurally and a sandbox verb that could POST would be a way around
+that, reached from inside a VM where the veto cannot see it.
+
+**The veto and provenance run OUTSIDE.** A check that runs inside the sandbox is
+a check the sandbox can lie about. Every call is authorised and recorded at the
+boundary before it crosses, and the provenance record stores a **hash** of the
+payload rather than the payload - a log that copies file contents out of a
+sandbox is a second copy of whatever the sandbox was isolating.
+
+**A2A artifacts are Ed25519-signed over the ENVELOPE, not just the body.** The
+signature covers sender, recipient, kind and expiry, because signing only the
+body leaves the routing forgeable: the same finding redirected to another
+department still verifies. The verifying key comes from the keystore and never
+from the artifact - checking a message against the key it carries proves only
+that whoever wrote it also signed it. Artifacts expire, because a signed
+artifact with no expiry is a credential that works forever and a replayed
+finding is a finding acted on twice.
+
+**`tools/check_sandbox.py` is a build gate**, in `ci.yml` and `ci_local.sh`. It
+asserts the verb set against a fixed list so it cannot grow by accident, and it
+proves the three acceptance claims. Verified in real containers: Trust's
+container sees none of the three secrets, Legal's sees its own token and nothing
+else, and Trust's `ls` of its own volume cannot see a file Legal wrote.
+
 ## Guards (replaces the retired `hooks/`)
 
 Every inbound `/execute` passes through `AgentBase.check_guard()`, which asks the Security Agent (9010) to authorize it. Deny rules live in `config/guards.json` (denylist — no matching rule means allowed).

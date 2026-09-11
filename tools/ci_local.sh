@@ -26,6 +26,7 @@ step "ruff E9,F63,F7,F82"            venv/bin/ruff check --select=E9,F63,F7,F82 
 step "check_inherited --static"      "$PY" tools/check_inherited.py --static
 step "check_shell_version"           "$PY" tools/check_shell_version.py
 step "check_routing"                 "$PY" tools/check_routing.py
+step "check_sandbox"                 "$PY" tools/check_sandbox.py
 echo
 if [ "$rc" -eq 0 ]; then echo "ALL GREEN - this is what CI will see."
 else echo "RED - do not claim the build passes."; fi

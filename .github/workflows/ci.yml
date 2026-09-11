@@ -48,3 +48,7 @@ jobs:
         # answer, and the wrong department answering looks exactly
         # like the right one answering.
         run: python tools/check_routing.py
+      - name: Sandbox boundary holds
+        # Credential isolation, signed A2A, and a verb set that must not
+        # grow by accident. Each verb is a hole in the boundary.
+        run: python tools/check_sandbox.py
