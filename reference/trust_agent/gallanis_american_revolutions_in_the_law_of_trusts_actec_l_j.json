@@ -1,0 +1,4952 @@
+{
+"title": "Gallanis, American Revolutions in the Law of Trusts (ACTEC L.J. vol. 51 no. 2, 2026) - PRE-PUBLICATION DRAFT",
+"source": "Thomas P. Gallanis, 48pp. PRE-PUBLICATION DRAFT - the paper states on its face that the final version will appear in ACTEC L.J. vol. 51 no. 2 (2026). THE TEXT MAY CHANGE; nothing here may be quoted as the published article. MIXED: historical and comparative description of five departures of American trust law from England, Australia, Canada, Hong Kong, Singapore, mainland China and Japan (doctrinal/descriptive), carrying an interpretive thesis whose 'primary aim is to shape how American trust law is understood' - a periodization argument, which is normative about framing rather than about what any rule requires.",
+"authority_class": "treatise",
+"authority_class_basis": "--treatise: scholarly commentary, describes the law without stating it",
+"claim_layer": "mixed",
+"claim_layer_meaning": "Carries more than one layer. The PASSAGE has to be read to tell which - the document-level label cannot.",
+"authorities_cited": [
+"Brandon v. Robinson",
+"Claflin v. Claflin",
+"Court in the case of Nichols v. Eaton",
+"Doctor v. Hughes",
+"Farkas v. Williams",
+"Fisher v. Taylor",
+"National Bank v. Adams",
+"New State Ice Co. v. Liebmann",
+"Nichols v. Eaton",
+"On the rule of Saunders v. Vautier",
+"Pennsylvania to dictum in Fisher v. Taylor",
+"Saunders v. Vautier",
+"See Armitage v. Nurse",
+"See Blight v. Hartnoll",
+"See Nichols v. Eaton",
+"Shelton v. King",
+"So in England Brandon v. Robinson",
+"U.S. Supreme Court in Nichols v. Eaton",
+"U.S. Supreme Court in Shelton v. King"
+],
+"term_index": {
+"transformed": [
+0,
+3,
+49
+],
+"especially": [
+0,
+42,
+51
+],
+"scholar": [
+0,
+33,
+38
+],
+"version": [
+0,
+24,
+49
+],
+"five revolutions": [
+0,
+1,
+3,
+4,
+55,
+57,
+65
+],
+"distinctive": [
+0,
+3,
+25,
+43,
+56,
+65
+],
+"fundamental": [
+0,
+2,
+3
+],
+"creating": [
+0,
+3,
+35,
+37,
+55
+],
+"framework": [
+0,
+3,
+56
+],
+"charles": [
+0,
+14,
+43,
+54
+],
+"australia": [
+0,
+2,
+8,
+13,
+14,
+27,
+28,
+34,
+38,
+42,
+51,
+53
+],
+"gallanis": [
+0,
+14,
+21,
+27,
+29,
+32,
+35,
+43,
+48,
+50,
+56,
+63,
+64
+],
+"empire": [
+0,
+2,
+3
+],
+"special": [
+0,
+2,
+8,
+14,
+15,
+27,
+34,
+50,
+53
+],
+"uniform": [
+0,
+37,
+40,
+44,
+45,
+46,
+47,
+49,
+50,
+53,
+56,
+63
+],
+"followed": [
+0,
+3,
+31
+],
+"kong special administrative": [
+0,
+2,
+8,
+14,
+34,
+53
+],
+"hong kong special": [
+0,
+2,
+8,
+14,
+27,
+34,
+53
+],
+"peter brown": [
+0,
+3,
+55
+],
+"common": [
+0,
+2,
+4,
+13,
+14,
+15,
+21,
+23,
+24,
+27,
+28,
+33,
+40,
+41,
+43,
+46,
+48,
+49,
+51,
+52,
+53,
+55,
+56,
+59,
+61,
+62
+],
+"grateful": [
+0,
+21,
+52,
+54,
+63
+],
+"differs": [
+0,
+2,
+56
+],
+"canada": [
+0,
+2,
+8,
+13,
+14,
+27,
+29,
+34,
+38,
+40,
+42,
+51,
+53
+],
+"succession": [
+0,
+26,
+27,
+28,
+29,
+31,
+32,
+33,
+34,
+35,
+38
+],
+"uniform trust": [
+0,
+40,
+44,
+45,
+46
+],
+"revolution": [
+0,
+1,
+3,
+4,
+12,
+26,
+35,
+43,
+63
+],
+"american": [
+0,
+1,
+2,
+3,
+4,
+5,
+6,
+8,
+9,
+10,
+12,
+13,
+14,
+15,
+16,
+21,
+23,
+24,
+25,
+26,
+27,
+28,
+29,
+33,
+34,
+35,
+38,
+40,
+42,
+43,
+44,
+46,
+47,
+49,
+51,
+53,
+54,
+55,
+56,
+57,
+59,
+60,
+61,
+62,
+63,
+64,
+65
+],
+"foundation": [
+0,
+30,
+31,
+32,
+35,
+65
+],
+"estate": [
+0,
+15,
+21,
+27,
+28,
+34,
+37,
+38,
+51,
+59,
+61,
+64
+],
+"restatement": [
+0,
+10,
+12,
+17,
+33,
+42,
+49,
+51,
+52,
+53,
+64
+],
+"assessment": [
+0,
+1,
+4,
+55,
+56
+],
+"major common": [
+0,
+2,
+13,
+27,
+33,
+41,
+43,
+46,
+51,
+55,
+56
+],
+"regard": [
+0,
+3,
+13
+],
+"individual": [
+0,
+17,
+18,
+54,
+55
+],
+"identifies": [
+0,
+3,
+4
+],
+"res": [
+0,
+3,
+5,
+6,
+8,
+9,
+10,
+11,
+12,
+13,
+14,
+15,
+16,
+17,
+19,
+20,
+21,
+23,
+24,
+28,
+30,
+31,
+32,
+33,
+34,
+35,
+36,
+38,
+39,
+40,
+41,
+42,
+43,
+44,
+47,
+49,
+50,
+51,
+52,
+53,
+54,
+55,
+56,
+57,
+58,
+59,
+60,
+61,
+62,
+63,
+64,
+65
+],
+"special administrative": [
+0,
+2,
+8,
+14,
+34,
+53
+],
+"revolutionary": [
+0,
+2,
+28
+],
+"personal": [
+0,
+1,
+4,
+50,
+51,
+52,
+55,
+56
+],
+"primary": [
+0,
+3,
+38
+],
+"countries": [
+0,
+2,
+3,
+27,
+28,
+60,
+61
+],
+"trusts": [
+0,
+1,
+2,
+4,
+9,
+12,
+13,
+14,
+15,
+16,
+17,
+21,
+25,
+26,
+27,
+28,
+29,
+30,
+31,
+32,
+33,
+34,
+35,
+37,
+38,
+40,
+42,
+43,
+44,
+45,
+46,
+47,
+49,
+50,
+51,
+52,
+53,
+54,
+55,
+57,
+58,
+60,
+61,
+63,
+64,
+65
+],
+"late antiquity": [
+0,
+3,
+55
+],
+"jurisdictions": [
+0,
+2,
+3,
+7,
+8,
+10,
+13,
+14,
+21,
+25,
+27,
+33,
+38,
+41,
+43,
+45,
+46,
+49,
+50,
+51,
+55,
+61,
+62
+],
+"mainland": [
+0,
+2,
+28,
+34
+],
+"capacity": [
+0,
+42,
+52,
+53,
+64
+],
+"george": [
+0,
+8,
+9,
+15,
+29,
+30,
+31,
+32,
+44
+],
+"wealth": [
+0,
+28,
+34,
+40,
+55,
+59,
+61,
+62
+],
+"standing": [
+0,
+3
+],
+"commission": [
+0,
+37,
+44,
+45,
+47,
+63
+],
+"hong kong": [
+0,
+2,
+8,
+13,
+14,
+27,
+28,
+34,
+42,
+51,
+53
+],
+"special administrative region": [
+0,
+2,
+8,
+14,
+34,
+53
+],
+"american revolutions": [
+0,
+55,
+56
+],
+"singapore": [
+0,
+2,
+8,
+13,
+14,
+28,
+34,
+42,
+46,
+51,
+53
+],
+"conclusion": [
+0,
+1,
+4,
+63
+],
+"distinctiveness": [
+0,
+3,
+4
+],
+"institute": [
+0,
+10,
+12,
+44
+],
+"england": [
+0,
+1,
+2,
+3,
+4,
+8,
+12,
+13,
+14,
+17,
+20,
+21,
+23,
+24,
+25,
+27,
+33,
+34,
+38,
+46,
+51,
+53,
+59
+],
+"history": [
+0,
+1,
+3,
+4,
+21,
+23,
+25,
+30,
+40,
+43,
+55,
+56,
+57,
+62
+],
+"historical": [
+0,
+2,
+3,
+27,
+28,
+55
+],
+"faculty": [
+0,
+3,
+29,
+30,
+32,
+63
+],
+"kong special": [
+0,
+2,
+8,
+14,
+27,
+34,
+53
+],
+"personal assessment": [
+0,
+1,
+4,
+55,
+56
+],
+"fiduciary": [
+0,
+42,
+43,
+45,
+51,
+52,
+53,
+54,
+55
+],
+"project": [
+0,
+30,
+63
+],
+"revolutions": [
+0,
+1,
+3,
+4,
+55,
+56,
+57,
+65
+],
+"restatement third": [
+0,
+12,
+17,
+33,
+42,
+51,
+52,
+53,
+64
+],
+"development": [
+0,
+3,
+29,
+59
+],
+"major civil": [
+0,
+2,
+28
+],
+"through": [
+0,
+27,
+40,
+54
+],
+"mainland china": [
+0,
+2,
+28,
+34
+],
+"school": [
+0,
+29,
+30,
+31,
+32,
+33,
+44,
+63
+],
+"england australia": [
+0,
+2,
+8
+],
+"america": [
+0,
+3,
+4,
+5,
+21,
+34
+],
+"thomas": [
+0,
+13,
+14,
+21,
+27,
+35,
+43,
+63
+],
+"region": [
+0,
+2,
+8,
+14,
+28,
+34,
+53
+],
+"australia canada": [
+0,
+2,
+8
+],
+"american trust": [
+0,
+1,
+2,
+3,
+4,
+12,
+14,
+21,
+33,
+35,
+40,
+43,
+46,
+47,
+53,
+56,
+57,
+59,
+62,
+64,
+65
+],
+"antiquity": [
+0,
+3,
+55
+],
+"follows": [
+0,
+4,
+17,
+56
+],
+"england australia canada": [
+0,
+2,
+8
+],
+"explain": [
+0,
+3,
+8,
+10,
+20,
+38
+],
+"adopted": [
+0,
+2,
+4,
+28,
+53
+],
+"administrative": [
+0,
+2,
+8,
+14,
+28,
+34,
+53
+],
+"administrative region": [
+0,
+2,
+8,
+14,
+28,
+34,
+53
+],
+"professor": [
+0,
+2,
+3,
+8,
+14,
+15,
+17,
+21,
+24,
+29,
+30,
+31,
+32,
+35,
+47,
+52,
+54,
+55,
+63
+],
+"context": [
+0,
+3,
+4,
+19,
+28,
+46
+],
+"estates": [
+0,
+1,
+26,
+29,
+30,
+31,
+32,
+33,
+34,
+35,
+44,
+63,
+64
+],
+"understood": [
+0,
+3,
+39
+],
+"offers": [
+0,
+4,
+55
+],
+"revocable": [
+1,
+16,
+35,
+37,
+38,
+40,
+41,
+42,
+43,
+54
+],
+"likely": [
+1,
+41,
+55,
+56
+],
+"proposition": [
+1,
+55,
+56
+],
+"between": [
+1,
+8,
+18,
+21,
+23,
+28,
+51,
+62
+],
+"laboratory": [
+1,
+4,
+56,
+62,
+65
+],
+"states": [
+1,
+4,
+5,
+6,
+7,
+8,
+10,
+12,
+13,
+15,
+16,
+26,
+33,
+34,
+37,
+38,
+40,
+41,
+43,
+44,
+46,
+48,
+52,
+53,
+54,
+56,
+57,
+58,
+59,
+60,
+61,
+62,
+65
+],
+"statutes": [
+1,
+15,
+28,
+43,
+44,
+45,
+46,
+49,
+51,
+53
+],
+"milsom": [
+1,
+2,
+55
+],
+"children": [
+1,
+34,
+54
+],
+"legal history": [
+1,
+21,
+55,
+56,
+62
+],
+"break from england": [
+1,
+12,
+17,
+20
+],
+"fifth revolution": [
+1,
+43,
+63
+],
+"second": [
+1,
+12,
+13,
+15,
+29,
+30,
+33,
+35,
+42,
+49,
+50,
+51,
+52,
+61
+],
+"single": [
+1,
+8,
+15,
+30,
+31,
+55,
+56
+],
+"introduction": [
+1,
+28,
+56,
+62
+],
+"ever likely": [
+1,
+55,
+56
+],
+"major proposition": [
+1,
+55,
+56
+],
+"revocable trust": [
+1,
+35,
+37,
+38,
+42,
+43
+],
+"ying khai liew": [
+2,
+28,
+46
+],
+"asia pacific": [
+2,
+28,
+46
+],
+"people": [
+2,
+3,
+5
+],
+"legislation": [
+2,
+24,
+28,
+47,
+49,
+65
+],
+"british": [
+2,
+5,
+27,
+29,
+53
+],
+"pacific": [
+2,
+28,
+46
+],
+"english": [
+2,
+8,
+9,
+12,
+13,
+14,
+21,
+23,
+24,
+25,
+38,
+43,
+62
+],
+"recent": [
+2,
+7,
+30,
+33,
+40,
+43,
+47,
+51,
+54,
+62
+],
+"khai liew": [
+2,
+28,
+46
+],
+"ying khai": [
+2,
+28,
+46
+],
+"decisional": [
+2,
+8,
+14,
+15,
+44,
+51
+],
+"before": [
+3,
+4,
+15,
+22,
+23,
+40,
+56,
+62
+],
+"february": [
+3,
+7,
+27,
+28,
+29,
+38,
+59,
+61,
+64
+],
+"example": [
+3,
+4,
+13,
+14,
+15,
+28,
+34,
+44,
+45,
+48,
+49,
+51,
+52,
+53,
+59,
+60,
+62
+],
+"financial": [
+3,
+47,
+59,
+60,
+61
+],
+"last visited february": [
+3,
+7,
+29,
+38,
+59,
+61
+],
+"including": [
+3,
+4,
+7,
+9,
+12,
+38,
+46,
+47,
+59
+],
+"offshore": [
+3,
+59,
+61
+],
+"last visited": [
+3,
+4,
+7,
+29,
+38,
+59,
+61
+],
+"relevant": [
+3,
+28,
+46,
+64
+],
+"visited february": [
+3,
+7,
+29,
+38,
+59,
+61
+],
+"recognize": [
+3,
+28,
+51
+],
+"without": [
+3,
+13,
+15,
+29,
+52,
+54,
+55,
+56,
+59
+],
+"taught": [
+3,
+27,
+29,
+32,
+33
+],
+"respect": [
+3,
+33,
+43,
+51,
+62,
+64
+],
+"otherwise": [
+3,
+16,
+21,
+52,
+54
+],
+"visited": [
+3,
+4,
+7,
+29,
+38,
+59,
+61
+],
+"services": [
+3,
+58,
+61,
+62
+],
+"property": [
+4,
+14,
+15,
+17,
+19,
+21,
+22,
+23,
+24,
+27,
+30,
+33,
+34,
+35,
+39,
+42,
+44,
+50,
+51,
+52,
+57,
+63,
+64
+],
+"observing": [
+4,
+14,
+27,
+28,
+38
+],
+"separate": [
+4,
+29,
+30,
+32
+],
+"noncharitable": [
+4,
+16,
+27,
+53
+],
+"additional": [
+4,
+6,
+45
+],
+"period": [
+4,
+35,
+49,
+50,
+53
+],
+"courts": [
+4,
+8,
+12,
+14,
+23,
+24,
+35,
+43,
+44,
+51
+],
+"matter": [
+4,
+5,
+14,
+15,
+30,
+31,
+38,
+54,
+57,
+64
+],
+"became": [
+4,
+26,
+43,
+47
+],
+"origins": [
+4,
+12,
+28
+],
+"william": [
+4,
+23,
+25
+],
+"virginia": [
+4,
+5,
+31
+],
+"information": [
+4,
+49,
+61
+],
+"equity": [
+4,
+13,
+14,
+21,
+23,
+24,
+25,
+27,
+28,
+38,
+42,
+51,
+53
+],
+"lawrence": [
+4,
+13,
+49
+],
+"national": [
+4,
+7,
+15,
+16,
+21,
+23,
+47,
+59
+],
+"discussion": [
+4,
+15,
+27,
+28,
+33,
+34,
+46,
+48,
+50,
+51,
+64
+],
+"others": [
+4,
+27,
+55,
+63
+],
+"created": [
+4,
+10,
+50,
+53,
+56,
+58,
+63,
+65
+],
+"established": [
+5,
+14,
+60
+],
+"american states": [
+5,
+6,
+12,
+15,
+16,
+46,
+57,
+60,
+61,
+62
+],
+"within": [
+5,
+7,
+10,
+19,
+34,
+53,
+57,
+59,
+60,
+64
+],
+"jersey": [
+5,
+27,
+60
+],
+"georgia": [
+5,
+44,
+50
+],
+"delaware": [
+5,
+61,
+62
+],
+"federal": [
+5,
+10,
+59
+],
+"system": [
+5,
+8,
+12,
+23
+],
+"powers": [
+5,
+14,
+44,
+45,
+46
+],
+"pennsylvania": [
+5,
+8,
+14,
+15
+],
+"tennessee": [
+6,
+50,
+61
+],
+"joined": [
+6,
+7,
+59
+],
+"centuries": [
+6,
+24,
+29,
+43,
+53,
+55,
+62
+],
+"nineteenth": [
+6,
+12,
+14,
+15,
+19,
+21,
+23,
+24,
+29
+],
+"number": [
+6,
+7,
+12,
+50,
+58
+],
+"twentieth": [
+6,
+24,
+29,
+35,
+43
+],
+"twentieth centuries": [
+6,
+24,
+29
+],
+"alaska": [
+7,
+46,
+50,
+61
+],
+"united states": [
+7,
+8,
+15,
+26,
+33,
+34,
+37,
+38,
+40,
+41,
+46,
+48,
+58,
+59,
+60,
+61
+],
+"having": [
+7,
+59,
+61
+],
+"indeed": [
+7,
+42,
+54,
+59
+],
+"united": [
+7,
+8,
+15,
+24,
+26,
+33,
+34,
+37,
+38,
+40,
+41,
+46,
+48,
+58,
+59,
+60,
+61
+],
+"country": [
+7,
+33,
+56,
+59,
+61
+],
+"contrast": [
+8,
+23,
+27,
+43,
+45,
+55,
+59
+],
+"illinois": [
+8,
+32,
+36
+],
+"professor john": [
+8,
+14,
+32,
+35,
+47
+],
+"systems": [
+8,
+21,
+59
+],
+"gleason": [
+8,
+9,
+15,
+29,
+30,
+44
+],
+"gleason bogert": [
+8,
+9,
+15,
+29,
+30,
+44
+],
+"consider": [
+8,
+38,
+52
+],
+"bogert": [
+8,
+9,
+15,
+29,
+30,
+32,
+44
+],
+"austin wakeman": [
+8,
+9,
+17,
+29,
+44
+],
+"wakeman scott": [
+8,
+9,
+15,
+17,
+29,
+44
+],
+"john langbein": [
+8,
+32,
+35,
+47
+],
+"professor john langbein": [
+8,
+32,
+35,
+47
+],
+"langbein": [
+8,
+9,
+32,
+33,
+35,
+47,
+48
+],
+"originally": [
+8,
+40,
+44
+],
+"george gleason": [
+8,
+9,
+15,
+29,
+30,
+44
+],
+"outcomes": [
+8,
+49,
+56
+],
+"reason": [
+8,
+36,
+38,
+59,
+63
+],
+"treatises": [
+8,
+9,
+12,
+44
+],
+"wakeman": [
+8,
+9,
+15,
+17,
+29,
+44
+],
+"george gleason bogert": [
+8,
+9,
+15,
+29,
+30,
+44
+],
+"california": [
+8,
+32,
+44
+],
+"distinctively american": [
+8,
+12,
+29
+],
+"distinctively": [
+8,
+12,
+29,
+65
+],
+"austin wakeman scott": [
+8,
+9,
+17,
+29,
+44
+],
+"austin": [
+8,
+9,
+17,
+29,
+44
+],
+"contracts": [
+8,
+9,
+15,
+52
+],
+"restatements": [
+8,
+10,
+11,
+33,
+44,
+47,
+57
+],
+"americans": [
+8,
+38,
+40
+],
+"across": [
+8,
+12,
+63
+],
+"trusts little brown": [
+9,
+29,
+32
+],
+"little": [
+9,
+13,
+29,
+32
+],
+"trusts little": [
+9,
+29,
+32
+],
+"little brown": [
+9,
+13,
+29,
+32
+],
+"trustee": [
+9,
+12,
+13,
+22,
+25,
+27,
+28,
+38,
+39,
+42,
+43,
+44,
+49,
+51,
+52,
+53,
+54,
+61,
+64,
+65
+],
+"trustees": [
+9,
+12,
+13,
+25,
+27,
+28,
+42,
+44
+],
+"objectives": [
+9,
+27,
+59,
+61
+],
+"schools": [
+9,
+26,
+29
+],
+"should": [
+10,
+24,
+34,
+56,
+64
+],
+"reasons": [
+10,
+22,
+35,
+38,
+47,
+59
+],
+"jurisdiction": [
+10,
+38,
+46,
+59,
+61
+],
+"themselves": [
+10,
+17,
+31
+],
+"because": [
+10,
+14,
+23,
+28,
+31,
+38,
+41,
+58
+],
+"source": [
+10,
+34,
+63
+],
+"although": [
+10,
+24,
+28,
+33,
+49
+],
+"organization": [
+10,
+11,
+59
+],
+"subject": [
+10,
+17,
+30,
+31,
+34,
+38,
+42,
+51,
+53,
+56,
+64
+],
+"committee": [
+10,
+11,
+37
+],
+"response": [
+10,
+15,
+54,
+61
+],
+"certain": [
+11,
+34,
+60
+],
+"century": [
+12,
+14,
+15,
+19,
+21,
+23,
+35,
+43
+],
+"result": [
+12,
+52,
+53
+],
+"beneficiaries": [
+12,
+13,
+14,
+17,
+19,
+20,
+27,
+35,
+38,
+39,
+42,
+43,
+49,
+51,
+54,
+63
+],
+"presumed": [
+12,
+16,
+41
+],
+"restatement second": [
+12,
+33,
+42,
+51,
+52
+],
+"during": [
+12,
+23,
+30,
+35,
+38
+],
+"perspective": [
+12,
+38,
+40
+],
+"honoring": [
+12,
+20,
+25,
+62
+],
+"intention": [
+12,
+16,
+40
+],
+"nineteenth century": [
+12,
+14,
+15,
+19,
+21,
+23
+],
+"lawyers": [
+12,
+15,
+37
+],
+"settlor": [
+12,
+13,
+14,
+16,
+17,
+19,
+20,
+25,
+34,
+35,
+37,
+38,
+39,
+41,
+42,
+43,
+49,
+54,
+59,
+60,
+61,
+62,
+63,
+64,
+65
+],
+"prudent investor": [
+12,
+44
+],
+"late nineteenth": [
+12,
+14,
+15,
+21,
+24,
+29
+],
+"emphasis": [
+12,
+13,
+20,
+27,
+33,
+34,
+63,
+65
+],
+"practical": [
+12,
+13,
+21,
+23,
+31,
+40,
+54
+],
+"late nineteenth century": [
+12,
+14,
+15,
+21
+],
+"broke away": [
+12,
+14,
+25
+],
+"approach": [
+12,
+14,
+16,
+25,
+30,
+33,
+43
+],
+"treatise": [
+12,
+13,
+14,
+15,
+38
+],
+"english legal": [
+12,
+21,
+23,
+62
+],
+"perhaps": [
+13,
+28,
+30,
+55,
+63
+],
+"lionel smith": [
+13,
+21,
+34,
+40,
+52
+],
+"singapore trusts": [
+13,
+14,
+28,
+42,
+51,
+53
+],
+"sweet maxwell": [
+13,
+14,
+38
+],
+"lionel": [
+13,
+21,
+34,
+40,
+52
+],
+"saunders": [
+13,
+14,
+24
+],
+"wishes": [
+13,
+17,
+34,
+63
+],
+"consent": [
+13,
+16,
+52,
+54,
+64
+],
+"related": [
+13,
+14,
+23,
+30,
+40,
+47,
+61,
+65
+],
+"comprehensive": [
+13,
+28,
+44
+],
+"maxwell": [
+13,
+14,
+38
+],
+"termination": [
+13,
+16,
+23
+],
+"robinson": [
+13,
+14,
+23,
+24
+],
+"heavily": [
+13,
+43,
+45
+],
+"current": [
+13,
+28,
+33,
+34,
+54,
+63,
+64
+],
+"beneficiary principle": [
+13,
+14,
+42,
+53,
+65
+],
+"beneficiary": [
+13,
+14,
+15,
+16,
+17,
+19,
+34,
+35,
+36,
+42,
+49,
+53,
+54,
+55,
+64,
+65
+],
+"principle": [
+13,
+14,
+18,
+33,
+42,
+53,
+64,
+65
+],
+"waters": [
+13,
+14,
+27,
+38,
+42,
+51,
+53
+],
+"brandon": [
+13,
+14,
+23,
+24
+],
+"alienation": [
+14,
+15,
+17,
+18,
+19,
+22,
+23,
+64
+],
+"explanation": [
+14,
+15,
+21,
+47
+],
+"widely": [
+14,
+38,
+44
+],
+"hanbury martin": [
+14,
+27,
+38
+],
+"modern": [
+14,
+38,
+42,
+51,
+53,
+55,
+56,
+62,
+63
+],
+"interest": [
+14,
+15,
+35,
+36,
+39,
+42,
+51,
+54,
+56,
+60,
+63,
+64
+],
+"dead hand": [
+14,
+20,
+23
+],
+"provision": [
+14,
+15,
+16,
+28,
+34
+],
+"transformation": [
+14,
+28,
+47,
+49,
+53
+],
+"martin": [
+14,
+27,
+38
+],
+"spendthrift": [
+14,
+15,
+16,
+46
+],
+"instead": [
+14,
+33,
+34,
+51
+],
+"restraints": [
+14,
+15,
+19,
+23,
+64
+],
+"protective": [
+14,
+20,
+21,
+25
+],
+"spendthrift trusts": [
+14,
+15,
+16,
+46
+],
+"become": [
+14,
+48,
+50
+],
+"equitable": [
+14,
+21,
+23,
+24
+],
+"alexander": [
+14,
+17,
+20,
+23,
+62
+],
+"trust property": [
+14,
+22,
+42,
+52
+],
+"practice": [
+14,
+15,
+28,
+40
+],
+"hanbury": [
+14,
+27,
+38
+],
+"interests": [
+14,
+21,
+23,
+24,
+30,
+31,
+34,
+50,
+54,
+63
+],
+"effective": [
+14,
+31,
+64
+],
+"rather": [
+14,
+28,
+29,
+39,
+57,
+63
+],
+"cannot": [
+14,
+21,
+51,
+52
+],
+"generally": [
+14,
+28,
+29,
+34,
+35,
+58,
+59,
+61,
+62
+],
+"primarily": [
+14,
+28,
+44,
+46,
+55,
+56
+],
+"desire": [
+14,
+28,
+47
+],
+"assets": [
+14,
+27,
+38,
+47,
+59,
+60
+],
+"national bank": [
+15,
+16,
+21,
+23
+],
+"settled": [
+15,
+16,
+46
+],
+"select": [
+15,
+29,
+62,
+64,
+65
+],
+"applicable": [
+15,
+23,
+28,
+53,
+63
+],
+"casebook": [
+15,
+29,
+30,
+31
+],
+"teaching": [
+15,
+26,
+29,
+31,
+44
+],
+"broadway national bank": [
+15,
+16,
+21,
+23
+],
+"broadway national": [
+15,
+16,
+21,
+23
+],
+"broadway": [
+15,
+16,
+21,
+23
+],
+"claflin": [
+15,
+16,
+23
+],
+"however": [
+15,
+27,
+33,
+39,
+41,
+44,
+49,
+52,
+58
+],
+"against perpetuities": [
+15,
+46,
+49,
+50,
+53,
+57
+],
+"liability": [
+15,
+51,
+52
+],
+"against": [
+15,
+17,
+19,
+21,
+42,
+46,
+49,
+50,
+51,
+52,
+53,
+57
+],
+"ilit": [
+15,
+28,
+33,
+34,
+40,
+41,
+42,
+47,
+49,
+50,
+51,
+52,
+55,
+56,
+64
+],
+"benefit": [
+15,
+27,
+38
+],
+"supreme": [
+15,
+16,
+36,
+54
+],
+"follow": [
+15,
+23,
+24
+],
+"perpetuities": [
+15,
+46,
+49,
+50,
+53,
+57,
+64
+],
+"leading": [
+15,
+33,
+36,
+38,
+59
+],
+"enacted": [
+15,
+44,
+46,
+53,
+55
+],
+"create": [
+15,
+49,
+64
+],
+"writing": [
+15,
+29,
+49
+],
+"testamentary": [
+15,
+28,
+33,
+34,
+35,
+39
+],
+"repugnant": [
+16,
+17,
+21
+],
+"intentions": [
+16,
+17,
+25,
+62,
+63
+],
+"public": [
+16,
+17,
+37,
+64
+],
+"public policy": [
+16,
+17,
+64
+],
+"testator": [
+16,
+17,
+34
+],
+"doctrine": [
+16,
+40,
+49,
+57
+],
+"principles": [
+16,
+27,
+64
+],
+"rationale": [
+16,
+41,
+49
+],
+"irrevocable": [
+16,
+41,
+54
+],
+"material purpose": [
+16
+],
+"justice": [
+16,
+24,
+55,
+56
+],
+"policy": [
+16,
+17,
+24,
+40,
+57,
+64
+],
+"freedom": [
+17,
+18,
+19,
+33,
+34,
+35,
+57,
+64,
+65
+],
+"grantor": [
+17,
+18,
+33,
+35,
+40,
+57
+],
+"unless": [
+17,
+41,
+64
+],
+"social": [
+18,
+19,
+20,
+21,
+30,
+56
+],
+"choice": [
+18,
+63,
+64
+],
+"private": [
+19,
+25,
+28,
+34,
+35,
+57,
+61
+],
+"family property": [
+19,
+35,
+63
+],
+"family": [
+19,
+20,
+27,
+28,
+34,
+35,
+63
+],
+"vision": [
+19,
+20,
+21
+],
+"shaped": [
+19,
+43,
+62
+],
+"social vision": [
+19,
+20,
+21
+],
+"toward": [
+20,
+25,
+28,
+30
+],
+"typically": [
+20,
+29,
+34,
+53,
+54,
+59,
+63
+],
+"purposes": [
+20,
+28,
+33,
+53
+],
+"examination": [
+21,
+28,
+31
+],
+"factors": [
+21,
+30,
+47
+],
+"relationship": [
+21,
+27,
+28,
+51
+],
+"answer": [
+21,
+37,
+62
+],
+"judges": [
+21,
+24,
+56
+],
+"transfer": [
+21,
+22,
+35,
+38,
+52,
+64
+],
+"property interests": [
+21,
+23,
+24
+],
+"explored": [
+21,
+29,
+43,
+47,
+51
+],
+"income": [
+22,
+34,
+44,
+45,
+61,
+64
+],
+"legal title": [
+22
+],
+"principal": [
+22,
+44,
+45,
+64,
+65
+],
+"creation": [
+22,
+28,
+36
+],
+"written": [
+23,
+25,
+54
+],
+"judicature acts": [
+23,
+24,
+25
+],
+"judicature": [
+23,
+24,
+25
+],
+"chapter": [
+23,
+25,
+51
+],
+"question": [
+23,
+42,
+51
+],
+"stuart": [
+24,
+25,
+56
+],
+"stated": [
+24,
+31,
+54,
+62
+],
+"doctrinal": [
+24,
+38,
+51
+],
+"impact": [
+25,
+33,
+61
+],
+"donative": [
+26,
+28,
+33,
+34,
+35,
+40,
+64,
+65
+],
+"donative transfers": [
+26,
+28,
+33,
+64,
+65
+],
+"transfers": [
+26,
+28,
+32,
+33,
+35,
+64,
+65
+],
+"allied": [
+26,
+45,
+47
+],
+"conceptualized": [
+26,
+27,
+28,
+65
+],
+"person": [
+27,
+32,
+42,
+54,
+62
+],
+"gallanis commercial trusts": [
+27,
+29,
+32
+],
+"commercial trusts": [
+27,
+29,
+32,
+33
+],
+"future": [
+27,
+28,
+30,
+31,
+35,
+53
+],
+"significant": [
+27,
+28,
+33,
+61,
+63,
+64
+],
+"commercial": [
+27,
+28,
+29,
+32,
+33
+],
+"persons": [
+27,
+51,
+54,
+59,
+61,
+63
+],
+"estate planning": [
+27,
+28,
+38,
+59,
+61
+],
+"economically significant": [
+27,
+28,
+33
+],
+"excluded": [
+27,
+28,
+33
+],
+"international": [
+27,
+28,
+34,
+61
+],
+"economically": [
+27,
+28,
+33
+],
+"governed": [
+27,
+43,
+50,
+64
+],
+"planning": [
+27,
+28,
+38,
+59,
+61
+],
+"gallanis commercial": [
+27,
+29,
+32
+],
+"theory": [
+28,
+40,
+55
+],
+"transmission": [
+28,
+47,
+57
+],
+"combined": [
+29,
+30,
+31,
+32
+],
+"course": [
+29,
+30,
+31,
+32,
+33,
+52
+],
+"offered": [
+29,
+31,
+47,
+59
+],
+"courses": [
+29,
+30,
+31,
+32
+],
+"materials": [
+29,
+31,
+32,
+35
+],
+"professors": [
+29,
+31,
+32,
+37
+],
+"combined course": [
+29,
+31,
+32
+],
+"lifetime": [
+30,
+35,
+38
+],
+"richard": [
+30,
+31,
+32,
+34,
+37
+],
+"official": [
+30,
+41,
+49
+],
+"subject matter": [
+30,
+31,
+38
+],
+"economic": [
+30,
+56,
+59
+],
+"account": [
+30,
+55,
+56,
+59
+],
+"michigan": [
+31,
+32,
+44,
+50
+],
+"appeared": [
+31,
+32,
+37
+],
+"wellman": [
+31,
+32,
+37
+],
+"present": [
+31,
+33,
+35
+],
+"administration": [
+32,
+34,
+51,
+59,
+63,
+64,
+65
+],
+"instrument": [
+33,
+35,
+39,
+41
+],
+"business": [
+33,
+50,
+65
+],
+"alexandra": [
+33,
+34,
+40
+],
+"donative freedom": [
+33,
+34,
+35,
+64,
+65
+],
+"american emphasis": [
+33,
+34,
+63
+],
+"introductory": [
+33,
+51,
+53
+],
+"another": [
+33,
+38,
+53
+],
+"protection": [
+34,
+46,
+57
+],
+"comparative": [
+34,
+40,
+57,
+65
+],
+"beneficial interest": [
+34,
+63
+],
+"former": [
+34,
+52,
+63
+],
+"specified": [
+34,
+38,
+51
+],
+"nations": [
+34,
+56,
+57,
+58,
+59,
+65
+],
+"strong": [
+34,
+64,
+65
+],
+"rejects": [
+34,
+46,
+51
+],
+"inter vivos": [
+35,
+38
+],
+"robert": [
+35,
+37,
+55
+],
+"results": [
+35,
+51,
+56
+],
+"revocable trusts": [
+37,
+38,
+40,
+42
+],
+"thanks": [
+37,
+44,
+46
+],
+"probate code": [
+37,
+44,
+45
+],
+"provide": [
+37,
+41,
+47,
+49,
+59,
+65
+],
+"uniform probate code": [
+37,
+44,
+45
+],
+"probate": [
+37,
+44,
+45
+],
+"uniform probate": [
+37,
+44,
+45
+],
+"revoke": [
+38,
+41,
+42
+],
+"remains": [
+38,
+41,
+46
+],
+"taxation": [
+38,
+57,
+61
+],
+"potentially": [
+38,
+51,
+55
+],
+"multiple": [
+38,
+47,
+53,
+55,
+63
+],
+"traditional": [
+39,
+40,
+51
+],
+"uniform trust code": [
+40,
+44,
+46
+],
+"impossible": [
+40,
+49,
+58
+],
+"always": [
+40,
+43,
+49
+],
+"achieve": [
+40,
+51,
+59,
+61
+],
+"trust code": [
+40,
+44,
+46,
+49
+],
+"whether": [
+40,
+51,
+56
+],
+"silent": [
+41,
+42,
+49,
+57
+],
+"provides": [
+41,
+42,
+64
+],
+"section": [
+41,
+42,
+44,
+52,
+53,
+64
+],
+"fiduciary duties": [
+42,
+43,
+54,
+55
+],
+"control": [
+42,
+52,
+65
+],
+"fiduciary duty": [
+42
+],
+"appointment": [
+42,
+45,
+46,
+50,
+54
+],
+"duties": [
+42,
+43,
+54,
+55
+],
+"modern american": [
+42,
+53,
+55,
+56
+],
+"position": [
+42,
+51,
+53,
+54,
+63
+],
+"dark side": [
+43,
+48,
+50,
+56
+],
+"statutory": [
+43,
+45,
+46,
+47,
+49,
+50,
+51,
+53
+],
+"states trust": [
+43,
+44,
+60
+],
+"statute": [
+43,
+47,
+48,
+49,
+50,
+51,
+53,
+63,
+64,
+65
+],
+"largely": [
+44,
+54,
+65
+],
+"enacted statutes": [
+44,
+46,
+53
+],
+"decanting": [
+45,
+46
+],
+"directed trust": [
+45,
+46
+],
+"include": [
+45,
+63,
+64,
+65
+],
+"rule against perpetuities": [
+46,
+49,
+50,
+53,
+57
+],
+"rule against": [
+46,
+49,
+50,
+53,
+57
+],
+"legislative": [
+46,
+55,
+56
+],
+"lawmaking": [
+47,
+51,
+55,
+65
+],
+"different": [
+47,
+57,
+62
+],
+"gallanis dark": [
+48,
+50,
+56
+],
+"tenn code": [
+48,
+49,
+50
+],
+"utah code": [
+48,
+49,
+50
+],
+"gallanis dark side": [
+48,
+50,
+56
+],
+"breach of trust": [
+49
+],
+"american statutes": [
+49,
+51,
+53
+],
+"duty to inform": [
+49
+],
+"uniform statutory rule": [
+49,
+50,
+53
+],
+"statutory rule": [
+49,
+50,
+53
+],
+"silent trust": [
+49,
+57
+],
+"default rule": [
+49
+],
+"mandatory rule": [
+49
+],
+"uniform statutory": [
+49,
+50,
+53
+],
+"dakota": [
+50,
+60,
+61
+],
+"requirement": [
+51,
+53,
+59
+],
+"brought": [
+51,
+52,
+62
+],
+"american state": [
+53,
+56,
+64
+],
+"effect": [
+55,
+56,
+61
+],
+"secrecy": [
+59,
+60,
+61
+],
+"financial secrecy": [
+59,
+60,
+61
+],
+"foreign": [
+59,
+60,
+64
+],
+"settlors": [
+59,
+60,
+61,
+63,
+64
+],
+"foreign settlors": [
+59,
+60,
+64
+],
+"conflict": [
+63,
+64,
+65
+],
+"discretionary trust": [
+63
+],
+"principal place of administration": [
+65
+]
+},
+"origin_pdf": "f5be2085-American_Revolutions_in_the_Law_of_Trusts.pdf",
+"pages": 48,
+"sections": [
+{
+"citation": "p. 1",
+"kind": "treatise",
+"page": 1,
+"authorities": [],
+"text": "American Revolutions in the Law of Trusts Thomas P. Gallanis* pre-publication draft; the final version will appear in ACTEC L.J., vol. 51, no. 2 (2026) ABSTRACT American trust law is revolutionary. It departs in fundamental ways from the trust law of other major common-law jurisdictions, such as England, Australia, Canada, the Hong Kong Special Administrative Region, and Singapore. It also differs greatly from the trust law of the major civil-law countries that have adopted the trust, such as mainland China and Japan. This Article identifies five revolutions in American trust law. Each revolution is examined in its historical context and with regard to its lasting effects. Together, the five revolutions explain American trust law\u2019s distinctiveness. The Article\u2019s primary aim is to shape how American trust law is understood, historically and today. The Article\u2019s contribution is as fundamental as periodization. We us ed to teach that the \u201cRoman Empire\u201d was followed by the \u201cEarly Middle Ages.\u201d This periodization was transformed by the pioneering scholarship of the historian Peter Brown. Professor Brown is credited with creating the field of Late Antiquity, approximately AD 250-750. Analogously, this Article\u2019s framework of the five revolutions is designed to shape our understanding of the history and development of America\u2019s distinctive trust law. Part I of the Article identifies and analyzes the five revolutions. Part II offers a personal assessment of American trust law\u2019s distinctiveness. A brief conclusion follows. * Allison and Dorothy Rouse Chair in Law, Antonin Scalia Law School, George Mason University; Visiting Professor of Law and Charles J. Merriam Scholar (through 2027), University of Chicago Law School; Chair Visiting Professor, KoGuan Law School, Shanghai Jiao Tong University; Allan D. Vestal Chair in Law Emeritus, University of Iowa. For comments and suggestions on prior versions of this article, I am grateful to participants at workshops at the KoGuan Law School of Shanghai Jiao Tong University (the Faculty Workshop), Harvard Law School (the Fiduciary Law Workshop), and George Mason University Antonin Scalia Law School (the Trust and Succession Law Workshop). I also am grateful to the American College of Trust and Estate Counsel (ACTEC) Foundation for sponsoring the Trust and Succession Law Workshop at George Mason University Antonin Scalia Law School, organized by the GMU Global Wealth Management Project. For superb research assistance, I am grateful to the librarians of the Law Library of the George Mason University Antonin Scalia Law School (especially Morgan Stoddard), the University of Iowa Law Library (especially Amy Koopmann), and the D\u2019Angelo Law Library of the University of Chicago. Disclosure: I serve as the executive director of the Uniform Law Commission\u2019s Joint Editorial Board for Uniform Trust and Estates Acts and as a Uniform Law Commissioner, and served as associate reporter for the American Law Institute\u2019s Restatement (Third) of Trusts. In this Article, I am speaking in my individual capacity only.",
+"integrity": {
+"state": "complete",
+"basis": "Full retrieved body of 3,080 characters stored; under the 60,000 cap, so nothing was cut.",
+"stamped_at": "2026-09-11T05:02:08",
+"stored_chars": 3080,
+"source_chars": 3080,
+"cap_applied": 60000
+},
+"authority_class": "treatise",
+"claim_layer": "mixed",
+"claim_layer_meaning": "Carries more than one layer. The PASSAGE has to be read to tell which - the document-level label cannot."
+},
+{
+"citation": "p. 2",
+"kind": "treatise",
+"page": 2,
+"authorities": [],
+"text": "TABLE OF CONTENTS INTRODUCTION ................................................................................................................................... I. THE FIVE REVOLUTIONS OF AMERICAN TRUST LAW ....................................................................... A. The First Revolution: The Laboratory of the States ......................................................... B. The Second Revolution: The Break from England ............................................................ C. The Third Revolution: Trusts and Estates ......................................................................... D. The Fourth Revolution: The Rise of the Revocable Trust ................................................. E. The Fifth Revolution: The Age of Statutes ......................................................................... II. A PERSONAL ASSESSMENT ............................................................................................................. CONCLUSION ....................................................................................................................................... \u201cLegal history is not unlike that children\u2019s game in which you draw lines between numbered dots, and suddenly from the jumble a picture emerges; but our dots are not numbered. \u2026 No major proposition in legal history is ever likely to be final, and any single picture must be a personal one.\u201d \u2014 S.F.C. Milsom",
+"integrity": {
+"state": "complete",
+"basis": "Full retrieved body of 1,438 characters stored; under the 60,000 cap, so nothing was cut.",
+"stamped_at": "2026-09-11T05:02:08",
+"stored_chars": 1438,
+"source_chars": 1438,
+"cap_applied": 60000
+},
+"authority_class": "treatise",
+"claim_layer": "mixed",
+"claim_layer_meaning": "Carries more than one layer. The PASSAGE has to be read to tell which - the document-level label cannot."
+},
+{
+"citation": "p. 1",
+"kind": "treatise",
+"page": 1,
+"authorities": [],
+"text": "I NTRODUCTION American trust law is revolutionary. It departs in fundamental ways from the trust law of other major common-law jurisdictions, such as England, Australia, Canada, the Hong Kong Special Administrative Region, 2 and Singapore. It also differs greatly from the trust law of the major civil-law countries that have adopted the trust, such as mainland China3 and Japan.4 1 S.F.C. MILSOM, HISTORICAL FOUNDATIONS OF THE COMMON LAW 8 (Butterworths 2d. ed 1981). 2 Hong Kong is a special administrative region of the People\u2019s Republic of China. 3 The reference is to the People\u2019s Republic of China excluding Taiwan and the special administrative regions of Hong Kong and Macau. 4 For a recent taxonomy of trust law in the Asia-Pacific region, see Ying Khai Liew, Trusts Law in the Asia-Pacific Region: Five Reflections, 38 TR. L. INT\u2019L 83 (2024). Professor Liew divides the countries of the Asia-Pacific region into five groups: (1) countries formerly part of the British Empire whose trust law descends from English decisional law, such as Australia, New Zealand, Hong Kong, and Singapore; (2) countries formerly part of the British Empire whose trust law is based on legislation, such as India, Pakistan, Bangladesh, Myanmar, and Sri Lanka; (3) civil-law countries that introduced the trust by legislation, such as China, Japan, South Korea, and Taiwan;",
+"integrity": {
+"state": "complete",
+"basis": "Full retrieved body of 1,361 characters stored; under the 60,000 cap, so nothing was cut.",
+"stamped_at": "2026-09-11T05:02:08",
+"stored_chars": 1361,
+"source_chars": 1361,
+"cap_applied": 60000
+},
+"authority_class": "treatise",
+"claim_layer": "mixed",
+"claim_layer_meaning": "Carries more than one layer. The PASSAGE has to be read to tell which - the document-level label cannot."
+},
+{
+"citation": "p. 3",
+"kind": "treatise",
+"page": 3,
+"authorities": [],
+"text": "This Article identifies five revolutions in American trust law. Each revolution is examined in its historical context and with regard to its lasting effects. Together, the five revolutions explain American trust law\u2019s distinctiveness. The Article\u2019s primary aim is to shape how American trust law is understood, historically and today. The Article\u2019s contribution is as fundamental as periodization. Periodization is the division of the past into distinct time-periods. It shapes how we understand history. We used to teach that the \u201cRoman Empire\u201d was followed by the \u201cEarly Middle Ages.\u201d This periodization was transformed by the pioneering scholarship of the historian Peter Brown. 5 Professor Brown is credited with creating the field of Late Antiquity, approximately AD 250-750.6 Analogously, this Article\u2019s framework of the five revolutions is designed to shape our understanding of the history and development of America\u2019s distinctive trust law. (4) offshore jurisdictions that might otherwise belong in group 1 but for their \u201caggressive policies of marketing financial services, including the trust, to non-residents\u201d (id. at 87), such as the Cook Islands, Niue, and Samoa; and (5) countries that do not recognize the trust, such as Indonesia, Vietnam, and Thailand. 5 Professor Brown, who is Irish, taught in England before moving to Berkeley and then Princeton, where he concluded his career as the Philip and Beulah Rollins Professor of History. See https://history.princeton.edu/people/peter-brown (last visited February 6, 2025). He used to joke \u201cthat he could not come near Harvard without [Harvard President] Derek Bok offering him a job.\u201d James Hankins, Can Harvard Win Back America\u2019s Respect?, L AW & LIBERTY (Jun. 3, 2024), available at https://lawliberty.org/can-harvard-win-back-americas-respect/ (last visited Feb. 6, 2025). 6 See PETER BROWN, THE WORLD OF LATE ANTIQUITY (Harcourt Brace Jovanovich 1971). The University of Oxford Faculty of History divides European and world history into fourteen periods, the first two of which are \u201cThe World of Late Antiquity, 250-650\u201d and \u201cThe Early Medieval World, 600-1000.\u201d See https://www.history.ox.ac.uk/european-and-world- history-fhs (last visited Feb. 5, 2025). Still, the older periodization persists. See, for example, the relevant volumes of the Short Oxford History of Europe: EDWARD BISHAM, ROMAN EUROPE, 1000 BC-AD 400 (Oxford 2009); ROSAMOND MCKITTERICK, THE EARLY MIDDLE AGES: EUROPE 400-1000 (Oxford 2001).",
+"integrity": {
+"state": "complete",
+"basis": "Full retrieved body of 2,481 characters stored; under the 60,000 cap, so nothing was cut.",
+"stamped_at": "2026-09-11T05:02:08",
+"stored_chars": 2481,
+"source_chars": 2481,
+"cap_applied": 60000
+},
+"authority_class": "treatise",
+"claim_layer": "mixed",
+"claim_layer_meaning": "Carries more than one layer. The PASSAGE has to be read to tell which - the document-level label cannot."
+},
+{
+"citation": "p. 4",
+"kind": "treatise",
+"page": 4,
+"authorities": [],
+"text": "Part I of the Article identifies and analyzes the five revolutions. Part II offers a personal assessment of American trust law\u2019s distinctiveness. A brief conclusion follows. I. THE FIVE REVOLUTIONS OF AMERICAN TRUST LAW American trust law has undergone five revolutions. We examine them in this Part. A. The First Revolution: The Laboratory of the States The first revolution in American trust law traces its origins before the American Revolution. In the colonial period, the American colonies were legally separate. 7 Law, including what trust law there was, was a matter for each colony.8 Some colonies had distinct courts of equity, for example; others did not.9 After achieving independence from Great Britain, the American colonies \u201cbecame sovereign states.\u201d10 The first national constitution was the Articles of Confederation\u2014adopted in 1777, in force from 1781\u2014by which the states \u201center[ed] into a firm league of friendship with each other.\u201d11 It was replaced by the Constitution of 1787.12 The 7 See LAWRENCE M. FRIEDMAN, A HISTORY OF AMERICAN LAW 3 (4th ed. Oxford 2019). On colonial property law, see also WILLIAM E. NELSON, 4 THE COMMON LAW IN COLONIAL AMERICA (LAW AND THE CONSTITUTION ON THE EVE OF INDEPENDENCE, 1735-1776) 53-56 (Oxford 2018). 8 Trusts existed at least in some colonies. See FRIEDMAN, supra note 7, at 30-31 (describing a noncharitable trust created by a Maryland physician in 1664). See also WILLIAM E. NELSON, 3 THE COMMON LAW IN COLONIA AMERICA (THE CHESAPEAKE AND NEW ENGLAND, 1660-1750) 37 (Oxford 2016) (observing that the words \u201cin trust\u201d were used in colonial Virginia, but not giving any additional information about the context in which these words were used). 9 For discussion, see FRIEDMAN, supra note 7, at 22-23. 10 Id. at 78. 11 Articles of Confederation art. III (adopted Nov. 15, 1777; in force from Mar. 1, 1781). 12 The text of the Constitution is available at https://www.archives.gov/founding- docs/constitution-transcript (last visited Feb, 5, 2026).",
+"integrity": {
+"state": "complete",
+"basis": "Full retrieved body of 2,005 characters stored; under the 60,000 cap, so nothing was cut.",
+"stamped_at": "2026-09-11T05:02:08",
+"stored_chars": 2005,
+"source_chars": 2005,
+"cap_applied": 60000
+},
+"authority_class": "treatise",
+"claim_layer": "mixed",
+"claim_layer_meaning": "Carries more than one layer. The PASSAGE has to be read to tell which - the document-level label cannot."
+},
+{
+"citation": "p. 5",
+"kind": "treatise",
+"page": 5,
+"authorities": [],
+"text": "Constitution\u2019s Tenth Amendment, ratified in 1791, reserves nondelegated and nonprohibited powers \u201cto the States respectively, or to the people.\u201d13 These documents established a polity in which trust law is reserved to the states; it is not federal law. American federalism made trust law a matter of state law within a federal-state system. The original American states were the thirteen British colonies in North America as of July 4, 1776: Connecticut, Delaware, Georgia, Maryland, Massachusetts, New Hampshire, New Jersey, New York, North Carolina, Pennsylvania, Rhode Island, South Carolina, and Virginia.",
+"integrity": {
+"state": "complete",
+"basis": "Full retrieved body of 609 characters stored; under the 60,000 cap, so nothing was cut.",
+"stamped_at": "2026-09-11T05:02:08",
+"stored_chars": 609,
+"source_chars": 609,
+"cap_applied": 60000
+},
+"authority_class": "treatise",
+"claim_layer": "mixed",
+"claim_layer_meaning": "Carries more than one layer. The PASSAGE has to be read to tell which - the document-level label cannot."
+},
+{
+"citation": "p. 14",
+"kind": "treatise",
+"page": 14,
+"authorities": [],
+"text": "Three additional states\u2014Vermont, Kentucky, and Tennessee\u2014joined in the 1790s.15 The nineteenth and twentieth centuries saw substantial territorial expansion and corresponding increases in the number of American states. By 1900, the nation consisted of forty-five states.",
+"integrity": {
+"state": "complete",
+"basis": "Full retrieved body of 270 characters stored; under the 60,000 cap, so nothing was cut.",
+"stamped_at": "2026-09-11T05:02:08",
+"stored_chars": 270,
+"source_chars": 270,
+"cap_applied": 60000
+},
+"authority_class": "treatise",
+"claim_layer": "mixed",
+"claim_layer_meaning": "Carries more than one layer. The PASSAGE has to be read to tell which - the document-level label cannot."
+},
+{
+"citation": "p. 16",
+"kind": "treatise",
+"page": 16,
+"authorities": [
+"New State Ice Co. v. Liebmann"
+],
+"text": "The most recent states to be admitted, Alaska and Hawaii, joined in 1959.17 The total number of jurisdictions within the United States having sovereignty over their trust law is now fifty-one: fifty states plus the District of Columbia. No other country has so many \u201claboratories\u201d of the law. 18 These sub-national jurisdictions inevitably diverge on matters of state law, including trust law. Indeed, the 13 U.S. CONST. amend. X. 14 See Samuel Shipley, List of U.S. States\u2019 Dates of Admission to the Union, BRITTANICA, available at https://www.britannica.com/place/list-of-US-states-by-date-of-admission-to-the- Union-2130026 (last visited July 8, 2024). 15 Id. 16 See statista.com/statistics/1043617/number-us-states-by-year/ (last visited February 20, 2024). 17 See id. 18 The nomenclature derives from New State Ice Co. v. Liebmann, 285 U.S. 262. 311 (1932) (Brandeis, J., dissenting).",
+"integrity": {
+"state": "complete",
+"basis": "Full retrieved body of 889 characters stored; under the 60,000 cap, so nothing was cut.",
+"stamped_at": "2026-09-11T05:02:08",
+"stored_chars": 889,
+"source_chars": 889,
+"cap_applied": 60000
+},
+"authority_class": "treatise",
+"claim_layer": "mixed",
+"claim_layer_meaning": "Carries more than one layer. The PASSAGE has to be read to tell which - the document-level label cannot."
+},
+{
+"citation": "p. 6",
+"kind": "treatise",
+"page": 6,
+"authorities": [],
+"text": "divergences across many fields of state law explain two distinctively American forms of legal literature: megatreatises and Restatements. Let us begin with megatreatises. England, Australia, Canada, the Hong Kong Special Administrative Region, and Singapore all have treatises on trust law19 but none with as many volumes as the American megatreatises authored originally by Austin Wakeman Scott or George Gleason Bogert.20 The reason is that the United States has so many states producing divergent rules of trust law. The same is true for other fields of law for which there are American megatreatises, such as Williston on Contracts.21 Consider the words of Professor John Langbein: The size and ambition of the American megatreatise was \u2026 deeply affected by the great structural difference between English and American law. The English operated a unitary legal system, whose single pyramid of courts usually produced authoritative outcomes even at the frontier of the law. The Americans, by contrast, had fifty-odd legal systems, and on close questions of decisional law, these jurisdictions were bound to split. \u2026 [The] Pennsylvania rule would be X, the Illinois rule Y, the California rule Z.",
+"integrity": {
+"state": "complete",
+"basis": "Full retrieved body of 1,198 characters stored; under the 60,000 cap, so nothing was cut.",
+"stamped_at": "2026-09-11T05:02:08",
+"stored_chars": 1198,
+"source_chars": 1198,
+"cap_applied": 60000
+},
+"authority_class": "treatise",
+"claim_layer": "mixed",
+"claim_layer_meaning": "Carries more than one layer. The PASSAGE has to be read to tell which - the document-level label cannot."
+},
+{
+"citation": "p. 22",
+"kind": "treatise",
+"page": 22,
+"authorities": [],
+"text": "19 See the treatises cited infra notes 36-37. 20 See AUSTIN WAKEMAN SCOTT, THE LAW OF TRUSTS (Little, Brown 1939) (4 vols.); GEORGE GLEASON BOGERT, THE LAW OF TRUSTS AND TRUSTEES (West 1935-1955) (9 vols. including vol. 2A). 21 See SAMUEL WILLISTON, THE LAW OF CONTRACTS (Baker, Voorhis 1920) (4 vols.). 22 John H. Langbein, Scholarly and Professional Objectives in Legal Education: American Trends and English Comparisons, in PRESSING PROBLEMS IN THE LAW, VOLUME 2: WHAT ARE LAW SCHOOLS FOR? (P.B.H. Birks ed. Oxford 1996), at 2.",
+"integrity": {
+"state": "complete",
+"basis": "Full retrieved body of 530 characters stored; under the 60,000 cap, so nothing was cut.",
+"stamped_at": "2026-09-11T05:02:08",
+"stored_chars": 530,
+"source_chars": 530,
+"cap_applied": 60000
+},
+"authority_class": "treatise",
+"claim_layer": "mixed",
+"claim_layer_meaning": "Carries more than one layer. The PASSAGE has to be read to tell which - the document-level label cannot."
+},
+{
+"citation": "p. 7",
+"kind": "treatise",
+"page": 7,
+"authorities": [],
+"text": "Differences in state law also explain the origin of the Restatements of the Law produced by the American Law Institute (ALI). The ALI was founded in 1923 in response to perceived \u201cuncertainty\u201d and \u201ccomplexity\u201d in the law.23 One source of that uncertainty and complexity, although not the only source, was the variation in state law. In the words of the Committee Report that led to the formation of the ALI, The fact \u2026 that the nation is composed of forty-eight states, each of which as well as the Federal Government is an independent source of law, means that the law on any subject in any one jurisdiction may differ from the law of one or more or all of the other jurisdictions. These variations in law are themselves a potent cause of uncertainty and complexity, and because of this and for other reasons do much injury, not only where transactions are carried on in two or more states, but also where transactions are carried on wholly within one state. \u2026 \u2026 We are convinced therefore that the specific work which any organization created by the legal profession to improve the law should undertake on its formation is the production of such a \u201cRestatement of the Law.\u201d",
+"integrity": {
+"state": "complete",
+"basis": "Full retrieved body of 1,175 characters stored; under the 60,000 cap, so nothing was cut.",
+"stamped_at": "2026-09-11T05:02:08",
+"stored_chars": 1175,
+"source_chars": 1175,
+"cap_applied": 60000
+},
+"authority_class": "treatise",
+"claim_layer": "mixed",
+"claim_layer_meaning": "Carries more than one layer. The PASSAGE has to be read to tell which - the document-level label cannot."
+},
+{
+"citation": "p. 24",
+"kind": "treatise",
+"page": 24,
+"authorities": [],
+"text": "The aim of the Restatements was \u201cnot only \u2026 to help make certain much that is now uncertain and to simplify unnecessary complexities, but also to promote those changes which will tend 23 REPORT OF THE COMMITTEE ON THE ESTABLISHMENT OF A PERMANENT ORGANIZATION FOR THE IMPROVEMENT OF THE LAW 6 (1923). 24 Id. at 8-9.",
+"integrity": {
+"state": "complete",
+"basis": "Full retrieved body of 315 characters stored; under the 60,000 cap, so nothing was cut.",
+"stamped_at": "2026-09-11T05:02:08",
+"stored_chars": 315,
+"source_chars": 315,
+"cap_applied": 60000
+},
+"authority_class": "treatise",
+"claim_layer": "mixed",
+"claim_layer_meaning": "Carries more than one layer. The PASSAGE has to be read to tell which - the document-level label cannot."
+},
+{
+"citation": "p. 8",
+"kind": "treatise",
+"page": 8,
+"authorities": [],
+"text": "better to adapt the laws to the needs of life.\u201d25 The first Restatement of Trusts was published in 1935;26 the Restatement (Second) of Trusts was published in 1959;27 and the Restatement (Third) of Trusts was published from 1992 to 2012.28 Divergence in state law\u2014including the law of trusts\u2014is a result of American federalism and the number of American states. This divergence in trust law across the states is a characteristic feature of the American system. B. The Second Revolution: The Break from England The second revolution in American trust law occurred in the late nineteenth century. American trust law broke away from England\u2019s emphasis on the trust\u2019s beneficiaries in favor of a distinctively American approach honoring the intention or presumed intention of the settlor. During much of the nineteenth century, American lawyers and courts made use of English trust law, albeit with state-by-state variations.29 English legal treatises were republished and influential. A Practical Treatise on the Law of Trusts and Trustees by the English barrister 25 Id. at 14. See also HERBERT F. GOODRICH & PAUL A. WOLKIN, THE STORY OF THE AMERICAN LAW INSTITUTE 1923-1961 (Am. L. Inst. 1961); N.E.H. Hull, Restatement and Reform: A New Perspective on the Origins of the American Law Institute, 8 LAW & HIST. REV. 55 (1990). 26 RESTATEMENT OF TRUSTS (Am. L. Inst. 1935) (2 vols.). 27 RESTATEMENT (SECOND) OF TRUSTS (Am. L. Inst. 1959) (2 vols.) 28 RESTATEMENT (THIRD) OF TRUSTS: PRUDENT INVESTOR RULE (Am. L. Inst. 1992); RESTATEMENT (THIRD) OF TRUSTS, vols. 1-2 (Am. L. Inst. 2003); RESTATEMENT (THIRD) OF TRUSTS, vol. 3 (Am. L. Inst. 2007); RESTATEMENT (THIRD) OF TRUSTS, vol. 4 (Am. L. Inst. 2012). 29 See FRIEDMAN, supra note 7, at 233-236.",
+"integrity": {
+"state": "complete",
+"basis": "Full retrieved body of 1,744 characters stored; under the 60,000 cap, so nothing was cut.",
+"stamped_at": "2026-09-11T05:02:08",
+"stored_chars": 1744,
+"source_chars": 1744,
+"cap_applied": 60000
+},
+"authority_class": "treatise",
+"claim_layer": "mixed",
+"claim_layer_meaning": "Carries more than one layer. The PASSAGE has to be read to tell which - the document-level label cannot."
+},
+{
+"citation": "p. 9",
+"kind": "treatise",
+"page": 9,
+"authorities": [
+"Brandon v. Robinson",
+"On the rule of Saunders v. Vautier",
+"Saunders v. Vautier"
+],
+"text": "Thomas Lewin, for example, was published in London in 183730 and in Philadelphia in 1839.31 A second American edition was published in Philadelphia in 1858.32 Perhaps the first comprehensive American-born treatise on trust law\u2014A Treatise on the Law of Trusts and Trustees by Jairius Ware Perry, published in Boston in 187233\u2014relied heavily on Lewin\u2019s fifth edition and English precedents. Among these English precedents were two cases\u2014Saunders v. Vautier (1841)34 and Brandon v. Robinson (1811)35\u2014relating to what today in England and other major common-law jurisdictions is known as the beneficiary principle. The beneficiary principle states that, in order for a trust to be valid, there must be a beneficiary capable of enforcing the trust.36 The trust laws of England and other major common-law jurisdictions are committed to the beneficiary principle.37 Related to the beneficiary principle is the rule of Saunders v. Vautier: If the beneficiaries of a trust are competent to consent and do consent to the trust\u2019s premature termination, the trust is terminated without regard to the wishes of the settlor as expressed in the terms of the trust. 38 The emphasis in England and other major common-law 30 THOMAS LEWIN, A PRACTICAL TREATISE ON THE LAW OF TRUSTS AND TRUSTEES (A. Maxwell 1837). 31 THOMAS LEWIN, A PRACTICAL TREATISE ON THE LAW OF TRUSTS AND TRUSTEES (J.S. Littell 1839). 32 THOMAS LEWIN, A PRACTICAL TREATISE ON THE LAW OF TRUSTS AND TRUSTEES (T. & J.W. Johnson 2d ed. 1858) (from the third London edition). 33 JARIUS WARE PERRY, A TREATISE ON THE LAW OF TRUSTS AND TRUSTEES (Little, Brown 1872). 34 Cr. & Ph. 240, 4 Beav. 115 (Ch. 1841). 35 18 Ves. 429 (Ch. 1811). 36 See, e.g., LYNTON TUCKER & NICHOLAS LE POIDEVIN, LEWIN ON TRUSTS \u00a75-053 (Sweet & Maxwell 20th ed. 2023). 37 See id.; G.E. DAL PONT, EQUITY AND TRUSTS IN AUSTRALIA \u00b617.95 (Thomson Reuters 8th ed. 2023); DONOVAN WATERS, LIONEL SMITH & MARK GILLEN, WATERS\u2019 LAW OF TRUSTS IN CANADA \u00a717.III (Thomson Reuters 5th ed. 2021); LAWRENCE MA, EQUITY AND TRUSTS LAW IN HONG KONG \u00b614-18 (LexisNexis 5th ed. 2022); VINCENT OOI & CHRISTOPHER HARE, SINGAPORE TRUSTS LAW \u00b6\u00b63-1\u20133-3 (LexisNexis 2021). 38 See LEWIN ON TRUSTS, supra note 36, at \u00a7\u00a722-015, 22-016. On the rule of Saunders v. Vautier as part of the current law in other common-law jurisdictions, see EQUITY AND TRUSTS IN AUSTRALIA, supra note 37, at \u00b6\u00b625.135-25.145; WATERS\u2019 LAW OF TRUSTS IN CANADA, supra",
+"integrity": {
+"state": "complete",
+"basis": "Full retrieved body of 2,434 characters stored; under the 60,000 cap, so nothing was cut.",
+"stamped_at": "2026-09-11T05:02:08",
+"stored_chars": 2434,
+"source_chars": 2434,
+"cap_applied": 60000
+},
+"authority_class": "treatise",
+"claim_layer": "mixed",
+"claim_layer_meaning": "Carries more than one layer. The PASSAGE has to be read to tell which - the document-level label cannot."
+},
+{
+"citation": "p. 10",
+"kind": "treatise",
+"page": 10,
+"authorities": [
+"Brandon v. Robinson"
+],
+"text": "jurisdictions is on the beneficiaries as the equitable owners of the property in trust. Their desire for outright ownership of the trust assets overrides the settlor\u2019s desire to keep the property in trust. Also related to the beneficiary principle is the rejection of the spendthrift trust, for example in Brandon v. Robinson.39 The beneficiaries are the equitable owners of the trust property, and the alienation of their interests in the trust cannot be disabled by a spendthrift provision in the terms of the trust. Perry\u2019s 1872 treatise cites Saunders and Brandon approvingly.40 American trust law broke away from this English approach, with the break occurring primarily in the late nineteenth century. 41 There were some antecedents in Pennsylvania and New York: Pennsylvania recognized spendthrift trusts as a matter of decisional law;42 and New note 37, at \u00a723.II; EQUITY AND TRUSTS LAW IN HONG KONG, supra note 37, at \u00b615-117; SINGAPORE TRUSTS LAW, supra note 37, at \u00b6\u00b63-17\u20133-20. 39 18 Ves. 429 (Ch. 1811). Instead, trusts in England and other common-law jurisdictions can use forfeiture restraints, rather than disabling restraints, in the form of the \u201cprotective trust.\u201d See JAMIE GLISTER & JAMES LEE, HANBURY & MARTIN: MODERN EQUITY ch. 8 (Sweet & Maxwell 23rd ed. 2024); EQUITY AND TRUSTS IN AUSTRALIA, supra note 37, at \u00b6\u00b627.125-27.130; WATERS\u2019 LAW OF TRUSTS IN CANADA, supra note 37, at \u00a72.IX.C (noting that protective trusts are \u201cnot widely used\u201d in Canada); EQUITY AND TRUSTS LAW IN HONG KONG, supra note 37, at \u00b614- 65 (observing that protective trusts in the Hong Kong Special Administrative Region are \u201cvery rare\u201d). The treatise on S INGAPORE TRUSTS LAW, supra note 37, does not mention the protective trust. 40 PERRY, supra note 33, at 353 n. 1 (citing Brandon), 360 n. 5, 566 n. 6 (citing Saunders), 41 See Gregory S. Alexander, The Dead Hand and the Law of Trusts in the Nineteenth Century, 37 STAN. L. REV. 1189, 1195-1208 (1985); Thomas P. Gallanis, The New Direction of American Trust Law, 97 IOWA L. REV. 215, 219-223, 226-229 (2011). See also Gregory S. Alexander, The Transformation of Trusts as a Legal Category, 1800-1914, 5 LAW & HIST. REV. 303 (1987). 42 See generally Nicholas Unkovic, Spendthrift Trusts in Pennsylvania, 36 DICK. L. REV. 45 (1931). Professor John Chipman Gray proffered the explanation that spendthrift trusts were recognized in Pennsylvania because the state had no equity courts in the early nineteenth century, thereby enabling spendthrift trusts to be effective in practice because creditors had no procedure for reaching a beneficiary\u2019s interest. See J OHN CHIPMAN GRAY, RESTRAINTS ON THE ALIENATION OF PROPERTY 138 (Charles C. Soule 1883). This also was the view of Dean Erwin Griswold. See ERWIN N. GRISWOLD, SPENDTHRIFT TRUSTS 21-22 (Matthew Bender 2d ed. 1947). Dean Griswold observed that \u201c[w]hen, in later years, the Pennsylvania courts gradually acquired equity powers, spendthrift trusts had become firmly established, and an accepted part of the law.",
+"integrity": {
+"state": "complete",
+"basis": "Full retrieved body of 3,016 characters stored; under the 60,000 cap, so nothing was cut.",
+"stamped_at": "2026-09-11T05:02:08",
+"stored_chars": 3016,
+"source_chars": 3016,
+"cap_applied": 60000
+},
+"authority_class": "treatise",
+"claim_layer": "mixed",
+"claim_layer_meaning": "Carries more than one layer. The PASSAGE has to be read to tell which - the document-level label cannot."
+},
+{
+"citation": "p. 11",
+"kind": "treatise",
+"page": 11,
+"authorities": [
+"Claflin v. Claflin",
+"Court in the case of Nichols v. Eaton",
+"Fisher v. Taylor",
+"National Bank v. Adams",
+"Nichols v. Eaton",
+"Pennsylvania to dictum in Fisher v. Taylor",
+"See Nichols v. Eaton",
+"U.S. Supreme Court in Nichols v. Eaton"
+],
+"text": "York authorized spendthrift trusts by statutes enacted in 1828 and 1830.43 But the real tide turned in the late nineteenth century, after the U.S. Supreme Court in Nichols v. Eaton (1875) upheld a provision in a testamentary trust that the beneficiary\u2019s interest would cease upon the beneficiary\u2019s insolvency or bankruptcy.44 Among the leading state cases45 were Broadway National Bank v. Adams (1882)46 and Claflin v. Claflin (1889).47 All American states now follow Opinion as to their wisdom, however, was not unanimous, even in Pennsylvania.\u201d Id. at 22. Professor Gray\u2019s explanation was criticized by Philadelphia attorney Roland Foulke, who traced the origin of spendthrift trusts in Pennsylvania to dictum in Fisher v. Taylor, 2 Rawle 33 (1829). See ROLAND R. FOULKE, A TREATISE ON THE RULES AGAINST PERPETUITIES, RESTRAINTS ON ALIENATION AND RESTRAINTS ON ENJOYMENT AS APPLICABLE TO GIFTS OF PROPERTY IN PENNSYLVANIA 171-173 (George T. Bisel Co. 1909). Foulke\u2019s explanation finds support in In re Mehaffey\u2019s Estate, 139 Pa. 276, 281, 20 A. 1056, 1056 (Pa. 1891) (\u201cIt is well settled by an unbroken line of cases commencing with Fisher v. Taylor, 2 Rawle, 33, that, by using apt words, a parent may create a special trust for the benefit of an unfortunate or a spendthrift child, without exposing his bounty to liability for any debts, contracts, or engagements of the beneficiary.\u201d). Whatever the explanation, spendthrift trusts were recognized in Pennsylvania as a matter of decisional law. 43 For a discussion of the New York statutes, see GRISWOLD, supra note 42, at 46-51. 44 See Nichols v. Eaton, 91 U.S. 716 (1875). The contemporary response of Professor Gray is noteworthy: \u201cIn 1876, I shared the surprise, common to many lawyers, at the opinion of the Supreme Court in the case of Nichols v. Eaton, \u2026 containing, as it did, much that was contrary to what, both in teaching and in practice, I had hitherto supposed to be settled law.\u201d G RAY, supra note 42, at iii. Writing decades later, Dean Griswold expressed the view that \u201cthe dictum in Nichols v. Eaton \u2026 was the greatest single factor in the establishment of spendthrift trusts in the United States.\u201d G RISWOLD, supra note 42, at 22. 45 Broadway National Bank and Claflin were swiftly recognized as important cases, for example by Professor James Barr Ames, who featured them in his casebook on trusts. See 1 JAMES BARR AMES, A SELECTION OF CASES ON THE LAW OF TRUSTS 397-400 (Broadway National Bank), 455- 458 (Claflin) (Harvard Law Review 2d ed. 1893). The first edition of Ames\u2019s casebook was published in 1881-82, before Broadway National Bank and Claflin were decided. See JAMES BARR AMES, A SELECTION OF CASES ON THE LAW OF TRUSTS (John Wilson & Son 1881-82). Ames added the cases when preparing the second edition. Both cases also were featured in A USTIN WAKEMAN SCOTT, SELECT CASES AND OTHER AUTHORITIES ON THE LAW OF TRUSTS 604-608 (Broadway National Bank), 828-831 (Claflin) (self-published 1919). By 1921, Broadway National Bank and Claflin represented the majority view among U.S. states. See GEORGE GLEASON BOGERT, HANDBOOK OF THE LAW OF TRUSTS 183, 580 (West Publishing 1921). 46 133 Mass. 170 (1882). 47 149 Mass. 19, 20 N.E. 454 (1889).",
+"integrity": {
+"state": "complete",
+"basis": "Full retrieved body of 3,223 characters stored; under the 60,000 cap, so nothing was cut.",
+"stamped_at": "2026-09-11T05:02:08",
+"stored_chars": 3223,
+"source_chars": 3223,
+"cap_applied": 60000
+},
+"authority_class": "treatise",
+"claim_layer": "mixed",
+"claim_layer_meaning": "Carries more than one layer. The PASSAGE has to be read to tell which - the document-level label cannot."
+},
+{
+"citation": "p. 12",
+"kind": "treatise",
+"page": 12,
+"authorities": [
+"Claflin v. Claflin",
+"U.S. Supreme Court in Shelton v. King"
+],
+"text": "Broadway National Bank in allowing spendthrift trusts,48 and most American states adopt some form of the Claflin rule:49 The premature termination of a noncharitable irrevocable trust requires more than beneficiary consent; it also requires that the early termination must not defeat a material purpose of the settlor.50 The core rationale of the American approach is to honor the settlor\u2019s intention.51 The settlor\u2019s intention or presumed intention is the paramount concern. In the words of Justice Horace Harmon Lurton of the U.S. Supreme Court in Shelton v. King (1913), embracing the doctrine of Claflin v. Claflin, \u201cThere is no higher duty which rests upon a court than to carry out the intentions of the testator when the provision is not repugnant to settled principles of public policy and is otherwise valid.\u201d",
+"integrity": {
+"state": "complete",
+"basis": "Full retrieved body of 818 characters stored; under the 60,000 cap, so nothing was cut.",
+"stamped_at": "2026-09-11T05:02:08",
+"stored_chars": 818,
+"source_chars": 818,
+"cap_applied": 60000
+},
+"authority_class": "treatise",
+"claim_layer": "mixed",
+"claim_layer_meaning": "Carries more than one layer. The PASSAGE has to be read to tell which - the document-level label cannot."
+},
+{
+"citation": "p. 52",
+"kind": "treatise",
+"page": 52,
+"authorities": [
+"Shelton v. King"
+],
+"text": "What explains this break from England in favoring the wishes of the settlor over those of the beneficiaries? Professor Gregory Alexander describes the break as follows: Both sides saw themselves as defenders of individual freedom of alienation, the one protecting the grantor\u2019s power of alienation, the other preserving that power 48 See AUSTIN WAKEMAN SCOTT & MARK L. ASCHER, SCOTT AND ASCHER ON TRUSTS \u00a715.2.1 (Wolters Kluwer 6th ed. 2019-). 49 See id. at \u00a734.1. 50 See RESTATEMENT (THIRD) OF TRUSTS \u00a765 (Am. L. Inst. 2003). See also UNIF. TR. CODE \u00a7411(b). 51 See 133 Mass. at 174 (\u201cThe rule of public policy which subjects a debtor\u2019s property to the payment of his debts, does not subject the property of a donor to the debts of his beneficiary, and does not give the creditor a right to complain that, in the exercise of his absolute right of disposition, the donor has not seen fit to give the property to the creditor, but has left it out of his reach.\u201d); 149 Mass. at 23, 20 N.E. at 456 (\u201c[A] testator has the right to dispose of his own property with such restrictions and limitations, not repugnant to law, as he sees fit, and \u2026 his intentions ought to be carried out, unless they contravene some positive rule of law, or are against public policy\u201d). 52 Shelton v. King, 229 U.S. 90, 101 (1913).",
+"integrity": {
+"state": "complete",
+"basis": "Full retrieved body of 1,305 characters stored; under the 60,000 cap, so nothing was cut.",
+"stamped_at": "2026-09-11T05:02:08",
+"stored_chars": 1305,
+"source_chars": 1305,
+"cap_applied": 60000
+},
+"authority_class": "treatise",
+"claim_layer": "mixed",
+"claim_layer_meaning": "Carries more than one layer. The PASSAGE has to be read to tell which - the document-level label cannot."
+},
+{
+"citation": "p. 13",
+"kind": "treatise",
+"page": 13,
+"authorities": [],
+"text": "for the grantee. This principle of individual freedom of alienation itself was utterly indeterminate, so both sides could appeal to it. An unavoidable trade-off was involved, and the choice between grantor and grantee was ultimately based on a choice between competing social visions \u2026.",
+"integrity": {
+"state": "complete",
+"basis": "Full retrieved body of 286 characters stored; under the 60,000 cap, so nothing was cut.",
+"stamped_at": "2026-09-11T05:02:08",
+"stored_chars": 286,
+"source_chars": 286,
+"cap_applied": 60000
+},
+"authority_class": "treatise",
+"claim_layer": "mixed",
+"claim_layer_meaning": "Carries more than one layer. The PASSAGE has to be read to tell which - the document-level label cannot."
+},
+{
+"citation": "p. 53",
+"kind": "treatise",
+"page": 53,
+"authorities": [],
+"text": "He argues that the social vision underlying the new trust doctrines was shaped by analogy to the family, with the settlor as paterfamilias: The family property trust was treated as a surrogate for the family itself. Enforcing the restraints against alienation and anticipation reproduced, in the context of the trust arrangement, the nineteenth century image of the structure of power within the family. Autonomy and freedom of action were as undesirable in the beneficiary as they were in the child. Just as the family was identified as a hierarchical arrangement within which broad discretionary power was conferred on the husband in order to maintain its well-being, so the private trust was made into a structure of power within which the power of beneficiaries was subordinate to that of the settlor.",
+"integrity": {
+"state": "complete",
+"basis": "Full retrieved body of 805 characters stored; under the 60,000 cap, so nothing was cut.",
+"stamped_at": "2026-09-11T05:02:08",
+"stored_chars": 805,
+"source_chars": 805,
+"cap_applied": 60000
+},
+"authority_class": "treatise",
+"claim_layer": "mixed",
+"claim_layer_meaning": "Carries more than one layer. The PASSAGE has to be read to tell which - the document-level label cannot."
+},
+{
+"citation": "p. 54",
+"kind": "treatise",
+"page": 54,
+"authorities": [],
+"text": "The description of this social vision accurately captures its emphasis on honoring the settlor\u2019s protective purposes toward the trust\u2019s beneficiaries, who typically were and are members of the settlor\u2019s family, but it does not fully explain the break from England: in other words, why 53 Alexander, Dead Hand, supra note 41, at 1236-1237. 54 Id. at 1253.",
+"integrity": {
+"state": "complete",
+"basis": "Full retrieved body of 354 characters stored; under the 60,000 cap, so nothing was cut.",
+"stamped_at": "2026-09-11T05:02:08",
+"stored_chars": 354,
+"source_chars": 354,
+"cap_applied": 60000
+},
+"authority_class": "treatise",
+"claim_layer": "mixed",
+"claim_layer_meaning": "Carries more than one layer. The PASSAGE has to be read to tell which - the document-level label cannot."
+},
+{
+"citation": "p. 14",
+"kind": "treatise",
+"page": 14,
+"authorities": [],
+"text": "American judges embraced the protective social vision for the law of trusts while English judges did not. Professor Joshua Getzler explored the American break from English trust law in an article published in 2009 but did not reach any firm conclusions; the \u201cdisparities between [these] jurisdictions remain to be explained.\u201d 55 He wisely cautioned his readers against \u201coverly simplistic\u201d56 answers or \u201cneat \u2026 explanations.\u201d57 A complete answer awaits the full examination of factors internal and external to the American and English legal systems, 58 but let me offer a partial hypothesis. The hypothesis concerns the relationship between law and equity in America and England in the late nineteenth century. The court in Broadway National Bank emphasized a practical distinction between legal and equitable property interests: It is true that the rule of the common law is, that a man cannot attach to a grant or transfer of property, otherwise absolute, the condition that it shall not be alienated; such condition being repugnant to the nature of the estate granted. \u2026 55 Joshua Getzler, Transplantation and Mutation in Anglo-American Trust Law, 10 THEORETICAL INQUIRIES IN LAW 355, 355 (2009). I am grateful to Professor Lionel Smith for this reference. 56 Id. at 384. One simplistic explanation rejected by Professor Getzler is that \u201cAmerican property and debt regimes had an overall pro-debtor character\u201d; he observes that \u201cthe reality is a good deal more complex.\u201d Id. 57 Id. at 387. 58 On the distinction between internal and external legal history, see Thomas P. Gallanis, The Evolution of the Common Law, in STUDIES IN CANON LAW AND COMMON LAW IN HONOR OF R.H. HELMHOLZ 63, 82 (Robbins Collection 2015); David Ibbetson, What is Legal History a History Of?, in LAW AND HISTORY 33-34 (Andrew Lewis and Michael Lobban eds., Oxford 2004).",
+"integrity": {
+"state": "complete",
+"basis": "Full retrieved body of 1,845 characters stored; under the 60,000 cap, so nothing was cut.",
+"stamped_at": "2026-09-11T05:02:08",
+"stored_chars": 1845,
+"source_chars": 1845,
+"cap_applied": 60000
+},
+"authority_class": "treatise",
+"claim_layer": "mixed",
+"claim_layer_meaning": "Carries more than one layer. The PASSAGE has to be read to tell which - the document-level label cannot."
+},
+{
+"citation": "p. 15",
+"kind": "treatise",
+"page": 15,
+"authorities": [],
+"text": "But the reasons of the rule do not apply in the case of a transfer of property in trust. By the creation of a trust like the one before us, the trust property passes to the trustee with all its incidents and attributes unimpaired. He takes the whole legal title to the property, with the power of alienation; the cestui que trust takes the whole legal title to the accrued income at the moment it is paid over to him. Neither the principal nor the income is at any time inalienable.",
+"integrity": {
+"state": "complete",
+"basis": "Full retrieved body of 482 characters stored; under the 60,000 cap, so nothing was cut.",
+"stamped_at": "2026-09-11T05:02:08",
+"stored_chars": 482,
+"source_chars": 482,
+"cap_applied": 60000
+},
+"authority_class": "treatise",
+"claim_layer": "mixed",
+"claim_layer_meaning": "Carries more than one layer. The PASSAGE has to be read to tell which - the document-level label cannot."
+},
+{
+"citation": "p. 59",
+"kind": "treatise",
+"page": 59,
+"authorities": [
+"Brandon v. Robinson"
+],
+"text": "The court in Broadway National Bank departed from the English precedents forbidding restraints on alienation because the court perceived a practical distinction between property interests at law and property interests in trust. The court in Claflin\u2014concerned with the related question of early termination or \u201canticipation\u201d 60\u2014concluded that the rule of Broadway National Bank applied with equal force to the facts before it: \u201cThe rule contended for by the plaintiff in that case was founded upon the same considerations as that contended for by the plaintiff in this, and the grounds on which this court declined to follow the English rule in that case are applicable to this; \u2026.\u201d 61 American courts, in short, were comfortable with divergent approaches to legal and equitable interests in property. In contrast, the law of equity in England in the nineteenth century saw a series of attempts at convergence with the common law. This was true during the chancellorship of Lord Eldon (1801-1806, 1807-1827),62 who decided Brandon v. Robinson, and again true in the wake of the Judicature Acts of 1873-1875, which fused the courts of law and 59 133 Mass. at 171-172. 60 Alexander, Dead Hand, supra note 41, at 1202. 61 149 Mass. at 23; 20 N.E. at 456. 62 See WILLIAM CORNISH ET AL., 11 OXFORD HISTORY OF THE LAWS OF ENGLAND (1820-1914: ENGLISH LEGAL SYSTEM) 757 (Oxford 2010) (chapter on \u201cThe Judicature Acts\u201d written by Patrick Polden).",
+"integrity": {
+"state": "complete",
+"basis": "Full retrieved body of 1,436 characters stored; under the 60,000 cap, so nothing was cut.",
+"stamped_at": "2026-09-11T05:02:08",
+"stored_chars": 1436,
+"source_chars": 1436,
+"cap_applied": 60000
+},
+"authority_class": "treatise",
+"claim_layer": "mixed",
+"claim_layer_meaning": "Carries more than one layer. The PASSAGE has to be read to tell which - the document-level label cannot."
+},
+{
+"citation": "p. 16",
+"kind": "treatise",
+"page": 16,
+"authorities": [
+"Saunders v. Vautier",
+"So in England Brandon v. Robinson"
+],
+"text": "equity into a new amalgamated High Court of Justice, with divisions based on the old central courts such as Queen\u2019s Bench and Chancery.63 The complete doctrinal fusion of law and equity was not achieved by the Judicature Acts64\u2014although a prior, unsuccessful version of the legislation stated that they should be \u201cblended and united.\u201d65 In such an environment, it is unsurprising that English judges of the late nineteenth and early twentieth centuries did not follow their American counterparts in treating equitable property interests so differently from property interests at common law. In the words of Professor Stuart Anderson: English judges did not take the American road. They steered away from policy and adhered to the basic premise that all dispositions must conform to an externally imposed register of property interests. \u2026 So in England Brandon v. Robinson remained orthodox, and although Lord Herschell acknowledged in 1895 that Saunders v. Vautier rested more upon assumption than upon decision he and the rest of the House of Lords thought it too deeply entrenched to be open to review.",
+"integrity": {
+"state": "complete",
+"basis": "Full retrieved body of 1,104 characters stored; under the 60,000 cap, so nothing was cut.",
+"stamped_at": "2026-09-11T05:02:08",
+"stored_chars": 1104,
+"source_chars": 1104,
+"cap_applied": 60000
+},
+"authority_class": "treatise",
+"claim_layer": "mixed",
+"claim_layer_meaning": "Carries more than one layer. The PASSAGE has to be read to tell which - the document-level label cannot."
+},
+{
+"citation": "p. 66",
+"kind": "treatise",
+"page": 66,
+"authorities": [],
+"text": "The English law of trusts stayed on its path. So did the trust laws of almost all jurisdictions whose laws derive from England. The American law of trusts broke away toward a distinctive approach honoring the settlor\u2019s protective intentions. 63 See id. at 760-764. 64 See id. at 770-773. 65 Stephen Waddams, Equity in English Contract Law: The Impact of the Judicature Acts (1873\u2013 75), 33 J. LEGAL HIST. 185, 186 (2012) (quoting an amended bill). 66 WILLIAM CORNISH ET AL., 12 OXFORD HISTORY OF THE LAWS OF ENGLAND (1820-1914: PRIVATE LAW) 757 (Oxford 2010) (chapter on \u201cTrusts and Trustees\u201d written by Stuart Anderson).",
+"integrity": {
+"state": "complete",
+"basis": "Full retrieved body of 620 characters stored; under the 60,000 cap, so nothing was cut.",
+"stamped_at": "2026-09-11T05:02:08",
+"stored_chars": 620,
+"source_chars": 620,
+"cap_applied": 60000
+},
+"authority_class": "treatise",
+"claim_layer": "mixed",
+"claim_layer_meaning": "Carries more than one layer. The PASSAGE has to be read to tell which - the document-level label cannot."
+},
+{
+"citation": "p. 17",
+"kind": "treatise",
+"page": 17,
+"authorities": [],
+"text": "C. The Third Revolution: Trusts and Estates The third American revolution in trust law started in the 1920s. Trust law became part of the law of \u201ctrusts and estates.\u201d This revolution affected how trust law is conceptualized as a field of law. The revolution started in the law schools and spread outward. The teaching of trust law in the United States became allied to the law of succession and was re-conceptualized as part of the law of donative transfers or \u201ctrusts and estates.\u201d",
+"integrity": {
+"state": "complete",
+"basis": "Full retrieved body of 482 characters stored; under the 60,000 cap, so nothing was cut.",
+"stamped_at": "2026-09-11T05:02:08",
+"stored_chars": 482,
+"source_chars": 482,
+"cap_applied": 60000
+},
+"authority_class": "treatise",
+"claim_layer": "mixed",
+"claim_layer_meaning": "Carries more than one layer. The PASSAGE has to be read to tell which - the document-level label cannot."
+},
+{
+"citation": "p. 67",
+"kind": "treatise",
+"page": 67,
+"authorities": [],
+"text": "The American taxonomy is in noticeable contrast to that of other major common-law jurisdictions, 68 where trust law is conceptualized and taught as a part of the law of equity,69 and 67 For discussion, see Thomas P. Gallanis, Commercial Trusts in U.S. Legal Thought: Historical Puzzles and Future Directions, 88 U. CIN. L. REV. 843 (2020). 68 Excluded from the discussion are countries and territories that are not economically significant in terms of their GDP, such as the Bahamas, Belize, Bermuda, the British Virgin Islands, the Cayman Islands, the Cook Islands, Cyprus, Jersey, and St. Kitts and Nevis; however, these countries and territories do play a role in international estate planning. Also excluded from the discussion is India, where trust law is governed by the 1882 Indian Trust Act, which has not been amended since its enactment. See Anju Gandhi, Jahnavi Dwarkadas & Avni Gupta, Developments in Trust Law in India Through the SEBI Lens, 30 T R. & TRUSTEES 3, 3 (February 2024) (also observing that noncharitable trusts in India \u201care most commonly used for achieving objectives such as consolidation and ring fencing of assets, streamlining succession planning and efficient governance of family businesses, amongst others\u201d). 69 For England, see HANBURY & MARTIN, supra note 39; GRAHAM VIRGO, THE PRINCIPLES OF EQUITY AND TRUSTS (Oxford 5th ed. 2023). For Australia, see EQUITY AND TRUSTS IN AUSTRALIA, supra note 37. For Canada, see WATERS\u2019 LAW OF TRUSTS IN CANADA, supra note 37, at \u00a71.II (defining a trust as \u201cthe relationship which arises whenever a person \u2026 is compelled in equity to hold property \u2026 for the benefit of some persons \u2026 or for some object permitted by law, in such a way that the real benefit of the property accrues, not to the trustees, but to the beneficiaries or other objects of the trust\u201d) (emphasis added). For the Hong Kong Special",
+"integrity": {
+"state": "complete",
+"basis": "Full retrieved body of 1,875 characters stored; under the 60,000 cap, so nothing was cut.",
+"stamped_at": "2026-09-11T05:02:08",
+"stored_chars": 1875,
+"source_chars": 1875,
+"cap_applied": 60000
+},
+"authority_class": "treatise",
+"claim_layer": "mixed",
+"claim_layer_meaning": "Carries more than one layer. The PASSAGE has to be read to tell which - the document-level label cannot."
+},
+{
+"citation": "p. 18",
+"kind": "treatise",
+"page": 18,
+"authorities": [],
+"text": "to the major civil-law or hybrid-law countries that have adopted the trust,70 such as mainland China and Japan, where trust law is conceptualized as a part of civil or commercial law71 and where trusts are used primarily for commercial purposes rather than for family wealth transmission.72 American law is revolutionary in allying trust law with the law of succession, both of which are conceptualized as components of the law of donative transfers. Emblematic of this Administrative Region, see EQUITY AND TRUSTS LAW IN HONG KONG, supra note 37. For Singapore, see SINGAPORE TRUSTS LAW, supra note 37, ch. 1 (\u201cEquity and Trusts in Singapore\u201d). 70 Excluded from the discussion are economically important civil-law countries that have \u201ctrust- like\u201d devices but not the trust, such as France (fiducie) and Germany (Treuhand); civil-law countries that recognize the trust by virtue of the Hague Convention on the Law Applicable to Trusts and on their Recognition, such as Italy and Switzerland; and civil-law countries that are not economically significant in terms of their GDP albeit with trust law relevant to international estate planning, such as Mauritius. 71 Perhaps because of the common-law origins of the trust, the trust statutes in force in mainland China (Trust Law 2001) and Japan (Trust Act 2006) have not been incorporated into the countries\u2019 respective civil or commercial codes. For an examination of the relationship between the Chinese Civil Code and the Trust Law 2001, for example, see Jian Qu, Trusts and the Chinese Civil Code: Toward a New Era of Codification, 27 TR. & TRUSTEES 82 (February- March 2021). Nevertheless, it is fair to say that trust law is conceptualized in mainland China and Japan as a part of the civil or commercial law; trusts are not generally viewed as part of the law of succession, although one provision in the \u201cSuccession\u201d part of the Chinese Civil Code authorizes the creation of testamentary trusts. See id. at 87. 72 For mainland China, see Mi Wang, Private Trusts in China and Some Lessons from Australia, 27 TR. & TRUSTEES 771, 771 (October 2021) (observing that \u201cnearly all current Chinese trusts are commercial\u201d). For Japan, see Masayuki Tamaruya, The Transformation of Japanese Trust Law and Practice: Historical Contexts and Future Challenges, in ASIA-PACIFIC TRUST LAW: THEORY AND PRACTICE IN CONTEXT (Ying Khai Liew & Matthew Harding eds. Hart 2021) (observing that trusts in Japan have been used \u201cmostly for commercial purposes\u201d since the introduction of comprehensive trust legislation in 1922; the current 2006 Trust Act \u201cwas primarily motivated by the desire to increase flexibility of trust law to meet the needs of increasingly complex commercial trust practices\u201d but also \u201ccontained several provisions that expressly authorize the use of trusts for succession planning\u201d).",
+"integrity": {
+"state": "complete",
+"basis": "Full retrieved body of 2,839 characters stored; under the 60,000 cap, so nothing was cut.",
+"stamped_at": "2026-09-11T05:02:08",
+"stored_chars": 2839,
+"source_chars": 2839,
+"cap_applied": 60000
+},
+"authority_class": "treatise",
+"claim_layer": "mixed",
+"claim_layer_meaning": "Carries more than one layer. The PASSAGE has to be read to tell which - the document-level label cannot."
+},
+{
+"citation": "p. 19",
+"kind": "treatise",
+"page": 19,
+"authorities": [],
+"text": "alliance of trust law and succession law is the distinctively American category of legal teaching and scholarly writing known as \u201ctrusts and estates.\u201d73 I have explored in a previous law review article the development of \u201ctrusts and estates\u201d as a distinctively American category,74 so only a summary is needed here. In the late nineteenth and early twentieth centuries, American law schools did not combine the teaching of trusts with the teaching of succession. They offered courses on trusts. This was reflected in the market for published teaching materials. Professor James Barr Ames of Harvard published his casebook on the law of trusts in 1881-1882, 75 with a second edition in 1893.76 Professor Austin Wakeman Scott of Harvard published his casebook on trusts in 1919,77 with subsequent editions in 1931, 1940, 1951, and 1966.78 Professor George Gleason Bogert of the University of Chicago 73 See generally Gallanis, Commercial Trusts, supra note 67, at 846-851. Even in Canada, there typically is a separate course on trusts, rather than a combined course on trusts and succession. See, e.g., University of Toronto Faculty of Law, Course List 2024-2025, available at https://www.law.utoronto.ca/academic-programs/course-calendar (Trusts, taught by Professor Jim Phillips) (last visited February 6, 2025); University of British Columbia, Peter Allard School of Law, 2024-2025 Course Descriptions, available at https://allard.ubc.ca/sites/default/files/2024-09/course_descriptions_2024W_2024-09-17.pdf (Trusts, taught by Professors Adam Hofri-Winogradow and Dennis Pavlich) (last visited February 6, 2025). 74 See generally Gallanis, Commercial Trusts, supra note 67, at 846-851, on which this paragraph and the subsequent paragraph draw without further citation. 75 JAMES BARR AMES, A SELECTION OF CASES ON THE LAW OF TRUSTS (J. Wilson 1881-1882). 76 JAMES BARR AMES, A SELECTION OF CASES ON THE LAW OF TRUSTS (Harvard Law Review 2d ed. 1893). 77 AUSTIN WAKEMAN SCOTT, SELECT CASES AND OTHER AUTHORITIES ON THE LAW OF TRUSTS (self-published 1919). 78 AUSTIN WAKEMAN SCOTT, SELECT CASES AND OTHER AUTHORITIES ON THE LAW OF TRUSTS (self-published 2d ed. 1931); AUSTIN WAKEMAN SCOTT, SELECT CASES AND OTHER AUTHORITIES ON THE LAW OF TRUSTS (self-published 3d ed. 1940); AUSTIN WAKEMAN SCOTT, SELECT CASES AND OTHER AUTHORITIES ON THE LAW OF TRUSTS (self-published 4th ed. 1951); AUSTIN WAKEMAN SCOTT & AUSTIN WAKEMAN SCOTT JR., SELECT CASES AND OTHER AUTHORITIES ON THE LAW OF TRUSTS (Little, Brown 5th ed. 1966).",
+"integrity": {
+"state": "complete",
+"basis": "Full retrieved body of 2,518 characters stored; under the 60,000 cap, so nothing was cut.",
+"stamped_at": "2026-09-11T05:02:08",
+"stored_chars": 2518,
+"source_chars": 2518,
+"cap_applied": 60000
+},
+"authority_class": "treatise",
+"claim_layer": "mixed",
+"claim_layer_meaning": "Carries more than one layer. The PASSAGE has to be read to tell which - the document-level label cannot."
+},
+{
+"citation": "p. 20",
+"kind": "treatise",
+"page": 20,
+"authorities": [],
+"text": "published his casebook on trusts in 1939,79 with subsequent editions published during his lifetime in 1950, 1958, and 1967.80 These casebooks were used in the classroom in courses on trusts. The impetus for change can be traced to the Columbia Law School faculty, who in the second half of the 1920s embarked on a large-scale project of reforming the curriculum in order to move away from Harvard Law School\u2019s Langdellian model, which focused on appellate case law, and toward a program of legal education that \u201capproach[ed] the study of law in terms of [its] underlying political, economic, and social factors.\u201d81 In charge of reforming the part of Columbia\u2019s curriculum relating to the law of property was Professor Richard Powell. Powell reorganized the separate courses on \u201cWills,\u201d \u201cTrusts,\u201d and \u201cFuture Interests\u201d into a single course called \u201cTrusts and Estates.\u201d Here is the account from an official history of the Columbia Law School: Perhaps the most radical change in the part of the old curriculum dealing with property was the tour de force executed by Professor Powell in his now famous course, Trusts and Estates, where he combined related parts of the subject matter previously given in separate courses, such as Future Interests, Trusts, and Wills. 79 GEORGE GLEASON BOGERT, CASES ON THE LAW OF TRUSTS (Foundation 1939). 80 GEORGE GLEASON BOGERT, CASES ON THE LAW OF TRUSTS (Foundation 2d ed. 1950); GEORGE GLEASON BOGERT, CASES ON THE LAW OF TRUSTS (Foundation 3d ed. 1958); GEORGE GLEASON BOGERT & DALLIN H. OAKS, CASES ON THE LAW OF TRUSTS (Foundation 4th ed. 1967). Bogert died in 1977. The most recent posthumous edition is GEORGE GLEASON BOGERT ET AL., CASES AND TEXT ON THE LAW OF TRUSTS (Foundation 9th ed. 2012). 81 A HISTORY OF THE SCHOOL OF LAW [OF] COLUMBIA UNIVERSITY 312 (Julius Goebel Jr., ed. Columbia University Press 1955).",
+"integrity": {
+"state": "complete",
+"basis": "Full retrieved body of 1,856 characters stored; under the 60,000 cap, so nothing was cut.",
+"stamped_at": "2026-09-11T05:02:08",
+"stored_chars": 1856,
+"source_chars": 1856,
+"cap_applied": 60000
+},
+"authority_class": "treatise",
+"claim_layer": "mixed",
+"claim_layer_meaning": "Carries more than one layer. The PASSAGE has to be read to tell which - the document-level label cannot."
+},
+{
+"citation": "p. 21",
+"kind": "treatise",
+"page": 21,
+"authorities": [],
+"text": "\u2026 The combination of materials proved most effective from a teaching point of view, and the course was regarded by the students from the beginning as one of the best offered in the Law School.82 In 1932, Powell published his course materials in a two-volume casebook titled Cases and Materials on Trusts and Estates.83 This was the first published casebook for a combined course. Other casebooks followed. Professor Lewis Simes of the University of Michigan published Cases and Materials on Trusts and Succession in 1942.84 John Ritchie, who spent much of his career at the University of Virginia but was then the dean of the law school at the University of Wisconsin, was the lead author of Cases and Materials on Decedents\u2019 Estates and Trusts, which appeared in 1955.85 Professors George Palmer and Richard Wellman of the University of 82 Id., at 318-19. 83 RICHARD R. POWELL, CASES AND MATERIALS ON THE LAW OF TRUSTS AND ESTATES (West 1932) (2 vols.). In the preface, Powell stated: The plan for a single law school course in replacement of the courses heretofore given under the titles of \u201cTrusts,\u201d \u201cFuture Interests\u201d and \u201cWills\u201d was conceived some seven years ago [i.e. 1925]. It began in the embarrassments encountered by the editor in teaching Future Interests and, in the years 1926 and 1927, in the constructing of a Case Book for the subject of Future Interests. The boundary walls of Trusts and Wills repeatedly obtruded themselves as barriers to the completion, or to the comprehension, of topics partly studied in the areas of law traditionally known as Future Interests. The usefulness of these separations of subject-matter came to be questioned further because the editor could recollect no such division in his practical experience at the bar. The idea was nourished by the research and self-examination induced by the curricular revision studies constantly present in the Law School of Columbia University since 1927. 1 P OWELL, id., at v. 84 LEWIS M. SIMES, CASES AND MATERIALS ON TRUSTS AND SUCCESSION (Callaghan and Co. 1942). For earlier mimeographed versions published locally in Ann Arbor, see LEWIS M. SIMES, TRUSTS AND ESTATES I: CASES AND MATERIALS (1935), and LEWIS M SIMES, TRUSTS & ESTATES II: CASES AND MATERIALS (1936). 85 JOHN RITCHIE, NEILL H. ALFORD, JR. & RICHARD W. EFFLAND, CASES AND MATERIALS ON DECEDENTS\u2019 ESTATES AND TRUSTS (Foundation 1955).",
+"integrity": {
+"state": "complete",
+"basis": "Full retrieved body of 2,383 characters stored; under the 60,000 cap, so nothing was cut.",
+"stamped_at": "2026-09-11T05:02:08",
+"stored_chars": 2383,
+"source_chars": 2383,
+"cap_applied": 60000
+},
+"authority_class": "treatise",
+"claim_layer": "mixed",
+"claim_layer_meaning": "Carries more than one layer. The PASSAGE has to be read to tell which - the document-level label cannot."
+},
+{
+"citation": "p. 22",
+"kind": "treatise",
+"page": 22,
+"authorities": [],
+"text": "Michigan published Cases and Materials on Trusts and Succession in 1960.86 Professors Eugene Scoles of the University of Illinois and Edward Halbach of the University of California at Berkeley published Problems and Materials on Decedents\u2019 Estates and Trusts in 1965.87 Professor Ashbel Green Gulliver of Yale University was the lead author of Cases and Materials on Gratuitous Transfers, which appeared in 1967.88 The separate course on trusts disappeared, even at Harvard Law School and the University of Chicago Law School, the academic homes of Scott and Bogert respectively. The last person to teach a separate course on trusts at Harvard Law School was a visiting professor, Tamar Frankel from Boston University, in Spring Semester 1980.89 The following year, the combined course in \u201cWills and Trusts\u201d was taught by visiting professor Mary Louise Fellows, then on the faculty of the University of Illinois.90 At the University of Chicago Law School, Professor John Langbein combined his two prior courses\u2014\u201cThe Law of Succession,\u201d which covered intestacy, wills, and will substitutes, and \u201cTrusts and Estates,\u201d which despite the name covered trusts and trust administration\u2014into the combined course called \u201cDecedents\u2019 Estates and Trusts\u201d starting in Winter Quarter 1976.91 By the early 1980s, it would be hard to find a 86 GEORGE E. PALMER & RICHARD V. WELLMAN, CASES AND MATERIALS ON TRUSTS AND SUCCESSION (Foundation 1960). 87 EUGENE F. SCOLES & EDWARD C. HALBACH JR., PROBLEMS AND MATERIALS ON DECEDENTS\u2019 ESTATES AND TRUSTS (Little, Brown 1965). A prior temporary edition appeared in 1963; see EUGENE F. SCOLES & EDWARD C. HALBACH JR., PROBLEMS AND MATERIALS ON DECEDENTS\u2019 ESTATES AND TRUSTS (Little, Brown temp. ed. 1963). 88 ASHBEL G. GULLIVER, ELIAS CLARK, LOUIS LUSKY & ARTHUR W. MURPHY, CASES AND MATERIALS ON GRATUITOUS TRANSFERS (West 1967). 89 See Gallanis, Commercial Trusts, supra note 67, at 851. 90 See id. 91 See id. at 850.",
+"integrity": {
+"state": "complete",
+"basis": "Full retrieved body of 1,945 characters stored; under the 60,000 cap, so nothing was cut.",
+"stamped_at": "2026-09-11T05:02:08",
+"stored_chars": 1945,
+"source_chars": 1945,
+"cap_applied": 60000
+},
+"authority_class": "treatise",
+"claim_layer": "mixed",
+"claim_layer_meaning": "Carries more than one layer. The PASSAGE has to be read to tell which - the document-level label cannot."
+},
+{
+"citation": "p. 23",
+"kind": "treatise",
+"page": 23,
+"authorities": [],
+"text": "course solely on the law of trusts at an American law school. Instead, the course covered the law of \u201ctrusts and estates\u201d\u2014the law of donative transfers. The American emphasis on trusts as mechanisms for donative transfers influences the scope and substance of American trust law. With respect to scope, it is noteworthy that commercial uses of the trust, although present and economically significant in the United States, have no discernible impact on American trust law 92 and are not taught in the typical American law school course on trusts and estates. Similarly, commercial trusts have been excluded from every iteration of the Restatement of the Law of Trusts.93 With respect to substance, American succession law places an extraordinarily high priority on the grantor\u2019s donative freedom, and that priority extends into American trust law, which is a part of the law of donative transfers. In the words of the Restatement (Third) of Property, the grantor\u2019s donative freedom is the \u201corganizing principle\u201d94 of American trusts and estates law. It would be hard to find another major country where the grantor\u2019s donative freedom is so highly prized. 95 England and other major common-law jurisdictions embrace the approach of 92 Observe, however, that American trust law influences other parts of American law, such as the laws governing pension funds and charitable corporations. 93 For the current Restatement, see RESTATEMENT (THIRD) OF TRUSTS ch. 1, Introductory Note (Am. L. Inst. 2003) (\u201cThe Restatement of Trusts does not deal with such devices as business trusts, trust used for purposes of security, and many pooled investment arrangements that use a trust concept.\u201d). See also id., \u00a71, cmt. b, and \u00a75, cmt. l. For the first and second Restatements, see RESTATEMENT OF TRUSTS \u00a71, cmt. b (Am. L. Inst. 1935); RESTATEMENT (SECOND) OF TRUSTS \u00a71(b) (Am. L. Inst. 1959). For discussion, see John H. Langbein, The Secret Life of the Trust: The Trust as an Instrument of Commerce, 107 YALE L.J. 165 (1997). 94 RESTATEMENT (THIRD) OF PROPERTY: WILLS AND OTHER DONATIVE TRANSFERS \u00a710.1, cmt. a (Am. L. Inst. 2003). 95 For a recent critique of donative freedom at death, published by a leading scholar outside the United States, see Alexandra Braun, Testamentary Responsibility, 28 EDIN. L. REV. 325 (2024).",
+"integrity": {
+"state": "complete",
+"basis": "Full retrieved body of 2,311 characters stored; under the 60,000 cap, so nothing was cut.",
+"stamped_at": "2026-09-11T05:02:08",
+"stored_chars": 2311,
+"source_chars": 2311,
+"cap_applied": 60000
+},
+"authority_class": "treatise",
+"claim_layer": "mixed",
+"claim_layer_meaning": "Carries more than one layer. The PASSAGE has to be read to tell which - the document-level label cannot."
+},
+{
+"citation": "p. 24",
+"kind": "treatise",
+"page": 24,
+"authorities": [],
+"text": "Testator\u2019s Family Maintenance, wherein the terms of a decedent\u2019s estate plan can be ignored if the decedent\u2019s surviving family members make a sufficient showing of need.96 In civil-law nations, forced provision typically is made not only for a surviving spouse but also for surviving children; thus, the percentage of a decedent\u2019s property that can be transmitted as the decedent wishes is significantly curtailed.97 American law\u2014putting aside the law of Louisiana, with its civil-law heritage 98\u2014rejects these approaches. Instead, American law embraces an exceptionally strong commitment to a Scholars within the United States also have critiqued the American emphasis on deathtime donative freedom. For one example out of many, see Mark L. Ascher, Curtailing Inherited Wealth, 89 MICH. L. REV. 69 (1990) (arguing that \u201call property owned at death, after payment of debts and administration expenses, should be sold and the proceeds paid to the United States government,\u201d subject to six specified exceptions). See also Eric Kades, Anti Trusts, 47 V T. L. REV. 331, 378-381 (2023) (arguing that American law should forbid the settlor of a private donative trust from also being a beneficiary of that trust, and that the beneficial interests in private donative trusts should be limited to certain types\u2014\u201cfee simples, life estates, terms of years, or terms conditional on one or more of a small set of contingencies: a birth, a death, a marriage, or a change in disability status\u201d (id. at 379)). 96 For England, see Roger Kerridge, Family Provision in England and Wales, in COMPARATIVE SUCCESSION LAW, VOLUME III: MANDATORY FAMILY PROVISION 384-416 (Kenneth G.C. Reid, Marius J. de Waal & Reinhard Zimmermann eds. Oxford 2020). For Australia, see Nicola Peart & Prue Vines, Family Provision in New Zealand and Australia, in id., at 450-476. For Canada, see Alexandra Popovici & Lionel Smith, Freedom of Testation and Family Claims in Canada, in id., at 507-533. For the Hong Kong Special Administrative Region, see Freda Lim, Emily Chak & Sasha Allison, Testamentary Freedom in the Shadow of Cap. 481, HONG KONG LAWYER 37- 39 (Jan. 2020). For Singapore, see Harish Kumar, Marissa Zhao & Low Weng Hong, Singapore, in INTERNATIONAL SUCCESSION 839, 842-843 (Louis Garb & Richard Norridge eds. Oxford 5th ed. 2022). 97 See generally Reinhard Zimmermann, Mandatory Family Protection in the Civilian Tradition, in COMPARATIVE SUCCESSION LAW, supra note 96, at 648-706. For mainland China\u2019s former regime of forced heirship and its current regime of family protection, which protects heirs who are unable to work and have no source of income, see Knut Benjamin Pi\u00dfler & Timo Kleinwegener, Necessary Portion in China, in id., at 601-628. For Japan\u2019s forced heirship regime, see Tomoki Debari, Akira Tanaka & Yoshiko Nakamura, Japan, in INTERNATIONAL SUCCESSION, supra note 96, at 525, 527-529. 98 For discussion, see Ronald J. Scalise, Family Protection in the United States of America, in COMPARATIVE SUCCESSION LAW, supra note 96, at 534, 554-561.",
+"integrity": {
+"state": "complete",
+"basis": "Full retrieved body of 3,040 characters stored; under the 60,000 cap, so nothing was cut.",
+"stamped_at": "2026-09-11T05:02:08",
+"stored_chars": 3040,
+"source_chars": 3040,
+"cap_applied": 60000
+},
+"authority_class": "treatise",
+"claim_layer": "mixed",
+"claim_layer_meaning": "Carries more than one layer. The PASSAGE has to be read to tell which - the document-level label cannot."
+},
+{
+"citation": "p. 25",
+"kind": "treatise",
+"page": 25,
+"authorities": [],
+"text": "grantor\u2019s donative freedom. This is reinforced by conceptualizing the law of trusts as part of the law of trusts and estates. D. The Fourth Revolution: The Rise of the Revocable Trust The fourth revolution in American trust law gathered steam in the second half of the twentieth century. American law embraced the revocable trust. American law validates the revocable trust as a nontestamentary transfer\u2014meaning that the instrument creating the trust need not comply with the formalities required of a will\u2014by what is known as the \u201cpresent transfer\u201d test, also known as the \u201cpresent interest\u201d test. 99 An interest in property is deemed to be transferred inter vivos from the settlor to the trust\u2019s beneficiaries, even though the trust is revocable during the settlor\u2019s lifetime and even though the settlor may be the only eligible beneficiary during that period. By satisfying the present transfer test, the transfer is held to be a lifetime transfer, not a deathtime transfer, hence nontestamentary. Professor John Langbein rightly has noted that \u201cthe odor of legal fiction hangs over the present- interest test. We see courts straining to reach right results for wrong reasons and insisting that will-like transfers possess gift-like incidents.\u201d 100 Nowhere was this more evident than in the 99 See generally THOMAS P. GALLANIS, FAMILY PROPERTY LAW: CASES AND MATERIALS ON WILLS, TRUSTS, AND ESTATES 336 (Foundation 9th ed. 2024). For the law of the revocable trust as a \u201cbranch\u201d of American trust law, see John D. Morley & Robert H. Sitkoff, Trust Law: Private Ordering and the Branching of American Trust Law, in ANDREW S. GOLD ET AL. EDS., THE OXFORD HANDBOOK OF THE NEW PRIVATE LAW 325, 330-333 (Oxford University Press 2021). 100 John H. Langbein, The Nonprobate Revolution and the Future of the Law of Succession, 97 HARV. L. REV. 1108, 1128 (1984).",
+"integrity": {
+"state": "complete",
+"basis": "Full retrieved body of 1,857 characters stored; under the 60,000 cap, so nothing was cut.",
+"stamped_at": "2026-09-11T05:02:08",
+"stored_chars": 1857,
+"source_chars": 1857,
+"cap_applied": 60000
+},
+"authority_class": "treatise",
+"claim_layer": "mixed",
+"claim_layer_meaning": "Carries more than one layer. The PASSAGE has to be read to tell which - the document-level label cannot."
+},
+{
+"citation": "p. 26",
+"kind": "treatise",
+"page": 26,
+"authorities": [
+"Farkas v. Williams"
+],
+"text": "leading case of Farkas v. Williams (1955), where the justices of the Illinois Supreme Court admitted that \u201cit is difficult to name this interest\u201d allegedly passing to the trust beneficiary but asserted that \u201cnor is there any reason for doing so as long as it passed to him immediately upon the creation of the trust.\u201d",
+"integrity": {
+"state": "complete",
+"basis": "Full retrieved body of 317 characters stored; under the 60,000 cap, so nothing was cut.",
+"stamped_at": "2026-09-11T05:02:08",
+"stored_chars": 317,
+"source_chars": 317,
+"cap_applied": 60000
+},
+"authority_class": "treatise",
+"claim_layer": "mixed",
+"claim_layer_meaning": "Carries more than one layer. The PASSAGE has to be read to tell which - the document-level label cannot."
+},
+{
+"citation": "p. 101",
+"kind": "treatise",
+"page": 101,
+"authorities": [
+"Farkas v. Williams"
+],
+"text": "The popularity of revocable trusts soared in the United States starting in the 1960s, thanks in large measure to the best-selling book by Norman Dacey, How to Avoid Probate!, which first appeared in 1965. 102 The book contained do-it-yourself forms for, among other things, creating a revocable trust.103 The book was savaged by lawyers and law professors,104 but it sold two million copies.105 It also lit a fire under the drafting committee working on the Uniform Probate Code (UPC),106 which was finalized and approved by the Uniform Law Commission in 1969.107 The UPC streamlined the probate process, reducing its cost and delay.108 101 Farkas v. Williams, 5 Ill.2d 417, 422, 125 N.E.2d 600, 603 (1955). 102 See NORMAN DACEY, HOW TO AVOID PROBATE! (Crown 1965). 103 See id. 104 See, e.g., Allan B. Muchin, Book Review, 16 DEPAUL L. REV. 276, 276 (1966) (\u201c[t]he omissions and inadequacies of this book are frightening\u201d); Robert W. Hallgring, Book Review, 42 WASH. L. REV. 311, 318 (1966) (\u201cdisaster almost inevitably awaits the intrepid settlor who accepts Mr. Dacey\u2019s invitation to plan his own estate\u201d). 105 See Norman Dacey, 85; Advised His Readers to Avoid Probate, N.Y. TIMES, Mar. 14, 1994 (obituary). 106 See R. V. Wellman, The Proposal for a Uniform Probate Code, 24 J. MO. B. 142, 144-145 (Apr. 1968) (\u201cLet\u2019s use the opportunity which Mr. Dacey has given us to get something that is useful to the profession and the public accomplished.\u201d); Richard V. Wellman, The Uniform Probate Code: A Possible Answer to Probate Avoidance, 44 IND. L. J. 191, 198 (1969) (\u201cthe rapidly maturing Uniform Probate Code may provide some answers if it is approved by the Uniform Law Commissioners when they give it final consideration next July\u201d). 107 See UNIF. PROB. CODE (Unif. L. Comm. 1969). 108 See Richard V. Wellman, The New Uniform Probate Code, 56 A.B.A. J. 636 (1970); Richard V. Wellman, The Uniform Probate Code: Blueprint for Reform in the 70s, 2 CONN. L. REV. 453 (1970).",
+"integrity": {
+"state": "complete",
+"basis": "Full retrieved body of 1,976 characters stored; under the 60,000 cap, so nothing was cut.",
+"stamped_at": "2026-09-11T05:02:08",
+"stored_chars": 1976,
+"source_chars": 1976,
+"cap_applied": 60000
+},
+"authority_class": "treatise",
+"claim_layer": "mixed",
+"claim_layer_meaning": "Carries more than one layer. The PASSAGE has to be read to tell which - the document-level label cannot."
+},
+{
+"citation": "p. 27",
+"kind": "treatise",
+"page": 27,
+"authorities": [],
+"text": "Still, the revocable trust remains an attractive and appropriate estate planning tool for many grantors.109 Revocable trusts are so well-accepted and widely-used today in the United States that Americans can be forgiven for assuming that they must be universal. In fact, the widespread use of the revocable trust is a distinctly American phenomenon. The reasons for this vary depending on the other jurisdiction. In England, the use of a revocable trust would be a disaster from the perspective of inheritance taxation. The assets would be subject to taxation multiple times: at the initial transfer into trust; at periodic intervals during the settlor\u2019s lifetime including when distributions are made from the trust; and potentially again at the settlor\u2019s death. 110 This helps to explain why a leading English treatise on the law of succession does not mention the revocable trust. 111 In jurisdictions where taxation is not the primary roadblock to the revocable trust, another obstacle is the apparent doctrinal incoherence. Consider the words of a leading Canadian scholar now based at Oxford University: 109 For one perspective on the advantages and disadvantages of the revocable trust, see Bradley E.S. Fogel, Trust Me? Estate Planning with Revocable Trusts, 58 ST. LOUIS U. L. REV. 805 (2014). 110 See Burges Salmon, The Dangers of US Living Trusts (August 2, 2016), available at https://www.burges-salmon.com/news-and-insight/legal-updates/the-dangers-of-us-lifetime- trusts/ (last visited February 7, 2025); Geoffrey Todd & Amanda Edwards, The Pitfalls of U.S./U.K. Tax Planning: The U.S. Revocable Trust, PROB. & PROP. 60 (Mar./Apr. 2013). See also WATERS\u2019 LAW OF TRUSTS IN CANADA, supra note 37, at \u00a79.I (noting that the \u201cexpress reservation to the settlor of the power of revocation, necessarily in inter vivos trusts, is much less familiar today because of the tax implications of such a reservation\u201d). 111 ROGER KERRIDGE, PARRY AND KERRIDGE: THE LAW OF SUCCESSION (Sweet & Maxwell 13th ed. 2016). Nor is there any mention of revocable trusts in HANBURY & MARTIN: MODERN EQUITY, supra note 39. See also EQUITY AND TRUSTS IN AUSTRALIA, supra note 37, at \u00b625.125 (observing that \u201c[i]t is unusual for the settlor to be vested with a power to revoke because this is adverse to the reason why a settlor usually creates a trust, which is to vest its subject matter in a trustee for the benefit of specified beneficiaries.\u201d).",
+"integrity": {
+"state": "complete",
+"basis": "Full retrieved body of 2,433 characters stored; under the 60,000 cap, so nothing was cut.",
+"stamped_at": "2026-09-11T05:02:08",
+"stored_chars": 2433,
+"source_chars": 2433,
+"cap_applied": 60000
+},
+"authority_class": "treatise",
+"claim_layer": "mixed",
+"claim_layer_meaning": "Carries more than one layer. The PASSAGE has to be read to tell which - the document-level label cannot."
+},
+{
+"citation": "p. 28",
+"kind": "treatise",
+"page": 28,
+"authorities": [],
+"text": "On a traditional view, you can\u2019t have it both ways: if the other beneficiaries have no interest at all until the settlor\u2019s death, then the instrument is testamentary, so that testamentary formalities must be complied with. Alternatively, if the settlor/trustee never intends to comply with the formal terms of the trust, but rather retains full dominion over the property, there is a risk that the trust would be treated as a sham. U.S. law, however, does seem to allow the settlor to have it both ways: the other beneficiaries are understood to have no interest until death, but at the same time the instrument is not testamentary.",
+"integrity": {
+"state": "complete",
+"basis": "Full retrieved body of 632 characters stored; under the 60,000 cap, so nothing was cut.",
+"stamped_at": "2026-09-11T05:02:08",
+"stored_chars": 632,
+"source_chars": 632,
+"cap_applied": 60000
+},
+"authority_class": "treatise",
+"claim_layer": "mixed",
+"claim_layer_meaning": "Carries more than one layer. The PASSAGE has to be read to tell which - the document-level label cannot."
+},
+{
+"citation": "p. 112",
+"kind": "treatise",
+"page": 112,
+"authorities": [],
+"text": "American trust law is practical. It focuses on what works in the real world to achieve the grantor\u2019s donative intention. It is not fussed about whether the practice is consistent with theory. Like the Queen speaking to Alice in Wonderland, Americans have no difficulty believing six practically useful but theoretically impossible things before breakfast.113 Revocable trusts are so widespread in the United States that the Uniform Trust Code (UTC) has reversed the traditional presumption of irrevocability. At common law, a trust was 112 Lionel Smith, Will-Substitutes and Creditors: Canada and the US, in PASSING WEALTH ON DEATH: WILL-SUBSTITUTES IN COMPARATIVE PERSPECTIVE (Alexandra Braun & Anne R\u00f6thel eds. Hart 2016), at 256. 113 See LEWIS CARROLL, THROUGH THE LOOKING-GLASS AND WHAT ALICE FOUND THERE 69 (HarperCollins 2010) (originally published in 1872) (\u201cAlice laughed. \u2018There\u2019s no use trying,\u2019 she said: \u2018one can\u2019t believe impossible things.\u2019 \u2018I dare say you haven\u2019t had much practice,\u2019 said the Queen. \u2018When I was your age I always did it for half an hour a day. Why, sometimes I\u2019ve believed as many as six impossible things before breakfast.\u2019\u201d) (italics in original). For a recent article sounding a related theme, see Lucas Clover-Alcolea, Policy over Doctrine: A Brief History of U.S. Trust Law, 49 ACTEC L.J. 127 (2024).",
+"integrity": {
+"state": "complete",
+"basis": "Full retrieved body of 1,337 characters stored; under the 60,000 cap, so nothing was cut.",
+"stamped_at": "2026-09-11T05:02:08",
+"stored_chars": 1337,
+"source_chars": 1337,
+"cap_applied": 60000
+},
+"authority_class": "treatise",
+"claim_layer": "mixed",
+"claim_layer_meaning": "Carries more than one layer. The PASSAGE has to be read to tell which - the document-level label cannot."
+},
+{
+"citation": "p. 29",
+"kind": "treatise",
+"page": 29,
+"authorities": [],
+"text": "presumed to be irrevocable unless the settlor expressly reserved the power to revoke it.114 This remains the rule in other major common-law jurisdictions.115 In the United States, however, Section 602(a) of the UTC provides: \u201cUnless the terms of a trust expressly provide that the trust is irrevocable, the settlor may revoke or amend the trust.\u201d116 The official Comment to this Section explains the rationale for the UTC rule: \u201cThe Code presumes revocability when the instrument is silent because the instrument was likely drafted by a nonprofessional, who intended the trust as a will substitute.\u201d",
+"integrity": {
+"state": "complete",
+"basis": "Full retrieved body of 599 characters stored; under the 60,000 cap, so nothing was cut.",
+"stamped_at": "2026-09-11T05:02:08",
+"stored_chars": 599,
+"source_chars": 599,
+"cap_applied": 60000
+},
+"authority_class": "treatise",
+"claim_layer": "mixed",
+"claim_layer_meaning": "Carries more than one layer. The PASSAGE has to be read to tell which - the document-level label cannot."
+},
+{
+"citation": "p. 117",
+"kind": "treatise",
+"page": 117,
+"authorities": [
+"See Armitage v. Nurse"
+],
+"text": "Moreover, and especially remarkable, modern American law takes the position that, while the trust is revocable, the trustee owes no fiduciary duties to the beneficiaries. Section 603(b) of the UTC provides: \u201cTo the extent a trust is revocable [and the settlor has the capacity to revoke the trust], rights of the beneficiaries are subject to the control of, and the duties of the trustee are owed exclusively to, the settlor.\u201d 118 This is a far cry from the beneficiary principle.119 Indeed, if the settlor and the trustee of a revocable trust are the same person, as often happens, the only fiduciary duty owed by the settlor-trustee is to herself. 114 See RESTATEMENT (SECOND) OF TRUSTS \u00a7330(1) (Am. L. Inst. 1959) (\u201cThe settlor has the power to revoke the trust if and to the extent that by the terms of the trust he reserved such a power.\u201d). 115 See LEWIN ON TRUSTS, supra note 36, at \u00b633-091; EQUITY AND TRUSTS IN AUSTRALIA, supra note 37, at \u00a725.125; WATERS\u2019 LAW OF TRUSTS IN CANADA, supra note 37, at \u00a79.1; EQUITY AND TRUSTS LAW IN HONG KONG, supra note 37, at \u00b614-28. Revocable trusts are not discussed in SINGAPORE TRUSTS LAW, supra note 37. 116 UNIF. TR. CODE \u00a7602(a). Compare RESTATEMENT (THIRD) OF TRUSTS \u00a763, cmt. c (Am. L. Inst. 2003) (providing a rebuttable presumption that a trust silent on the question of revocability is revocable if the settlor retained an interest in or power of appointment over the trust property). 117 Id., cmt. 118 UNIF. TR. CODE \u00a7603(b). 119 See Armitage v. Nurse, [1998] Ch. 241 at 253 (Eng.) (\u201cIf the beneficiaries have no rights enforceable against the trustees there are no trusts.\u201d).",
+"integrity": {
+"state": "complete",
+"basis": "Full retrieved body of 1,631 characters stored; under the 60,000 cap, so nothing was cut.",
+"stamped_at": "2026-09-11T05:02:08",
+"stored_chars": 1631,
+"source_chars": 1631,
+"cap_applied": 60000
+},
+"authority_class": "treatise",
+"claim_layer": "mixed",
+"claim_layer_meaning": "Carries more than one layer. The PASSAGE has to be read to tell which - the document-level label cannot."
+},
+{
+"citation": "p. 30",
+"kind": "treatise",
+"page": 30,
+"authorities": [],
+"text": "Unique in its embrace of the revocable trust, American law takes a distinctive approach to core matters of trust law such as the role of the settlor vis-\u00e0-vis the beneficiaries and to whom, if to anyone, the trustee owes fiduciary duties. E. The Fifth Revolution: The Age of Statutes The fifth revolution in American trust law accelerated near the end of the twentieth century. The American law of trusts became statutory law. In contrast to the trust law of other major common-law jurisdictions, American trust law is now heavily statutory. This was not always so. I explored this phenomenon and its consequences in a recent law review article. 120 Here is how I described the history: For most of Anglo-American history, trust law was case law. The Anglo- American law of trusts was born and molded in the English Court of Chancery and then, on U.S. shores, re-shaped by the courts of the U.S. states. Trust law, in this respect, stood in sharp contrast to the law of intestacy and wills, where, for centuries, prominent statutes also governed. Examples of such statutes are the Statute of Distribution and the Statute of Frauds, both from the reign of Charles II, and the Wills Act, from the first year of the reign of Victoria. In the U.S., 120 See Thomas P. Gallanis, The Dark Side of Codifying U.S. Trust Law, 49 ACTEC L.J. 283 (2024).",
+"integrity": {
+"state": "complete",
+"basis": "Full retrieved body of 1,341 characters stored; under the 60,000 cap, so nothing was cut.",
+"stamped_at": "2026-09-11T05:02:08",
+"stored_chars": 1341,
+"source_chars": 1341,
+"cap_applied": 60000
+},
+"authority_class": "treatise",
+"claim_layer": "mixed",
+"claim_layer_meaning": "Carries more than one layer. The PASSAGE has to be read to tell which - the document-level label cannot."
+},
+{
+"citation": "p. 31",
+"kind": "treatise",
+"page": 31,
+"authorities": [],
+"text": "prestigious organizations drafted comprehensive codes of probate law, but not of trust law. The Model Probate Code was published in 1946, thanks to a joint effort by the American Bar Association\u2019s Section of Real Property, Probate & Trust Law and the University of Michigan Law School. The Uniform Probate Code was published in 1969 by the Uniform Law Commission. The feature of trust law as largely decisional law remained true in the U.S. even when I began teaching the law of trusts and estates in 1997. The U.S. law of trusts primarily was to be found in the decisions of state courts and in respected secondary sources digesting and refining the rules from those decisions, such as the American Law Institute\u2019s Restatements of the Law of Trusts and the multi- volume treatises on trust law originally authored by Austin Wakeman Scott of the Harvard Law School or George Gleason Bogert of the University of Chicago Law School. To be sure, there were some widely-enacted statutes affecting trust law\u2014 for example, the Uniform Principal and Income Act (originally published in 1931), the Uniform Trustees\u2019 Powers Act (1964), and the Uniform Prudent Investor Act (1994). Additionally, the states of California, Georgia, Indiana, Louisiana, Oklahoma, Texas, and Washington had codified their states\u2019 trust law. In most U.S. states, however, trust law primarily was case law. U.S. trust law no longer is primarily case law. In 2000, the Uniform Law Commission published the Uniform Trust Code (\u201cUTC\u201d). To date, thirty-five U.S. states and the District of Columbia have enacted enough of the UTC to be",
+"integrity": {
+"state": "complete",
+"basis": "Full retrieved body of 1,599 characters stored; under the 60,000 cap, so nothing was cut.",
+"stamped_at": "2026-09-11T05:02:08",
+"stored_chars": 1599,
+"source_chars": 1599,
+"cap_applied": 60000
+},
+"authority_class": "treatise",
+"claim_layer": "mixed",
+"claim_layer_meaning": "Carries more than one layer. The PASSAGE has to be read to tell which - the document-level label cannot."
+},
+{
+"citation": "p. 32",
+"kind": "treatise",
+"page": 32,
+"authorities": [],
+"text": "counted by the Uniform Law Commission as enacting jurisdictions. The UTC is one of the Uniform Law Commission\u2019s successes. By contrast, the Uniform Probate Code has only eighteen enacting jurisdictions. Emboldened by the success of the UTC, the Uniform Law Commission subsequently published additional statutes in the field of trust law. These include the Uniform Trust Decanting Act (2015) and the Uniform Directed Trust Act (2017). The Uniform Law Commission also published statutes in fields of law allied to trusts, for example the Uniform Powers of Appointment Act (2013) and an updated uniform act on principal and income, titled the Uniform Fiduciary Income and Principal Act (2018). U.S. trust law now is heavily statutory.",
+"integrity": {
+"state": "complete",
+"basis": "Full retrieved body of 731 characters stored; under the 60,000 cap, so nothing was cut.",
+"stamped_at": "2026-09-11T05:02:08",
+"stored_chars": 731,
+"source_chars": 731,
+"cap_applied": 60000
+},
+"authority_class": "treatise",
+"claim_layer": "mixed",
+"claim_layer_meaning": "Carries more than one layer. The PASSAGE has to be read to tell which - the document-level label cannot."
+},
+{
+"citation": "p. 121",
+"kind": "treatise",
+"page": 121,
+"authorities": [],
+"text": "Trust law remains primarily case law in England and in other major common-law jurisdictions.122 Not so in the United States. American trust law now is primarily statutory law, thanks in large measure to the UTC, published in 2000, and other statutes on trust law, including statutes on the Rule Against Perpetuities,123 powers of appointment,124 trust decanting,125 directed trusts,126 and spendthrift trusts including asset protection trusts.127 121 Id. at 284-287. 122 This is not to say that there are no relevant statutes. For a discussion of legislative reforms in one common-law jurisdiction, Singapore, see Jeremiah Lau & Kelvin F.K. Low, Reforming the Singapore Trust: Pushing or Breaking Boundaries?, in Ying Khai Liew & Masayuki Tamaruya eds., ASIA-PACIFIC TRUSTS LAW, VOL. 3: BOUNDARIES IN CONTEXT (Hart Publishing, forthcoming 2025). 123 See, e.g., UNIF. STAT. RULE AGAINST PERPETUITIES (1986). 124 See, e.g., UNIF. POWERS OF APPOINTMENT ACT (2013). 125 See, e.g., UNIF. TRUST DECANTING ACT (2015). 126 See, e.g., UNIF. DIRECTED TRUST ACT (2017). 127 The Uniform Trust Code rejects the asset protection trust (self-settled spendthrift trust), see UNIF. TR. CODE \u00a7505(a), but twenty American states have enacted statutes authorizing such trusts. See ALA. CODE \u00a7 19-3E-1 et seq.; ALASKA STAT. \u00a7\u00a713.36.310, 34.40.110; CONN. GEN.",
+"integrity": {
+"state": "complete",
+"basis": "Full retrieved body of 1,337 characters stored; under the 60,000 cap, so nothing was cut.",
+"stamped_at": "2026-09-11T05:02:08",
+"stored_chars": 1337,
+"source_chars": 1337,
+"cap_applied": 60000
+},
+"authority_class": "treatise",
+"claim_layer": "mixed",
+"claim_layer_meaning": "Carries more than one layer. The PASSAGE has to be read to tell which - the document-level label cannot."
+},
+{
+"citation": "p. 33",
+"kind": "treatise",
+"page": 33,
+"authorities": [],
+"text": "The reasons why American trust law became statutory law have been well explored by Professor John Langbein, in an article published in 2007.128 Here is how I summarized Professor Langbein\u2019s findings in my recent article: In a law review article published in 2007, when the UTC was much newer and the post-UTC uniform acts in or allied to trust law were not yet envisioned, Professor John Langbein offered an explanation for this shift in the law of trusts from case law to statute law. He pointed to multiple factors including the transformation of the trust\u2019s core function from the passive transmission of land to the active management of financial assets, the rise of a national trust management industry seeking modernizing legislation, the Uniform Law Commission\u2019s desire to provide such legislation, and the availability of statutory-type language on many topics related to trust law in the Restatements.129 Lawmaking by statute is fundamentally different from lawmaking by judicial decision.",
+"integrity": {
+"state": "complete",
+"basis": "Full retrieved body of 998 characters stored; under the 60,000 cap, so nothing was cut.",
+"stamped_at": "2026-09-11T05:02:08",
+"stored_chars": 998,
+"source_chars": 998,
+"cap_applied": 60000
+},
+"authority_class": "treatise",
+"claim_layer": "mixed",
+"claim_layer_meaning": "Carries more than one layer. The PASSAGE has to be read to tell which - the document-level label cannot."
+},
+{
+"citation": "p. 130",
+"kind": "treatise",
+"page": 130,
+"authorities": [],
+"text": "Transformations that are rare and jurisprudentially challenging at common law\u2014for example, STAT. \u00a745a-487k et seq.; 12 DEL. CODE \u00a73570 et seq.; HAW. REV. STAT. \u00a7554G-1 et seq.; IND. CODE \u00a730-4-7 et seq.; MICH. COMP. LAWS \u00a7700.1041 et seq.; MISS. CODE \u00a7 91-9-701 et seq.; MO. REV. STAT. \u00a7456.5-505; NEV. REV. STAT. \u00a7166.010 et seq.; N.H. REV. STAT. \u00a7564-B:5- 505A; OHIO REV. CODE \u00a75816.01 et seq.; OKLA. STAT. tit. 31 \u00a710 et seq.; R.I. GEN. LAWS \u00a718- 9.2-1 et seq.; S.D. COD. LAWS \u00a755-16-1 et seq.; TENN. CODE \u00a735-16-101 et seq.; UTAH CODE \u00a725-6-502 et seq.; VA. CODE \u00a764.2-745.1; W.VA. CODE \u00a744D-5-503a; WYO. STAT. \u00a7\u00a74-10-504, 4-10-510 et seq. 128 See John H. Langbein, Why Did Trust Law Become Statute Law in the United States?, 58 Ala. L. Rev. 1069 (2007). 129 Gallanis, Dark Side, supra note 120, at 287. 130 For discussion, see id. at 304-309.",
+"integrity": {
+"state": "complete",
+"basis": "Full retrieved body of 847 characters stored; under the 60,000 cap, so nothing was cut.",
+"stamped_at": "2026-09-11T05:02:08",
+"stored_chars": 847,
+"source_chars": 847,
+"cap_applied": 60000
+},
+"authority_class": "treatise",
+"claim_layer": "mixed",
+"claim_layer_meaning": "Carries more than one layer. The PASSAGE has to be read to tell which - the document-level label cannot."
+},
+{
+"citation": "p. 34",
+"kind": "treatise",
+"page": 34,
+"authorities": [
+"Doctor v. Hughes"
+],
+"text": "changing a mandatory rule to a default rule131\u2014are effortless by statute. The trustee\u2019s duty to provide at least some information about the trust to at least some of the trust\u2019s beneficiaries was a mandatory duty at American common law.132 Ditto under the official version of the UTC.133 Under some American statutes, however, it is a mere default rule.134 The settlor may modify or waive the duty to inform and thereby create a \u201csilent trust\u201d in which the beneficiaries have limited or no rights to information. Beyond changing mandatory rules into default rules, statutes can facilitate a much wider range of legal outcomes than would be feasible at common law. For example, it would be nearly impossible to imagine a common-law court re-writing the period of the Rule Against Perpetuities from lives in being plus 21 years to the 90 years of the Uniform Statutory Rule Against Perpetuities\u2014but this was easy to accomplish by legislation.135 And if the Rule Against 131 For a rare example of such a transformation at common law, see Doctor v. Hughes, 225 N.Y. 305, 122 N.E. 221 (1919), in which Judge Benjamin Cardozo transformed the Doctrine of Worthier Title from a mandatory rule to a default rule. 132 RESTATEMENT OF TRUSTS \u00a7173, cmt. c (Am. L. Inst. 1935) (\u201cAlthough the terms of the trust may regulate the amount of information which the trustee must give and the frequency with which it must be given, the beneficiary is always entitled to such information as is reasonably necessary to enable him to enforce his rights under the trust or to prevent or redress a breach of trust.\u201d) The same rule is articulated in the Second Restatement. See R ESTATEMENT (SECOND) OF TRUSTS \u00a7173, cmt. c (Am. L. Inst. 1959). 133 UNIF. TR. CODE \u00a7105(b)(8), (b)(9). In 2004, these provisions were placed in brackets to signal \u201cthat uniformity is not expected.\u201d UNIF. TRUST CODE \u00a7105 cmt. 134 Of the thirty-six U.S. jurisdictions enacting all or most of the UTC, seventeen have deleted the duty to furnish information from the UTC\u2019s list of mandatory rules. See ARK. CODE \u00a728-73- 105(b); 2019 ILL. H.B. 1741, \u00a7105; KANS. STAT. \u00a758a-105(b); MASS. GEN. LAWS ch. 203E, \u00a7105(b); MINN. STAT. \u00a7501C.0105(b); MONT. CODE \u00a772-38-105(2); N.C. GEN. STAT. \u00a736C-1- 105(b); N.D. CENT. CODE \u00a759-09-05(2); N.H. REV. STAT. \u00a7565-B:1-105(b); S.C. CODE \u00a762-7- 105(b); TENN. CODE \u00a735-15-105(b); UTAH CODE \u00a775-7-105(2); 14A VT. STAT. \u00a7105(b); VA. CODE \u00a764.2-703(B); W.VA. CODE \u00a744D-1-105(b); WISC. STAT. \u00a7701.0105(2); WYO. STAT. \u00a74- 10-105(b). 135 See, e.g., UNIF. STAT. RULE AGAINST PERPETUITIES \u00a71(b) (1986). For the rationale of the Uniform Statutory Rule\u2019s 90-year period, see id., cmt. See also Lawrence W. Waggoner, The",
+"integrity": {
+"state": "complete",
+"basis": "Full retrieved body of 2,692 characters stored; under the 60,000 cap, so nothing was cut.",
+"stamped_at": "2026-09-11T05:02:08",
+"stored_chars": 2692,
+"source_chars": 2692,
+"cap_applied": 60000
+},
+"authority_class": "treatise",
+"claim_layer": "mixed",
+"claim_layer_meaning": "Carries more than one layer. The PASSAGE has to be read to tell which - the document-level label cannot."
+},
+{
+"citation": "p. 35",
+"kind": "treatise",
+"page": 35,
+"authorities": [],
+"text": "Perpetuities can be restated by statute as a 90-year limit, nothing is special about the number 90. Ninety years can become 150 years as in the State of Washington;136 300 years as in Texas;137 360 years as in Alabama, Georgia, Michigan, Mississippi, and Tennessee;138 365 years as in Nevada;139 500 years as in Arizona;140 800 years, as in Connecticut;141 1,000 years, as in Colorado, Florida, Utah, and Wyoming;142 or forever, as in the more than twenty U.S. jurisdictions that by statute allow perpetual trusts.143 Turning the Rule Against Perpetuities from case law to statute law helped to facilitate the Rule\u2019s extension or abolition.144 Uniform Statutory Rule Against Perpetuities, 21 REAL PROP., PROB. & TR. J. 569, 575-579 (1986). 136 See REV. CODE WASH. \u00a711.98.130. 137 See TEX. PROP. CODE \u00a7112.036. 138 See ALA. CODE \u00a735-4A-5(9); GA. CODE \u00a744-6-201; MICH. COMP. LAWS \u00a7554.75(2) (interests governed by the personal property trust perpetuities act and created by the exercise of a second power of appointment); MISS. CODE \u00a789-25-9(h) (trusts of personal property; for trusts of real property the period is 110 years); TENN. CODE \u00a766-1-202(f). 139 See NEV. REV. STAT. \u00a7111.1031. 140 See ARIZ. REV. STAT. \u00a714-2901. 141 See CONN. GEN. STAT. \u00a745a-491(f). 142 See COLO. REV. STAT. \u00a715-11-1102.5; FLA. STAT. \u00a7689.225(2)(g); UTAH CODE \u00a775-2-1203; WYO. STAT. \u00a734-1-139(b) (trusts holding \u201cproperty other than or in addition to interests in real property\u201d). 143 See, e.g., ALASKA STAT. \u00a7\u00a734.27.070, 34.27.100; ARK. CODE \u00a718-3-104(8) (but see state constitutional prohibition on perpetuities, ARK. CONST. art. 2, \u00a719); 25 DEL. CODE \u00a7503 (trusts of personal property); D.C. CODE \u00a719-904(a)(10); HAW. REV. STAT. \u00a7525-4(6); IDAHO CODE \u00a7\u00a755- 111, 55-111A; 765 ILL. COMP. STAT. \u00a7\u00a73/1403(c), 3/1404(a)(8); KY. REV. STAT. \u00a7\u00a7381.224, 381.226; ME. REV. STAT. tit. 33, \u00a7114(7); MD. CODE, EST. & TRUSTS \u00a711-102(b)(5); MICH. COMP. LAWS \u00a7\u00a7554.91-554.94 (trusts of personal property); MO. REV. STAT. \u00a7456.025(1); NEB. REV. STAT. \u00a776-2005(9); N.H. REV. STAT. \u00a7\u00a7547:3-k, 564-B:4-402A, 564:24; N.J. STAT. \u00a7\u00a746:2F-9, 46:2F-10; N.C. GEN. STAT. \u00a741-23(h) (but see state constitutional prohibition on perpetuities, N.C. CONST. art. 1, \u00a734); OHIO REV. STAT. \u00a72131.09(B); OKLA. STAT. tit. 60, \u00a7175.47(A) (but see state constitutional prohibition on perpetuities, OKLA. CONST. art 2, \u00a732); 20 PA. CONS. STAT. \u00a76107.1(b)(1); R.I. GEN. LAWS \u00a734-11-38; S.D. COD. LAWS \u00a7\u00a743-5-1-, 43-5-8; VA. CODE \u00a755.1-127(A)(8), (B) (trusts of personal property); WIS. STAT. \u00a7700.16(1)(a). Also worth mentioning are North Dakota, which allows perpetual business trusts, see N.D. CENT. CODE \u00a747-02-27.4(7), and Oregon, which allows perpetual stewardship trusts, see OR. REV. STAT. \u00a7105.950. 144 For discussion, see Gallanis, Dark Side, supra note 120, at 296-300.",
+"integrity": {
+"state": "complete",
+"basis": "Full retrieved body of 2,818 characters stored; under the 60,000 cap, so nothing was cut.",
+"stamped_at": "2026-09-11T05:02:08",
+"stored_chars": 2818,
+"source_chars": 2818,
+"cap_applied": 60000
+},
+"authority_class": "treatise",
+"claim_layer": "mixed",
+"claim_layer_meaning": "Carries more than one layer. The PASSAGE has to be read to tell which - the document-level label cannot."
+},
+{
+"citation": "p. 36",
+"kind": "treatise",
+"page": 36,
+"authorities": [],
+"text": "Lawmaking by statute is more democratic than lawmaking by courts: more open to popular sovereignty, yet also more open to the potentially unsavory aspects of the democratic process, such as interest-group lobbying. I explored this in my recent article.145 For an example, not discussed in my recent article, of the doctrinal results that are easier to achieve by statute than by decisional law, note the intermediate position taken by American statutes on the question whether a trust is an entity. The traditional view, still fully in force in England and other major common-law jurisdictions, 146 is that a trust is not an entity but instead is a fiduciary relationship with respect to specified property.147 This means that lawsuits by third parties cannot be brought against \u201cthe trust\u201d but must be brought against the trustee personally, who may have a right of indemnification from the trust estate if the trustee acted properly.148 The UTC rejects the requirement of personal liability while not quite going so far as to say that the trust is an entity. Instead, the UTC takes the intermediate step of enabling a third-party claim to 145 For discussion, see id. at 288-289, 304-309. 146 See LEWIN ON TRUSTS, supra note 36, \u00a7\u00a71-001\u20131-008; EQUITY AND TRUSTS IN AUSTRALIA, supra note 37, at \u00b616.05; WATERS\u2019 LAW OF TRUSTS IN CANADA, supra note 37, at \u00a71.II; EQUITY AND TRUSTS LAW IN HONG KONG, supra note 37, at \u00b613-4; SINGAPORE TRUSTS LAW, supra note 37, at \u00b6\u00b61-53\u20131-54. 147 See, e.g., RESTATEMENT (SECOND) OF TRUSTS \u00a72 (Am. L. Inst. 1959). The Third Restatement repeats this orthodox view, see RESTATEMENT (THIRD) OF TRUSTS \u00a72 (Am. L. Inst. 2003), but notes that \u201cmodern common-law and statutory concepts and terminology tacitly recognize the trust as a legal \u2018entity,\u2019 consisting of the trust estate and the fiduciary relation between the trustee and the beneficiaries.\u201d Id., cmt a. See also id. ch. 21 (on liability to third parties), especially the Introductory Note to that chapter. 148 See RESTATEMENT (SECOND) OF TRUSTS \u00a7261 (Am. L. Inst. 1959) (\u201cThe trustee is subject to personal liability to third persons on obligations incurred in the administration of the trust to the same extent that he would be liable if he held the property free of trust.\u201d); id., \u00a7\u00a7262-265 (on personal liability); id., \u00a7\u00a7246-248 (on indemnification from the trust estate where the trustee incurred the obligation properly or was not at fault).",
+"integrity": {
+"state": "complete",
+"basis": "Full retrieved body of 2,433 characters stored; under the 60,000 cap, so nothing was cut.",
+"stamped_at": "2026-09-11T05:02:08",
+"stored_chars": 2433,
+"source_chars": 2433,
+"cap_applied": 60000
+},
+"authority_class": "treatise",
+"claim_layer": "mixed",
+"claim_layer_meaning": "Carries more than one layer. The PASSAGE has to be read to tell which - the document-level label cannot."
+},
+{
+"citation": "p. 37",
+"kind": "treatise",
+"page": 37,
+"authorities": [],
+"text": "be brought against a trustee in the trustee\u2019s \u201cfiduciary capacity.\u201d149 Consider the following illustration.150 Trustee A properly enters into a contract with third party X. Later, Trustee A properly resigns and is replaced by Trustee B.151 Later still, X sues former-Trustee A and Trustee B for breach of the contract. The facts found in the course of the litigation show that the contract was breached but that it disclosed Trustee A\u2019s fiduciary capacity. At common law, former- Trustee A cannot transfer the contractual liability to Trustee B without the consent of X.152 Under the UTC, however, the contractual liability is transferred automatically. Former-Trustee A is not personally liable to X, under UTC Section 1010(a),153 and no longer has a fiduciary capacity. Trustee B is liable to X but only in Trustee B\u2019s fiduciary capacity.154 A similar result obtains if the liability arises not from a contract but from a tort or from ownership or control of the trust property, such as a liability arising under environmental law. Let us take an example in tort. Suppose that third party Y is injured by the negligence of an agent or employee of Trustee A. Later, Trustee A properly resigns and is succeeded by Trustee B. Later still, Y sues former- Trustee A and Trustee B in tort. The facts found in the course of litigation show that former- Trustee A was not personally at fault. Former-Trustee A is not liable in a personal capacity, under UTC 1010(b),155 and no longer has a fiduciary capacity. Trustee B is liable to Y but only in 149 UNIF. TR. CODE \u00a71010(c). 150 I am grateful to Professor Lionel Smith for this illustration. 151 On trustee resignation, see UNIF. TR. CODE \u00a7705. 152 See RESTATEMENT (SECOND) OF CONTRACTS \u00a7280 (Am. L. Inst. 1981) (on novation). 153 This subsection states: \u201cExcept as otherwise provided in the contract, a trustee is not personally liable on a contract properly entered into in the trustee\u2019s fiduciary capacity in the course of administering a trust if the trustee in the contract disclosed the fiduciary capacity.\u201d UNIF. TR. CODE \u00a71010(a). 154 See UNIF. TR. CODE \u00a71010(c). Accord RESTATEMENT (THIRD) OF TRUSTS \u00a7106, cmt. b(1) (Am. L. Inst. 2012). 155 See UNIF. TR. CODE \u00a71010(b) (\u201cA trustee is personally liable for torts committed in the course of administering a trust \u2026 only if the trustee is personally at fault.\u201d).",
+"integrity": {
+"state": "complete",
+"basis": "Full retrieved body of 2,363 characters stored; under the 60,000 cap, so nothing was cut.",
+"stamped_at": "2026-09-11T05:02:08",
+"stored_chars": 2363,
+"source_chars": 2363,
+"cap_applied": 60000
+},
+"authority_class": "treatise",
+"claim_layer": "mixed",
+"claim_layer_meaning": "Carries more than one layer. The PASSAGE has to be read to tell which - the document-level label cannot."
+},
+{
+"citation": "p. 38",
+"kind": "treatise",
+"page": 38,
+"authorities": [
+"See Blight v. Hartnoll"
+],
+"text": "Trustee B\u2019s fiduciary capacity.156 Modern American trust law does not quite call the trust an entity but treats it as such for these purposes.157 Statutes adopt an intermediate position that would be unlikely to be adopted by a common-law court. Another result of the transformation of American trust law from case law to statute law is that the statutes have increased the American disregard for the beneficiary principle. A prime example of this can be seen in the interaction of the statutory extension or abolition of the Rule Against Perpetuities and trust law\u2019s requirement that a trust have a definite beneficiary within the perpetuity period.158 Section 402(b) of the UTC states the definite-beneficiary rule: \u201cA beneficiary is definite if the beneficiary can be ascertained now or in the future, subject to any applicable rule against perpetuities.\u201d 159 No American state currently has the common-law Rule Against Perpetuities, and more than two-thirds of the states have enacted statutes allowing noncharitable trusts to last perpetually or for multiple centuries. In lengthening the perpetuity period far beyond the 90 years of the Uniform Statutory Rule or the 125 years currently allowed in England,160 American statutes also have lengthened the period in which a noncharitable trust 156 See UNIF. TR. CODE \u00a71010(c). Accord RESTATEMENT (THIRD) OF TRUSTS \u00a7106, cmt. b(2) (Am. L. Inst. 2012). 157 Accord RESTATEMENT (THIRD) OF TRUSTS Introductory Note to Ch. 21 (Am. L. Inst. 2012). 158 See UNIF. TR. CODE \u00a7402(a)(3) (\u201cA trust is created only if: \u2026 (3) the trust has a definite beneficiary \u2026.\u201d). 159 UNIF. TR. CODE \u00a7402(b). This rule has a long pedigree. See Blight v. Hartnoll, 19 Ch.D. 294, 300-301 (Ch. 1881). 160 See Perpetuities and Accumulations Act 2009 \u00a75(1). See also EQUITY AND TRUSTS IN AUSTRALIA, supra note 37, at \u00b619.85 (describing the maximum perpetuity period in the various Australian states and territories, typically 80 years); WATERS\u2019 LAW OF TRUSTS IN CANADA, supra note 37, at \u00a78.IV (describing the perpetuity period in the various Canadian provinces as either the common-law formulation of lives in being plus 21 years or, in British Columbia, 80 years); SINGAPORE TRUSTS LAW, supra note 37, at \u00b62-122 (100 years). The Hong Kong Special Administrative Region now allows perpetual trusts. EQUITY AND TRUSTS LAW IN HONG KONG, supra note 37, at \u00b615-77.",
+"integrity": {
+"state": "complete",
+"basis": "Full retrieved body of 2,382 characters stored; under the 60,000 cap, so nothing was cut.",
+"stamped_at": "2026-09-11T05:02:08",
+"stored_chars": 2382,
+"source_chars": 2382,
+"cap_applied": 60000
+},
+"authority_class": "treatise",
+"claim_layer": "mixed",
+"claim_layer_meaning": "Carries more than one layer. The PASSAGE has to be read to tell which - the document-level label cannot."
+},
+{
+"citation": "p. 39",
+"kind": "treatise",
+"page": 39,
+"authorities": [],
+"text": "can be valid without an ascertainable beneficiary\u2014and, therefore, without a beneficiary who can enforce the trustee\u2019s fiduciary duties. It is true that the UTC authorizes the court to appoint a guardian ad litem to represent the interests of unborn or unascertained beneficiaries161\u2014but given that American trusts typically involve no court supervision, who will bring an action for the appointment of such a representative? Moreover, even if a guardian ad litem is appointed, who will ensure that the guardian vigorously defends the interests of the unborn or unascertained persons he or she represents? A recent case illustrates the problem. In Matter of Beebe, 162 the settlor of an irrevocable trust filed a petition for reformation of the trust\u2019s terms, arguing that he meant to give the remainder interest only to his own descendants, not to the descendants of all of the current beneficiaries. The trial court appointed a guardian ad litem to represent the minor children who descended from the current beneficiaries but not from the settlor. This guardian ad litem hardly was a vigorous representative. Here is how the Mississippi Supreme Court described the steps taken by the guardian: He \u201ctestified that he had written the parents of the minor children, and he largely received no response. He stated that no parent had voiced an objection to the petition. Therefore, \u2026 he took a neutral position in the case on behalf of the children.\u201d 163 Quis custodiet ipsos custodes, indeed.164 As a practical matter, trusts in more than two-thirds of the states can 161 See UNIF. TR. CODE \u00a7305(a) (\u201cIf the court determines that an interest is not represented under this [article], or that the otherwise available representation might be inadequate, the court may appoint a [representative] to receive notice, give consent, and otherwise represent, bind, and act on behalf of a minor, incapacitated, or unborn individual, or a person whose identity or location is unknown.\u201d). 162 2024 WL 857220 (Miss. Feb. 29, 2024). I am grateful to Professor Charles E. Rounds Jr. for bringing this case to my attention, through a post on LinkedIn. 163 Id. at *10. 164 The phrase traditionally is attributed to Juvenal\u2019s Satires but may be an interpolation.",
+"integrity": {
+"state": "complete",
+"basis": "Full retrieved body of 2,242 characters stored; under the 60,000 cap, so nothing was cut.",
+"stamped_at": "2026-09-11T05:02:08",
+"stored_chars": 2242,
+"source_chars": 2242,
+"cap_applied": 60000
+},
+"authority_class": "treatise",
+"claim_layer": "mixed",
+"claim_layer_meaning": "Carries more than one layer. The PASSAGE has to be read to tell which - the document-level label cannot."
+},
+{
+"citation": "p. 40",
+"kind": "treatise",
+"page": 40,
+"authorities": [],
+"text": "last for multiple centuries or forever without a definite beneficiary\u2014hence, potentially, without fiduciary duties that are meaningfully enforceable. In contrast to the trust law of other major common-law jurisdictions, the modern American law of trusts is primarily enacted by legislatures, with all of the possibilities and pitfalls of legislative lawmaking. II. A PERSONAL ASSESSMENT This Part offers a personal assessment of the five revolutions. In doing so, this Part is mindful of the words quoted at the beginning of this Article from Professor S.F.C. Milsom\u2019s magisterial book, Historical Foundations of the Common Law: \u2018No major proposition in legal history is ever likely to be final, and any single picture must be a personal one.\u201d165 No two historians are precisely the same in how they join the unnumbered dots. One can hope to succeed in convincing others, as Professor Peter Brown did in creating the field of Late Antiquity. But the historical picture is personal. Also personal is a normative assessment of the history. Have the American revolutions in trust law been for good or for ill? There are no universally agreed criteria. A libertarian assesses the history by the effect on individual autonomy. 166 An egalitarian assesses it by the effect on equality\u2014in this case, perhaps, wealth equality.167 A utilitarian 165 MILSOM, supra note 1, at 8. 166 For a classic statement, see ROBERT NOZICK, ANARCHY, STATE AND UTOPIA (Basic Books 1974). 167 There are many forms of egalitarianism. For one influential account, see JOHN RAWLS, A THEORY OF JUSTICE (Belknap 1971).",
+"integrity": {
+"state": "complete",
+"basis": "Full retrieved body of 1,586 characters stored; under the 60,000 cap, so nothing was cut.",
+"stamped_at": "2026-09-11T05:02:08",
+"stored_chars": 1586,
+"source_chars": 1586,
+"cap_applied": 60000
+},
+"authority_class": "treatise",
+"claim_layer": "mixed",
+"claim_layer_meaning": "Carries more than one layer. The PASSAGE has to be read to tell which - the document-level label cannot."
+},
+{
+"citation": "p. 41",
+"kind": "treatise",
+"page": 41,
+"authorities": [
+"New State Ice Co. v. Liebmann"
+],
+"text": "assesses it by the effect on overall welfare.168 And so forth. There is no shared framework. What follows is a personal assessment, and provisional. \u201cNo major proposition in legal history is ever likely to be final\u2026.\u201d169 The same can be said about a normative assessment. The five American revolutions have created a distinctive body of trust law. American trust law differs markedly from the trust law of other major common-law or civil-law nations. No body of law is perfect, and we have already noted one potential weakness of modern American trust law: primarily made by legislatures, it is more subject to interest-group lobbying than trust law made by common-law judges. 170 Yet beauty is in the eye of the beholder. Whether one praises or condemns particular legislative outcomes depends on whether one agrees or disagrees with the outcomes. Before reaching firm conclusions about whether particular legislative outcomes deserve praise or condemnation, one might allow time for results to emerge from the laboratory of the states. As Justice Brandeis observed, \u201ca single courageous State may, if its citizens choose, serve as a laboratory; and try novel social and economic experiments without risk to the rest of the country.\u201d 171 This is one of the positive features of American trust law as state law. We should not expect the trust law of each American state to be uniform. It has not been uniform at any time 168 For a classic account, see JOHN STUART MILL, UTILITARIANISM (Parker, Son, and Bourn 1863). See also KATARZYNA DE LAZARI-RADEK & PETER SINGER, UTILITARIANISM: A VERY SHORT INTRODUCTION (Oxford 2017). 169 Id. 170 See Gallanis, Dark Side, supra note 120, at 288-289. 171 New State Ice Co. v. Liebmann, 285 U.S. 262. 311 (1932) (Brandeis, J., dissenting).",
+"integrity": {
+"state": "complete",
+"basis": "Full retrieved body of 1,776 characters stored; under the 60,000 cap, so nothing was cut.",
+"stamped_at": "2026-09-11T05:02:08",
+"stored_chars": 1776,
+"source_chars": 1776,
+"cap_applied": 60000
+},
+"authority_class": "treatise",
+"claim_layer": "mixed",
+"claim_layer_meaning": "Carries more than one layer. The PASSAGE has to be read to tell which - the document-level label cannot."
+},
+{
+"citation": "p. 42",
+"kind": "treatise",
+"page": 42,
+"authorities": [],
+"text": "in American history\u2014as our megatreatises and Restatements attest. Rather, American trust law reflects the differing policy choices of each state. States that have authorized silent trusts or asset protection trusts or that have abolished or extended the Rule Against Perpetuities are no less within the American tradition than the states choosing to adopt different points on the spectrum of trust law. Some American states emphasize the freedom of the market and of the grantor, rights of private property, comparatively low regulation and taxation, and the accumulation and transmission of private capital. These states have not upended the American law of trusts. They are squarely within its traditions as a matter of history, doctrine, and policy. They are consistent with the five revolutions. While it is too soon to render final judgment on American trust law\u2014which, in any event, continues to evolve\u2014the five revolutions have provided American trust law with a comparative advantage over the trust law of many competitor nations.",
+"integrity": {
+"state": "complete",
+"basis": "Full retrieved body of 1,038 characters stored; under the 60,000 cap, so nothing was cut.",
+"stamped_at": "2026-09-11T05:02:08",
+"stored_chars": 1038,
+"source_chars": 1038,
+"cap_applied": 60000
+},
+"authority_class": "treatise",
+"claim_layer": "mixed",
+"claim_layer_meaning": "Carries more than one layer. The PASSAGE has to be read to tell which - the document-level label cannot."
+},
+{
+"citation": "p. 172",
+"kind": "treatise",
+"page": 172,
+"authorities": [],
+"text": "Capital is mobile, and there is competition for trust law and trust services. The competition exists among nations and among U.S. states. It is impossible to know the total number of trusts in the United States or their aggregate value because many trusts are privately created and managed. However, one estimate is that the 172 See generally Al W. King III, Why Are Non-Resident Aliens Attracted to U.S. Trust Situs?, TR. & EST. 8 (June 2024).",
+"integrity": {
+"state": "complete",
+"basis": "Full retrieved body of 444 characters stored; under the 60,000 cap, so nothing was cut.",
+"stamped_at": "2026-09-11T05:02:08",
+"stored_chars": 444,
+"source_chars": 444,
+"cap_applied": 60000
+},
+"authority_class": "treatise",
+"claim_layer": "mixed",
+"claim_layer_meaning": "Carries more than one layer. The PASSAGE has to be read to tell which - the document-level label cannot."
+},
+{
+"citation": "p. 43",
+"kind": "treatise",
+"page": 43,
+"authorities": [],
+"text": "value of trust and estate assets in the United States, in 2021, exceeded $5.6 trillion.173 Why is so much wealth held in trust in the United States? There are many reasons, including confidence in the United States\u2019 legal, political, and economic systems, but let me suggest a reason specific to American trust law: it enables settlors to achieve their estate planning goals. For settlors domiciled in the United States, estate planning can be accomplished without having to use the law of an offshore jurisdiction. This is in contrast to England and some other leading common-law nations, where onshore restrictions necessitate offshore planning. Settlors domiciled in the United States typically do not need offshore planning; trust administration within the United States achieves their objectives. American law also appeals to settlors domiciled outside the United States. Some of this appeal, admittedly, is the relative financial secrecy offered by the United States compared to other nations. The federal Financial Account Tax Compliance Act (FATCA) requires foreign financial institutions to share data on the overseas accounts of U.S. persons, 174 but there is no similar reporting requirement by which the U.S. accounts of non-U.S. persons are reported to the country of citizenship. For example, the U.S. has not joined the Common Reporting Standard (CRS) of the Organization for Economic Co-operation and Development. 175 This makes the U.S. well-situated to provide financial privacy for foreign settlors. Indeed, there is some evidence that 173 See G. Zucman, T. Piketty & E. Saez, Distributional National Accounts: Methods and Estimates for the United States, tbl. S.B2 (Feb. 2022), available at gabriel-zucman.eu/usdina (last visited February 8, 2025). 174 See generally Pub. L. 111-147 (2010). 175 The list of signatories is available at https://www.oecd.org/tax/automatic-exchange/about- automatic-exchange/crs-mcaa-signatories.pdf (last visited February 8, 2025).",
+"integrity": {
+"state": "complete",
+"basis": "Full retrieved body of 1,982 characters stored; under the 60,000 cap, so nothing was cut.",
+"stamped_at": "2026-09-11T05:02:08",
+"stored_chars": 1982,
+"source_chars": 1982,
+"cap_applied": 60000
+},
+"authority_class": "treatise",
+"claim_layer": "mixed",
+"claim_layer_meaning": "Carries more than one layer. The PASSAGE has to be read to tell which - the document-level label cannot."
+},
+{
+"citation": "p. 44",
+"kind": "treatise",
+"page": 44,
+"authorities": [],
+"text": "funds have flowed from other countries to American financial institutions after the United States implemented FATCA but declined to join the CRS.176 There also is anecdotal evidence of foreign settlors turning to trusts administered within the United States. For example, Horst Happel of Brazil, who kept his assets in a Bailiwick of Jersey trust for decades, established a South Dakota trust in 2018. 177 Still, it must be remembered that the same financial secrecy regime applies throughout the United States. Foreign settlors have shown a targeted interest in certain American states based on the trust law and tax law of those states. Some trust companies based in the United States tout the particularized benefits of certain states\u2019 trust and tax laws.",
+"integrity": {
+"state": "complete",
+"basis": "Full retrieved body of 758 characters stored; under the 60,000 cap, so nothing was cut.",
+"stamped_at": "2026-09-11T05:02:08",
+"stored_chars": 758,
+"source_chars": 758,
+"cap_applied": 60000
+},
+"authority_class": "treatise",
+"claim_layer": "mixed",
+"claim_layer_meaning": "Carries more than one layer. The PASSAGE has to be read to tell which - the document-level label cannot."
+},
+{
+"citation": "p. 178",
+"kind": "treatise",
+"page": 178,
+"authorities": [],
+"text": "There even are rankings of American states based on their trust and tax laws.179 These state trust and tax laws enable settlors to achieve their estate planning objectives. 176 See, e.g., Lukas Hakelberg & Max Schaub, The Redistributive Impact of Hypocrisy in International Taxation, 12 REG. & GOVERNANCE 353 (2018); Elisa Casi, Christoph Spengel & Barbara M.B. Stage, Cross-Border Tax Evasion After the Common Reporting Standard: Game Over?, 190 J. PUB. ECON. 1, 11 (2020) (\u201cafter the CRS took effect, an unexpected country seems to have begun to attract wealth and related income, namely, the United States\u201d); Petr Jansk\u00fd, Markus Meinzer & Miroslav Palansk\u00fd, Is Panama Really Your Tax Haven? Secrecy Jurisdictions and the Countries They Harm, 16 R EG. & GOVERNANCE 673, 689 (2022) (finding that the U.S. is the most significant jurisdiction providing financial secrecy for E.U.-based persons). 177 See Noam Noked & Zachary Marcone, The International Response to the U.S. Tax Haven, 48 YALE J. INT\u2019L L. 177, 198 (2023) (recounting information gleaned from the Pandora Papers). 178 See, e.g., US Trust Advisory Services LLC, at http://ustrustadvisory.com/us-trusts/ (last visited February 8, 2025) (recommending South Dakota and Delaware generally for international clients, but recommending Wyoming and Nevada for the subset of international clients who want an unlicensed private trust company to serve as trustee). 179 See, e.g., Daniel G. Worthington & Marc Merric, Which Situs is Best in 2024?, TR. & EST. 41 (Jan. 2024) (ranking South Dakota, Alaska, Nevada, Delaware, and Tennessee as \u201ctop tier,\u201d and Wyoming, Ohio, and New Hampshire as \u201csecond tier\u201d). See also International Consortium of Investigative Journalists, Offshore Havens and Hidden Riches of World Leaders and Billionaires Exposed in Unprecedented Leak (October 3, 2021), available at https://www.icij.org/investigations/pandora-papers/global-investigation-tax-havens-offshore/ (last visited February 8, 2025) (identifying South Dakota, Florida, Delaware, Texas, and Nevada, in that order descending, as the U.S. states having the most trusts mentioned in the Pandora Papers).",
+"integrity": {
+"state": "complete",
+"basis": "Full retrieved body of 2,145 characters stored; under the 60,000 cap, so nothing was cut.",
+"stamped_at": "2026-09-11T05:02:08",
+"stored_chars": 2145,
+"source_chars": 2145,
+"cap_applied": 60000
+},
+"authority_class": "treatise",
+"claim_layer": "mixed",
+"claim_layer_meaning": "Carries more than one layer. The PASSAGE has to be read to tell which - the document-level label cannot."
+},
+{
+"citation": "p. 45",
+"kind": "treatise",
+"page": 45,
+"authorities": [],
+"text": "It is not surprising that American trust law has evolved in a direction that respects the settlor\u2019s intentions. There are other examples in legal history of jurisdictions competing to supply law that is favorable to the person best positioned to select the law. In the fifteenth and sixteenth centuries, the Court of King\u2019s Bench and the Court of Common Pleas competed to offer law favorable to the plaintiff, who was the party in litigation with the power to decide in which English court a lawsuit would be brought. 180 In the same vein, modern jurisdictions compete to offer trust law favorable to the trust\u2019s settlor. American trust law is shaped by this competition but also by American values. The Declaration of Independence of 1776 reflects the American commitment to two values that are admittedly in tension: liberty and equality. 181 Different American states instantiate these values differently. With respect to trust law, American states diverge on the balance to be struck between honoring the settlor\u2019s liberty versus promoting intergenerational wealth equality, for example. Is the jurisdictional competition for trust law and trust services a \u201crace to the bottom\u201d or a \u201cclimb to the top\u201d? 182 As stated earlier, we might be wise to pause for more data from the laboratory of the states before declaring an answer. 180 See generally SIR JOHN BAKER, AN INTRODUCTION TO ENGLISH LEGAL HISTORY 52-54 (Oxford University Press 5th ed. 2019); Daniel Klerman, Jurisdictional Competition and the Evolution of the Common Law, 74 U. CHI. L. REV. 1179 (2009). 181 See generally ALEXANDER TSESIS, FOR LIBERTY AND EQUALITY: THE LIFE AND TIMES OF THE DECLARATION OF INDEPENDENCE (Oxford University Press 2012). 182 See Daniel R. Fischel, Race to the Bottom Revisited: Reflections on Recent Developments in Delaware\u2019s Corporation Law, 76 NW. U. L. REV. 913, 920 (1982).",
+"integrity": {
+"state": "complete",
+"basis": "Full retrieved body of 1,870 characters stored; under the 60,000 cap, so nothing was cut.",
+"stamped_at": "2026-09-11T05:02:08",
+"stored_chars": 1870,
+"source_chars": 1870,
+"cap_applied": 60000
+},
+"authority_class": "treatise",
+"claim_layer": "mixed",
+"claim_layer_meaning": "Carries more than one layer. The PASSAGE has to be read to tell which - the document-level label cannot."
+},
+{
+"citation": "p. 46",
+"kind": "treatise",
+"page": 46,
+"authorities": [],
+"text": "Still, there is a functional reason to prefer the American emphasis on the intentions of the trust\u2019s settlor over the wishes of the trust\u2019s beneficiaries. In the modern era, it is far easier to discern and honor the former than the latter.183 The intentions of the settlor are determined from the terms of the trust,184 whereas there is no similarly straightforward source for determining the wishes of all beneficiaries. The modern family trust typically has one or two settlors yet many beneficiaries\u2014some beneficiaries are identified by name, others by class-gift terminology; the beneficiaries of class gifts regularly include unborn or unascertained persons, often across multiple generations, perhaps with significant conflicts of interest; and the beneficial interests created in today\u2019s trusts commonly are discretionary rather than fixed. 185 In such an environment, the settlor\u2019s intentions are far more clear-cut than the beneficiaries\u2019. The American emphasis on the settlor has a functional logic. CONCLUSION The fifth revolution continues. The American law of trusts continues to turn from case law into statute law. The Uniform Law Commission is engaged in a multi-year project to write a statute codifying the law of conflict of laws applicable to trusts and estates. The current draft embraces the position, advocated by me in a previous law review article,186 that the law of 183 I am grateful to Professor M. Todd Henderson for this observation, in a conversation as we walked from the Quadrangle Club to the Law School after a Faculty Roundtable. 184 I use \u201cterms of the trust\u201d in the sense in which it is defined in UNIF. TR. CODE \u00a7103(18). 185 On discretionary trusts, see GALLANIS, FAMILY PROPERTY LAW, supra note 99, at 577-588. 186 See Thomas P. Gallanis, Trusts and the Choice of Law: What Role for the Settlor\u2019s Choice and the Place of Administration?, 97 TUL. L. REV. 805, 821 (2023).",
+"integrity": {
+"state": "complete",
+"basis": "Full retrieved body of 1,911 characters stored; under the 60,000 cap, so nothing was cut.",
+"stamped_at": "2026-09-11T05:02:08",
+"stored_chars": 1911,
+"source_chars": 1911,
+"cap_applied": 60000
+},
+"authority_class": "treatise",
+"claim_layer": "mixed",
+"claim_layer_meaning": "Carries more than one layer. The PASSAGE has to be read to tell which - the document-level label cannot."
+},
+{
+"citation": "p. 47",
+"kind": "treatise",
+"page": 47,
+"authorities": [],
+"text": "conflict of laws should foster the core principles of the relevant substantive law. With respect to American trust and estate law, the core principle is to honor the settlor\u2019s donative freedom.187 That donative freedom includes the ability of out-of-state and foreign settlors to create trusts in a chosen American state, within broad limits, and to select that state\u2019s law to govern the administration of the trust. The current draft of the proposed statute provides that, as long as the transfer into trust is not a voidable transfer,188 questions pertaining to the substantive validity of the trust,189 other than the settlor\u2019s capacity and consent,190 are determined under \u201c(1) the law of the state designated in the trust for that purpose\u201d191 or \u201c(2) if the designated state has no substantial relation to the trust or the application of the law of the designated state violates a strong public policy of the state with the most significant connection to the trust as to the matter at issue, the law of the state with the most significant connection to the trust as to the matter at issue.\u201d192 Questions pertaining to the administration of the trust are \u201cgoverned by the law of the state designated in the terms of the trust for that purpose, unless the designated state has no substantial relation to the trust.\u201d193 But absent an effective designation, \u201ca matter of administration of a trust is governed by the law of the state of the principal place of 187 See RESTATEMENT (THIRD) OF PROPERTY: WILLS AND OTHER DONATIVE TRANSFERS \u00a710.1, cmt. a (Am. L. Inst. 2003) (\u201cThe organizing principle of the American law of donative transfers is freedom of disposition.\u201d). 188 For discussion of this issue, see Gallanis, Trusts and the Choice of Law, supra note 186, at 828. The draft act does not apply to the choice of law governing a \u201ctransfer of property to a trustee.\u201d Unif. L. Comm., Conflict of Laws in Trusts and Estates Act \u00a7204(a)(1) (Draft of February 10, 2025). 189 Questions of substantive validity include \u201ca matter affecting restraints on the alienation of a beneficiary\u2019s interest in the trust and a matter of trust duration subject to the rules governing perpetuities, accumulations of income, and suspension of the power of alienation \u2026.\u201d Id., \u00a7204(a)(1). 190 Questions of the settlor\u2019s capacity and consent are addressed in Section 203. See id., \u00a7 203. 191 Id., \u00a7204(a)(1). 192 Id., \u00a7204(a)(2). 193 Id., \u00a7206(a).",
+"integrity": {
+"state": "complete",
+"basis": "Full retrieved body of 2,427 characters stored; under the 60,000 cap, so nothing was cut.",
+"stamped_at": "2026-09-11T05:02:08",
+"stored_chars": 2427,
+"source_chars": 2427,
+"cap_applied": 60000
+},
+"authority_class": "treatise",
+"claim_layer": "mixed",
+"claim_layer_meaning": "Carries more than one layer. The PASSAGE has to be read to tell which - the document-level label cannot."
+},
+{
+"citation": "p. 48",
+"kind": "treatise",
+"page": 48,
+"authorities": [],
+"text": "administration \u2026.\u201d194 The principal place of administration largely is for the settlor to control. As the draft statute states, \u201c[t]he terms of a trust designating the principal place of administration of the trust are controlling if: (1) a trustee\u2019s place of business is located in the designated state; (2) a trustee or a trust director resides in the designated state; or (3) all or part of the administration occurs in the designated state.\u201d 195 The draft statute gives the settlor great latitude to select favorable trust law. The five revolutions have created a distinctive body of American trust law. Its characteristic features include the laboratory of the states, an exceptionally strong emphasis on the settlor\u2019s donative freedom, trusts conceptualized as donative transfers, a distinctively weak adherence to the beneficiary principle and related rules, and lawmaking by legislation. These features provide a foundation for a comparative advantage in trust law vis-\u00e0-vis many competitor nations. With modernizing and freedom-enhancing legislation forthcoming on the associated law of conflict of laws, American trust law is poised to retain and even enhance its comparative advantage. 194 Id., \u00a7206(b). 195 Id., \u00a7207(a).",
+"integrity": {
+"state": "complete",
+"basis": "Full retrieved body of 1,232 characters stored; under the 60,000 cap, so nothing was cut.",
+"stamped_at": "2026-09-11T05:02:08",
+"stored_chars": 1232,
+"source_chars": 1232,
+"cap_applied": 60000
+},
+"authority_class": "treatise",
+"claim_layer": "mixed",
+"claim_layer_meaning": "Carries more than one layer. The PASSAGE has to be read to tell which - the document-level label cannot."
+}
+]
+}
