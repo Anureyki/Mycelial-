@@ -913,7 +913,7 @@ class GrowAgent(AgentBase):
                 "log_training_event", "recommend_feed", "plan_system_transition",
                 "set_grow_system", "get_grow_system", "amend_grow_system",
                 "field_history", "assess_root_zone", "void_reservoir_eval",
-                "reconcile_ec_temperature", "intake_reading", "when_to_top_up", "project_topup", "plan_feed_for_target", "ppm_per_ml", "round_to_instrument", "assess_ph",
+                "reconcile_ec_temperature", "intake_reading", "when_to_top_up", "project_topup", "plan_feed_for_target", "ppm_per_ml", "round_to_instrument", "assess_ph", "quantities",
                 "get_nutrient_history",
                 "set_inventory", "get_inventory",
                 "check_in", "analyze_consumption", "adjust_to_target_ppm",
@@ -2982,6 +2982,17 @@ class GrowAgent(AgentBase):
         ("drawdown",   r"\bhow long\b.*\b(drop|fall|come down|draw|last|get (down )?to)\b|"
                        r"\b(drop|fall|draw down)\b.*\bto\s*\d{2,4}\b|"
                        r"\bhow (long|many days)\b.*\b\d{2,4}\b"),
+        # Asked BEFORE "blockers", which owns "safe to" and answers about feed
+        # strength. "Is 26.5C safe to seat the plant" matched there twice and
+        # came back about ppm - the reasoning lived in assess_root_zone and the
+        # router had no path to it. The verb existed; the route did not.
+        ("root_zone",  r"\b(root|roots|rot|pythium|slim\w*|net pot)\b|"
+                       r"\b(safe|ok|alright)\b[^.]{0,30}\b(seat|put|place|drop|lower|"
+                       r"submerge|go(?:ing)? (?:back )?in)\b|"
+                       r"\b(water|res|reservoir|solution)\b[^.]{0,20}\b(temp|temperature|"
+                       r"warm|hot|cold)\b|"
+                       r"\b\d{2}(?:\.\d)?\s*(?:c|celsius|f|fahrenheit)\b[^.]{0,30}"
+                       r"\b(safe|ok|seat|plant|root)\b"),
         ("blockers",   r"\bwhy (can'?t|cant|not|won'?t|shouldn'?t)\b|\bwhat'?s (stopping|blocking)\b|"
                        r"\bwhy not (now|yet)\b|\bsafe to\b|\bshould i wait\b"),
         ("why",        r"\bwhy\b|\bhow come\b|\bwhat made\b|\bdid we (stop|choose|pick|decide)\b"),
@@ -5015,6 +5026,142 @@ class GrowAgent(AgentBase):
         return {"logged": True, "reading": reading,
                 "result": self.handle_task("log_reading", args, self.agent_id)}
 
+    # Each quantity carries its OWN unit and its OWN plausible range. One
+    # band-pass filter tuned for ppm was discarding pH, EC, temperature and
+    # volume alike - they were competing for a single gate instead of each
+    # passing through their own.
+    QUANTITY_RANGES = {
+        "ppm":     (0.0, 3000.0, "ppm",  "dissolved solids"),
+        "ec_us":   (0.0, 6000.0, "uS/cm", "conductivity, normalised from mS if given"),
+        "ph":      (0.0, 14.0,   "pH",   "the scale itself bounds it"),
+        "temp_c":  (0.0, 45.0,   "degC", "normalised from F if given"),
+        "litres":  (0.0, 200.0,  "L",    "vessel scale for this grow"),
+    }
+
+    def quantities(self, text):
+        """Every measurement in a sentence, WITH its unit. Not one filtered list.
+
+        `answer` carried a single `nums` built from two-to-four-digit integers
+        between 50 and 3000 - a band tuned for ppm, which silently ate every
+        other quantity this grow measures. Verified: "ppm is 40" -> nothing,
+        "EC 1.5" -> nothing, "pH 5.5" -> nothing, "9 litres" -> nothing,
+        "26.5 C" -> nothing. A facet asking for a temperature got an empty list
+        and concluded none was given, which is how a question containing the
+        answer got routed to a lecture about feed strength.
+
+        A number without a unit is not a measurement. This reads the unit from
+        the text where it is stated, and from magnitude only where magnitude is
+        unambiguous for THIS grow - pH never exceeds 14, this reservoir never
+        exceeds ~16 L, EC is either ~1.5 mS or ~1500 uS and those cannot be
+        confused with each other. Where a number is genuinely ambiguous it goes
+        in `unassigned` rather than being guessed into a field."""
+        t = (text or "").lower()
+        out = {"ppm": None, "ec_us": None, "ph": None, "temp_c": None,
+               "litres": None, "unassigned": []}
+
+        def _f(m, g=1):
+            try:
+                return float(m.group(g))
+            except Exception:
+                return None
+
+        m = re.search(r'(\d{1,4}(?:\.\d+)?)\s*(?:ppm|tds)\b', t)
+        if m: out["ppm"] = _f(m)
+        m = re.search(r'(?:ppm|tds)\D{0,12}?(\d{1,4}(?:\.\d+)?)', t)
+        if m and out["ppm"] is None: out["ppm"] = _f(m)
+
+        m = re.search(r'(\d{1,5}(?:\.\d+)?)\s*(?:us|µs|uscm|microsiemens)\b', t)
+        if m: out["ec_us"] = _f(m)
+        else:
+            # The grower writes "1602 ec" as often as "ec 1602", and a lookahead
+            # gap wide enough to find the second will step OVER another unit to
+            # do it: "1602 ec ph 5.24" matched ec->5.24 and reported 5240 uS
+            # while the real figure sat immediately to the left. Try the number
+            # BEFORE the label first, and allow no unit word inside the gap.
+            m = (re.search(r'(\d{1,5}(?:\.\d+)?)\s*ec\b', t)
+                 or re.search(r'\bec\b[^0-9a-z]{0,4}(\d{1,5}(?:\.\d+)?)', t))
+            if m:
+                v = _f(m)
+                if v is not None:
+                    out["ec_us"] = v * 1000 if v <= 20 else v
+
+        # TRY BOTH FORMS AND KEEP THE PLAUSIBLE ONE, rather than short-circuiting
+        # on whichever matches first. "764 ppm 1543 ec 5.50 ph 22.7 c" matched
+        # the label-first pattern as "ph 22.7" - reaching FORWARD past the real
+        # value to the temperature - and because it matched, the number-first
+        # pattern never ran and the pH was reported as absent. A pH above 14 is
+        # not a pH, so the range check is the discriminator; it just has to be
+        # applied to every candidate instead of only the first.
+        # The gap may contain CONNECTORS but never another unit label. Barring
+        # letters outright stopped "pH is 22.7" being parsed at all, so an
+        # impossible pH was reported as no pH - and "not given" and "given and
+        # impossible" are exactly the two states this is meant to separate.
+        _CONN = r'(?:\s*(?:is|was|at|of|reads?|=|:)\s*|\s+|[:=]\s*)?'
+        for _pat in (r'(\d{1,3}(?:\.\d+)?)\s*p\.?h\b',
+                     r'\bp\.?h\b' + _CONN + r'(\d{1,3}(?:\.\d+)?)'):
+            _m = re.search(_pat, t)
+            if _m:
+                _v = _f(_m)
+                if _v is None:
+                    continue
+                if 0 <= _v <= 14:
+                    out["ph"] = _v
+                    break
+                # Parsed as a pH and impossible. Keep it so the range gate
+                # below records WHY it went, instead of it vanishing into
+                # "no pH was given".
+                if out["ph"] is None:
+                    out["ph"] = _v
+
+        m = re.search(r'(\d{1,3}(?:\.\d+)?)\s*(?:degrees?\s*)?(c\b|celsius|f\b|fahrenheit)', t)
+        if m:
+            v = _f(m)
+            if v is not None:
+                out["temp_c"] = (v - 32) * 5 / 9 if m.group(2).startswith("f") else v
+
+        m = re.search(r'(\d{1,3}(?:\.\d+)?)\s*(?:l\b|liters?|litres?)', t)
+        if m: out["litres"] = _f(m)
+
+        # EVERY QUANTITY IS GATED BY ITS OWN RANGE, and one that fails its gate
+        # is recorded with the reason rather than silently blanked. A value
+        # outside its range is usually a units mistake or a mis-parse, and both
+        # are findings - "no pH was given" and "a pH of 22.7 was parsed and
+        # rejected" are different states and were indistinguishable.
+        out["rejected"] = []
+        for k, (lo, hi, unit, why) in self.QUANTITY_RANGES.items():
+            v = out.get(k)
+            if v is None:
+                continue
+            if not (lo <= v <= hi):
+                out["rejected"].append({
+                    "quantity": k, "value": v, "unit": unit,
+                    "range": [lo, hi],
+                    "reason": (f"{v} is outside the plausible {lo}-{hi} {unit} for {k} "
+                               f"({why}). Usually a units mistake or a mis-parse - it is "
+                               f"recorded rather than blanked, because 'not given' and "
+                               f"'given and rejected' are different states.")})
+                out[k] = None
+
+        # Leftover numbers, each with why it was not claimed. A number nobody
+        # could place is a dropped measurement, and dropped measurements belong
+        # in a dead letter with a reason, not in silence.
+        claimed = {v for v in (out["ppm"], out["ph"], out["temp_c"], out["litres"]) if v}
+        for raw in re.findall(r'\b(\d{1,5}(?:\.\d+)?)\b', t):
+            v = float(raw)
+            if v in claimed or (out["ec_us"] and v in (out["ec_us"], out["ec_us"] / 1000)):
+                continue
+            fits = [k for k, (lo, hi, _u, _w) in self.QUANTITY_RANGES.items() if lo <= v <= hi]
+            out["unassigned"].append({
+                "value": v,
+                "could_be": fits,
+                "reason": ("No unit stated and the magnitude does not identify it. "
+                           f"Plausible as {', '.join(fits)}." if len(fits) > 1
+                           else (f"No unit stated; only {fits[0]} fits the magnitude, but a "
+                                 f"unit was not given so it is not assumed." if fits
+                                 else "Outside every quantity range this grow measures.")),
+            })
+        return out
+
     def answer(self, prompt, plant_id=None):
         """Answer a grow question by deciding, here, what this agent needs to do.
 
@@ -5030,11 +5177,42 @@ class GrowAgent(AgentBase):
         happening to use that route."""
         lp = (prompt or "").lower()
         plant_id = plant_id or self._plant_from_text(prompt) or "current_plant"
+        # Kept for the ppm-shaped facets that were written against it, but no
+        # longer the only way a number reaches a facet - see quantities().
         nums = [float(x) for x in re.findall(r'\b(\d{2,4})\b', prompt or "")
                 if 50 <= float(x) <= 3000]
+        qty = self.quantities(prompt)
 
         shape = next((name for name, pat in self.QUESTION_SHAPES if re.search(pat, lp)), None)
         parts = []
+
+        if shape == "root_zone":
+            # The temperature and the root channels are one answer. A reservoir
+            # can be clean and still be in the band where damage starts, and
+            # splitting those across two replies is how the leading indicator
+            # gets read as reassurance.
+            # `nums` is filtered to 50-3000 for ppm, so a reservoir temperature
+            # never survives it - and \d{2,4} splits "26.5" into 26 and 5. Pull
+            # the temperature out on its own terms, with the unit if stated.
+            temp_c = qty.get("temp_c")
+            if temp_c is None:
+                temp_c = next((u["value"] for u in (qty.get("unassigned") or [])
+                               if "temp_c" in (u.get("could_be") or [])
+                               and 4 <= u["value"] <= 40), None)
+            rz = self.assess_root_zone(plant_id, water_temp_c=temp_c, persist=False)
+            t = rz.get("temperature") or {}
+            txt = [rz.get("reason") or ""]
+            if t.get("water_temp_f"):
+                txt.append(f"Solution {t['water_temp_f']}F, band {t['band']} "
+                           f"(Pythium above {t['pythium_threshold_f']}F, "
+                           f"steep above {t['steep_risk_f']}F).")
+            unchecked = rz.get("unchecked") or []
+            if unchecked:
+                txt.append(f"Not checked: {', '.join(unchecked)}.")
+            for g in (rz.get("gaps") or []):
+                txt.append(g)
+            return {"answered_as": "root_zone", "text": " ".join(x for x in txt if x),
+                    "facts": rz, "plant_id": plant_id}
 
         if shape == "volume_when":
             vh = self.volume_history(plant_id)
@@ -10488,6 +10666,9 @@ class GrowAgent(AgentBase):
             return {"result": self.when_to_top_up(
                 a.get("plant_id", "current_plant"), a.get("current_liters"),
                 a.get("floor_liters"), a.get("note", ""))}
+
+        elif task == "quantities":
+            return {"result": self.quantities((args or {}).get("text") or "")}
 
         elif task == "assess_ph":
             a = args or {}

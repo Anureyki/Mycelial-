@@ -574,6 +574,9 @@ class AgentBase:
                     result = self.receive_finding(
                         (args or {}).get("kind"), (args or {}).get("payload") or {},
                         sender) if isinstance(args, dict) else None
+                elif task == "unhandled_findings":
+                    result = self.unhandled_findings(
+                        bool((args or {}).get("include_acted")) if isinstance(args, dict) else False)
                 elif task == "ingest_class":
                     result = self.ingest_class((args or {}).get("doc") or args
                                                if isinstance(args, dict) else {})
@@ -1853,9 +1856,81 @@ class AgentBase:
         self.store_own_memory(fid, json.dumps(
             {"id": fid, "kind": kind, "payload": payload, "from": sender,
              "received_at": datetime.now().isoformat(), "acted": False}))
+        # INDEXED, because Hermes has no key listing and a finding reachable
+        # only by an id nobody wrote down is barely stored at all. Every other
+        # store here keeps its own index for the same reason.
+        try:
+            raw = self._unwrap_value(self.retrieve_own_memory("finding_index"))
+            idx = json.loads(raw) if raw else []
+            if fid not in idx:
+                idx.append(fid)
+                self.store_own_memory("finding_index", json.dumps(idx))
+        except Exception as exc:
+            self.log(f"receive_finding: could not index {fid}: {exc}")
         return {"recorded": fid, "acted": False,
                 "note": f"{self.agent_id} recorded this {kind} but has no handler "
                         "for it yet - it is stored, not acted on."}
+
+    def unhandled_findings(self, include_acted=False):
+        """Every referral this agent recorded and never acted on.
+
+        `receive_finding` already refuses to drop a referral silently - it
+        stores it and says `acted: false`. That is honest and it is not
+        enough: the note is returned once, to the caller, and after that the
+        finding exists only under an id nobody wrote down. Legal's
+        housing_dispute sat like that - recorded, correct, and unreachable
+        without knowing `finding_1789...`.
+
+        A finding nobody can list is not much better than one nobody stored.
+        This is the same distinction the capability work turned on: the thing
+        had not disappeared, its description of itself had."""
+        out = []
+        # Ask Hermes for this agent's own namespace. There is no key-listing
+        # helper on the base, and an empty list from a store that could not be
+        # read must NOT look the same as a store with nothing in it - so a
+        # failure is reported as a failure.
+        # Read the index this agent maintains. Hermes exposes no key listing, and
+        # an empty list from a store that could not be READ must not look the
+        # same as a store with nothing in it - so a failure is reported as one
+        # rather than returning nothing and reading as "none outstanding".
+        try:
+            raw = self._unwrap_value(self.retrieve_own_memory("finding_index"))
+            keys = json.loads(raw) if raw else []
+        except Exception as exc:
+            return {"error": f"cannot read finding_index: {exc}",
+                    "agent": self.agent_id,
+                    "note": ("Unreadable, which is a different state from empty and is "
+                             "reported as such.")}
+        for k in keys:
+            if not str(k).startswith("finding_"):
+                continue
+            raw = self._unwrap_value(self.retrieve_own_memory(k))
+            if not raw:
+                continue
+            try:
+                f = json.loads(raw)
+            except Exception:
+                continue
+            if f.get("acted") and not include_acted:
+                continue
+            # check_inherited probes every agent's receive_finding on each run,
+            # so the store fills with kind "_probe". Those are harness
+            # artifacts, not referrals, and leaving them in buries the one
+            # finding somebody actually sent under sixty that nobody did.
+            if str(f.get("kind") or "").startswith("_"):
+                continue
+            out.append({"id": f.get("id", k), "kind": f.get("kind"),
+                        "from": f.get("from"), "received_at": f.get("received_at"),
+                        "acted": bool(f.get("acted")),
+                        "summary": str((f.get("payload") or {}).get("summary")
+                                       or (f.get("payload") or {}).get("reference")
+                                       or "")[:160]})
+        out.sort(key=lambda x: str(x.get("received_at") or ""))
+        return {"agent": self.agent_id, "unhandled": out, "count": len(out),
+                "note": ("Recorded and not acted on. Each needs either a handler in this "
+                         "agent or an explicit decision that it needs none - leaving it "
+                         "here is the third thing and it is not a decision."
+                         if out else "No unhandled findings.")}
 
     def ingest_class(self, doc=None):
         """What kind of evidence is this, and may it ever be authority?

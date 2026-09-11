@@ -68,7 +68,8 @@
     "round_to_instrument",
     "pulse",
     "veto",
-    "assess_ph"
+    "assess_ph",
+    "quantities"
   ],
   "entry_point": "agents.grow_agent.grow_agent:main",
   "description": "Tracks grow stages and suggests nutrient adjustments"
