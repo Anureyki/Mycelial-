@@ -78,7 +78,30 @@ def load_acl(path=None, force=False):
             raise ACLUnavailable(f"{p}: {e}") from e
 
 
-def check(agent, resource, action, acl=None):
+def _observe(event_type, agent, resource, action, decision, reason):
+    """Report the decision. This is an EMIT, not a write - core/security_events
+    hands it to the harness, which decides what the record says. A component
+    that wrote its own security record would be grading its own homework on the
+    one question that matters: whether it let something through."""
+    try:
+        from core.security_events import emit
+        emit(event_type, agent=agent, resource=resource, action=action,
+             decision=decision, reason=reason)
+    except Exception as _e:
+        # Observation must never change the DECISION - a harness that is down
+        # cannot be allowed to deny a request, nor to allow one. But a silent
+        # observer is the failure this project hunts: a removed import made
+        # this path dead while the static gate still passed, because the call
+        # was still written. So it is swallowed and SAID.
+        try:
+            import sys as _sys
+            print(f"SECURITY EVENT NOT OBSERVED ({_e}) - the decision stood, "
+                  f"the record did not", file=_sys.stderr)
+        except Exception:
+            pass
+
+
+def check(agent, resource, action, acl=None, observe=True):
     """-> (allowed, reason). Never raises; a caller must be able to branch."""
     if action not in ACTIONS:
         return False, (f"{action!r} is not an action. The set is "
@@ -95,23 +118,42 @@ def check(agent, resource, action, acl=None):
                        f"access.")
     entry = res.get(resource)
     if not entry:
+        _why = (f"{resource!r} has no ACL entry. An unlisted resource is "
+                f"denied to everyone, including its owner - a resource nobody "
+                f"wrote a rule for is a resource nobody decided about.")
+        if observe:
+            _observe("acl_denied", agent, resource, action, "denied", _why)
+        return False, _why
+    if False:
         return False, (f"{resource!r} has no ACL entry. An unlisted resource is "
                        f"denied to everyone, including its owner - a resource "
                        f"nobody wrote a rule for is a resource nobody decided "
                        f"about.")
     owner = entry.get("owner")
     if owner and agent == owner:
-        return True, f"{agent} owns {resource} (ownership is the default grant)"
+        _why = f"{agent} owns {resource} (ownership is the default grant)"
+        if observe:
+            _observe("acl_allowed", agent, resource, action, "allowed", _why)
+        return True, _why
     granted = entry.get(action)
     if not isinstance(granted, list):
         return False, (f"{resource!r} declares no {action} list. A missing list "
                        f"is not an empty one - it means nobody decided.")
     if "*" in granted:
-        return True, f"{resource} grants {action} to every agent"
+        _why = f"{resource} grants {action} to every agent"
+        if observe:
+            _observe("acl_allowed", agent, resource, action, "allowed", _why)
+        return True, _why
     if agent in granted:
-        return True, f"{resource} grants {action} to {agent} explicitly"
-    return False, (f"{agent} is not granted {action} on {resource} "
-                   f"(owner={owner}, granted={granted or 'nobody'})")
+        _why = f"{resource} grants {action} to {agent} explicitly"
+        if observe:
+            _observe("acl_allowed", agent, resource, action, "allowed", _why)
+        return True, _why
+    _why = (f"{agent} is not granted {action} on {resource} "
+            f"(owner={owner}, granted={granted or 'nobody'})")
+    if observe:
+        _observe("acl_denied", agent, resource, action, "denied", _why)
+    return False, _why
 
 
 def resources_for(agent, action="read", acl=None):

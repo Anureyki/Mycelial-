@@ -95,20 +95,41 @@ def sign(sender, body, recipient=None, kind="finding", ttl=DEFAULT_TTL_SECONDS):
             "public_key": public_key_b64(sender)}
 
 
-def verify(artifact, expected_sender=None, now=None):
+def _observe(decision, sender, reason):
+    """Emit; do not record. The harness decides what the record says."""
+    try:
+        from core.security_events import emit
+        emit("artifact_signed" if decision == "accepted" else "artifact_rejected",
+             agent=sender, resource="a2a:artifact", action="verify",
+             decision=decision, reason=reason)
+    except Exception as _e:
+        # Observation must never change the DECISION - a harness that is down
+        # cannot be allowed to deny a request, nor to allow one. But a silent
+        # observer is the failure this project hunts: a removed import made
+        # this path dead while the static gate still passed, because the call
+        # was still written. So it is swallowed and SAID.
+        try:
+            import sys as _sys
+            print(f"SECURITY EVENT NOT OBSERVED ({_e}) - the decision stood, "
+                  f"the record did not", file=_sys.stderr)
+        except Exception:
+            pass
+
+
+def verify(artifact, expected_sender=None, now=None, observe=True):
     """-> (ok, why). Never raises on a bad artifact; a caller must be able to
     branch on a forgery without handling an exception."""
     from cryptography.hazmat.primitives.asymmetric.ed25519 import Ed25519PublicKey
     if not isinstance(artifact, dict) or "envelope" not in artifact:
-        return False, "not an artifact"
+        return _rejected(locals().get("sender"), "not an artifact", observe)
     env = artifact["envelope"]
     sender = env.get("sender")
     if expected_sender and sender != expected_sender:
-        return False, f"sender is {sender!r}, expected {expected_sender!r}"
+        return _rejected(locals().get("sender"), f"sender is {sender!r}, expected {expected_sender!r}", observe)
     try:
         sig = base64.b64decode(artifact.get("signature") or "")
     except Exception:
-        return False, "signature is not base64"
+        return _rejected(locals().get("sender"), "signature is not base64", observe)
 
     # THE KEY COMES FROM THE KEYSTORE, NOT FROM THE ARTIFACT. Verifying against
     # the public key the message carries proves only that whoever wrote the
@@ -116,25 +137,35 @@ def verify(artifact, expected_sender=None, now=None):
     try:
         pub_b64 = public_key_b64(sender)
     except Exception as e:
-        return False, f"no key on file for {sender!r}: {e}"
+        return _rejected(locals().get("sender"), f"no key on file for {sender!r}: {e}", observe)
     if artifact.get("public_key") and artifact["public_key"] != pub_b64:
-        return False, ("the artifact carries a different public key than the "
-                       "one on file for this sender")
+        return _rejected(locals().get("sender"), ("the artifact carries a different public key than the "
+                       "one on file for this sender"), observe)
     try:
         Ed25519PublicKey.from_public_bytes(
             base64.b64decode(pub_b64)).verify(sig, _canonical(env))
     except Exception:
-        return False, "signature does not verify over the envelope"
+        return _rejected(locals().get("sender"), "signature does not verify over the envelope", observe)
 
     exp = env.get("expires_at")
     if exp:
         t = now or datetime.now(timezone.utc)
         try:
             if datetime.fromisoformat(exp) < t:
-                return False, f"expired at {exp}"
+                return _rejected(locals().get("sender"), f"expired at {exp}", observe)
         except Exception:
-            return False, "expires_at is unparseable"
+            return _rejected(locals().get("sender"), "expires_at is unparseable", observe)
+    if observe:
+        _observe("accepted", sender, "signature verifies over the envelope")
     return True, "ok"
+
+
+def _rejected(sender, why, observe=True):
+    """Every refusal path reports itself. A forged artifact that is refused
+    silently teaches nothing - the refusal IS the training signal."""
+    if observe:
+        _observe("rejected", sender, why)
+    return False, why
 
 
 def key_permissions_ok():

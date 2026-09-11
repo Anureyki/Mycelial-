@@ -65,3 +65,4 @@ knowledge_base/grow_agent/training/*/*
 state/inbox/
 state/uploads/
 state/courtlistener_cache/
+datasets/security_eval/

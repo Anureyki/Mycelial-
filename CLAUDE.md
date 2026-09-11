@@ -998,6 +998,51 @@ fails quietly.** Absence of a detected problem is not evidence of its absence.
    `ci.yml` and not to the script turns the script into the same lie in a
    shorter form.
 
+## Security decisions are observed, not self-reported
+
+`core/security_events.py` lets a component **emit**. `tools/eval_harness.py` is
+the only thing that **writes a record**. That separation is the whole design:
+the component that made a decision does not get to write the record of that
+decision.
+
+Self-grading is not hypothetical here. This file already records an agent
+reporting `productive / high confidence` on a photo no model had assessed, and
+a trading desk assembling its end-of-day report from what its own components
+said they did. A security layer writing its own report card is the same shape
+with worse consequences, because the thing it would be grading is whether it
+let something through.
+
+**The harness verifies rather than transcribes.** It looks the provenance id up
+rather than believing it, and an `allowed` event whose provenance does not
+resolve is **not** a positive example — "it was allowed" with nothing behind it
+is indistinguishable from "nobody checked". The classification is always the
+harness's; nothing in the spool can label itself.
+
+**A denial without a reason is not a training example.** It teaches a model to
+avoid a *shape* rather than understand a *rule*, and a model that learned
+avoidance will route around the rule the first time the shape changes. So
+`denied + reason` is the negative example and the reason is the payload.
+
+**Verification happens at WRITE time, not read time** — bad data that is
+admitted and checked later is already in the set by the time anybody looks.
+Two write-time refusals: a record that cannot be verified goes to quarantine
+and never enters the store the pairs are built from, and `ingest()` **refuses
+to append to a broken chain**, because appending buries the break under later
+records and makes a corrupted store look healthier the more it is used.
+
+**Append-only is proven, not intended.** Every record carries the hash of the
+one before it, so an edit or a deletion breaks the chain at that point and
+`--verify` names where.
+
+**`tools/check_eval.py` learned its own lesson.** Its first version greped for
+the event name, and a regression that renamed the call left the string in place
+— the gate passed while the path was gone, which is exactly the failure it
+exists to catch. It now parses the AST *and* performs a **live round trip**:
+make a real denial, look for a real record. Static analysis cannot see a dead
+path, because the observer swallows exceptions so it can never change a
+decision — and that swallow now prints `SECURITY EVENT NOT OBSERVED` rather
+than failing mute.
+
 ## Each agent runs in its own sandbox
 
 **Phase 1 is Docker. Phase 2 is Firecracker, and the difference is the kernel.**

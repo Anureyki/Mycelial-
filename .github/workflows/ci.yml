@@ -58,3 +58,8 @@ jobs:
         # not grant access. A refactor aligning them is a regression either
         # way, so both directions are asserted.
         run: python tools/check_acl.py
+      - name: Security events reach the eval harness
+        # Static analysis cannot see a dead path: removing the emit import
+        # left the call written, and the observer swallows exceptions. So
+        # this makes a real decision and looks for the record.
+        run: python tools/check_eval.py
