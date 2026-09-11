@@ -25,7 +25,8 @@
     "user_context",
     "check_cross_domain",
     "refresh_routing",
-    "routing_map"
+    "routing_map",
+    "drift_alerts"
   ],
   "entry_point": "agents.anansi.Anansi:main",
   "description": "Unified Interface agent"

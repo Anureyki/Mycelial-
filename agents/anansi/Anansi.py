@@ -37,7 +37,7 @@ class Anansi(AgentBase):
             agent_id="anansi",
             port=8081,
             capabilities=["process_request", "narrate_contradiction", "voice_policy",
-                          "remember_user_fact", "user_context", "check_cross_domain", "refresh_routing",
+                          "remember_user_fact", "user_context", "check_cross_domain", "refresh_routing", "drift_alerts",
                           "routing_map",
                           # Declared because they dispatch. An undeclared verb
                           # works when called and is invisible to the registry,
@@ -457,6 +457,45 @@ class Anansi(AgentBase):
             v = self.router.vocabulary()
             return {"refreshed": True, "agents": len(v),
                     "terms": sum(len(t) for t in v.values())}
+
+        if task == "drift_alerts":
+            # RELAYED, NOT COMPUTED. Anansi owns the channel and Security owns
+            # the monitor - this agent has no view on whether a threshold
+            # breach means anything, and forming one would be the interface
+            # layer practising a domain.
+            #
+            # A DOWN MONITOR IS NOT AN ALL-CLEAR, and the card must be able to
+            # tell the difference. An unreachable Security produces `unknown`,
+            # never `clear`.
+            r = self.send_a2a("security_agent", "drift_scan", {}, timeout=40)
+            for _ in range(6):
+                if isinstance(r, dict) and "status" not in r and "result" in r:
+                    r = r["result"]
+                else:
+                    break
+            if not isinstance(r, dict) or "status" not in r:
+                return {"status": "unknown", "alerts": [], "count": 0,
+                        "headline": "drift monitor unreachable",
+                        "why": ("Security did not answer. Nothing is being "
+                                "observed, which is not the same as nothing "
+                                "being wrong.")}
+            alerts = r.get("alerts") or []
+            return {
+                "status": r.get("status"),
+                "headline": r.get("headline"),
+                "count": len(alerts),
+                "alerts": [{
+                    "kind": a.get("kind"),
+                    "severity": a.get("severity"),
+                    "agent": a.get("agent"),
+                    "detail": a.get("detail"),
+                    "why": a.get("why"),
+                    "not_a_verdict": a.get("not_a_verdict"),
+                } for a in alerts],
+                "records": r.get("records"),
+                "checked_at": r.get("scanned_at"),
+                "note": r.get("note"),
+            }
 
         if task == "routing_map":
             return {"vocabulary": {k: len(v) for k, v in self.router.vocabulary().items()},

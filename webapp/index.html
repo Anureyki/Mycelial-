@@ -9,7 +9,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="theme-color" content="#0f1410">
-<link rel="stylesheet" href="style.css?v=24">
+<link rel="stylesheet" href="style.css?v=27">
 </head>
 <body>
 <header>
@@ -32,6 +32,10 @@
 
 <section id="dashboard" class="hidden" aria-live="polite">
   <button id="refreshDashboard" type="button">Refresh</button>
+  <!-- FIRST ON THE PAGE ON PURPOSE. The whole point is a breach you see
+       without opening a file, and a card below the fold is a log with
+       nicer fonts. It renders quiet when clear so it is not noise. -->
+  <div class="card" id="driftCard"><h2>Integrity</h2><div class="card-body">Loading...</div></div>
   <div class="card" id="systemCard"><h2>System</h2><div class="card-body">Loading...</div></div>
   <div class="card" id="growCard"><h2>Grow</h2><div class="card-body">Loading...</div></div>
   <div class="card" id="grow2Card"><h2>Grow · other plants</h2><div class="card-body">Loading...</div></div>
@@ -83,6 +87,6 @@
   <button id="sendBtn" type="submit">Send</button>
 </form>
 
-<script src="app.js?v=26"></script>
+<script src="app.js?v=27"></script>
 </body>
 </html>

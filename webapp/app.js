@@ -898,6 +898,8 @@ async function refreshDashboard() {
     { id: 'decisionsCard', prompt: 'what needs my approval' },
   ];
   const structured = [
+    // FIRST. A breach the reader has to scroll to is a log with nicer fonts.
+    { id: 'driftCard', render: renderDriftCard },
     { id: 'growCard', render: renderGrowCard },
     { id: 'grow2Card', render: renderGrow2Card },
     { id: 'progressCard', render: renderProgressCard },
@@ -921,6 +923,84 @@ async function refreshDashboard() {
     const text = await fetchNarration(prompt);
     if (body) body.textContent = text;
   }
+}
+
+
+// --- Integrity / drift -------------------------------------------------------
+// The drift monitor watches whether the model is probing for access it does not
+// have, or manufacturing its own positives. It writes findings and logs; this
+// is the surface that makes a threshold breach visible without opening a file,
+// which was the whole point of building it.
+//
+// FOUR STATES, AND `unknown` IS NOT `clear`. A monitor that could not be
+// reached has observed nothing, and a card that renders that as green is worse
+// than no card - it is an all-clear nobody earned.
+//
+// IT SHOWS THE BREACH AND NOT A VERDICT. The monitor detects and does not
+// adjudicate, so the card repeats that in the words the alert carries. A
+// dashboard that turned a threshold into an accusation would be the interface
+// layer forming a view it has no basis for.
+async function renderDriftCard(body) {
+  const card = document.getElementById('driftCard');
+  const d = unwrap(await callTask('drift_alerts', {}), 'status');
+  card.classList.remove('drift-clear', 'drift-alert', 'drift-critical', 'drift-unknown');
+
+  if (!d || !d.status) {
+    card.classList.add('drift-unknown');
+    body.textContent = 'Integrity monitor did not answer. Nothing is being watched right now — that is not the same as nothing being wrong.';
+    return;
+  }
+  const status = String(d.status);
+  card.classList.add(`drift-${['clear', 'alert', 'critical', 'unknown'].includes(status) ? status : 'unknown'}`);
+
+  if (status === 'unknown') {
+    body.textContent = d.why || 'Monitor unreachable. Nothing observed.';
+    return;
+  }
+  if (status === 'clear') {
+    const n = d.records != null ? ` across ${d.records} recorded decisions` : '';
+    body.textContent = `No drift detected${n}.`;
+    return;
+  }
+
+  body.innerHTML = '';
+  const head = document.createElement('div');
+  head.textContent = `${d.count} threshold breach${d.count === 1 ? '' : 'es'}`;
+  head.className = 'drift-kind';
+  body.appendChild(head);
+
+  for (const a of (d.alerts || [])) {
+    const row = document.createElement('div');
+    row.className = 'drift-row';
+    const title = document.createElement('div');
+    title.className = 'drift-kind';
+    // Word as well as colour: colour alone fails a reader who cannot see it.
+    title.textContent = `${a.kind}${a.agent ? ' — ' + a.agent : ''}`;
+    const sev = document.createElement('span');
+    sev.className = 'drift-sev';
+    sev.textContent = a.severity || 'unknown';
+    title.appendChild(sev);
+    row.appendChild(title);
+
+    if (a.why) {
+      const why = document.createElement('div');
+      why.className = 'drift-why';
+      why.textContent = a.why;
+      row.appendChild(why);
+    }
+    if (a.detail) {
+      const det = document.createElement('div');
+      det.className = 'drift-why';
+      det.textContent = typeof a.detail === 'string' ? a.detail : JSON.stringify(a.detail);
+      row.appendChild(det);
+    }
+    body.appendChild(row);
+  }
+  const note = document.createElement('div');
+  note.className = 'drift-note';
+  note.textContent = (d.alerts && d.alerts[0] && d.alerts[0].not_a_verdict)
+    || 'Threshold breach only. Nothing has been revoked.';
+  body.appendChild(note);
 }
 
 // --- Training review ---------------------------------------------------------

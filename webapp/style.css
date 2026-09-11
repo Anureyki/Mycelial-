@@ -564,3 +564,21 @@ main#log {
 }
 .card-body #upGo:disabled { opacity: 0.5; cursor: default; }
 .card-body #upResult { margin-top: 10px; font-size: 0.9rem; white-space: normal; }
+
+
+/* DRIFT / INTEGRITY CARD.
+   Three states and they must be distinguishable at a glance and in
+   monochrome - colour alone fails for a reader who cannot see it, and this
+   card exists to be noticed. Each state also carries a word. */
+#driftCard.drift-clear   { border-left: 4px solid #3a7; }
+#driftCard.drift-alert   { border-left: 4px solid #d80; background: #2a2410; }
+#driftCard.drift-critical{ border-left: 4px solid #e33; background: #2e1414; }
+#driftCard.drift-unknown { border-left: 4px solid #888; background: #1d1d1d; }
+.drift-row { padding: .4rem 0; border-bottom: 1px solid #333; }
+.drift-row:last-child { border-bottom: none; }
+.drift-kind { font-weight: 700; letter-spacing: .02em; }
+.drift-sev { font-size: .75rem; text-transform: uppercase; opacity: .85;
+             border: 1px solid currentColor; border-radius: 3px;
+             padding: 0 .35rem; margin-left: .4rem; }
+.drift-why { font-size: .85rem; opacity: .85; margin-top: .2rem; }
+.drift-note { font-size: .78rem; opacity: .7; margin-top: .5rem; font-style: italic; }
