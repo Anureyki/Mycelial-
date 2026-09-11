@@ -259,19 +259,104 @@ def split_treatise(pages):
         # str, not int: page_no flows into `(page_no or "").isdigit()` below.
         chunks = [(str(i + 1), pg) for i, pg in enumerate(pages) if pg.strip()]
 
-    sections = []
+    # SHORT CHUNKS ARE MERGED, NEVER DISCARDED.
+    #
+    # A `continue` here threw the text away. On a 65-page law review article
+    # with 380 footnote-number lines, almost every chunk is a fragment between
+    # two footnote markers - and 118,609 of 216,498 characters, more than half
+    # the article, were dropped while the shelf reported "5 sections" as though
+    # that were the document. Silent loss that looks like coverage is the exact
+    # shape this project hunts.
+    #
+    # A fragment belongs to the passage it was cut out of, so it is appended to
+    # the previous chunk rather than deleted.
+    merged, carry = [], None
     for page_no, body in chunks:
+        flat_probe = re.sub(r'\s+', ' ', body).strip()
+        if len(flat_probe) < MIN_SECTION:
+            if merged:
+                merged[-1] = (merged[-1][0], merged[-1][1] + "\n" + body)
+            else:
+                carry = (carry[0] if carry else page_no,
+                         ((carry[1] + "\n") if carry else "") + body)
+            continue
+        if carry:
+            body = carry[1] + "\n" + body
+            carry = None
+        merged.append((page_no, body))
+    if carry and merged:
+        merged[0] = (merged[0][0], carry[1] + "\n" + merged[0][1])
+    elif carry:
+        merged.append(carry)
+    chunks = merged
+
+    # AN OVERSIZED CHUNK IS SPLIT, NOT CUT.
+    #
+    # Merging fragments forward made the loss visible - 178,585 characters in
+    # one chunk, 60,000 stored, 118,585 honestly reported missing. Honest is
+    # better than silent and is still not good: the text exists, the reader
+    # cannot reach it, and "truncated" on a 65-page article means most of the
+    # argument is absent.
+    #
+    # A cap is a storage limit, not a reason to lose a document. Where a chunk
+    # exceeds it, break it at a sentence boundary into numbered parts so every
+    # character is stored and each part stays addressable.
+    sized = []
+    for page_no, body in chunks:
+        probe = dehyphenate(re.sub(r'\s+', ' ', body).strip())
+        if len(probe) <= MAX_SECTION:
+            sized.append((page_no, body, None))
+            continue
+        part, cursor, n = [], 0, 0
+        while cursor < len(probe):
+            end = min(cursor + MAX_SECTION, len(probe))
+            if end < len(probe):
+                dot = probe.rfind(". ", cursor + int(MAX_SECTION * 0.5), end)
+                if dot > cursor:
+                    end = dot + 1
+            n += 1
+            sized.append((page_no, probe[cursor:end], n))
+            cursor = end
+    chunks = sized
+
+    sections = []
+    for entry in chunks:
+        page_no, body = entry[0], entry[1]
+        part_no = entry[2] if len(entry) > 2 else None
         flat = dehyphenate(re.sub(r'\s+', ' ', body).strip())
         if len(flat) < MIN_SECTION:
             continue
         cases = sorted({f"{a.strip()} v. {b.strip()}" for a, b in CASE_RX.findall(body)})
         sections.append({
-            "citation": f"p. {page_no}" if page_no else f"part {len(sections) + 1}",
+            "citation": ((f"p. {page_no}" if page_no else f"part {len(sections) + 1}")
+                         + (f" (part {part_no})" if part_no else "")),
             "kind": "treatise",
             "page": int(page_no) if (page_no or "").isdigit() else None,
             "authorities": cases,
             "text": flat[:MAX_SECTION],
+            "_full_len": len(flat),
         })
+    # Integrity stamped HERE, by the only code holding the full body at the
+    # moment it cuts. split_sections already did this; split_treatise did not,
+    # so a 60,000-character cap silently produced half a passage with no record
+    # that anything was removed - a half passage presented as whole, which is
+    # the failure that survives review because everything shown is accurate.
+    for sec in sections:
+        full_len = sec.pop("_full_len", len(sec.get("text") or ""))
+        if full_len > MAX_SECTION:
+            source_integrity.stamp(
+                sec, "truncated",
+                f"Body exceeded MAX_SECTION ({MAX_SECTION:,}) at ingest and was cut. "
+                f"Recorded by the ingester at the moment of cutting.",
+                source_chars=full_len, stored_chars=MAX_SECTION, cap=MAX_SECTION)
+            sec["truncated"] = True
+            sec["full_length"] = full_len
+        else:
+            source_integrity.stamp(
+                sec, "complete",
+                f"Full retrieved body of {full_len:,} characters stored; under the "
+                f"{MAX_SECTION:,} cap, so nothing was cut.",
+                source_chars=full_len, stored_chars=full_len, cap=MAX_SECTION)
     return sections
 
 

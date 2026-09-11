@@ -1,6 +1,6 @@
 {
 "title": "Sitkoff, The Economic Structure of Fiduciary Law (Harvard Olin Discussion Paper 689, 2011)",
-"source": "Robert H. Sitkoff, 'The Economic Structure of Fiduciary Law', Harvard John M. Olin Center for Law, Economics and Business, Discussion Paper No. 689 (March 2011), 13pp. FREELY DISTRIBUTABLE - the cover page states it may be downloaded without charge; no restriction, unlike the OUP chapter beside it. ROLE: ECONOMIC THEORY, NOT DOCTRINE. It restates the contractarian economic model (Cooter & Freedman 1991; Easterbrook & Fischel 1993) and explains WHY fiduciary law has its shape. It does not state what the law IS - the Oxford Handbook chapter does that. A model that explains a rule is not evidence of the rule.",
+"source": "Robert H. Sitkoff, 'The Economic Structure of Fiduciary Law', Harvard John M. Olin Center, Discussion Paper 689 (March 2011), 13pp. FREELY DISTRIBUTABLE per its cover page. ROLE: ECONOMIC THEORY, NOT DOCTRINE - restates the contractarian model (Cooter & Freedman 1991; Easterbrook & Fischel 1993), explaining WHY fiduciary law has its shape. A model that explains a rule is not evidence of the rule.",
 "authority_class": "treatise",
 "authority_class_basis": "--treatise: scholarly commentary, describes the law without stating it",
 "authorities_cited": [
@@ -19,11 +19,7 @@
 10,
 12
 ],
-"prevailing economic contractarian": [
-1,
-2
-],
-"decades have passed": [
+"economic contractarian model": [
 1,
 2
 ],
@@ -31,53 +27,7 @@
 1,
 3
 ],
-"economics movement": [
-1,
-3
-],
-"passed since": [
-1,
-2
-],
 "institutions generally": [
-1,
-3
-],
-"economic contractarian model": [
-1,
-2
-],
-"previously applied": [
-1,
-3
-],
-"economic contractarian": [
-1,
-2
-],
-"economic theory": [
-1,
-2,
-3,
-12
-],
-"further developing": [
-1,
-3
-],
-"fischel which together": [
-1,
-2
-],
-"contractarian model": [
-1,
-2
-],
-"matured further": [
-1,
-3
-],
-"legal institutions generally": [
 1,
 3
 ],
@@ -85,21 +35,78 @@
 1,
 2
 ],
-"legal institutions": [
-1,
-3
-],
 "motivates those papers": [
 1,
 3
 ],
-"prevailing economic": [
+"fischel which together": [
+1,
+2
+],
+"economic contractarian": [
+1,
+2
+],
+"passed since": [
+1,
+2
+],
+"further developing": [
+1,
+3
+],
+"economic theory": [
+1,
+2,
+3,
+12
+],
+"legal institutions": [
+1,
+3
+],
+"prevailing economic contractarian": [
 1,
 2
 ],
 "matured further developing": [
 1,
 3
+],
+"previously applied": [
+1,
+3
+],
+"decades have passed": [
+1,
+2
+],
+"prevailing economic": [
+1,
+2
+],
+"contractarian model": [
+1,
+2
+],
+"economics movement": [
+1,
+3
+],
+"legal institutions generally": [
+1,
+3
+],
+"matured further": [
+1,
+3
+],
+"agency problem": [
+2,
+3,
+4,
+5,
+8
 ],
 "boston university": [
 2,
@@ -109,13 +116,37 @@
 9,
 11
 ],
+"good faith": [
+2,
+9,
+11,
+12
+],
+"fiduciary duties": [
+2,
+3,
+6,
+8,
+9,
+10,
+11,
+12
+],
+"disempowerment strategy": [
+2,
+5
+],
+"jonathan klick": [
+2,
+3
+],
 "fiduciary relationship": [
 2,
 9,
 10,
 12
 ],
-"fiduciary governance": [
+"fiduciary governance strategy": [
 2,
 5,
 8
@@ -130,15 +161,11 @@
 3,
 5
 ],
-"fiduciary governance strategy": [
-2,
-5,
-8
-],
-"fiduciary duty": [
+"fiduciary relationships": [
 2,
 3,
-9
+10,
+11
 ],
 "tamar frankel": [
 2,
@@ -147,50 +174,6 @@
 "john langbein": [
 2,
 5
-],
-"disempowerment strategy": [
-2,
-5
-],
-"default rules": [
-2,
-3,
-8,
-9,
-12
-],
-"fiduciary relationships": [
-2,
-3,
-10,
-11
-],
-"fiduciary duties": [
-2,
-3,
-6,
-8,
-9,
-10,
-11,
-12
-],
-"easterbrook daniel": [
-2,
-4
-],
-"good faith": [
-2,
-9,
-11,
-12
-],
-"agency problem": [
-2,
-3,
-4,
-5,
-8
 ],
 "fiduciary obligation": [
 2,
@@ -202,11 +185,33 @@
 9,
 11
 ],
-"jonathan klick": [
+"fiduciary governance": [
 2,
-3
+5,
+8
 ],
-"agent should": [
+"default rules": [
+2,
+3,
+8,
+9,
+12
+],
+"fiduciary duty": [
+2,
+3,
+9
+],
+"easterbrook daniel": [
+2,
+4
+],
+"agency theory": [
+3,
+4,
+12
+],
+"agent will": [
 3,
 4
 ],
@@ -215,43 +220,46 @@
 5,
 9
 ],
-"principal agency": [
+"corporate control": [
 3,
-12
+6
 ],
 "agency problems": [
 3,
 5,
 7
 ],
-"agency theory": [
+"satisfactory answer": [
 3,
-4,
-12
+4
 ],
-"corporate control": [
+"principal agency": [
 3,
-6
+12
 ],
 "another person": [
 3,
 10
 ],
-"satisfactory answer": [
-3,
-4
-],
 "incomplete contracting": [
 3,
 7
 ],
-"agent will": [
+"agent should": [
 3,
 4
 ],
 "principal agent": [
 3,
 4
+],
+"particular contingency": [
+4,
+9
+],
+"specialized skills": [
+4,
+6
 ],
 "supra note": [
 4,
@@ -261,17 +269,13 @@
 10,
 11
 ],
-"specialized skills": [
-4,
+"agent must exercise": [
+5,
 6
 ],
-"particular contingency": [
-4,
-9
-],
-"strategy over": [
+"discretionary powers": [
 5,
-8
+6
 ],
 "corporate governance": [
 5,
@@ -279,11 +283,7 @@
 7,
 9
 ],
-"reinier kraakman": [
-5,
-10
-],
-"henry hansmann": [
+"henry hansmann reinier": [
 5,
 10
 ],
@@ -292,21 +292,25 @@
 6,
 9
 ],
+"given broad": [
+5,
+6
+],
 "broad discretionary powers": [
 5,
 6
 ],
-"agent must exercise": [
+"strategy over": [
 5,
-6
+8
 ],
-"henry hansmann reinier": [
+"henry hansmann": [
 5,
 10
 ],
-"given broad": [
+"reinier kraakman": [
 5,
-6
+10
 ],
 "hansmann reinier kraakman": [
 5,
@@ -316,48 +320,23 @@
 5,
 10
 ],
-"broad discretionary": [
-5,
-6
-],
-"discretionary powers": [
-5,
-6
-],
 "given broad discretionary": [
 5,
 6
 ],
-"estatement third": [
-6,
-7,
-9,
-10,
-11
+"broad discretionary": [
+5,
+6
 ],
-"substantive safeguards": [
+"material facts": [
 6,
-9
-],
-"self dealing": [
-6,
-9
-],
-"disgorgement remedy": [
-6,
-12
-],
-"agency principles": [
-6,
-7
-],
-"governance analysis": [
-6,
-7,
-8,
 9
 ],
 "trusts restatement third": [
+6,
+7
+],
+"trusts restatement": [
 6,
 7
 ],
@@ -373,17 +352,46 @@
 10,
 11
 ],
-"trusts restatement": [
-6,
-7
-],
-"material facts": [
-6,
-9
-],
 "prudent person": [
 6,
 7
+],
+"estatement third": [
+6,
+7,
+9,
+10,
+11
+],
+"agency principles": [
+6,
+7
+],
+"disgorgement remedy": [
+6,
+12
+],
+"self dealing": [
+6,
+9
+],
+"governance analysis": [
+6,
+7,
+8,
+9
+],
+"substantive safeguards": [
+6,
+9
+],
+"implementing rules": [
+7,
+8
+],
+"specific rules": [
+7,
+8
 ],
 "decision costs": [
 7,
@@ -393,37 +401,25 @@
 7,
 8
 ],
-"error costs": [
-7,
-8
-],
-"implementing rules": [
-7,
-8
-],
 "economic analysis": [
 7,
 9,
 12
 ],
-"specific rules": [
+"error costs": [
 7,
 8
+],
+"fiduciary acts": [
+8,
+9
 ],
 "fiduciary fields": [
 8,
 10,
 11
 ],
-"fiduciary acts": [
-8,
-9
-],
 "niform trust": [
-9,
-11
-],
-"mandatory rules": [
 9,
 11
 ],
@@ -431,25 +427,9 @@
 9,
 11
 ],
-"trust code": [
-9,
-11
-],
-"external categorization function": [
-9,
-10
-],
 "uniform power": [
 9,
 11
-],
-"third parties": [
-9,
-10
-],
-"cautionary function": [
-9,
-10
 ],
 "categorization function": [
 9,
@@ -459,14 +439,38 @@
 9,
 10
 ],
-"mandatory core": [
+"third parties": [
 9,
-10,
+10
+],
+"mandatory rules": [
+9,
 11
 ],
 "internal protective": [
 9,
 10
+],
+"mandatory core": [
+9,
+10,
+11
+],
+"trust code": [
+9,
+11
+],
+"cautionary function": [
+9,
+10
+],
+"external categorization function": [
+9,
+10
+],
+"liability companies": [
+10,
+11
 ],
 "limited liability companies": [
 10,
@@ -476,19 +480,15 @@
 10,
 11
 ],
-"liability companies": [
-10,
-11
+"compensatory damages": [
+11,
+12
 ],
 "breaching party": [
 11,
 12
 ],
 "nonbreaching party": [
-11,
-12
-],
-"compensatory damages": [
 11,
 12
 ]
@@ -502,6 +502,14 @@
 "page": 1,
 "authorities": [],
 "text": "ISSN 1936-5349 (print) ISSN 1936-5357 (online) HARVARD JOHN M. OLIN CENTER FOR LAW, ECONOMICS, AND BUSINESS THE ECONOMIC STRUCTURE OF FIDUCIARY LAW Robert Sitkoff Discussion Paper No. 689 3/2011 Harvard Law School Cambridge, MA 02138 This paper can be downloaded without charge from: The Harvard John M. Olin Discussion Paper Series: http://www.law.harvard.edu/programs/olin_center/ The Social Science Research Network Electronic Paper Collection: http://ssrn.com/",
+"integrity": {
+"state": "complete",
+"basis": "Full retrieved body of 464 characters stored; under the 60,000 cap, so nothing was cut.",
+"stamped_at": "2026-09-11T02:53:17",
+"stored_chars": 464,
+"source_chars": 464,
+"cap_applied": 60000
+},
 "authority_class": "treatise"
 },
 {
@@ -510,6 +518,14 @@
 "page": 2,
 "authorities": [],
 "text": "The Economic Structure of Fiduciary Law Robert H. Sitkoff Abstract: This essay revisits the economic theory of fiduciary law. Nearly two decades have passed since the publication of the seminal econ omic analyses of fiduciary law by Cooter and Freedman (1991), and by Easterbrook and Fischel (1993), which together have come to underpin the prevailing economic, contractarian model of fiduciary law. The economic theory of agency that motivates those papers has come to permeate the literature on law and legal institutions generally. The law-and-economics movement has matured further, developing new tools and refining its understanding of previously applied co ncepts. The purpose of this essay is to restate the economic theory of fiduciary law in an updated and accessible synthesis. JEL: D86, J41, K11, K12, K22, L14",
+"integrity": {
+"state": "complete",
+"basis": "Full retrieved body of 822 characters stored; under the 60,000 cap, so nothing was cut.",
+"stamped_at": "2026-09-11T02:53:17",
+"stored_chars": 822,
+"source_chars": 822,
+"cap_applied": 60000
+},
 "authority_class": "treatise"
 },
 {
@@ -518,6 +534,14 @@
 "page": 3,
 "authorities": [],
 "text": "1039 THE ECONOMIC STRUCTURE OF FIDUCIARY LAW ROBERT H. SITKOFF INTRODUCTION ............................................................................................. 1039 I . THE AGENCY PROBLEM ..................................................................... 1040 I I . THE DISEMPOWERMENT STRATEGY .................................................. 1042 I I I . THE FIDUCIARY GOVERNANCE STRATEGY ....................................... 1042 I V . MANDATORY AND DEFAULT RULES .................................................. 1045 V . COMPENSATION AND DISGORGEMENT .............................................. 1048 CONCLUSION ................................................................................................. 1049 INTRODUCTION This Symposium on Fiduciary Law in the Twenty-First Century provides an opportune moment to revisit the economic theory of fiduciary law. Nearly two decades have passed since the publication of the seminal economic analyses of fiduciary law by Cooter and Freedman (1991), and by Easterbrook and Fischel (1993), which together have come to underpin the prevailing economic, contractarian model of fiduciary law. 1 The economic theory of agency that John L. Gray Professor of Law, Harvard University (email: rsitkoff@law.harvard.edu). This Essay derives from the Author\u2019s remarks at the Symposium on The Role of Fiduciary Law and Trust in the Twenty-First Century: A Conference Inspired by the Work of Tamar Frankel, held at Boston University School of Law on October 29, 2010; and from the Author\u2019s remarks in prior events sponsored by Federated Investors, Inc., in New York on February 2, 2010, and in Boston on September 15, 2009. The Author thanks Jonathan Klick, John Langbein, and Max Schanzenbach for helpful comments on an earlier draft, and Teresa Gallego-O\u2019Rourke and R. Craig Kitchen for superb research assistance. 1 See Robert Cooter & Bradley J. Freedman, The Fiduciary Relationship: Its Economic Character and Legal Consequences , 66 N.Y.U. L. REV. 1045 (1991); Frank H. Easterbrook & Daniel R. Fischel, Contract and Fiduciary Duty, 36 J.L. & ECON. 425 (1993). There is, of course, a thick literature on the fiduciary obligation. See, e.g. , MATTHEW CONAGLEN, FIDUCIARY LOYALTY: PROTECTING THE DUE PERFORMANCE OF NON-FIDUCIARY DUTIES (2010); LEONARD I. ROTMAN, FIDUCIARY LAW (2005); Gregory S. Alexander, A Cognitive Theory of Fiduciary Relationships , 85 C ORNELL L. REV. 767 (2000); Rob Atkinson, Obedience as the Foundation of Fiduciary Duty , 34 J. CORP. L. 43 (2008); Henry N. Butler & Larry E. Ribstein, Opting Out of Fiduciary Duties: A Response to the Anti- Contractarians, 65 W ASH. L. REV. 1 (1990); Robert C. Clark, Agency Costs versus Fiduciary Duties , in P RINCIPALS AND AGENTS: THE STRUCTURE OF BUSINESS 55 ( J ohn W . Pratt & Richard J. Zeckhauser eds., 1985); Deborah A. DeMott, Beyond Metaphor: An Analysis of Fiduciary Obligation , 1988 D UKE L.J. 879; Claire Moore Dickerson, From Behind the Looking Glass: Good Faith, Fiduciary Duty and Permitted Harm, 22 FLA. ST. U.",
+"integrity": {
+"state": "complete",
+"basis": "Full retrieved body of 3,054 characters stored; under the 60,000 cap, so nothing was cut.",
+"stamped_at": "2026-09-11T02:53:17",
+"stored_chars": 3054,
+"source_chars": 3054,
+"cap_applied": 60000
+},
 "authority_class": "treatise"
 },
 {
@@ -526,6 +550,14 @@
 "page": 4,
 "authorities": [],
 "text": "1040 BOSTON UNIVERSITY LAW REVIEW [Vol. 91: 1039 motivates those papers has come to permeate the literature on law and legal institutions generally. 2 The law-and-economics movement has matured further, developing new tools and refining its understanding of previously applied concepts. The purpose of this Essay is to restate the economic theory of fiduciary law in an updated and accessible synthesis. I. T HE AGENCY PROBLEM The law tends to impose a fiduciary obligation in circumstances that present what economists call a principal-agent or agency problem. Agency problems are not limited to relationships that are governed by the common law of agency. On the contrary, an agency problem arises whenever one person, the principal, engages another person, the agent, to undertake imperfectly observable discretionary actions that affect the wealth of the principal. 3 Th e concern is that in exercising this unobservable discretionary authority, the agent will favor the agent\u2019s interests when the agent\u2019s interests diverge from those of the principal. Agency problems are common because no one has the time and skills necessary to do everything for himself. Removing or limiting the agent\u2019s discretion is not a satisfactory answer to the agency problem. Often the principal cannot spell out in advance what precisely the agent should do in all possible future circumstances. This problem of incomplete contracting a r i s e s f r o m transaction coststhe impossibility of anticipating all future contingencies and the infeasibility of reducing to writing instructions for every contingency that can be anticipated. In many circumstances the very purpose of retaining an agent with expertise is L. REV. 955 (1995); Scott FitzGibbon, Fiduciary Relationships Are Not Contracts , 82 MARQ. L. REV. 303 (1999); Robert Flannigan, The Economics of Fiduciary Accountability , 32 DEL. J. CORP. L. 393 (2007); Tamar Frankel, Fiduciary Duties as Default Rules , 74 OR. L. REV. 1209 (1995); Arthur B. Laby, The Fiduciary Obligation as the Adoption of Ends, 56 BUFF. L. REV. 99 (2008); Melanie B. Leslie, Trusting Trustees: Fiduciary Duties and the Limits of Default Rules , 94 GEO. L.J. 67 (2005); R.C. Nolan, Controlling Fiduciary Power, 68 CAMBRIDGE L.J. 293 (2009); L.S. Sealy, Fiduciary Relationships, 1962 C AMBRIDGE L.J. 69 (1962); J.C. Shepherd, Towards a Unified Concept of Fiduciary Relationships , 97 L.Q. REV. 51 (1981); D. Gordon Smith, The Critical Resource Theory of Fiduciary Duty , 55 VAND. L. REV. 1399 (2002); Ernest J. Weinrib, The Fiduciary Obligation , 25 U. TORONTO L.J. 1 (1975). Tamar Frankel\u2019s new book represents a capstone synthesis of her important contributions to this literature. See TAMAR FRANKEL, FIDUCIARY LAW (2011). 2 For example, in F RANKEL, supra n o t e 1 , a t 2 5 - 2 9 , 1 0 4 - 1 0 7 , 1 7 1 - 7 4 , w e f i n d v a r i o u s functional treatments of fiduciary law that are in sympathy with the agency theory sketched below. I have elsewhere urged an agency theory of trust law. See Robert H. Sitkoff, An Agency Theory of Trust Law , 89 CORNELL L. REV. 621 (2004); see also JESSE DUKEMINIER, ROBERT H. SITKOFF & JAMES LINDGREN, WILLS, TRUSTS, A N D ESTATES 670-72 (8th ed. 2009); Jonathan Klick & Robert H. Sitkoff, Agency Costs, Charitable Trusts, and Corporate Control: Evidence from Hershey\u2019s Kiss-Off, 108 COLUM. L. REV. 749, 779-83 (2008). 3 See M i c h a e l C . J e n s e n & W i l l i a m H . M e c k l i n g , Theory of the Firm: Managerial Behavior, Agency Costs and Ownership Structure, 3 J. FIN. ECON. 305, 308 (1976).",
+"integrity": {
+"state": "complete",
+"basis": "Full retrieved body of 3,566 characters stored; under the 60,000 cap, so nothing was cut.",
+"stamped_at": "2026-09-11T02:53:17",
+"stored_chars": 3566,
+"source_chars": 3566,
+"cap_applied": 60000
+},
 "authority_class": "treatise"
 },
 {
@@ -534,6 +566,14 @@
 "page": 5,
 "authorities": [],
 "text": "2011] ECONOMIC STRUCTURE OF FIDUCIARY LAW 1041 undermined if the agent is not given room to apply that expertise on behalf of the principal to changing conditions. Active monitoring is not a satisfactory answer to the agency problem. Even if the principal has spelled out what the agent should do in a particular contingency, it is often infeasible for the principal to monitor the agent\u2019s compliance with those instructions. Ag ents are often retained because the principal lacks the specialized skills n ecessary to undertake the activity on his own. In such a case, the skill deficit th at prompted the principal to engage the agent will limit the principal\u2019s ability to monitor the agent. Judging the agent on the basis of the agent\u2019s results is likewise an imperfect mechanism for resolving the agency problem because circumstances outside of the agent\u2019s control may affect the outcome. Suppose a real estate agent cannot locate a suitable buyer for a home at th e homeowner\u2019s desired price. The homeowner can seldom ascertain whet her the agent\u2019s failure reflects the agent\u2019s inadequate effort versus the homeowner\u2019s overpricing or a slumping market. The homeowner\u2019s inability to assess the cause of the agent\u2019s failure is a kind of post-contractual information asymmetry known as hidden action or moral hazard.4 Another often-discussed means for ameliorating the agency problem is an incentive-based compensation arrangement. A real estate agent, for example, is typically compensated by a percentage of the sale price to give the agent a financial incentive to maximize that price. But no compensation agreement short of selling the house to the agent will completely remove the possibility of divergence of interest and with it the temptation for the agent to favor the agent\u2019s own interests. Suppose, for example, a real estate agent working on a 5% commission. Such an agent will have no incentive to undertake $100 of additional effort to increase the sale price by $1,000, because the payoff to the agent of doing so is only $50 (5% of $1,000).5 By contrast, if the agent owned the home he would undertake the additional $100 in effort for the $1,000 increase in the sale price. But solving the incentive problem by selling the house to the agentin effect, removing the agencyis often impractical. The typical real estate agent could not bear the risk of buying his clients\u2019 homes for resale (a risk-sharing problem6), and his clients would still be dependent on his faithfulness in pricing the home (a hidden information o r adverse selection problem7). 4 See, e.g., JEAN-JACQUES LAFFONT & DAVID MARTIMORT, THE THEORY OF INCENTIVES: THE PRINCIPAL-AGENT MODEL 3 (2002). 5 This example derives from F RANK H. EASTERBROOK & DANIEL R. FISCHEL, T HE ECONOMIC STRUCTURE OF CORPORATE LAW 91 (1991). 6 Agency relationships, in other words, present both incentive and risk-sharing problems. See, e.g. , Cooter & Freedman, supra n o t e 1 , a t 1 0 6 8 ; K a t h l e e n M . E i s e n h a r d t , Agency Theory: An Assessment and Review, 14 ACAD. MGMT. REV. 57, 58 (1989). 7 See, e.g., LAFFONT & MARTIMORT, supra note 4, at 3.",
+"integrity": {
+"state": "complete",
+"basis": "Full retrieved body of 3,130 characters stored; under the 60,000 cap, so nothing was cut.",
+"stamped_at": "2026-09-11T02:53:17",
+"stored_chars": 3130,
+"source_chars": 3130,
+"cap_applied": 60000
+},
 "authority_class": "treatise"
 },
 {
@@ -542,6 +582,14 @@
 "page": 6,
 "authorities": [],
 "text": "1042 BOSTON UNIVERSITY LAW REVIEW [Vol. 91: 1039 The losses and other inefficiencies resulting from the misalignment of the principal\u2019s and the agent\u2019s interests are called agency costs .8 The goal in regulating an agency relationship is to minimize agency costs. The question is how to induce the agent to act in the best interests of the principal in circumstances in which the agent must exercise discretion in ways that the principal cannot effectively observe or verify. II. T HE DISEMPOWERMENT STRATEGY Over the years the law evolved two basic strategies for addressing agency problems.9 The first, which predictably has failed, was to minimize the agent\u2019s discretionary powers. Thus in trust law the old rule was that the trustee could not engage in market transactions over the trust property. In agency law the old rule was that the agent\u2019s authorit y terminated on the incapacity of the principal. And in corporate law the old ultra vires doctrine disabled the corporation from undertaking any activity beyond the scope of the company\u2019s limited purpose as stated in the company\u2019s charter. The problem with disempowerment is that in protecting the principal from mis- or malfeasance by the agent, th e law also disabled the agent from undertaking acts useful for the principal. Thus, because trusts are increasingly funded with liquid financial assets requiring nimble management in the face of swift changes in the conditions of financial markets, modern law gives the trustee broad powers to undertake any type of transaction, subject to the trustee\u2019s fiduciary obligation. In agency law, all states have enacted statutes that validate durable powers of attorney authorizing an agent to act on behalf of an incompetent principal, subject to the agent\u2019s fiduciary obligation. In corporate law, the ultra vires doctrine has been rendered toothless, and today the corporation may undertake any action in pursuit of profit, subject to the managers\u2019 fiduciary obligation. What has happened, in other words, is that modern law has come to substitute fiduciary obligation for disempowerment as the preferred regulatory response to the agency problem.10 III. T HE FIDUCIARY GOVERNANCE STRATEGY Under the modern law\u2019s fiduciary strategy, the agent is given broad discretionary powers to act in the moment, but afterwards the principal is 8 See Jensen & Meckling, supra note 3, at 308. 9 For a treatment of additional strategies beyond fiduciary law, albeit with a focus on corporate governance, see John Armour, Henry Hansmann & Reinier Kraakman, Agency Problems and Legal Strategies , i n THE ANATOMY OF CORPORATE LAW: A COMPARATIVE AND FUNCTIONAL APPROACH 35 (Reinier Kraakman et al. eds., 2d ed. 2009). 10 This point has been developed extensively with a focus on trust law by John Langbein. See John H. Langbein, The Contractarian Basis of the Law of Trusts , 105 Y ALE L.J. 625, 640-43 (1995); John H. Langbein, Rise of the Management Trust , TR. & EST., Oct. 2004, at 52.",
+"integrity": {
+"state": "complete",
+"basis": "Full retrieved body of 2,979 characters stored; under the 60,000 cap, so nothing was cut.",
+"stamped_at": "2026-09-11T02:53:17",
+"stored_chars": 2979,
+"source_chars": 2979,
+"cap_applied": 60000
+},
 "authority_class": "treatise"
 },
 {
@@ -552,6 +600,14 @@
 "Judge Cardozo in Meinhard v. Salmon"
 ],
 "text": "2011] ECONOMIC STRUCTURE OF FIDUCIARY LAW 1043 invited to scrutinize whether the agent\u2019s action was indeed in the principal\u2019s best interests. Stripped of legalistic formalisms and moralizing rhetoric, 11 the functional core of the fiduciary obligation is deterrence.12 T h e a g e n t i s induced to act in the best interests of the principal by the threat of after-the-fact liability for failure to have done so. The agent is given broad discretionary powers, but the agent must exercise that discretion in the best interests of the principal on pain of damages and disgorgement remedies. Viewed in this manner, the operation of the fiduciary obligation becomes intuitive. The core fiduciary duties are the duties of loyalty and care. The duty of loyalty proscribes misappropriation and regulates conflicts of interest by requiring the fiduciary to act in the \u201cbest\u201d or even \u201csole\u201d interests of the principal. The duty of loyalty presumptively prohibits self-dealing, subjecting the principal\u2019s consent to such actions to procedural and substantive safeguards, chief among them full and fair disclosure by the fiduciary. 13 The aim is to induce the fiduciary either to refrain from self-dealing or to disclose the material facts of the transaction and how the fiduciary\u2019s conflict might compromise the fiduciary\u2019s judgment, thereby enabling the principal to make an informed decision whether to consent.14 In concert with the availability of a disgorgement remedy for breach, the prophylactic ban on self-dealing thus serves a disclosure or revelatory purpose.15 The duty of care prescribes the fiduciary\u2019s standard of care by establishing a \u201creasonableness\u201d or \u201cprudence\u201d standard in which the meaning of reasonableness or prudence is informed by industry norms and practices. This standard of care is objective, measured by reference to a reasonable or prudent person in like circumstances. 16 If the fiduciary has specialized skills relevant 11 The most famous such rhetoric is that of Judge Cardozo in Meinhard v. Salmon , 164 N.E. 545 (N.Y. 1928): Many forms of conduct permissible in a workaday world for those acting at arm\u2019s length, are forbidden to those bound by fiduciary ties. A trustee is held to something stricter than the morals of the market place. Not honesty alone, but the punctilio of an honor the most sensitive, is then the standa rd of behavior. As to this there has developed a tradition that is unbending and inveterate. Uncompromising rigidity has been the attitude of courts of equity when petitioned to undermine the rule of undivided loyalty by the \u2018disintegrating erosion\u2019 of particular exceptions. Only thus has the level of conduct for fiduciaries been kept at a level higher than that trodden by the crowd. It will not consciously be lowered by any judgment of this court. Id. at 546 (citations omitted). 12 See F r a n k H . E a s t e r b o o k & D a n i e l R . F i s c h e l , Corporate Control Transactions , 91 YALE L.J. 698, 702 (1982). 13 See, e.g. , R ESTATEMENT (THIRD) O F TRUSTS \u00a7 7 8 , c m t s . c - d ( 2 0 0 7 ) ; RESTATEMENT (THIRD) O F AGENCY \u00a7 \u00a7 8 . 0 1 - 8 . 0 6 ( 2 0 0 6 ) ; PRINCIPLES OF CORPORATE GOVERNANCE: ANALYSIS AND RECOMMENDATIONS \u00a7\u00a7 5.01-5.02 (1994). 14 See, e.g., RESTATEMENT (THIRD) OF AGENCY \u00a7 8.06, cmt. b (2006). 15 See infra text accompanying note 37. 16 See, e . g ., R ESTATEMENT (THIRD) O F TRUSTS \u00a7 7 7 ( 2 0 0 7 ) ; RESTATEMENT (THIRD) O F AGENCY \u00a7 8 . 0 8 ( 2 0 0 6 ) ; PRINCIPLES OF CORPORATE GOVERNANCE: ANALYSIS AND",
+"integrity": {
+"state": "complete",
+"basis": "Full retrieved body of 3,495 characters stored; under the 60,000 cap, so nothing was cut.",
+"stamped_at": "2026-09-11T02:53:17",
+"stored_chars": 3495,
+"source_chars": 3495,
+"cap_applied": 60000
+},
 "authority_class": "treatise"
 },
 {
@@ -560,6 +616,14 @@
 "page": 8,
 "authorities": [],
 "text": "1044 BOSTON UNIVERSITY LAW REVIEW [Vol. 91: 1039 to the principal\u2019s retention of the fiduciary, then the applicable standard of care is that of a reasonable or prudent person in possession of those skills.17 Because agency problems arise from incomplete contracting, the core duties of loyalty and care are phrased in open-ended, expansive terms. The duties of loyalty and care are thus standards that allow the court to decide whether, in view of all the facts and circumstances, the fiduciary acted in accord with what the parties would have agreed if they had been able to anticipate those facts and circumstances. In effect, the loyalty and care standards empower the court to complete the parties\u2019 contract as regards the facts and circumstances as they in fact unfolded. The duties of loyalty and care therefore minimize transaction costs. Instead of trying in advance to reduce to writing provisions for every future contingency, the parties need only address expressly those contingencies that are important and likely enough to warrant the transaction costs of express provision. For all other contingencies, the fiduciary obligation fills the gap. As standards that allow for consider ation of all the relevant facts and circumstances, the duties of loyalty and care also minimize error costs. But as is typical of standards (as compared to rules), this reduction in error costs comes at the price of increased uncertainty and increased decision costs.18 The highly contextual nature of a standard makes prediction more difficult and requires a more intensive judicial role. Two related fiduciary law developments, however, mitigate these costs. First, the normal accretive process of the common law has produced a rich body of interpretive authority on fiduciary matters, not only across decades of case law, but also across generations of treatises, restatements, and statutory codifications. This mass of authority improves predictability by providing instructive guidance on how the duties of loyalty and care will be applied in various circumstances. This mass of authority also addresses the extent to which the parties may override the fiduciary obligation by explicit agreement and the remedies available to the principal for the fiduciary\u2019s breach of duty. Second, accumulated experience with recurring, common sets of facts and circumstances has led to the development of subsidiary or implementing rules regarding the application of the duties of loyalty or care to those circumstances. The corporate opport unities doctrine and the trust law no- further-inquiry rule (and its proliferating exceptions) are examples of such rules.19 So too are the specific rules in agency and corporate law regarding competition with the principal or the corporation. 20 Other common examples RECOMMENDATIONS \u00a7 4.01(a) (1994). 17 See, e.g., UNIFORM PRUDENT INVESTOR ACT \u00a7 2(f) (1994); RESTATEMENT (THIRD) O F TRUSTS \u00a7 77(3) (2007); RESTATEMENT (THIRD) OF AGENCY \u00a7 8.08 (2006). 18 See, e.g., Louis Kaplow, Rules Versus Standards: An Economic Analysis, 42 DUKE L.J. 557 (1992). 19 See R ESTATEMENT (THIRD) O F TRUSTS \u00a7 7 8 , c m t s . c - d ( 2 0 0 7 ) ; PRINCIPLES OF CORPORATE GOVERNANCE: ANALYSIS AND RECOMMENDATIONS \u00a7 5.05 (1994). 20 See RESTATEMENT (THIRD) O F AGENCY \u00a7 8.04 (2006); PRINCIPLES OF CORPORATE",
+"integrity": {
+"state": "complete",
+"basis": "Full retrieved body of 3,314 characters stored; under the 60,000 cap, so nothing was cut.",
+"stamped_at": "2026-09-11T02:53:17",
+"stored_chars": 3314,
+"source_chars": 3314,
+"cap_applied": 60000
+},
 "authority_class": "treatise"
 },
 {
@@ -568,6 +632,14 @@
 "page": 9,
 "authorities": [],
 "text": "2011] ECONOMIC STRUCTURE OF FIDUCIARY LAW 1045 are specific rules on reasonable co mpensation, disclosure, accurate recordkeeping, and commingling funds. The subsidiary or implementing rules simplify application of the fiduciary obligation to cases that fall within their terms, reducing decision costs. 21 One need not show that the duty of car e requires accurate recordkeeping, for example, if one can invoke a subsidiary rule that imposes such a duty. Moreover, the subsidiary rules offer the normal benefit of simple rules, reduced decision costs, without increasing error costs by providing a roadmap for strategic avoidance behavior. If the fiduciary acts in a manner that is inimical to the principal\u2019s interests but that does not fall within one or another subsidiary rule, the principal may invoke the broad, open-ended duties of loyalty and care. Operating in tandem, the broad duties of loyalty and care plus the specific subsidiary rules provid e the decision costs advantage of rules and the error costs advantage of standards.22 Because the fiduciary obligation operate s as an after-the-fact compliance review of the fiduciary\u2019s conduct, and because the agency problem varies across fiduciary contexts, the precise contours of the fiduciary obligation vary across the fiduciary fields. For example, the fiduciary obligation in trust law is generally stricter than the fiduciary obligation in corporate law. But those differences reflect the different contexts. The agency problem in a family trust in which the beneficiaries have no exit option and that is managed by a corporate fiduciary that cannot easily be replaced differs significantly from the agency problem in a large, publicly-traded corporation from which a shareholder can separate easily by selling his shares in a thick securities market (the \u201cWall Street rule\u201d).23 The flexibility of the fiduciary oblig ation explains the success of the fiduciary governance strategy. Over the years the courts and more recently the legislatures have adapted the duties of loyalty and care and have created subsidiary, implementing duties to fit the particulars of the agency problem at issue. IV. M ANDATORY AND DEFAULT RULES Fiduciary duties yield to the contrary agreement of the parties. This principle follows naturally from the nature of fiduciary governance as a system of deterrence meant to minimize agen cy costs by allowing the court to complete the contract after the fact. Th e requirement of fiduciary law that the GOVERNANCE: ANALYSIS AND RECOMMENDATIONS \u00a7 5.06 (1994). 21 See Sitkoff, supra note 2, at 682-83. 22 I have elsewhere characterized this mode of legal governance as a \u201cstandard tempered by presumptions,\u201d in comparison to a \u201crule tempered by exceptions.\u201d DUKEMINIER, SITKOFF & LINDGREN, supra note 2, at 386-87. 23 See Robert H. Sitkoff, Trust Law, Corporate Law, and Capital Market Efficiency, 28 J. CORP. LAW 565 (2003); see also Stephen M. Bainbridge, The Case for Limited Shareholder Voting Rights, 53 UCLA L. REV. 601, 619 (2006).",
+"integrity": {
+"state": "complete",
+"basis": "Full retrieved body of 3,028 characters stored; under the 60,000 cap, so nothing was cut.",
+"stamped_at": "2026-09-11T02:53:17",
+"stored_chars": 3028,
+"source_chars": 3028,
+"cap_applied": 60000
+},
 "authority_class": "treatise"
 },
 {
@@ -576,6 +648,14 @@
 "page": 10,
 "authorities": [],
 "text": "1046 BOSTON UNIVERSITY LAW REVIEW [Vol. 91: 1039 fiduciary act in the principal\u2019s best interests, which is informed by what the parties would have agreed if they had considered a given contingency, does not pertain with respect to a particular contingency if the parties entered into an express agreement on what the fiduciary should do in the event of that contingency. So the various fiduciary duties are for the most part default rules that apply unless the parties have agreed otherwise. Even the fiduciary duty of loyalty is subject to modification by agreement of the parties.24 If the principal gives informed consent to certain self-dealing by the fiduciary, the rationale for the duty of loyalty\u2019s prophylactic rule against self-dealing falls away. In such circumstances, the fiduciary may engage in the specified self-dealing, provided that the fiduciary acts in good faith and that the transaction is objectively fair and in the best interests of the principal.25 To be sure, there is a mandatory core to the fiduciary obligation that cannot be overridden by agreement. For example, the principal cannot authorize the fiduciary to act in bad faith. 26 Even if the principal authorizes self-dealing, fiduciary law provides substantive safeguards, requiring the fiduciary to act in good faith and deal fairly with and for the principal; and procedural safeguards, requiring the fiduciary to apprise the principal of the material facts, which means the facts that would reasonably affect the principal\u2019s judgment, in securing the principal\u2019s informed consent.27 The existence of such mandatory rules vexed the prior generation of economic analysis of fiduciary law. 28 C o m m i t t e d c o n t r a c t a r i a n s h a v e h a d difficulty explaining why the parties to a fiduciary relationship do not have complete freedom of contract to alter the terms of that relationship. The answer is that the mandatory rules of fiduciary law serve an internal protective and cautionary function that protects the principal, and an external categorization function that protects third parties who deal with the fiduciary. 24 See, e.g., UNIFORM POWER OF ATTORNEY ACT \u00a7 114(b) (2006); R ESTATEMENT (THIRD) OF TRUSTS \u00a7 78, cmt. c(2) (2007); R ESTATEMENT (THIRD) OF AGENCY \u00a7 8.06 (2006). 25 See, e.g. , R ESTATEMENT (THIRD) O F TRUSTS \u00a7 7 8 , c m t s . c - d ( 2 0 0 7 ) ; RESTATEMENT (THIRD) OF AGENCY \u00a7 8.06 (2006); P RINCIPLES OF CORPORATE GOVERNANCE: ANALYSIS AND RECOMMENDATIONS \u00a7 5.02 (1994). 26 See, e.g., UNIFORM POWER OF ATTORNEY ACT \u00a7 114(a) (2006); U NIFORM TRUST CODE \u00a7 105(b)(2) (2000); R ESTATEMENT (THIRD) OF TRUSTS \u00a7 78, cmt. c(2) (2007); R ESTATEMENT (THIRD) OF AGENCY \u00a7 8.06(1)(a), (2)(a) (2006). 27 See, e.g. , R ESTATEMENT (THIRD) O F TRUSTS \u00a7 7 8 , c m t . c ( 2 ) ( 2 0 0 7 ) ; RESTATEMENT (THIRD) OF AGENCY \u00a7 8.06 (2006). 28 For example, Easterbrook and Fischel erroneously asserted that in trust law \u201c[a]ll rules are freely variable by contract in advance.\u201d Easterbrook & Fischel, supra note 1, at 432. Prevailing trust law is to the contrary. See RESTATEMENT (THIRD) OF TRUSTS \u00a7 78, cmt. c(2) (2007) (\u201c[N]o matter how broad the provisions of a trust may be in conferring power to engage in self-dealing or other transactions involving a conflict of fiduciary and personal interests, a trustee violates the duty of loyalt y to the beneficiaries by acting in bad faith or unfairly.\u201d); see also John H. Langbein, Mandatory Rules in the Law of Trusts , 98 NW. U.L. REV. 1105 (2004).",
+"integrity": {
+"state": "complete",
+"basis": "Full retrieved body of 3,497 characters stored; under the 60,000 cap, so nothing was cut.",
+"stamped_at": "2026-09-11T02:53:17",
+"stored_chars": 3497,
+"source_chars": 3497,
+"cap_applied": 60000
+},
 "authority_class": "treatise"
 },
 {
@@ -586,6 +666,14 @@
 "McNeil v. McNeil"
 ],
 "text": "2011] ECONOMIC STRUCTURE OF FIDUCIARY LAW 1047 With respect to the internal protective a n d cautionary function, the mandatory core insulates fiduciary obligations that the law assumes would not be bargained away by a fully informed, sophisticated principal. True, in an individual case a particular principal might be fully informed and have good reason to want to bargain away something from the mandatory core. But such circumstances are infrequent enough that a prophylactic (if paternalistic) mandatory rule may be justified nonetheless, at least in the traditional fiduciary fields such as trust and agency, in which the principal is commonly not sophisticated and fully informed. With respect to the external categorization function, the mandatory core addresses the need for clean lines of demarcation across types of property arrangements to minimize third-party information costs. This standardization function has been emphasized in the contemporary learning in property theory.29 On this view, the mandatory core of fiduciary law polices the line that differentiates a fiduciary relationship on the one hand from a fee simple or other such arrangement on the other. A person may give property to another person and authorize the other person to act whimsically with respect to the property. But this mode of transfer is an absolute gift, and this mode of holding property is fee simple.30 The categorization, third-party information costs explanation for the mandatory core is strongest as regards fiduciary relationships for which there is no public notice filing such as agency and common law trusts. 31 T h e explanation is weaker as regards filing entities such as corporations and limited liability companies, because the public filing that brings the entity into existence also provides notice to third parties. For this reason, and because the parties in such contexts are more likely to be fully informed and sophisticated, 29 See Henry Hansmann & Reinier Kraakman, Property, Contract, and Verification: The Numerus Clausus P r o b l e m a n d t h e D i v i s i b i l i t y o f R i g h t s, 31 J. LEG. STUD. S373 (2002); Thomas W. Merrill & Henry E. Smith, Optimal Standardization in the Law of Property: The Numerus Clausus Principle, 110 YALE L.J. 1 (2000); Thomas W. Merrill & Henry E. Smith, The Property/Contract Interface , 101 C OLUM. L. REV. 773 (2001); see also Sitkof f , supra note 2, at 643. 30 As the Delaware Supreme Court put the poin t: \u201cA trust in which there is no legally binding obligation is a trust in name only and more in the nature of an absolute estate or fee simple grant of property.\u201d McNeil v. McNeil, 798 A.2d 503, 509 (Del. 2002). 31 See RESTATEMENT (THIRD) OF TRUSTS \u00a7 78, cmt. c(2) (2007) (explaining that \u201cto some extent the duty of loyalty involves (as do other duties) more than default lawthat is, that there are limits to the settlor\u2019s freedom, thereby protecting the fundamental fiduciary character of trust relationships recognized by the law\u201d); R ESTATEMENT (THIRD) OF AGENCY \u00a7 8.06, cmt. b (2006) (\u201cCommon-law agency does not accord effect to all manifestations of assent by a principal that purports to eliminate or otherwise affect the fiduciary duties owed by an agent. This is so for two distinct reas ons: (1) the law, and not the parties, determines whether a particular relationship is one of agency . . . ; and (2) the law imposes restrictions on the efficacy of a principal\u2019s manifestations of assent in the interest of safeguarding the principal\u2019s intention in creating a relationship of common-law agency.\u201d).",
+"integrity": {
+"state": "complete",
+"basis": "Full retrieved body of 3,582 characters stored; under the 60,000 cap, so nothing was cut.",
+"stamped_at": "2026-09-11T02:53:17",
+"stored_chars": 3582,
+"source_chars": 3582,
+"cap_applied": 60000
+},
 "authority_class": "treatise"
 },
 {
@@ -596,6 +684,14 @@
 "Lonergan v. EPE"
 ],
 "text": "1048 BOSTON UNIVERSITY LAW REVIEW [Vol. 91: 1039 the mandatory core for filing fiduciary entities is both less robust and more contentious than in agency and trust law. 32 Consistent with this analysis, we find in the recent uniform acts in the fiduciary fields a consolidated scheduling of mandatory rules, but with more flexibility in the filing fiduciary entities than in the non-filing fiduciary relationships.33 V. C OMPENSATION AND DISGORGEMENT In the event of the fiduciary\u2019s breach of duty, the principal is entitled to an election among remedies that include compensatory damages to offset any losses or to makeup any gains forgone owing to the fiduciary\u2019s breach, or to disgorgement by the fiduciary of any pr ofit accruing to the fiduciary owing to the breach.34 The former is a standard measure of make-whole compensatory damages; the latter is a restitutionary remedy arising in equity in the form of a constructive trust that prevents unjust enrichment.35 The availability of a compensatory remedy is readily explainable on ordinary contractarian terms. The principal is entitled to the benefit of his bargain, hence to be made whole for his losses incurred or gains foregone owing to the breach. But compensatory damages deter breach only when the gains to the breaching party are less than the nonbreaching party\u2019s loss. If only 32 See, e.g. , Lonergan v. EPE Holdings, LLC, 5 A.3d 1008, 1016-19 (Del. Ch. 2010) (enforcing a waiver of fiduciary obligation in an LLC agreement, but applying the implied contractual covenant of good faith and fair dealing); L ARRY E. RIBSTEIN, THE RISE OF THE UNCORPORATION 219-22 (2010); Paul M. Altman & Srinivas M. Raju, Delaware Alternative Entities and the Implied Contractual Covenant of Good Faith and Fair Dealing Under Delaware Law , 60 B US. LAW. 1469 (2005); Andrew S. Gold, On the Elimination of Fiduciary Duties: A Theory of Good Faith for Unincorporated Firms , 41 W AKE FOREST L. REV. 123 (2006); Sandra K. Miller, Role of the Court in Balancing Contractual Freedom with the Need for Mandatory Constraints on Opportunistic and Abusive Conduct in the LLC, 152 U. PA. L. REV. 1609 (2004); Myron T. Steele, Judicial Scrutiny of Fiduciary Duties in Delaware Limited Partnersh ips and Limited Liability Companies , 32 D EL. J. CORP. L. 1 (2007). 33 Compare U NIFORM STATUTORY TRUST ENTITY ACT \u00a7 1 0 4 ( 2 0 0 9 ) , and R EVISED UNIFORM LIMITED LIABILITY COMPANY ACT \u00a7 1 1 0 ( 2 0 0 6 ) , and U NIFORM LIMITED PARTNERSHIP ACT \u00a7 1 1 0 ( 2 0 0 1 ) , and R EVISED UNIFORM PARTNERSHIP ACT \u00a7 1 0 3 ( 1 9 9 7 ) , and UNIFORM LIMITED LIABILITY COMPANY ACT \u00a7 10 3 ( 19 96) , and Mark J. L oewenstein, Fiduciary Duties and Unincorporated Business Entities: In Defense of the \u201cManifestly Unreasonable\u201d Standard , 41 TULSA L. REV. 411 (2006) (discussing mandatory rules in the uniform alternative entity acts), with UNIFORM POWER OF ATTORNEY ACT \u00a7 114 (2006), and UNIFORM TRUST CODE \u00a7 105 (2000) , and L angbein, supra note 28 (discussi ng m andatory rules in the Uniform Trust Code). 34 See, e.g. , U NIFORM TRUST CODE \u00a7 1 0 0 2 ( a ) ( 2 0 0 0 ) ; 4 AUSTIN WAKEMAN SCOTT, WILLIAM FRANKLIN FRATCHER & MARK L. ASCHER, SCOTT AND ASCHER ON TRUSTS \u00a7 24.9 (4th ed. 2007). 35 See R ESTATEMENT (THIRD) O F AGENCY \u00a7 8 . 0 1 , c m t . d ( 1 ) ( 2 0 0 6 ) ; RESTATEMENT (THIRD) OF RESTITUTION \u00a7 55 (Tentative Draft No. 6, 2008).",
+"integrity": {
+"state": "complete",
+"basis": "Full retrieved body of 3,365 characters stored; under the 60,000 cap, so nothing was cut.",
+"stamped_at": "2026-09-11T02:53:17",
+"stored_chars": 3365,
+"source_chars": 3365,
+"cap_applied": 60000
+},
 "authority_class": "treatise"
 },
 {
@@ -604,6 +700,14 @@
 "page": 13,
 "authorities": [],
 "text": "2011] ECONOMIC STRUCTURE OF FIDUCIARY LAW 1049 compensatory damages are available, and the gains to the breaching party from breach exceed the nonbreaching party\u2019s loss, then breach is efficient, and there is no need before breaching to return to the other p arty to ne gotiate ov er th e allocation of the surplus arising from the breach.36 By contrast, the availability of a disgorgement remedy, which allows the principal to take the fiduciary\u2019s gain even in excess of making the principal whole, reflects the additional deterrent and disclosure purposes of fiduciary law.37 Because the fiduciary is not entitled to keep the gains from breach, the fiduciary is deterred from unilateral breach, and is instead given an incentive to disclose the potential gains from breach and seek the principal\u2019s consent. That is, the default rule in fiduciary law is that all gains that arise in connection with the fiduciary relationship belong to the principal unless the parties specifically agree otherwise. This default rule, which is contrary to the interests of the party with superior information,38 induces the fiduciary to make full disclosure so that the parties can complete th e contract expressly as regards the principal\u2019s and the fiduciary\u2019s relative shares of the surplus arising from the conduct that would otherwise have constituted a breach. CONCLUSION In contrast to a normal relationship, in which each party is free to be self- serving, in a fiduciary relationship the law requires the fiduciary to be other- regarding because of the potential for abuse inherent to the agency structure of the relationship. What is meant by other-regarding is defined by default fiduciary duties of loyalty, care, and a host of implementing sub-rules. These duties are subject to refinement by agreement of the parties, so long as the fiduciary remains obligated to act in good faith and in the interests of the principal. Agency theory, and in particular its emphasis on the problem of opportunism in circumstances of asymmetric information, explains these basic contours of fiduciary doctrine. 36 See, e.g., RICHARD A. POSNER, ECONOMIC ANALYSIS OF LAW \u00a7 4.10 (7th ed. 2007). 37 See supra notes 13-15 and accompanying text. 38 See Ian Ayres & Robert Gertner, Filling Gaps in Incomplete Contracts: An Economic Theory of Default Rules, 99 YALE L.J. 87 (1989).",
+"integrity": {
+"state": "complete",
+"basis": "Full retrieved body of 2,353 characters stored; under the 60,000 cap, so nothing was cut.",
+"stamped_at": "2026-09-11T02:53:17",
+"stored_chars": 2353,
+"source_chars": 2353,
+"cap_applied": 60000
+},
 "authority_class": "treatise"
 }
 ]
