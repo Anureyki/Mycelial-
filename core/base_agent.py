@@ -1240,6 +1240,12 @@ class AgentBase:
             # Subject terms the work itself repeats, so a doctrine can be asked
             # for by name instead of by page. Exact keys only - nothing scored.
             for term, idxs in (doc.get("term_index") or {}).items():
+                # HOW CENTRAL THIS TERM IS TO THIS WORK, computed once at index
+                # build rather than at query time. It is a property of the work,
+                # not a score against the query - no similarity is measured and
+                # nothing is ranked by overlap.
+                _n_sections = len(sections)
+                _share = (len(idxs) / _n_sections) if _n_sections else 0.0
                 for i in idxs:
                     if i < len(sections):
                         s = sections[i]
@@ -1254,6 +1260,10 @@ class AgentBase:
                             {"title": title, "source": source,
                              "citation": s.get("citation"), "page": s.get("page"),
                              "authority_class": doc.get("authority_class"),
+                             # Carried so ordering can tell a work ABOUT a
+                             # subject from one that mentions it once.
+                             "term_share": _share,
+                             "work_sections": _n_sections,
                              "integrity": s.get("integrity"),
                              # HOW WELL SOURCED, alongside how whole. Different axes:
                              # `integrity` says whether the passage was stored complete,
@@ -1321,6 +1331,90 @@ class AgentBase:
     # at 5. A fallback that collides with a real value is a ranking bug waiting
     # for its second entry.
     UNKNOWN_AUTHORITY_RANK = 9
+
+    # ORDERING WITHIN A MATCH. Everything here has already matched EXACTLY -
+    # by headword or citation - so none of this is similarity scoring. The
+    # question is only which of several exact matches to put first.
+    #
+    # TWO DEFECTS IT FIXES, and they had different causes:
+    #
+    #   `consumer report` returned 12 U.S.C. 2605 - RESPA mortgage servicing -
+    #   ahead of 15 U.S.C. 1681a, where a consumer report is DEFINED. Both are
+    #   federal statutes, so authority rank tied them and the winner was
+    #   file-walk order.
+    #
+    #   `data broker` returned 38 CFR Part 1 - VA general provisions, which
+    #   mentions it in 1 of 214 sections - ahead of the EPIC paper that is
+    #   about data brokers across 11 of 24. Authority rank put any regulation
+    #   over advocacy.
+    #
+    # THE OVERCORRECTION THIS AVOIDS is letting relevance beat authority: a
+    # well-written advocacy piece must never outrank a statute that merely
+    # mentions the term. Two structural protections, not weights:
+    #
+    #   authority_rank stays PRIMARY for everything that is not incidental.
+    #   Definitional match only ever breaks a tie WITHIN a rank.
+    #
+    #   the incidental demotion cannot touch a small work. It requires at
+    #   least INCIDENTAL_MIN_SECTIONS, so a one-section statute is never
+    #   demoted however briefly it mentions a term - which is exactly the
+    #   case where a statute must keep beating a paper about the subject.
+    # THE INCIDENTAL DEMOTION IS GONE, AND WAS THE WRONG IDEA TWICE OVER.
+    #
+    # It demoted the TEXAS TRUST CODE below three Sitkoff treatises for
+    # `prudence`, because prudence occupies 2 of the code's 183 sections. A
+    # comprehensive statute covers many subjects, so each one occupies few
+    # sections BY CONSTRUCTION - low share in a large code means "this is a big
+    # code", not "this is off-topic". 1.09% there against 0.5% for the case it
+    # was built for: share alone cannot tell them apart, and no threshold
+    # between them would be anything but a number chosen to make two examples
+    # come out right.
+    #
+    # And the case it was built for was not a defect. `data broker` returning
+    # 38 CFR Part 1 ahead of the EPIC paper is authority ordering working: EPIC
+    # is advocacy, which this file deliberately ranks below every regulation,
+    # and promoting it would be exactly the overcorrection the principal
+    # warned about - a well-written advocacy piece outranking a regulation
+    # because it is more ON TOPIC. Relevance must not beat authority.
+    #
+    # What survives is the part that was unambiguous: a definitional match
+    # breaks a tie WITHIN one authority rank, and cannot cross one.
+
+    # "the term X means", "X shall mean", "X - a company that..."
+    _DEFINES_RE = None
+
+    def _defines_term(self, entry, term):
+        """Does this passage DEFINE the term, rather than use it?
+
+        Checked against definitional constructions, not against how much the
+        passage resembles anything. A statute's definitions section says `the
+        term "consumer report" means`; a section that merely uses the phrase
+        does not."""
+        import re as _re
+        t = _re.escape((term or "").strip())
+        if not t:
+            return False
+        body = str(entry.get("text") or "")
+        if not body:
+            return False
+        # Quote characters vary - straight, curly, none - so they are one
+        # optional character class rather than literals inside the pattern.
+        q = '[\u0022\u0027\u201c\u201d\u2018\u2019]?'
+        pats = (
+            rf'the term\s+{q}{t}{q}\s+means',
+            rf'{q}{t}{q}\s+means\b',
+            rf'{q}{t}{q}\s+shall mean\b',
+            rf'^{t}\s*[.\u2014\-]\s',
+            rf'{t}\s*[\u2014\-]\s+[A-Z]',
+        )
+        return any(_re.search(p, body, _re.I | _re.M) for p in pats)
+
+    def _term_sort_key(self, entry, term):
+        """-> the ordering tuple. Lower sorts first."""
+        return (
+            self._authority_rank(entry),              # authority is PRIMARY
+            0 if self._defines_term(entry, term) else 1,   # tie-break ONLY
+        )
 
     def _authority_rank(self, entry):
         """Lower is more authoritative. Unknown sorts last rather than first -
@@ -1905,7 +1999,8 @@ class AgentBase:
             # order meant Pomeroy on equity could arrive ahead of the statute
             # that governs. Stable sort, so within a class the existing order
             # is untouched.
-            return sorted(idx["by_term"][key], key=self._authority_rank)[:4]
+            return sorted(idx["by_term"][key],
+                          key=lambda e: self._term_sort_key(e, key))[:4]
         # A case is often cited with extra words around it ("as the tax
         # considered in Gleason v. McKay"), so match on containment in either
         # direction - but only for names that look like a case.

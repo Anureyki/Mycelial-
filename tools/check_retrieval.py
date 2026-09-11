@@ -123,7 +123,52 @@ def main():
     ck("a correctly cited answer ships",
        verify(f"Unclean hands bars equitable relief. {tok}", entry)[0])
 
-    print("\n  3. quarantine never reaches the retrieval index")
+    print("\n  3. ordering: BOTH directions, because a fix can overcorrect")
+    # The principal's own warning: "if it weights relevance too hard, a
+    # well-written advocacy piece could outrank a statute that merely mentions
+    # the term." Both directions are asserted so the balance cannot drift on a
+    # later edit - a gate that only tested the defect would let the cure
+    # through unnoticed.
+    from core.base_agent import AgentBase
+    ab = AgentBase.__new__(AgentBase)
+    statute_brief = {"title": "15 U.S.C. 9999", "authority_class": "federal_statute",
+                     "work_sections": 1,
+                     "text": "the Bureau may consider a data broker in rules."}
+    paper_deep = {"title": "Paper about data brokers", "authority_class": "advocacy",
+                  "work_sections": 40,
+                  "text": "Data Broker - a company that collects and sells data."}
+    reg_passing = {"title": "38 CFR Part 1", "authority_class": "regulation",
+                   "work_sections": 214,
+                   "text": "disclosure to a data broker is prohibited."}
+    defines_statute = {"title": "15 U.S.C. 1681a", "authority_class": "federal_statute",
+                       "work_sections": 1,
+                       "text": 'the term "consumer report" means any communication.'}
+    uses_statute = {"title": "12 U.S.C. 2605", "authority_class": "federal_statute",
+                    "work_sections": 1,
+                    "text": "a servicer shall not provide a consumer report."}
+
+    # DIRECTION 1 - relevance must not beat authority.
+    o = sorted([statute_brief, paper_deep],
+               key=lambda e: ab._term_sort_key(e, "data broker"))
+    ck("a statute that MENTIONS a term beats a paper ABOUT it",
+       o[0] is statute_brief, "relevance must not beat authority")
+    o = sorted([reg_passing, paper_deep],
+               key=lambda e: ab._term_sort_key(e, "data broker"))
+    ck("a regulation that mentions a term beats advocacy about it",
+       o[0] is reg_passing,
+       "advocacy is ranked below every regulation on purpose")
+
+    # DIRECTION 2 - within one rank, the definition leads.
+    o = sorted([uses_statute, defines_statute],
+               key=lambda e: ab._term_sort_key(e, "consumer report"))
+    ck("within one rank, the entry that DEFINES the term leads",
+       o[0] is defines_statute, "the real defect, and the only one fixed")
+    ck("the definitional tiebreak cannot cross a rank",
+       ab._term_sort_key(paper_deep, "data broker")[0]
+       > ab._term_sort_key(statute_brief, "data broker")[0],
+       "authority rank is the first element of the key")
+
+    print("\n  4. quarantine never reaches the retrieval index")
     import glob
     qpath = os.path.join(ROOT, "datasets", "security_eval", "_quarantine.jsonl")
     nq = sum(1 for _ in open(qpath, encoding="utf-8")) if os.path.exists(qpath) else 0

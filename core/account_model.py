@@ -67,14 +67,47 @@ def load(path=None):
     return doc
 
 
+# A LAYER HAS A STATUS, AND IT IS NOT OPTIONAL.
+#
+# The principal's correction: "an appointment that's active versus one that has
+# been revoked is the difference between a claim and a gift. Without that, the
+# who-owns-it map shows the structure but points you dead at dead appointments."
+#
+# He is right, and the consequence is worse than a stale map. A fiduciary
+# appointment and a power of attorney both sit ON an account, and BOTH have to
+# be revoked before title actually moves. A map that shows an appointment
+# without saying whether it still binds will send somebody to revoke a thing
+# that was revoked years ago, while the live one stays in place.
+#
+# UNKNOWN IS THE DEFAULT AND IS NOT ACTIVE. A layer whose status nobody checked
+# must not read as binding - "we did not look" and "it still binds" are
+# opposite findings, and only one of them is safe to act on.
+LAYER_STATUS = ("active", "revoked", "superseded", "expired", "unknown",
+                "never_existed")
+
+# Statuses that still bind. Everything else is history, and history on an
+# ownership map is the thing that misdirects.
+BINDING = ("active",)
+
+
 def layers_of(entry):
-    """-> [{layer, entity, evidence, citation, note}] in FIXED order."""
+    """-> [{layer, entity, status, evidence, citation, note}] in FIXED order."""
     out = []
     for name in LAYERS:
         v = (entry.get("layers") or {}).get(name) or {}
+        st = v.get("status")
+        if st not in LAYER_STATUS:
+            # not_applicable evidence means the layer genuinely does not exist -
+            # a passport has no fiduciary. That is never_existed, not unknown.
+            st = ("never_existed" if v.get("evidence") == "not_applicable"
+                  else "unknown")
         out.append({
             "layer": name,
             "entity": v.get("entity"),
+            "status": st,
+            "binding": st in BINDING,
+            "status_evidence": v.get("status_evidence", "unverified"),
+            "status_as_of": v.get("status_as_of"),
             # SECTOR TRAVELS. It was dropped here and detect_inversion reads
             # it, so structure_handed_down could never fire - the detector ran,
             # found sector None, and returned nothing. A field lost at a
@@ -98,9 +131,32 @@ def distinct_entities(entry):
     seen = []
     for l in layers_of(entry):
         e = l["entity"]
-        if e and e not in seen and l["layer"] != "benefit":
+        if e and e not in seen and l["layer"] != "benefit" and l["binding"]:
             seen.append(e)
     return seen
+
+
+def dead_layers(entry):
+    """-> layers that name an entity which no longer binds.
+
+    Reported SEPARATELY from the live map rather than dropped. A revoked
+    appointment is not nothing: it is a thing somebody may still believe is in
+    force, and the map that hides it cannot correct them."""
+    return [l for l in layers_of(entry)
+            if l["entity"] and not l["binding"] and l["status"] != "never_existed"]
+
+
+def must_revoke(entry):
+    """-> everything that has to come off before title moves.
+
+    The Form 56 problem: an appointment and a power of attorney can both sit on
+    one account, and BOTH have to be revoked. Listing one is how the other gets
+    left in place."""
+    return [{"layer": l["layer"], "entity": l["entity"], "status": l["status"],
+             "status_evidence": l["status_evidence"]}
+            for l in layers_of(entry)
+            if l["binding"] and l["layer"] in ("fiduciary", "servicer")
+            and l["entity"]]
 
 
 def detect_inversion(entry):
@@ -220,6 +276,21 @@ def trace(account_id, path=None):
         "carries_the_debt": next((l["entity"] for l in ls
                                   if l["layer"] == "debt_holder"), None),
         "inversions": detect_inversion(entry),
+        # SURFACED, NOT BURIED. A layer whose status is unknown is the one a
+        # reader must chase - it names an entity and cannot say whether that
+        # entity still binds. Counting it as binding would overstate the map;
+        # hiding it would understate the work left.
+        "unverified_status": [
+            {"layer": l["layer"], "entity": l["entity"],
+             "why": "named an entity; whether it still binds was not checked"}
+            for l in ls if l["entity"] and l["status"] == "unknown"],
+        "revoked_or_expired": dead_layers(entry),
+        "must_revoke_before_title_moves": must_revoke(entry),
+        "status_note": ("`entities_stacked` counts only layers that BIND. An "
+                        "appointment that was revoked is not a lighter version "
+                        "of one in force - it is the difference between a claim "
+                        "and a gift, and a map that shows structure without "
+                        "status points at dead appointments."),
         "unverified_layers": unverified,
         "absence_state": ("incomplete" if unverified else "verified_clear"),
         "citations": sorted({l["citation"] for l in ls if l["citation"]}),

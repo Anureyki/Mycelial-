@@ -63,9 +63,20 @@ def main():
        json.dumps(a, sort_keys=True) == json.dumps(b, sort_keys=True))
     ck("layer order is fixed",
        [l["layer"] for l in a["layers"]] == list(LAYERS))
-    ck("three entities stacked, debt named",
-       a["entities_stacked_count"] == 3 and a["carries_the_debt"],
-       f"{a['entities_stacked_count']} stacked, debt={a['carries_the_debt']}")
+    # WAS "three entities stacked", and the status field correctly reduced it.
+    # The VA appointment's status is unverified, so it does not COUNT as
+    # binding - and the assertion had to change rather than the code, because
+    # counting an appointment nobody confirmed would be the overstatement the
+    # status field exists to prevent.
+    ck("only BINDING entities are counted",
+       a["entities_stacked_count"] == 2 and a["carries_the_debt"],
+       f"{a['entities_stacked_count']} binding, debt={a['carries_the_debt']}")
+    ck("the unverified appointment is SURFACED, not silently dropped",
+       any(u["layer"] == "fiduciary" for u in a.get("unverified_status") or []),
+       "a layer that names an entity and cannot say whether it binds is the "
+       "one a reader must chase")
+    ck("confirming the appointment would make it three",
+       len(a["entities_stacked"]) + len(a.get("unverified_status") or []) == 3)
 
     print("\n  4. unverified is reported, never filled")
     for aid in ("trulink_card", "usps_money_order"):
@@ -106,6 +117,37 @@ def main():
        "traced, not argued")
     ck("a clean public account produces no inversion",
        not detect_inversion(accounts["va_disability_compensation"]))
+
+    print("\n  5b. status: a revoked appointment is not a live one")
+    from core.account_model import (LAYER_STATUS, BINDING, must_revoke,
+                                    dead_layers)
+    for aid, e in sorted(accounts.items()):
+        bad = [n for n, v in (e.get("layers") or {}).items()
+               if v.get("status") and v["status"] not in LAYER_STATUS]
+        ck(f"{aid} uses only declared statuses", not bad, str(bad))
+    ck("unknown is NOT binding",
+       "unknown" not in BINDING,
+       "a layer nobody checked must not read as in force")
+    live = dict(accounts["va_compensation_with_fiduciary"])
+    import copy
+    revoked = copy.deepcopy(live)
+    revoked["layers"]["fiduciary"]["status"] = "revoked"
+    t_live = {l["layer"]: l for l in layers_of(live)}
+    t_rev = {l["layer"]: l for l in layers_of(revoked)}
+    ck("a revoked fiduciary stops binding",
+       not t_rev["fiduciary"]["binding"])
+    ck("a revoked layer is still REPORTED, not dropped",
+       any(l["layer"] == "fiduciary" for l in dead_layers(revoked)),
+       "somebody may still believe it is in force")
+    active = copy.deepcopy(live)
+    active["layers"]["fiduciary"]["status"] = "active"
+    ck("an active appointment appears in must_revoke",
+       any(r["layer"] == "fiduciary" for r in must_revoke(active)),
+       "the Form 56 problem: appointment AND power of attorney both come off")
+    ck("an unverified appointment does NOT appear in must_revoke",
+       not any(r["layer"] == "fiduciary" for r in must_revoke(live)),
+       "pointing somebody at a revocation nobody confirmed is needed is worse "
+       "than saying the status is unknown")
 
     print("\n  6. versioned and citable")
     ck("the schema is versioned", bool(doc.get("schema_version")))

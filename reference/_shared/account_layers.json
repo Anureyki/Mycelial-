@@ -16,29 +16,39 @@
           "entity": "U.S. Department of State",
           "evidence": "cited",
           "citation": "22 U.S.C. 211a",
-          "note": "The Secretary of State issues passports; the number identifies the document, not an account."
+          "note": "The Secretary of State issues passports; the number identifies the document, not an account.",
+          "status": "active",
+          "status_evidence": "cited"
         },
         "fiduciary": {
           "entity": null,
           "evidence": "not_applicable",
-          "note": "A passport is a travel document and a claim of nationality. Nobody holds it in trust for anyone - there is no res and no beneficiary, so this layer genuinely does not exist rather than being unknown."
+          "note": "A passport is a travel document and a claim of nationality. Nobody holds it in trust for anyone - there is no res and no beneficiary, so this layer genuinely does not exist rather than being unknown.",
+          "status": "never_existed",
+          "status_evidence": "cited"
         },
         "servicer": {
           "entity": "U.S. Department of State",
           "sector": "public",
           "evidence": "cited",
-          "citation": "22 U.S.C. 211a"
+          "citation": "22 U.S.C. 211a",
+          "status": "active",
+          "status_evidence": "cited"
         },
         "debt_holder": {
           "entity": null,
           "evidence": "not_applicable",
-          "note": "No obligation is created by holding one. The fee is paid at issue and discharges itself."
+          "note": "No obligation is created by holding one. The fee is paid at issue and discharges itself.",
+          "status": "never_existed",
+          "status_evidence": "cited"
         },
         "benefit": {
           "entity": "the person",
           "evidence": "cited",
           "citation": "22 U.S.C. 211a",
-          "note": "Documentation of nationality for travel."
+          "note": "Documentation of nationality for travel.",
+          "status": "active",
+          "status_evidence": "cited"
         }
       },
       "_why_this_entry_exists": "As the control case. A document with no fiduciary and no debt-holder shows the model does not invent layers to fill its own shape."
@@ -54,27 +64,34 @@
           "entity": "United States Postal Service",
           "evidence": "cited",
           "citation": "39 U.S.C. 404(a)(7)",
-          "note": "USPS is authorised to provide money orders."
+          "note": "USPS is authorised to provide money orders.",
+          "status": "active",
+          "status_evidence": "cited"
         },
         "fiduciary": {
           "entity": null,
           "evidence": "unverified",
-          "note": "Whether USPS holds the funds in any fiduciary capacity or simply owes a debt on the instrument has NOT been checked. This is the field the 'postal trust account' claim turns on, so it is left empty deliberately."
+          "note": "Whether USPS holds the funds in any fiduciary capacity or simply owes a debt on the instrument has NOT been checked. This is the field the 'postal trust account' claim turns on, so it is left empty deliberately.",
+          "status": "unknown"
         },
         "servicer": {
           "entity": "United States Postal Service",
           "sector": "public",
           "evidence": "cited",
-          "citation": "39 U.S.C. 404(a)(7)"
+          "citation": "39 U.S.C. 404(a)(7)",
+          "status": "active",
+          "status_evidence": "cited"
         },
         "debt_holder": {
           "entity": null,
           "evidence": "unverified",
-          "note": "LEFT EMPTY ON PURPOSE, and the CI gate caught it being filled. The ordinary reading is that USPS owes the face amount to the payee, but that is the reading, not the record - 39 CFR part 762 has not been opened. debt_holder is the one field somebody acts on, so a plausible entity here is worse than a blank one."
+          "note": "LEFT EMPTY ON PURPOSE, and the CI gate caught it being filled. The ordinary reading is that USPS owes the face amount to the payee, but that is the reading, not the record - 39 CFR part 762 has not been opened. debt_holder is the one field somebody acts on, so a plausible entity here is worse than a blank one.",
+          "status": "unknown"
         },
         "benefit": {
           "entity": "the payee",
-          "evidence": "unverified"
+          "evidence": "unverified",
+          "status": "unknown"
         }
       },
       "_note_on_the_trust_claim": "A money order is recorded here because it is the instrument most often described as a 'postal trust account'. THIS ENTRY DOES NOT SUPPORT THAT DESCRIPTION AND DOES NOT REFUTE IT - two of five layers are unverified and the trace says so. Resolving it means reading 39 CFR part 762 and the DMM, which has not been done. An entry that guessed here would manufacture the answer the question exists to find.",
@@ -89,25 +106,30 @@
         "identifier": {
           "entity": null,
           "evidence": "unverified",
-          "note": "Which issuing bank's BIN the card runs on has not been checked."
+          "note": "Which issuing bank's BIN the card runs on has not been checked.",
+          "status": "unknown"
         },
         "fiduciary": {
           "entity": null,
-          "evidence": "unverified"
+          "evidence": "unverified",
+          "status": "unknown"
         },
         "servicer": {
           "entity": null,
           "evidence": "unverified",
-          "note": "Prepaid cards are typically issued by a bank and administered by a separate program manager, with the brand on the card being a third party - but WHICH parties fill those roles for this product has not been verified, and the typical case is not evidence about this one."
+          "note": "Prepaid cards are typically issued by a bank and administered by a separate program manager, with the brand on the card being a third party - but WHICH parties fill those roles for this product has not been verified, and the typical case is not evidence about this one.",
+          "status": "unknown"
         },
         "debt_holder": {
           "entity": null,
           "evidence": "unverified",
-          "note": "For a prepaid card this is the question that matters - whose obligation the balance is, and whether it sits in a pooled custodial account. Not checked."
+          "note": "For a prepaid card this is the question that matters - whose obligation the balance is, and whether it sits in a pooled custodial account. Not checked.",
+          "status": "unknown"
         },
         "benefit": {
           "entity": null,
-          "evidence": "unverified"
+          "evidence": "unverified",
+          "status": "unknown"
         }
       },
       "_status": "STUB, DELIBERATELY EMPTY. The acceptance test for this model is that an agent looking at a TruLink card names three stacked entities and says which carries the debt. It cannot do that from an entry somebody invented, and this machine has no network to check the cardholder agreement. Fill it from the agreement and the issuing bank's disclosures; every field takes a citation."
@@ -121,30 +143,44 @@
         "identifier": {
           "entity": "Department of Veterans Affairs",
           "evidence": "cited",
-          "citation": "38 U.S.C. 1110"
+          "citation": "38 U.S.C. 1110",
+          "status": "active",
+          "status_evidence": "cited",
+          "status_note": "38 U.S.C. 1110 is in force."
         },
         "fiduciary": {
           "entity": null,
           "evidence": "cited",
           "citation": "38 U.S.C. 5502",
-          "note": "NONE BY DEFAULT. A VA fiduciary exists only where the Secretary finds a beneficiary unable to manage their own affairs and appoints one under 5502. Where one IS appointed the layer is filled with that person - and the appointment is the thing to read, not the label."
+          "note": "NONE BY DEFAULT. A VA fiduciary exists only where the Secretary finds a beneficiary unable to manage their own affairs and appoints one under 5502. Where one IS appointed the layer is filled with that person - and the appointment is the thing to read, not the label.",
+          "status": "never_existed",
+          "status_evidence": "cited",
+          "status_note": "No fiduciary unless appointed under 38 U.S.C. 5502."
         },
         "servicer": {
           "entity": "Department of Veterans Affairs",
           "sector": "public",
           "evidence": "cited",
-          "citation": "38 U.S.C. 1110"
+          "citation": "38 U.S.C. 1110",
+          "status": "active",
+          "status_evidence": "cited",
+          "status_note": "VA administers by statute."
         },
         "debt_holder": {
           "entity": "the United States",
           "evidence": "cited",
           "citation": "38 U.S.C. 1110",
-          "note": "The obligation to pay runs from the United States to the veteran. An overpayment reverses it - 38 U.S.C. 5314 - and that is a different account, not this one."
+          "note": "The obligation to pay runs from the United States to the veteran. An overpayment reverses it - 38 U.S.C. 5314 - and that is a different account, not this one.",
+          "status": "active",
+          "status_evidence": "cited",
+          "status_note": "The obligation runs while entitlement continues."
         },
         "benefit": {
           "entity": "the veteran",
           "evidence": "cited",
-          "citation": "38 U.S.C. 1110"
+          "citation": "38 U.S.C. 1110",
+          "status": "active",
+          "status_evidence": "cited"
         }
       },
       "_why_this_entry_exists": "The clean public case: benefit public, servicer public, obligation on the government. It is the baseline any privatised-benefit finding is measured against."
@@ -159,35 +195,50 @@
         "identifier": {
           "entity": "Department of Veterans Affairs",
           "evidence": "cited",
-          "citation": "38 U.S.C. 1110"
+          "citation": "38 U.S.C. 1110",
+          "status": "active",
+          "status_evidence": "cited",
+          "status_note": "38 U.S.C. 1110 is in force."
         },
         "fiduciary": {
           "entity": "the VA-appointed fiduciary",
           "sector": "appointed",
           "evidence": "stated_by_principal",
           "citation": "38 U.S.C. 5502",
-          "note": "The principal has told this system he has a VA-appointed fiduciary. Recorded as stated_by_principal rather than cited: 5502 is the authority for the appointment, and WHO was appointed and on what finding is in the appointment record, which this system has not read."
+          "note": "The principal has told this system he has a VA-appointed fiduciary. Recorded as stated_by_principal rather than cited: 5502 is the authority for the appointment, and WHO was appointed and on what finding is in the appointment record, which this system has not read.",
+          "status": "unknown",
+          "status_evidence": "unverified",
+          "status_note": "THE PRINCIPAL STATED AN APPOINTMENT EXISTS. Whether it is still in force has NOT been checked, and this is the field that decides whether the appointment binds. Unknown is deliberate: 'we did not look' and 'it still binds' are opposite findings and only one is safe to act on. Settled by the appointment record or a VA revocation notice."
         },
         "servicer": {
           "entity": "Department of Veterans Affairs",
           "sector": "public",
           "evidence": "cited",
-          "citation": "38 U.S.C. 1110"
+          "citation": "38 U.S.C. 1110",
+          "status": "active",
+          "status_evidence": "cited",
+          "status_note": "VA administers by statute."
         },
         "debt_holder": {
           "entity": "the United States",
           "evidence": "cited",
           "citation": "38 U.S.C. 1110",
-          "note": "THE APPOINTMENT DOES NOT MOVE THIS. A fiduciary administers the payments; it does not become the obligor and the veteran does not become one. The obligation runs from the United States to the veteran throughout."
+          "note": "THE APPOINTMENT DOES NOT MOVE THIS. A fiduciary administers the payments; it does not become the obligor and the veteran does not become one. The obligation runs from the United States to the veteran throughout.",
+          "status": "active",
+          "status_evidence": "cited",
+          "status_note": "The obligation runs while entitlement continues."
         },
         "benefit": {
           "entity": "the veteran",
           "evidence": "cited",
           "citation": "38 U.S.C. 1110",
-          "note": "The beneficiary is unchanged by the appointment. This is the field people expect to move and it does not."
+          "note": "The beneficiary is unchanged by the appointment. This is the field people expect to move and it does not.",
+          "status": "active",
+          "status_evidence": "cited"
         }
       },
       "_why_this_entry_exists": "THREE ENTITIES STACKED ON ONE ACCOUNT, which is the shape the acceptance case asks for - VA as identifier and servicer, an appointed fiduciary holding control, and the United States carrying the obligation. It is also the principal's own account, and the useful finding is the boring one: control moved and the debt did not."
     }
-  }
+  },
+  "_status_field": "Every layer carries status: active / revoked / superseded / expired / unknown / never_existed. UNKNOWN IS THE DEFAULT AND IS NOT ACTIVE - a layer nobody checked must not read as binding. An appointment that has been revoked is the difference between a claim and a gift, and a map that shows structure without status points at dead appointments."
 }

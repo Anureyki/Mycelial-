@@ -38,9 +38,10 @@
       "agent": "legal_agent",
       "term": "consumer report",
       "expect_title": "15 U.S.C. \u00a7 1681a",
-      "rank_at_capture": 2,
+      "rank_at_capture": 0,
       "hits_at_capture": 4,
-      "first_at_capture": "12 U.S.C. \u00a7 2605"
+      "first_at_capture": "12 U.S.C. \u00a7 2605",
+      "_fixed": "2026-09-11: REAL defect, fixed. 12 U.S.C. 2605 (RESPA servicing) led over 15 U.S.C. 1681a, where a consumer report is DEFINED. Both federal statutes, so authority rank tied them and file-walk order decided. A definitional match now breaks a tie WITHIN a rank and cannot cross one."
     },
     "legal_agent::nonpublic personal information": {
       "agent": "legal_agent",
@@ -53,10 +54,12 @@
     "legal_agent::data broker": {
       "agent": "legal_agent",
       "term": "data broker",
-      "expect_title": "EPIC, Unbridled and Underregulated: Removing FCRA and GLBA Exemptions from Privacy Laws to Hold Data Brokers Accountable (July 2025)",
-      "rank_at_capture": 1,
+      "expect_title": "38 CFR Part 1 - General Provisions",
+      "rank_at_capture": 0,
       "hits_at_capture": 4,
-      "first_at_capture": "38 CFR Part 1 - General Provisions"
+      "first_at_capture": "38 CFR Part 1 - General Provisions",
+      "_fixed": "2026-09-11: ordering defect resolved; expected work now first.",
+      "_reassessed": "NOT A DEFECT. I first recorded this as one - EPIC is ABOUT data brokers and 38 CFR Part 1 mentions them once. But EPIC is advocacy, which this system deliberately ranks below every regulation, and promoting it would be relevance beating authority: the exact overcorrection the principal warned about. The ordering was right and the defect call was mine."
     },
     "legal_agent::reasonable accommodation": {
       "agent": "legal_agent",
