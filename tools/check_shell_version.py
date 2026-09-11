@@ -30,6 +30,31 @@ def main():
         print("no webapp/shell.manifest.json - nothing to check")
         return 0
     man = json.load(open(MANIFEST))
+
+    # THE TWO VERSION MARKERS MUST AGREE WITH EACH OTHER.
+    #
+    # The service worker's CACHE name and the ?v= on index.html's script tag are
+    # separate strings that have to be bumped together, and nothing compared
+    # them. On 2026-09-06 the worker went to v26 while index.html stayed at
+    # v25 - the shell was bumped twice and the script tag once - so the cache
+    # was invalidated under a name that no longer matched the URL being asked
+    # for. Both files "looked bumped" in a diff.
+    import re as _re
+    try:
+        _sw = open(os.path.join(ROOT, "webapp", "service-worker.js")).read()
+        _ix = open(os.path.join(ROOT, "webapp", "index.html")).read()
+        _swv = _re.search(r"mycelial-shell-v(\d+)", _sw)
+        _ixv = _re.search(r"app\.js\?v=(\d+)", _ix)
+        if _swv and _ixv and _swv.group(1) != _ixv.group(1):
+            print(f"SHELL VERSION MARKERS DISAGREE: service-worker says "
+                  f"v{_swv.group(1)}, index.html asks for app.js?v={_ixv.group(1)}.")
+            print("They are bumped together or the cache is invalidated under a name")
+            print("that does not match the URL the page requests.")
+            return 1
+    except Exception as _e:
+        print(f"could not compare version markers: {_e}")
+        return 1
+
     drifted = []
     for rel, recorded in man["files"].items():
         path = os.path.join(ROOT, rel)
