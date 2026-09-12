@@ -79,6 +79,15 @@ jobs:
         # map is an opinion. An unverified entry must report itself
         # incomplete rather than produce a confident one.
         run: python tools/check_accounts.py
+      - name: The model interface advises and cannot decide
+        # Core's promoted checkpoint agrees with the ACL on 80.9% of real
+        # permission questions and gets only 34.7% of the ALLOWS right. Wired
+        # into a gate it would refuse legitimate work two times in three, so
+        # the interface is advisory by construction and the construction is
+        # asserted. Runs without a model: every check is static or exercises
+        # the Core-is-down path, which is the path that matters most.
+        run: python tools/check_core_interface.py
+
       - name: Retrieval still finds the right source
         # Accuracy asks whether the ANSWER looks right and never whether the
         # SOURCE was. Retrieval has no natural alarm: a lookup that returns
