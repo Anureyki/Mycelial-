@@ -420,6 +420,52 @@ class AgentBase:
                     "reasons": [f"composition failed: {str(e)[:120]}"]}
         return enforce(text, entry, agent=self)
 
+    def acquire_authority(self, args=None):
+        """Fetch a provision into THIS agent's corpus, having read it first.
+
+        The gap this closes, in the principal's words: "that's exactly why the
+        legal agent is supposed to be fetching those things. Fetch it. Read it.
+        and do all those things." Every acquisition until now went through a
+        person running tools/ingest_law.py by hand, which is the exact shape
+        CLAUDE.md warns about - the capability accrued in a conversation
+        instead of in the agent, and died with the context.
+
+        It is inherited rather than Legal's, because Accounting has the same
+        gap for the IRM and the ASC, and a fix made in one agent for a fault
+        that lives in the base class is a second place for the bug to hide.
+
+        `expect` is what the caller believes the provision says. A mismatch
+        REFUSES and returns the text, because a citation that resolves looks
+        exactly like a citation that is correct."""
+        a = args if isinstance(args, dict) else {"citation": args}
+        citation = a.get("citation") or a.get("cite") or a.get("term")
+        if not citation:
+            return {"error": ("acquire_authority needs a citation, e.g. "
+                              "'38 U.S.C. 1969' or '16 CFR 433'. `expect` is "
+                              "strongly recommended: without it nothing checks "
+                              "that the text retrieved is the provision you "
+                              "meant, and the result says so."),
+                    "acquired": False}
+        def _reload():
+            # The corpus changed underneath a cache built at boot. An agent
+            # that acquires a provision and cannot see it until restart has
+            # acquired nothing anybody can use this session. Passed IN so it
+            # runs before the reachability check rather than after it.
+            self._refdocs = None
+            self._load_reference_docs()
+
+        from core.authority_acquisition import acquire
+        res = acquire(self.agent_id, citation,
+                      expect=a.get("expect") or a.get("about"),
+                      force=bool(a.get("force")),
+                      lookup=self.lookup_reference, reload=_reload)
+        if res.get("acquired"):
+            self.log(f"acquired {res['citation']} -> {res['path']}")
+        else:
+            self.log(f"acquire_authority refused {citation}: "
+                     f"{res.get('error', '')[:120]}")
+        return res
+
     def trace_account(self, args=None):
         """-> the four-layer map for an account. Same answer for every agent.
 
@@ -693,6 +739,8 @@ class AgentBase:
                     result = self.receive_finding(
                         (args or {}).get("kind"), (args or {}).get("payload") or {},
                         sender) if isinstance(args, dict) else None
+                elif task == "acquire_authority":
+                    result = self.acquire_authority(args)
                 elif task == "trace_account":
                     result = self.trace_account(args if isinstance(args, dict)
                                                 else {"account": args})

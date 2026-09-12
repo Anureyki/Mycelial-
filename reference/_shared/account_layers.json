@@ -1,255 +1,487 @@
 {
-  "schema_version": "1.0",
-  "_what": "Every account decomposed into the same five fields: identifier, fiduciary, servicer, debt_holder, benefit. No special cases - a passport and a prepaid card are read the same way, and if one of them needs a rule of its own then the model is wrong rather than the account.",
-  "_the_label_is_not_a_layer": "`label` records what the thing is CALLED and is never consulted when the layers are read. A product named 'trust' whose funding obligation never transferred is a custodial arrangement with a trust-shaped name. Calling something a trust does not move a duty; only an instrument does.",
-  "_evidence_states": "Every layer carries one: cited (a statute, regulation or instruction is named), stated_by_principal (he told us, and that is recorded as its own kind of evidence), unverified (NOBODY HAS CHECKED - not a guess, a gap), not_applicable (the layer genuinely does not exist for this account).",
-  "_why_unverified_stays_unverified": "The whole point of the trace is to find who carries the obligation. A plausible guess in debt_holder is the one field somebody would act on, so it is left empty and marked. An account map that invents a debt-holder is worse than one that admits it does not know.",
-  "_versioning": "Each entry carries its own version and the authority it was read from. When a statute or instruction changes, the ENTRY changes - core/account_model.py does not.",
-  "accounts": {
-    "us_passport": {
-      "version": "2026-09-11",
-      "label": "United States passport",
-      "benefit_origin": "public",
-      "funded_by": "the person",
-      "layers": {
-        "identifier": {
-          "entity": "U.S. Department of State",
-          "evidence": "cited",
-          "citation": "22 U.S.C. 211a",
-          "note": "The Secretary of State issues passports; the number identifies the document, not an account.",
-          "status": "active",
-          "status_evidence": "cited"
-        },
-        "fiduciary": {
-          "entity": null,
-          "evidence": "not_applicable",
-          "note": "A passport is a travel document and a claim of nationality. Nobody holds it in trust for anyone - there is no res and no beneficiary, so this layer genuinely does not exist rather than being unknown.",
-          "status": "never_existed",
-          "status_evidence": "cited"
-        },
-        "servicer": {
-          "entity": "U.S. Department of State",
-          "sector": "public",
-          "evidence": "cited",
-          "citation": "22 U.S.C. 211a",
-          "status": "active",
-          "status_evidence": "cited"
-        },
-        "debt_holder": {
-          "entity": null,
-          "evidence": "not_applicable",
-          "note": "No obligation is created by holding one. The fee is paid at issue and discharges itself.",
-          "status": "never_existed",
-          "status_evidence": "cited"
-        },
-        "benefit": {
-          "entity": "the person",
-          "evidence": "cited",
-          "citation": "22 U.S.C. 211a",
-          "note": "Documentation of nationality for travel.",
-          "status": "active",
-          "status_evidence": "cited"
-        }
-      },
-      "_why_this_entry_exists": "As the control case. A document with no fiduciary and no debt-holder shows the model does not invent layers to fill its own shape."
+ "schema_version": "1.1",
+ "_what": "Every account decomposed into the same five fields: identifier, fiduciary, servicer, debt_holder, benefit. No special cases - a passport and a prepaid card are read the same way, and if one of them needs a rule of its own then the model is wrong rather than the account.",
+ "_the_label_is_not_a_layer": "`label` records what the thing is CALLED and is never consulted when the layers are read. A product named 'trust' whose funding obligation never transferred is a custodial arrangement with a trust-shaped name. Calling something a trust does not move a duty; only an instrument does.",
+ "_evidence_states": "Every layer carries one: cited (a statute, regulation or instruction is named), stated_by_principal (he told us, and that is recorded as its own kind of evidence), unverified (NOBODY HAS CHECKED - not a guess, a gap), not_applicable (the layer genuinely does not exist for this account).",
+ "_why_unverified_stays_unverified": "The whole point of the trace is to find who carries the obligation. A plausible guess in debt_holder is the one field somebody would act on, so it is left empty and marked. An account map that invents a debt-holder is worse than one that admits it does not know.",
+ "_versioning": "Each entry carries its own version and the authority it was read from. When a statute or instruction changes, the ENTRY changes - core/account_model.py does not.",
+ "accounts": {
+  "us_passport": {
+   "version": "2026-09-12",
+   "label": "United States passport",
+   "benefit_origin": "public",
+   "funded_by": "the person",
+   "layers": {
+    "identifier": {
+     "entity": "U.S. Department of State",
+     "evidence": "cited",
+     "citation": "22 U.S.C. 211a",
+     "note": "The Secretary of State issues passports; the number identifies the document, not an account.",
+     "status": "active",
+     "status_evidence": "cited"
     },
-    "usps_money_order": {
-      "version": "2026-09-11",
-      "label": "USPS money order",
-      "benefit_origin": "public",
-      "funded_by": "the person",
-      "funding_obligation_holder": "USPS",
-      "layers": {
-        "identifier": {
-          "entity": "United States Postal Service",
-          "evidence": "cited",
-          "citation": "39 U.S.C. 404(a)(7)",
-          "note": "USPS is authorised to provide money orders.",
-          "status": "active",
-          "status_evidence": "cited"
-        },
-        "fiduciary": {
-          "entity": null,
-          "evidence": "unverified",
-          "note": "Whether USPS holds the funds in any fiduciary capacity or simply owes a debt on the instrument has NOT been checked. This is the field the 'postal trust account' claim turns on, so it is left empty deliberately.",
-          "status": "unknown"
-        },
-        "servicer": {
-          "entity": "United States Postal Service",
-          "sector": "public",
-          "evidence": "cited",
-          "citation": "39 U.S.C. 404(a)(7)",
-          "status": "active",
-          "status_evidence": "cited"
-        },
-        "debt_holder": {
-          "entity": null,
-          "evidence": "unverified",
-          "note": "LEFT EMPTY ON PURPOSE, and the CI gate caught it being filled. The ordinary reading is that USPS owes the face amount to the payee, but that is the reading, not the record - 39 CFR part 762 has not been opened. debt_holder is the one field somebody acts on, so a plausible entity here is worse than a blank one.",
-          "status": "unknown"
-        },
-        "benefit": {
-          "entity": "the payee",
-          "evidence": "unverified",
-          "status": "unknown"
-        }
-      },
-      "_note_on_the_trust_claim": "A money order is recorded here because it is the instrument most often described as a 'postal trust account'. THIS ENTRY DOES NOT SUPPORT THAT DESCRIPTION AND DOES NOT REFUTE IT - two of five layers are unverified and the trace says so. Resolving it means reading 39 CFR part 762 and the DMM, which has not been done. An entry that guessed here would manufacture the answer the question exists to find.",
-      "_corrected": "2026-09-11: debt_holder had been filled with 'USPS' while marked unverified. That is the exact shape this schema exists to prevent and the gate failed on it."
+    "holder": {
+     "entity": null,
+     "evidence": "not_applicable",
+     "citation": "22 U.S.C. 211a",
+     "note": "A passport creates no payment obligation, so there is no interest for anybody to hold and none to enforce. Same reasoning as the fiduciary and debt_holder layers here: definitional from what the statute authorises, not a gap somebody failed to fill.",
+     "status": "never_existed",
+     "status_evidence": "cited"
     },
-    "trulink_card": {
-      "version": "2026-09-11",
-      "label": "TruLink prepaid card",
-      "benefit_origin": "unverified",
-      "funded_by": "unverified",
-      "layers": {
-        "identifier": {
-          "entity": null,
-          "evidence": "unverified",
-          "note": "Which issuing bank's BIN the card runs on has not been checked.",
-          "status": "unknown"
-        },
-        "fiduciary": {
-          "entity": null,
-          "evidence": "unverified",
-          "status": "unknown"
-        },
-        "servicer": {
-          "entity": null,
-          "evidence": "unverified",
-          "note": "Prepaid cards are typically issued by a bank and administered by a separate program manager, with the brand on the card being a third party - but WHICH parties fill those roles for this product has not been verified, and the typical case is not evidence about this one.",
-          "status": "unknown"
-        },
-        "debt_holder": {
-          "entity": null,
-          "evidence": "unverified",
-          "note": "For a prepaid card this is the question that matters - whose obligation the balance is, and whether it sits in a pooled custodial account. Not checked.",
-          "status": "unknown"
-        },
-        "benefit": {
-          "entity": null,
-          "evidence": "unverified",
-          "status": "unknown"
-        }
-      },
-      "_status": "STUB, DELIBERATELY EMPTY. The acceptance test for this model is that an agent looking at a TruLink card names three stacked entities and says which carries the debt. It cannot do that from an entry somebody invented, and this machine has no network to check the cardholder agreement. Fill it from the agreement and the issuing bank's disclosures; every field takes a citation."
+    "fiduciary": {
+     "entity": null,
+     "evidence": "not_applicable",
+     "note": "A passport is a travel document and a claim of nationality. Nobody holds it in trust for anyone - there is no res and no beneficiary, so this layer genuinely does not exist rather than being unknown.",
+     "status": "never_existed",
+     "status_evidence": "cited"
     },
-    "va_disability_compensation": {
-      "version": "2026-09-11",
-      "label": "VA disability compensation",
-      "benefit_origin": "public",
-      "funded_by": "the United States",
-      "layers": {
-        "identifier": {
-          "entity": "Department of Veterans Affairs",
-          "evidence": "cited",
-          "citation": "38 U.S.C. 1110",
-          "status": "active",
-          "status_evidence": "cited",
-          "status_note": "38 U.S.C. 1110 is in force."
-        },
-        "fiduciary": {
-          "entity": null,
-          "evidence": "cited",
-          "citation": "38 U.S.C. 5502",
-          "note": "NONE BY DEFAULT. A VA fiduciary exists only where the Secretary finds a beneficiary unable to manage their own affairs and appoints one under 5502. Where one IS appointed the layer is filled with that person - and the appointment is the thing to read, not the label.",
-          "status": "never_existed",
-          "status_evidence": "cited",
-          "status_note": "No fiduciary unless appointed under 38 U.S.C. 5502."
-        },
-        "servicer": {
-          "entity": "Department of Veterans Affairs",
-          "sector": "public",
-          "evidence": "cited",
-          "citation": "38 U.S.C. 1110",
-          "status": "active",
-          "status_evidence": "cited",
-          "status_note": "VA administers by statute."
-        },
-        "debt_holder": {
-          "entity": "the United States",
-          "evidence": "cited",
-          "citation": "38 U.S.C. 1110",
-          "note": "The obligation to pay runs from the United States to the veteran. An overpayment reverses it - 38 U.S.C. 5314 - and that is a different account, not this one.",
-          "status": "active",
-          "status_evidence": "cited",
-          "status_note": "The obligation runs while entitlement continues."
-        },
-        "benefit": {
-          "entity": "the veteran",
-          "evidence": "cited",
-          "citation": "38 U.S.C. 1110",
-          "status": "active",
-          "status_evidence": "cited"
-        }
-      },
-      "_why_this_entry_exists": "The clean public case: benefit public, servicer public, obligation on the government. It is the baseline any privatised-benefit finding is measured against."
+    "servicer": {
+     "entity": "U.S. Department of State",
+     "sector": "public",
+     "evidence": "cited",
+     "citation": "22 U.S.C. 211a",
+     "status": "active",
+     "status_evidence": "cited"
     },
-    "va_compensation_with_fiduciary": {
-      "version": "2026-09-11",
-      "label": "VA disability compensation, fiduciary appointed",
-      "benefit_origin": "public",
-      "funded_by": "the United States",
-      "control_holder": "the appointed fiduciary",
-      "layers": {
-        "identifier": {
-          "entity": "Department of Veterans Affairs",
-          "evidence": "cited",
-          "citation": "38 U.S.C. 1110",
-          "status": "active",
-          "status_evidence": "cited",
-          "status_note": "38 U.S.C. 1110 is in force."
-        },
-        "fiduciary": {
-          "entity": "[REDACTED-FIDUCIARY-NAME] (VA-appointed fiduciary)",
-          "sector": "appointed",
-          "evidence": "cited",
-          "citation": "VA Form 21P-555, Certificate of Legal Capacity to Receive and Disburse Benefits and Fee Authorization, signed 2025-01-30 by [REDACTED-SIGNER-NAME], Lincoln Fiduciary Hub Manager",
-          "note": "Appointed under 38 U.S.C. 5502 / 38 CFR part 13. The certificate is the authority to release benefits to the fiduciary; the underlying incompetency determination is a separate record this system has not read.",
-          "status": "active",
-          "status_evidence": "cited",
-          "status_note": "ACTIVE AS OF THE CERTIFICATE, WHICH IS NOT THE SAME AS ACTIVE TODAY. The document is dated 2025-01-30 and this reading is 2026-09-11 - about 19 months later. A VA fiduciary appointment continues until VA replaces or removes the fiduciary, so `active` is the right reading, and status_as_of carries the vintage so nobody mistakes an old certificate for a current confirmation. A successor appointment or a removal under 38 CFR 13.500 would supersede this and would be its own document.",
-          "status_as_of": "2025-01-30"
-        },
-        "servicer": {
-          "entity": "Department of Veterans Affairs",
-          "sector": "public",
-          "evidence": "cited",
-          "citation": "38 U.S.C. 1110",
-          "status": "active",
-          "status_evidence": "cited",
-          "status_note": "VA remains the servicer. The certificate directs payment TO the fiduciary - it does not make the fiduciary the servicer of the benefit, and it does not move the obligation."
-        },
-        "debt_holder": {
-          "entity": "the United States",
-          "evidence": "cited",
-          "citation": "38 U.S.C. 1110",
-          "note": "THE APPOINTMENT DOES NOT MOVE THIS. A fiduciary administers the payments; it does not become the obligor and the veteran does not become one. The obligation runs from the United States to the veteran throughout.",
-          "status": "active",
-          "status_evidence": "cited",
-          "status_note": "The obligation runs while entitlement continues."
-        },
-        "benefit": {
-          "entity": "the veteran",
-          "evidence": "cited",
-          "citation": "38 U.S.C. 1110",
-          "note": "The beneficiary is unchanged by the appointment. This is the field people expect to move and it does not.",
-          "status": "active",
-          "status_evidence": "cited"
-        }
-      },
-      "_why_this_entry_exists": "THREE ENTITIES STACKED ON ONE ACCOUNT, which is the shape the acceptance case asks for - VA as identifier and servicer, an appointed fiduciary holding control, and the United States carrying the obligation. It is also the principal's own account, and the useful finding is the boring one: control moved and the debt did not.",
-      "_instrument": {
-        "form": "VA Form 21P-555 (MAR 2017), supersedes VA Form 21-555 (MAR 1999)",
-        "signed": "2025-01-30",
-        "signed_by": "[REDACTED-SIGNER-NAME], Lincoln Fiduciary Hub Manager",
-        "hub": "Lincoln Fiduciary Hub, Lincoln NE",
-        "disbursement": "ALL MONTHLY",
-        "fee_authorized_percent": 4,
-        "remarks_verbatim": "Cancel Direct Deposit. PTA task set.",
-        "_identifiers_withheld": "The VA file number on this form IS the Social Security number. It is deliberately not recorded here: an ownership map needs to know THAT there is a file, never the number, and a corpus entry is the wrong place for an SSN."
-      }
+    "debt_holder": {
+     "entity": null,
+     "evidence": "not_applicable",
+     "note": "No obligation is created by holding one. The fee is paid at issue and discharges itself.",
+     "status": "never_existed",
+     "status_evidence": "cited"
+    },
+    "benefit": {
+     "entity": "the person",
+     "evidence": "cited",
+     "citation": "22 U.S.C. 211a",
+     "note": "Documentation of nationality for travel.",
+     "status": "active",
+     "status_evidence": "cited"
     }
+   },
+   "_why_this_entry_exists": "As the control case. A document with no fiduciary and no debt-holder shows the model does not invent layers to fill its own shape.",
+   "assignment": {
+    "state": "never_existed",
+    "citation": "22 U.S.C. 211a",
+    "holder_rule_notice": "not_applicable",
+    "note": "Nothing to assign. A passport is issued to a person and evidences their nationality; it is not a transferable interest, and this entry is the control case showing the chain layer does not invent one.",
+    "links": []
+   }
   },
-  "_status_field": "Every layer carries status: active / revoked / superseded / expired / unknown / never_existed. UNKNOWN IS THE DEFAULT AND IS NOT ACTIVE - a layer nobody checked must not read as binding. An appointment that has been revoked is the difference between a claim and a gift, and a map that shows structure without status points at dead appointments."
+  "usps_money_order": {
+   "version": "2026-09-12",
+   "label": "USPS money order",
+   "benefit_origin": "public",
+   "funded_by": "the person",
+   "funding_obligation_holder": "USPS",
+   "layers": {
+    "identifier": {
+     "entity": "United States Postal Service",
+     "evidence": "cited",
+     "citation": "39 U.S.C. 404(a)(7)",
+     "note": "USPS is authorised to provide money orders.",
+     "status": "active",
+     "status_evidence": "cited"
+    },
+    "holder": {
+     "entity": null,
+     "evidence": "unverified",
+     "note": "A money order is payable to a named payee and moves by endorsement, so WHO HOLDS IT NOW is a real question with a real answer - and it has not been checked for any particular instrument. Left empty for the same reason debt_holder is: this is the entry the 'postal trust account' claim turns on, and a plausible name here would manufacture the answer.",
+     "status": "unknown"
+    },
+    "fiduciary": {
+     "entity": null,
+     "evidence": "unverified",
+     "note": "Whether USPS holds the funds in any fiduciary capacity or simply owes a debt on the instrument has NOT been checked. This is the field the 'postal trust account' claim turns on, so it is left empty deliberately.",
+     "status": "unknown"
+    },
+    "servicer": {
+     "entity": "United States Postal Service",
+     "sector": "public",
+     "evidence": "cited",
+     "citation": "39 U.S.C. 404(a)(7)",
+     "status": "active",
+     "status_evidence": "cited"
+    },
+    "debt_holder": {
+     "entity": null,
+     "evidence": "unverified",
+     "note": "LEFT EMPTY ON PURPOSE, and the CI gate caught it being filled. The ordinary reading is that USPS owes the face amount to the payee, but that is the reading, not the record - 39 CFR part 762 has not been opened. debt_holder is the one field somebody acts on, so a plausible entity here is worse than a blank one.",
+     "status": "unknown"
+    },
+    "benefit": {
+     "entity": "the payee",
+     "evidence": "unverified",
+     "status": "unknown"
+    }
+   },
+   "_note_on_the_trust_claim": "A money order is recorded here because it is the instrument most often described as a 'postal trust account'. THIS ENTRY DOES NOT SUPPORT THAT DESCRIPTION AND DOES NOT REFUTE IT - two of five layers are unverified and the trace says so. Resolving it means reading 39 CFR part 762 and the DMM, which has not been done. An entry that guessed here would manufacture the answer the question exists to find.",
+   "_corrected": "2026-09-11: debt_holder had been filled with 'USPS' while marked unverified. That is the exact shape this schema exists to prevent and the gate failed on it.",
+   "assignment": {
+    "state": "not_checked",
+    "holder_rule_notice": "not_applicable",
+    "note": "Negotiation by endorsement is how the interest moves, and 39 CFR part 762 has not been opened. not_checked rather than never_existed: this instrument CAN be transferred, so an empty chain here means nobody looked.",
+    "links": []
+   }
+  },
+  "trulink_card": {
+   "version": "2026-09-12",
+   "label": "TruLink prepaid card",
+   "benefit_origin": "unverified",
+   "funded_by": "unverified",
+   "layers": {
+    "identifier": {
+     "entity": null,
+     "evidence": "unverified",
+     "note": "Which issuing bank's BIN the card runs on has not been checked.",
+     "status": "unknown"
+    },
+    "holder": {
+     "entity": null,
+     "evidence": "unverified",
+     "note": "Whose claim the balance represents, and whether a program manager or the issuing bank holds it, has not been checked. Same stub discipline as the rest of this entry.",
+     "status": "unknown"
+    },
+    "fiduciary": {
+     "entity": null,
+     "evidence": "unverified",
+     "status": "unknown"
+    },
+    "servicer": {
+     "entity": null,
+     "evidence": "unverified",
+     "note": "Prepaid cards are typically issued by a bank and administered by a separate program manager, with the brand on the card being a third party - but WHICH parties fill those roles for this product has not been verified, and the typical case is not evidence about this one.",
+     "status": "unknown"
+    },
+    "debt_holder": {
+     "entity": null,
+     "evidence": "unverified",
+     "note": "For a prepaid card this is the question that matters - whose obligation the balance is, and whether it sits in a pooled custodial account. Not checked.",
+     "status": "unknown"
+    },
+    "benefit": {
+     "entity": null,
+     "evidence": "unverified",
+     "status": "unknown"
+    }
+   },
+   "_status": "STUB, DELIBERATELY EMPTY. The acceptance test for this model is that an agent looking at a TruLink card names three stacked entities and says which carries the debt. It cannot do that from an entry somebody invented, and this machine has no network to check the cardholder agreement. Fill it from the agreement and the issuing bank's disclosures; every field takes a citation.",
+   "assignment": {
+    "state": "not_checked",
+    "holder_rule_notice": "unknown",
+    "note": "Prepaid program agreements are routinely assigned when a program manager changes, and nothing about this card has been read.",
+    "links": []
+   }
+  },
+  "va_disability_compensation": {
+   "version": "2026-09-12",
+   "label": "VA disability compensation",
+   "benefit_origin": "public",
+   "funded_by": "the United States",
+   "layers": {
+    "identifier": {
+     "entity": "Department of Veterans Affairs",
+     "evidence": "cited",
+     "citation": "38 U.S.C. 1110",
+     "status": "active",
+     "status_evidence": "cited",
+     "status_note": "38 U.S.C. 1110 is in force."
+    },
+    "holder": {
+     "entity": "the veteran",
+     "evidence": "cited",
+     "citation": "38 U.S.C. 5301(a)(1); 38 U.S.C. 1110",
+     "note": "The veteran holds the entitlement. 38 U.S.C. 5301(a)(1) makes payments of benefits due or to become due NOT ASSIGNABLE except as specifically authorized by law, and exempt from the claim of creditors before or after receipt. So this layer is not merely filled - it is FIXED, which no other layer in this schema is. The interest cannot be sold, pledged, or transferred, and a document purporting to do so does not move it.",
+     "status": "active",
+     "status_evidence": "cited",
+     "status_note": "The entitlement runs while eligibility continues."
+    },
+    "fiduciary": {
+     "entity": null,
+     "evidence": "cited",
+     "citation": "38 U.S.C. 5502",
+     "note": "NONE BY DEFAULT. A VA fiduciary exists only where the Secretary finds a beneficiary unable to manage their own affairs and appoints one under 5502. Where one IS appointed the layer is filled with that person - and the appointment is the thing to read, not the label.",
+     "status": "never_existed",
+     "status_evidence": "cited",
+     "status_note": "No fiduciary unless appointed under 38 U.S.C. 5502."
+    },
+    "servicer": {
+     "entity": "Department of Veterans Affairs",
+     "sector": "public",
+     "evidence": "cited",
+     "citation": "38 U.S.C. 1110",
+     "status": "active",
+     "status_evidence": "cited",
+     "status_note": "VA administers by statute."
+    },
+    "debt_holder": {
+     "entity": "the United States",
+     "evidence": "cited",
+     "citation": "38 U.S.C. 1110",
+     "note": "The obligation to pay runs from the United States to the veteran. An overpayment reverses it - 38 U.S.C. 5314 - and that is a different account, not this one.",
+     "status": "active",
+     "status_evidence": "cited",
+     "status_note": "The obligation runs while entitlement continues."
+    },
+    "benefit": {
+     "entity": "the veteran",
+     "evidence": "cited",
+     "citation": "38 U.S.C. 1110",
+     "status": "active",
+     "status_evidence": "cited"
+    }
+   },
+   "_why_this_entry_exists": "The clean public case: benefit public, servicer public, obligation on the government. It is the baseline any privatised-benefit finding is measured against.",
+   "assignment": {
+    "state": "never_existed",
+    "citation": "38 U.S.C. 5301(a)(1)",
+    "holder_rule_notice": "not_applicable",
+    "note": "No chain can exist. Non-assignability is the statute's first sentence, so an empty trail here is a finding rather than a gap - which is the whole reason never_existed is a separate state from not_checked. 16 CFR 433 does not reach this account at all: there is no consumer credit contract and no seller.",
+    "links": []
+   }
+  },
+  "va_compensation_with_fiduciary": {
+   "version": "2026-09-12",
+   "label": "VA disability compensation, fiduciary appointed",
+   "benefit_origin": "public",
+   "funded_by": "the United States",
+   "control_holder": "the appointed fiduciary",
+   "layers": {
+    "identifier": {
+     "entity": "Department of Veterans Affairs",
+     "evidence": "cited",
+     "citation": "38 U.S.C. 1110",
+     "status": "active",
+     "status_evidence": "cited",
+     "status_note": "38 U.S.C. 1110 is in force."
+    },
+    "holder": {
+     "entity": "the veteran",
+     "evidence": "cited",
+     "citation": "38 U.S.C. 5301(a)(1); 38 U.S.C. 5502; 38 CFR part 13",
+     "note": "The veteran holds the entitlement. 38 U.S.C. 5301(a)(1) makes payments of benefits due or to become due NOT ASSIGNABLE except as specifically authorized by law, and exempt from the claim of creditors before or after receipt. So this layer is not merely filled - it is FIXED, which no other layer in this schema is. The interest cannot be sold, pledged, or transferred, and a document purporting to do so does not move it. THE APPOINTMENT DOES NOT MOVE THIS EITHER. A fiduciary appointed under 38 U.S.C. 5502 receives and disburses the payments; the entitlement stays with the veteran. Direction of payment and ownership of the right are different things, and conflating them is how an appointment gets read as a transfer.",
+     "status": "active",
+     "status_evidence": "cited",
+     "status_note": "Unchanged by the appointment. The certificate directs where payment goes; it does not name a new holder."
+    },
+    "fiduciary": {
+     "entity": "[REDACTED-FIDUCIARY-NAME] (VA-appointed fiduciary)",
+     "sector": "appointed",
+     "evidence": "cited",
+     "citation": "VA Form 21P-555, Certificate of Legal Capacity to Receive and Disburse Benefits and Fee Authorization, signed 2025-01-30 by [REDACTED-SIGNER-NAME], Lincoln Fiduciary Hub Manager",
+     "note": "Appointed under 38 U.S.C. 5502 / 38 CFR part 13. The certificate is the authority to release benefits to the fiduciary; the underlying incompetency determination is a separate record this system has not read.",
+     "status": "active",
+     "status_evidence": "cited",
+     "status_note": "ACTIVE AS OF THE CERTIFICATE, WHICH IS NOT THE SAME AS ACTIVE TODAY. The document is dated 2025-01-30 and this reading is 2026-09-11 - about 19 months later. A VA fiduciary appointment continues until VA replaces or removes the fiduciary, so `active` is the right reading, and status_as_of carries the vintage so nobody mistakes an old certificate for a current confirmation. A successor appointment or a removal under 38 CFR 13.500 would supersede this and would be its own document.",
+     "status_as_of": "2025-01-30"
+    },
+    "servicer": {
+     "entity": "Department of Veterans Affairs",
+     "sector": "public",
+     "evidence": "cited",
+     "citation": "38 U.S.C. 1110",
+     "status": "active",
+     "status_evidence": "cited",
+     "status_note": "VA remains the servicer. The certificate directs payment TO the fiduciary - it does not make the fiduciary the servicer of the benefit, and it does not move the obligation."
+    },
+    "debt_holder": {
+     "entity": "the United States",
+     "evidence": "cited",
+     "citation": "38 U.S.C. 1110",
+     "note": "THE APPOINTMENT DOES NOT MOVE THIS. A fiduciary administers the payments; it does not become the obligor and the veteran does not become one. The obligation runs from the United States to the veteran throughout.",
+     "status": "active",
+     "status_evidence": "cited",
+     "status_note": "The obligation runs while entitlement continues."
+    },
+    "benefit": {
+     "entity": "the veteran",
+     "evidence": "cited",
+     "citation": "38 U.S.C. 1110",
+     "note": "The beneficiary is unchanged by the appointment. This is the field people expect to move and it does not.",
+     "status": "active",
+     "status_evidence": "cited"
+    }
+   },
+   "_why_this_entry_exists": "THREE ENTITIES STACKED ON ONE ACCOUNT, which is the shape the acceptance case asks for - VA as identifier and servicer, an appointed fiduciary holding control, and the United States carrying the obligation. It is also the principal's own account, and the useful finding is the boring one: control moved and the debt did not.",
+   "_instrument": {
+    "form": "VA Form 21P-555 (MAR 2017), supersedes VA Form 21-555 (MAR 1999)",
+    "signed": "2025-01-30",
+    "signed_by": "[REDACTED-SIGNER-NAME], Lincoln Fiduciary Hub Manager",
+    "hub": "Lincoln Fiduciary Hub, Lincoln NE",
+    "disbursement": "ALL MONTHLY",
+    "fee_authorized_percent": 4,
+    "remarks_verbatim": "Cancel Direct Deposit. PTA task set.",
+    "_identifiers_withheld": "The VA file number on this form IS the Social Security number. It is deliberately not recorded here: an ownership map needs to know THAT there is a file, never the number, and a corpus entry is the wrong place for an SSN."
+   },
+   "assignment": {
+    "state": "never_existed",
+    "citation": "38 U.S.C. 5301(a)(1)",
+    "holder_rule_notice": "not_applicable",
+    "note": "No chain can exist. Non-assignability is the statute's first sentence, so an empty trail here is a finding rather than a gap - which is the whole reason never_existed is a separate state from not_checked. The fiduciary appointment is not an assignment and is not recorded as a link - putting it in the chain would be the clearest possible way to state the error this note exists to prevent.",
+    "links": []
+   }
+  },
+  "deers_record": {
+   "version": "2026-09-12",
+   "label": "DEERS enrollment record",
+   "benefit_origin": "public",
+   "funded_by": "the United States",
+   "layers": {
+    "identifier": {
+     "entity": "Department of Defense (Defense Manpower Data Center)",
+     "evidence": "stated_by_principal",
+     "note": "The DoD ID Number is the identifier the principal names as the right one, and the point he made earlier about the VA letter stands here: the DoD ID Number and the DoD Benefits Number EXIST so that an SSN does not have to travel. A system that reaches for the SSN when a purpose-built number is on the card is choosing the more dangerous identifier. THE STATUTORY BASIS FOR DEERS IS NOT CITED because it has not been located - 10 U.S.C. 1061 was fetched, read, and is about commissary privileges for survivors of Reserve members, not DEERS. A wrong citation is worse than none.",
+     "status": "unknown"
+    },
+    "holder": {
+     "entity": null,
+     "evidence": "not_applicable",
+     "note": "DEERS IS A RECORD SYSTEM, NOT AN ACCOUNT. There is no interest in it to hold and nothing in it to enforce - it records who qualifies for what. The principal called it 'the original account' and the instinct is right about PRIORITY: it is the root record that several real accounts hang off. It is not right about KIND, and the difference decides whether anybody can be owed anything here. Nobody can.",
+     "status": "never_existed"
+    },
+    "fiduciary": {
+     "entity": null,
+     "evidence": "not_applicable",
+     "note": "No res, no beneficiary of a fund. An eligibility record is held for administration, not in trust.",
+     "status": "never_existed"
+    },
+    "servicer": {
+     "entity": "Defense Manpower Data Center",
+     "sector": "public",
+     "evidence": "stated_by_principal",
+     "note": "DMDC administers DEERS. Stated by the principal and not yet confirmed against a DoD issuance.",
+     "status": "unknown"
+    },
+    "debt_holder": {
+     "entity": null,
+     "evidence": "not_applicable",
+     "note": "An enrollment record creates no obligation to pay. The obligations sit on the accounts it establishes eligibility FOR, each of which is its own entry.",
+     "status": "never_existed"
+    },
+    "benefit": {
+     "entity": "the member",
+     "evidence": "stated_by_principal",
+     "note": "What it delivers is a determination of eligibility. That is a real thing to hold and it is not money.",
+     "status": "unknown"
+    }
+   },
+   "assignment": {
+    "state": "never_existed",
+    "citation": "n/a - no interest exists to assign",
+    "holder_rule_notice": "not_applicable",
+    "note": "Nothing to assign, for the same reason there is no holder.",
+    "links": []
+   },
+   "chains": [
+    {
+     "kind": "eligibility",
+     "from": "DEERS",
+     "to": "Navy / military pay account",
+     "what_moves": "eligibility, not money",
+     "evidence": "stated_by_principal",
+     "note": "Principal's account: DEERS to Navy to the pay account."
+    },
+    {
+     "kind": "eligibility",
+     "from": "DEERS",
+     "to": "VA health care enrollment",
+     "what_moves": "eligibility, not money",
+     "evidence": "stated_by_principal"
+    },
+    {
+     "kind": "eligibility",
+     "from": "DEERS",
+     "to": "SGLI",
+     "what_moves": "eligibility, not money",
+     "evidence": "stated_by_principal",
+     "note": "38 U.S.C. 1967 keys SGLI coverage to duty status, which is what DEERS records. The edge is plausible as stated and is recorded as his statement, not as a verified one."
+    }
+   ],
+   "_dd214_is_not_an_account": "The principal said 'DD 214 is an original DEERS account'. A DD Form 214 is a certificate of release or discharge - EVIDENCE of service that feeds this record. It holds no interest, carries no obligation, and nobody services it. Recorded as his statement and corrected here rather than filed as a sixth account, because an account that cannot owe or be owed would put a row in every map that no question could ever be asked of.",
+   "_open_question": "One phrase in the dictation did not decode - 'where's Tampa'. Left unanswered rather than guessed. Tampa has a large VA medical centre, so it may be a facility in his records, but that is speculation and this field exists to stop speculation becoming a record.",
+   "_why_this_entry_exists": "The first entry recorded from the principal speaking rather than from a document, and the first whose value is mostly in what it REFUSES to be: the root of the map, and not an account."
+  },
+  "military_pay_account": {
+   "version": "2026-09-12",
+   "label": "Military pay account (Navy)",
+   "benefit_origin": "public",
+   "funded_by": "the United States",
+   "layers": {
+    "identifier": {
+     "entity": null,
+     "evidence": "unverified",
+     "note": "Which DFAS pay account, and under which identifier, has not been recorded. The DoD ID Number is the candidate.",
+     "status": "unknown"
+    },
+    "holder": {
+     "entity": "the member",
+     "evidence": "stated_by_principal",
+     "note": "The member holds the right to be paid for service rendered. Stated by the principal; the entitlement statute has not been shelved for this account.",
+     "status": "unknown",
+     "status_note": "WHETHER THIS ACCOUNT IS STILL LIVE IS NOT RECORDED. Separation would ordinarily close it, and 'ordinarily' is not a status."
+    },
+    "fiduciary": {
+     "entity": null,
+     "evidence": "unverified",
+     "note": "Not checked.",
+     "status": "unknown"
+    },
+    "servicer": {
+     "entity": "Defense Finance and Accounting Service",
+     "sector": "public",
+     "evidence": "stated_by_principal",
+     "note": "DFAS as the disbursing agency. His framing put the Navy here; the Navy is the service, DFAS is what actually pays.",
+     "status": "unknown"
+    },
+    "debt_holder": {
+     "entity": "the United States",
+     "evidence": "stated_by_principal",
+     "note": "The obligation to pay runs from the United States. Same shape as the VA compensation entry.",
+     "status": "unknown"
+    },
+    "benefit": {
+     "entity": "the member",
+     "evidence": "stated_by_principal",
+     "status": "unknown"
+    }
+   },
+   "assignment": {
+    "state": "not_checked",
+    "holder_rule_notice": "not_applicable",
+    "note": "Military pay is subject to its own assignment and garnishment rules, none of which have been read.",
+    "links": []
+   },
+   "chains": [
+    {
+     "kind": "disbursement",
+     "from": "U.S. Treasury",
+     "to": "Defense Finance and Accounting Service",
+     "what_moves": "appropriated funds",
+     "evidence": "stated_by_principal",
+     "note": "His 'Treasury to DEERS to Navy' with DEERS taken out of the money path, where it does not belong."
+    },
+    {
+     "kind": "disbursement",
+     "from": "Defense Finance and Accounting Service",
+     "to": "the member",
+     "what_moves": "basic and other pay",
+     "evidence": "stated_by_principal"
+    },
+    {
+     "kind": "deduction",
+     "from": "the member's basic pay",
+     "to": "Servicemembers' Group Life Insurance",
+     "what_moves": "the SGLI premium",
+     "evidence": "cited",
+     "citation": "38 U.S.C. 1969(a)(1)",
+     "note": "THIS EDGE RUNS THE OTHER WAY FROM THE ONE HE DESCRIBED. He said 'DEERS to SGLI'. Eligibility does run that way. The MONEY runs out of pay: 1969(a)(1) says there shall be deducted each month from the member's basic or other pay the share of the cost of insuring them. SGLI is not paid to him through this account - it is taken out of it."
+    }
+   ],
+   "_why_this_entry_exists": "To hold the payment edges that do not belong on DEERS. Splitting them was the whole finding: read as one chain his map has money flowing through a personnel database, and read as typed edges it is substantially correct."
+  }
+ },
+ "_status_field": "Every layer carries status: active / revoked / superseded / expired / unknown / never_existed. UNKNOWN IS THE DEFAULT AND IS NOT ACTIVE - a layer nobody checked must not read as binding. An appointment that has been revoked is the difference between a claim and a gift, and a map that shows structure without status points at dead appointments.",
+ "_schema_1_1": "1.1 adds the `holder` layer and the `assignment` block. The five earlier layers all asked who is DOING something to the account; nobody asked who OWNS the right to enforce it, because on a public benefit that answer is obvious and never moves. On assigned consumer paper it moves repeatedly and the party now demanding payment is routinely not the party the person dealt with. Every 1.0 entry was reread and given a holder rather than backfilled with a default - three of the five are honestly empty.",
+ "_holder_is_not_debt_holder": "They are opposite sides and the name is a trap. `debt_holder` is who CARRIES the obligation - on a VA benefit, the United States; on a car note, the person. `holder` is who may enforce it and be paid. Ordinary usage of 'holds the debt' means the second, and this schema has always meant the first, so it is written down in both places rather than renamed under five entries and a build gate.",
+ "_assignment": "A chain of who held the interest, each link recorded from a document. A link exists because an instrument says so - never because an entity is the usual assignee for that kind of paper. `holder_rule_notice` records whether the contract carries the notice 16 CFR 433.2 requires, which is what decides whether claims and defenses ride the assignment, and which also caps recovery at amounts the debtor actually paid. It is recorded, never inferred from the kind of account."
 }

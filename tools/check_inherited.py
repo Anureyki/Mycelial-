@@ -556,7 +556,11 @@ def check_declared_matches_dispatched():
                   "base_version", "ask_peer_corpus", "refer_finding",
                   "receive_finding", "health", "store_memory", "retrieve_memory",
                   "ask_principal", "open_questions", "answer_question",
-                  "case_event_notice", "reason", "think"}
+                  "case_event_notice", "reason", "think",
+                  # Inherited by EVERY agent from core/base_agent.py, so no
+                  # per-agent config declares them and their absence from a
+                  # capability list is not drift.
+                  "trace_account", "acquire_authority"}
 
     undeclared, dead, checked = {}, {}, 0
     for a in agents:

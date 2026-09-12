@@ -4,14 +4,31 @@
     from core.account_model import trace, layers_of
     trace("trulink_card")
 
-THE MODEL. Any account can be decomposed into five questions, and they are
+THE MODEL. Any account can be decomposed into six questions, and they are
 different questions even when one entity answers several of them:
 
     identifier   what names the account and who issued that name
+    holder       who currently holds the interest - the right to enforce it
     fiduciary    who holds legal title / owes duties of loyalty and care
     servicer     who administers it day to day, for a fee
     debt_holder  who carries the obligation if it goes wrong
     benefit      what the account exists to deliver, and to whom
+
+`holder` AND `debt_holder` ARE OPPOSITE SIDES AND THE NAME IS A TRAP. In
+ordinary usage "holds the debt" means owning it as an asset - the creditor.
+HERE IT DOES NOT. `debt_holder` is who CARRIES the obligation, the obligor; on
+a VA benefit that is the United States, and on a car note it is the person.
+`holder` is the other side: who may enforce it and receive payment. The name
+predates this layer and is left alone rather than renamed, because renaming a
+field that five corpus entries and a build gate already use would move the
+ambiguity rather than remove it - so it is written down here instead.
+
+WHY THE HOLDER LAYER WAS MISSING FOR A WHILE, since the gap is instructive.
+The first five layers all answer "who is doing something to this account".
+Nobody asked who OWNS the right, because on a public benefit the answer is
+obvious and never moves. On assigned consumer paper it is the only question
+that matters, it moves repeatedly, and the party now demanding payment is
+often not the party the person dealt with.
 
 THE LABEL ON THE DOOR IS NOT ONE OF THE FIVE. A thing called a "trust" whose
 fiduciary is a corporation, whose servicer is the same corporation, and whose
@@ -44,7 +61,8 @@ import os
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 CORPUS = os.path.join(ROOT, "reference", "_shared", "account_layers.json")
 
-LAYERS = ("identifier", "fiduciary", "servicer", "debt_holder", "benefit")
+LAYERS = ("identifier", "holder", "fiduciary", "servicer", "debt_holder",
+          "benefit")
 
 # How much a field is actually known. Same vocabulary the corpus uses, because
 # a reader who knows one knows the other.
@@ -159,6 +177,343 @@ def must_revoke(entry):
             and l["entity"]]
 
 
+# ---------------------------------------------------------------- assignment
+
+# THE SAME VOCABULARY THE OWNERSHIP GRAPH USES, PLUS ONE.
+#
+# core/ownership_graph.py already defines these six for corporate structure, and
+# a reader who knows one should know the other. `never_existed` is the addition
+# this layer needs and that one does not: a private company's parent is
+# undisclosed, which is a fact about disclosure. An assignment chain can be
+# absent because the LAW FORBIDS THE ASSIGNMENT - 38 U.S.C. 5301(a)(1) on VA
+# benefits - and "we looked and found none" is a weaker statement than "none can
+# exist". Collapsing those two would lose the stronger one.
+TRAIL_ABSENCE = ("nothing_found", "not_checked", "incomplete", "conflicting",
+                 "verified_clear", "not_disclosed", "never_existed")
+
+# What a link may claim about itself. Same states as a layer's evidence, because
+# a link IS an assertion about who held what, and it earns no softer standard.
+LINK_EVIDENCE = EVIDENCE
+
+# Whether the contract carried the notice 16 CFR 433.2 requires. This is
+# RECORDED, never inferred from the kind of account: the rule makes its absence
+# the seller's violation, not the consumer's loss, and guessing either way
+# decides the question the field exists to ask.
+HOLDER_RULE_NOTICE = ("present", "absent", "unknown", "not_applicable")
+
+
+def _links(entry):
+    a = entry.get("assignment") or {}
+    return [l for l in (a.get("links") or []) if isinstance(l, dict)]
+
+
+def assignment_trail(entry):
+    """-> the chain of interest, with every break in it named.
+
+    WHAT THIS ANSWERS: the party demanding payment today is often not the party
+    the person dealt with, and between them sits a chain of assignments that
+    either holds together or does not. `holder` says who claims the interest
+    now. This says how they say they got it.
+
+    A LINK EXISTS BECAUSE A DOCUMENT SAYS SO. Same rule as the ownership graph:
+    not because it is the obvious next step, not because an entity is the usual
+    assignee for that kind of paper. An inferred link is a false allegation
+    about who may enforce a debt, and it is indistinguishable from a real one
+    once it is written down.
+
+    FIVE BREAKS, all arithmetic on recorded fields rather than judgement:
+
+      chain_break            link N's assignee is not link N+1's assignor
+      origination_mismatch   the first assignor is not the recorded originator
+      terminus_disagrees     the last assignee is not the `holder` layer
+      dates_out_of_order     an assignment is dated before the one it follows
+      declared_state_disagrees  the entry grades itself clean and is not
+
+    THE ENTRY DOES NOT GET TO GRADE ITSELF. A corpus entry may DECLARE its state
+    - that is how `never_existed` gets said at all, since no amount of reading
+    an empty list proves a statute forbids the assignment. But a declaration is
+    checked against the links, and one that disagrees is itself a finding. This
+    file is full of reasons why: an agent reporting `productive / high
+    confidence` on a photo nothing assessed, a desk assembling its own P&L. A
+    record that certifies its own chain is the same shape."""
+    a = entry.get("assignment") or {}
+    links = _links(entry)
+    breaks = []
+
+    declared = a.get("state")
+    if declared is not None and declared not in TRAIL_ABSENCE:
+        breaks.append({"kind": "undeclared_state", "detail": {"state": declared},
+                       "why": f"{declared!r} is not one of {list(TRAIL_ABSENCE)}"})
+        declared = None
+
+    for i in range(len(links) - 1):
+        here, nxt = links[i], links[i + 1]
+        if here.get("to") != nxt.get("from"):
+            breaks.append({
+                "kind": "chain_break", "at": i + 1,
+                "detail": {"link_%d_to" % i: here.get("to"),
+                           "link_%d_from" % (i + 1): nxt.get("from")},
+                "why": ("The interest leaves one party and arrives from "
+                        "another. Somewhere between them is a transfer nobody "
+                        "recorded, and it is the transfer that would have to be "
+                        "proved."),
+            })
+        d1, d2 = here.get("date"), nxt.get("date")
+        if d1 and d2 and str(d2) < str(d1):
+            breaks.append({
+                "kind": "dates_out_of_order", "at": i + 1,
+                "detail": {"earlier_link": d1, "later_link": d2},
+                "why": ("An assignment dated before the one it follows. Either "
+                        "a date is wrong or the order is, and both change who "
+                        "held the paper when."),
+            })
+
+    originator = entry.get("originated_by") or a.get("originated_by")
+    if links and originator and links[0].get("from") != originator:
+        breaks.append({
+            "kind": "origination_mismatch",
+            "detail": {"originated_by": originator,
+                       "first_assignor": links[0].get("from")},
+            "why": ("The chain starts from someone other than the party the "
+                    "person contracted with. The first link is the one that "
+                    "carries the consumer's own transaction into it."),
+        })
+
+    holder = {l["layer"]: l for l in layers_of(entry)}["holder"]
+    terminus = links[-1].get("to") if links else None
+    if links and holder.get("entity") and terminus != holder["entity"]:
+        breaks.append({
+            "kind": "terminus_disagrees_with_holder",
+            "detail": {"chain_ends_at": terminus, "holder_layer": holder["entity"]},
+            "why": ("The map and the chain name different parties as holding "
+                    "the interest. One of them is out of date and nothing here "
+                    "can say which - that is a document question."),
+        })
+
+    unevidenced = [i for i, l in enumerate(links)
+                   if l.get("evidence") not in ("cited", "stated_by_principal")]
+
+    # Derived state. Computed BEFORE the declaration is consulted.
+    if breaks:
+        derived = "conflicting"
+    elif unevidenced:
+        derived = "incomplete"
+    elif links:
+        derived = "verified_clear"
+    elif "assignment" not in entry:
+        derived = "not_checked"
+    else:
+        derived = a.get("state") or "not_checked"
+
+    state = derived
+    if declared in ("never_existed", "not_disclosed", "nothing_found"):
+        # Only a declaration with a citation may say what the links cannot
+        # show. Without one it is an assertion, and an unsourced assertion in
+        # this field is the thing the field exists to catch.
+        if not a.get("citation"):
+            breaks.append({
+                "kind": "declared_state_disagrees",
+                "detail": {"declared": declared, "citation": None},
+                "why": ("An absence this strong is a claim about the law or "
+                        "about disclosure, and it needs a source. Without one "
+                        "the honest state is not_checked."),
+            })
+            state = "not_checked"
+        elif links:
+            breaks.append({
+                "kind": "declared_state_disagrees",
+                "detail": {"declared": declared, "links_recorded": len(links)},
+                "why": ("The entry says no assignment exists and records "
+                        "assignments."),
+            })
+            state = "conflicting"
+        else:
+            state = declared
+
+    notice = a.get("holder_rule_notice", "unknown")
+    if notice not in HOLDER_RULE_NOTICE:
+        notice = "unknown"
+
+    return {
+        "state": state,
+        "declared_state": a.get("state"),
+        "derived_state": derived,
+        "links": [{"from": l.get("from"), "to": l.get("to"),
+                   "date": l.get("date"), "instrument": l.get("instrument"),
+                   "evidence": l.get("evidence", "unverified"),
+                   "citation": l.get("citation"), "note": l.get("note")}
+                  for l in links],
+        "link_count": len(links),
+        "unevidenced_links": unevidenced,
+        "originated_by": originator,
+        "ends_at": terminus,
+        "breaks": breaks,
+        "holder_rule_notice": notice,
+        "holder_rule_note": (
+            "16 CFR 433.2 requires a consumer credit contract to carry the "
+            "notice making ANY HOLDER subject to the claims and defenses the "
+            "debtor could assert against the seller - and the same notice caps "
+            "recovery at amounts the debtor actually paid. Whether this "
+            "contract carries it is recorded here and is never inferred from "
+            "the kind of account."),
+        "not_a_conclusion": (
+            "A chain read off recorded links. Whether any assignment was "
+            "effective, and what rides along it, is Legal's question."),
+        "citation": a.get("citation"),
+        "note": a.get("note"),
+    }
+
+
+def holds_the_interest(entry):
+    """-> who may enforce this account today, and whether the chain agrees.
+
+    Two independent records answer the same question - the `holder` layer and
+    the end of the assignment chain - and they are reported TOGETHER with a
+    flag rather than reconciled into one. Reconciling them would pick a winner
+    silently, and which of the two is stale is exactly the thing somebody needs
+    to go and find out."""
+    holder = {l["layer"]: l for l in layers_of(entry)}["holder"]
+    trail = assignment_trail(entry)
+    ends = trail["ends_at"]
+    return {
+        "entity": holder.get("entity"),
+        "status": holder.get("status"),
+        "binding": holder.get("binding"),
+        "evidence": holder.get("evidence"),
+        "citation": holder.get("citation"),
+        "note": holder.get("note"),
+        "chain_ends_at": ends,
+        "chain_state": trail["state"],
+        "agrees_with_chain": (None if not trail["links"] or not holder.get("entity")
+                              else ends == holder["entity"]),
+        "why_both": ("The layer is who the record says holds it. The chain is "
+                     "how they say they got it. An account where those "
+                     "disagree is the ordinary case in assigned consumer "
+                     "paper, not an exotic one."),
+    }
+
+
+# -------------------------------------------------------------------- chains
+
+# FOUR KINDS OF EDGE, AND THEY ARE NOT INTERCHANGEABLE.
+#
+# The principal described a military-benefits map out loud as one chain -
+# "Treasury to DEERS, DEERS to Navy, Navy to the account... DEERS to VA, DEERS
+# to SGLI". Read as a single chain it says money flows through a personnel
+# database, which it does not. Split by KIND it is substantially right, and the
+# split is the thing worth recording:
+#
+#   eligibility   establishes that a person QUALIFIES. DEERS is this and only
+#                 this - an enrollment and eligibility record. No money moves
+#                 along an eligibility edge, ever.
+#   disbursement  money actually moving. Treasury funds a disbursing agency
+#                 (DFAS for military pay, VA for compensation) and the agency
+#                 pays the person.
+#   deduction     money moving OUT of a payment before it lands. SGLI is this:
+#                 38 U.S.C. 1969(a)(1) deducts the premium from the member's
+#                 basic pay. The edge runs pay -> insurer, which is the
+#                 OPPOSITE direction from the eligibility edge that qualified
+#                 them for the policy.
+#   assignment    the INTEREST itself changing hands. Recorded in the
+#                 `assignment` block, because a chain of interest has breaks,
+#                 a terminus and a holder to agree with, and these do not.
+#
+# WHY THE DISTINCTION IS LOAD-BEARING RATHER THAN TIDY. Somebody tracing "who
+# owes me and how did they get here" along a flattened chain arrives at a
+# database and stops. Somebody who has the kinds separated can say: eligibility
+# is established HERE, payment is owed BY this agency, this much is deducted
+# BEFORE it arrives, and the right itself has not moved at all. Those are four
+# different questions and only one of them is about ownership.
+CHAIN_KINDS = ("eligibility", "disbursement", "deduction", "assignment")
+
+
+def chains(entry, kind=None):
+    """-> typed edges, each with its own evidence. Never inferred.
+
+    An edge exists because something says so - a statute, an instrument, or the
+    principal. `stated_by_principal` is a first-class evidence state here and
+    is NOT a lesser form of `cited`: he is the person these accounts belong to
+    and often the only source for how they connect. It is a different state so
+    a reader can tell which edges would survive someone else checking."""
+    out = []
+    for e in (entry.get("chains") or []):
+        if not isinstance(e, dict):
+            continue
+        k = e.get("kind")
+        if k not in CHAIN_KINDS:
+            k = "unknown"
+        if kind and k != kind:
+            continue
+        out.append({
+            "kind": k,
+            "from": e.get("from"),
+            "to": e.get("to"),
+            "what_moves": e.get("what_moves"),
+            "evidence": e.get("evidence", "unverified"),
+            "citation": e.get("citation"),
+            "note": e.get("note"),
+        })
+    return out
+
+
+def payment_path(entry):
+    """-> how money reaches this account, and what leaves it on the way.
+
+    Disbursement and deduction reported together because a person asking what
+    they receive is asking about both, and a path that shows only the inflow
+    overstates it by exactly the deductions."""
+    disb = chains(entry, "disbursement")
+    ded = chains(entry, "deduction")
+    elig = chains(entry, "eligibility")
+    unsourced = [e for e in disb + ded if e["evidence"] == "unverified"]
+    # HIS OWN STATEMENT IS A SOURCE AND IS NOT A SECOND OPINION.
+    # `asserted_by is recorded and never scored` cuts both ways: the principal's
+    # account of his own affairs is not discounted, and it is not corroborated
+    # either. Counting it as clear would report a map nobody has checked as
+    # finished; counting it as unverified would grade him below a stranger with
+    # a document. It is its own row.
+    principal_only = [e for e in disb + ded
+                      if e["evidence"] == "stated_by_principal"]
+    broken = []
+    for i in range(len(disb) - 1):
+        if disb[i]["to"] != disb[i + 1]["from"]:
+            broken.append({
+                "kind": "disbursement_gap", "at": i + 1,
+                "detail": {"pays_to": disb[i]["to"],
+                           "next_paid_by": disb[i + 1]["from"]},
+                "why": ("Money leaves one party and arrives from another. The "
+                        "hop between them is unrecorded."),
+            })
+    if not disb:
+        state = "not_checked"
+    elif broken:
+        state = "conflicting"
+    elif unsourced or principal_only:
+        state = "incomplete"
+    else:
+        state = "verified_clear"
+    return {
+        "state": state,
+        "disbursement": disb,
+        "deduction": ded,
+        "eligibility": elig,
+        "breaks": broken,
+        "unsourced_edges": len(unsourced),
+        "edges_on_principal_statement": [
+            {"from": e["from"], "to": e["to"], "kind": e["kind"]}
+            for e in principal_only],
+        "eligibility_is_not_payment": (
+            "Eligibility edges are listed and are deliberately NOT part of the "
+            "path. A record system can decide whether someone qualifies and "
+            "still never touch a dollar; putting it in the money path is how a "
+            "database ends up looking like a payer."),
+        "not_a_conclusion": (
+            "Edges as recorded. Whether any payment was correctly computed is "
+            "Accounting's question, and whether any of it was lawfully "
+            "withheld is Legal's."),
+    }
+
+
 def detect_inversion(entry):
     """-> [findings]. Traced from the fields, never argued.
 
@@ -261,6 +616,11 @@ def trace(account_id, path=None):
     ls = layers_of(entry)
     stacked = distinct_entities(entry)
     unverified = [l["layer"] for l in ls if l["evidence"] == "unverified"]
+    # Same distinction one level up. An entry built entirely from what the
+    # principal said is a real entry with a real source, and it has not been
+    # checked against a document - `incomplete` says both.
+    from_principal = [l["layer"] for l in ls
+                      if l["evidence"] == "stated_by_principal"]
     return {
         "account": account_id,
         "found": True,
@@ -275,6 +635,13 @@ def trace(account_id, path=None):
         "entities_stacked_count": len(stacked),
         "carries_the_debt": next((l["entity"] for l in ls
                                   if l["layer"] == "debt_holder"), None),
+        # THE OTHER SIDE. `carries_the_debt` is the obligor; this is who may
+        # enforce against them. A map with only one of the two answers half the
+        # question somebody actually has, which is usually "who is this company
+        # writing to me, and how did they get my contract".
+        "holds_the_interest": holds_the_interest(entry),
+        "assignment": assignment_trail(entry),
+        "payment_path": payment_path(entry),
         "inversions": detect_inversion(entry),
         # SURFACED, NOT BURIED. A layer whose status is unknown is the one a
         # reader must chase - it names an entity and cannot say whether that
@@ -292,6 +659,13 @@ def trace(account_id, path=None):
                         "and a gift, and a map that shows structure without "
                         "status points at dead appointments."),
         "unverified_layers": unverified,
-        "absence_state": ("incomplete" if unverified else "verified_clear"),
+        "layers_on_principal_statement": from_principal,
+        "absence_state": ("incomplete" if unverified or from_principal
+                          else "verified_clear"),
+        "absence_note": ("`incomplete` covers two different gaps and names "
+                         "which: a layer nobody filled, and a layer filled "
+                         "from what the principal said and not yet checked "
+                         "against a document. Neither is a failing entry - the "
+                         "second is often the only record that exists."),
         "citations": sorted({l["citation"] for l in ls if l["citation"]}),
     }

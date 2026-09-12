@@ -1,0 +1,45 @@
+{
+  "title": "38 U.S.C. \u00a7 5314",
+  "source": "United States Code title 38 section 5314, retrieved from Cornell LII (law.cornell.edu). The statutory text is a U.S. government work and is public domain; Cornell's annotations are excluded.",
+  "authority_class": "federal_statute",
+  "authority_class_basis": "Title of the work is a U.S. Code section citation, which fixes the class",
+  "claim_layer": "doctrinal",
+  "claim_layer_meaning": "States or describes the rule. Cite for what the law IS.",
+  "authorities_cited": [],
+  "term_index": {
+    "standing": [
+      0
+    ]
+  },
+  "origin_pdf": "38_u_s_c_5314.txt",
+  "extraction": {
+    "extractor": "text file (already extracted)",
+    "pages": 1,
+    "no_text_layer": [],
+    "raised": [],
+    "recovered": [],
+    "lost": [],
+    "complete": true
+  },
+  "pages": 1,
+  "sections": [
+    {
+      "citation": "\u00a7 5314.",
+      "kind": "section_sign",
+      "page": 1,
+      "text": "\u00a7 5314. Indebtedness offsets. (a) (1) Subject to subsections (b) and (d) of this section and section 3485(e) of this title , the Secretary shall (unless the Secretary waives recovery under section 5302 of this title ) deduct the amount of the indebtedness of any person who has been determined to be indebted to the United States by virtue of such person\u2019s participation in a benefits program administered by the Secretary from future payments made to such person under any law administered by the Secretary. (2) The Secretary may not make a deduction under paragraph (1) while the existence or amount of such indebtedness is disputed under section 5314A of this title . (b) Deductions may not be made under subsection (a) of this section with respect to the indebtedness of a person described in such subsection unless the Secretary\u2014 (1) has made reasonable efforts to notify such person of such person\u2019s right to dispute through prescribed administrative processes the existence or amount of such indebtedness and of such person\u2019s right to request a waiver of such indebtedness under section 5302 of this title ; (2) has made a determination with respect to any such dispute or request or has determined that the time required to make such a determination before making deductions would jeopardize the Secretary\u2019s ability to recover the full amount of such indebtedness through deductions from such payments; and (3) has made reasonable efforts to notify such person about the proposed deductions from such payments. (c) Notwithstanding any other provision of this title or of any other law, the authority of the Secretary to make deductions under this section or to take other administrative action authorized by law for the purpose of collecting an indebtedness described in subsection (a) of this section, or for the purpose of determining the creditworthiness of a person who owes such an indebtedness, shall not be subject to any limitation with respect to the time for bringing civil actions or for commencing administrative proceedings. (d) The Secretary shall prescribe regulations for the administration of this section. (Added Pub. L. 96\u2013466, title VI, \u00a7 605(a)(1) , Oct. 17, 1980 , 94 Stat. 2209 , \u00a7 3114; amended Pub. L. 102\u201316, \u00a7 6(b)(3) , Mar. 22, 1991 , 105 Stat. 51 ; renumbered \u00a7 5314 and amended Pub. L. 102\u201340, title IV, \u00a7 402(b)(1) , (d)(1), May 7, 1991 , 105 Stat. 238 , 239; Pub. L. 102\u201383 , \u00a7\u00a7 4(a)(1), (b)(1), (2)(E), 5(c)(1), Aug. 6, 1991 , 105 Stat. 403\u2013406 ; Pub. L. 117\u2013328, div. U, title II, \u00a7 255(a) , Dec. 29, 2022 , 136 Stat. 5464 .)",
+      "integrity": {
+        "state": "complete",
+        "basis": "Full retrieved body of 2,567 characters stored; under the 60,000 cap, so nothing was cut.",
+        "stamped_at": "2026-09-12T00:41:19",
+        "stored_chars": 2567,
+        "source_chars": 2567,
+        "cap_applied": 60000
+      },
+      "authority_class": "federal_statute",
+      "claim_layer": "doctrinal",
+      "claim_layer_meaning": "States or describes the rule. Cite for what the law IS."
+    }
+  ],
+  "claim_layer_basis": "Set from the class, not from the text: a statute or regulation states the rule rather than describing or arguing it, which the citation in the title establishes definitionally."
+}
