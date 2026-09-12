@@ -127,6 +127,61 @@ def main():
             print(f"           differs: {d}")
         failures.append(f"routing differs with a dead registry: {drift}")
 
+    print("\n  the dashboard's own prompts are claimed by a department:")
+    # WHY THIS IS A BUILD GATE AND NOT A PERFORMANCE NOTE.
+    #
+    # A prompt no department claims falls through to the intent resolver, which
+    # asks a 1.5B model. That path is correct and it is not free: measured
+    # 2026-09-12, `system status` took 17.4 SECONDS because OLLAMA_KEEP_ALIVE
+    # is 60s, the dashboard refreshes far less often than that, and so every
+    # single refresh paid a cold model load. The SYSTEM card sat on "Loading..."
+    # for the whole of it.
+    #
+    # The cause was a near-miss in vocabulary, not a slow model: maintenance
+    # declares `system health` and the dashboard asks `system status`. Security
+    # implements list_pending_approvals and declared no word for it. Both are
+    # the `undeclared` state from CLAUDE.md - implemented and dispatching,
+    # invisible to whatever reads the declaration - and the doctrine's own fix
+    # applies: declare it.
+    #
+    # Declaring them took the two cards to 0.19s and 0.06s with the model never
+    # loaded. The reason this is asserted rather than remembered is that the
+    # failure is SILENT and slow rather than wrong: the card still renders, the
+    # answer is still right, and nobody reads a stopwatch. A new card whose
+    # prompt nobody claims must turn the build red instead.
+    #
+    # The prompts are READ FROM THE WEBAPP, never copied here. A copy would
+    # pass while the dashboard asked something else entirely, which is the
+    # two-sources-of-truth failure this repo spends most of its length on.
+    import re as _re2
+    _root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    app = os.path.join(_root, "webapp", "app.js")
+    try:
+        src = open(app, encoding="utf-8").read()
+    except OSError as exc:
+        print(f"    [FAIL] webapp/app.js unreadable: {exc}")
+        failures.append(f"webapp/app.js unreadable: {exc}")
+        src = ""
+    prompts = _re2.findall(r"\{\s*id:\s*'\w+Card'\s*,\s*prompt:\s*'([^']+)'", src)
+    if not prompts:
+        # A gate that silently finds nothing to check is a gate that passes
+        # forever. If the card table is refactored, this must go red, not quiet.
+        print("    [FAIL] no narrated dashboard prompts found in app.js - the "
+              "pattern this gate reads has changed")
+        failures.append("no dashboard prompts found to check")
+    from core.roles import score_roles as _sr
+    for prompt in prompts:
+        _, _, kscores = r._domain_by_terms(prompt, with_margin=True)
+        rscores = _sr(prompt, r.roles())
+        claimed = {a: n for a, n in {**kscores, **rscores}.items() if n}
+        owner = r.domains_for(prompt)
+        ok = bool(claimed)
+        print(f"    [{'PASS' if ok else 'FAIL'}] {prompt[:34]:36} -> {owner}")
+        if not ok:
+            print(f"           nothing declares a word of this, so every refresh "
+                  f"wakes the intent resolver and a cold model load costs ~17s")
+            failures.append(f"unclaimed dashboard prompt: {prompt!r}")
+
     print("\n  mixed questions surface every claimant:")
     for prompt, must in MIXED_MUST_SURFACE.items():
         got = set(r.domains_for(prompt))

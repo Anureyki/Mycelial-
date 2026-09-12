@@ -24,7 +24,8 @@
     "disk usage",
     "log rotation",
     "system health",
-    "process supervision"
+    "process supervision",
+    "system status"
   ],
   "_roles_note": "Subjects this agent OWNS. Exactly one agent may own a role; core/roles.py refuses duplicates at load. Declared here and not in code so changing what a department owns is a config edit."
 }

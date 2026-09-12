@@ -32,7 +32,9 @@
     "kill switch",
     "credential",
     "network access",
-    "attack surface"
+    "attack surface",
+    "pending approval",
+    "approval"
   ],
   "_roles_note": "Subjects this agent OWNS. Exactly one agent may own a role; core/roles.py refuses duplicates at load. Declared here and not in code so changing what a department owns is a config edit."
 }
