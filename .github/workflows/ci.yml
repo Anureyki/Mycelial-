@@ -19,9 +19,15 @@ jobs:
       - name: Compile check (catch syntax errors)
         run: python -m compileall -q -x 'backup_|quarantine/' .
 
+      - name: Install what the gates import
+        # ci-requirements.txt is the whole dependency contract. Five gates
+        # import requests or cryptography and CI installed neither, so the
+        # build went red the moment the first of them was added and stayed
+        # red for ten runs.
+        run: pip install -r ci-requirements.txt
+
       - name: Lint for syntax errors and undefined names
         run: |
-          pip install ruff
           ruff check --select=E9,F63,F7,F82 --exclude backup_20260621_053644,quarantine .
 
       - name: Agents agree with themselves about their capabilities

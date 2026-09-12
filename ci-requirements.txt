@@ -1,0 +1,24 @@
+# EXACTLY what CI installs, and therefore exactly what the gates may import.
+#
+# Written after CI sat red for TEN consecutive runs - 2026-09-11 17:17 through
+# 2026-09-12 00:44 - while tools/ci_local.sh printed "ALL GREEN - this is what
+# CI will see" on every one of them. Both statements were true of what they
+# measured. The script ran the right steps in the right order and ran them in
+# the developer venv, where every dependency in the project is installed; the
+# runner installs `ruff` and nothing else, so the first gate to import a third
+# party module died on it.
+#
+# This is the SECOND time this repo has learned the same lesson at a different
+# altitude. The first: running one of four steps by hand and calling it the
+# build. The fix then was "run all the steps". The fix now is "run them where
+# CI runs them" - because same steps, different environment is the same lie
+# with the evidence one layer further down.
+#
+# A gate that needs a module not listed here will fail in CI and must fail
+# locally too. tools/ci_local.sh builds a venv from THIS FILE ALONE.
+ruff
+requests
+cryptography
+paho-mqtt
+flask
+waitress
