@@ -158,27 +158,79 @@ def _field_shape(fields):
     return problems
 
 
+# The keys this module requires from a scan() result. Named, so a contract
+# change is a loud failure here instead of a silent clean report.
+SCAN_CONTRACT = ("findings",)
+FINDING_CONTRACT = ("kind", "last4")
+
+
 def _identifier_problems(fields):
-    """The prose check, over every string in the record."""
-    from core.identifier_scan import scan
+    """The prose check. EVERY failure mode refuses; none returns "clean".
+
+    THE BUG CLASS THIS IS BUILT AROUND, because it already happened here. The
+    first version read `finding["hits"]`. scan() returns `findings`. So the
+    expression evaluated to None, `if not hits: return []` read that as
+    "nothing found", and every SSN passed the check. Nothing raised, nothing
+    logged, and the registry reported a clean write.
+
+    That is the worst shape a security control can take: not a refusal that
+    is too strict, and not a crash - a PASS produced by a control that never
+    ran. It is the same failure as a push piped through 2>/dev/null, one layer
+    down, and this repo has now met it three times in three different modules.
+
+    So the rule here is absolute: this function returns an empty list ONLY
+    when the scanner ran, returned the shape it promises, and found nothing.
+    Every other outcome - an exception, a non-dict, a missing key, a
+    non-list, a finding missing its own fields - raises Refused, and the
+    caller never gets to persist. Absence of detection is not evidence of
+    absence, and a control that cannot say which one it is must refuse."""
+    try:
+        from core.identifier_scan import scan
+    except Exception as exc:                        # noqa: BLE001
+        raise Refused(
+            f"the identifier scanner could not be imported ({type(exc).__name__}"
+            f": {exc}), so nothing was checked and nothing was written. An "
+            f"unavailable control is not a passed control.") from exc
+
     blob = " ".join(str(v) for v in (fields or {}).values()
                     if isinstance(v, str))
-    finding = scan(blob, context="asset_registry")
-    # THE KEY IS `findings`, CHECKED AGAINST THE SCANNER RATHER THAN ASSUMED.
-    # The first version read `hits`, which scan() does not return, so every
-    # call found nothing and every SSN passed. A refusal path that silently
-    # finds nothing is worse than no refusal path: it reports clean.
-    hits = finding.get("findings") if isinstance(finding, dict) else None
+    try:
+        finding = scan(blob, context="asset_registry")
+    except Exception as exc:                        # noqa: BLE001
+        raise Refused(
+            f"the identifier scanner raised {type(exc).__name__}: {exc}. "
+            f"Nothing was written. A scanner that cannot complete has not "
+            f"cleared the record; it has failed to examine it.") from exc
+
+    if not isinstance(finding, dict):
+        raise Refused(
+            f"the identifier scanner returned {type(finding).__name__}, not a "
+            f"result object. Nothing was written - this module cannot tell a "
+            f"clean scan from an unrecognised one, so it refuses.")
+    missing = [k for k in SCAN_CONTRACT if k not in finding]
+    if missing:
+        raise Refused(
+            f"the identifier scanner result is missing {missing}. Nothing was "
+            f"written. This is exactly the defect that let an SSN through "
+            f"once: a field name read that the scanner does not return "
+            f"evaluates to nothing, and nothing reads as clean.")
+    hits = finding.get("findings")
     if not isinstance(hits, list):
         raise Refused(
-            "the identifier scanner returned a shape this does not understand, "
-            "so nothing was written. Refusing beats storing unchecked - a "
-            "scanner that changed its contract must fail loudly here.")
-    if not hits:
-        return []
-    return [f"{h['kind']} present (ending {h['last4']}) - the registry stores "
-            f"a reference to the document, never the identifier itself"
-            for h in hits]
+            f"scan()['findings'] is {type(hits).__name__}, not a list. "
+            f"Nothing was written.")
+
+    problems = []
+    for h in hits:
+        if not isinstance(h, dict) or any(k not in h for k in FINDING_CONTRACT):
+            raise Refused(
+                "a finding from the identifier scanner is malformed, so this "
+                "record cannot be cleared. Nothing was written. A finding "
+                "that cannot be read is not a finding that can be dismissed.")
+        problems.append(
+            f"{h['kind']} present (ending {h['last4']}) - the registry stores "
+            f"a reference to the document, never the identifier itself")
+    return problems
 
 
 def load(path=None):

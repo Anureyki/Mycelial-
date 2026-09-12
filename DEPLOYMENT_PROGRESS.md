@@ -1155,7 +1155,7 @@ instrument kinds cross - an email is correspondence, and copying every document
 in would put the case file into a second store.
 
 **And the projection immediately found something a list never would.** The case
-carries `principal` as a participant and `Anthony Hanlan` as an authorised
+carries `principal` as a participant and `the principal` as an authorised
 payor - one human, two nodes, because the two facts arrived by different paths.
 It is **reported, not merged**: deciding two names are one person is an identity
 judgement and belongs to the principal, not to a projection script. The same

@@ -803,7 +803,7 @@ class MaintenanceAgent(AgentBase):
             nodes.append(n)
         # THE SAME PERSON UNDER TWO NAMES IS A FINDING, NOT A MERGE.
         #
-        # This case carries "principal" as a participant and "Anthony Hanlan" as
+        # This case carries "principal" as a participant and "the principal" as
         # an authorised payor - one human, two nodes, because the two facts were
         # recorded by different paths. Silently merging them would be the graph
         # deciding an identity question, which is exactly the kind of judgement

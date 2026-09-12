@@ -74,6 +74,7 @@ step "check_accounts"                "$PY" tools/check_accounts.py
 step "check_retrieval"               "$PY" tools/check_retrieval.py
 step "check_core_interface"         "$PY" tools/check_core_interface.py
 step "check_financial_authority"    "$PY" tools/check_financial_authority.py
+step "check_asset_registry"         "$PY" tools/check_asset_registry.py
 echo
 if [ "$rc" -eq 0 ]; then echo "ALL GREEN - $HONEST."
 else echo "RED - do not claim the build passes."; fi

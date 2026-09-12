@@ -2417,7 +2417,7 @@ class LegalAgent(AgentBase):
     # The principal drew the line himself: *"not everything that I input has
     # something to do with me. That Duell versus Hawaii, that was just an
     # example, so Legal has something to go off of. But my own cases will match
-    # my ledger in saying Anthony Hanlan."*
+    # my ledger in saying the principal."*
     #
     # The separation already held structurally - his matters live in the shared
     # `cases` namespace, studied decisions live in `case_outcome_*`, and nothing

@@ -426,7 +426,7 @@ base returned nothing.
 
 Built. Deterministic, reads the record, no model:
 
-    Rent - resident portion: 459 monthly, payable by Anthony Hanlan. 4 payments
+    Rent - resident portion: 459 monthly, payable by the principal. 4 payments
     recorded totalling 1898, covering 2026-06 to 2026-08. Rent - HAP voucher
     subsidy: 791 monthly, payable by Housing Authority (HAP). 4 payments
     totalling 3087, covering 2026-06 to 2026-08. Together that is 1250 a month
@@ -2048,7 +2048,7 @@ parties, 3 obligations, 10 edges.
 ```
 principal               -> Monthly rent                $1450/monthly
 VA HUD-VASH             -> Monthly rent                $1450/monthly
-Anthony Hanlan          -> Rent - resident portion      $459/monthly
+the principal          -> Rent - resident portion      $459/monthly
 Housing Authority (HAP) -> Rent - HAP voucher subsidy   $791/monthly
 ```
 
@@ -2865,7 +2865,7 @@ the rent:
 
 ```
 Monthly rent                $1,450   principal, VA HUD-VASH
-Rent - resident portion       $459   Anthony Hanlan
+Rent - resident portion       $459   the principal
 Rent - HAP voucher subsidy    $791   Housing Authority (HAP)
 
 459 + 791 = 1,250 against a stated 1,450 - a $200 monthly gap
@@ -4032,7 +4032,7 @@ than the first.
 
 *"Legal does know that not everything I input has something to do with me,
 right? That Duell versus Hawaii was just an example… but my own cases will match
-my ledger in saying Anthony Hanlan."*
+my ledger in saying the principal."*
 
 **The separation held, and it held by luck.** `case_list` returns exactly one
 case — his housing matter — and nothing written today crossed into it. But the

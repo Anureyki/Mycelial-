@@ -79,6 +79,20 @@ jobs:
         # map is an opinion. An unverified entry must report itself
         # incomplete rather than produce a confident one.
         run: python tools/check_accounts.py
+      - name: A broken security control must refuse, not read clean
+        # The defect this exists for already happened here: the registry's
+        # identifier check read a field name the scanner does not return, so
+        # the expression was None, "nothing found" read as clean, and an SSN
+        # passed. Nothing raised. Every scanner failure mode - exception,
+        # wrong type, missing contract key, malformed finding - is now proven
+        # to refuse, and the refusal happens BEFORE persistence.
+        #
+        # PASS / SKIP / FAIL are three outcomes. Personal fixtures are absent
+        # here by design, and the checks that need them print SKIP and are
+        # counted - never folded into PASS, because a suite that goes green on
+        # missing fixtures is reporting on its own absence.
+        run: python tools/check_asset_registry.py
+
       - name: No agent may authorize money
         # Phase 0 of the financial programme. The ladder - read, analyze,
         # prepare, authorize, execute, verify - is ordered by CONSEQUENCE, not

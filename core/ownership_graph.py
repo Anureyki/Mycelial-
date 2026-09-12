@@ -87,13 +87,22 @@ class Edgar:
         # this would put the literal None into the request, which SEC answers
         # with a 403 that reads like a rate limit or a block - a configuration
         # gap wearing the costume of a remote failure.
-        if not SEC_UA:
+        # VALIDATED, NOT MERELY PRESENT. `if not SEC_UA` passes "   ", which
+        # is truthy, so a whitespace-only setting sent a blank identifier to
+        # SEC and came back as an HTTP error that reads like a block or a rate
+        # limit. The test for it went green for that reason, which is its own
+        # lesson: a check that accepts an unusable value has not checked.
+        ua = (SEC_UA or "").strip()
+        if not ua or "@" not in ua:
             raise EdgarError(
-                "SEC_USER_AGENT is not set. SEC asks every automated caller to "
-                "identify itself with a contact address, so set it in .env - "
-                "e.g. SEC_USER_AGENT='Your Project (you@example.com)'. It is "
-                "not defaulted here because a default in a public repository "
-                "publishes somebody's email to every reader of the source.")
+                f"SEC_USER_AGENT is {'not set' if not ua else 'not usable'}. "
+                f"SEC asks every automated caller to identify itself with a "
+                f"CONTACT ADDRESS, so the value must be non-empty and contain "
+                f"one - e.g. SEC_USER_AGENT='Your Project (you@example.com)'. "
+                f"It is not defaulted here because a default in a public "
+                f"repository publishes somebody's email to every reader of "
+                f"the source. Refusing rather than sending a blank identifier: "
+                f"an unidentified caller is what SEC's rule exists to stop.")
         for a in range(tries):
             wait = MIN_INTERVAL - (time.time() - Edgar._last)
             if wait > 0:
@@ -101,7 +110,7 @@ class Edgar:
             Edgar._last = time.time()
             try:
                 req = urllib.request.Request(url, headers={
-                    "User-Agent": SEC_UA,
+                    "User-Agent": ua,
                     "Accept-Encoding": "gzip, deflate",
                     "Accept": "*/*",
                 })
