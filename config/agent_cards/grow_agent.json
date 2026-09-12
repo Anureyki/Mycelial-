@@ -5,6 +5,7 @@
   "capabilities": [
     "pulse",
     "veto",
+    "roster",
     "log_reading",
     "check_stage",
     "observe_stage_markers",

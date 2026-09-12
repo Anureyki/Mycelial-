@@ -901,6 +901,12 @@ class GrowAgent(AgentBase):
             capabilities=[
                 "pulse",
                 "veto",
+                # The whole roster with each plant's snapshot, in ONE call.
+                # Anansi was assembling it - list_plants then a grow_snapshot
+                # per plant, four A2A round trips for three plants - which is
+                # the interface layer doing this agent's job and re-editing
+                # itself every time a plant gains a field.
+                "roster",
                 "log_reading", "check_stage", "observe_stage_markers", "volume_history",
                 "adjust_nutrients",
                 "transition_stage", "log_water_change", "get_status",
@@ -6189,7 +6195,7 @@ class GrowAgent(AgentBase):
         pid = plant_id or self.DEFAULT_PLANT
         return key if pid == self.DEFAULT_PLANT else f"{pid}::{key}"
 
-    def _plant_state(self, key, plant_id=None):
+    def _plant_state(self, key, plant_id=None, record=None):
         """This plant's value, or NOTHING.
 
         There is no fallback to another plant. A younger plant is not a stale
@@ -6218,8 +6224,24 @@ class GrowAgent(AgentBase):
                     return raw, "own"
             return None, "missing"
         if pid != self.DEFAULT_PLANT:
-            rec = next((x for x in (self._get_all_plants() or [])
-                        if x.get("plant_id") == pid), None)
+            # `record` IS AN OPTIMISATION AND NOT A SECOND SOURCE OF TRUTH.
+            #
+            # This reads the plant record, and _get_all_plants() fetches the
+            # index plus one memory per plant - four Hermes round trips here.
+            # grow_snapshot asks for stage, strain and germination_date, so it
+            # paid that FOUR-trip cost THREE TIMES for one plant: twelve round
+            # trips, 1.5 SECONDS, for three fields off one record. The
+            # dashboard's roster did it per plant.
+            #
+            # The caller may pass the record it already holds. Deliberately not
+            # a cache: this agent writes plant records, and a cache in a writer
+            # can serve a value that was true a moment ago - which is the exact
+            # fault amend_grow_system was fixed for one layer down. Passing the
+            # object means the read still happened, once, in the caller's own
+            # scope, and there is nothing to go stale between them.
+            rec = record if isinstance(record, dict) else \
+                next((x for x in (self._get_all_plants() or [])
+                      if x.get("plant_id") == pid), None)
             if rec:
                 field = {"current_stage": "stage",
                          "current_strain": "strain",
@@ -10052,8 +10074,27 @@ class GrowAgent(AgentBase):
             from core import differential as dx
         except Exception:
             return None
-        for did in reversed(self._differential_index()):
-            d = self._load_differential(did)
+        # Same shape, same fix: 18 more single-key reads in the same snapshot.
+        # _load_differential stays as the one-at-a-time path for every other
+        # caller; this one knows it wants the whole index and says so.
+        dids = list(reversed(self._differential_index()))
+        # THE KEY IS THE ID ITSELF - checked against _load_differential in
+        # core/base_agent.py rather than assumed. A prefixed key would have
+        # matched nothing, fallen through to the per-key path on every
+        # differential, and looked exactly like a working batch that happened
+        # not to be faster.
+        batched = self.retrieve_own_memories(list(dids))
+        for did in dids:
+            raw = self._unwrap_value(batched.get(did))
+            try:
+                d = json.loads(raw) if isinstance(raw, str) else raw
+            except Exception:
+                d = None
+            if not d:
+                # The batch verb can miss a key the per-key path would find -
+                # fall back rather than silently dropping an OPEN concern,
+                # which is the one thing on this card the grower must see.
+                d = self._load_differential(did)
             if not d or d.get("status") != "open":
                 continue
             if plant_id not in (d.get("subject") or "") and d.get("subject") != plant_id:
@@ -10089,8 +10130,21 @@ class GrowAgent(AgentBase):
             keys = self._load_leaf_eval_index() or []
         except Exception:
             return None
-        for key in reversed(keys[-40:]):
-            raw = self._unwrap_value(self.retrieve_own_memory(key))
+        # ONE BATCH, NOT FORTY ROUND TRIPS.
+        #
+        # Profiled 2026-09-12: one grow_snapshot for a non-current plant made
+        # 74 A2A calls, 71 of them single-key memory reads, and 1.955s of the
+        # 1.97s was waiting on them. FORTY were this loop. The dashboard's
+        # roster paid it per plant.
+        #
+        # _get_readings_for_plant already learned this - its comment records
+        # 108 of 137 calls in one answer being the same shape - and the batch
+        # verb it introduced was sitting here unused. A fix made in one loop
+        # for a fault that lives in a pattern is not a fix.
+        want = list(reversed(keys[-40:]))
+        fetched = self.retrieve_own_memories(want)
+        for key in want:
+            raw = self._unwrap_value(fetched.get(key))
             if not raw:
                 continue
             try:
@@ -10134,9 +10188,17 @@ class GrowAgent(AgentBase):
         # _plant_state is the accessor that refuses to borrow another plant's
         # facts. Reading the memory key directly bypassed that and returned
         # "unknown" for a plant whose stage and strain are both recorded.
-        stage, _ = self._plant_state("current_stage", plant_id)
-        strain, _ = self._plant_state("current_strain", plant_id)
-        germ, _ = self._plant_state("germination_date", plant_id)
+        # ONE READ OF THE PLANT RECORD, NOT THREE. Each _plant_state call for
+        # a non-default plant re-fetched the whole plant index and every plant
+        # memory - four Hermes round trips - so three fields cost twelve.
+        # Measured: 1.50s for one non-current plant, 0.27s for current_plant,
+        # which reads a different path. The roster paid it per plant.
+        prec = (next((x for x in (self._get_all_plants() or [])
+                      if x.get("plant_id") == plant_id), None)
+                if plant_id != self.DEFAULT_PLANT else None)
+        stage, _ = self._plant_state("current_stage", plant_id, record=prec)
+        strain, _ = self._plant_state("current_strain", plant_id, record=prec)
+        germ, _ = self._plant_state("germination_date", plant_id, record=prec)
         out["strain"] = strain or "unknown"
         out["stage"] = stage or "unknown"
         if germ:
@@ -12128,6 +12190,47 @@ class GrowAgent(AgentBase):
         elif task == "list_plants":
             return {"result": {"active": self.active_plants(),
                                "archived": self.archived_plants()}}
+
+        elif task == "roster":
+            # ONE CALL, BECAUSE ASSEMBLING THIS IS GROW'S WORK.
+            #
+            # Anansi was building the roster itself: list_plants, then one
+            # grow_snapshot per plant, each its own A2A round trip through the
+            # guard and the registry. Three plants meant four sequential hops
+            # and 3.42 SECONDS - while this agent answers any one of them in
+            # 26ms. The time was entirely transport, paid four times.
+            #
+            # It is also the interface layer doing a domain's job. CLAUDE.md:
+            # the orchestrator carries no domain skill, and "if the agent can't
+            # do it yet, build the capability - substituting your own
+            # arithmetic leaves the agent exactly as capable as it was". A loop
+            # over plants in Anansi is exactly that, and it is the shape that
+            # has to be re-edited in the interface every time this agent gains
+            # a field.
+            #
+            # A plant whose snapshot fails is REPORTED, not dropped. The
+            # caller's loop silently skipped anything returning an error, so a
+            # plant the system is tracking could vanish from the dashboard with
+            # nothing said - and a plant the grower has to remember on his own
+            # is the job this screen exists to take off him.
+            out, failed = [], []
+            for pl in (self.active_plants() or []):
+                pid = pl.get("plant_id") if isinstance(pl, dict) else None
+                if not pid:
+                    continue
+                try:
+                    snap = self.grow_snapshot(pid)
+                except Exception as exc:            # noqa: BLE001
+                    failed.append({"plant_id": pid, "why": f"{type(exc).__name__}: {exc}"})
+                    continue
+                if isinstance(snap, dict) and snap.get("error"):
+                    failed.append({"plant_id": pid, "why": snap["error"]})
+                    continue
+                out.append(snap)
+            return {"result": {"plants": out, "count": len(out),
+                               "unreadable": failed,
+                               "absence_state": ("incomplete" if failed
+                                                 else "verified_clear")}}
 
         elif task == "assess_care":
             desc = args.get("description") or args.get("notes") or args.get("text") or ""

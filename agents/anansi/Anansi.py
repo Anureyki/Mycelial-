@@ -510,28 +510,24 @@ class Anansi(AgentBase):
         # plant the grower has to remember on his own, which is the job the
         # dashboard exists to take off him.
         if task == "grow_roster":
-            roster = self.send_a2a("grow_agent", "list_plants", {})
-            r = roster
+            # RELAYED, NOT ASSEMBLED. This used to call list_plants and then
+            # grow_snapshot once per plant - four sequential A2A round trips
+            # for three plants, 3.42 SECONDS, while the agent answers any one
+            # of them in 26ms. The cost was transport, paid once per plant, and
+            # the loop was the interface layer doing Grow's job: every new
+            # field on a plant meant editing Anansi.
+            #
+            # Grow now has `roster` and this forwards to it. It also stops
+            # silently dropping a plant whose snapshot failed - that comes back
+            # in `unreadable` and the card can say so.
+            r = self.send_a2a("grow_agent", "roster", {})
             for _ in range(6):
                 if isinstance(r, dict) and "result" in r and len(r) == 1:
                     r = r["result"]
                 else:
                     break
-            active = (r or {}).get("active") or []
-            out = []
-            for p in active:
-                pid = p.get("plant_id")
-                if not pid:
-                    continue
-                snap = self.send_a2a("grow_agent", "grow_snapshot", {"plant_id": pid})
-                for _ in range(6):
-                    if isinstance(snap, dict) and "result" in snap and len(snap) == 1:
-                        snap = snap["result"]
-                    else:
-                        break
-                if isinstance(snap, dict) and not snap.get("error"):
-                    out.append(snap)
-            return {"plants": out, "count": len(out)}
+            return r if isinstance(r, dict) else {"plants": [], "count": 0,
+                                                  "error": str(r)[:200]}
 
         if task == "grow_snapshot":
             return self.send_a2a("grow_agent", "grow_snapshot",
