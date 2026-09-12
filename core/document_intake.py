@@ -168,6 +168,21 @@ def extract(path):
     notes = pdf_text.describe(record)
     if notes:
         meta["warning"] = " ".join(notes)
+
+    # SCAN EVERY DOCUMENT, not the one somebody happened to look at. A VA
+    # fiduciary certificate came through carrying the veteran's full SSN as
+    # its file number, and nothing in the system said so - it was noticed by a
+    # person reading the output. The scanner reports by type and last four
+    # only; it never stores the number it warns about.
+    try:
+        from core.identifier_scan import scan as _idscan
+        meta["identifiers"] = _idscan("\f".join(pages), context=os.path.basename(path))
+    except Exception as _e:
+        meta["identifiers"] = {"error": str(_e)[:160],
+                               "absence_state": "not_checked",
+                               "why": ("The identifier scan did not run. That "
+                                       "is not a finding that the document is "
+                                       "clean.")}
     return "\f".join(pages), meta
 
 
