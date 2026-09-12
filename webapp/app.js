@@ -892,7 +892,34 @@ async function renderGrow2Card(body) {
   }
 }
 
+// EVERY PLANT WAS LISTED TWICE, AND THE CAUSE WAS NOT IN THE RENDERER.
+//
+// renderGrow2Card starts with `body.textContent = ''`, so one call cannot
+// duplicate. Two can. The clear happens BEFORE the await and the append after
+// it, and that sequence is not atomic: refresh A clears and awaits, refresh B
+// clears and awaits, A appends, B appends. Two copies of a roster the agent
+// returned exactly once - confirmed by asking it directly, three entries, no
+// duplicates.
+//
+// Two entry points make it reachable by accident: tapping the Dashboard tab
+// calls this, and so does the Refresh button. Tap one while the other is in
+// flight - easy, since the narrated cards take seventeen seconds - and the
+// page renders itself twice.
+//
+// THE FIX IS HERE AND NOT IN THE THREE RENDERERS THAT CLEAR EARLY.
+// renderProgressCard and renderLegalCard have the identical shape and had the
+// identical bug waiting; patching renderGrow2Card alone would have fixed the
+// instance and left two more places for it to hide. So:
+//
+//   each run takes a ticket, and a run whose ticket is stale stops writing
+//   each card renders into a DETACHED node and is swapped in complete
+//
+// A render that loses the race has its output discarded instead of appended,
+// which also means a slow card can no longer overwrite a fresher one.
+let dashboardGeneration = 0;
+
 async function refreshDashboard() {
+  const mine = ++dashboardGeneration;
   const narrated = [
     { id: 'systemCard', prompt: 'system status' },
     { id: 'decisionsCard', prompt: 'what needs my approval' },
@@ -914,13 +941,19 @@ async function refreshDashboard() {
   // immediately, so the dashboard is useful before the narrated cards return.
   for (const { id, render } of structured) {
     const body = document.querySelector(`#${id} .card-body`);
-    if (body) { try { await render(body); } catch (e) { body.textContent = `Couldn't load (${e.message}).`; } }
+    if (!body) continue;
+    const scratch = document.createElement('div');
+    try { await render(scratch); }
+    catch (e) { scratch.textContent = `Couldn't load (${e.message}).`; }
+    if (mine !== dashboardGeneration) return;   // a newer refresh owns the page
+    body.replaceChildren(...scratch.childNodes);
   }
   // Sequential, not parallel - these route through the same shared local
   // inference backend, so firing them at once would just make them queue.
   for (const { id, prompt } of narrated) {
     const body = document.querySelector(`#${id} .card-body`);
     const text = await fetchNarration(prompt);
+    if (mine !== dashboardGeneration) return;
     if (body) body.textContent = text;
   }
 }
