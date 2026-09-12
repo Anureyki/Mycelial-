@@ -66,9 +66,26 @@ def _canonical(rec):
                       ensure_ascii=False).encode("utf-8")
 
 
-def _head():
+def _head_path(records=RECORDS):
+    """THE HEAD BELONGS TO THE STORE, NOT TO THE MODULE.
+
+    CHAIN_HEAD was a module constant bound to the default store, so every
+    function that accepted a `records` argument honoured it for the RECORDS and
+    ignored it for the HEAD. `ingest(records=somewhere_else)` therefore wrote
+    its records to the other directory and stamped the head of the REAL one
+    with a hash from records the real store does not contain - breaking the
+    live chain from outside, using a parameter whose whole purpose was
+    isolation.
+
+    A parameterised store with a hardcoded head is not parameterised; it is a
+    trap with a keyword argument on it. Found when a build gate was changed to
+    ingest into a temp directory and the machine's own chain went red."""
+    return os.path.join(records, "_head.json")
+
+
+def _head(records=RECORDS):
     try:
-        with open(CHAIN_HEAD, encoding="utf-8") as fh:
+        with open(_head_path(records), encoding="utf-8") as fh:
             return json.load(fh)
     except Exception:
         return {"hash": "0" * 64, "count": 0}
@@ -152,7 +169,11 @@ def ingest(spool=SPOOL, records=RECORDS, quarantine=True):
                 except Exception:
                     pass
 
-    head = _head()
+    # _head(records), NOT _head(). The same bug as the write path below and
+    # the one in verify(): three call sites, one of them fixed is none of them
+    # fixed. This read is what gave a fresh store its first record a seq and a
+    # prev_hash from a DIFFERENT chain, so the new store was born broken.
+    head = _head(records)
     prev, count = head["hash"], head["count"]
     written = skipped = quarantined = 0
     out_path = os.path.join(
@@ -215,7 +236,7 @@ def ingest(spool=SPOOL, records=RECORDS, quarantine=True):
                     written += 1
     finally:
         os.close(fd)
-    with open(CHAIN_HEAD, "w", encoding="utf-8") as fh:
+    with open(_head_path(records), "w", encoding="utf-8") as fh:
         json.dump({"hash": prev, "count": count,
                    "updated": datetime.now(timezone.utc).isoformat()}, fh, indent=2)
     return {"written": written, "skipped": skipped,
@@ -249,7 +270,7 @@ def verify(records=RECORDS):
             problems.append(f"seq {r.get('seq')}: record_hash does not match "
                             f"its own contents - this record was edited.")
         prev = r.get("record_hash") or prev
-    head = _head()
+    head = _head(records)
     if recs and head.get("hash") != prev:
         problems.append("the chain head does not match the last record - "
                         "records were removed from the end.")

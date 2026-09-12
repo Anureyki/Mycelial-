@@ -117,6 +117,19 @@ def main():
         ck("every emitted event carries a reason",
            all((e.get("reason") or "").strip() for e in emitted),
            f"{len(emitted)} event(s)")
+        # KEEP WHAT THE ROUND TRIP PRODUCED. Section 3 used to read the
+        # machine's own record store, which lives under datasets/ and is
+        # gitignored - so on a fresh checkout it is EMPTY and "there are
+        # records to check" could only ever fail. The gate was asserting a
+        # property of this machine's history rather than of the code, and it
+        # failed on the runner for exactly that reason.
+        #
+        # Feeding it the events this check just made is both self-contained and
+        # strictly stronger: it proves emit -> ingest -> record end to end,
+        # instead of inspecting whatever happened to be lying around.
+        from tools.eval_harness import ingest as _ingest
+        fresh_records = tempfile.mkdtemp()
+        _ingest(spool=tmp, records=fresh_records, quarantine=True)
     finally:
         se.SPOOL = orig_spool
         shutil.rmtree(tmp, ignore_errors=True)
@@ -170,8 +183,9 @@ def main():
     print("\n  3. records are complete")
     sys.argv = ["x"]
     from tools.eval_harness import read_records, verify, pairs, MIN_REASON_CHARS
-    recs = read_records()
-    ck("there are records to check", bool(recs), f"{len(recs)} record(s)")
+    recs = read_records(records=fresh_records)
+    ck("the round trip produced records to check", bool(recs),
+       f"{len(recs)} record(s) from this run's own events")
     missing_reason = [r["seq"] for r in recs if not (r.get("reason") or "").strip()]
     ck("every record carries a reason", not missing_reason, str(missing_reason[:6]))
     no_hash = [r["seq"] for r in recs if not r.get("record_hash")]
@@ -187,10 +201,25 @@ def main():
     ck("no negative example without a usable reason", not thin, str(thin[:6]))
 
     print("\n  4. the chain is intact (append-only, proven)")
-    ok, probs = verify()
-    ck("hash chain verifies", ok, "; ".join(probs[:2]))
+    ok, probs = verify(records=fresh_records)
+    ck("hash chain verifies on records built by this run", ok,
+       "; ".join(probs[:2]))
+    # AND ON THE REAL STORE TOO, WHEN THERE IS ONE. A clean checkout has no
+    # record store and must not fail for it; a machine that HAS been running
+    # has one, and silent corruption there is exactly what an append-only
+    # chain exists to catch. So the real store is checked when present and
+    # reported as absent when not - "nothing to check" and "checked and fine"
+    # are different findings and this says which.
+    from tools.eval_harness import RECORDS
+    if os.path.isdir(RECORDS) and read_records():
+        ok2, probs2 = verify()
+        ck("hash chain verifies on this machine's own store", ok2,
+           "; ".join(probs2[:2]))
+    else:
+        print("    ----  this machine has no record store yet - nothing to "
+              "verify, which is not the same as verified")
 
-    p = pairs()
+    p = pairs(records=fresh_records)
     print(f"\n       {len(recs)} record(s) -> {len(p)} usable pair(s) "
           f"({sum(1 for x in p if x['label']=='negative')} negative, "
           f"{sum(1 for x in p if x['label']=='positive')} positive)")
