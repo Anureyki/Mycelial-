@@ -79,6 +79,18 @@ jobs:
         # map is an opinion. An unverified entry must report itself
         # incomplete rather than produce a confident one.
         run: python tools/check_accounts.py
+      - name: No agent may authorize money
+        # Phase 0 of the financial programme. The ladder - read, analyze,
+        # prepare, authorize, execute, verify - is ordered by CONSEQUENCE, not
+        # trust: a draft nobody sent is recoverable by deleting a file, and a
+        # misdirected payment is not. `authorize` and `execute` are reserved to
+        # a person in code, not in config, because a config that can grant
+        # execute is one edit from an agent that can move money. And nothing
+        # transfers on `unknown` - 38 U.S.C. 5301(a)(1) makes the VA
+        # entitlement non-assignable, which the build now refuses structurally
+        # rather than discovering at transfer time.
+        run: python tools/check_financial_authority.py
+
       - name: The model interface advises and cannot decide
         # Core's promoted checkpoint agrees with the ACL on 80.9% of real
         # permission questions and gets only 34.7% of the ALLOWS right. Wired
