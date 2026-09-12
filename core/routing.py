@@ -365,18 +365,72 @@ class DomainRouter:
             # actually claimed something. Two departments owning a role each is
             # a mixed question, and the answer is one of those two.
             #
-            # So keywords break the tie AMONG THE TIED OWNERS, and where they
-            # cannot, the first tied owner by role count wins and the pairing
-            # is logged. domains_for() surfaces both regardless, which is the
-            # honest answer to a mixed question.
-            _, _, kscores = self._domain_by_terms(prompt, with_margin=True)
-            among = {a: kscores.get(a, 0) for a in tied}
-            pick = max(among, key=among.get)
-            self.log(f"routing: roles tie between {sorted(tied)}; keyword scores "
-                     f"{among} broke it for {pick}. Both are surfaced by "
-                     f"domains_for - this is a mixed question.")
-            return pick
+            # So keywords break the tie AMONG THE TIED OWNERS - and where they
+            # CANNOT, there is no winner and this must not invent one.
+            #
+            # IT USED TO INVENT ONE, AND THE INVENTION MOVED WITH THE WEATHER.
+            # `max()` over equal values returns whichever key came first, so
+            # "is the trustee's network access a security risk" - trustee to
+            # Trust, network access to Security, 100 each, keywords 0 each -
+            # routed to whichever agent the roster happened to list first. With
+            # the swarm up, the agents' own live routing_terms gave Trust a
+            # nonzero keyword score and Trust won. With the swarm down, the
+            # roster came off disk in alphabetical order and Security won.
+            #
+            # So the answer depended on whether the system was running, which
+            # made CI and this machine disagree about department ownership for
+            # ten builds. CLAUDE.md already refuses exactly this one level up:
+            # a contested role "belongs to NEITHER until somebody resolves it -
+            # letting the alphabetically-first config keep it would decide
+            # department ownership by accident, silently."
+            #
+            # The same rule applies at routing time. A tie nothing can break is
+            # CONTESTED, and contested returns None. domains_for() surfaces both
+            # claimants, which is the honest answer to a mixed question and the
+            # one Anansi already consumes - it names the conflict rather than
+            # adjudicating it, because it practises neither domain.
+            # AND KEYWORDS DO NOT GET A VOTE HERE AT ALL.
+            #
+            # The first fix restricted the keyword tie-break to the tied
+            # owners, which was better than searching every department but
+            # still let noise decide. Measured on this exact prompt with the
+            # swarm up:
+            #
+            #     trust_agent       5   matched "trust" INSIDE "trustee"
+            #     security_agent    0   owns the role `network access` outright
+            #     accounting_agent  7   owns no role in the sentence whatsoever
+            #
+            # Trust won a department-ownership decision on a five-character
+            # substring of the word that gave it the role in the first place,
+            # while the other genuine role-owner scored nothing. That is the
+            # keyword matcher the role system was built to OVERRULE, brought
+            # back in as a casting vote - and it moves with the swarm, because
+            # agents contribute live terms at runtime.
+            #
+            # Roles are exclusive and equal in weight by construction. If two
+            # departments own one each, neither owns it more, and there is no
+            # evidence at the role level to separate them. Contested is the
+            # answer, and it is the same answer in every environment.
+            self.log(f"routing: CONTESTED between {sorted(tied)} - each owns a "
+                     f"role in this request and nothing at the role level "
+                     f"separates them. No primary. domains_for() surfaces both.")
+            return None
         return self._domain_for(prompt)
+
+    def contested_for(self, prompt):
+        """-> [agent ids] tied on roles with nothing to separate them, or [].
+
+        The companion to domain_for returning None. A caller that needs to say
+        WHY there is no primary should be able to, without re-deriving it."""
+        from core.roles import score_roles
+        rs = score_roles(prompt, self.roles())
+        if not rs:
+            return []
+        top = max(rs.values())
+        tied = sorted(a for a, n in rs.items() if n == top)
+        if len(tied) < 2:
+            return []
+        return tied
 
     def domains_for(self, prompt, min_share=0.30):
         """-> [agent ids] that SUBSTANTIALLY claim this request, best first.

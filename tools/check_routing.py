@@ -31,8 +31,18 @@ ROUTES = [
     ("is the perimeter exposed to an intrusion threat", "security_agent",
      "Security must still win its own subject - a fix that only moved the "
      "bias would pass the case above and fail here."),
-    ("is the trustee's network access a security risk", "trust_agent",
-     "Mixed. Trust primary, and both surfaced."),
+    # WAS "trust_agent", AND IT PASSED HERE FOR TEN BUILDS WHILE FAILING ON
+    # THE RUNNER. Trust owns `trustee`, Security owns `network access`, one
+    # role each, 100 apiece, and the keyword scores that broke the tie were 0
+    # for both on a machine with no swarm running. The winner was whichever
+    # agent the roster listed first - alphabetical off disk, live-term-scored
+    # in a running system. The expectation was not wrong so much as it was
+    # asserting something the scoring never established.
+    #
+    # None is the answer: neither department owns this request, and saying so
+    # is what CLAUDE.md requires of a contested claim.
+    ("is the trustee's network access a security risk", None,
+     "Mixed and genuinely tied. No primary - both surfaced instead."),
     ("what is my reservoir ppm", "grow_agent",
      "A domain with no role collision must be unaffected."),
 ]
@@ -68,6 +78,45 @@ def main():
             print(f"           expected {expected}")
             print(f"           {why}")
             failures.append(f"{prompt[:40]!r} -> {got}, expected {expected}")
+
+    print("\n  a tie nothing can break is contested, not alphabetical:")
+    contested = r.contested_for("is the trustee's network access a security risk")
+    ok = set(contested) == {"security_agent", "trust_agent"}
+    print(f"    [{'PASS' if ok else 'FAIL'}] contested_for -> {sorted(contested)}")
+    if not ok:
+        failures.append(f"contested_for returned {sorted(contested)}")
+
+    # THE ASSERTION THAT WOULD HAVE CAUGHT IT, and the reason it is here.
+    #
+    # Every route above was checked against a router that could reach a live
+    # registry, because this gate runs on a developer machine with the swarm
+    # up. On the runner there is no swarm, agents contribute no live
+    # routing_terms, and the roster comes off disk in a different order. Ten
+    # builds disagreed with this machine and the disagreement was invisible
+    # from here.
+    #
+    # A routing table has no natural alarm - that is already written at the top
+    # of this file. This adds the second half: a routing table that answers
+    # differently depending on whether the system is running has no alarm
+    # either, and it is worse, because the wrong department answering in
+    # production looks exactly like the right one answering in CI.
+    print("\n  routing does not depend on the swarm being up:")
+    dead = DomainRouter("ci-dead", log=lambda *_a, **_k: None,
+                        registry="http://127.0.0.1:9")
+    drift = []
+    for prompt, expected, _why in ROUTES:
+        if dead.domain_for(prompt) != r.domain_for(prompt):
+            drift.append(prompt[:40])
+    for prompt in MIXED_MUST_SURFACE:
+        if set(dead.domains_for(prompt)) != set(r.domains_for(prompt)):
+            drift.append(f"domains_for {prompt[:32]}")
+    ok = not drift
+    print(f"    [{'PASS' if ok else 'FAIL'}] same answers with the registry "
+          f"unreachable")
+    if not ok:
+        for d in drift:
+            print(f"           differs: {d}")
+        failures.append(f"routing differs with a dead registry: {drift}")
 
     print("\n  mixed questions surface every claimant:")
     for prompt, must in MIXED_MUST_SURFACE.items():
