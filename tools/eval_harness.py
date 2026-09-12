@@ -247,6 +247,39 @@ def ingest(spool=SPOOL, records=RECORDS, quarantine=True):
             "quarantined": quarantined, "chain_count": count}
 
 
+def _reviews(records=RECORDS):
+    try:
+        with open(os.path.join(records, "_origin_review.json"),
+                  encoding="utf-8") as fh:
+            return json.load(fh).get("reviews") or []
+    except Exception:
+        return []
+
+
+def effective_origin(rec, reviews=()):
+    """-> the origin to ACT on: what the record carries, or a reviewed finding.
+
+    ONE RESOLVER, BECAUSE THERE ARE THREE READERS. pairs() builds the audit
+    view, mycelial-core's training/harness_data.py builds the gradient, and
+    core/drift_monitor.py raises alerts - and every one of them has to answer
+    "is this real?" the same way. Fixing that in one reader and not the others
+    is how the origin filter came to protect pairs() while the trainer read
+    straight past it.
+
+    A reviewed determination BEATS the stored field only where the stored field
+    is absent. A record that says what it is outranks somebody's later reading
+    of it - the same order of precedence this system uses everywhere else: the
+    measurement over the claim about the measurement."""
+    o = rec.get("origin")
+    if o in ("production", "test"):
+        return o
+    seq = rec.get("seq")
+    for r in reviews:
+        if r.get("seq_from") <= seq <= r.get("seq_to"):
+            return r.get("determination") or "unknown"
+    return "unknown"
+
+
 def read_records(records=RECORDS):
     out = []
     for f in sorted(glob.glob(os.path.join(records, "records-*.jsonl"))):
@@ -304,10 +337,11 @@ def pairs(records=RECORDS, include_unknown_origin=False):
     building a training set. The counts are reported by main() either way, so
     the loss is visible rather than silent."""
     out = []
+    _rev = _reviews(records)
     for r in read_records(records):
         if not r.get("usable_as_pair"):
             continue
-        o = r.get("origin") or "unknown"
+        o = effective_origin(r, _rev)
         if o == "test":
             continue
         if o == "unknown" and not include_unknown_origin:

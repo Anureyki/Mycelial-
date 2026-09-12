@@ -91,6 +91,35 @@ def _quarantined(records=RECORDS):
 def scan(records=RECORDS, recent=60, actors=None, window_hours=6):
     """-> {alerts, metrics}. An empty alert list is a real result, not a skip."""
     recs = _load(records)
+    # TEST FIXTURES ARE NOT DRIFT, AND THE THIRD READER LEARNS IT THE SAME WAY.
+    #
+    # This monitor raised a HIGH `outside_acl` alert on the dashboard saying
+    # mycos_core had swept 60 credentials it was never granted. It had not. The
+    # 61 records were THIS DETECTOR'S OWN ACCEPTANCE FIXTURES, written in two
+    # and a half minutes while check_drift.py was being built, naming 61
+    # resources that do not exist in the ACL, by an actor that is not a
+    # declared agent. The gate leaked them into the live store because it did
+    # not redirect its spool.
+    #
+    # CLAUDE.md already says two false positives had to be fixed before this
+    # monitor was worth having, and why: "an alert that fires on normal
+    # operation is an alert somebody turns off." This was the third, and the
+    # most corrosive kind - the test suite that proves the detector works
+    # making the detector cry wolf.
+    #
+    # effective_origin() is shared with pairs() and duplicated deliberately in
+    # mycelial-core's trainer. One question - is this real? - answered the same
+    # way by every reader, because answering it in one reader and not the
+    # others is exactly how this got missed the first time.
+    try:
+        from tools.eval_harness import effective_origin, _reviews
+        rev = _reviews(records)
+        recs = [r for r in recs if effective_origin(r, rev) != "test"]
+    except Exception as exc:                       # noqa: BLE001
+        # A monitor that cannot tell fixtures from traffic must say so, not
+        # quietly scan everything and report confident alerts about probes.
+        return {"status": "unknown", "alerts": [], "metrics": {},
+                "why": f"origin could not be resolved, so nothing was scanned: {exc}"}
     quar = _quarantined(records)
     watched = set(actors or MODEL_ACTORS)
     alerts, metrics = [], {}
