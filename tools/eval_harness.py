@@ -197,6 +197,10 @@ def ingest(spool=SPOOL, records=RECORDS, quarantine=True):
                     usable, label, why = classify(ev, pok)
                     rec = {
                         "seq": count + 1,
+                        # UNKNOWN WHEN THE EMITTER DID NOT SAY. Every record
+                        # written before 2026-09-12 predates the field, and
+                        # `unknown` is not `production` - see pairs().
+                        "origin": ev.get("origin") or "unknown",
                         "observed_at": datetime.now(timezone.utc).isoformat(),
                         "event_type": ev.get("event_type"),
                         "agent": ev.get("agent"),
@@ -277,11 +281,36 @@ def verify(records=RECORDS):
     return (not problems), problems
 
 
-def pairs(records=RECORDS):
-    """-> training pairs. Only records the harness could verify."""
+def pairs(records=RECORDS, include_unknown_origin=False):
+    """-> training pairs. Only records the harness could verify.
+
+    ORIGIN IS A SECOND GATE, AND IT IS AS STRICT AS PROVENANCE.
+
+    This module already refuses a positive example whose provenance does not
+    resolve, on the reasoning that "it was allowed" with nothing behind it is
+    indistinguishable from "nobody checked". An event whose ORIGIN is unknown
+    is indistinguishable from a test fixture, and the same conclusion follows:
+    it does not become a training pair.
+
+    That is expensive exactly once. Every record written before 2026-09-12
+    lacks the field, so the usable set drops to what has been collected since
+    - and the alternative is training a student on 1,405 pairs of which the
+    top six scenarios, all of them build-gate probes, are 21.3% of the whole.
+    A set that rebuilds in a week of ordinary operation is cheaper than a
+    checkpoint nobody can trust, and a checkpoint cannot be corrected the way
+    a record can.
+
+    `include_unknown_origin` exists for auditing the old records, never for
+    building a training set. The counts are reported by main() either way, so
+    the loss is visible rather than silent."""
     out = []
     for r in read_records(records):
         if not r.get("usable_as_pair"):
+            continue
+        o = r.get("origin") or "unknown"
+        if o == "test":
+            continue
+        if o == "unknown" and not include_unknown_origin:
             continue
         out.append({
             "label": r["label"],

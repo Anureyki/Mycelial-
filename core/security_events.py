@@ -65,6 +65,38 @@ class UnknownEventType(ValueError):
     pass
 
 
+# WHERE THE EVENT CAME FROM, AND WHY IT IS AN ENVIRONMENT VARIABLE.
+#
+# The build gates make REAL security decisions on purpose - check_acl asks
+# whether trust_agent may read Legal's CourtListener token, and the answer has
+# to be a genuine denial or the gate proves nothing. Those denials were landing
+# in the collection spool and being ingested as usable training pairs, because
+# nothing distinguished a decision defending the system from a decision a test
+# asked for.
+#
+# Measured 2026-09-12, after a night of chasing a red build: 452 of 1,405
+# records arrived in under two hours, and the top six scenarios - all of them
+# verbatim gate fixtures, check_acl.py:68 and :70 among them - were 21.3% of
+# everything a student would train on. A model trained there learns the SHAPE
+# OF THE PROBE, not the rule. And it is self-reinforcing: the more often CI
+# runs, the further the set collapses onto three synthetic cases.
+#
+# It is an ENVIRONMENT VARIABLE rather than a parameter because a gate calls
+# acl.check(), which emits four frames down inside library code the test never
+# touches. Threading `origin=` through every call site would mean every future
+# emitter has to remember, and the one that forgets is silently back to
+# poisoning the set. Process-scoped, inherited by everything that process does,
+# impossible to forget.
+#
+# Read per-emit, not at import, so a caller can set it after importing.
+ORIGINS = ("production", "test", "unknown")
+
+
+def origin():
+    o = os.environ.get("MYCELIAL_EVENT_ORIGIN", "production")
+    return o if o in ORIGINS else "unknown"
+
+
 def emit(event_type, agent=None, resource=None, action=None, decision=None,
          reason=None, provenance_event=None, extra=None, spool=None):
     """Report one security decision. -> the emitted dict, or raises.
@@ -91,6 +123,11 @@ def emit(event_type, agent=None, resource=None, action=None, decision=None,
         "reason": reason,
         "provenance_event": provenance_event,
         "pid": os.getpid(),
+        # Carried from here to the record and read by pairs(). State travels
+        # with the fact or the fact is gone - and a training example whose
+        # origin was dropped at the spool boundary cannot be told from a real
+        # one afterwards.
+        "origin": origin(),
     }
     if extra:
         ev["extra"] = extra

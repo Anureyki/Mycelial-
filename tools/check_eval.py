@@ -180,6 +180,35 @@ def main():
        "security_events" in SPOOL and "security_eval" not in SPOOL,
        f"spool={os.path.basename(SPOOL)}")
 
+    print("\n  2b. no build gate may feed the collection spool")
+    # THE LEAK THIS CLOSES, AND WHY IT NEEDS A GATE OF ITS OWN.
+    #
+    # check_acl, check_sandbox and check_drift all make REAL security decisions
+    # - they have to, or they prove nothing - and all three were emitting into
+    # the live spool. The harness ingested them as usable training pairs
+    # because nothing distinguished a decision defending the system from one a
+    # test asked for. 452 of 1,405 records arrived in one night of CI runs and
+    # the top six scenarios, gate fixtures verbatim, were 21.3% of everything a
+    # student would train on.
+    #
+    # A fix applied to three files today is undone by the fourth file written
+    # tomorrow, so the rule is asserted rather than remembered: any gate that
+    # can reach emit() must declare itself test-origin.
+    import re as _re
+    leaky = []
+    for f in sorted(os.listdir(os.path.join(ROOT, "tools"))):
+        if not (f.startswith("check_") and f.endswith(".py")):
+            continue
+        if f == "check_eval.py":
+            continue          # redirects se.SPOOL directly, checked above
+        src = open(os.path.join(ROOT, "tools", f), encoding="utf-8",
+                   errors="replace").read()
+        reaches = _re.search(r"^\s*(from|import)\s+core\b", src, _re.M)
+        if reaches and "MYCELIAL_EVENT_ORIGIN" not in src:
+            leaky.append(f)
+    ck("every gate importing core declares test origin", not leaky,
+       str(leaky) or "none may emit into the collection spool")
+
     print("\n  3. records are complete")
     sys.argv = ["x"]
     from tools.eval_harness import read_records, verify, pairs, MIN_REASON_CHARS

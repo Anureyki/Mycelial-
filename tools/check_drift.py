@@ -17,6 +17,27 @@ import tempfile
 from datetime import datetime, timezone
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
+# A GATE'S PROBES MUST NOT REACH THE COLLECTION SPOOL.
+#
+# The decisions below are REAL on purpose - a denial that was faked would prove
+# nothing about the ACL. But a real decision that only happened because a test
+# asked for it is not evidence about defending the system, and it was being
+# ingested as a usable training pair like any other.
+#
+# Measured 2026-09-12: 452 of 1,405 records arrived during one night of CI runs
+# and the top six scenarios - gate fixtures, verbatim - were 21.3% of the whole
+# training set. A model trained there learns the shape of this file's probes.
+#
+# Two layers, deliberately redundant. MYCELIAL_EVENT_ORIGIN stamps every event
+# this process emits as `test`, which pairs() drops; redirecting the spool
+# means they never reach the collection path at all. Either alone would do;
+# both means a future gate that forgets one is still contained.
+import tempfile as _tempfile
+os.environ["MYCELIAL_EVENT_ORIGIN"] = "test"
+import core.security_events as _se
+_se.SPOOL = _tempfile.mkdtemp(prefix="gate-spool-")
+
 from core.drift_monitor import scan, THRESHOLDS  # noqa: E402
 
 fails = []

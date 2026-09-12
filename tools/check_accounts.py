@@ -19,6 +19,15 @@ import os
 import sys
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
+# A build gate is a test, and says so. Any event this process emits - now or
+# after some future refactor gives this file an emit path it does not have
+# today - is stamped `test` and can never become a training pair. Declared
+# even where nothing emits yet, because the gate in check_eval.py asserts the
+# declaration rather than the current call graph: remembering to add it later
+# is exactly what nobody does.
+os.environ["MYCELIAL_EVENT_ORIGIN"] = "test"
+
 from core.account_model import (trace, load, LAYERS, EVIDENCE,  # noqa: E402
                                 detect_inversion, layers_of)
 
