@@ -89,7 +89,18 @@ def main():
     # THE ONE THE PROGRAMME WOULD OTHERWISE HIT AT PHASE 8. 38 U.S.C.
     # 5301(a)(1): payments of benefits due or to become due "shall not be
     # assignable except to the extent specifically authorized by law".
-    for acct in ("va_disability_compensation", "va_compensation_with_fiduciary"):
+    # va_disability_compensation is the GENERIC statutory entry and stays in
+    # the public schema; va_compensation_with_fiduciary describes the
+    # principal's own appointment and lives in the gitignored overlay. The
+    # statute is the same either way, so the always-present entry carries the
+    # assertion and the personal one is checked when it is there. A gate that
+    # needed private data to test a public rule would be untestable by anyone
+    # but him.
+    from core.account_model import load as _load_accounts
+    _present = set((_load_accounts().get("accounts") or {}))
+    for acct in [a for a in ("va_disability_compensation",
+                             "va_compensation_with_fiduciary")
+                 if a in _present]:
         t = transferability(acct)
         ck(f"{acct} is not_transferable",
            t["state"] == "not_transferable" and t["blocking"], t["state"])

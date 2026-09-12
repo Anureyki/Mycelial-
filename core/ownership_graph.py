@@ -52,9 +52,12 @@ from datetime import datetime, timezone
 # SEC requires a descriptive User-Agent with a contact address and asks for no
 # more than 10 requests a second. Both are honoured; a 403 from EDGAR is almost
 # always one of the two.
-SEC_UA = os.environ.get(
-    "SEC_USER_AGENT",
-    "Mycelial Research ([REDACTED-EMAIL])")
+# NO REAL ADDRESS AS A DEFAULT. SEC asks for a contact in the User-Agent and
+# that is reasonable, but a default hardcoded here publishes the principal's
+# personal email in a public repository to every reader, not just to SEC.
+# Supplied by environment or the fetch does not run - an unset contact is a
+# missing configuration, not a reason to substitute somebody's inbox.
+SEC_UA = os.environ.get("SEC_USER_AGENT")
 MIN_INTERVAL = 0.12          # ~8/sec, under the published ceiling
 
 NODE_TYPES = ("corp", "person", "trust", "llc", "unknown")
@@ -80,6 +83,17 @@ class Edgar:
     _tickers = None
 
     def _get(self, url, timeout=30, tries=3):
+        # REFUSE RATHER THAN SEND A BROKEN HEADER. With no SEC_USER_AGENT set
+        # this would put the literal None into the request, which SEC answers
+        # with a 403 that reads like a rate limit or a block - a configuration
+        # gap wearing the costume of a remote failure.
+        if not SEC_UA:
+            raise EdgarError(
+                "SEC_USER_AGENT is not set. SEC asks every automated caller to "
+                "identify itself with a contact address, so set it in .env - "
+                "e.g. SEC_USER_AGENT='Your Project (you@example.com)'. It is "
+                "not defaulted here because a default in a public repository "
+                "publishes somebody's email to every reader of the source.")
         for a in range(tries):
             wait = MIN_INTERVAL - (time.time() - Edgar._last)
             if wait > 0:

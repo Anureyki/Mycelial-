@@ -51,9 +51,21 @@ PATTERNS = {
         r"(?is)(social\s+security\s+(?:no|number|#)|\bSSN\b|VA\s+FILE\s+NO)"
         r"[^0-9]{0,40}(\d{3}[-\s]?\d{2}[-\s]?\d{4})"),
     "edipi": re.compile(r"(?is)(EDIPI|DoD\s*ID)[^0-9]{0,20}(\d{10})"),
-    # A file number printed with ANY internal spacing - "[REDACTED-VA-FILE-NUMBER]" is nine
-    # digits broken 6/3, which no SSN pattern matches and which is exactly how
-    # the VA form prints it. Missing this one missed the instance that matters.
+    # A file number printed with ANY internal spacing - "000000 000" stands in
+    # here for nine digits broken 6/3, which no SSN pattern matches and which
+    # is exactly how the VA form prints it. Missing that shape missed the
+    # instance that mattered.
+    #
+    # THE EXAMPLE USED TO BE THE REAL NUMBER. This file detects a Social
+    # Security number on a document, and it carried the principal's own - the
+    # VA file number, which this system established IS his SSN - in a comment,
+    # in a PUBLIC repository. Redacted 2026-09-12. A detector that leaks the
+    # thing it detects is the sharpest version of a rule this repo already
+    # has: a redacting log that prints what it redacted has not redacted it.
+    #
+    # Never paste a real identifier into a test, a fixture or a comment. The
+    # shape is what the pattern needs; the value adds nothing and cannot be
+    # taken back.
     "file_number": re.compile(
         r"(?is)(VA\s+FILE\s+NO|FILE\s+NUMBER|CLAIM\s+NUMBER)"
         r"[^0-9]{0,40}((?:\d[\s-]?){8}\d)"),

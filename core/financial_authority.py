@@ -125,10 +125,22 @@ def may(agent, verb, resource, acl_check=None):
 
 
 def _accounts():
-    p = os.path.join(ROOT, "reference", "_shared", "account_layers.json")
+    """THROUGH account_model.load(), never by opening the file.
+
+    This read the public JSON directly, which stopped being the whole story
+    the moment the principal's own entries moved to the gitignored overlay -
+    so transferability() could not see them and answered `unknown` for the VA
+    entitlement. It still BLOCKED, because unknown blocks, and that is the only
+    reason this was not a security failure. But it blocked without the statute,
+    and "we have no record of this" is a much weaker thing to hand somebody
+    than "38 U.S.C. 5301(a)(1) forbids it".
+
+    Two readers of one store, one of them overlay-aware. Same shape as the
+    origin filter that protected pairs() while the trainer read straight past
+    it. One loader."""
     try:
-        with open(p, encoding="utf-8") as fh:
-            return json.load(fh).get("accounts") or {}
+        from core.account_model import load
+        return load().get("accounts") or {}
     except Exception:
         return {}
 

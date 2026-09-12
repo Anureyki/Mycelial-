@@ -73,7 +73,25 @@ class CorpusUnavailable(Exception):
     pass
 
 
-def load(path=None):
+# The principal's OWN entries, kept out of git. See private/README.md: this
+# repository is public, the schema belongs in it and the inventory does not.
+PRIVATE = os.path.join(ROOT, "private", "account_layers.private.json")
+
+
+def load(path=None, private=None):
+    """Public schema, with the private inventory overlaid if it is there.
+
+    TWO FILES, ONE MAP. reference/_shared/account_layers.json is committed and
+    holds the schema plus generic instruments that name nobody - a passport, a
+    money order. Entries describing what this principal actually holds live in
+    private/, which .gitignore excludes.
+
+    THE OVERLAY IS OPTIONAL AND ITS ABSENCE IS NORMAL. A fresh clone, and CI,
+    have no private/ at all, and everything that reads the schema must work
+    there - so a missing overlay is not an error. What it is NOT is silent: an
+    unreadable private file raises, because "the file is not there" and "the
+    file is there and broken" are opposite situations and only one of them is
+    fine."""
     p = path or CORPUS
     try:
         with open(p, encoding="utf-8") as fh:
@@ -82,6 +100,15 @@ def load(path=None):
         raise CorpusUnavailable(f"{p}: {e}") from e
     if "accounts" not in doc:
         raise CorpusUnavailable(f"{p} has no accounts map")
+    pp = private or PRIVATE
+    if os.path.exists(pp):
+        try:
+            with open(pp, encoding="utf-8") as fh:
+                overlay = json.load(fh)
+        except Exception as e:
+            raise CorpusUnavailable(f"{pp} exists and is unreadable: {e}") from e
+        doc["accounts"].update(overlay.get("accounts") or {})
+        doc["_private_overlay"] = os.path.relpath(pp, ROOT)
     return doc
 
 
