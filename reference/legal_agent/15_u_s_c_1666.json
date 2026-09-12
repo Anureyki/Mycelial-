@@ -1,0 +1,41 @@
+{
+  "title": "15 U.S.C. \u00a7 1666",
+  "source": "United States Code title 15 section 1666, retrieved from Cornell LII (law.cornell.edu). The statutory text is a U.S. government work and is public domain; Cornell's annotations are excluded.",
+  "authority_class": "federal_statute",
+  "authority_class_basis": "Title of the work is a U.S. Code section citation, which fixes the class",
+  "claim_layer": "doctrinal",
+  "claim_layer_meaning": "States or describes the rule. Cite for what the law IS.",
+  "authorities_cited": [],
+  "term_index": {},
+  "origin_pdf": "usc15_1666.txt",
+  "extraction": {
+    "extractor": "text file (already extracted)",
+    "pages": 1,
+    "no_text_layer": [],
+    "raised": [],
+    "recovered": [],
+    "lost": [],
+    "complete": true
+  },
+  "pages": 1,
+  "sections": [
+    {
+      "citation": "\u00a7 1666.",
+      "kind": "section_sign",
+      "page": 1,
+      "text": "\u00a7 1666. Correction of billing errors. (a) Written notice by obligor to creditor; time for and contents of notice; procedure upon receipt of notice by creditor If a creditor , within sixty days after having transmitted to an obligor a statement of the obligor\u2019s account in connection with an extension of consumer credit, receives at the address disclosed under section 1637(b)(10) of this title a written notice (other than notice on a payment stub or other payment medium supplied by the creditor if the creditor so stipulates with the disclosure required under section 1637(a)(7) of this title ) from the obligor in which the obligor\u2014 (1) sets forth or otherwise enables the creditor to identify the name and account number (if any) of the obligor, (2) indicates the obligor\u2019s belief that the statement contains a billing error and the amount of such billing error, and (3) sets forth the reasons for the obligor\u2019s belief (to the extent applicable) that the statement contains a billing error, the creditor shall, unless the obligor has, after giving such written notice and before the expiration of the time limits herein specified, agreed that the statement was correct\u2014 (A) not later than thirty days after the receipt of the notice, send a written acknowledgment thereof to the obligor, unless the action required in subparagraph (B) is taken within such thirty-day period, and (B) not later than two complete billing cycles of the creditor (in no event later than ninety days) after the receipt of the notice and prior to taking any action to collect the amount, or any part thereof, indicated by the obligor under paragraph (2) either\u2014 (i) make appropriate corrections in the account of the obligor, including the crediting of any finance charges on amounts erroneously billed, and transmit to the obligor a notification of such corrections and the creditor\u2019 s explanation of any change in the amount indicated by the obligor under paragraph (2) and, if any such change is made and the obligor so requests, copies of documentary evidence of the obligor\u2019s indebtedness; or (ii) send a written explanation or clarification to the obligor, after having conducted an investigation, setting forth to the extent applicable the reasons why the creditor believes the account of the obligor was correctly shown in the statement and, upon request of the obligor, provide copies of documentary evidence of the obligor\u2019s indebtedness. In the case of a billing error where the obligor alleges that the creditor \u2019s billing statement reflects goods not delivered to the obligor or his designee in accordance with the agreement made at the time of the transaction, a creditor may not construe such amount to be correctly shown unless he determines that such goods were actually delivered, mailed, or otherwise sent to the obligor and provides the obligor with a statement of such determination. After complying with the provisions of this subsection with respect to an alleged billing error, a creditor has no further responsibility under this section if the obligor continues to make substantially the same allegation with respect to such error. (b) Billing error For the purpose of this section, a \u201cbilling error\u201d consists of any of the following: (1) A reflection on a statement of an extension of credit which was not made to the obligor or, if made, was not in the amount reflected on such statement. (2) A reflection on a statement of an extension of credit for which the obligor requests additional clarification including documentary evidence thereof. (3) A reflection on a statement of goods or services not accepted by the obligor or his designee or not delivered to the obligor or his designee in accordance with the agreement made at the time of a transaction. (4) The creditor \u2019s failure to reflect properly on a statement a payment made by the obligor or a credit issued to the obligor. (5) A computation error or similar error of an accounting nature of the creditor on a statement. (6) Failure to transmit the statement required under section 1637(b) of this title to the last address of the obligor which has been disclosed to the creditor, unless that address was furnished less than twenty days before the end of the billing cycle for which the statement is required. (7) Any other error described in regulations of the Bureau. (c) Action by creditor to collect amount or any part thereof regarded by obligor to be a billing error For the purposes of this section, \u201caction to collect the amount, or any part thereof, indicated by an obligor under paragraph (2)\u201d does not include the sending of statements of account, which may include finance charges on amounts in dispute, to the obligor following written notice from the obligor as specified under subsection (a), if\u2014 (1) the obligor\u2019s account is not restricted or closed because of the failure of the obligor to pay the amount indicated under paragraph (2) of subsection (a), and (2) the creditor indicates the payment of such amount is not required pending the creditor \u2019s compliance with this section. Nothing in this section shall be construed to prohibit any action by a creditor to collect any amount which has not been indicated by the obligor to contain a billing error. (d) Restricting or closing by creditor of account regarded by obligor to contain a billing error Pursuant to regulations of the Bureau, a creditor operating an open end consumer credit plan may not, prior to the sending of the written explanation or clarification required under paragraph (B)(ii), restrict or close an account with respect to which the obligor has indicated pursuant to subsection (a) that he believes such account to contain a billing error solely because of the obligor\u2019s failure to pay the amount indicated to be in error. Nothing in this subsection shall be deemed to prohibit a creditor from applying against the credit limit on the obligor\u2019s account the amount indicated to be in error. (e) Effect of noncompliance with requirements by creditor Any creditor who fails to comply with the requirements of this section or section 1666a of this title forfeits any right to collect from the obligor the amount indicated by the obligor under paragraph (2) of subsection (a) of this section, and any finance charges thereon, except that the amount required to be forfeited under this subsection may not exceed $50.",
+      "integrity": {
+        "state": "complete",
+        "basis": "Full retrieved body of 6,372 characters stored; under the 60,000 cap, so nothing was cut.",
+        "stamped_at": "2026-09-12T00:11:00",
+        "stored_chars": 6372,
+        "source_chars": 6372,
+        "cap_applied": 60000
+      },
+      "authority_class": "federal_statute",
+      "claim_layer": "doctrinal",
+      "claim_layer_meaning": "States or describes the rule. Cite for what the law IS."
+    }
+  ],
+  "claim_layer_basis": "Set from the class, not from the text: a statute or regulation states the rule rather than describing or arguing it, which the citation in the title establishes definitionally."
+}
