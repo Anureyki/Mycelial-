@@ -86,7 +86,12 @@ def load(path=None):
 
 def _save(doc, path=None):
     p = path or STORE
-    os.makedirs(os.path.dirname(p), exist_ok=True)
+    # BORN 0700, not fixed later. os.makedirs applies the process umask, so
+    # the same line produced 0775 under this service manager - and 1,507
+    # files sat group- and world-readable until somebody audited. A private
+    # store that depends on the umask it happened to inherit is not private.
+    from core.fs_boundary import ensure_dir
+    ensure_dir(os.path.dirname(p), 0o700)
     with open(p, "w", encoding="utf-8") as fh:
         json.dump(doc, fh, indent=2, ensure_ascii=False)
     os.chmod(p, 0o600)

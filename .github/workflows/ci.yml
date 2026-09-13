@@ -113,6 +113,23 @@ jobs:
         # copies are compared byte-for-byte instead of forbidden.
         run: python tools/check_contracts.py
 
+      - name: The filesystem boundary holds, and knows which boundary it is
+        # Found 2026-09-13: every sensitive directory 0775 and 1,507 paths
+        # readable by anyone on the box. private/ itself was 0775, which is
+        # the exact opposite of its purpose, and state/memory.db and
+        # state/audit.db were world-readable. /home being 0750 was the only
+        # thing preventing it - a protection nobody chose and nothing checked.
+        #
+        # The cause will recur: os.makedirs applies the PROCESS UMASK, so the
+        # same line gives 0700 under one service manager and 0775 under
+        # another, invisibly. Modes are declared per path now.
+        #
+        # And it states what it CANNOT do. Permissions stop other USERS; the
+        # ACL stops other AGENTS, who all run as the same user; the sandbox
+        # stops a compromised process. Conflating them is how a system
+        # acquires a boundary it does not have.
+        run: python tools/check_fs_boundary.py
+
       - name: No commit may be created from sensitive staged content
         # Three boundaries and none substitutes for another: .gitignore stops
         # ORDINARY tracking, the pre-commit gate stops sensitive STAGED

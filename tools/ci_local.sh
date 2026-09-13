@@ -79,6 +79,7 @@ step "check_ontology"               "$PY" tools/check_ontology.py
 step "check_ingest"                 "$PY" tools/check_ingest.py
 step "check_contracts"              "$PY" tools/check_contracts.py
 step "check_no_secrets"             "$PY" tools/check_no_secrets.py
+step "check_fs_boundary"            "$PY" tools/check_fs_boundary.py
 step "check_staging_boundary"       "$PY" tools/check_staging_boundary.py
 step "check_history_classes"        "$PY" tools/check_history_classes.py
 echo
