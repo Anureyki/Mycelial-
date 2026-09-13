@@ -420,6 +420,41 @@ class AgentBase:
                     "reasons": [f"composition failed: {str(e)[:120]}"]}
         return enforce(text, entry, agent=self)
 
+    def ingest_document(self, args=None):
+        """File a document: hashed, cut into cited clauses, refused where it
+        must be. Inherited, so Accounting and Trust get it without edits.
+
+        Legal had ingest_screenshot and nothing else could receive a document
+        at all - so a bank statement had nowhere to go, and the dashboard
+        offered two destinations. This is the verb the other departments were
+        missing.
+
+        IT FILES; IT DOES NOT READ FOR MEANING. The clauses land with their
+        own numbering as the citation and the question of what they MEAN is
+        recorded for this domain to answer. An agent that concluded on intake
+        would be deciding a domain question from a keyword."""
+        a = args if isinstance(args, dict) else {}
+        path = a.get("path") or a.get("file_path")
+        if not path:
+            return {"error": "ingest_document needs the path returned by /upload"}
+        src = a.get("source_type")
+        if not src:
+            return {"error": ("ingest_document needs source_type - it DECIDES "
+                              "where this goes, and inferring it from the "
+                              "contents would be the system deciding what the "
+                              "document means before anybody reads it.")}
+        from core.document_pipeline import intake
+        from core.asset_registry import Refused
+        try:
+            out = intake(path, a.get("document_id") or os.path.basename(path),
+                         src, declared_by=a.get("declared_by", "principal"),
+                         effective_date=a.get("effective_date"))
+        except Refused as exc:
+            return {"error": str(exc), "stored": 0}
+        self.log(f"ingested {out['document_id']}: {out['stored']} clause(s) "
+                 f"stored, {out['refused']} refused, -> {out['routed_to']}")
+        return out
+
     def acquire_authority(self, args=None):
         """Fetch a provision into THIS agent's corpus, having read it first.
 
@@ -739,6 +774,8 @@ class AgentBase:
                     result = self.receive_finding(
                         (args or {}).get("kind"), (args or {}).get("payload") or {},
                         sender) if isinstance(args, dict) else None
+                elif task == "ingest_document":
+                    result = self.ingest_document(args)
                 elif task == "acquire_authority":
                     result = self.acquire_authority(args)
                 elif task == "trace_account":

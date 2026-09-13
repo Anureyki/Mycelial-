@@ -99,6 +99,35 @@ def parse_citation(text):
     if not t:
         raise Unparseable("no citation given")
 
+    # A PASTED URL IS A CITATION IN A DIFFERENT COSTUME, and converting it is
+    # parsing rather than inference - the title and part are IN the path, not
+    # guessed from the page. The principal pastes eCFR links; requiring him to
+    # translate one into "12 CFR 226" by hand is asking a person to do
+    # deterministic string work for a machine.
+    #
+    # Only the official sources. A link to somebody's blog about Regulation Z
+    # is not Regulation Z, and this refuses rather than fetching whatever is
+    # on the end of an arbitrary URL.
+    m = re.search(r"ecfr\.gov/(?:current/)?title-(\d+).*?/part-(\d+)", t, re.I)
+    if m:
+        return ("cfr", {"title": m.group(1), "part": m.group(2)},
+                f"{m.group(1)} CFR Part {m.group(2)}")
+    m = re.search(r"law\.cornell\.edu/uscode/text/(\d+)/([0-9]+[A-Za-z-]*)", t, re.I)
+    if m:
+        return ("usc-section", {"title": m.group(1), "section": m.group(2)},
+                f"{m.group(1)} U.S.C. \u00a7 {m.group(2)}")
+    m = re.search(r"govinfo\.gov/.*?CFR-\d+-title(\d+).*?-part(\d+)", t, re.I)
+    if m:
+        return ("cfr", {"title": m.group(1), "part": m.group(2)},
+                f"{m.group(1)} CFR Part {m.group(2)}")
+    if t.lower().startswith(("http://", "https://")):
+        raise Unparseable(
+            f"{t[:80]!r} is a URL this cannot turn into a citation. Recognised "
+            f"sources: ecfr.gov title/part, law.cornell.edu uscode, govinfo "
+            f"CFR. A link to a page ABOUT a regulation is not the regulation, "
+            f"and fetching whatever is on the end of an arbitrary URL is how "
+            f"a blog post ends up shelved as authority.")
+
     m = re.match(r"^(\d+)\s*(?:U\.?\s*S\.?\s*C\.?)\s*(?:§+\s*)?"
                  r"([0-9]+[A-Za-z]*(?:[-–][0-9]+)?)\s*$", t, re.I)
     if m:

@@ -150,11 +150,25 @@ def _field_shape(fields):
                     f"last_four must be exactly four digits; got {len(digits)} "
                     f"digit(s). A longer value is a full account number in a "
                     f"field named for a fragment.")
-        elif len(digits) >= 9 and low not in ("notes", "note", "document_ref"):
-            problems.append(
-                f"field {key!r} holds a {len(digits)}-digit run. That is the "
-                f"length of an account, routing or social security number; "
-                f"record a last_four and a document reference instead.")
+        elif low not in ("notes", "note", "document_ref"):
+            # THE LONGEST CONTIGUOUS RUN, not every digit in the field.
+            #
+            # Stripping all non-digits concatenated across words: "Statement
+            # period: 2026-07-01 through 2026-07-31" became a 17-digit run and
+            # the clause was REFUSED. A date range is not an account number,
+            # and a guard that refuses legitimate content constantly is one
+            # people route around - the same lesson as the secret scanner
+            # firing on a list of port numbers.
+            #
+            # A real identifier is written as one run, optionally broken by
+            # single separators. Words in between mean two different numbers.
+            runs = re.findall(r"\d(?:[ -]?\d){8,}", val)
+            longest = max((len(re.sub(r"\D", "", r)) for r in runs), default=0)
+            if longest >= 9:
+                problems.append(
+                    f"field {key!r} holds a {longest}-digit run. That is the "
+                    f"length of an account, routing or social security number; "
+                    f"record a last_four and a document reference instead.")
     return problems
 
 

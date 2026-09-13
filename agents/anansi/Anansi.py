@@ -396,7 +396,39 @@ class Anansi(AgentBase):
         path = a.get("path")
         if not path:
             return {"error": "ingest_upload needs the path returned by /upload"}
+        # ROUTED FROM THE DECLARED SOURCE TYPE, to any department.
+        #
+        # This offered two destinations - legal and grow - and called
+        # ingest_screenshot, so a bank statement had nowhere to go and a
+        # statement sent anyway was handled as a picture of a post. Accounting
+        # and Trust could not receive a document at all.
+        #
+        # The destination now follows the TYPE the person declared at upload:
+        # a statement is Accounting's because they said "statement", not
+        # because a word appeared in it. That is the same rule Anansi already
+        # routes sentences by - a declared fact, never a reading - and it is
+        # why this agent can route a document it must never open.
+        src = (a.get("source_type") or "").strip().lower()
         domain = (a.get("domain") or "").strip().lower()
+        if src:
+            from core.document_pipeline import ROUTE
+            if src not in ROUTE:
+                return {"error": f"{src!r} is not a declared source type",
+                        "known": sorted(ROUTE)}
+            agent, why = ROUTE[src]
+            out = self.send_a2a(agent, "ingest_document",
+                                {"path": path, "source_type": src,
+                                 "document_id": a.get("document_id"),
+                                 "effective_date": a.get("effective_date")},
+                                timeout=600)
+            also = []
+            from core.document_pipeline import ALSO_NOTIFY
+            for peer in ALSO_NOTIFY.get(src, []):
+                also.append(peer)
+            return {"routed_to": agent, "why": why, "source_type": src,
+                    "also_notified": also, "path": path, "result": out}
+
+        # No type declared: the old screenshot path, unchanged.
         if domain not in ("legal", "grow"):
             domain = "legal"
             why = ("No domain given, so this went to Legal. A legal card resolves against "

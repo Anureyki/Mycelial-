@@ -9,7 +9,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="theme-color" content="#0f1410">
-<link rel="stylesheet" href="style.css?v=28">
+<link rel="stylesheet" href="style.css?v=29">
 </head>
 <body>
 <header>
@@ -47,8 +47,19 @@
       assessed on what its own text does, and shelved as somebody's note - never as authority.</p>
     <label class="up-domain">Send to
       <select id="upDomain">
-        <option value="legal">Legal</option>
-        <option value="grow">Grow</option>
+        <option value="">What kind of document is this?</option>
+        <option value="statement">Statement — account record</option>
+        <option value="contract">Contract / instrument</option>
+        <option value="notice">Notice or letter</option>
+        <option value="certificate">Certificate / appointment</option>
+        <option value="tax_document">Tax document</option>
+        <option value="credit_report">Credit report</option>
+        <option value="court_document">Court document</option>
+        <option value="invoice">Invoice</option>
+        <option value="receipt">Receipt</option>
+        <option value="correspondence">Correspondence</option>
+        <option value="screenshot">Screenshot of a post</option>
+        <option value="other">Something else</option>
       </select>
     </label>
     <input type="text" id="upTopic" placeholder="What is it about? (optional)">
@@ -87,6 +98,6 @@
   <button id="sendBtn" type="submit">Send</button>
 </form>
 
-<script src="app.js?v=28"></script>
+<script src="app.js?v=29"></script>
 </body>
 </html>

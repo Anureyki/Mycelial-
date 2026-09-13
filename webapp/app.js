@@ -793,9 +793,20 @@ function wireUpload() {
       }
 
       out.textContent = 'Reading it...';
+      // THE DECLARED TYPE, not a department. The dropdown used to ask which
+      // agent should get it, which asked the grower to know the org chart.
+      // It now asks what the document IS - and the routing falls out of that,
+      // so a statement reaches Accounting because he said "statement".
+      const declaredType = document.getElementById('upDomain').value;
+      if (!declaredType) {
+        out.textContent = 'Say what kind of document this is first - the type '
+          + 'decides who reads it, and guessing it from the contents would be '
+          + 'the system deciding what the document means before anyone opens it.';
+        return;
+      }
       const d = unwrap(await callTask('ingest_upload', {
         path: stored.path,
-        domain: document.getElementById('upDomain').value,
+        source_type: declaredType,
         topic: (document.getElementById('upTopic').value || '').trim() || null,
         captured_from: 'uploaded from the dashboard',
       }), 'routed_to');
@@ -812,10 +823,39 @@ function wireUpload() {
         const dd = document.createElement('dd'); dd.textContent = v;
         rows.append(dt, dd);
       };
-      add('Read by', d.routed_to || 'unknown');
+      add('Filed by', d.routed_to || 'unknown');
+      if (d.why) add('Because', d.why);
+      // A DOCUMENT ingest reports what it kept and what it REFUSED. A record
+      // quietly missing its third paragraph is worse than one that failed,
+      // because everything shown is accurate.
+      if (r && r.clauses !== undefined) {
+        add('Clauses found', String(r.clauses));
+        add('Stored', String(r.stored));
+        if (r.refused) add('REFUSED (not stored)', String(r.refused));
+        if (r.segmented_by) add('Cited by', r.segmented_by);
+        if (r.sha256) add('Hash', String(r.sha256).slice(0, 16) + '...');
+      }
+      if (d.also_notified && d.also_notified.length) {
+        add('Also notified', d.also_notified.join(', '));
+      }
       if (r && r.source_class) add('Standing', r.source_class);
       if (r && r.score !== undefined) add('Score', String(r.score));
       out.append(rows);
+
+      if (r && r.refused_detail && r.refused_detail.length) {
+        const p = document.createElement('p');
+        p.className = 'muted';
+        p.textContent = 'Refused because it carries an identifier the registry '
+          + 'will not store: ' + r.refused_detail.map(x => x.ref).join(', ')
+          + '. It is still in the original document.';
+        out.append(p);
+      }
+      if (r && r.not_interpreted) {
+        const p = document.createElement('p');
+        p.className = 'muted';
+        p.textContent = r.not_interpreted;
+        out.append(p);
+      }
 
       // The refusal is the part worth showing. A card that cannot be checked
       // should say so on the screen, not only in a JSON field.

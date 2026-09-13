@@ -1,12 +1,12 @@
 // Bump CACHE on every shell change - the activate handler below deletes any
 // cache whose key doesn't match, so a new version is what evicts the old one.
-const CACHE = 'mycelial-shell-v28';
+const CACHE = 'mycelial-shell-v29';
 // PRECACHE MUST MATCH WHAT index.html ASKS FOR. This listed
 // app.js?v=24 while index.html requested v=26, so the service worker
 // warmed a URL nobody fetched and app.js was never actually
 // precached - the shell looked cached and was not. All four markers
 // are bumped together now.
-const SHELL = ['./', './index.html', './style.css?v=28', './app.js?v=28', './manifest.json'];
+const SHELL = ['./', './index.html', './style.css?v=29', './app.js?v=29', './manifest.json'];
 
 self.addEventListener('install', (event) => {
   event.waitUntil(caches.open(CACHE).then((cache) => cache.addAll(SHELL)));
