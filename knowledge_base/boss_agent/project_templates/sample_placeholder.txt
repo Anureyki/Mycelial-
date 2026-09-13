@@ -1,3 +1,0 @@
-[PLACEHOLDER project workflow template]
-Standard stages: proposal -> negotiation -> signature -> payment -> completion.
-Replace with real project/workflow templates.

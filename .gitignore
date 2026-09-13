@@ -33,7 +33,18 @@ sensor_data/
 
 # Private financial/legal source documents for agent CAG knowledge bases -
 # these are the owner's real records, never meant to leave this machine.
-knowledge_base/accounting_agent/instruments/*
+# The whole knowledge_base, not one subdirectory of it.
+#
+# This said `knowledge_base/accounting_agent/instruments/*` - one path - while
+# the scanner and everyone reading the tree assumed the directory was private.
+# It was not: 52 files were tracked in a PUBLIC repository, including the
+# accounting, trust and legal working directories. Empty placeholders today;
+# the first statement, instrument or case document dropped in would have been
+# committed by the next `git add -A`.
+#
+# Generic reference material that genuinely belongs in public lives in
+# reference/, which is committed. This is the principal's own working notes.
+knowledge_base/
 !knowledge_base/accounting_agent/instruments/.gitkeep
 knowledge_base/accounting_agent/statements/*
 !knowledge_base/accounting_agent/statements/.gitkeep
