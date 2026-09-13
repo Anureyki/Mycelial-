@@ -138,8 +138,14 @@ def main():
     # makes. It was found because a fresh-clone run created the directory
     # mid-gate and the mode assertion caught it. The store nobody thought of
     # as a store is the one that stays wrong.
+    # core/ AND services/. The creator that actually broke CI was in
+    # services/ - state/ itself, made by whichever service imported first -
+    # while I was scanning only core/. A gate that looks in one directory for
+    # a fault that lives in a pattern finds it in one directory.
     umask_creators = []
-    for dirpath, dirnames, files in os.walk(os.path.join(ROOT, "core")):
+    scan_roots = [os.path.join(ROOT, "core"), os.path.join(ROOT, "services")]
+    for root_dir in scan_roots:
+      for dirpath, dirnames, files in os.walk(root_dir):
         dirnames[:] = [d for d in dirnames if d != "__pycache__"]
         for fn in files:
             if not fn.endswith(".py") or fn == "fs_boundary.py":
@@ -150,7 +156,8 @@ def main():
                 st = line.strip()
                 if st.startswith("os.makedirs(") and "mode=" not in st:
                     umask_creators.append(f"{fn}: {st[:46]}")
-    ck("nothing in core/ creates a directory at the inherited umask",
+    ck("nothing in core/ or services/ creates a directory at the inherited "
+       "umask",
        not umask_creators, str(umask_creators[:3]))
 
     print("\n  4. harden() is separable from audit()")

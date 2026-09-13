@@ -16,8 +16,8 @@ app = Flask(__name__)
 BASE = os.path.expanduser("~/mycelial")
 DATA_DIR = os.path.join(BASE, "data")
 DATASETS_FILE = os.path.join(BASE, "state", "datasets.json")
-os.makedirs(DATA_DIR, exist_ok=True)
-os.makedirs(os.path.dirname(DATASETS_FILE), exist_ok=True)
+os.makedirs(DATA_DIR, mode=0o700, exist_ok=True)
+os.makedirs(os.path.dirname(DATASETS_FILE), mode=0o700, exist_ok=True)
 
 # In-memory store
 datasets = {}

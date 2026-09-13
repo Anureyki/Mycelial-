@@ -19,7 +19,7 @@ VENV_PY = os.path.join(os.path.expanduser("~/mycelial"), "venv", "bin", "python3
 BASE = os.path.expanduser("~/mycelial")
 PROCESS_FILE = os.path.join(BASE, "state", "processes.json")
 CONFIG_DIR = os.path.join(BASE, "config", "agent_configs")
-os.makedirs(os.path.dirname(PROCESS_FILE), exist_ok=True)
+os.makedirs(os.path.dirname(PROCESS_FILE), mode=0o700, exist_ok=True)
 
 processes = {}
 

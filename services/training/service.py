@@ -19,7 +19,7 @@ app = Flask(__name__)
 
 BASE = os.path.expanduser("~/mycelial")
 TRAINING_JOBS_FILE = os.path.join(BASE, "state", "training_jobs.json")
-os.makedirs(os.path.dirname(TRAINING_JOBS_FILE), exist_ok=True)
+os.makedirs(os.path.dirname(TRAINING_JOBS_FILE), mode=0o700, exist_ok=True)
 
 # In-memory job store
 jobs = {}

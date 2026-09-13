@@ -45,7 +45,7 @@ class MycelialFedAvg(FedAvg):
         super().__init__(*args, **kwargs)
         self.total_rounds = total_rounds
         self._lock = threading.Lock()
-        os.makedirs(STATE_DIR, exist_ok=True)
+        os.makedirs(STATE_DIR, mode=0o700, exist_ok=True)
         self._write({"total_rounds": total_rounds, "completed": 0, "rounds": []})
 
     def _write(self, payload):

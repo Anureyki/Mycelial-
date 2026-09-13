@@ -17,7 +17,7 @@ app = Flask(__name__)
 BASE = os.path.expanduser("~/mycelial")
 DB_PATH = os.path.join(BASE, "state", "audit.db")
 POLICY_SERVICE_URL = "http://localhost:8008/evaluate"
-os.makedirs(os.path.dirname(DB_PATH), exist_ok=True)
+os.makedirs(os.path.dirname(DB_PATH), mode=0o700, exist_ok=True)
 
 @contextmanager
 def get_db():

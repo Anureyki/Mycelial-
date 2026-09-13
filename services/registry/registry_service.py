@@ -14,7 +14,7 @@ app = Flask(__name__)
 
 BASE = os.path.expanduser("~/mycelial")
 REGISTRY_FILE = os.path.join(BASE, "state", "registry.json")
-os.makedirs(os.path.dirname(REGISTRY_FILE), exist_ok=True)
+os.makedirs(os.path.dirname(REGISTRY_FILE), mode=0o700, exist_ok=True)
 
 agents = {}  # agent_id -> info
 capability_map = {}

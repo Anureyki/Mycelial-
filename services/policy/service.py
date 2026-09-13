@@ -13,7 +13,7 @@ app = Flask(__name__)
 
 BASE = os.path.expanduser("~/mycelial")
 POLICY_FILE = os.path.join(BASE, "config", "policies.json")
-os.makedirs(os.path.dirname(POLICY_FILE), exist_ok=True)
+os.makedirs(os.path.dirname(POLICY_FILE), mode=0o700, exist_ok=True)
 
 _policies = None
 

@@ -23,7 +23,7 @@ MAIN_CONFIG = os.path.join(CONFIG_DIR, "mcp.json")
 EXTRA_DIR = os.path.join(CONFIG_DIR, "mcp.d")
 HTTP_ALLOWLIST_FILE = os.path.join(CONFIG_DIR, "tool_allowlist.json")
 HTTP_FETCH_MAX_BYTES = 500_000
-os.makedirs(EXTRA_DIR, exist_ok=True)
+os.makedirs(EXTRA_DIR, mode=0o700, exist_ok=True)
 
 # In-memory config
 servers = {}

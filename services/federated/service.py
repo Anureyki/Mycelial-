@@ -72,8 +72,8 @@ def start():
     if rounds < 1 or min_clients < 1:
         return jsonify({"success": False, "error": "rounds and min_clients must be >= 1"}), 400
 
-    os.makedirs(STATE_DIR, exist_ok=True)
-    os.makedirs(os.path.dirname(LOG_FILE), exist_ok=True)
+    os.makedirs(STATE_DIR, mode=0o700, exist_ok=True)
+    os.makedirs(os.path.dirname(LOG_FILE), mode=0o700, exist_ok=True)
     # Stale results from a previous run would otherwise look like this run's.
     for path in (ROUNDS_FILE, HISTORY_FILE):
         if os.path.exists(path):

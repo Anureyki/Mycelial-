@@ -53,7 +53,7 @@ CACHE_TTL = 30 * 24 * 3600      # opinions are stable; searches drift slowly
 
 def _cache_path(kind, key):
     import hashlib
-    os.makedirs(CACHE_DIR, exist_ok=True)
+    os.makedirs(CACHE_DIR, mode=0o700, exist_ok=True)
     h = hashlib.sha256(f"{kind}:{key}".encode()).hexdigest()[:24]
     return os.path.join(CACHE_DIR, f"{kind}_{h}.json")
 

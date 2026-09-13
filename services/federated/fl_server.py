@@ -30,7 +30,7 @@ def main():
     parser.add_argument("--address", default=DEFAULT_ADDRESS)
     args = parser.parse_args()
 
-    os.makedirs(STATE_DIR, exist_ok=True)
+    os.makedirs(STATE_DIR, mode=0o700, exist_ok=True)
     print(f"[FL] Serving on {args.address} | {args.rounds} rounds | "
           f"waiting for {args.min_clients} client(s)", flush=True)
 
