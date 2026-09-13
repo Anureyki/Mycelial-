@@ -40,7 +40,7 @@ def now():
 class GraphManager:
     def __init__(self, db_path=None):
         self.db_path = db_path or DEFAULT_DB_PATH
-        os.makedirs(os.path.dirname(self.db_path), exist_ok=True)
+        os.makedirs(os.path.dirname(self.db_path), mode=0o700, exist_ok=True)
         self._init_db()
 
     @contextmanager

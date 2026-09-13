@@ -99,7 +99,7 @@ def record_pair(prompt, output, model=None, capability=None, verdict=None,
         rec["extra"] = extra
     path = os.path.join(store or STORE,
                         f"pairs-{datetime.now(timezone.utc):%Y-%m-%d}.jsonl")
-    os.makedirs(os.path.dirname(path), exist_ok=True)
+    os.makedirs(os.path.dirname(path), mode=0o700, exist_ok=True)  # datasets/
     line = json.dumps(rec, ensure_ascii=False)
     with _LOCK:
         with open(path, "a", encoding="utf-8") as fh:

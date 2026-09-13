@@ -37,7 +37,10 @@ class ArtifactConflictError(Exception):
 class ProvenanceManager:
     def __init__(self, db_path=None):
         self.db_path = db_path or DEFAULT_DB_PATH
-        os.makedirs(os.path.dirname(self.db_path), exist_ok=True)
+        # 0700. The provenance DB records who did what and on whose
+        # authority - the last thing that should inherit a umask.
+        from core.fs_boundary import ensure_dir
+        ensure_dir(os.path.dirname(self.db_path), 0o700)
         self._init_db()
 
     @contextmanager

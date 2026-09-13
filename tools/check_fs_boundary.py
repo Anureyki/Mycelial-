@@ -72,18 +72,42 @@ def main():
     overlap = set(BOUNDARIES) & set(PUBLIC_BY_DESIGN)
     ck("nothing is declared both private and public", not overlap, str(overlap))
 
-    print("\n  2. the declared modes actually hold on disk")
-    findings = [f for f in audit() if f.get("issue") != "absent"]
-    ck("no sensitive path is readable outside the owner", not findings,
-       f"{len(findings)} finding(s): "
-       f"{[f['path'] for f in findings[:3]]}")
-    absent = [f["path"] for f in audit() if f.get("issue") == "absent"]
-    if absent:
-        skip("every declared tree exists",
-             f"{absent} declared and not present - reported, not counted as a "
-             f"pass")
+    print("\n  2. the declared modes hold WHERE THERE IS SOMETHING TO PROTECT")
+    # GIT DOES NOT CARRY DIRECTORY PERMISSIONS. A fresh clone creates every
+    # directory with the runner's umask, so asserting on-disk modes there
+    # asserts something the checkout cannot control - and this gate went red
+    # in CI while being green on the machine that actually holds the data,
+    # which is the environment-dependence this repository has now met four
+    # times.
+    #
+    # So the split is honest rather than convenient: a tree that HOLDS FILES
+    # must have the declared modes, wherever it is. A tree that is empty or
+    # absent has nothing to expose, and is reported as SKIP with its name -
+    # never folded into a pass, because "there was nothing to check" and
+    # "it was checked and correct" are different findings.
+    populated, empty = [], []
+    for rel in sorted(BOUNDARIES):
+        base = os.path.join(ROOT, rel)
+        if not os.path.isdir(base):
+            empty.append(f"{rel} (absent)")
+            continue
+        n = sum(len(fs) for _dp, fs in
+                __import__("core.fs_boundary", fromlist=["_walk"])._walk(base))
+        (populated if n else empty).append(rel if n else f"{rel} (empty)")
+    findings = [f for f in audit() if f.get("issue") != "absent"
+                and f["path"].split("/")[0] in populated]
+    if populated:
+        ck(f"no path in a populated tree is readable outside the owner",
+           not findings,
+           f"checked {populated}; "
+           f"{len(findings)} finding(s) {[f['path'] for f in findings[:3]]}")
     else:
-        ck("every declared tree exists", True)
+        skip("on-disk modes",
+             "every declared tree is empty or absent here - a fresh clone "
+             "carries no permissions and has nothing to expose. NOT a pass.")
+    if empty:
+        skip("trees with nothing in them",
+             f"{empty} - nothing to protect, so nothing asserted")
 
     print("\n  3. a new private store is BORN 0700, not fixed afterwards")
     d = tempfile.mkdtemp()
@@ -108,6 +132,26 @@ def main():
             raw.append(mod)
     ck("no private store calls makedirs with the inherited umask", not raw,
        str(raw) or "all five create through fs_boundary.ensure_dir")
+    # AND NOWHERE ELSE IN core/ EITHER. The registries were wired and the
+    # SECURITY EVENT SPOOL was not - created at 0775 by whatever umask the
+    # agent process inherited, holding every security decision the system
+    # makes. It was found because a fresh-clone run created the directory
+    # mid-gate and the mode assertion caught it. The store nobody thought of
+    # as a store is the one that stays wrong.
+    umask_creators = []
+    for dirpath, dirnames, files in os.walk(os.path.join(ROOT, "core")):
+        dirnames[:] = [d for d in dirnames if d != "__pycache__"]
+        for fn in files:
+            if not fn.endswith(".py") or fn == "fs_boundary.py":
+                continue
+            body = open(os.path.join(dirpath, fn), encoding="utf-8",
+                        errors="replace").read()
+            for line in body.splitlines():
+                st = line.strip()
+                if st.startswith("os.makedirs(") and "mode=" not in st:
+                    umask_creators.append(f"{fn}: {st[:46]}")
+    ck("nothing in core/ creates a directory at the inherited umask",
+       not umask_creators, str(umask_creators[:3]))
 
     print("\n  4. harden() is separable from audit()")
     ck("audit reports without changing anything",

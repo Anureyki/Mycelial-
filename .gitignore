@@ -80,3 +80,10 @@ datasets/security_eval/
 
 # Real financial inventory. The repo is public; the data is not.
 private/
+
+# Generated analysis OVER LIVE DATA. The six that were tracked are benign -
+# system-health recommendations, no identifiers - but reports/ is declared
+# sensitive in core/fs_boundary.py, and a directory declared private while
+# being committed is the gitignore-covering-one-subdirectory fault again.
+# Future analyzer output runs over the financial registries.
+reports/

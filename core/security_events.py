@@ -132,7 +132,12 @@ def emit(event_type, agent=None, resource=None, action=None, decision=None,
     if extra:
         ev["extra"] = extra
     d = spool or SPOOL
-    os.makedirs(d, exist_ok=True)
+    # 0700, DECLARED. This created the spool with whatever umask the agent
+    # process inherited - 0775 under this service manager - and the spool
+    # holds every security decision the system makes. Same fault as the five
+    # private stores, in the one path nobody thought of as a store.
+    from core.fs_boundary import ensure_dir
+    ensure_dir(d, 0o700)
     path = os.path.join(d, f"emitted-{datetime.now(timezone.utc):%Y-%m-%d}.jsonl")
     line = json.dumps(ev, ensure_ascii=False, sort_keys=True) + "\n"
     with _lock:

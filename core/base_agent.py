@@ -68,10 +68,10 @@ class AgentBase:
         self.mqtt_client = None
         self._extra_subscriptions = []
 
-        os.makedirs(CONFIG_DIR, exist_ok=True)
-        os.makedirs(os.path.dirname(LOG_FILE), exist_ok=True)
-        os.makedirs(os.path.dirname(REGISTRY_FILE), exist_ok=True)
-        os.makedirs(PENDING_DIR, exist_ok=True)
+        os.makedirs(CONFIG_DIR, mode=0o755, exist_ok=True)  # public by design
+        os.makedirs(os.path.dirname(LOG_FILE), mode=0o700, exist_ok=True)  # logs carry request content
+        os.makedirs(os.path.dirname(REGISTRY_FILE), mode=0o700, exist_ok=True)  # state/
+        os.makedirs(PENDING_DIR, mode=0o700, exist_ok=True)  # state/
 
         self.card = self.load_or_create_card()
         self.register_agent_with_retry()
@@ -800,7 +800,10 @@ class AgentBase:
                 return jsonify({"error": f"unsupported type .{ext}"}), 400
             root = os.path.join(os.path.dirname(os.path.dirname(
                 os.path.abspath(__file__))), "state", "uploads")
-            os.makedirs(root, exist_ok=True)
+            # 0700. THIS IS WHERE UPLOADED DOCUMENTS LAND - a statement or
+            # an instrument sent from the dashboard is written here before
+            # anything reads it. It was inheriting the process umask.
+            os.makedirs(root, mode=0o700, exist_ok=True)
             name = f"up_{hashlib.sha256(raw).hexdigest()[:16]}.{ext}"
             path = os.path.join(root, name)
             with open(path, "wb") as fh:
@@ -933,7 +936,7 @@ class AgentBase:
         and introducing it to solve a single-process race would be adding an
         outage to prevent a rare one."""
         import fcntl
-        os.makedirs(os.path.join(BASE, "state", "locks"), exist_ok=True)
+        os.makedirs(os.path.join(BASE, "state", "locks"), mode=0o700, exist_ok=True)
         path = os.path.join(BASE, "state", "locks", f"{name}.lock")
 
         class _Lock:
@@ -2897,8 +2900,8 @@ class AgentBase:
         self.cache_ttl = cache_ttl
         self.cache = {}          # doc_id -> {category, path, content, tokens, mtime, size}
         self.cache_loaded_at = None
-        os.makedirs(self.knowledge_dir, exist_ok=True)
-        os.makedirs(CAG_STATE_DIR, exist_ok=True)
+        os.makedirs(self.knowledge_dir, mode=0o700, exist_ok=True)  # knowledge_base/
+        os.makedirs(CAG_STATE_DIR, mode=0o700, exist_ok=True)  # state/cag
         self._cag_manifest_path = os.path.join(CAG_STATE_DIR, f"{self.agent_id}_manifest.json")
         self.load_cache()
         if watch_interval:

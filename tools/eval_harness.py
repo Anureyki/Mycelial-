@@ -151,7 +151,8 @@ def ingest(spool=SPOOL, records=RECORDS, quarantine=True):
       pairs() reads records only, so an unverifiable decision can never reach
       the training set by being marked and then filtered later.
     """
-    os.makedirs(records, exist_ok=True)
+    from core.fs_boundary import ensure_dir
+    ensure_dir(records, 0o700)
 
     ok, probs = verify(records)
     if not ok:
