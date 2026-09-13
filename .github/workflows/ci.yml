@@ -79,6 +79,23 @@ jobs:
         # map is an opinion. An unverified entry must report itself
         # incomplete rather than produce a confident one.
         run: python tools/check_accounts.py
+      - name: One contract, one reader
+        # The defect class that has appeared four times here, three of them
+        # security or privacy failures: a meaning computed in one place and
+        # re-derived in another, both working, only one right. Declared
+        # contracts are asserted to have a single reader - including the one
+        # deliberately DUPLICATED across the repo boundary, where the two
+        # copies are compared byte-for-byte instead of forbidden.
+        run: python tools/check_contracts.py
+
+      - name: No sensitive material in the repository
+        # The backstop. The real gate is .githooks/pre-commit, because a
+        # secret caught by CI has already been pushed - this repository
+        # published a Social Security number for twenty hours and clearing it
+        # took a history rewrite and a force-push. Patterns only: a scanner
+        # that hardcoded the secret would have republished it.
+        run: python tools/check_no_secrets.py
+
       - name: A broken security control must refuse, not read clean
         # The defect this exists for already happened here: the registry's
         # identifier check read a field name the scanner does not return, so

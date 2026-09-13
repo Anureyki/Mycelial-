@@ -129,6 +129,19 @@ def main():
         # instead of inspecting whatever happened to be lying around.
         from tools.eval_harness import ingest as _ingest
         fresh_records = tempfile.mkdtemp()
+        # THE FIXTURE DECLARES WHAT IT CONTAINS. pairs() refuses an
+        # unclassified source, which is correct and which this temp directory
+        # would otherwise trip - its name is random, so nothing can look it
+        # up. The honest answer is not to weaken the gate but to say what is
+        # in here: synthetic ACL and signature decisions this check just made
+        # about agents and resources. No human's records.
+        with open(os.path.join(fresh_records, "_sensitivity.json"), "w",
+                  encoding="utf-8") as _fh:
+            __import__("json").dump(
+                {"source": "security_eval", "class": "system_operational",
+                 "why": "synthetic decisions produced by this build gate's "
+                        "own round trip; declared so pairs() can classify a "
+                        "temp directory it cannot look up by name"}, _fh)
         _ingest(spool=tmp, records=fresh_records, quarantine=True)
     finally:
         se.SPOOL = orig_spool

@@ -1,0 +1,34 @@
+{
+  "_what": "What each training source contains, and therefore what it obliges. Read by core/data_sensitivity.py. An undeclared source is refused, not assumed safe.",
+  "_why_declared_not_inferred": "The harness run record already carried the sentence 'the data is the system's own security decisions, not the principal's records'. That is true today, it is a claim in a comment, and nothing rechecks it when the source changes. The financial programme is about to point the same machinery at an asset registry holding institutions, balances and benefit records.",
+  "schema_version": "1.0",
+  "sources": {
+    "security_eval": {
+      "class": "system_operational",
+      "why": "ACL and signature decisions about which AGENT may touch which RESOURCE. No human's records are in it; a model that memorised all of it would have learned config/resource_acl.json, which is already public in this repository.",
+      "federated_only": false
+    },
+    "distillation": {
+      "class": "system_operational",
+      "why": "Input-output pairs from /reason. core/distillation.py redacts any prompt naming a live matter or a personal record before it is written.",
+      "federated_only": false
+    },
+    "asset_registry": {
+      "class": "personal_financial",
+      "why": "Institutions, account types, last-fours, balances, counterparties and obligations. Memorisation leaks the principal's finances, and weights cannot be corrected the way a record can.",
+      "federated_only": true
+    },
+    "account_layers_private": {
+      "class": "personal_record",
+      "why": "The VA entitlement, the fiduciary appointment, DEERS, military pay. These describe a protected status rather than a preference.",
+      "citation": "38 U.S.C. 5301; 5 U.S.C. 552a",
+      "federated_only": true
+    },
+    "cases": {
+      "class": "personal_record",
+      "why": "Live matters including the HUD-VASH housing case - participants, obligations and evidence references about identifiable people.",
+      "citation": "5 U.S.C. 552a",
+      "federated_only": true
+    }
+  }
+}

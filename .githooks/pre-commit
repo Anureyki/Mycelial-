@@ -1,0 +1,20 @@
+#!/usr/bin/env bash
+# Security runs BEFORE the commit exists, because after is too late.
+#
+# A secret caught by CI has already been pushed, and once it is public,
+# deleting it is not undoing it. This repository learned that with a real
+# Social Security number: redacting the file left it in fourteen commits and
+# clearing it took a history rewrite and a force-push.
+#
+# Install once:  git config core.hooksPath .githooks
+# Bypass:        git commit --no-verify   (CI still runs the same check)
+set -uo pipefail
+ROOT="$(git rev-parse --show-toplevel)"
+PY="$ROOT/venv/bin/python3"
+[ -x "$PY" ] || PY="$(command -v python3)"
+"$PY" "$ROOT/tools/check_no_secrets.py" --staged
+rc=$?
+if [ "$rc" -ne 0 ]; then
+  echo "  commit BLOCKED. Nothing was committed." >&2
+  exit "$rc"
+fi

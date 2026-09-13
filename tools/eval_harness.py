@@ -240,6 +240,25 @@ def ingest(spool=SPOOL, records=RECORDS, quarantine=True):
                     written += 1
     finally:
         os.close(fd)
+    # THE CLASSIFICATION TRAVELS WITH THE DATA. mycelial-core may not import
+    # this repository, so a sensitivity rule that lived only here would be
+    # invisible to the trainer that actually moves weights. Writing it into
+    # the records directory means the obligation arrives with the rows.
+    # AN EXISTING DECLARATION IS NOT OVERWRITTEN. The classification belongs
+    # to the DATA; this only fills it in when the directory has none. Writing
+    # over it would let an ingest silently reclassify a store - and the
+    # name-based fallback answers `unknown` for any path that is not a
+    # recognised source, so overwriting would downgrade a correct declaration
+    # to unknown purely because of where the rows were sitting.
+    _man = os.path.join(records, "_sensitivity.json")
+    if not os.path.exists(_man):
+        try:
+            from core.data_sensitivity import classify as _classify
+            with open(_man, "w", encoding="utf-8") as fh:
+                json.dump(_classify(os.path.basename(records.rstrip("/"))), fh,
+                          indent=2)
+        except Exception:                           # noqa: BLE001
+            pass
     with open(_head_path(records), "w", encoding="utf-8") as fh:
         json.dump({"hash": prev, "count": count,
                    "updated": datetime.now(timezone.utc).isoformat()}, fh, indent=2)
@@ -314,7 +333,26 @@ def verify(records=RECORDS):
     return (not problems), problems
 
 
-def pairs(records=RECORDS, include_unknown_origin=False):
+# THE MODEL'S INPUT FORMAT, DUPLICATED ACROSS THE REPO BOUNDARY ON PURPOSE.
+#
+# mycelial-core has the same string in training/harness_data.py :: text_for().
+# It cannot be imported: that repo's check_boundary.py fails its build if it
+# reaches into this one, and CLAUDE.md is explicit that the eval contract is
+# COPIED rather than imported - one import is a coupling that would mean this
+# repo cannot change without risking a training run, while two copies is a
+# divergence something can check for.
+#
+# This is the something. tools/check_contracts.py asserts the two produce
+# byte-identical output for the same inputs, so a change to either is caught
+# here rather than by a model quietly receiving a string it has never seen and
+# answering anyway - which nothing in a forward pass can report.
+def model_input(agent, action, resource):
+    """The exact string the model is trained on and audited against."""
+    return f"agent={agent} action={action} resource={resource}"
+
+
+def pairs(records=RECORDS, include_unknown_origin=False,
+          dp_engaged=False, epsilon_spent=None):
     """-> training pairs. Only records the harness could verify.
 
     ORIGIN IS A SECOND GATE, AND IT IS AS STRICT AS PROVENANCE.
@@ -336,6 +374,36 @@ def pairs(records=RECORDS, include_unknown_origin=False):
     `include_unknown_origin` exists for auditing the old records, never for
     building a training set. The counts are reported by main() either way, so
     the loss is visible rather than silent."""
+    # THE SENSITIVITY GATE, BEFORE A SINGLE PAIR IS BUILT.
+    #
+    # This module's own run record carries the sentence "the data is the
+    # system's own security decisions, not the principal's records". True
+    # today, and a claim in a comment - nothing rechecked it, and the
+    # financial programme is about to point the same machinery at an asset
+    # registry holding institutions, balances and benefit records.
+    #
+    # So the class is declared in config/data_sensitivity.json and the
+    # obligation follows from the declaration. An undeclared source is
+    # REFUSED, not assumed operational: a source nobody classified is the one
+    # most likely to be new, and new is when somebody has just pointed the
+    # trainer at something personal.
+    # THE MANIFEST IN THE DIRECTORY WINS over the directory's name. The
+    # classification is a property of the DATA, not of where it happens to be
+    # sitting - a store copied to a temp path is the same rows - and this is
+    # the same record that travels to mycelial-core, so one source of truth
+    # serves both. A directory with neither a manifest nor a declared name is
+    # unknown, and unknown refuses.
+    from core.data_sensitivity import gate as _sensitivity_gate
+    _man = os.path.join(records, "_sensitivity.json")
+    _src = os.path.basename(records.rstrip("/"))
+    if os.path.exists(_man):
+        try:
+            with open(_man, encoding="utf-8") as fh:
+                _src = json.load(fh).get("source") or _src
+        except Exception:                           # noqa: BLE001
+            pass
+    _sensitivity_gate(_src, dp_engaged=dp_engaged, epsilon_spent=epsilon_spent)
+
     out = []
     _rev = _reviews(records)
     for r in read_records(records):
@@ -348,8 +416,8 @@ def pairs(records=RECORDS, include_unknown_origin=False):
             continue
         out.append({
             "label": r["label"],
-            "input": (f"agent={r.get('agent')} action={r.get('action')} "
-                      f"resource={r.get('resource')}"),
+            "input": model_input(r.get("agent"), r.get("action"),
+                                 r.get("resource")),
             "output": r.get("decision"),
             "rationale": r.get("reason"),
             "provenance_event": r.get("provenance_event"),
