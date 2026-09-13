@@ -81,6 +81,45 @@ ALTERNATIVES = (
 )
 
 
+# PAYMENT CARD / ACCOUNT NUMBERS, and why they live HERE.
+#
+# tools/check_no_secrets.py had this and core/asset_registry.py did not, so a
+# card number in a prose `note` field passed the registry's write guard: the
+# field-shape check exempts prose from the long-digit rule (correctly - a note
+# may quote a statute number), and the prose scan had no card pattern at all.
+# Two scanners, one gap between them, which is the defect class
+# tools/check_contracts.py exists to catch.
+#
+# Three independent conditions must coincide, so that a float's mantissa, a
+# list of health-check ports and an Internet Archive identifier do not fire:
+# card-shaped and standalone, issuer-prefixed (3-6), and Luhn-valid.
+CARD_RE = re.compile(
+    r"(?<![\d.])(?:[3-6]\d{12,18}|[3-6]\d{3}[ -]\d{4}[ -]\d{4}[ -]\d{4})"
+    r"(?![\d.])(?![\s-]*\d)")
+
+
+def luhn(value):
+    """-> True if the digits satisfy the Luhn checksum, as a card number must."""
+    d = [int(c) for c in re.sub(r"\D", "", value or "")]
+    if not 13 <= len(d) <= 19:
+        return False
+    total, parity = 0, len(d) % 2
+    for i, n in enumerate(d):
+        if i % 2 == parity:
+            n *= 2
+            if n > 9:
+                n -= 9
+        total += n
+    return total % 10 == 0
+
+
+def find_cards(text):
+    """-> [{last4}] for every Luhn-valid card-shaped number. Never the value."""
+    return [{"kind": "card_number", "last4": _last4(m.group(0)),
+             "offset": m.start()}
+            for m in CARD_RE.finditer(text or "") if luhn(m.group(0))]
+
+
 def _last4(s):
     digits = re.sub(r"\D", "", s or "")
     return digits[-4:] if len(digits) >= 4 else "????"
@@ -103,6 +142,10 @@ def scan(text, context=None):
                                            text[max(0, m.start() - 60):
                                                 m.start() + 40]).strip(),
             })
+    # Cards are detected by checksum rather than by a labelled pattern, so
+    # they are found separately and folded in here - one findings list, so no
+    # caller has to remember to ask twice.
+    hits += find_cards(text)
     # One number can match several patterns. Collapse by last4 so a single SSN
     # printed once is one finding, not three.
     seen, unique = set(), []

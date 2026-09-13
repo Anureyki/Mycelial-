@@ -254,6 +254,24 @@ def _save(doc, path=None):
     os.chmod(p, 0o600)
 
 
+def guard_fields(fields):
+    """THE write guard, shared by every registry. Raises Refused, or returns.
+
+    ONE IMPLEMENTATION, THREE CALLERS. The counterparty and contract
+    registries need exactly this check, and copying it into each would be the
+    defect tools/check_contracts.py exists to catch - a meaning computed in
+    one place and re-derived in another, both working, only one right. Three
+    copies of an identifier refusal is three places for it to rot, and the one
+    that rots is whichever nobody looked at.
+
+    Both layers, because they catch different things: identifier_scan reads
+    PROSE and _field_shape enforces the FIELD CONTRACT. "last_four":
+    "4111111111111111" contains no SSN and is a full card number."""
+    problems = _field_shape(fields) + _identifier_problems(fields)
+    if problems:
+        raise Refused("nothing was written. " + " | ".join(problems))
+
+
 def record(asset_id, kind, evidence="unknown", path=None, **fields):
     """Add or amend one resource. REFUSES BEFORE IT WRITES.
 
@@ -267,9 +285,7 @@ def record(asset_id, kind, evidence="unknown", path=None, **fields):
                       f"point of the field.")
     if evidence not in EVIDENCE:
         raise Refused(f"{evidence!r} is not an evidence state: {list(EVIDENCE)}")
-    problems = _field_shape(fields) + _identifier_problems(fields)
-    if problems:
-        raise Refused("nothing was written. " + " | ".join(problems))
+    guard_fields(fields)
 
     doc = load(path)
     rec = doc["assets"].get(asset_id) or {

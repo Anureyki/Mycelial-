@@ -79,6 +79,20 @@ jobs:
         # map is an opinion. An unverified entry must report itself
         # incomplete rather than produce a confident one.
         run: python tools/check_accounts.py
+      - name: The registries hold together as one ontology
+        # Three registries that each refuse correctly on their own can still
+        # be three lists. This asserts what only exists when they are joined:
+        # an edge cannot invent a node, a role lives on the EDGE so one party
+        # can be holder and creditor while a different company services it,
+        # identity is never merged on resemblance, a clause nobody read is not
+        # a clause that is absent, and the statute outranks the instrument.
+        #
+        # It found a real gap: a card number in a prose `note` passed the
+        # registry write guard, because the field-shape rule exempts prose and
+        # the prose scanner had no card pattern. One detector now, in
+        # core/identifier_scan.py, used by both callers.
+        run: python tools/check_ontology.py
+
       - name: One contract, one reader
         # The defect class that has appeared four times here, three of them
         # security or privacy failures: a meaning computed in one place and

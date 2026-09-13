@@ -75,6 +75,7 @@ step "check_retrieval"               "$PY" tools/check_retrieval.py
 step "check_core_interface"         "$PY" tools/check_core_interface.py
 step "check_financial_authority"    "$PY" tools/check_financial_authority.py
 step "check_asset_registry"         "$PY" tools/check_asset_registry.py
+step "check_ontology"               "$PY" tools/check_ontology.py
 step "check_contracts"              "$PY" tools/check_contracts.py
 step "check_no_secrets"             "$PY" tools/check_no_secrets.py
 step "check_staging_boundary"       "$PY" tools/check_staging_boundary.py

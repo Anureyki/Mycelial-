@@ -82,6 +82,15 @@ CONTRACTS = [
                 "finding was lost."),
     },
     {
+        "name": "payment card detection",
+        "authority": "core/identifier_scan.py :: luhn() / find_cards()",
+        "raw_marker": "def _luhn",
+        "exempt": ("core/identifier_scan.py", "tools/check_contracts.py"),
+        "why": ("two Luhn implementations, one in a build gate and none in "
+                "the registry, is how a card number passed a write guard in a "
+                "prose field."),
+    },
+    {
         "name": "the model's input format",
         "authority": "tools/eval_harness.py :: model_input()",
         "raw_marker": 'f"agent=',

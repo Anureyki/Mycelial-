@@ -30,6 +30,13 @@ import subprocess
 import sys
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+
+# This began as a pure pattern scanner that imported nothing. It now imports
+# core.identifier_scan for the canonical Luhn check, so it declares itself a
+# test the same as every other gate - the rule in check_eval.py asserts the
+# DECLARATION rather than the current call graph, precisely because a file
+# that grows an import will not come with a reminder.
+os.environ["MYCELIAL_EVENT_ORIGIN"] = "test"
 sys.path.insert(0, ROOT)
 
 # Paths whose CONTENT is personal by definition. Staging one at all is the
@@ -104,6 +111,10 @@ ALLOWED = {
     "tools/check_retrieval.py": "a zero-filled citation placeholder",
     "reference/accounting_agent/internal_revenue_manual_part_5.json":
         "the IRS's own published example SSN inside the Internal Revenue Manual",
+    "tools/check_ontology.py":
+        "synthetic fixtures proving the shared write guard reaches the "
+        "counterparty and contract registries - a documented example SSN and "
+        "a documented test card, never real values",
     "tools/check_staging_boundary.py":
         "the synthetic fixture this gate stages on purpose to prove that a "
         "forced add is still refused. It is the documented example SSN and "
@@ -124,23 +135,12 @@ ALLOWED = {
 SKIP_DIRS = {".git", "venv", "__pycache__", "node_modules", "quarantine"}
 
 
-def _luhn(s):
-    """-> True if the digits satisfy the Luhn checksum, as a card number must.
-
-    The difference between a finding and a false alarm. Without it this matched
-    "8004 8007 8008 8009" - the health-check port list - and told somebody a
-    payment card was about to be committed."""
-    d = [int(c) for c in re.sub(r"\D", "", s)]
-    if not 13 <= len(d) <= 19:
-        return False
-    total, parity = 0, len(d) % 2
-    for i, n in enumerate(d):
-        if i % 2 == parity:
-            n *= 2
-            if n > 9:
-                n -= 9
-        total += n
-    return total % 10 == 0
+# ONE LUHN, IMPORTED. This had its own copy while core/asset_registry.py had
+# none, and the gap between the two let a card number through a registry write
+# in a prose field. The canonical detector now lives in core/identifier_scan.py
+# - the module whose job is identifiers - and both callers use it.
+sys.path.insert(0, ROOT)
+from core.identifier_scan import luhn as _luhn          # noqa: E402
 
 
 def _staged_files():
