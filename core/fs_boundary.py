@@ -173,7 +173,7 @@ def harden(dry_run=False):
     return changed
 
 
-def ensure_dir(path, mode=0o700):
+def ensure_dir(path, mode=0o700, stop_at=None):
     """Create a directory with the mode DECLARED, not the one umask gives.
 
     os.makedirs applies the process umask, so identical code produces 0700
@@ -181,8 +181,37 @@ def ensure_dir(path, mode=0o700):
     is invisible until somebody audits it. Every private store creation path
     goes through here."""
     os.makedirs(path, mode=mode, exist_ok=True)
-    # makedirs only applies `mode` when it CREATES; an existing directory keeps
-    # whatever it had, which is exactly how 775 survived.
+    # TWO THINGS makedirs DOES NOT DO, both of which bit this repository.
+    #
+    # 1. It only applies `mode` when it CREATES. An existing directory keeps
+    #    whatever it had - which is exactly how 0775 survived everywhere.
+    #
+    # 2. IT DOES NOT APPLY `mode` TO INTERMEDIATE DIRECTORIES. CPython's
+    #    makedirs recurses for the parent WITHOUT passing mode, so they are
+    #    created at 0o777 & ~umask. os.makedirs("state/agent_keys/<agent>",
+    #    mode=0o700) gives the leaf 0700 and leaves state/agent_keys at 0755.
+    #    That is a documented behaviour and it is not obvious from the call
+    #    site, which is why it survived three CI runs: locally the parents
+    #    already existed at 0700 from an earlier harden, so only a machine
+    #    that had never created them could show it.
+    #
+    # So every level from `stop_at` down is corrected, not just the leaf.
+    # THE LEAF ALWAYS, parents only within the tree we own.
+    #
+    # Bounding the whole walk by ROOT meant a path OUTSIDE the repository -
+    # a temp directory, a store somewhere else - had its mode left untouched,
+    # because the loop exited before its first iteration. Correcting the leaf
+    # is unconditional; walking upward is what has to stop at a boundary, so
+    # that hardening one store never re-permissions somebody's home directory.
     if stat.S_IMODE(os.stat(path).st_mode) != mode:
         os.chmod(path, mode)
+    root = os.path.abspath(stop_at or ROOT)
+    cur = os.path.dirname(os.path.abspath(path))
+    while cur.startswith(root) and cur != root:
+        try:
+            if stat.S_IMODE(os.stat(cur).st_mode) != mode:
+                os.chmod(cur, mode)
+        except OSError:
+            break
+        cur = os.path.dirname(cur)
     return path

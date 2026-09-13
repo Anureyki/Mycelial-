@@ -54,7 +54,11 @@ def _keypair(agent_id):
         Ed25519PrivateKey)
     from cryptography.hazmat.primitives import serialization
     d = os.path.join(KEYS, agent_id)
-    os.makedirs(d, mode=0o700, exist_ok=True)
+    # THROUGH ensure_dir, because makedirs leaves INTERMEDIATE directories at
+    # the umask default - this created <agent>/ at 0700 and state/agent_keys/
+    # at 0755, holding the signing keys.
+    from core.fs_boundary import ensure_dir
+    ensure_dir(d, 0o700)
     priv_path = os.path.join(d, "ed25519.key")
     if not os.path.exists(priv_path):
         key = Ed25519PrivateKey.generate()
