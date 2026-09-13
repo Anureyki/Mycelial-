@@ -54,10 +54,23 @@ def skip(name, why):
 
 
 def _git(*args):
-    r = subprocess.run(["git", *args], cwd=ROOT, capture_output=True, text=True)
+    """Run git and decode TOLERANTLY, because history contains bytes.
+
+    text=True decodes strictly, and a historical file carrying a Windows-1252
+    quote (0x92) raised UnicodeDecodeError and killed the whole verifier. It
+    passed locally and failed in CI, which is the same environment-dependent
+    shape this repository has now met three times.
+
+    Undecodable bytes are REPLACED rather than skipped. Every pattern here is
+    ASCII-shaped, so a replacement character cannot mask a match - and
+    dropping the file instead would be a scanner quietly not scanning, which
+    is the failure mode this whole layer exists to prevent."""
+    r = subprocess.run(["git", *args], cwd=ROOT, capture_output=True)
     if r.returncode != 0:
-        raise RuntimeError(f"git {' '.join(args)}: {r.stderr[:160]}")
-    return r.stdout
+        raise RuntimeError(
+            f"git {' '.join(args)}: "
+            f"{r.stderr.decode('utf-8', 'replace')[:160]}")
+    return r.stdout.decode("utf-8", "replace")
 
 
 def history_hits(pattern_or_value, regex=False):
