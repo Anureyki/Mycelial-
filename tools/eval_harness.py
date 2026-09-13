@@ -393,16 +393,34 @@ def pairs(records=RECORDS, include_unknown_origin=False,
     # the same record that travels to mycelial-core, so one source of truth
     # serves both. A directory with neither a manifest nor a declared name is
     # unknown, and unknown refuses.
-    from core.data_sensitivity import gate as _sensitivity_gate
+    from core.data_sensitivity import (gate as _sensitivity_gate,
+                                       classify as classify_source)
+    # BOTH CLAIMS, MOST RESTRICTIVE BINDS. The manifest used to win outright,
+    # which let a directory declared personal_financial by name carry a
+    # manifest saying system_operational and be ALLOWED. Data that can lower
+    # its own restriction is not classified, it is self-certified.
     _man = os.path.join(records, "_sensitivity.json")
     _src = os.path.basename(records.rstrip("/"))
+    _claims = []
     if os.path.exists(_man):
         try:
             with open(_man, encoding="utf-8") as fh:
-                _src = json.load(fh).get("source") or _src
+                _m = json.load(fh)
+            # A manifest that EXISTS is an explicit claim, so it is marked
+            # as one. That matters in both directions: it can tighten a
+            # path-derived classification, and it can never loosen one.
+            if _m.get("class"):
+                _claims.append({"class": _m["class"], "claimed": True})
+            elif _m.get("source"):
+                _claims.append(classify_source(_m["source"]))
         except Exception:                           # noqa: BLE001
-            pass
-    _sensitivity_gate(_src, dp_engaged=dp_engaged, epsilon_spent=epsilon_spent)
+            # A manifest that exists and cannot be read is a DECLARATION OF
+            # UNKNOWN, not silence - it was written deliberately and cannot be
+            # read, which is a finding. Ignoring it would infer "fine" from
+            # "broken".
+            _claims.append({"class": "unknown", "claimed": True})
+    _sensitivity_gate(_src, dp_engaged=dp_engaged, epsilon_spent=epsilon_spent,
+                      also=_claims)
 
     out = []
     _rev = _reviews(records)

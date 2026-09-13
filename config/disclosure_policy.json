@@ -1,0 +1,95 @@
+{
+  "_what": "What this PUBLIC repository is authorized to expose, decided per artifact and per context. Read by tools/check_history_classes.py.",
+  "_the_question": "The security question is 'is this artifact authorized to expose this information?' - never 'does this string look like a person's name?'. A name alone is not a class. Identity + context + capacity + authorization + public necessity together are.",
+  "_why_not_a_name_scrubber": "A generic scrubber would have stripped the principal's legal name from docs/IP_ASSIGNMENT.md and left a contract that does not function as one, while happily leaving an identifier that looks like an ordinary number. Classification is contextual or it is theatre.",
+  "schema_version": "1.0",
+  "classes": {
+    "SECRET": "Publication is harmful and irreversible. Must be absent from tree AND history.",
+    "PRIVATE": "Publication is not authorized. Absent from tree; removed from history where feasible.",
+    "PUBLIC_OPTIONAL": "May be public, and does not need to be. Prefer the role over the identity.",
+    "PUBLIC_REQUIRED": "The artifact does not function without it. Retained deliberately, with the reason recorded."
+  },
+  "decisions": [
+    {
+      "id": "principal_va_file_number",
+      "what": "The principal's VA file number, which this project established is his SSN",
+      "classification": "SECRET",
+      "context": "Appeared as an example inside core/identifier_scan.py - the module written to DETECT this class of identifier",
+      "public_necessity": "none. The pattern needs the shape, not the value",
+      "action": "redacted from tree; removed from history",
+      "detector": "pattern-based only. A scanner that stored the value would republish it"
+    },
+    {
+      "id": "principal_email",
+      "what": "The principal's personal email, hardcoded as a default SEC User-Agent",
+      "classification": "PRIVATE",
+      "context": "A default in source publishes it to every reader, not only to SEC",
+      "public_necessity": "none. SEC needs a contact at request time, which an environment variable supplies",
+      "action": "removed from tree and history; SEC_USER_AGENT now required at runtime and validated"
+    },
+    {
+      "id": "va_fiduciary_name",
+      "what": "The name of the principal's VA-appointed fiduciary",
+      "classification": "PRIVATE",
+      "context": "A THIRD PARTY who did not consent, named directly beside a capacity determination about the principal. The pairing is the disclosure: the name alone is ordinary, the name next to 'VA-appointed fiduciary' discloses that a determination of inability to manage one's own affairs exists",
+      "public_necessity": "none. The account model needs a fiduciary layer with a status and a citation. It does not need the person's identity to reason about whether an appointment binds",
+      "action": "replaced with the role in the public schema; the real identity is retained in the gitignored private overlay where the system actually needs it; removed from history",
+      "citation": "38 U.S.C. 5502; 38 CFR part 13"
+    },
+    {
+      "id": "certificate_signer_name",
+      "what": "The VA hub manager who signed the appointment certificate",
+      "classification": "PRIVATE",
+      "context": "Same pairing. A public official acting in an official capacity, but named beside the same capacity determination, which is the principal's private information rather than the official's",
+      "public_necessity": "none. The certificate's DATE and form number carry the evidentiary weight; the signer's name adds nothing the system reasons with",
+      "action": "replaced with the role; retained in the private overlay; removed from history"
+    },
+    {
+      "id": "principal_legal_name_in_ip_assignment",
+      "what": "The principal's legal name in docs/IP_ASSIGNMENT.md",
+      "classification": "PUBLIC_REQUIRED",
+      "context": "An assignment of intellectual property. The assignor must be identifiable or the instrument assigns nothing",
+      "public_necessity": "REQUIRED. He asked for it committed, dated and signed. A contract stripped of the assignor's name is not a redacted contract, it is a void one",
+      "action": "RETAINED DELIBERATELY. Not removed from tree or history",
+      "note": "This is the case that proves the model is contextual. The same name elsewhere, tied to a rent portion, was PRIVATE and was redacted"
+    },
+    {
+      "id": "synthetic_test_identifiers",
+      "what": "123-45-6789 and made-up account and routing numbers in tools/check_asset_registry.py",
+      "classification": "PUBLIC_OPTIONAL",
+      "context": "Documented synthetic fixtures. 123-45-6789 is the standard example",
+      "public_necessity": "useful. A regression test must carry a value of the right shape",
+      "action": "RETAINED. Never the real value - a test that carries the secret it protects is the same bug with a green tick",
+      "approved_paths": [
+        "config/disclosure_policy.json",
+        "tools/check_asset_registry.py",
+        "tools/check_history_classes.py",
+        "tools/check_no_secrets.py",
+        "tools/check_staging_boundary.py"
+      ]
+    },
+    {
+      "id": "irs_manual_example_ssn",
+      "what": "An example SSN inside the published Internal Revenue Manual",
+      "classification": "PUBLIC_REQUIRED",
+      "context": "The IRS's own published text, ingested verbatim as reference",
+      "public_necessity": "REQUIRED for corpus fidelity. Altering a statute or manual to satisfy a scanner corrupts the authority",
+      "action": "RETAINED, allowlisted with this reason",
+      "approved_paths": [
+        "reference/accounting_agent/internal_revenue_manual_part_5.json"
+      ]
+    },
+    {
+      "id": "published_legal_text_examples",
+      "what": "Example identifiers inside published statutes, regulations and agency manuals ingested verbatim",
+      "classification": "PUBLIC_REQUIRED",
+      "context": "Government works reproduced as corpus. Regulation Z, the IRM and several trust works contain sample SSNs and account numbers in their own text",
+      "public_necessity": "REQUIRED for corpus fidelity. Altering an authority to satisfy a scanner corrupts the thing the agent reasons from, and a redacted statute is no longer the statute",
+      "action": "RETAINED in tree and history",
+      "approved_paths": [
+        "reference/"
+      ]
+    }
+  ],
+  "_approved_paths": "Where a class may legitimately appear. The history verifier counts a commit as a finding only if the pattern occurs OUTSIDE these paths at that commit - a corpus ingest of published law is not a leak."
+}

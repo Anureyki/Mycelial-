@@ -88,6 +88,29 @@ jobs:
         # copies are compared byte-for-byte instead of forbidden.
         run: python tools/check_contracts.py
 
+      - name: No commit may be created from sensitive staged content
+        # Three boundaries and none substitutes for another: .gitignore stops
+        # ORDINARY tracking, the pre-commit gate stops sensitive STAGED
+        # CONTENT becoming a commit, history verification finds what already
+        # leaked. This proves the middle one, including against `git add -f`,
+        # which walks through .gitignore by design.
+        #
+        # It found a real bypass: the scanner listed staged filenames and then
+        # read them from the WORKING TREE. Stage a secret, clean the file,
+        # commit - the index still carried it. It now reads the staged blob.
+        #
+        # Runs in a throwaway repository: it creates commits and asserts that
+        # commits do NOT exist, neither of which may touch a real checkout.
+        run: python tools/check_staging_boundary.py
+
+      - name: Git history holds by CLASS, not by known values
+        # The first rewrite removed the two values that had been discovered
+        # and missed two third-party names beside a capacity determination -
+        # because the check asked "is the string I knew about gone?" rather
+        # than "is anything of this class still present?". Patterns only; the
+        # verifier never stores a value, and says SKIP where it cannot check.
+        run: python tools/check_history_classes.py
+
       - name: No sensitive material in the repository
         # The backstop. The real gate is .githooks/pre-commit, because a
         # secret caught by CI has already been pushed - this repository

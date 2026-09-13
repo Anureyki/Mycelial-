@@ -92,7 +92,19 @@ def classify(source):
     """-> {class, why, citation}. An undeclared source is `unknown`."""
     rec = (_config().get("sources") or {}).get(source)
     if not rec:
-        return {"class": "unknown", "source": source,
+        # NO CLAIM IS NOT A CLAIM OF `unknown`. A name lookup that finds
+        # nothing has said nothing - it has not asserted that the data is
+        # unclassified, it has failed to recognise a path. Treating that as a
+        # claim made the lattice refuse every store not sitting at a canonical
+        # location, including one carrying a perfectly good explicit manifest,
+        # because "unknown" outranks everything.
+        #
+        # The distinction matters in the other direction too: an explicit
+        # `"class": "unknown"`, or a manifest that exists and is malformed, IS
+        # a claim and must keep blocking. Silence and a declaration of
+        # ignorance are different findings - the same rule this system applies
+        # to every absence it records.
+        return {"class": "unknown", "claimed": False, "source": source,
                 "why": (f"{source!r} is not declared in "
                         f"config/data_sensitivity.json. A source nobody "
                         f"classified is the one most likely to be new, and "
@@ -104,9 +116,62 @@ def classify(source):
         return {"class": "unknown", "source": source,
                 "why": f"declared class {c!r} is not one of {list(CLASSES)}",
                 "citation": rec.get("citation")}
-    return {"class": c, "source": source, "why": rec.get("why"),
+    return {"class": c, "claimed": True, "source": source,
+            "why": rec.get("why"),
             "citation": rec.get("citation"),
             "federated_only": bool(rec.get("federated_only"))}
+
+
+# RESTRICTION IS A LATTICE AND ONLY MOVES UP.
+#
+# Ordered least to most restrictive. `unknown` is not the bottom of this
+# scale - it BLOCKS, because "nobody classified it" is not "it is safe".
+RESTRICTION = {"system_operational": 1, "personal_financial": 2,
+               "personal_record": 3, "unknown": 99}
+
+
+def resolve(*claims):
+    """-> the binding classification from every available claim.
+
+    THE RULE THIS ENFORCES, and the hole it closes. Inference may INCREASE
+    restriction and must never silently decrease an explicit one. A source's
+    classification was being read from a manifest inside its own directory,
+    and that manifest won outright - so a directory declared
+    personal_financial by name, carrying a manifest that said
+    system_operational, was ALLOWED. Measured, not theorised: a personal
+    source downgraded itself and the trainer accepted it.
+
+    Data that can lower its own restriction is not classified, it is
+    self-certified - the same shape as an agent writing its own security
+    record, which core/security_events.py exists to prevent.
+
+    So every claim is collected and the MOST RESTRICTIVE binds. A genuine
+    disagreement is reported as `conflicting` alongside the binding answer,
+    because two sources disagreeing about how sensitive something is is worth
+    a human look even when the safe reading is obvious."""
+    seen = []
+    for c in claims:
+        if not c:
+            continue
+        if isinstance(c, dict) and c.get("claimed") is False:
+            continue                      # silence, not a claim of unknown
+        k = c if isinstance(c, str) else c.get("class")
+        if k not in RESTRICTION:
+            k = "unknown"                 # a malformed claim IS a claim
+        seen.append(k)
+    if not seen:
+        return {"class": "unknown", "claims": [], "conflicting": False,
+                "why": "no classification was available at all"}
+    binding = max(seen, key=lambda k: RESTRICTION[k])
+    return {
+        "class": binding,
+        "claims": seen,
+        "conflicting": len(set(seen)) > 1,
+        "why": (f"{len(set(seen))} differing claims {sorted(set(seen))}; the "
+                f"most restrictive binds. Inference may tighten a "
+                f"classification and may never loosen one."
+                if len(set(seen)) > 1 else f"all claims agree: {binding}"),
+    }
 
 
 def requires_dp(source):
@@ -114,10 +179,17 @@ def requires_dp(source):
         classify(source)["class"] == "unknown"
 
 
-def gate(source, dp_engaged, epsilon_spent=None):
-    """-> True, or raise Refused. The one place the obligation is enforced."""
+def gate(source, dp_engaged, epsilon_spent=None, also=()):
+    """-> True, or raise Refused. The one place the obligation is enforced.
+
+    `also` carries any additional classification claims - a manifest found
+    beside the data, for instance. They can only make the answer stricter."""
     c = classify(source)
-    kind = c["class"]
+    r = resolve(c, *[classify(a) if isinstance(a, str) else a for a in also])
+    kind = r["class"]
+    if r["conflicting"]:
+        c = dict(c, why=(c.get("why") or "") + " CONFLICTING CLAIMS: "
+                 + r["why"])
     if kind == "unknown":
         raise Refused(
             f"REFUSED: {c['why']} Declare it in config/data_sensitivity.json "

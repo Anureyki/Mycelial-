@@ -104,6 +104,14 @@ ALLOWED = {
     "tools/check_retrieval.py": "a zero-filled citation placeholder",
     "reference/accounting_agent/internal_revenue_manual_part_5.json":
         "the IRS's own published example SSN inside the Internal Revenue Manual",
+    "tools/check_staging_boundary.py":
+        "the synthetic fixture this gate stages on purpose to prove that a "
+        "forced add is still refused. It is the documented example SSN and "
+        "never a real value - testing a secret scanner must not require the "
+        "secret",
+    "config/disclosure_policy.json":
+        "the disclosure policy names the synthetic example it approves. A "
+        "policy that cannot say WHICH value it approved is not auditable",
     "reference/_shared/pomeroy_equity_jurisprudence_vol_1_1886.json":
         "an Internet Archive scan identifier in the provenance line of an 1886 "
         "public-domain treatise. It is card-shaped, issuer-prefixed AND "
@@ -152,7 +160,30 @@ def _tracked_files():
     return [f for f in out.stdout.splitlines() if f.strip()]
 
 
-def scan_paths(paths):
+def _staged_blob(rel):
+    """-> the content GIT WILL COMMIT for this path, from the index.
+
+    NOT THE FILE ON DISK. This is the bypass the boundary test found: the
+    scanner listed staged filenames and then opened them from the working
+    tree. Stage a secret, clean the file, commit - the index still carries the
+    secret, the scan reads the clean disk copy, and the commit lands.
+
+    The index is what becomes the commit. The working tree is a different
+    thing that usually happens to match, and "usually happens to match" is not
+    a security property.
+
+    A blob that cannot be read RAISES, so it is refused rather than skipped.
+    """
+    r = subprocess.run(["git", "show", f":{rel}"], cwd=ROOT,
+                       capture_output=True)
+    if r.returncode != 0:
+        raise RuntimeError(
+            f"cannot read the staged blob for {rel}: "
+            f"{r.stderr.decode('utf-8', 'replace')[:160]}")
+    return r.stdout.decode("utf-8", "replace")
+
+
+def scan_paths(paths, from_index=False):
     """-> [findings]. A finding NEVER carries the value it matched."""
     findings = []
     for rel in paths:
@@ -170,14 +201,17 @@ def scan_paths(paths):
                 break
         else:
             full = os.path.join(ROOT, rel)
-            if not os.path.isfile(full):
-                continue
             if any(p in full.split(os.sep) for p in SKIP_DIRS):
                 continue
-            try:
-                body = open(full, encoding="utf-8", errors="replace").read()
-            except OSError as exc:
-                raise RuntimeError(f"{rel} unreadable: {exc}") from exc
+            if from_index:
+                body = _staged_blob(rel)
+            else:
+                if not os.path.isfile(full):
+                    continue
+                try:
+                    body = open(full, encoding="utf-8", errors="replace").read()
+                except OSError as exc:
+                    raise RuntimeError(f"{rel} unreadable: {exc}") from exc
             for name, (rx, human) in PATTERNS.items():
                 m = None
                 for cand in rx.finditer(body):
@@ -207,7 +241,8 @@ def main():
     a = ap.parse_args()
     try:
         paths = _staged_files() if a.staged else _tracked_files()
-        findings = scan_paths(paths)
+        # --staged reads the INDEX. Anything else reads the working tree.
+        findings = scan_paths(paths, from_index=a.staged)
     except Exception as exc:                        # noqa: BLE001
         # FAIL CLOSED. A scanner that errors and lets the commit through is
         # worse than no scanner, because it is trusted.
