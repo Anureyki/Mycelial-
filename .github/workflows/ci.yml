@@ -93,6 +93,17 @@ jobs:
         # core/identifier_scan.py, used by both callers.
         run: python tools/check_ontology.py
 
+      - name: Uncertainty survives ingestion
+        # Phase 1B. The purpose is not to make the system know more - it is to
+        # make it able to say WHY it believes something, with a page number,
+        # and to keep saying "I do not know" through a pipeline whose whole
+        # tendency is to turn documents into confident rows.
+        #
+        # Asserts the layer that must not collapse: a statement saying
+        # "holder" establishes a string in a position, not an ownership
+        # interest. interpret() deliberately does not exist here.
+        run: python tools/check_ingest.py
+
       - name: One contract, one reader
         # The defect class that has appeared four times here, three of them
         # security or privacy failures: a meaning computed in one place and

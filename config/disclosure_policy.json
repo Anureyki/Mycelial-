@@ -64,6 +64,7 @@
         "config/disclosure_policy.json",
         "tools/check_asset_registry.py",
         "tools/check_history_classes.py",
+        "tools/check_ingest.py",
         "tools/check_no_secrets.py",
         "tools/check_ontology.py",
         "tools/check_staging_boundary.py"

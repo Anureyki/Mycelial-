@@ -111,6 +111,10 @@ ALLOWED = {
     "tools/check_retrieval.py": "a zero-filled citation placeholder",
     "reference/accounting_agent/internal_revenue_manual_part_5.json":
         "the IRS's own published example SSN inside the Internal Revenue Manual",
+    "tools/check_ingest.py":
+        "synthetic fixtures proving the write guard reaches the ingestion "
+        "path - a documented example SSN and a documented test card in an "
+        "extracted value and a quoted original text, never real values",
     "tools/check_ontology.py":
         "synthetic fixtures proving the shared write guard reaches the "
         "counterparty and contract registries - a documented example SSN and "
