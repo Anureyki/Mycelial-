@@ -75,7 +75,12 @@ def _cache_put(kind, key, value):
     if not isinstance(value, dict) or value.get("error"):
         return value            # never cache a failure as if it were an answer
     try:
-        with open(_cache_path(kind, key), "w", encoding="utf-8") as fh:
+        # 0600 at creation. The directory is 0700 and the files inside it
+        # were 0644 - a search result carrying party names and a docket,
+        # readable by every user on the box. check_fs_boundary caught it on
+        # the tree; the creator is where it is fixed.
+        fd = os.open(_cache_path(kind, key), os.O_WRONLY | os.O_CREAT | os.O_TRUNC, 0o600)
+        with os.fdopen(fd, "w", encoding="utf-8") as fh:
             json.dump(value, fh)
     except Exception:
         pass
@@ -169,21 +174,34 @@ def docket_documents(arguments):
     number = arguments.get("document_number")
     try:
         params = {"docket_entry__docket": docket_id, "page_size": 50}
-        fields = ["id", "document_number", "description", "is_available", "page_count"]
+        # BOTH description fields. An entry can carry its title in either:
+        # Smith v. National Credit Systems' 11-page ruling (D. Md. doc 17)
+        # has an empty `description` and "Memorandum Opinion" in
+        # `short_description`, and asking for one field made an available
+        # ruling look like an untitled attachment.
+        fields = ["id", "document_number", "description", "short_description",
+                  "is_available", "page_count"]
         if number is not None:
             params["document_number"] = str(number)
             fields.append("plain_text")
         params["fields"] = ",".join(fields)
-        resp = requests.get(f"{BASE_URL}/recap-documents/", params=params,
-                            headers=_headers(), timeout=45)
-        if resp.status_code != 200:
-            return {"error": f"CourtListener document fetch failed: HTTP {resp.status_code}",
-                    "detail": resp.text[:400]}
+        # THE SAME BACKOFF search USES. This was a bare GET, so the fourth call
+        # in a minute got a 429, returned {"error": ...}, and the Legal Agent
+        # listing a docket for an opinion read that as "no entry available" -
+        # a throttle reported as a fact about the archive. Farahani v. Verizon
+        # has two Memorandum & Orders with text and was reported as having
+        # none. The wait the server asks for is the fix; the error is still
+        # an error when the wait runs out.
+        resp, err = _get_with_backoff(f"{BASE_URL}/recap-documents/", params, timeout=45)
+        if err:
+            return {"error": f"CourtListener document fetch failed: {err}"}
         results = resp.json().get("results", [])
         if number is None:
             return {"docket_id": docket_id, "documents": [
-                {k: r.get(k) for k in ("document_number", "description",
-                                       "is_available", "page_count")}
+                {"document_number": r.get("document_number"),
+                 "description": r.get("description") or r.get("short_description") or "",
+                 "short_description": r.get("short_description"),
+                 "is_available": r.get("is_available"), "page_count": r.get("page_count")}
                 for r in results],
                 "note": ("Entries only. Pass document_number to read one. "
                          "is_available false means RECAP holds no text for it - "

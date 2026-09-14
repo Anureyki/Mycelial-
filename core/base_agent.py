@@ -1272,6 +1272,16 @@ class AgentBase:
                 continue
             title, source = doc.get("title", fname), doc.get("source", "")
             titles.append(f"{title} ({len(sections)} sections)")
+            # A DECISION IS REACHABLE BY ITS OWN CAPTION. Treatise-mode
+            # ingest keys each page by the authorities it CITES, so a
+            # shelved opinion was findable by the cases it discussed and
+            # not by its own name - Galvez v. Midland resolved only because
+            # it cites its own earlier order, and Martinez v. Green Planet
+            # did not resolve at all. The caption is the part of the title
+            # before the court-and-docket parenthetical.
+            _caption = None
+            if str(doc.get("authority_class") or "") == "case_law" and " v" in str(title):
+                _caption = re.split(r"\s*\(", str(title), maxsplit=1)[0].strip().lower()
             for s in sections:
                 entry = {"title": title, "source": source,
                          "citation": s.get("citation"), "page": s.get("page"),
@@ -1346,6 +1356,8 @@ class AgentBase:
                         by_authority.setdefault(law, []).append(entry)
                 for a in s.get("authorities", []) or []:
                     by_authority.setdefault(a.strip().lower(), []).append(entry)
+                if _caption:
+                    by_authority.setdefault(_caption, []).append(entry)
             # Subject terms the work itself repeats, so a doctrine can be asked
             # for by name instead of by page. Exact keys only - nothing scored.
             for term, idxs in (doc.get("term_index") or {}).items():

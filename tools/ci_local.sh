@@ -82,6 +82,7 @@ step "check_no_secrets"             "$PY" tools/check_no_secrets.py
 step "check_fs_boundary"            "$PY" tools/check_fs_boundary.py
 step "check_staging_boundary"       "$PY" tools/check_staging_boundary.py
 step "check_history_classes"        "$PY" tools/check_history_classes.py
+step "check_case_law"               "$PY" tools/check_case_law.py
 echo
 if [ "$rc" -eq 0 ]; then echo "ALL GREEN - $HONEST."
 else echo "RED - do not claim the build passes."; fi

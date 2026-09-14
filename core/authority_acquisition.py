@@ -174,7 +174,7 @@ def _terms(phrase):
             if w not in STOPWORDS and len(w) > 2]
 
 
-def check_subject(body, expect):
+def check_subject(body, expect, window=None):
     """-> {verified, matched, missing, heading, why}. The READ step.
 
     Matching is prefix-based on the first five characters so that `deduction`
@@ -183,8 +183,15 @@ def check_subject(body, expect):
     enough: a heading is a few words and demanding several would refuse correct
     provisions, which trains a caller to pass force=True by reflex and turns the
     whole check off."""
+    # `window` is how far in to look. The default suits a statute section,
+    # whose subject is its first line. A court's ruling opens with a caption,
+    # a case number and a page header, and says what it is about on page
+    # two - Martinez v. Green Planet, a 17-page FCRA ruling, was refused as
+    # off-subject because its first 700 characters are the caption. The
+    # caller that knows the shape of what it fetched sets the reach.
+    span = int(window or SUBJECT_WINDOW)
     heading = _heading_of(body)
-    window = (heading + " " + (body or "")[:SUBJECT_WINDOW]).lower()
+    window = (heading + " " + (body or "")[:span]).lower()
     wanted = _terms(expect)
     if not wanted:
         return {"verified": False, "matched": [], "missing": [],
@@ -204,7 +211,7 @@ def check_subject(body, expect):
         "why": (f"Heading {heading!r} carries {matched}."
                 if ok else
                 f"Nothing in {wanted} appears in the heading {heading!r} or the "
-                f"opening {SUBJECT_WINDOW} characters. The provision that came "
+                f"opening {span} characters. The provision that came "
                 f"back is not about what was asked for, so nothing was shelved. "
                 f"Read the text in `retrieved` and either fetch a different "
                 f"citation or re-run with force=True if the subject is stated "

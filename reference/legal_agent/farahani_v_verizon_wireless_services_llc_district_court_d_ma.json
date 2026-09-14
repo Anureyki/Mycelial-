@@ -1,0 +1,991 @@
+{
+  "title": "Farahani v. Verizon Wireless Services, LLC (District Court, D. Massachusetts, No. 1:25-cv-13285, Doc. 71)",
+  "source": "CourtListener RECAP docket 71878077, document 71: the court's own text as filed - \"Memorandum & Order\". Judicial opinions are edicts of government and public domain. Retrieved 2026-09-14.",
+  "authority_class": "case_law",
+  "authority_class_basis": "The work is a court's opinion or order, read from the docket as filed; a judicial decision is case law by what it is",
+  "claim_layer": "unknown",
+  "claim_layer_meaning": "Not declared at ingest. Treat any citation from here as unclassified: it may be rationale rather than rule.",
+  "authorities_cited": [
+    "AT&T Mobility LLC v. Concepcion",
+    "American Express Co. v. Italian",
+    "Anderson v. Liberty",
+    "Awuah v. Coverall",
+    "Barrows v. Brinker",
+    "Blind v. The",
+    "Buruk v. Experian",
+    "Campbell v. Gen",
+    "Connor v. Steeves",
+    "Dean Witter Reynolds Inc. v. Byrd",
+    "Defendants cite Bourque v. Rollins",
+    "Ellerbee v. GameStop",
+    "Emmanuel v. Handy",
+    "Erickson v. Pardus",
+    "Estelle v. Gamble",
+    "FPE Found. v. Cohen",
+    "Garside v. Osco",
+    "Hosp. v. Mercury",
+    "Inc. v. Cardegna",
+    "Inc. v. Casarotto",
+    "Inc. v. Daikin",
+    "Inc. v. Grove",
+    "Inc. v. Jackson",
+    "Inc. v. Minebea",
+    "Inc. v. Radin",
+    "Inc. v. Village",
+    "Kauders v. Uber",
+    "LLC v. KPJ",
+    "Mesnick v. General",
+    "Morgan v. Sundance",
+    "Munoz v. R.J",
+    "Rivera v. Allscripts",
+    "Rules of Civil Procedure. Thomas v. Norris",
+    "See Bourque v. Rollins",
+    "See Da Silva v. U.S",
+    "See Hershey v. Donaldson",
+    "Under Prima Paint Corp. v. Flood",
+    "Waters v. Min"
+  ],
+  "term_index": {
+    "defendants cellular sales": [
+      0,
+      23
+    ],
+    "summary judgment": [
+      0,
+      3,
+      4,
+      6,
+      7,
+      8,
+      16,
+      20,
+      21,
+      22
+    ],
+    "governs this dispute": [
+      0,
+      4
+    ],
+    "without prejudice": [
+      0,
+      23
+    ],
+    "plaintiff further": [
+      0,
+      21
+    ],
+    "denied without prejudice": [
+      0,
+      23
+    ],
+    "factual disputes": [
+      0,
+      22,
+      23
+    ],
+    "wireless services": [
+      0,
+      23
+    ],
+    "sales have moved": [
+      0,
+      8
+    ],
+    "document filed": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      7,
+      8,
+      10,
+      11,
+      13,
+      16,
+      18,
+      20,
+      21,
+      22,
+      23
+    ],
+    "united states district": [
+      0,
+      23
+    ],
+    "contract formation": [
+      0,
+      11,
+      13,
+      18,
+      23
+    ],
+    "denied defendants": [
+      0,
+      22
+    ],
+    "debt collection": [
+      0,
+      3
+    ],
+    "concerning contract": [
+      0,
+      23
+    ],
+    "verizon wireless services": [
+      0,
+      23
+    ],
+    "concerning contract formation": [
+      0,
+      23
+    ],
+    "states district": [
+      0,
+      23
+    ],
+    "verizon wireless": [
+      0,
+      23
+    ],
+    "disputes concerning contract": [
+      0,
+      23
+    ],
+    "disputes concerning": [
+      0,
+      23
+    ],
+    "arbitration clause": [
+      0,
+      3,
+      16,
+      18,
+      20,
+      21,
+      22
+    ],
+    "defendants cellular": [
+      0,
+      23
+    ],
+    "strike will": [
+      0,
+      10
+    ],
+    "enforceable arbitration": [
+      0,
+      4
+    ],
+    "factual disputes concerning": [
+      0,
+      23
+    ],
+    "cellular sales": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      8,
+      17,
+      20,
+      23
+    ],
+    "denied without": [
+      0,
+      23
+    ],
+    "compel arbitration": [
+      0,
+      4,
+      6,
+      11,
+      18,
+      20,
+      21,
+      22,
+      23
+    ],
+    "defendants verizon": [
+      0,
+      4,
+      8
+    ],
+    "defendants motion": [
+      0,
+      8,
+      22
+    ],
+    "declaratory judgment": [
+      0,
+      3,
+      4
+    ],
+    "jefferson capital": [
+      0,
+      3,
+      22
+    ],
+    "mandatory arbitration": [
+      0,
+      2
+    ],
+    "credit control": [
+      0,
+      3
+    ],
+    "united states": [
+      0,
+      23
+    ],
+    "blank screen": [
+      1,
+      13,
+      16,
+      21
+    ],
+    "cellular sales bill": [
+      1,
+      2,
+      17
+    ],
+    "store employee": [
+      1,
+      8,
+      13
+    ],
+    "verizon loan": [
+      1,
+      2,
+      22
+    ],
+    "verizon loan agreement": [
+      1,
+      2,
+      22
+    ],
+    "blank signature": [
+      1,
+      16,
+      18
+    ],
+    "farahani agreed": [
+      1,
+      2
+    ],
+    "sales bill": [
+      1,
+      2,
+      17
+    ],
+    "loan agreement": [
+      1,
+      2,
+      16,
+      22
+    ],
+    "installment loan agreement": [
+      2,
+      16
+    ],
+    "billing statement": [
+      2,
+      3
+    ],
+    "arbitration provision": [
+      2,
+      14,
+      18
+    ],
+    "loan amount": [
+      2,
+      16
+    ],
+    "dispute resolution": [
+      2,
+      19
+    ],
+    "installment loan": [
+      2,
+      16
+    ],
+    "arbitration agreement exists": [
+      3,
+      11
+    ],
+    "valid arbitration": [
+      3,
+      11
+    ],
+    "agreement exists": [
+      3,
+      11
+    ],
+    "valid arbitration agreement": [
+      3,
+      11
+    ],
+    "fair credit reporting act": [
+      3
+    ],
+    "arbitration agreement": [
+      3,
+      4,
+      6,
+      11,
+      12,
+      13,
+      18,
+      19,
+      22
+    ],
+    "credit report": [
+      3
+    ],
+    "cross motion": [
+      4,
+      7
+    ],
+    "daikin applied": [
+      4,
+      11
+    ],
+    "genuine dispute": [
+      4,
+      16,
+      22
+    ],
+    "summary judgment standard": [
+      4,
+      6
+    ],
+    "judgment standard": [
+      4,
+      6
+    ],
+    "applied latin": [
+      4,
+      11
+    ],
+    "daikin applied latin": [
+      4,
+      11
+    ],
+    "trial thereof": [
+      6,
+      22
+    ],
+    "federal arbitration": [
+      6,
+      10
+    ],
+    "proceed summarily": [
+      6,
+      22
+    ],
+    "citation modified": [
+      7,
+      11,
+      15,
+      18,
+      20
+    ],
+    "will simply": [
+      8,
+      10
+    ],
+    "will simply disregard": [
+      8,
+      10
+    ],
+    "simply disregard": [
+      8,
+      10
+    ],
+    "what plaintiff": [
+      8,
+      16
+    ],
+    "original affidavit": [
+      9,
+      23
+    ],
+    "otherwise denied": [
+      10,
+      23
+    ],
+    "arbitration agreements": [
+      10,
+      11,
+      16,
+      22
+    ],
+    "paragraphs sentence": [
+      10,
+      23
+    ],
+    "enforce arbitration agreements": [
+      10,
+      22
+    ],
+    "enforce arbitration": [
+      10,
+      22
+    ],
+    "contract concepcion": [
+      10,
+      11
+    ],
+    "reasonable notice": [
+      12,
+      13,
+      16,
+      18,
+      19
+    ],
+    "made aware": [
+      13,
+      18
+    ],
+    "plaintiff contends": [
+      13,
+      18,
+      20,
+      21,
+      22
+    ],
+    "parties agreement": [
+      15,
+      22
+    ],
+    "swiping past": [
+      16,
+      18
+    ],
+    "defendants contend": [
+      16,
+      18
+    ],
+    "inconsistent with arbitration": [
+      20,
+      21
+    ],
+    "presumption against": [
+      20,
+      21
+    ],
+    "strong presumption": [
+      20,
+      21
+    ],
+    "strong presumption against": [
+      20,
+      21
+    ],
+    "substantive unconscionability": [
+      21,
+      22
+    ]
+  },
+  "origin_pdf": "farahani_v_verizon_wireless_services_llc_1_25_cv_1.txt",
+  "extraction": {
+    "extractor": "text file (already extracted)",
+    "pages": 18,
+    "no_text_layer": [
+      18
+    ],
+    "raised": [],
+    "recovered": [],
+    "lost": [],
+    "complete": true
+  },
+  "pages": 18,
+  "sections": [
+    {
+      "citation": "part 1",
+      "kind": "treatise",
+      "page": null,
+      "authorities": [],
+      "text": "Case 1:25-cv-13285-FDS Document 71 Filed 08/06/26 Page 1 of 17 UNITED STATES DISTRICT COURT DISTRICT OF MASSACHUSETTS ____________________________________ ) GHODRAT FARAHANI, ) ) Plaintiff, ) ) v. ) Civil Action No. ) 25-cv-13285-FDS VERIZON WIRELESS ) SERVICES, LLC, et al., ) ) Defendants. ) ____________________________________) MEMORANDUM AND ORDER ON MOTION OF PLAINTIFF FOR SUMMARY JUDGMENT ON COUNT 1 AND MOTIONS OF DEFENDANTS CELLULAR SALES OF MASSACHUSETTS, LLC AND VERIZON WIRELESS SERVICES, LLC TO STRIKE AND COMPEL ARBITRATION SAYLOR, J. This is a lawsuit filed by a consumer against a cellphone service provider and various related entities. Plaintiff Ghodrat Farahani alleges that defendants Cellular Sales of Massachusetts, LLC and Verizon Wireless Services, LLC fraudulently obtained his signature on multiple agreements concerning a cellphone installment plan. Those documents included two mandatory arbitration provisions, one for Cellular Sales and one for Verizon. Plaintiff further alleges that defendants Jefferson Capital Systems, LLC; McCarthy, Burgess & Wolff, Inc.; and Credit Control, LLC then unlawfully attempted to collect on that invalid debt. He is proceeding pro se. Plaintiff has moved for summary judgment on Count 1, which seeks a declaratory judgment that no enforceable arbitration clause governs this dispute. Defendants Verizon and Cellular Sales have moved to strike portions of plaintiff\u2019s supporting affidavit and to compel arbitration or, in the alternative, dismiss for failure to state a claim upon which relief can be Case 1:25-cv-13285-FDS Document 71 Filed 08/06/26 Page 2 of 17 granted. For the following reasons, plaintiff\u2019s motion for summary judgment will be denied; defendants\u2019 motion to strike will be granted in part and denied in part; and defendants\u2019 motion to compel arbitration will be denied without prejudice pending resolution of factual disputes concerning contract formation. I. Background The following facts are undisputed unless otherwise noted. A. The Parties Ghodrat Farahani is an individual who resided in Rehoboth, Massachusetts, during the relevant time in 2021. (Farahani Aff. \u00b6 4, Dkt. No. 21). Verizon Wireless Services, LLC is a limited liability company that sells cellular services and related equipment. (White Decl. \u00b6 3, Dkt. No. 30-1). Cellular Sales of Massachusetts, LLC is a limited liability company that operates retail electronics stores in Massachusetts. (Id.). Cellular Sales is a Verizon retailer. (Id.). Jefferson Capital Services, LLC is a limited liability company that engages in debt collection. (Am. Compl. \u00b6 14, Dkt. No. 10; Jefferson Answer \u00b6\u00b6 14, 50, Dkt. No. 31). It held and attempted to collect Farahani\u2019s debt to Verizon. (Jefferson Answer \u00b6 50). McCarthy, Burgess & Wolff, Inc. (\u201cMB&W\u201d) is a corporation that at some point held Farahani\u2019s debt for collection. (Am. Compl. \u00b6 15; MB&W Answer \u00b6 15, Dkt. No. 19). Credit Control, LLC is a limited liability company that collects debts in Massachusetts. (Id. \u00b6 16; Credit Control Answer \u00b6 16, Dkt. No. 17). At some point it held Farahani\u2019s debt for collection. (Credit Control Answer \u00b6 50). B. Relevant Factual Background On June 11, 2021, Ghodrat Farahani went to a store in Swansea, Massachusetts, to address his ongoing problems with cellular service at his home. (Farahani Aff. \u00b6 10). That store",
+      "integrity": {
+        "state": "complete",
+        "basis": "Full retrieved body of 3,350 characters stored; under the 60,000 cap, so nothing was cut.",
+        "stamped_at": "2026-09-14T14:19:30",
+        "stored_chars": 3350,
+        "source_chars": 3350,
+        "cap_applied": 60000
+      },
+      "authority_class": "case_law",
+      "claim_layer": "unknown",
+      "claim_layer_meaning": "Not declared at ingest. Treat any citation from here as unclassified: it may be rationale rather than rule."
+    },
+    {
+      "citation": "p. 2",
+      "kind": "treatise",
+      "page": 2,
+      "authorities": [],
+      "text": "Case 1:25-cv-13285-FDS Document 71 Filed 08/06/26 Page 3 of 17 was operated by Cellular Sales, although it retailed Verizon products and displayed Verizon branding. (Id. \u00b6\u00b6 10, 47). According to Farahani, a store employee named Liam Gardiner came over to assist him. (Id. \u00b6 12). Farahani told Gardiner that he wanted to purchase a Verizon service plan to use with his current phone. (Id. \u00b6 13). After examining the phone, Gardiner stated that his phone was not compatible with Verizon service and that he would need a different phone. (Id.). Farahani explained that he did not want to purchase a new phone and began to leave. (Id. \u00b6\u00b6 14-15). At that point, a man \u201cwho appeared to be the manager\u201d approached. (Id. \u00b6 16). The manager told Farahani that he was eligible for a \u201cfree\u201d phone that he \u201cd[id not] have to pay for\u201d so long as he signed up for Verizon service. (Id.). Farahani agreed. (Id. \u00b6 18). Gardiner then presented Farahani with an electronic tablet. (Id. \u00b6 19). Farahani contends that the \u201cscreen was completely blank except for a signature line at the bottom.\u201d (Id.). After Farahani inquired if he could get a copy of what he was signing, Gardiner allegedly explained that he would later be emailed a copy. (Id. \u00b6\u00b6 20-21). According to Farahani, he signed the blank screen under the belief that he was acknowledging receipt of the free phone and signing up for Verizon service. (Id. \u00b6 27). He maintains that he never received an email with the terms of the agreement and that no one in the store told him that he could view the terms and conditions online. (Id. \u00b6\u00b6 29-31). Cellular Sales contends that it was regular practice for its employees to capture customers\u2019 signatures on an electronic tablet. (Mills Decl. \u00b6 3, Dkt. No. 30-4). It maintains that at no point could its tablet have displayed a standalone blank signature pad. (Id. \u00b6 4). Rather, a customer must scroll or swipe through the Cellular Sales bill of sale and the Verizon loan agreement before reaching the signature line at the end. (Id. \u00b6 3).",
+      "integrity": {
+        "state": "complete",
+        "basis": "Full retrieved body of 2,025 characters stored; under the 60,000 cap, so nothing was cut.",
+        "stamped_at": "2026-09-14T14:19:30",
+        "stored_chars": 2025,
+        "source_chars": 2025,
+        "cap_applied": 60000
+      },
+      "authority_class": "case_law",
+      "claim_layer": "unknown",
+      "claim_layer_meaning": "Not declared at ingest. Treat any citation from here as unclassified: it may be rationale rather than rule."
+    },
+    {
+      "citation": "p. 3",
+      "kind": "treatise",
+      "page": 3,
+      "authorities": [],
+      "text": "Case 1:25-cv-13285-FDS Document 71 Filed 08/06/26 Page 4 of 17 Defendants further contend that by signing the tablet Farahani agreed to be bound by four agreements: (1) a Verizon installment loan agreement with a total obligation of $565; (2) a Verizon customer agreement with an arbitration provision; (3) a Cellular Sales bill of sale; and (4) a Cellular Sales dispute resolution agreement with an arbitration provision. (Id.). The Verizon installment loan agreement identifies Farahani as the borrower, notes the date of the transaction as June 11, 2021, and identifies Cellular Sales at the Swansea location as the seller. (Verizon Loan Agreement 1, Dkt. No. 30-6). The agreement provides a payment schedule for a $565 loan over the course of 24 months. (Id.). Farahani\u2019s signature, dated June 11, 2021, appears on a signature page that states: \u201cI agree to all of the terms of the Installment Loan Agreement(s) . . . including my obligation to make monthly payments as described . . . .\u201d (Id. at 5). Also on the signature page is the statement \u201cI agree to the Verizon Customer Agreement (CA), including . . . settlement of disputes by arbitration instead of jury trial.\u201d (Id.) The Verizon customer agreement contains a provision stating that \u201cyou and Verizon both agree to resolve disputes only by arbitration or in small claims court . . . you understand that by this agreement you are giving up your right to bring a claim in court or in front of a jury.\u201d (Verizon Customer Agreement 6, Dkt. No. 30-7). The Cellular Sales bill of sale lists the $565 loan amount. (Cellular Sales Bill of Sale 1, Dkt. No. 30-2). It includes an \u201cacknowledgement\u201d that all disputes will be governed by the mandatory arbitration provision in the Cellular Sales dispute resolution agreement. (Id. at 2-3). The Cellular Sales dispute resolution agreement contains a mandatory arbitration provision. (Cellular Sales Dispute Resolution Agreement, Dkt. No. 30-3). Farahani received the first billing statement from Verizon later that month. (Farahani Aff. \u00b6 37). The billing statement included a line item for \u201cdevice payment (1 of 24)\u201d costing",
+      "integrity": {
+        "state": "complete",
+        "basis": "Full retrieved body of 2,124 characters stored; under the 60,000 cap, so nothing was cut.",
+        "stamped_at": "2026-09-14T14:19:30",
+        "stored_chars": 2124,
+        "source_chars": 2124,
+        "cap_applied": 60000
+      },
+      "authority_class": "case_law",
+      "claim_layer": "unknown",
+      "claim_layer_meaning": "Not declared at ingest. Treat any citation from here as unclassified: it may be rationale rather than rule."
+    },
+    {
+      "citation": "p. 4",
+      "kind": "treatise",
+      "page": 4,
+      "authorities": [],
+      "text": "Case 1:25-cv-13285-FDS Document 71 Filed 08/06/26 Page 5 of 17 $23.58. (Verizon Billing Statement, Dkt. No. 10-1). Farahani was unsuccessful in his attempts to return the phone and continued to receive bills for it that he did not pay. (Farahani Aff. \u00b6\u00b6 45- 56). Eventually, the debt was sent to collection agencies. (Id. \u00b6 56). C. Procedural Background On August 25, 2025, plaintiff filed this action against all defendants in Massachusetts Superior Court. (State R. 6, Dkt. No. 7). Defendants then removed the case to this court. (Notice of Removal, Dkt. No. 1). On November 13, 2025, plaintiff filed an amended complaint asserting thirteen counts: (1) declaratory judgment that the arbitration clause is unenforceable against Verizon and Cellular Sales; (2) unfair or deceptive practices in violation of Mass. Gen. Laws ch. 93A against all defendants; (3) unfair debt collection practices in violation of Mass. Gen. Laws ch. 93, \u00a7 49 against Jefferson Capital, MB&W, and Credit Control; (4) fraud/intentional misrepresentation against Verizon and Cellular Sales; (5) negligent misrepresentation against Verizon and Cellular Sales; (6) slander of credit/defamation against all defendants; (7) negligence against all defendants; (8) breach of contract against Verizon and Cellular Sales; (9) tortious interference with prospective business relations against all defendants; (10) intentional and negligent infliction of emotional distress against all defendants; (11) violation of the Truth in Lending Act, 15 U.S.C. \u00a7 1601 et seq., against Verizon and Cellular Sales; (12) violation of the Fair Debt Collection Practices Act, 15 U.S.C. \u00a7 1692 et seq., against Jefferson Capital, MB&W, and Credit Control; and (13) violation of the Fair Credit Reporting Act, 15 U.S.C. \u00a7 1681 et seq., against Jefferson Capital. (Am. Compl. at 11-26). Plaintiff has moved for partial summary judgment on Count 1. He seeks a declaratory judgment that no valid arbitration agreement exists between himself and Cellular Sales and Verizon. He also submitted an affidavit in support of that motion.",
+      "integrity": {
+        "state": "complete",
+        "basis": "Full retrieved body of 2,076 characters stored; under the 60,000 cap, so nothing was cut.",
+        "stamped_at": "2026-09-14T14:19:30",
+        "stored_chars": 2076,
+        "source_chars": 2076,
+        "cap_applied": 60000
+      },
+      "authority_class": "case_law",
+      "claim_layer": "unknown",
+      "claim_layer_meaning": "Not declared at ingest. Treat any citation from here as unclassified: it may be rationale rather than rule."
+    },
+    {
+      "citation": "p. 5",
+      "kind": "treatise",
+      "page": 5,
+      "authorities": [
+        "Garside v. Osco",
+        "Inc. v. Daikin",
+        "Mesnick v. General"
+      ],
+      "text": "Case 1:25-cv-13285-FDS Document 71 Filed 08/06/26 Page 6 of 17 Cellular Sales and Verizon then filed a motion to compel arbitration or, alternatively, to dismiss for failure to state a claim. They also moved to strike plaintiff\u2019s affidavit or, alternatively, an objection to its consideration. 1 II. Standard of Review Plaintiff\u2019s motion for summary judgment on Count 1 seeks a declaratory judgment that no enforceable arbitration agreement governs this dispute. The cross-motion of defendants Verizon and Cellular Sales to compel arbitration seeks to enforce such an agreement. The same summary-judgment standard governs both motions. See Air-Con, Inc. v. Daikin Applied Latin Am., LLC, 21 F.4th 168, 175 (1st Cir. 2021) (\u201c[D]istrict courts should apply the summary judgment standard to evaluate motions to compel arbitration under the FAA.\u201d). 2 Under the summary-judgment standard, the court \u201cassess[es] the proof in order to see whether there is a genuine need for trial.\u201d Mesnick v. General Elec. Co., 950 F.2d 816, 822 (1st Cir. 1991) (quoting Garside v. Osco Drug, Inc., 895 F.2d 46, 50 (1st Cir. 1990)). Summary judgment shall be granted when \u201cthere is no genuine dispute as to any material fact and the movant is entitled to judgment as a matter of law.\u201d Fed. R. Civ. P. 56(a). A genuine issue is \u201cone that must be decided at trial because the evidence, viewed in the light most flattering to the",
+      "integrity": {
+        "state": "complete",
+        "basis": "Full retrieved body of 1,404 characters stored; under the 60,000 cap, so nothing was cut.",
+        "stamped_at": "2026-09-14T14:19:30",
+        "stored_chars": 1404,
+        "source_chars": 1404,
+        "cap_applied": 60000
+      },
+      "authority_class": "case_law",
+      "claim_layer": "unknown",
+      "claim_layer_meaning": "Not declared at ingest. Treat any citation from here as unclassified: it may be rationale rather than rule."
+    },
+    {
+      "citation": "p. 1",
+      "kind": "treatise",
+      "page": 1,
+      "authorities": [],
+      "text": "MB&W filed a motion for judgment on the pleadings as to all counts against it. That motion will be addressed in a separate memorandum and order.",
+      "integrity": {
+        "state": "complete",
+        "basis": "Full retrieved body of 144 characters stored; under the 60,000 cap, so nothing was cut.",
+        "stamped_at": "2026-09-14T14:19:30",
+        "stored_chars": 144,
+        "source_chars": 144,
+        "cap_applied": 60000
+      },
+      "authority_class": "case_law",
+      "claim_layer": "unknown",
+      "claim_layer_meaning": "Not declared at ingest. Treat any citation from here as unclassified: it may be rationale rather than rule."
+    },
+    {
+      "citation": "p. 2",
+      "kind": "treatise",
+      "page": 2,
+      "authorities": [
+        "Rivera v. Allscripts"
+      ],
+      "text": "Section 4 of the Federal Arbitration Act (\u201cFAA\u201d) provides the basis for review of motions to compel arbitration. 9 U.S.C. \u00a7 4. It provides that [t]he court shall hear the parties, and upon being satisfied that the making of the agreement for arbitration or the failure to comply therewith is not in issue, the court shall make an order directing the parties to proceed to arbitration in accordance with the terms of the agreement. . . . If the making of the arbitration agreement or the failure, neglect, or refusal to perform the same be in issue, the court shall proceed summarily to the trial thereof. Id. That language \u201ccommands that district courts ordinarily apply the summary-judgment standard\u201d in evaluating motions to compel arbitration under the FAA. Rodr\u00edguez-Rivera v. Allscripts Healthcare Sols., Inc., 43 F.4th 150, 168 (1st Cir. 2022) (citing Air-Con, Inc., 21 F.4th at 175).",
+      "integrity": {
+        "state": "complete",
+        "basis": "Full retrieved body of 890 characters stored; under the 60,000 cap, so nothing was cut.",
+        "stamped_at": "2026-09-14T14:19:30",
+        "stored_chars": 890,
+        "source_chars": 890,
+        "cap_applied": 60000
+      },
+      "authority_class": "case_law",
+      "claim_layer": "unknown",
+      "claim_layer_meaning": "Not declared at ingest. Treat any citation from here as unclassified: it may be rationale rather than rule."
+    },
+    {
+      "citation": "p. 6",
+      "kind": "treatise",
+      "page": 6,
+      "authorities": [
+        "Anderson v. Liberty",
+        "Connor v. Steeves",
+        "Erickson v. Pardus",
+        "Estelle v. Gamble",
+        "Inc. v. Minebea",
+        "Inc. v. Radin",
+        "Inc. v. Village",
+        "Munoz v. R.J",
+        "Rules of Civil Procedure. Thomas v. Norris"
+      ],
+      "text": "Case 1:25-cv-13285-FDS Document 71 Filed 08/06/26 Page 7 of 17 nonmovant, would permit a rational factfinder to resolve the issue in favor of either party.\u201d Medina-Munoz v. R.J. Reynolds Tobacco Co., 896 F.2d 5, 8 (1st Cir. 1990) (citation modified). In evaluating a summary judgment motion, the court indulges all reasonable inferences in favor of the nonmoving party. See O\u2019Connor v. Steeves, 994 F.2d 905, 907 (1st Cir. 1993). When \u201ca properly supported motion for summary judgment is made, the adverse party must set forth specific facts showing that there is a genuine issue for trial.\u201d Anderson v. Liberty Lobby, Inc., 477 U.S. 242, 250 (1986) (citation modified). The nonmoving party may not simply \u201crest upon mere allegation or denials of his pleading,\u201d but instead must \u201cpresent affirmative evidence.\u201d Id. at 256-57. \u201cGenerally, in deciding cross-motions for summary judgment, each party\u2019s motion must be examined on its own merits, and in each case all reasonable inferences must be drawn against the party whose motion is under consideration. But where, as here, the motion and cross-motion seek a determination of the same issues, the Court may consider them together.\u201d ExteNet Sys., Inc. v. Village of Pelham, 377 F. Supp. 3d 217, 223 (S.D.N.Y. 2019) (citation modified); see also Pacamor Bearings, Inc. v. Minebea Co., 918 F. Supp. 491, 496 (D.N.H. 1996) (\u201cBecause the issues raised in the motion and cross-motion are identical, the court will discuss and resolve [them] in unison.\u201d). In addition, any document filed by a pro se party is \u201cto be liberally construed.\u201d Erickson v. Pardus, 551 U.S. 89, 94 (2007) (quoting Estelle v. Gamble, 429 U.S. 97, 106 (1976)). Pro se litigants, however, still must comply with the Federal Rules of Civil Procedure. Thomas v. Norris, 2006 WL 2590488, at *4 (M.D. Pa. Sept. 8, 2006); see also Posadas de P.R., Inc. v. Radin, 856 F.2d 399, 401 (1st Cir. 1988) (\u201cNonetheless, even a pro se litigant must meet the specificity requirement of Federal Rule 56, at least when the litigant becomes aware that specific",
+      "integrity": {
+        "state": "complete",
+        "basis": "Full retrieved body of 2,058 characters stored; under the 60,000 cap, so nothing was cut.",
+        "stamped_at": "2026-09-14T14:19:30",
+        "stored_chars": 2058,
+        "source_chars": 2058,
+        "cap_applied": 60000
+      },
+      "authority_class": "case_law",
+      "claim_layer": "unknown",
+      "claim_layer_meaning": "Not declared at ingest. Treat any citation from here as unclassified: it may be rationale rather than rule."
+    },
+    {
+      "citation": "p. 7",
+      "kind": "treatise",
+      "page": 7,
+      "authorities": [],
+      "text": "Case 1:25-cv-13285-FDS Document 71 Filed 08/06/26 Page 8 of 17 facts must be provided to defeat a motion for summary judgment.\u201d). III. Defendants\u2019 Motion to Strike As a threshold issue, the Court must decide what evidence it may consider in evaluating the motions concerning arbitration. In support of his motion for summary judgment, plaintiff submitted an affidavit attesting to his version of events. 3 Defendants Verizon and Cellular Sales have moved to strike certain statements in that affidavit as being irrelevant, conclusory, speculative, reflecting plaintiff\u2019s subjective belief, or containing inadmissible hearsay statements. For the most part, plaintiff\u2019s affidavit sets out admissible facts that are based on his personal knowledge and that set out what happened, from his perspective, at the Cellular Sales store on June 11, 2021. Plaintiff may also attest to his own state of mind at the time, even if that state of mind is not conclusive as to what a reasonable person would have believed under the same circumstances. Nonetheless, certain portions of the affidavit are problematic. Several paragraphs represent plaintiff\u2019s experience with a different carrier, which are likely irrelevant or inadmissible under Fed. R. Evid. 403. (See, e.g., Farahani Aff. \u00b6\u00b6 5-9). Because they are irrelevant to the present motion, the Court will simply disregard them. Other paragraphs\u2014such as those describing what would have happened if the store employee had said something different (id. \u00b6\u00b6 26, 32); what plaintiff would have done had he seen or read the documents (id. \u00b6\u00b6 40, 72 (sentence 4)); or what he would have done if the terms had been disclosed to him (id. \u00b6 75)\u2014appear to call for speculation and will be struck. And three paragraphs that purport to describe the malevolent intentions of defendants (id. \u00b6\u00b6 77-79) are improper and will be struck.",
+      "integrity": {
+        "state": "complete",
+        "basis": "Full retrieved body of 1,861 characters stored; under the 60,000 cap, so nothing was cut.",
+        "stamped_at": "2026-09-14T14:19:30",
+        "stored_chars": 1861,
+        "source_chars": 1861,
+        "cap_applied": 60000
+      },
+      "authority_class": "case_law",
+      "claim_layer": "unknown",
+      "claim_layer_meaning": "Not declared at ingest. Treat any citation from here as unclassified: it may be rationale rather than rule."
+    },
+    {
+      "citation": "p. 3",
+      "kind": "treatise",
+      "page": 3,
+      "authorities": [],
+      "text": "The motion to strike addresses only plaintiff\u2019s original affidavit (Dkt. No. 21). He later filed a supplemental affidavit (Dkt. No. 39-2). For the sake of simplicity, this order will only address the original affidavit.",
+      "integrity": {
+        "state": "complete",
+        "basis": "Full retrieved body of 219 characters stored; under the 60,000 cap, so nothing was cut.",
+        "stamped_at": "2026-09-14T14:19:30",
+        "stored_chars": 219,
+        "source_chars": 219,
+        "cap_applied": 60000
+      },
+      "authority_class": "case_law",
+      "claim_layer": "unknown",
+      "claim_layer_meaning": "Not declared at ingest. Treat any citation from here as unclassified: it may be rationale rather than rule."
+    },
+    {
+      "citation": "p. 8",
+      "kind": "treatise",
+      "page": 8,
+      "authorities": [
+        "AT&T Mobility LLC v. Concepcion",
+        "American Express Co. v. Italian",
+        "Hosp. v. Mercury",
+        "Inc. v. Jackson"
+      ],
+      "text": "Case 1:25-cv-13285-FDS Document 71 Filed 08/06/26 Page 9 of 17 (E.g., id. \u00b6 77 (\u201c[T]hey wanted to lock me into a long-term contract . . . .\u201d)). Although his affidavit is also at times argumentative and conclusory, the Court will simply disregard any such statements. (E.g., id. \u00b6 85 (\u201cBecause I refused to pay for . . . a loan I never agreed to, Defendants reported the account as delinquent to credit bureaus.\u201d)). Accordingly, the motion to strike will be granted as to paragraphs 26, 32, 40, 72 (sentence 4), 75, and 77-79, and otherwise denied. IV. Enforceability of the Arbitration Agreements A. Federal Arbitration Act The Federal Arbitration Act, 9 U.S.C. \u00a7 1 et seq., governs the enforcement of written arbitration agreements implicating interstate commerce. \u201cCongress enacted the FAA in response to widespread judicial hostility to arbitration.\u201d American Express Co. v. Italian Colors Rest., 570 U.S. 228, 232 (2013) (citing AT&T Mobility LLC v. Concepcion, 563 U.S. 333, 339 (2011)). Section 2 is the \u201cprimary substantive provision of the Act.\u201d Moses H. Cone Mem\u2019l Hosp. v. Mercury Constr. Corp., 460 U.S. 1, 24 (1983). It provides, in relevant part: A written provision in . . . a contract evidencing a transaction involving commerce to settle by arbitration a controversy thereafter arising out of such contract or transaction . . . shall be valid, irrevocable, and enforceable, save upon such grounds as exist at law or in equity for the revocation of any contract . . . . 9 U.S.C. \u00a7 2. The Supreme Court has \u201cdescribed this provision as reflecting both a \u2018liberal federal policy favoring arbitration,\u2019 and the \u2018fundamental principle that arbitration is a matter of contract.\u2019\u201d Concepcion, 563 U.S. at 339 (quoting Moses H. Cone, 460 U.S. at 24; Rent-A-Ctr., W., Inc. v. Jackson, 561 U.S. 63, 67 (2010)). In line with those principles, \u201ccourts must place arbitration agreements on an equal footing with other contracts.\u201d Id. They must also \u201c\u2018rigorously enforce\u2019 arbitration agreements according to their terms.\u201d Italian Colors Rest., 570",
+      "integrity": {
+        "state": "complete",
+        "basis": "Full retrieved body of 2,049 characters stored; under the 60,000 cap, so nothing was cut.",
+        "stamped_at": "2026-09-14T14:19:30",
+        "stored_chars": 2049,
+        "source_chars": 2049,
+        "cap_applied": 60000
+      },
+      "authority_class": "case_law",
+      "claim_layer": "unknown",
+      "claim_layer_meaning": "Not declared at ingest. Treat any citation from here as unclassified: it may be rationale rather than rule."
+    },
+    {
+      "citation": "p. 9",
+      "kind": "treatise",
+      "page": 9,
+      "authorities": [
+        "Blind v. The",
+        "Dean Witter Reynolds Inc. v. Byrd",
+        "Inc. v. Casarotto",
+        "Inc. v. Daikin"
+      ],
+      "text": "Case 1:25-cv-13285-FDS Document 71 Filed 08/06/26 Page 10 of 17 U.S. at 233 (quoting Dean Witter Reynolds Inc. v. Byrd, 470 U.S. 213, 221 (1985)). \u201cThe final phrase of \u00a7 2, however, permits arbitration agreements to be declared unenforceable \u2018upon such grounds as exist at law or in equity for the revocation of any contract.\u2019\u201d Concepcion, 563 U.S. at 339 (quoting 9 U.S.C. \u00a7 2). That savings clause allows arbitration agreements to be invalidated by \u201c\u2018generally applicable contract defenses, such as fraud, duress, or unconscionability,\u2019 but not by defenses that apply only to arbitration or that derive their meaning from the fact that an agreement to arbitrate is at issue.\u201d Id. (quoting Doctor\u2019s Assocs., Inc. v. Casarotto, 517 U.S. 681, 687(1996)). A court\u2019s \u201cfirst step\u201d when facing a motion to compel arbitration is to determine whether a valid arbitration agreement exists. Air-Con, Inc. v. Daikin Applied Latin Am., LLC, 21 F.4th 168, 174 (1st Cir. 2021). That is because, under the FAA\u2019s \u201ccontract-based philosophy,\u201d a person cannot waive his right to adjudication without actually agreeing to do so. Id.; see also National Fed\u2019n of the Blind v. The Container Store, Inc., 904 F.3d 70, 80 (1st Cir. 2018) (\u201cThough a person may, by contract, waive his or her right to adjudication, see 9 U.S.C. \u00a7 2, there can be no waiver in the absence of an agreement signifying an assent.\u201d (citation modified)). Courts apply state contract law to that determination. Rivera-Col\u00f3n v. AT&T Mobility P.R., Inc., 913 F.3d 200, 207 (1st Cir. 2019). The party moving to compel bears the burden of showing that such an agreement exists. Id. B. Contract Formation The parties dispute whether a contract was formed\u2014that is, whether plaintiff agreed to arbitration in the first instance. 4 That question goes to the validity of the arbitration agreement",
+      "integrity": {
+        "state": "complete",
+        "basis": "Full retrieved body of 1,839 characters stored; under the 60,000 cap, so nothing was cut.",
+        "stamped_at": "2026-09-14T14:19:30",
+        "stored_chars": 1839,
+        "source_chars": 1839,
+        "cap_applied": 60000
+      },
+      "authority_class": "case_law",
+      "claim_layer": "unknown",
+      "claim_layer_meaning": "Not declared at ingest. Treat any citation from here as unclassified: it may be rationale rather than rule."
+    },
+    {
+      "citation": "p. 4",
+      "kind": "treatise",
+      "page": 4,
+      "authorities": [],
+      "text": "At times, plaintiff frames his argument as fraud in the factum. The factual issue is the same\u2014whether he had reasonable notice of the arbitration agreement.",
+      "integrity": {
+        "state": "complete",
+        "basis": "Full retrieved body of 156 characters stored; under the 60,000 cap, so nothing was cut.",
+        "stamped_at": "2026-09-14T14:19:30",
+        "stored_chars": 156,
+        "source_chars": 156,
+        "cap_applied": 60000
+      },
+      "authority_class": "case_law",
+      "claim_layer": "unknown",
+      "claim_layer_meaning": "Not declared at ingest. Treat any citation from here as unclassified: it may be rationale rather than rule."
+    },
+    {
+      "citation": "p. 10",
+      "kind": "treatise",
+      "page": 10,
+      "authorities": [
+        "Campbell v. Gen",
+        "Ellerbee v. GameStop",
+        "Kauders v. Uber",
+        "See Bourque v. Rollins"
+      ],
+      "text": "Case 1:25-cv-13285-FDS Document 71 Filed 08/06/26 Page 11 of 17 itself and must be decided by the court. See National Fed\u2019n of the Blind, 904 F.3d at 82 (finding plaintiffs\u2019 \u201cargu[ment] that they could not have accepted the terms of a contract to arbitrate that was never communicated to them\u201d went to \u201cthe very basic element of contract formation\u201d and must be decided by the court). 5 Under Massachusetts law, a valid contract requires \u201cboth reasonable notice of the terms and a reasonable manifestation of assent to those terms.\u201d Kauders v. Uber Techs., Inc., 486 Mass. 557, 572 (2021). 6 The standard for reasonable notice is low. See Bourque v. Rollins, Inc., 764 F. Supp. 3d 11, 17 (D. Mass. 2025). A party need only provide \u201csome minimal level of notice . . . that statutory claims are subject to arbitration.\u201d Id. (citing Ellerbee v. GameStop, Inc., 604 F. Supp. 2d 349, 354 (D. Mass. 2009)). The test is objective\u2014that is, the question is \u201cwhether, under the totality of the circumstances, the [party\u2019s] communication would have provided a reasonably prudent [person] notice of the waiver of the right to proceed in a judicial forum.\u201d Id. (citing Campbell v. Gen. Dynamics Gov\u2019t Sys. Corp., 407 F.3d 546, 554 (1st Cir. 2005)). Plaintiff contends that he was never informed that an arbitration agreement existed, was not made aware of any such terms and conditions, and was never provided the opportunity to review the substance of the document he was signing. He also contends that the store employee declined to provide a copy when he requested one. Rather, he signed a blank screen with \u201cno",
+      "integrity": {
+        "state": "complete",
+        "basis": "Full retrieved body of 1,600 characters stored; under the 60,000 cap, so nothing was cut.",
+        "stamped_at": "2026-09-14T14:19:30",
+        "stored_chars": 1600,
+        "source_chars": 1600,
+        "cap_applied": 60000
+      },
+      "authority_class": "case_law",
+      "claim_layer": "unknown",
+      "claim_layer_meaning": "Not declared at ingest. Treat any citation from here as unclassified: it may be rationale rather than rule."
+    },
+    {
+      "citation": "p. 5",
+      "kind": "treatise",
+      "page": 5,
+      "authorities": [
+        "Inc. v. Cardegna",
+        "Under Prima Paint Corp. v. Flood"
+      ],
+      "text": "Under Prima Paint Corp. v. Flood & Conklin Mfg. Co., 388 U.S. 395 (1967), \u201c[a] challenge to the validity of an entire contract containing an arbitration provision must go to an arbitrator.\u201d National Fed\u2019n of the Blind, 904 F.3d at 81 (citing Prima Paint Corp., 388 U.S. at 402-04)). That doctrine implicates challenges such as fraudulent inducement or illegality that \u201crenders the whole contract invalid.\u201d Buckeye Check Cashing, Inc. v. Cardegna, 546 U.S. 440, 444 (2006). It does not reach the antecedent question of whether a contract \u201cwas ever concluded.\u201d Id. at 444 n.1.",
+      "integrity": {
+        "state": "complete",
+        "basis": "Full retrieved body of 574 characters stored; under the 60,000 cap, so nothing was cut.",
+        "stamped_at": "2026-09-14T14:19:30",
+        "stored_chars": 574,
+        "source_chars": 574,
+        "cap_applied": 60000
+      },
+      "authority_class": "case_law",
+      "claim_layer": "unknown",
+      "claim_layer_meaning": "Not declared at ingest. Treat any citation from here as unclassified: it may be rationale rather than rule."
+    },
+    {
+      "citation": "p. 6",
+      "kind": "treatise",
+      "page": 6,
+      "authorities": [
+        "See Hershey v. Donaldson"
+      ],
+      "text": "The parties have not raised any choice-of-law issues and assume that Massachusetts law applies. This Court will do so as well. See Hershey v. Donaldson, Lufkin & Jenrette Sec. Corp., 317 F.3d 16, 20 (1st Cir. 2003) (\u201cWhere parties have agreed to the choice of law, this court is free to forego an independent analysis and accept the parties\u2019 agreement.\u201d (citation modified)).",
+      "integrity": {
+        "state": "complete",
+        "basis": "Full retrieved body of 375 characters stored; under the 60,000 cap, so nothing was cut.",
+        "stamped_at": "2026-09-14T14:19:30",
+        "stored_chars": 375,
+        "source_chars": 375,
+        "cap_applied": 60000
+      },
+      "authority_class": "case_law",
+      "claim_layer": "unknown",
+      "claim_layer_meaning": "Not declared at ingest. Treat any citation from here as unclassified: it may be rationale rather than rule."
+    },
+    {
+      "citation": "p. 11",
+      "kind": "treatise",
+      "page": 11,
+      "authorities": [
+        "Barrows v. Brinker"
+      ],
+      "text": "Case 1:25-cv-13285-FDS Document 71 Filed 08/06/26 Page 12 of 17 text, no buttons, no scroll bar, no hyperlinks, no \u2018I agree\u2019 button, no pop-ups, no summary of any terms, no price, no loan amount, no contract terms, no arbitration clause, and no delegation clause visible anywhere on the screen.\u201d (Farahani Aff. \u00b6 98). In response, defendants contend that it was impossible for plaintiff to have only been presented with a blank screen, as the software required scrolling or swiping past the terms of the agreements. Defendants have also submitted copies of the agreements they allege that plaintiff electronically signed. 7 At this stage, there is a genuine dispute of fact as to what plaintiff viewed on the electronic tablet. The Court cannot credit defendants\u2019 contention that it was impossible to present a blank signature pad without discrediting the testimony of plaintiff, who contends that it happened. See Pina v. Children\u2019s Place, 740 F.3d 785, 802 (1st Cir. 2014) (\u201c[A] judge must not engage in making credibility determinations or weighing the evidence at the summary judgment stage . . . .\u201d); see also Barrows v. Brinker Rest. Corp., 36 F.4th 45, 51 (2d Cir. 2022) (reversing an order compelling arbitration because the plaintiff attested that she had never electronically signed any agreement with her employer despite arbitration agreements appearing to bear her electronic signature). The fact that plaintiff\u2019s signature appears on a pdf version of the installment loan agreement does not reveal what he saw on the touchscreen when he electronically signed. Nor can the Court credit plaintiff\u2019s allegation that he signed a blank screen without discrediting defendants\u2019 contention that such a display was technologically impossible. In short, what plaintiff saw or did not see on the electronic tablet goes to the heart of the issue of reasonable notice. In general, a person is bound by a contract that he signs, even if he",
+      "integrity": {
+        "state": "complete",
+        "basis": "Full retrieved body of 1,939 characters stored; under the 60,000 cap, so nothing was cut.",
+        "stamped_at": "2026-09-14T14:19:30",
+        "stored_chars": 1939,
+        "source_chars": 1939,
+        "cap_applied": 60000
+      },
+      "authority_class": "case_law",
+      "claim_layer": "unknown",
+      "claim_layer_meaning": "Not declared at ingest. Treat any citation from here as unclassified: it may be rationale rather than rule."
+    },
+    {
+      "citation": "p. 7",
+      "kind": "treatise",
+      "page": 7,
+      "authorities": [],
+      "text": "It does not appear, based on the exhibits presented, that plaintiff actually signed all four of the relevant agreements. (E.g., Cellular Sales Bill of Sale 3). Nonetheless, for present purposes, that issue is not material.",
+      "integrity": {
+        "state": "complete",
+        "basis": "Full retrieved body of 222 characters stored; under the 60,000 cap, so nothing was cut.",
+        "stamped_at": "2026-09-14T14:19:30",
+        "stored_chars": 222,
+        "source_chars": 222,
+        "cap_applied": 60000
+      },
+      "authority_class": "case_law",
+      "claim_layer": "unknown",
+      "claim_layer_meaning": "Not declared at ingest. Treat any citation from here as unclassified: it may be rationale rather than rule."
+    },
+    {
+      "citation": "p. 12",
+      "kind": "treatise",
+      "page": 12,
+      "authorities": [
+        "Awuah v. Coverall",
+        "Emmanuel v. Handy"
+      ],
+      "text": "Case 1:25-cv-13285-FDS Document 71 Filed 08/06/26 Page 13 of 17 neglects to read it. Thus, a person may have reasonable notice of an arbitration provision simply by \u201cagreeing\u201d to or \u201caccepting\u201d terms of service without viewing any term related to arbitration or even scrolling or swiping past the terms. Emmanuel v. Handy Techs., Inc., 992 F.3d 1, 9 (1st Cir. 2021); see also Awuah v. Coverall N. Am., Inc., 703 F.3d 36, 44 (1st Cir. 2012) (\u201cTypically, one who signs a written agreement is bound by its terms whether he reads and understands them or not.\u201d (citation modified)). If, as defendants contend, plaintiff scrolled past the agreements, then he had reasonable notice of their terms, including the arbitration clauses. Nonetheless, \u201ca party cannot enter into a contract to arbitrate when it does not know or have reason to know the basic terms of the offer.\u201d National Fed\u2019n of the Blind, 904 F.3d at 83. A person does not have reasonable notice of an arbitration provision where there is \u201c\u2018zero hint\u2019 that terms and conditions (specifically, an arbitration agreement) applied.\u201d Id. at 84 (declining to compel arbitration where plaintiffs enrolled in a loyalty program with the assistance of a sales associate because there was no evidence that they had read or were otherwise made aware of terms of the loyalty program and they had no way of accessing the terms). If, as plaintiff contends, he signed a blank signature pad without being made aware that there were any terms and conditions, then he did not have reasonable notice that an arbitration clause might apply. 8 Thus, on these facts, the Court cannot resolve whether the basic elements of contract formation of the arbitration agreement have been met.",
+      "integrity": {
+        "state": "complete",
+        "basis": "Full retrieved body of 1,717 characters stored; under the 60,000 cap, so nothing was cut.",
+        "stamped_at": "2026-09-14T14:19:30",
+        "stored_chars": 1717,
+        "source_chars": 1717,
+        "cap_applied": 60000
+      },
+      "authority_class": "case_law",
+      "claim_layer": "unknown",
+      "claim_layer_meaning": "Not declared at ingest. Treat any citation from here as unclassified: it may be rationale rather than rule."
+    },
+    {
+      "citation": "p. 8",
+      "kind": "treatise",
+      "page": 8,
+      "authorities": [
+        "Defendants cite Bourque v. Rollins"
+      ],
+      "text": "Defendants cite Bourque v. Rollins, Inc., 764 F. Supp. 3d 11 (D. Mass. 2025), in support of its contention that plaintiff is bound by his signature on an arbitration agreement despite not have an opportunity to review the terms before signing. That case is distinguishable. In Bourque, plaintiff signed an agreement that \u201cstated, in clear language, under the bolded heading AGREEMENT TO ARBITRATE,\u201d that the parties were agreeing to arbitrate any dispute arising from the plaintiff\u2019s employment as defined by the company\u2019s dispute-resolution policy. Id. at 17. The court found that although plaintiff did not have the opportunity to review the dispute-resolution policy before signing, he had reasonable notice that an employment-related claim would be subject to arbitration. Id. Here, according to plaintiff\u2019s account, he never saw any terms of any agreement, much less ones that highlighted the existence of a dispute-resolution policy.",
+      "integrity": {
+        "state": "complete",
+        "basis": "Full retrieved body of 939 characters stored; under the 60,000 cap, so nothing was cut.",
+        "stamped_at": "2026-09-14T14:19:30",
+        "stored_chars": 939,
+        "source_chars": 939,
+        "cap_applied": 60000
+      },
+      "authority_class": "case_law",
+      "claim_layer": "unknown",
+      "claim_layer_meaning": "Not declared at ingest. Treat any citation from here as unclassified: it may be rationale rather than rule."
+    },
+    {
+      "citation": "p. 13",
+      "kind": "treatise",
+      "page": 13,
+      "authorities": [
+        "Buruk v. Experian",
+        "FPE Found. v. Cohen",
+        "LLC v. KPJ",
+        "Morgan v. Sundance"
+      ],
+      "text": "Case 1:25-cv-13285-FDS Document 71 Filed 08/06/26 Page 14 of 17 C. Plaintiff\u2019s Other Grounds for Lack of Arbitrability Plaintiff has moved for summary judgment as to arbitrability on several grounds other than formation. He also contends that defendants waived any right to arbitrate; that the clause is procedurally and substantively unconscionable; and that non-signatory defendants have no right to enforce the arbitration clause. First, plaintiff contends that defendants waived their right to pursue arbitration. In the context of arbitration, \u201cthere is a strong presumption against inferring waiver\u2014so strong that any \u2018reasonable doubts as to whether a party has waived the right to arbitrate should be resolved in favor of arbitration.\u2019\u201d Toddle Inn Franchising, LLC v. KPJ Assocs., LLC, 8 F.4th 56, 64 (1st Cir. 2021) (quoting In re Tyco Int'l Ltd. Sec. Litig., 422 F.3d 41, 44 (1st Cir. 2005)). In assessing whether a party has waived its right to arbitration, a court should be guided by the following non-exhaustive factors: (1) whether the parties participated in a lawsuit or took other action inconsistent with arbitration; (2) whether the litigation machinery has been substantially invoked and the parties are well into preparation of a lawsuit by the time an intention to arbitrate is communicated; (3) whether there has been a long delay and trial is near at hand; (4) whether the party seeking to compel arbitration has invoked the jurisdiction of the court by filing a counterclaim; (5) whether discovery not available in arbitration has occurred; and, (6) whether the party asserting waiver has suffered prejudice. FPE Found. v. Cohen, 801 F.3d 25, 29 (1st Cir. 2015) (citation modified). \u201cThese factors should be considered to the extent that they clarify whether [movant] \u2018knowingly relinquished the right to arbitrate by acting inconsistently with that right.\u2019\u201d Buruk v. Experian Info. Sols., Inc., 732 F.Supp.3d 165, 171 (D. Mass. 2024) (quoting Morgan v. Sundance, Inc., 596 U.S. 411, 419 (2022)). Plaintiff contends that the failure of Verizon and Cellular Sales to respond to his Chapter 93A demand letters constitutes waiver. But Chapter 93A demand letters are merely a",
+      "integrity": {
+        "state": "complete",
+        "basis": "Full retrieved body of 2,197 characters stored; under the 60,000 cap, so nothing was cut.",
+        "stamped_at": "2026-09-14T14:19:30",
+        "stored_chars": 2197,
+        "source_chars": 2197,
+        "cap_applied": 60000
+      },
+      "authority_class": "case_law",
+      "claim_layer": "unknown",
+      "claim_layer_meaning": "Not declared at ingest. Treat any citation from here as unclassified: it may be rationale rather than rule."
+    },
+    {
+      "citation": "p. 14",
+      "kind": "treatise",
+      "page": 14,
+      "authorities": [
+        "See Da Silva v. U.S",
+        "Waters v. Min"
+      ],
+      "text": "Case 1:25-cv-13285-FDS Document 71 Filed 08/06/26 Page 15 of 17 prerequisite for filing a claim under the statute; they do not create a duty for defendants to respond. See Da Silva v. U.S. Bank, N.A., 885 F. Supp. 2d 500, 506 (D. Mass. 2012). Accordingly, no litigation activity had commenced prior to the filing of the complaint in this case. The motion to compel arbitration was defendants\u2019 first responsive pleading, discovery in this case has not begun, and defendants have not filed any counterclaims against plaintiff. They seemingly have not taken any actions inconsistent with arbitration. The FPE factors therefore weigh against finding waiver, and certainly do not defeat the strong presumption against it. Plaintiff further asserts that the arbitration clause is unconscionable. Under Massachusetts law, \u201c[u]nconscionability must be determined on a case-by-case basis, with particular attention to whether the challenged provision could result in oppression and unfair surprise to the disadvantaged party. . . .\u201d Waters v. Min Ltd., 412 Mass. 64, 68 (1992). An unconscionable contract is one \u201csuch as no man in his senses and not under delusion would make on the one hand, and no honest and fair man would accept on the other.\u201d Id. at 69. \u201c[T]o prove that the terms of a contract are unconscionable, a plaintiff must show both substantive unconscionability (that the terms are oppressive to one party) and procedural unconscionability (that the circumstances surrounding the formation of the contract show that the aggrieved party had no meaningful choice and was subject to unfair surprise).\u201d Machado v. System4 LLC, 471 Mass. 204, 218 (2015) (citations and internal quotation marks omitted). Here, plaintiff contends that the arbitration clause was procedurally unconscionable because he had no opportunity to review the agreement that he was signing when he was presented with a blank screen. As discussed above, those contentions rely on disputed material facts. The Court cannot grant summary judgment on that basis. Because the Court cannot grant summary judgment on the basis of procedural unconscionability, it need not reach the issue of",
+      "integrity": {
+        "state": "complete",
+        "basis": "Full retrieved body of 2,157 characters stored; under the 60,000 cap, so nothing was cut.",
+        "stamped_at": "2026-09-14T14:19:30",
+        "stored_chars": 2157,
+        "source_chars": 2157,
+        "cap_applied": 60000
+      },
+      "authority_class": "case_law",
+      "claim_layer": "unknown",
+      "claim_layer_meaning": "Not declared at ingest. Treat any citation from here as unclassified: it may be rationale rather than rule."
+    },
+    {
+      "citation": "p. 15",
+      "kind": "treatise",
+      "page": 15,
+      "authorities": [
+        "Inc. v. Grove"
+      ],
+      "text": "Case 1:25-cv-13285-FDS Document 71 Filed 08/06/26 Page 16 of 17 substantive unconscionability at this time. Finally, plaintiff contends that Verizon and Jefferson Capital, as non-signatories to the arbitration agreement, cannot enforce the arbitration agreement. It is true that non-signatories generally cannot enforce arbitration agreements to which they are not a party. See, e.g., Restoration Pres. Masonry, Inc. v. Grove Eur. Ltd., 325 F.3d 54, 62 n.2 (1st Cir. 2003). Verizon, however, is a signatory to one of the agreements containing an arbitration clause that is at issue. (Verizon Loan Agreement). Accordingly, depending on the validity of the arbitration clause, Verizon has the right to enforce it. Jefferson Capital, meanwhile, is not moving to enforce the arbitration agreement, and it is not a defendant in Count I. Whether or not it is a signatory to an arbitration clause is therefore irrelevant. *** In sum, plaintiff has not met his burden to show that no genuine dispute of fact exists as to the parties\u2019 agreement to arbitrate. His motion for summary judgment on Count 1 will therefore be denied. Defendants have likewise failed to show that no genuine dispute of fact exists. Section 4 of the FAA provides that if there is a genuine dispute about arbitrability, then \u201cthe court shall proceed summarily to the trial thereof.\u201d 9 U.S.C. \u00a7 4. The First Circuit has directed that a \u201cdistrict court should not rule on the motion to compel arbitration until it resolves any factual disputes that require resolution before it can be determined whether the parties agreed to arbitrate.\u201d Air-Con, Inc., 21 F.4th at 176. The Court will therefore not rule on defendants\u2019 motion to compel arbitration at this time. V. Conclusion For the foregoing reasons, the motion of plaintiff for summary judgment on Count 1 is",
+      "integrity": {
+        "state": "complete",
+        "basis": "Full retrieved body of 1,824 characters stored; under the 60,000 cap, so nothing was cut.",
+        "stamped_at": "2026-09-14T14:19:30",
+        "stored_chars": 1824,
+        "source_chars": 1824,
+        "cap_applied": 60000
+      },
+      "authority_class": "case_law",
+      "claim_layer": "unknown",
+      "claim_layer_meaning": "Not declared at ingest. Treat any citation from here as unclassified: it may be rationale rather than rule."
+    },
+    {
+      "citation": "p. 16",
+      "kind": "treatise",
+      "page": 16,
+      "authorities": [],
+      "text": "Case 1:25-cv-13285-FDS Document 71 Filed 08/06/26 Page 17 of 17 DENIED without prejudice; the motion of defendants Cellular Sales of Massachusetts, LLC and Verizon Wireless Services, LLC to strike is GRANTED as to paragraphs 26, 32, 40, 72 (sentence 4), 75, and 77-79 of plaintiff\u2019s original affidavit (Dkt. No. 21), and otherwise DENIED; and the motion of defendants Cellular Sales of Massachusetts, LLC and Verizon Wireless Services, LLC to compel arbitration is DENIED without prejudice to its renewal after resolution of predicate factual disputes concerning contract formation. So Ordered. /s/ F. Dennis Saylor IV F. Dennis Saylor IV Dated: August 6, 2026 United States District Judge",
+      "integrity": {
+        "state": "complete",
+        "basis": "Full retrieved body of 689 characters stored; under the 60,000 cap, so nothing was cut.",
+        "stamped_at": "2026-09-14T14:19:30",
+        "stored_chars": 689,
+        "source_chars": 689,
+        "cap_applied": 60000
+      },
+      "authority_class": "case_law",
+      "claim_layer": "unknown",
+      "claim_layer_meaning": "Not declared at ingest. Treat any citation from here as unclassified: it may be rationale rather than rule."
+    }
+  ]
+}

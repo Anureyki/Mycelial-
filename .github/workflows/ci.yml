@@ -153,6 +153,11 @@ jobs:
         # verifier never stores a value, and says SKIP where it cannot check.
         run: python tools/check_history_classes.py
 
+      - name: Case law is reachable by caption and reviewed from the text
+        # Four decisions were refused before they shelved, each for a reason
+        # about the tooling and not the court. The shapes are held here.
+        run: python tools/check_case_law.py
+
       - name: No sensitive material in the repository
         # The backstop. The real gate is .githooks/pre-commit, because a
         # secret caught by CI has already been pushed - this repository

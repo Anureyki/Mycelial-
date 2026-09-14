@@ -79,6 +79,8 @@
     "verify_quote",
     "set_principal",
     "classify_matter",
+    "acquire_opinion",
+    "review_consumer_protections",
     "triage_source",
     "record_case_outcome"
   ],
@@ -95,5 +97,5 @@
   "public_key": "",
   "owner": "anureyki",
   "created": "2026-07-31T17:59:12.877063",
-  "updated": "2026-09-11T02:21:40.040215"
+  "updated": "2026-09-14T14:13:28.321203"
 }

@@ -348,10 +348,19 @@ CLASSIFICATION = {
             "Internal Revenue Manual - directs IRS personnel, confers no rights on "
             "taxpayers, and courts have held it lacks the force of a regulation",
             "unknown"),
+    # A COURT'S OWN TEXT, as filed. The class is fixed by what the document
+    # is; the claim layer is NOT - a holding states the rule and the dicta
+    # around it describe, explain and sometimes argue, and which is which is
+    # a reading, not a stamp. Legal's live column (CLAUDE.md): how courts
+    # actually rule, shelved beside the statutes they apply.
+    "opinion": ("case_law",
+                "The work is a court's opinion or order, read from the docket as "
+                "filed; a judicial decision is case law by what it is",
+                "unknown"),
 }
 
 
-def shelve(body, title, source, agent, source_kind, stem=None):
+def shelve(body, title, source, agent, source_kind, stem=None, treatise=False):
     """Write a fetched body into an agent's reference corpus, classed.
 
     Returns {"ok": bool, "path": str|None, "authority_class", "claim_layer",
@@ -388,12 +397,16 @@ def shelve(body, title, source, agent, source_kind, stem=None):
     # read at lookup - authority class off the document, claim layer off the
     # section - so a disagreement between the two levels is a disagreement the
     # reader cannot see. One ingest, one classification, both levels.
-    rc = subprocess.call([sys.executable,
-                          os.path.join(ROOT, "tools", "ingest_pdf.py"),
-                          txt, "--agent", agent, "--title", title,
-                          "--source", source,
-                          "--authority-class", klass,
-                          "--claim-layer", layer])
+    # An opinion has no numbered sections; it is addressable by page and by
+    # the authorities each passage cites, which is what --treatise keys on.
+    # Without it the section splitter finds no headings and shelves 0
+    # sections - the empty-shell shape that sits on the shelf looking like law.
+    cmd = [sys.executable, os.path.join(ROOT, "tools", "ingest_pdf.py"),
+           txt, "--agent", agent, "--title", title, "--source", source,
+           "--authority-class", klass, "--claim-layer", layer]
+    if treatise:
+        cmd.append("--treatise")
+    rc = subprocess.call(cmd)
     if rc != 0:
         return {"ok": False, "path": None, "error": f"ingest_pdf exited {rc}",
                 "authority_class": klass, "claim_layer": layer}

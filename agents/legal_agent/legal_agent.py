@@ -202,6 +202,7 @@ class LegalAgent(AgentBase):
                 "open_action", "complete_action", "amend_action", "actions",
                 "add_venue", "venues", "running_clocks", "complaint_path",
                 "read_filed_document", "ingest_screenshot", "read_docket_document", "learn_from_case", "verify_quote", "set_principal", "classify_matter",
+                "acquire_opinion", "review_consumer_protections",
                 "triage_source", "record_case_outcome"
             ],
             role="agent"
@@ -2966,6 +2967,444 @@ class LegalAgent(AgentBase):
             "disclaimer": DISCLAIMER,
         }
 
+    # ------------------------------------------------------------------
+    # Case law: acquire an opinion from the docket, then review it
+    # ------------------------------------------------------------------
+
+    @staticmethod
+    def _reads_as_ruling(body):
+        """Does the document say it is the court's decision? Read, not guessed.
+
+        A ruling names itself in its first pages - MEMORANDUM OPINION, OPINION
+        AND ORDER, ORDER - and closes with a judge's signature line. A party's
+        filing names itself too: COMPLAINT, MOTION, BRIEF, JURY DEMAND. The two
+        are told apart by what the text says it is, which is the only evidence
+        an untitled docket entry offers."""
+        # WHICHEVER NAME COMES FIRST IS THE DOCUMENT'S OWN. A ruling says
+        # "MEMORANDUM OPINION" under the caption and then, in its first
+        # paragraph, names the motion it decides - so testing for "MOTION TO"
+        # anywhere in the opening refused Smith v. NCS, an 11-page opinion,
+        # as a party's filing. A complaint likewise names itself in the
+        # caption before anything else. Position settles it.
+        head = re.sub(r"\s+", " ", (body or "")[:4000]).upper()
+        party = re.search(r"\b(COMPLAINT|MOTION TO|MOTION FOR|BRIEF IN|MEMORANDUM OF LAW|"
+                          r"MEMORANDUM IN SUPPORT|JURY DEMAND|NOTICE OF)\b", head)
+        court = re.search(r"\b(MEMORANDUM OPINION|OPINION AND ORDER|MEMORANDUM AND ORDER|"
+                          r"MEMORANDUM & ORDER|MEMORANDUM DECISION|ORDER|OPINION)\b", head)
+        if not court:
+            return False
+        return party is None or court.start() < party.start()
+
+    def acquire_opinion(self, args):
+        """Shelve a court's decision from the docket, having read it first.
+
+        THE GAP. `acquire_authority` closed it for statutes: Legal fetches,
+        reads, and shelves a provision by citation. Nothing did the same for a
+        decision. This agent could `search_cases` and `read_docket_document`
+        - find a case and open the order - and then the text went nowhere, so
+        every later question about what the court held was answered from
+        memory of a conversation. The principal sent four Daily Decision
+        cards and said "I wanted the cases injected": the cards are a trade
+        association's summaries, and the OPINIONS are the authority.
+
+        WHY THE DOCKET AND NOT THE OPINIONS INDEX. A district-court decision
+        from last month is often not in CourtListener's opinions collection
+        at all - Galvez v. Midland searched as an opinion returned nothing -
+        while the docket holds it as an entry, "OPINION AND ORDER", with the
+        court's own text where a RECAP contributor has bought the PDF. So the
+        opinions index is tried first and the docket is the path that works.
+
+        REFUSALS, each a different finding:
+          - no docket found under that name         -> `case_not_found`
+          - more than one docket and no `docket_number` to pick -> `ambiguous`
+          - docket found, no opinion entry available -> `not_in_archive`
+          - text read, not about `expect`            -> `subject_mismatch`
+        `not_in_archive` is a fact about RECAP, never about the court.
+
+        WHAT IS NOT DONE: the class is fixed by what the document is - it is
+        case law - but the claim layer is left `unknown`. Which sentences are
+        the holding and which are dicta is a reading, and a reading is what
+        review_consumer_protections is for."""
+        from core.authority_acquisition import check_subject
+        from tools import ingest_law
+
+        a = args if isinstance(args, dict) else {"case": args}
+        case = (a.get("case") or a.get("name") or "").strip()
+        expect = a.get("expect") or a.get("about") or ""
+        if not case:
+            return {"acquired": False,
+                    "error": ("acquire_opinion needs a case name, e.g. 'Galvez v. "
+                              "Midland Credit Management'. `expect` should say what "
+                              "the decision is about, so the text is checked before "
+                              "it is shelved."),
+                    "disclaimer": DISCLAIMER}
+        want_docket = str(a.get("docket_number") or "").strip()
+        want_doc = a.get("document_number")
+
+        # 1. Which docket. Party names come first - see verify_quote for why
+        #    a full citation finds the case that CITES yours.
+        parties = re.split(r"\s+v\.?\s+", re.sub(r"[,(].*$", "", case).strip(), maxsplit=1)
+        parties = [re.sub(r"[^a-z ]", "", p.lower()).strip() for p in parties if p.strip()]
+        payload = {"q": case, "type": "r", "case_name": case}
+        if a.get("court"):
+            payload["court"] = a["court"]
+        if a.get("filed_after"):
+            payload["filed_after"] = a["filed_after"]
+        raw = self._unwrap_mcp(self.call_tool("courtlistener", "search", payload))
+        if not isinstance(raw, dict) or raw.get("error"):
+            return {"acquired": False, "case": case, "verdict": "search_failed",
+                    "why": (raw or {}).get("error") if isinstance(raw, dict) else "no response",
+                    "disclaimer": DISCLAIMER}
+        cands = []
+        for r in raw.get("results") or []:
+            name = re.sub(r"[^a-z ]", "", str(r.get("caseName") or "").lower())
+            if parties and not all(p and p in name for p in parties):
+                continue
+            if want_docket and want_docket not in str(r.get("docketNumber") or ""):
+                continue
+            if r.get("docket_id"):
+                cands.append(r)
+        if not cands:
+            return {"acquired": False, "case": case, "verdict": "case_not_found",
+                    "why": ("No docket found whose caption carries both party names. "
+                            "NOT a finding that the case does not exist - it may be a "
+                            "state matter outside this index, or captioned differently. "
+                            "Nothing was shelved."),
+                    "candidates": [r.get("caseName") for r in (raw.get("results") or [])][:6],
+                    "disclaimer": DISCLAIMER}
+
+        # 2. Which entry on which docket. The same parties can have two
+        #    dockets (Galvez has 1:25-cv-00173 and 2:25-cv-14985). Each is
+        #    LISTED - that is a read, not a guess - and the ones carrying an
+        #    available opinion are kept. More than one survivor with no
+        #    docket_number given is ambiguous and refused, with the list.
+        found, unreachable = [], []
+        for r in cands[:4]:
+            did = int(r["docket_id"])
+            lst = self._unwrap_mcp(self.call_tool("courtlistener", "docket_documents",
+                                                  {"docket_id": did}))
+            if not isinstance(lst, dict) or lst.get("error"):
+                # A tool error is not an empty docket. Reported apart, so a
+                # throttled API can never come back as "nothing in RECAP".
+                unreachable.append({"docket_id": did, "docketNumber": r.get("docketNumber"),
+                                    "error": (lst or {}).get("error") if isinstance(lst, dict)
+                                    else "no response"})
+                continue
+            for d in lst.get("documents") or []:
+                desc = str(d.get("description") or "")
+                if not d.get("is_available"):
+                    continue
+                # The court's ruling is titled by the court's own habit:
+                # "Opinion and Order" in New Jersey, "Memorandum & Order" in
+                # Massachusetts, plain "Order on Motion for Summary Judgment"
+                # in Florida. Requiring the word "opinion" missed Martinez v.
+                # Green Planet, a 17-page ruling described as an Order. So an
+                # order qualifies when it has pages: a substantive ruling is
+                # pages long, a scheduling order is one.
+                untitled = not desc.strip()
+                if not untitled and not re.search(r"\b(opinion|memorandum|order)\b", desc, re.I):
+                    continue
+                if re.search(r"\bmemorandum (?:in support|of law)\b", desc, re.I):
+                    continue          # a party's brief, not the court's
+                if int(d.get("page_count") or 0) < 3:
+                    continue
+                # An UNTITLED entry with text and pages is opened and asked
+                # what it is - see _reads_as_ruling. Smith v. National Credit
+                # Systems' 11-page memorandum opinion (D. Md. doc 17) carries
+                # no description in either API field. Skipping it would report
+                # a ruling that is in the archive as absent from it.
+                if want_doc is not None and str(d.get("document_number")) != str(want_doc):
+                    continue
+                found.append({"docket_id": did, "caseName": r.get("caseName"),
+                              "court": r.get("court"), "docketNumber": r.get("docketNumber"),
+                              "dateFiled": r.get("dateFiled"),
+                              "document_number": d.get("document_number"),
+                              "description": desc, "untitled": untitled,
+                              "page_count": d.get("page_count")})
+        if not found and unreachable:
+            return {"acquired": False, "case": case, "verdict": "archive_unreachable",
+                    "why": ("The docket could not be listed - the tool returned an "
+                            "error, usually CourtListener's 5-per-minute throttle. "
+                            "This says NOTHING about whether the decision is in RECAP. "
+                            "Retry; nothing was shelved."),
+                    "unreachable": unreachable, "disclaimer": DISCLAIMER}
+        if not found:
+            return {"acquired": False, "case": case, "verdict": "not_in_archive",
+                    "why": ("The docket exists and no entry described as an opinion or "
+                            "memorandum has text in RECAP. A fact about the archive - "
+                            "nobody has contributed that PDF - and not about the court. "
+                            "Nothing was shelved."),
+                    "dockets": [{"docketNumber": r.get("docketNumber"), "docket_id": r.get("docket_id"),
+                                 "court": r.get("court")} for r in cands[:4]],
+                    "disclaimer": DISCLAIMER}
+        dockets = sorted({f["docket_id"] for f in found})
+        if len(dockets) > 1 and not want_docket:
+            return {"acquired": False, "case": case, "verdict": "ambiguous",
+                    "why": ("More than one docket under these parties carries an "
+                            "available opinion. Pass docket_number to say which. This "
+                            "agent does not pick a court's decision by position in a list."),
+                    "choices": found, "disclaimer": DISCLAIMER}
+        # 3. Read, latest entry first, until one is about `expect`. A docket
+        #    can carry several rulings - Farahani has a Memorandum & Order at
+        #    70 and another at 71 - and the latest is not always the one
+        #    asked about. Each one read and passed over is reported with what
+        #    it opened with, so a refusal shows its work.
+        found.sort(key=lambda f: int(f.get("document_number") or 0), reverse=True)
+        pick, text, subject, rd, passed_over = None, None, None, None, []
+        for cand in found:
+            rd = self._unwrap_mcp(self.call_tool("courtlistener", "docket_documents",
+                                                 {"docket_id": cand["docket_id"],
+                                                  "document_number": str(cand["document_number"])}))
+            if not isinstance(rd, dict) or rd.get("error"):
+                passed_over.append({**cand, "outcome": "unreadable",
+                                    "error": (rd or {}).get("error") if isinstance(rd, dict) else "no response"})
+                continue
+            body = rd.get("text") or ""
+            if not str(body).strip():
+                passed_over.append({**cand, "outcome": "no_text"})
+                continue
+            if cand.get("untitled") and not self._reads_as_ruling(body):
+                passed_over.append({**cand, "outcome": "not_a_ruling",
+                                    "opening": re.sub(r"\s+", " ", body[:300])})
+                continue
+            # Two pages of reach: a ruling states its subject after the
+            # caption, not in it. See check_subject on `window`.
+            subj = check_subject(body, expect, window=8000)
+            if expect and not subj["verified"] and not a.get("force"):
+                passed_over.append({**cand, "outcome": "subject_mismatch",
+                                    "opening": re.sub(r"\s+", " ", body[:300])})
+                continue
+            pick, text, subject = cand, body, subj
+            break
+        if pick is None:
+            if passed_over and all(p.get("outcome") == "subject_mismatch" for p in passed_over):
+                verdict, why = "subject_mismatch", (
+                    "Every available ruling on the docket was read and none is about "
+                    "what `expect` says. Refused rather than shelved, because a case "
+                    "that resolves looks exactly like a case that is on point. Pass "
+                    "force=True to shelve the latest anyway; the mismatch is recorded.")
+            else:
+                verdict, why = "not_in_archive", (
+                    "Entries marked available came back without text, or could not "
+                    "be read. A fact about the archive or the connection, not the court.")
+            return {"acquired": False, "case": case, "verdict": verdict, "why": why,
+                    "read": passed_over, "disclaimer": DISCLAIMER}
+        others = [f for f in found if f is not pick]
+
+        # 4. Shelve. Title carries what identifies the decision and nothing
+        #    invented: caption as the docket has it, court, date, docket, entry.
+        title = (f"{pick['caseName']} ({pick['court']}, No. {pick['docketNumber']}, "
+                 f"Doc. {pick['document_number']})")
+        source = (f"CourtListener RECAP docket {pick['docket_id']}, document "
+                  f"{pick['document_number']}: the court's own text as filed - "
+                  f"\"{pick['description'][:120]}\". Judicial opinions are edicts of "
+                  f"government and public domain. Retrieved "
+                  f"{time.strftime('%Y-%m-%d')}.")
+        stem = re.sub(r"[^a-z0-9]+", "_", f"{pick['caseName']} {pick['docketNumber']}".lower()).strip("_")[:50]
+        res = ingest_law.shelve(text, title, source, self.agent_id, "opinion",
+                                stem=stem, treatise=True)
+        if not res.get("ok"):
+            return {"acquired": False, "case": case, "verdict": "shelve_failed",
+                    "why": res.get("error"), "entry": pick, "disclaimer": DISCLAIMER}
+        self._refdocs = None
+        self._load_reference_docs()
+        hits = self._lookup_reference_raw(case) or []
+        out = {"acquired": True, "case": case, "title": title,
+               "path": os.path.relpath(res["path"], project_root),
+               "sections": res.get("sections"),
+               "authority_class": res["authority_class"],
+               "claim_layer": res["claim_layer"],
+               "subject_verified": subject.get("verified"), "subject": subject,
+               "entry": pick, "other_opinion_entries": others,
+               "chars": len(text), "truncated": bool((rd or {}).get("truncated")),
+               "reachable_by_lookup": bool(hits), "lookup_hits": len(hits),
+               "disclaimer": DISCLAIMER}
+        self.log(f"acquired opinion {title} -> {out['path']} ({out['sections']} sections)")
+        return out
+
+    # Consumer-protection authorities a decision can turn on. Vocabulary of
+    # this domain, so it lives here and nowhere upstream. A citation family
+    # names the statute; whether the corpus can OPEN the section cited is
+    # checked, never assumed.
+    CONSUMER_PROTECTIONS = (
+        # (section-cite pattern, name pattern, label). A court engages a
+        # protection by section OR by name - Galvez v. Midland names the
+        # FDCPA once and cites no section of it, and counting cites alone
+        # reported a debt-collection ruling as engaging nothing.
+        (r"15\s*U\.?\s*S\.?\s*C\.?\s*(?:§+\s*)?1692[a-p]?", r"\bFDCPA\b|Fair Debt Collection Practices Act",
+         "FDCPA - Fair Debt Collection Practices Act (15 U.S.C. 1692)"),
+        (r"12\s*C\.?\s*F\.?\s*R\.?\s*(?:§+\s*)?(?:part\s*)?1006(?:\.\d+)?", r"Regulation F\b|\bReg\.? F\b",
+         "Regulation F - debt collection (12 CFR 1006)"),
+        (r"15\s*U\.?\s*S\.?\s*C\.?\s*(?:§+\s*)?1681[a-x]?(?:\s*[-\u2013]\s*\d)?", r"\bFCRA\b|Fair Credit Reporting Act",
+         "FCRA - Fair Credit Reporting Act (15 U.S.C. 1681)"),
+        (r"12\s*C\.?\s*F\.?\s*R\.?\s*(?:§+\s*)?(?:part\s*)?1022(?:\.\d+)?", r"Regulation V\b|\bReg\.? V\b",
+         "Regulation V - credit reporting (12 CFR 1022)"),
+        (r"15\s*U\.?\s*S\.?\s*C\.?\s*(?:§+\s*)?16(?:0[1-9]|[1-6]\d)[a-z]?", r"\bTILA\b|Truth in Lending Act",
+         "TILA - Truth in Lending Act (15 U.S.C. 1601 et seq.)"),
+        (r"12\s*C\.?\s*F\.?\s*R\.?\s*(?:§+\s*)?(?:part\s*)?(?:1026|226)(?:\.\d+)?", r"Regulation Z\b|\bReg\.? Z\b",
+         "Regulation Z - truth in lending (12 CFR 1026 / 226)"),
+        (r"15\s*U\.?\s*S\.?\s*C\.?\s*(?:§+\s*)?1693[a-r]?", r"\bEFTA\b|Electronic Fund Transfer Act",
+         "EFTA - Electronic Fund Transfer Act (15 U.S.C. 1693)"),
+        (r"47\s*U\.?\s*S\.?\s*C\.?\s*(?:§+\s*)?227", r"\bTCPA\b|Telephone Consumer Protection Act",
+         "TCPA - Telephone Consumer Protection Act (47 U.S.C. 227)"),
+        (r"12\s*U\.?\s*S\.?\s*C\.?\s*(?:§+\s*)?26(?:0[1-9]|1\d)", r"\bRESPA\b|Real Estate Settlement Procedures Act",
+         "RESPA - Real Estate Settlement Procedures Act (12 U.S.C. 2601)"),
+        (r"12\s*U\.?\s*S\.?\s*C\.?\s*(?:§+\s*)?553[1-6]", r"\bUDAAP\b|Consumer Financial Protection Act",
+         "CFPA / UDAAP - Consumer Financial Protection Act (12 U.S.C. 5531-5536)"),
+        (r"15\s*U\.?\s*S\.?\s*C\.?\s*(?:§+\s*)?45\b", r"Section 5 of the FTC Act|FTC Act",
+         "FTC Act § 5 - unfair or deceptive acts (15 U.S.C. 45)"),
+        (r"(?:Mass\.?\s*Gen\.?\s*Laws|M\.?G\.?L\.?|G\.?\s*L\.?)\s*c(?:h|hapter)?\.?\s*93A", r"\bChapter 93A\b|\b93A\b",
+         "Massachusetts Consumer Protection Act (M.G.L. c. 93A)"),
+        (r"Tex\.?\s*Bus\.?\s*&\s*Com\.?\s*Code\s*(?:§+\s*)?17\.4\d", r"\bDTPA\b|Deceptive Trade Practices",
+         "Texas DTPA - Deceptive Trade Practices Act (Tex. Bus. & Com. Code 17.41 et seq.)"),
+        (r"N\.?J\.?S\.?A\.?\s*56:8-\d+", r"New Jersey Consumer Fraud Act|\bNJCFA\b|\bCFA\b",
+         "New Jersey Consumer Fraud Act (N.J.S.A. 56:8)"),
+        (r"Cal\.?\s*Civ\.?\s*Code\s*(?:§+\s*)?1788(?:\.\d+)?", r"Rosenthal",
+         "Rosenthal Act - California debt collection (Cal. Civ. Code 1788)"),
+    )
+    _ECF_STAMP_RX = re.compile(r"Case\s+\S+\s+Document\s+\d+\s+Filed\s+\d\d/\d\d/\d\d\s+Page\s+\d+\s+of\s+\d+(?:\s+PageID:?\s*\d+)?")
+    _HOLDING_RX = re.compile(
+        r"[^.]*\b(?:we hold|the court holds|the court finds|the court concludes|"
+        r"court concludes that|is (?:hereby )?(?:denied|granted)(?: in part)?|"
+        r"are (?:hereby )?(?:denied|granted)(?: in part)?|is dismissed|"
+        r"survives?|states? a (?:plausible )?claim|has (?:article iii )?standing|"
+        r"lacks? (?:article iii )?standing|constitutes? a communication|"
+        r"is a (?:debt collector|communication|furnisher)|"
+        r"it is (?:hereby )?ordered)\b[^.]*\.", re.I)
+
+    def review_consumer_protections(self, args):
+        """What consumer protections a shelved decision turned on, read out.
+
+        The review is EXTRACTIVE, and that is the design. Every line it
+        returns is either a citation the opinion itself makes, a sentence the
+        court itself wrote, or a check of this corpus - which of those cited
+        sections Legal can open and which it cannot. Nothing here asks a
+        model what the case means. CLAUDE.md records where every fabrication
+        this system has produced came from: a small model given a gap and
+        room to fill it. A trade association's thumbs-down card is a claim by
+        an interested party about who won; the court's own disposition
+        sentence is evidence, and it is quoted, not scored.
+
+        Three findings, each checkable against the shelved text:
+          protections_engaged  the statute families the opinion cites, with
+                               counts and the exact section cites
+          holdings             sentences carrying a holding or disposition
+                               verb, verbatim, with the page they sit on
+          corpus_coverage      of the sections the court applied, which ones
+                               sit on this shelf - and the gap, which is the
+                               list acquire_authority should fetch next
+
+        `who_it_favours` is deliberately absent. Which side a holding helps
+        is a reading of the holding against the client's posture, and that
+        is claim assessment, one verb over."""
+        a = args if isinstance(args, dict) else {"case": args}
+        case = (a.get("case") or a.get("title") or "").strip()
+        if not case:
+            return {"error": "review_consumer_protections needs the case name or shelf title.",
+                    "disclaimer": DISCLAIMER}
+        # Find the shelved work by caption, on this agent's own shelf.
+        parties = re.split(r"\s+v\.?\s+", re.sub(r"[,(].*$", "", case).strip(), maxsplit=1)
+        parties = [re.sub(r"[^a-z ]", "", p.lower()).strip() for p in parties if p.strip()]
+        shelf = os.path.join(project_root, "reference", self.agent_id)
+        matches = []
+        for fname in sorted(os.listdir(shelf)):
+            if not fname.endswith(".json"):
+                continue
+            try:
+                with open(os.path.join(shelf, fname), encoding="utf-8") as fh:
+                    doc = json.load(fh)
+            except Exception:
+                continue
+            if doc.get("authority_class") != "case_law":
+                continue
+            name = re.sub(r"[^a-z ]", "", str(doc.get("title") or "").lower())
+            if parties and all(p and p in name for p in parties):
+                matches.append((fname, doc))
+        if not matches:
+            return {"case": case, "verdict": "not_on_shelf",
+                    "why": ("No case-law work on this shelf carries both party names. "
+                            "Acquire it first with acquire_opinion; this review reads "
+                            "the shelved text and nothing else."),
+                    "disclaimer": DISCLAIMER}
+        if len(matches) > 1 and not a.get("title"):
+            return {"case": case, "verdict": "ambiguous",
+                    "choices": [d.get("title") for _, d in matches],
+                    "why": "More than one shelved decision matches. Pass the exact title.",
+                    "disclaimer": DISCLAIMER}
+        fname, doc = matches[0]
+        sections = doc.get("sections") or []
+        text = "\n".join(s.get("text") or "" for s in sections)
+
+        # Protections engaged: each family, the exact cites, how often.
+        engaged = []
+        for rx, name_rx, label in self.CONSUMER_PROTECTIONS:
+            cites = re.findall(rx, text, re.I)
+            names = len(re.findall(name_rx, text))
+            if cites or names:
+                norm = sorted({re.sub(r"\s*[-\u2013]\s*", "-", re.sub(r"\s+", " ", c)).strip()
+                               for c in cites})
+                engaged.append({"protection": label, "mentions": len(cites) + names,
+                                "section_cites": len(cites), "named": names,
+                                "cited_as": norm[:12]})
+        engaged.sort(key=lambda e: -e["mentions"])
+
+        # Corpus coverage: the federal sections the court applied, and
+        # whether THIS shelf can open each. A section the court relied on
+        # that Legal cannot read is the next acquisition, named.
+        # "1681s-2", "1681s–2" and "1681s- 2" are one section; the dash and
+        # the line-wrap are typography.
+        applied = sorted({re.sub(r"\s*[-\u2013]\s*", "-", re.sub(r"\s+", " ", m)).strip()
+                          for m in re.findall(
+            r"\b(?:15|12|47)\s*U\.?\s*S\.?\s*C\.?\s*(?:§+\s*)?\d{2,4}[a-z]?(?:\s*[-\u2013]\s*\d)?", text, re.I)})
+        held, missing = [], []
+        for cite in applied:
+            m = re.match(r"(\d+)\s*U\.?\s*S\.?\s*C\.?\s*(?:§+\s*)?(\S+)", cite, re.I)
+            if not m:
+                continue
+            canon = f"{m.group(1)} U.S.C. {m.group(2)}"
+            try:
+                hit = self._lookup_reference_raw(canon)
+            except Exception:
+                hit = []
+            (held if hit else missing).append(canon)
+
+        # Holdings: the court's sentences, verbatim, with the page.
+        holdings = []
+        seen = set()
+        for s in sections:
+            body = s.get("text") or ""
+            for m in self._HOLDING_RX.finditer(body):
+                # The CM/ECF header stamp is the filing system's, not the
+                # court's, and it lands mid-sentence wherever a page turns.
+                sent = re.sub(r"\s+", " ", self._ECF_STAMP_RX.sub(" ", m.group(0))).strip()
+                if len(sent) < 40 or len(sent) > 600 or sent in seen:
+                    continue
+                seen.add(sent)
+                holdings.append({"page": s.get("page") or s.get("citation"), "text": sent})
+                if len(holdings) >= 14:
+                    break
+            if len(holdings) >= 14:
+                break
+
+        return {
+            "case": case, "title": doc.get("title"), "source": doc.get("source"),
+            "authority_class": doc.get("authority_class"),
+            "claim_layer": doc.get("claim_layer"),
+            "pages_shelved": len(sections),
+            "protections_engaged": engaged,
+            "holdings": holdings,
+            "corpus_coverage": {"sections_applied": applied,
+                                "on_this_shelf": sorted(set(held)),
+                                "not_on_this_shelf": sorted(set(missing))},
+            "next": ([f"acquire_authority {c}" for c in sorted(set(missing))]
+                     if missing else []),
+            "method": ("Extractive. Citations and sentences are the court's own; "
+                       "coverage is a lookup against this shelf. No model was asked "
+                       "what the case means, and who it favours is not scored here."),
+            "disclaimer": DISCLAIMER,
+        }
+
+
     def read_docket_document(self, args):
         """Read the court's own text of one document on a docket.
 
@@ -4245,6 +4684,10 @@ class LegalAgent(AgentBase):
             return self.verify_quote(args if isinstance(args, dict) else {})
         if task == "read_docket_document":
             return self.read_docket_document(args if isinstance(args, dict) else {})
+        if task == "acquire_opinion":
+            return self.acquire_opinion(args if isinstance(args, dict) else {"case": args})
+        if task == "review_consumer_protections":
+            return self.review_consumer_protections(args if isinstance(args, dict) else {"case": args})
         if task == "read_filed_document":
             return self.read_filed_document(args if isinstance(args, dict) else {})
         if task == "ingest_screenshot":

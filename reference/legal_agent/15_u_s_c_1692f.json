@@ -1,0 +1,41 @@
+{
+  "title": "15 U.S.C. \u00a7 1692f",
+  "source": "United States Code title 15 section 1692f, retrieved from Cornell LII (law.cornell.edu). The statutory text is a U.S. government work and is public domain; Cornell's annotations are excluded.",
+  "authority_class": "federal_statute",
+  "authority_class_basis": "Title of the work is a U.S. Code section citation, which fixes the class",
+  "claim_layer": "doctrinal",
+  "claim_layer_meaning": "States or describes the rule. Cite for what the law IS.",
+  "authorities_cited": [],
+  "term_index": {},
+  "origin_pdf": "15_u_s_c_1692f.txt",
+  "extraction": {
+    "extractor": "text file (already extracted)",
+    "pages": 1,
+    "no_text_layer": [],
+    "raised": [],
+    "recovered": [],
+    "lost": [],
+    "complete": true
+  },
+  "pages": 1,
+  "sections": [
+    {
+      "citation": "\u00a7 1692f.",
+      "kind": "section_sign",
+      "page": 1,
+      "text": "\u00a7 1692f. Unfair practices. A debt collector may not use unfair or unconscionable means to collect or attempt to collect any debt . Without limiting the general application of the foregoing, the following conduct is a violation of this section: (1) The collection of any amount (including any interest, fee, charge, or expense incidental to the principal obligation) unless such amount is expressly authorized by the agreement creating the debt or permitted by law. (2) The acceptance by a debt collector from any person of a check or other payment instrument postdated by more than five days unless such person is notified in writing of the debt collector\u2019s intent to deposit such check or instrument not more than ten nor less than three business days prior to such deposit. (3) The solicitation by a debt collector of any postdated check or other postdated payment instrument for the purpose of threatening or instituting criminal prosecution. (4) Depositing or threatening to deposit any postdated check or other postdated payment instrument prior to the date on such check or instrument. (5) Causing charges to be made to any person for communications by concealment of the true purpose of the communication . Such charges include, but are not limited to, collect telephone calls and telegram fees. (6) Taking or threatening to take any nonjudicial action to effect dispossession or disablement of property if\u2014 (A) there is no present right to possession of the property claimed as collateral through an enforceable security interest; (B) there is no present intention to take possession of the property; or (C) the property is exempt by law from such dispossession or disablement. (7) Communicating with a consumer regarding a debt by post card. (8) Using any language or symbol, other than the debt collector\u2019s address, on any envelope when communicating with a consumer by use of the mails or by telegram, except that a debt collector may use his business name if such name does not indicate that he is in the debt collection business.",
+      "integrity": {
+        "state": "complete",
+        "basis": "Full retrieved body of 2,042 characters stored; under the 60,000 cap, so nothing was cut.",
+        "stamped_at": "2026-09-14T14:27:51",
+        "stored_chars": 2042,
+        "source_chars": 2042,
+        "cap_applied": 60000
+      },
+      "authority_class": "federal_statute",
+      "claim_layer": "doctrinal",
+      "claim_layer_meaning": "States or describes the rule. Cite for what the law IS."
+    }
+  ],
+  "claim_layer_basis": "Set from the class, not from the text: a statute or regulation states the rule rather than describing or arguing it, which the citation in the title establishes definitionally."
+}
