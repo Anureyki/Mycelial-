@@ -3743,8 +3743,15 @@ class GrowAgent(AgentBase):
             except Exception:
                 pass
 
-        if not (tgt and now_v and now_p):
+        # `is None`, not truthiness. A fresh bucket of RO water has a current
+        # ppm of exactly 0, and `not 0` is True - so planning a from-scratch
+        # fill returned "need the current ppm" when the current ppm was the
+        # one thing the grower had stated precisely. Same class as
+        # accepted_as_full=False reading as missing in the evidence store.
+        if tgt is None or now_v is None or now_p is None:
             return {"error": "Need target_ppm, the volume to dose into, and the current ppm."}
+        if tgt <= 0 or now_v <= 0 or now_p < 0:
+            return {"error": "target_ppm and the volume must be positive; current ppm cannot be negative."}
         if fin_v is None:
             fin_v = now_v
         if cap and fin_v > cap:
