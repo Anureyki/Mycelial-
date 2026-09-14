@@ -4993,3 +4993,35 @@ cannot open is a hallucination waiting to happen. Checked rather than argued:
   is a false claim; declared as a gap it is a piece of work.
 
 ---
+
+## 2026-09-14 - Case law, contracts, instruments, custody
+
+- **Legal acquires a decision from the docket** (`acquire_opinion`) and
+  reviews it from the text (`review_consumer_protections`). Four FDCPA/FCRA
+  rulings shelved as `case_law`; three were refused first for reasons about
+  the tooling and never the court - a title filter, a subject window sized
+  for a statute, a throttle reported as an empty archive, an untitled entry,
+  a ruling read as a party's filing because it names the motion it decides.
+  Each shape is held in `tools/check_case_law.py`.
+- **Pub. L. 115-59 is on the shelf.** DoDI 1000.30 rests on the Privacy Act,
+  EO 9397/13478 and this Act, not the Social Security Act. Its § 2 restricts
+  the SSN on a document "sent by mail".
+- **`tex` is a fetch kind.** Tex. Bus. & Com. Code ch. 2 and 3 and Tex.
+  Transp. Code ch. 501 acquired by Legal from texas.public.law, which folds
+  fifteen sections of chapter 2 into neighbouring pages; recovered.
+- **`draft_contract`, inherited.** A car purchase drafts complete: four layers
+  named, § 2.313 for the warranty, § 3.311 for the discharge, § 501.071 for
+  title; wire and escrow refuse by name until 4A and the Finance Code are
+  shelved; house and lease refuse every clause until the Property Code is.
+  Legal and Trust produced byte-identical documents, Trust borrowing the
+  shelf.
+- **`core/instrument_rules.py`** holds the principal's instrument doctrine as
+  rules tested against the shelf. Two are CONTESTED by the text and reported
+  rather than applied: "the funds don't have to be good" (§ 3.311(a)(3),
+  § 3.310(b)(1)) and "every download is a violation" ("sent by mail").
+- **`custody_event` / `custody_ledger`, inherited.** The chain, the checks the
+  documents enabled, the services deducted, the surplus owed back; unverified
+  deductions flagged and not subtracted; a credit booked as the custodian's
+  revenue is not a credit. Accounting and Trust byte-identical.
+- **The MCP cache wrote 0644 under state/** - `check_fs_boundary` caught it on
+  the tree; fixed at the creator.
