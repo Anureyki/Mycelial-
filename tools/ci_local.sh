@@ -85,6 +85,7 @@ step "check_history_classes"        "$PY" tools/check_history_classes.py
 step "check_case_law"               "$PY" tools/check_case_law.py
 step "check_contract_engine"        "$PY" tools/check_contract_engine.py
 step "check_custody"                "$PY" tools/check_custody.py
+step "check_spoken_reading"         "$PY" tools/check_spoken_reading.py
 echo
 if [ "$rc" -eq 0 ]; then echo "ALL GREEN - $HONEST."
 else echo "RED - do not claim the build passes."; fi

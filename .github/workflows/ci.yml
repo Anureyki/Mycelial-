@@ -164,6 +164,9 @@ jobs:
       - name: The custody ledger audits the chain and never argues the law
         run: python tools/check_custody.py
 
+      - name: A spoken reading lands on the vessel named, or on nothing
+        run: python tools/check_spoken_reading.py
+
       - name: No sensitive material in the repository
         # The backstop. The real gate is .githooks/pre-commit, because a
         # secret caught by CI has already been pushed - this repository

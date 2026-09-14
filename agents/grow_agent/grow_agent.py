@@ -919,6 +919,7 @@ class GrowAgent(AgentBase):
                 "log_training_event", "recommend_feed", "plan_system_transition",
                 "set_grow_system", "get_grow_system", "amend_grow_system",
                 "field_history", "assess_root_zone", "void_reservoir_eval",
+                "which_plant",
                 "reconcile_ec_temperature", "intake_reading", "when_to_top_up", "project_topup", "plan_feed_for_target", "ppm_per_ml", "round_to_instrument", "assess_ph", "quantities",
                 "get_nutrient_history",
                 "set_inventory", "get_inventory",
@@ -4703,6 +4704,13 @@ class GrowAgent(AgentBase):
             re.search(r'\bph\s*(?:of|is|:)?\s*(\d+(?:\.\d+)?)', t, re.IGNORECASE)
         tc = re.search(r'(\d+(?:\.\d+)?)\s*(?:°|deg(?:rees)?)?\s*c\b', t, re.IGNORECASE)
         tf = re.search(r'(\d+(?:\.\d+)?)\s*(?:°|deg(?:rees)?)?\s*f\b', t, re.IGNORECASE)
+        # EC and volume are read too - "1550 EC", "EC 1.55", "at 15 L",
+        # "12.5 liters". A grower reading the meter says all four, and a
+        # parser that kept two of them made the intake cross-check (ppm
+        # against EC) impossible on a spoken reading.
+        ec = re.search(r'(\d+(?:\.\d+)?)\s*(?:ms|us|µs)?\s*ec\b', t, re.IGNORECASE) or \
+            re.search(r'\bec\s*(?:of|is|at|:)?\s*(\d+(?:\.\d+)?)', t, re.IGNORECASE)
+        vol = re.search(r'(\d+(?:\.\d+)?)\s*(?:l|liters?|litres?)\b', t, re.IGNORECASE)
         signals = sum(1 for m in (ppm, ph, tc, tf) if m)
         if signals == 0:
             return None
@@ -4726,6 +4734,10 @@ class GrowAgent(AgentBase):
         temp_c = float(tc.group(1)) if tc else ((float(tf.group(1)) - 32) * 5 / 9 if tf else None)
         if temp_c is not None:
             out["temp"] = round(temp_c, 1)
+        if ec and out:
+            out["ec"] = float(ec.group(1))
+        if vol and out:
+            out["volume_liters"] = float(vol.group(1))
         return out or None
 
     def ingest(self, prompt):
@@ -5100,21 +5112,46 @@ class GrowAgent(AgentBase):
                 "artifact_id": record["id"],
                 "parent_artifact_id": parent_artifact_id}
 
-    def log_from_text(self, prompt, plant_id="current_plant"):
-        """Record a reading stated in conversation, stamped with the right stage.
+    def log_from_text(self, prompt, plant_id=None):
+        """Record a reading stated in conversation, on the plant the sentence
+        names, through intake_reading - and say back which vessel it landed on.
 
-        Which stage an unstamped reading belongs to is this agent's call, not
-        the caller's - it is the one that knows the plant's age and what
-        "unknown" should fall back to."""
+        NO DEFAULT PLANT. This used to default to current_plant and write
+        through log_reading, which is the exact pair CLAUDE.md forbids: "a
+        reading with no explicit plant is refused, never defaulted", because
+        the default is always the plant most recently discussed rather than
+        the one measured - and log_reading skips the ppm-against-EC
+        cross-check that intake_reading exists to run. Two GSC plants in two
+        vessels were mixed up by exactly this path.
+
+        The receipt is the point: "GSC-1 in DWC bucket (production)" comes
+        back with the values, so a reading on the wrong vessel is caught by
+        the grower reading the receipt and not by the ledger a week later."""
         reading = self.parse_reading(prompt)
         if not reading:
             return {"logged": False, "reason": "no reading found in text"}
-        stage = self._unwrap_value(self.retrieve_own_memory("current_stage")) or "seedling"
-        if stage == "unknown":
-            stage = "seedling"
-        args = dict(reading, stage=stage, plant_id=plant_id)
-        return {"logged": True, "reading": reading,
-                "result": self.handle_task("log_reading", args, self.agent_id)}
+        pid = plant_id or self._plant_from_text(prompt)
+        if not pid:
+            return {"logged": False, "reason": "no plant named", "reading": reading,
+                    "ask": ("A reading needs its vessel. Say which - the DWC / the bucket, "
+                            "the LWC / nursery, or GSC-1 / GSC-2 - and it will be logged. "
+                            "Nothing was stored.")}
+        rec = self._system_record(pid)
+        if rec.get("alive") is False:
+            return {"logged": False, "reason": "plant not alive", "plant_id": pid,
+                    "ask": f"{rec.get('instance_label') or pid} is recorded as not alive; "
+                           f"no reading attaches to it. Nothing was stored."}
+        res = self.intake_reading(plant_id=pid, ph=reading.get("ph"), ppm=reading.get("ppm"),
+                                  ec=reading.get("ec"), temp_c=reading.get("temp"),
+                                  volume_liters=reading.get("volume_liters"),
+                                  note=f"spoken: {str(prompt)[:300]}")
+        receipt = (f"{rec.get('instance_label') or pid} in "
+                   f"{rec.get('vessel') or rec.get('system_type') or 'an unrecorded vessel'}")
+        return {"logged": bool(res.get("stored")), "plant_id": pid, "receipt": receipt,
+                "reading": (res.get("cleaned") or reading),
+                "problems": res.get("problems") or [],
+                "why_not_stored": res.get("why_not_stored"),
+                "result": res}
 
     # Each quantity carries its OWN unit and its OWN plausible range. One
     # band-pass filter tuned for ppm was discarding pH, EC, temperature and
@@ -5266,6 +5303,33 @@ class GrowAgent(AgentBase):
         reachable from exactly one route through Boss, and the grower not
         happening to use that route."""
         lp = (prompt or "").lower()
+        # A READING IS WRITTEN DOWN BEFORE ANYTHING ELSE IS SAID. Anansi
+        # routes a sentence here and only here, so this is the one place a
+        # spoken reading can become evidence. ingest() used to be a separate
+        # task that Boss called first; Boss no longer routes and nothing
+        # called it, so a grower reading his meter to Anansi got an answer
+        # about the plant and no row on the record. The receipt names the
+        # vessel; a sentence naming no vessel stores nothing and says so.
+        if self.parse_reading(prompt):
+            got = self.log_from_text(prompt, plant_id=plant_id)
+            if got.get("logged"):
+                r = got.get("reading") or {}
+                vals = ", ".join(f"{k} {v}" for k, v in (("ppm", r.get("ppm")), ("EC", r.get("ec")),
+                                                         ("pH", r.get("ph")), ("temp C", r.get("temp")),
+                                                         ("volume L", r.get("volume_liters")))
+                                 if v is not None)
+                return {"answered_as": "reading_logged", "plant_id": got["plant_id"],
+                        "receipt": got["receipt"],
+                        "text": f"Logged on {got['receipt']}: {vals}.",
+                        "facts": got}
+            if got.get("reason") in ("no plant named", "plant not alive"):
+                return {"answered_as": "reading_refused", "plant_id": None,
+                        "text": got["ask"], "facts": got}
+            if got.get("reason") != "no reading found in text":
+                return {"answered_as": "reading_refused", "plant_id": got.get("plant_id"),
+                        "text": (f"Not stored on {got.get('receipt')}: "
+                                 + "; ".join(got.get("problems") or [got.get("why_not_stored") or "refused"])),
+                        "facts": got}
         plant_id = plant_id or self._plant_from_text(prompt) or "current_plant"
         # Kept for the ppm-shaped facets that were written against it, but no
         # longer the only way a number reaches a facet - see quantities().
@@ -5590,6 +5654,17 @@ class GrowAgent(AgentBase):
         extra = ", ".join(x for x in (st, (sysname or "").upper() or None) if x)
         return f"{plant_id} ({extra})" if extra else bits[0]
 
+    def _system_record(self, plant_id):
+        """The plant's grow_system record as a dict, or {}."""
+        try:
+            raw = self._unwrap_value(self.retrieve_own_memory(f"grow_system_{plant_id}")) \
+                or (self._unwrap_value(self.retrieve_own_memory("grow_system"))
+                    if plant_id == "current_plant" else None)
+            rec = json.loads(raw) if isinstance(raw, str) else (raw or {})
+            return rec if isinstance(rec, dict) else {}
+        except Exception:
+            return {}
+
     def _plant_from_text(self, prompt):
         """Which of THIS agent's plants the text refers to, or None.
 
@@ -5622,6 +5697,36 @@ class GrowAgent(AgentBase):
             if _pid and re.search(r'(?<![a-z0-9])' + re.escape(_pid.lower())
                                   + r'(?![a-z0-9])', lp):
                 return _pid
+        # A VESSEL NAMES THE PLANT IN IT. The grower says "the DWC", "the
+        # bucket", "the LWC", "the nursery" - a vessel word, never an id -
+        # and a vessel holds one plant. The words come from each plant's own
+        # record (vessel_aliases, system_type, location), so registering a
+        # plant with its vessel makes that vessel's name route to it from
+        # that moment. A word two living plants share selects nothing.
+        vessel_alias = {}
+        for _p in plants:
+            _pid = str(_p.get("plant_id") or "")
+            _rec = self._system_record(_pid)
+            words = set()
+            for a in (_rec.get("vessel_aliases") or []):
+                words.add(str(a).lower().strip())
+            if _rec.get("system_type"):
+                words.add(str(_rec["system_type"]).lower().strip())
+            for w in re.split(r"[^a-z0-9]+", str(_rec.get("location") or "").lower()):
+                if len(w) >= 4 and w not in STOP_TERMS:
+                    words.add(w)
+            for w in words:
+                if w:
+                    vessel_alias.setdefault(w, []).append(_pid)
+        vessel_hits = []
+        for w, owners in vessel_alias.items():
+            owners = list(dict.fromkeys(owners))
+            if len(owners) != 1:
+                continue
+            if re.search(r'(?<![a-z0-9])' + re.escape(w) + r'(?![a-z0-9])', lp):
+                vessel_hits.append(owners[0])
+        if len(set(vessel_hits)) == 1:
+            return vessel_hits[0]
         order = ["current_plant"] + [p.get("plant_id") for p in plants
                                      if p.get("plant_id") != "current_plant"]
 
@@ -12232,6 +12337,29 @@ class GrowAgent(AgentBase):
             return {"result": {"active": self.active_plants(),
                                "archived": self.archived_plants()}}
 
+        elif task == "which_plant":
+            # THE RECEIPT BEFORE THE READING. Which vessel is this sentence
+            # about, said back before anything is stored - so a reading on
+            # the wrong plant is caught by the grower reading the receipt,
+            # not by the ledger a week later. None is an answer: a sentence
+            # that names no vessel, or two, attaches to nothing.
+            text = str(args.get("text") or args.get("prompt") or "")
+            pid = self._plant_from_text(text) if text else None
+            if not pid:
+                return {"result": {"plant_id": None, "text": text,
+                                   "why": ("No single plant named. Say the vessel "
+                                           "(DWC / the bucket / LWC / nursery) or the "
+                                           "instance (GSC-1 / GSC-2); a cultivar alone "
+                                           "is shared by two plants.")}}
+            rec = self._system_record(pid)
+            return {"result": {"plant_id": pid, "text": text,
+                               "instance_label": rec.get("instance_label"),
+                               "vessel": rec.get("vessel"),
+                               "system_type": rec.get("system_type"),
+                               "alive": rec.get("alive"),
+                               "receipt": (f"{rec.get('instance_label') or pid} in "
+                                           f"{rec.get('vessel') or rec.get('system_type') or 'an unrecorded vessel'}")}}
+
         elif task == "roster":
             # ONE CALL, BECAUSE ASSEMBLING THIS IS GROW'S WORK.
             #
@@ -12267,6 +12395,27 @@ class GrowAgent(AgentBase):
                 if isinstance(snap, dict) and snap.get("error"):
                     failed.append({"plant_id": pid, "why": snap["error"]})
                     continue
+                # THE RECEIPT NAMES THE VESSEL. Two plants of one cultivar in
+                # two containers were mixed up because nothing on the roster
+                # said which bucket a row was about. Vessel, instance label,
+                # alive, and how old the last reading is travel with every
+                # row - and a reading older than three days is said to be
+                # stale rather than shown as though it were current.
+                rec = self._system_record(pid)
+                snap["instance_label"] = rec.get("instance_label")
+                snap["vessel"] = rec.get("vessel")
+                snap["system_type"] = rec.get("system_type")
+                snap["alive"] = rec.get("alive")
+                snap["status"] = rec.get("status")
+                hrs = (snap.get("last_reading") or {}).get("hours_ago")
+                if hrs is None:
+                    snap["reading_status"] = "none_on_record"
+                elif hrs > 72:
+                    snap["reading_status"] = f"stale - last reading {hrs/24:.1f} days ago"
+                else:
+                    snap["reading_status"] = "current"
+                if rec.get("spare_reservoir"):
+                    snap["spare_reservoir"] = rec["spare_reservoir"]
                 out.append(snap)
             return {"result": {"plants": out, "count": len(out),
                                "unreadable": failed,
