@@ -558,6 +558,25 @@ class AgentBase:
                  f"{len(out['refused'])} refused, sha {out['sha256'][:12]}")
         return out
 
+    def draft_dispute_letter(self, args=None):
+        """An FCRA dispute, an FDCPA validation demand, the combined notice,
+        or the short portal version - the principal's own prose, every
+        paragraph asserting a duty resolved to a section this agent can
+        open. Drafts only; nothing here sends. See core/dispute_letters.py."""
+        from core.dispute_letters import draft, Refused
+        a = args if isinstance(args, dict) else {}
+        try:
+            out = draft(a.get("kind"), a.get("facts") or {}, self._resolve_authority)
+        except Refused as exc:
+            return {"drafted": False, "refused": True, "why": str(exc), "sends": False}
+        except ValueError as exc:
+            return {"drafted": False, "refused": True, "why": str(exc), "sends": False}
+        out["drafted"] = True
+        out["drafted_by"] = self.agent_id
+        self.log(f"draft_dispute_letter {out['kind']}: {len(out['paragraphs_shipped'])} paragraphs, "
+                 f"{len(out['refused'])} refused, sha {out['sha256'][:12]}")
+        return out
+
     def instrument_doctrine(self, args=None):
         """Every instrument rule, tested against this agent's reachable shelf
         right now - cited, stated, contested, or unsupported, with the words."""
@@ -919,6 +938,8 @@ class AgentBase:
                     result = self.acquire_authority(args)
                 elif task == "draft_contract":
                     result = self.draft_contract(args)
+                elif task == "draft_dispute_letter":
+                    result = self.draft_dispute_letter(args)
                 elif task == "instrument_doctrine":
                     result = self.instrument_doctrine(args)
                 elif task == "classify_instrument":

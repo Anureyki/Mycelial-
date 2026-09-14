@@ -167,6 +167,9 @@ jobs:
       - name: A spoken reading lands on the vessel named, or on nothing
         run: python tools/check_spoken_reading.py
 
+      - name: A dispute letter cites what it asserts, carries no identifier, and never sends
+        run: python tools/check_dispute_letters.py
+
       - name: No sensitive material in the repository
         # The backstop. The real gate is .githooks/pre-commit, because a
         # secret caught by CI has already been pushed - this repository
