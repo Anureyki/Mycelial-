@@ -169,6 +169,54 @@ def extract(path):
     if notes:
         meta["warning"] = " ".join(notes)
 
+    # A PAGE WITH NO TEXT LAYER IS RENDERED AND OCR'D, not reported as empty.
+    #
+    # The first real document through the pipeline was a one-page FedEx
+    # receipt - a scan, no text layer - and this returned nothing, so the
+    # pipeline filed it as unreadable. Most of a person's papers are scans and
+    # photographs of paper. An extractor that only reads born-digital PDFs
+    # would file most of the evidence as "no text", which is the outcome the
+    # warning above exists to prevent.
+    #
+    # Rendered at 200dpi with pymupdf, then the same tesseract path the image
+    # branch uses. The method is recorded per page, because OCR text has a
+    # different error profile from a text layer and a reader of the fact
+    # should know which one it came from.
+    if empty:
+        try:
+            import pymupdf
+            import tempfile
+            doc = pymupdf.open(path)
+            ocr_pages = []
+            # pdf_text reports page NUMBERS (1-based, as a reader counts them);
+            # pymupdf and the pages list are 0-based. The first version indexed
+            # doc[1] on a one-page document, raised, and the exception was
+            # swallowed into ocr_error - so the OCR path silently did nothing
+            # and the scan was filed as unreadable anyway. Convention stated
+            # here so it is not rediscovered.
+            for num in record["no_text_layer"]:
+                idx = num - 1
+                if not 0 <= idx < len(pages):
+                    continue
+                pg = doc[idx]
+                with tempfile.TemporaryDirectory() as td:
+                    img = os.path.join(td, f"p{num}.png")
+                    pg.get_pixmap(dpi=200).save(img)
+                    t, _m = _ocr_image(img)
+                if t and _legible(t):
+                    pages[idx] = t
+                    ocr_pages.append(num)
+            meta["ocr_pages"] = ocr_pages
+            meta["method"] = "pypdf+ocr" if ocr_pages else "pypdf"
+            still = [n for n in record["no_text_layer"] if n not in ocr_pages]
+            meta["pages_without_text"] = len(still)
+            if still:
+                meta["warning"] = (meta.get("warning", "") +
+                                   f" OCR recovered nothing legible from "
+                                   f"page(s) {still}.").strip()
+        except Exception as exc:                    # noqa: BLE001
+            meta["ocr_error"] = f"{type(exc).__name__}: {exc}"
+
     # SCAN EVERY DOCUMENT, not the one somebody happened to look at. A VA
     # fiduciary certificate came through carrying the veteran's full SSN as
     # its file number, and nothing in the system said so - it was noticed by a

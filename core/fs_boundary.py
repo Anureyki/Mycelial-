@@ -88,6 +88,15 @@ PUBLIC_BY_DESIGN = {
 SKIP_DIRS = {"__pycache__", "ci-venv", "venv", ".venv", "node_modules",
              "site-packages"}
 
+# Files written by processes this code does not control, holding nothing
+# sensitive. nginx recreates its pid file at ITS umask on every reload, so a
+# harden that set it to 0600 was undone within the hour and the gate went red
+# on a file containing one integer. Named with the reason rather than widened
+# to a pattern - an exemption list that grows without reasons is a disabled
+# check.
+SKIP_FILES = {"nginx.pid": "an integer written by nginx at nginx's umask on "
+                           "every reload; not ours to set and not sensitive"}
+
 
 def _walk(base):
     for dirpath, dirnames, files in os.walk(base):
@@ -99,7 +108,7 @@ def _walk(base):
             # changes the TARGET - so hardening a directory could silently
             # re-permission something entirely outside it, which is the
             # opposite of a boundary. A broken link raises instead.
-            if os.path.islink(full):
+            if os.path.islink(full) or f in SKIP_FILES:
                 continue
             out.append(full)
         yield dirpath, out
@@ -203,13 +212,22 @@ def ensure_dir(path, mode=0o700, stop_at=None):
     # because the loop exited before its first iteration. Correcting the leaf
     # is unconditional; walking upward is what has to stop at a boundary, so
     # that hardening one store never re-permissions somebody's home directory.
-    if stat.S_IMODE(os.stat(path).st_mode) != mode:
+    # ONLY WHAT WE OWN. A store placed under /tmp for a test made this try to
+    # chmod /tmp itself and raise. A directory owned by another user is not
+    # ours to re-permission, and refusing to touch it is correct - but it must
+    # not turn into a crash on the write path.
+    def _ours(d):
+        try:
+            return os.stat(d).st_uid == os.getuid()
+        except OSError:
+            return False
+    if _ours(path) and stat.S_IMODE(os.stat(path).st_mode) != mode:
         os.chmod(path, mode)
     root = os.path.abspath(stop_at or ROOT)
     cur = os.path.dirname(os.path.abspath(path))
     while cur.startswith(root) and cur != root:
         try:
-            if stat.S_IMODE(os.stat(cur).st_mode) != mode:
+            if _ours(cur) and stat.S_IMODE(os.stat(cur).st_mode) != mode:
                 os.chmod(cur, mode)
         except OSError:
             break

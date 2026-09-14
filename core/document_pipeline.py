@@ -115,15 +115,54 @@ def intake(file_path, doc_id, source_type, declared_by="principal",
                 original_text=c["text"][:400])
             stored.append({"ref": ref, "fact_id": f["fact_id"],
                            "interest": c.get("domains") or []})
-        except Refused as exc:
+        except Refused as first:
             # THE CASE THAT MATTERS. The clause carries something that must
-            # not be stored. Record that it existed and was refused, with
-            # enough to find it on paper and not enough to be the identifier.
-            evidence_ingest.absence(
-                doc_id, f"clause:{ref}", "not_applicable",
-                f"present in the source and NOT STORED: {str(exc)[:200]}",
-                path=path)
-            refused.append({"ref": ref, "why": str(exc)[:160]})
+            # not be stored. The FIRST version dropped the whole clause - and
+            # a one-paragraph VA certificate carrying one file number was
+            # therefore dropped entirely: fiduciary, date, form number, signer,
+            # all thrown away with the identifier.
+            #
+            # So: REDACT the identifier and keep the evidence around it. The
+            # number never persists; a marker names what was removed and its
+            # last four. If the clause STILL refuses after redaction - an
+            # unlabelled long number the patterns cannot classify - it is
+            # recorded as refused, because a number that cannot be identified
+            # cannot be safely stored either.
+            from core.identifier_scan import redact
+            clean, hits = redact(c["text"])   # not `found` - that is the analyse() result
+            stored_redacted = False
+            if hits:
+                try:
+                    f = evidence_ingest.extract(
+                        doc_id, subject=doc_id, field=f"clause:{ref}",
+                        value=clean[:2000], location=ref,
+                        extractor="document_intake+redact",
+                        extractor_version="1.0", evidence="cited", path=path,
+                        effective_date=effective_date or
+                        "not_applicable:the document carries no date this "
+                        "clause became true",
+                        original_text=clean[:400],
+                        transformations=[f"redacted {x['kind']} ending "
+                                         f"{x['last4']}" for x in hits])
+                    stored.append({"ref": ref, "fact_id": f["fact_id"],
+                                   "interest": c.get("domains") or [],
+                                   "redacted": [(x["kind"], x["last4"])
+                                                for x in hits]})
+                    stored_redacted = True
+                    evidence_ingest.absence(
+                        doc_id, f"clause:{ref}:identifiers", "not_applicable",
+                        f"REDACTED before storage: "
+                        f"{[(x['kind'], 'ending ' + x['last4']) for x in hits]}. "
+                        f"The value is in the paper original and nowhere else.",
+                        path=path)
+                except Refused as second:
+                    first = second
+            if not stored_redacted:
+                evidence_ingest.absence(
+                    doc_id, f"clause:{ref}", "not_applicable",
+                    f"present in the source and NOT STORED: {str(first)[:200]}",
+                    path=path)
+                refused.append({"ref": ref, "why": str(first)[:160]})
         for d in c.get("domains") or []:
             interest.setdefault(d, []).append(ref)
 
@@ -137,6 +176,9 @@ def intake(file_path, doc_id, source_type, declared_by="principal",
         "document_id": doc_id, "sha256": doc["sha256"],
         "source_type": source_type, "declared_by": declared_by,
         "clauses": found["clauses"], "stored": len(stored),
+        "redacted": sum(1 for x in stored if x.get("redacted")),
+        "redacted_detail": [{"ref": x["ref"], "removed": x["redacted"]}
+                            for x in stored if x.get("redacted")],
         "refused": len(refused), "refused_detail": refused,
         "segmented_by": found.get("segmented_by"),
         "routed_to": owner, "why_routed": why,

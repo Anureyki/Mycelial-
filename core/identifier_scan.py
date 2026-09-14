@@ -120,6 +120,67 @@ def find_cards(text):
             for m in CARD_RE.finditer(text or "") if luhn(m.group(0))]
 
 
+def redact(text):
+    """-> (redacted_text, findings). The identifier is REPLACED, never kept.
+
+    WHY THIS EXISTS. The first real document through the pipeline was a VA
+    certificate: one page, one paragraph, one file number - which this project
+    established IS the veteran's Social Security number. The write guard
+    refused the clause, correctly, and because the whole document was that one
+    clause, the whole document was refused. The fiduciary's name, the date,
+    the form number and the signer were thrown away with the identifier.
+
+    Dropping a clause because one field in it must not be stored destroys the
+    evidence around the field. Redacting the field keeps the evidence and
+    honours the rule: the number never persists, and a marker says what was
+    removed and its last four - enough to find it on the paper original, never
+    enough to be the identifier.
+
+    Uses the SAME patterns scan() uses. Two identifier detectors that disagree
+    about what is an identifier would let a value pass one and be redacted by
+    the other, which is the two-readers fault this repository has met enough
+    times to have a gate for."""
+    text = text or ""
+    spans = []
+    for name, rx in PATTERNS.items():
+        for m in rx.finditer(text):
+            if m.lastindex and m.lastindex >= 2:
+                spans.append((m.start(2), m.end(2), name, _last4(m.group(2))))
+            else:
+                spans.append((m.start(), m.end(), name, _last4(m.group(0))))
+    for m in CARD_RE.finditer(text):
+        if luhn(m.group(0)):
+            spans.append((m.start(), m.end(), "card_number", _last4(m.group(0))))
+    # THE RUN THE GUARD WOULD REFUSE, WHATEVER IT IS. The VA form prints the
+    # file number as six digits, a space, three digits, with seventy characters
+    # of layout between the label and the number - outside every labelled
+    # pattern's window. The write guard refused the clause on the bare run and
+    # this function found nothing to redact, so the clause was dropped whole.
+    #
+    # A nine-or-more digit run that no pattern can name is STILL not storable,
+    # so it is redacted and labelled for what it is: a number this could not
+    # classify. That mirrors core/asset_registry._field_shape exactly - one
+    # rule about what may persist, applied by the guard and by the redactor,
+    # rather than two rules that disagree about the same digits.
+    for m in re.finditer(r"\d(?:[ -]?\d){8,}", text):
+        if len(re.sub(r"\D", "", m.group(0))) >= 9:
+            spans.append((m.start(), m.end(), "unclassified_digit_run",
+                          _last4(m.group(0))))
+    # Longest first, then by position, so an SSN inside a labelled file-number
+    # match is redacted once rather than twice with an overlap.
+    spans.sort(key=lambda s: (s[0], -(s[1] - s[0])))
+    out, last, findings = [], 0, []
+    for start, end, name, l4 in spans:
+        if start < last:
+            continue
+        out.append(text[last:start])
+        out.append(f"[REDACTED {name} ending {l4}]")
+        findings.append({"kind": name, "last4": l4, "offset": start})
+        last = end
+    out.append(text[last:])
+    return "".join(out), findings
+
+
 def _last4(s):
     digits = re.sub(r"\D", "", s or "")
     return digits[-4:] if len(digits) >= 4 else "????"

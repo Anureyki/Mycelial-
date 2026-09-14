@@ -1607,3 +1607,19 @@ government and uncopyrightable (*Georgia v. Public.Resource.Org*, 590 U.S. 255
 
 Until a state fetcher exists, any broker-registration question is
 `not_in_corpus`.
+
+## Known gap - DoD Instruction numbering is not segmentable (2026-09-14)
+
+`tools/ingest_pdf.py` recognises statute and CFR section numbering. A DoD
+Instruction is structured `1. PURPOSE / a. / b. / ENCLOSURE 3` and the
+segmenter finds zero citation-addressable sections, then correctly refuses to
+store one 60,000-character blob - so the result is an EMPTY SHELL: a title in
+the corpus with nothing behind it, which is `inert knowledge` in its purest
+form and was deleted rather than left to be listed.
+
+The document that exposed it is DoDI 1000.30, *Reduction of Social Security
+Number Use Within DoD* - the authority most directly on point for the
+file-number question, and the one Legal cannot yet open. Fix: a DoDI/Directive
+segmentation scheme in the corpus ingester. Not done here because it is corpus
+tooling, not evidence ingestion, and widening this increment to do it would be
+the phase creep the ladder exists to stop.
