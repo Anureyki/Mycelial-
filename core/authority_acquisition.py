@@ -120,6 +120,10 @@ def parse_citation(text):
     if m:
         return ("cfr", {"title": m.group(1), "part": m.group(2)},
                 f"{m.group(1)} CFR Part {m.group(2)}")
+    m = re.search(r"govinfo\.gov/.*?PLAW-(\d+)publ(\d+)", t, re.I)
+    if m:
+        return ("plaw", {"congress": m.group(1), "number": m.group(2)},
+                f"Pub. L. {m.group(1)}-{m.group(2)}")
     if t.lower().startswith(("http://", "https://")):
         raise Unparseable(
             f"{t[:80]!r} is a URL this cannot turn into a citation. Recognised "
@@ -139,6 +143,10 @@ def parse_citation(text):
         return ("cfr", {"title": m.group(1), "part": m.group(2)},
                 f"{m.group(1)} CFR Part {m.group(2)}")
 
+    m = re.match(r"^(?:Pub(?:lic)?\.?\s*L(?:aw)?\.?)\s*(\d+)[-\u2013](\d+)\s*$", t, re.I)
+    if m:
+        return ("plaw", {"congress": m.group(1), "number": m.group(2)},
+                f"Pub. L. {m.group(1)}-{m.group(2)}")
     m = re.match(r"^IRM\s*(?:Part\s*)?(\d+)\s*$", t, re.I)
     if m:
         return ("irm", {"part": m.group(1)}, f"IRM Part {m.group(1)}")
@@ -218,6 +226,7 @@ def acquire(agent, citation, expect=None, force=False, lookup=None,
     fetcher = {"usc-section": ingest_law.fetch_usc_section,
                "cfr": ingest_law.fetch_cfr,
                "irm": ingest_law.fetch_irm,
+               "plaw": ingest_law.fetch_plaw,
                "orc": ingest_law.fetch_orc}[kind]
     try:
         body, title, source = fetcher(**kw)

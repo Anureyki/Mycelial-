@@ -58,6 +58,11 @@ CORE_CASE_TASKS = {
 }
 
 
+# A Public Law is shelved under its number, "Pub. L. 115-59", and its
+# sections cite themselves as "SEC. 2." - see _load_reference_docs.
+_PUBLAW_TITLE_RE = re.compile(r"^\s*pub(?:lic)?\.?\s*l(?:aw)?\.?\s*(\d+)[-\u2013](\d+)\s*$", re.I)
+
+
 class AgentBase:
     def __init__(self, agent_id, port, capabilities, role="agent", mqtt_broker="localhost"):
         self.agent_id = agent_id
@@ -1323,6 +1328,22 @@ class AgentBase:
                                  f"\u00a7 {bare}", f"\u00a7{bare}"}:
                         if form:
                             by_citation.setdefault(form, entry)
+                    # A PUBLIC LAW'S SECTIONS SAY NOTHING ABOUT WHICH LAW.
+                    # A CFR section cites itself as "§ 226.1" and a U.S.C.
+                    # section as "§ 1681i" - unique across the shelf. A
+                    # Public Law's sections are "SEC. 2.", and every Public
+                    # Law has one. Pub. L. 115-59 shelved with one section
+                    # and reported `reachable_by_lookup: False`, because
+                    # nothing tied "SEC. 2." to "Pub. L. 115-59". So each
+                    # section is ALSO keyed under the law-qualified form,
+                    # and the whole law under its own number as an
+                    # authority, so "Pub. L. 115-59" alone returns it.
+                    pl = _PUBLAW_TITLE_RE.match(str(title))
+                    secno = re.match(r"^(?:sec(?:tion)?\.?\s*)(\d+[a-z]?)", cit)
+                    if pl and secno:
+                        law = f"pub. l. {pl.group(1)}-{pl.group(2)}"
+                        by_citation.setdefault(f"{law} \u00a7 {secno.group(1)}", entry)
+                        by_authority.setdefault(law, []).append(entry)
                 for a in s.get("authorities", []) or []:
                     by_authority.setdefault(a.strip().lower(), []).append(entry)
             # Subject terms the work itself repeats, so a doctrine can be asked
@@ -2067,6 +2088,18 @@ class AgentBase:
         # section ingested minutes earlier did not.
         key = re.sub(r'^\d+\s*u\.?\s*s\.?\s*c\.?(\s*a\.?)?\s*', '', key).strip()
         key = re.sub(r'^(section|sec\.?|\u00a7+)\s*', '', key).strip()
+        # "Pub. L. 115-59 § 2", "Public Law 115-59 sec. 2", "Pub. L. 115-59"
+        # - the law-qualified forms the index builds for a Public Law's
+        # sections, since "SEC. 2." on its own names nothing. The whole law
+        # is keyed as an authority, so the bare number returns every section.
+        pl = re.match(r'^pub(?:lic)?\.?\s*l(?:aw)?\.?\s*(\d+)[-\u2013](\d+)\s*(.*)$', key)
+        if pl:
+            law = f"pub. l. {pl.group(1)}-{pl.group(2)}"
+            rest = re.sub(r'^(section|sec\.?|\u00a7+)\s*', '', pl.group(3)).strip()
+            if rest:
+                key = f"{law} \u00a7 {rest}"
+            else:
+                key = law
         # The index keys carry the section sign; a bare number is how a person
         # types it. Try both rather than making the caller guess.
         for candidate in (key, f"\u00a7 {key}", f"\u00a7{key}"):

@@ -108,7 +108,13 @@ _ERROR_PAGE_MARKERS = (
 )
 
 
-def _reject_error_page(body, url):
+def _reject_error_page(body, url, minimum=20000):
+    """`minimum` is the size below which the body cannot be the document
+    asked for. The default suits a U.S. Code title, which is megabytes. A
+    single Public Law is a different shape: Pub. L. 115-59 is two sections
+    and 4,057 characters in its entirety, and was refused as an index page by
+    a floor sized for a title. The caller that knows what it asked for sets
+    the floor; the error-page markers apply regardless."""
     head = (body or "")[:4000].lower()
     hit = next((m for m in _ERROR_PAGE_MARKERS if m in head), None)
     if hit:
@@ -118,12 +124,12 @@ def _reject_error_page(body, url):
             f"  This arrives as HTTP 200, so only the body reveals it. Nothing was\n"
             f"  written - a corpus file with zero sections is worse than no file,\n"
             f"  because it sits on the shelf looking like law.")
-    if len((body or "").strip()) < 20000:
+    if len((body or "").strip()) < minimum:
         raise SystemExit(
             f"REFUSED: {url}\n"
-            f"  Only {len((body or '').strip()):,} characters came back. A title of the\n"
-            f"  U.S. Code is megabytes; this is an index or an error page.\n"
-            f"  Nothing was written.")
+            f"  Only {len((body or '').strip()):,} characters came back; the document\n"
+            f"  asked for cannot be under {minimum:,}. This is an index or an error\n"
+            f"  page. Nothing was written.")
     return body
 
 
@@ -236,6 +242,39 @@ def fetch_usc_section(title, section):
 # failure this file already guards against in _reject_error_page.
 
 
+def fetch_plaw(congress, number):
+    """One Public Law, from govinfo, in its enacted form.
+
+    WHY A SEPARATE KIND. A statutory NOTE - Pub. L. 115-59 s.2, the mailing
+    restriction on Social Security numbers - lives after the section text on
+    Cornell, in the annotations that fetch_usc_section deliberately excludes.
+    So 42 U.S.C. 405 was shelved at 60,000 characters and the one provision
+    that mattered was not in it. The enacted law is the honest source for a
+    note: it is the text Congress passed, not an editor's placement of it."""
+    url = (f"https://www.govinfo.gov/content/pkg/PLAW-{congress}publ{number}/"
+           f"html/PLAW-{congress}publ{number}.htm")
+    raw = _get(url, timeout=60)
+    body = _strip(raw)
+    # An enacted law can be a page. The structural check below - it must
+    # contain a SEC. 1 - is what separates a short law from an error shell.
+    _reject_error_page(body, url, minimum=1000)
+    if "SEC. 1" not in body and "SECTION 1" not in body.upper():
+        raise SystemExit(f"REFUSED: {url} does not read as an enacted law. "
+                         f"Nothing written.")
+    m = re.search(r"An Act\s+(.{10,200}?)\.\s", body, re.S)
+    heading = re.sub(r"\s+", " ", m.group(1)).strip() if m else ""
+    # Collapse runs of spaces WITHIN a line and keep the line breaks. The
+    # first version flattened the whole law onto one line, and every section
+    # pattern in ingest_pdf is anchored at line start - so `SEC. 2.` was in the
+    # text and no segmenter could see it, and the law shelved as 0 sections.
+    text = re.sub(r"[ \t]+", " ", body)
+    text = re.sub(r"\n{3,}", "\n\n", text).strip()
+    return (text, f"Pub. L. {congress}-{number}",
+            f"Public Law {congress}-{number}, enacted text from govinfo.gov "
+            f"(GPO). A United States government work, public domain."
+            + (f" {heading}." if heading else ""))
+
+
 def fetch_orc(section):
     """One section of the Ohio Revised Code, from the state's own site.
 
@@ -298,6 +337,9 @@ CLASSIFICATION = {
                     "Title of the work is a U.S. Code section citation, which fixes "
                     "the class",
                     "doctrinal"),
+    "plaw": ("federal_statute",
+             "Title of the work is a Public Law citation, which fixes the class",
+             "doctrinal"),
     "orc": ("state_statute",
             "Title of the work is an Ohio Revised Code section citation, which fixes "
             "the class",
@@ -384,7 +426,9 @@ def shelve(body, title, source, agent, source_kind, stem=None):
 def main():
     ap = argparse.ArgumentParser(description=__doc__,
                                  formatter_class=argparse.RawDescriptionHelpFormatter)
-    ap.add_argument("source", choices=["cfr", "usc", "usc-section", "irm", "orc"])
+    ap.add_argument("source", choices=["cfr", "usc", "usc-section", "irm", "orc", "plaw"])
+    ap.add_argument("--congress")
+    ap.add_argument("--number")
     ap.add_argument("--section", help="single U.S.C. section, e.g. 5103")
     ap.add_argument("--title")
     ap.add_argument("--part")
@@ -409,6 +453,11 @@ def main():
             ap.error("usc needs --title")
         body, title, source = fetch_usc(a.title, a.year)
         stem = f"usc{a.title}"
+    elif a.source == "plaw":
+        if not (a.congress and a.number):
+            ap.error("plaw needs --congress and --number, e.g. 115 59")
+        body, title, source = fetch_plaw(a.congress, a.number)
+        stem = f"plaw{a.congress}_{a.number}"
     elif a.source == "orc":
         if not a.section:
             ap.error("orc needs --section, e.g. --section 2329.02")

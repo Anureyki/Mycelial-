@@ -42,6 +42,13 @@ SECTION_PATTERNS = [
     # collapsing 1-01, 1-02 and 1-03 onto one ambiguous key.
     (re.compile(r'^\s*(§+\s*\d+[A-Za-z0-9.\-\u2010-\u2015]*)'), "section_sign"),
     (re.compile(r'^\s*(SEC(?:TION)?\.\s+\d+[A-Za-z0-9.\-]*)', re.I), "section"),
+    # An enacted Public Law opens "SECTION 1. SHORT TITLE." - the word spelt
+    # out, no period after it - and every later section is "SEC. 2." The
+    # pattern above requires the period, so section 1 of every Public Law
+    # was absorbed into the preamble, and section 1 is the one that names
+    # the Act. The period after the number is required so a sentence that
+    # happens to begin "Section 5 of the Act" is not read as a heading.
+    (re.compile(r'^\s*(SECTION\s+\d+[A-Za-z0-9\-]*\.)\s+[A-Z]'), "section"),
     # State codes head a section with its bare number and a period - Delaware's
     # "3806. Management of statutory trust." - while the § form appears only in
     # the table of contents at the top. Matching the § form alone captured the
