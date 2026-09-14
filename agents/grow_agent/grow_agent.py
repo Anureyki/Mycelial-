@@ -3492,7 +3492,7 @@ class GrowAgent(AgentBase):
                                           "rising" if delta > 0.05 else "flat")}
 
         # Does the grower's own rule apply in this direction?
-        practice = None
+        practice, ph_up = None, None
         try:
             raw = self._unwrap_value(self.retrieve_own_memory(f"grow_system_{plant_id}")) \
                 or (self._unwrap_value(self.retrieve_own_memory("grow_system"))
@@ -3501,6 +3501,7 @@ class GrowAgent(AgentBase):
                 rec = json.loads(raw)
                 practice = rec.get("ph_management_practice")
                 out["adjusters_held"] = rec.get("ph_adjusters_held")
+                ph_up = rec.get("ph_up_response")
         except Exception:
             pass
         if practice:
@@ -3521,12 +3522,45 @@ class GrowAgent(AgentBase):
             "expected to buy roughly +0.05 - real, and not enough on its own to reach a "
             "5.8 floor.")
         if out.get("position") == "below_band":
+            # SIZED FROM THE MEASURED RESPONSE, once there is one. The first
+            # pH Up addition on this plant (2026-09-14: 0.25 ml, 5.30 -> 5.80
+            # at 15 L / 775 ppm) is held on the record as ph_up_response, the
+            # same way ppm_per_ml holds the Flora line's concentration
+            # response. Until it exists the only honest instruction is "small
+            # additions, re-measure"; with it, the step is arithmetic on a
+            # measurement - and still rounded DOWN to the dropper increment,
+            # because the response drifts with strength and an overshoot
+            # costs acid.
+            sized = None
+            if isinstance(ph_up, dict) and ph_up.get("ml") and ph_up.get("delta_ph"):
+                try:
+                    per_ml = float(ph_up["delta_ph"]) / float(ph_up["ml"])
+                    need = float(out.get("distance") or 0)
+                    if per_ml > 0 and need > 0:
+                        exact = need / per_ml
+                        step = max(0.25, math.floor(exact / 0.25) * 0.25)
+                        sized = {"add_ml": round(step, 2), "exact_ml": round(exact, 3),
+                                 "reaches_ph_about": round(cur + step * per_ml, 2),
+                                 "response_ph_per_ml": round(per_ml, 2),
+                                 "measured": ph_up,
+                                 "rounded": "down to the 0.25 ml dropper increment",
+                                 "then": "stir, wait, re-measure before any second step"}
+                except (TypeError, ValueError, ZeroDivisionError):
+                    sized = None
+            if sized:
+                out["ph_up_step"] = sized
             out["options"] = [
                 "Top up as planned and re-measure. Cheapest, already scheduled, "
                 "probably insufficient alone.",
-                "pH Up, which this grow holds and has never used on this plant. "
-                "Small additions, re-measure between each - an overshoot needs acid "
-                "to correct and that is two interventions where one was needed.",
+                (f"pH Up, sized from this reservoir's measured response: add "
+                 f"{sized['add_ml']} ml to reach about {sized['reaches_ph_about']}, then "
+                 f"re-measure. The response was {sized['response_ph_per_ml']} pH per ml at "
+                 f"{ph_up.get('volume_liters')} L / {ph_up.get('ppm_at_time')} ppm and "
+                 f"will drift as strength changes."
+                 if sized else
+                 "pH Up, which this grow holds and has never used on this plant. "
+                 "Small additions, re-measure between each - an overshoot needs acid "
+                 "to correct and that is two interventions where one was needed."),
                 "Accept and watch. 5.5 is the low edge of workable rather than a "
                 "failure; what it costs is availability, and calcium and phosphorus "
                 "are the first to go - which matters on a plant whose differential "
