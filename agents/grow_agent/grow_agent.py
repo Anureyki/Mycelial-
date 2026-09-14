@@ -1724,6 +1724,51 @@ class GrowAgent(AgentBase):
                        "Only a measured one is evidence the water actually moved."),
         }
 
+    def _sister_stage_days(self, plant_id, stage):
+        """Other living plants of the same cultivar, and the day each was first
+        recorded at `stage` - from their own readings' stage stamps. [] when
+        none. A lesson that crosses plants; the readings behind it do not."""
+        out = []
+        try:
+            mine = (self._get_species_for_plant(plant_id) or "").lower()
+            plants = list(self._get_all_plants())
+            # current_plant keeps its strain and germination date in their
+            # own memory keys rather than a plant_<id> record, so it is
+            # absent from the index walk unless synthesised here.
+            if not any(p.get("plant_id") == "current_plant" for p in plants):
+                plants.append({"plant_id": "current_plant",
+                               "strain": self._unwrap_value(self.retrieve_own_memory("current_strain")),
+                               "germination_date": str(self._unwrap_value(
+                                   self.retrieve_own_memory("germination_date")) or "").strip().strip('"')})
+            my_strain = next((str(p.get("strain") or "").lower() for p in plants
+                              if p.get("plant_id") == plant_id), "")
+            for p in plants:
+                pid = p.get("plant_id")
+                if not pid or pid == plant_id or not my_strain:
+                    continue
+                if str(p.get("strain") or "").lower() != my_strain:
+                    continue
+                if (self._get_species_for_plant(pid) or "").lower() != mine:
+                    continue
+                germ = p.get("germination_date")
+                if not germ:
+                    continue
+                g = datetime.fromisoformat(str(germ)[:19])
+                for r in self._get_readings_for_plant(pid) or []:
+                    if str(r.get("stage") or "").lower() != stage:
+                        continue
+                    ts = r.get("timestamp") or r.get("at")
+                    if not ts:
+                        continue
+                    day = (datetime.fromisoformat(str(ts)[:19]) - g).days
+                    rec = self._system_record(pid)
+                    out.append({"plant_id": pid, "instance_label": rec.get("instance_label"),
+                                "day": day, "first_reading_at": str(ts)[:10]})
+                    break
+        except Exception as exc:
+            self.log(f"_sister_stage_days: {type(exc).__name__}: {exc}")
+        return out
+
     def assess_stage(self, plant_id="current_plant"):
         """Decide the stage from evidence, without waiting to be asked.
 
@@ -1828,10 +1873,29 @@ class GrowAgent(AgentBase):
                     "resolve_with": "check the nodes for pistils; transition_stage to flower if present"}
 
         if not impossible:
-            return {"assessment": f"'{candidate}' is likely but '{stage}' is still possible at {age} days",
-                    "stage": stage, "suggested": candidate, "days": age,
-                    "evidence": evidence, "acted": False,
-                    "resolve_with": "verify_growth_stage with a photo - morphology settles it, not the calendar"}
+            # A SISTER OF THE SAME CULTIVAR IS LIVED DATA. GSC-2 sat stamped
+            # early_veg at day 24 while GSC-1's own readings were stamped veg
+            # from day 23, and the early_veg band was applied to a mid-band
+            # veg reading, which the grower caught by eye. The sister's
+            # history is a lesson that crosses plants (CLAUDE.md: lessons
+            # are inherited, measurements are not), so it is named here as
+            # evidence - not applied on its own, because a plant can run
+            # slow, but enough to call the stamp suspect and say so.
+            sisters = self._sister_stage_days(plant_id, candidate)
+            out = {"assessment": f"'{candidate}' is likely but '{stage}' is still possible at {age} days",
+                   "stage": stage, "suggested": candidate, "days": age,
+                   "evidence": evidence, "acted": False,
+                   "resolve_with": "evaluate_growth_stage with a photo - morphology settles it, not the calendar"}
+            if sisters:
+                out["sister_evidence"] = sisters
+                out["stamp_suspect"] = True
+                out["assessment"] += ("; " + "; ".join(
+                    f"{x['plant_id']} ({x['instance_label'] or 'same cultivar'}) was recorded "
+                    f"{candidate} from day {x['day']}" for x in sisters))
+                out["band_note"] = (f"Any band applied to this plant is the '{stage}' band while the "
+                                    f"stamp is suspect. A reading called off-target against it is "
+                                    f"not a finding until the stage is settled.")
+            return out
 
         result = self.handle_task("transition_stage", {
             "plant_id": plant_id,
@@ -3883,6 +3947,26 @@ class GrowAgent(AgentBase):
                 + ("." if inside else
                    " - the plant sits there until the water comes. Dose less now and "
                    "top up the rest with nutrient later if that is too rich."))
+            # IF THE WATER IS HERE, PUT IT IN FIRST. The mass to add does not
+            # depend on when the water arrives - that is the basis above -
+            # so when the interim would leave the band and the water is
+            # available now, the same dose into the full volume never leaves
+            # it. This was computed by hand for GSC-2 (7.5 ml into 2.5 L
+            # reads ~1517; into 5 L reads ~758); the agent that holds the
+            # arithmetic is the one that should say it.
+            if not inside and fin_v > now_v:
+                out["sequence_if_water_available_now"] = {
+                    "order": ["add the water to reach the final volume", "circulate",
+                              "dose the same amounts", "measure"],
+                    "water_first_liters": round(fin_v - now_v, 2),
+                    "then_add_ml": out.get("add_now_ml"),
+                    "reads_ppm": round((have + add_mass) / fin_v, 0),
+                    "leaves_band": False,
+                    "why": ("The nutrient mass is the same either way; only the reading in "
+                            "between changes. Water first keeps the reservoir inside "
+                            f"{band[0]}-{band[1]} throughout."),
+                }
+                out["recommended_order"] = "water_first"
         out["verdict"] = "dose_planned"
         out["then"] = (f"When supply returns, add {fin_v - now_v:.2f} L of water and it "
                        f"falls to {tgt:g} ppm at {fin_v:g} L. Adding plain water cannot "
@@ -8681,8 +8765,16 @@ class GrowAgent(AgentBase):
         # development observed" as flower evidence and auto-transitioned a
         # vegetative plant into flower - the words were present, the negation
         # was not considered. An absence statement is the OPPOSITE of a cue.
+        # ONLY STAGE KEYS. The cue table also carries "stages" (the tuple of
+        # names) and "default_stage" (a string), and iterating every key read
+        # both as stages: a perception description containing the word "veg"
+        # matched the NAMES tuple, "stages" won as the most advanced match,
+        # and STAGE_ORDER.index("stages") raised - so evaluate_growth_stage
+        # on a photo died with "x not in list" and the transition never ran.
         matched = [stage for stage, keywords in cues.items()
-                   if self._negation_aware_hit(text, keywords)]
+                   if stage in STAGE_ORDER
+                   and isinstance(keywords, (list, tuple))
+                   and self._negation_aware_hit(text, keywords)]
         if not matched:
             return None
         # Multiple cues can match a mixed description (e.g. veg leaves + early
@@ -12443,6 +12535,17 @@ class GrowAgent(AgentBase):
             # from this task are a recommendation for a human or Boss to confirm,
             # given the extra uncertainty layered on top of the morphology-only path.
             plant_id = args.get("plant_id", "current_plant")
+            # A PHOTO GOES TO THE VERB THAT CAN SEE. This task reads the web
+            # and the calendar; evaluate_growth_stage reads the plant. Handed
+            # a photo, this used to ignore it and answer from a timeline -
+            # then ask a person to apply the transition. One entry point,
+            # whichever the caller reached for.
+            _photo = (args.get("photo_path") or args.get("image")
+                      or next(iter(args.get("images") or []), None))
+            if _photo and not (args.get("morphology_text") or args.get("notes")):
+                return self.handle_task("evaluate_growth_stage",
+                                        {"plant_id": plant_id, "photo_path": _photo,
+                                         "species": args.get("species")}, sender)
             if plant_id == "current_plant":
                 germination_date = self._unwrap_value(self.retrieve_own_memory("germination_date"))
                 strain = self._unwrap_value(self.retrieve_own_memory("current_strain")) or "unspecified strain"

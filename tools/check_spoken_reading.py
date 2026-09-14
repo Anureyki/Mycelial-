@@ -69,6 +69,28 @@ def main():
     ck("answer logs a named reading and echoes the receipt",
        r.get("answered_as") == "reading_logged" and r.get("receipt", "").startswith("GSC-1 in DWC"))
 
+    print("grow does its own reasoning: stage, sister evidence, dosing order")
+    g2 = GrowAgent.__new__(GrowAgent)
+    g2.log = lambda *a, **k: None
+    ck("the keyword stage classifier never reads a metadata key as a stage",
+       g2._classify_stage_by_keywords("vigorous veg plant, 7-blade fan leaves", "cannabis") == "veg")
+    g2._get_species_for_plant = lambda pid: "cannabis"
+    g2._get_all_plants = lambda: [{"plant_id": "gsc_auto_2", "strain": "Girl Scout Cookies (autoflower)",
+                                   "germination_date": "2026-08-21"}]
+    mem = {"current_strain": "Girl Scout Cookies (autoflower)", "germination_date": "2026-07-28"}
+    g2.retrieve_own_memory = lambda k: mem.get(k)
+    g2._unwrap_value = lambda v: v
+    g2._get_readings_for_plant = lambda pid: ([{"timestamp": "2026-08-12T06:42", "stage": "early_veg"},
+                                               {"timestamp": "2026-08-20T17:33", "stage": "veg"}]
+                                              if pid == "current_plant" else [])
+    g2._system_record = lambda pid: {"instance_label": "GSC-1"} if pid == "current_plant" else {}
+    sis = g2._sister_stage_days("gsc_auto_2", "veg")
+    ck("a sister of the same cultivar reports the day it reached the stage",
+       sis and sis[0]["plant_id"] == "current_plant" and sis[0]["day"] == 23, str(sis))
+    ck("a different cultivar is not a sister",
+       g2._sister_stage_days("gsc_auto_2", "veg") and not g2._sister_stage_days.__self__._sister_stage_days
+       ("aloe_1", "veg"))
+
     print("the receipt verb is declared everywhere it is dispatched")
     import json
     for p in ("config/agent_configs/grow_agent.json", "config/agent_cards/grow_agent.json"):
