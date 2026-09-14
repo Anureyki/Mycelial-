@@ -9,6 +9,7 @@ CLAUDE.md forbids under "Plants do not cross". The store is stubbed; nothing
 here touches a real plant.
 """
 import os
+import re
 import sys
 
 os.environ["MYCELIAL_EVENT_ORIGIN"] = "test"
@@ -33,6 +34,26 @@ def main():
     ck("ppm, EC, pH, temp, volume all parsed",
        r == {"ppm": 775.0, "ph": 5.8, "temp": 20.6, "ec": 1550.0, "volume_liters": 15.0}, str(r))
     ck("target language is not a reading", g.parse_reading("bring the DWC up to 800 ppm") is None)
+
+    print("a run of number words is one number")
+    for said, want in (("seven six zero ppm", "760"),
+                       ("fifteen twenty EC", "1520"),
+                       ("fourteen eighty six EC", "1486"),
+                       ("six point three three pH", "6.33"),
+                       ("two two point four C", "22.4"),
+                       ("seven hundred and twenty one PPM", "721"),
+                       ("twenty five C", "25"),
+                       ("twenty one point one Celsius", "21.1"),
+                       ("back at five liters", "5")):
+        got = g._digits_for_spoken(said)
+        ck(f"{said!r} -> {want}", re.search(r"(?<![\d.])" + re.escape(want) + r"(?![\d])", got),
+           got.strip())
+    ck("ordinary prose with no number word is untouched",
+       g._digits_for_spoken("and then we added water") == "and then we added water")
+    r = g.parse_reading("Right now we are at seven six zero ppm, two two point four C, "
+                        "fifteen twenty EC, and six point three three pH")
+    ck("the whole dictated reading parses",
+       r == {"ppm": 760.0, "ph": 6.33, "ec": 1520.0, "temp": 22.4}, str(r))
 
     print("one parser, and nothing the grower said is dropped")
     spoken = ("I am taking new readings on the LWC. We have a 6.27, a 4.09 ppm, "

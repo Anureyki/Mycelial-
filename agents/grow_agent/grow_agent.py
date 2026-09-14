@@ -4782,22 +4782,109 @@ class GrowAgent(AgentBase):
         "six": 6, "seven": 7, "eight": 8, "nine": 9, "ten": 10, "eleven": 11,
         "twelve": 12, "thirteen": 13, "fourteen": 14, "fifteen": 15,
         "sixteen": 16, "seventeen": 17, "eighteen": 18, "nineteen": 19,
-        "twenty": 20, "thirty": 30, "forty": 40, "fifty": 50,
+        "twenty": 20, "thirty": 30, "forty": 40, "fifty": 50, "sixty": 60,
+        "seventy": 70, "eighty": 80, "ninety": 90,
         "a half": 0.5, "and a half": 0.5,
     }
 
+    _TENS = {20, 30, 40, 50, 60, 70, 80, 90}
+
     def _digits_for_spoken(self, text):
-        """Word numbers to digits, ahead of any measurement parse."""
+        """Word numbers to digits, ahead of any measurement parse.
+
+        A RUN OF NUMBER WORDS IS ONE NUMBER. The grower reads a meter aloud
+        digit by digit - "seven six zero ppm", "fifteen twenty EC", "six
+        point three three pH" - and converting each word on its own produced
+        "7 6 0", which the quantity parser then read as ppm 0, pH 3 and
+        temperature 4. A reading of the wrong three numbers is worse than no
+        reading, and it got as far as the refusal message before anything
+        caught it.
+
+        So a maximal run of number words collapses to one value:
+
+          "seven six zero"        -> 760    (single digits concatenate)
+          "fifteen twenty"        -> 1520   (a teen before a ten is a digit
+                                             string, not a sum)
+          "twenty five"           -> 25     (a TENS word before a unit adds -
+                                             that is how English says 25)
+          "two two point four"    -> 22.4   ("point" splits the run)
+          "five"                  -> 5
+          "twelve"                -> 12
+
+        The tens-plus-unit rule is the one exception to concatenation, and it
+        is the only place English compounds rather than spells."""
         t = text or ""
-        for word, val in sorted(self._SPOKEN_NUMBERS.items(), key=lambda kv: -len(kv[0])):
-            if word.startswith("a ") or word.startswith("and "):
-                continue
-            t = re.sub(r'(?<![a-z])' + re.escape(word) + r'(?![a-z])',
-                       (f"{val:g}"), t, flags=re.I)
+        words = {w: v for w, v in self._SPOKEN_NUMBERS.items() if " " not in w}
+        alt = "|".join(sorted(words, key=len, reverse=True))
+        # "and" is allowed only BETWEEN number words - "seven hundred and
+        # twenty one" - so the run cannot run off into ordinary prose.
+        tok = r'(?:' + alt + r'|point|hundred|thousand)(?![a-z])'
+        run_rx = re.compile(r'(?<![a-z])' + tok + r'(?:[\s,-]*(?:and[\s,-]+)?' + tok + r')*',
+                            re.I)
+
+        def _join(parts):
+            """A list of ints spoken consecutively -> one number.
+
+            A tens word immediately followed by a unit is the one place
+            English compounds: "eighty six" is 86, so "fourteen eighty six"
+            is 1486 and not the digit string 14-80-6. Those pairs collapse
+            first, anywhere in the run; everything left concatenates."""
+            merged, i = [], 0
+            while i < len(parts):
+                if (i + 1 < len(parts) and parts[i] in self._TENS
+                        and 1 <= parts[i + 1] <= 9):
+                    merged.append(parts[i] + parts[i + 1])
+                    i += 2
+                else:
+                    merged.append(parts[i])
+                    i += 1
+            return "".join(str(x) for x in merged)
+
+        def _convert(m):
+            toks = [x for x in re.split(r'[\s,-]+', m.group(0).strip().lower()) if x]
+            if not any(tok in words for tok in toks):
+                return m.group(0)
+            left, right, seen_point = [], [], False
+            for tk in toks:
+                if tk == "point":
+                    if seen_point:
+                        break
+                    seen_point = True
+                    continue
+                if tk in ("hundred", "thousand"):
+                    (right if seen_point else left).append(tk)
+                    continue
+                if tk not in words:
+                    continue
+                (right if seen_point else left).append(int(words[tk]))
+            # A MULTIPLIER MEANS ENGLISH IS COMPOUNDING, NOT SPELLING.
+            # "seven hundred and twenty one" is 721, not the digit string
+            # 7-100-21, so a run containing hundred or thousand is summed
+            # the ordinary way and never concatenated.
+            if any(x in ("hundred", "thousand") for x in left):
+                total = current = 0
+                for x in left:
+                    if x == "hundred":
+                        current = (current or 1) * 100
+                    elif x == "thousand":
+                        total += (current or 1) * 1000
+                        current = 0
+                    else:
+                        current += x
+                whole = str(total + current)
+            else:
+                whole = _join([x for x in left if isinstance(x, int)]) or "0"
+            if seen_point and right:
+                return f" {whole}.{''.join(str(d) for d in right if isinstance(d, int))} "
+            if seen_point:
+                return f" {whole} "
+            return f" {whole} "
+
+        t = run_rx.sub(_convert, t)
         # "5 and a half litres" -> "5.5 litres"
         t = re.sub(r'\b(\d+(?:\.\d+)?)\s*(?:and\s+)?a\s+half\b',
                    lambda m: f"{float(m.group(1)) + 0.5:g}", t, flags=re.I)
-        return t
+        return re.sub(r'\s{2,}', ' ', t)
 
     def parse_reading(self, text):
         """Pull a reservoir reading out of plain language, or None.
