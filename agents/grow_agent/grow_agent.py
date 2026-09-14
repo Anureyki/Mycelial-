@@ -4774,28 +4774,56 @@ class GrowAgent(AgentBase):
             return "\n".join(lines)
         return None
 
+    # Spoken numbers, for the units a grower dictates. "back at five liters"
+    # carried a volume that every digit-based pattern missed, and a volume
+    # that does not arrive is a reading the mass balance cannot use.
+    _SPOKEN_NUMBERS = {
+        "zero": 0, "one": 1, "two": 2, "three": 3, "four": 4, "five": 5,
+        "six": 6, "seven": 7, "eight": 8, "nine": 9, "ten": 10, "eleven": 11,
+        "twelve": 12, "thirteen": 13, "fourteen": 14, "fifteen": 15,
+        "sixteen": 16, "seventeen": 17, "eighteen": 18, "nineteen": 19,
+        "twenty": 20, "thirty": 30, "forty": 40, "fifty": 50,
+        "a half": 0.5, "and a half": 0.5,
+    }
+
+    def _digits_for_spoken(self, text):
+        """Word numbers to digits, ahead of any measurement parse."""
+        t = text or ""
+        for word, val in sorted(self._SPOKEN_NUMBERS.items(), key=lambda kv: -len(kv[0])):
+            if word.startswith("a ") or word.startswith("and "):
+                continue
+            t = re.sub(r'(?<![a-z])' + re.escape(word) + r'(?![a-z])',
+                       (f"{val:g}"), t, flags=re.I)
+        # "5 and a half litres" -> "5.5 litres"
+        t = re.sub(r'\b(\d+(?:\.\d+)?)\s*(?:and\s+)?a\s+half\b',
+                   lambda m: f"{float(m.group(1)) + 0.5:g}", t, flags=re.I)
+        return t
+
     def parse_reading(self, text):
         """Pull a reservoir reading out of plain language, or None.
 
-        Knowing that "6.15ph" is a pH and that an F reading must be converted
-        before it is stored is horticulture, and it lived in the orchestrator -
-        in two separate copies that had already drifted apart. Two independent
-        signals are required so that a bare number in conversation is not
-        recorded as a measurement."""
-        t = text or ""
-        ppm = re.search(r'(\d+(?:\.\d+)?)\s*ppm', t, re.IGNORECASE)
-        ph = re.search(r'(\d+(?:\.\d+)?)\s*ph\b', t, re.IGNORECASE) or \
-            re.search(r'\bph\s*(?:of|is|:)?\s*(\d+(?:\.\d+)?)', t, re.IGNORECASE)
-        tc = re.search(r'(\d+(?:\.\d+)?)\s*(?:°|deg(?:rees)?)?\s*c\b', t, re.IGNORECASE)
-        tf = re.search(r'(\d+(?:\.\d+)?)\s*(?:°|deg(?:rees)?)?\s*f\b', t, re.IGNORECASE)
-        # EC and volume are read too - "1550 EC", "EC 1.55", "at 15 L",
-        # "12.5 liters". A grower reading the meter says all four, and a
-        # parser that kept two of them made the intake cross-check (ppm
-        # against EC) impossible on a spoken reading.
-        ec = re.search(r'(\d+(?:\.\d+)?)\s*(?:ms|us|µs)?\s*ec\b', t, re.IGNORECASE) or \
-            re.search(r'\bec\s*(?:of|is|at|:)?\s*(\d+(?:\.\d+)?)', t, re.IGNORECASE)
-        vol = re.search(r'(\d+(?:\.\d+)?)\s*(?:l|liters?|litres?)\b', t, re.IGNORECASE)
-        signals = sum(1 for m in (ppm, ph, tc, tf) if m)
+        ONE PARSER, AND IT IS `quantities`. This method used to carry its own
+        four regexes and was the weaker of the two: it read ppm, pH and
+        temperature and silently dropped EC, volume, "25.5 Celsius" spelled
+        out, and every number said without a unit. `quantities` already knew
+        all of that AND reports what it could not attribute. Two parsers for
+        one job is the two-sources-of-truth failure this codebase spends its
+        length preventing, and the weaker one was the one wired to the
+        grower's microphone.
+
+        Two independent signals are still required so that a bare number in
+        conversation is not recorded as a measurement, and target language
+        ("raise it to 800 ppm") is still not a reading.
+
+        `unassigned` travels with the result. A number the grower said and
+        nothing could attribute is not dropped - it is carried to the caller
+        so it can be asked about. That is the difference between a reading
+        that is incomplete and one that is quietly wrong."""
+        t = self._digits_for_spoken(text or "")
+        q = self.quantities(t)
+        channels = {"ppm": q.get("ppm"), "ph": q.get("ph"), "ec": q.get("ec_us"),
+                    "temp": q.get("temp_c"), "volume_liters": q.get("litres")}
+        signals = sum(1 for v in channels.values() if v is not None)
         if signals == 0:
             return None
         if signals == 1:
@@ -4810,18 +4838,9 @@ class GrowAgent(AgentBase):
                          r"push|drop it|get it|should|want|aim|instead of|up to|"
                          r"down to|add)\b", t, re.IGNORECASE):
                 return None
-        out = {}
-        if ppm:
-            out["ppm"] = float(ppm.group(1))
-        if ph:
-            out["ph"] = float(ph.group(1))
-        temp_c = float(tc.group(1)) if tc else ((float(tf.group(1)) - 32) * 5 / 9 if tf else None)
-        if temp_c is not None:
-            out["temp"] = round(temp_c, 1)
-        if ec and out:
-            out["ec"] = float(ec.group(1))
-        if vol and out:
-            out["volume_liters"] = float(vol.group(1))
+        out = {k: v for k, v in channels.items() if v is not None}
+        if q.get("unassigned"):
+            out["unassigned"] = q["unassigned"]
         return out or None
 
     def ingest(self, prompt):
@@ -5225,17 +5244,42 @@ class GrowAgent(AgentBase):
             return {"logged": False, "reason": "plant not alive", "plant_id": pid,
                     "ask": f"{rec.get('instance_label') or pid} is recorded as not alive; "
                            f"no reading attaches to it. Nothing was stored."}
+        # A NUMBER HE SAID THAT NOTHING COULD ATTRIBUTE IS NOT DROPPED.
+        # "We have a 6.27, a 4.09 ppm, 819 EC" - the 6.27 carried no unit,
+        # and the old parser discarded it without a word. Where exactly one
+        # reading channel is still empty and the value fits that channel's
+        # range, it is named as a QUESTION; it is never stored on a guess.
+        unassigned = reading.pop("unassigned", []) or []
+        candidates = []
+        for u in unassigned:
+            empty = [c for c in ("ph", "ppm", "ec", "temp", "volume_liters")
+                     if reading.get(c) is None]
+            fits = [c for c in (u.get("could_be") or [])
+                    if {"ec_us": "ec", "temp_c": "temp", "litres": "volume_liters"}.get(c, c) in empty]
+            if len(fits) == 1:
+                candidates.append({"value": u["value"], "probably": fits[0]})
+            else:
+                candidates.append({"value": u["value"], "probably": None,
+                                   "could_be": u.get("could_be")})
         res = self.intake_reading(plant_id=pid, ph=reading.get("ph"), ppm=reading.get("ppm"),
                                   ec=reading.get("ec"), temp_c=reading.get("temp"),
                                   volume_liters=reading.get("volume_liters"),
                                   note=f"spoken: {str(prompt)[:300]}")
         receipt = (f"{rec.get('instance_label') or pid} in "
                    f"{rec.get('vessel') or rec.get('system_type') or 'an unrecorded vessel'}")
-        return {"logged": bool(res.get("stored")), "plant_id": pid, "receipt": receipt,
-                "reading": (res.get("cleaned") or reading),
-                "problems": res.get("problems") or [],
-                "why_not_stored": res.get("why_not_stored"),
-                "result": res}
+        out = {"logged": bool(res.get("stored")), "plant_id": pid, "receipt": receipt,
+               "reading": (res.get("cleaned") or reading),
+               "problems": res.get("problems") or [],
+               "why_not_stored": res.get("why_not_stored"),
+               "result": res}
+        if candidates:
+            out["unattributed"] = candidates
+            out["ask"] = "; ".join(
+                (f"{c['value']} carried no unit - is it the {c['probably']}?"
+                 if c.get("probably") else
+                 f"{c['value']} carried no unit and could be any of {c.get('could_be')}")
+                for c in candidates)
+        return out
 
     # Each quantity carries its OWN unit and its OWN plausible range. One
     # band-pass filter tuned for ppm was discarding pH, EC, temperature and

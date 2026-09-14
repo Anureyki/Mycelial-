@@ -34,6 +34,17 @@ def main():
        r == {"ppm": 775.0, "ph": 5.8, "temp": 20.6, "ec": 1550.0, "volume_liters": 15.0}, str(r))
     ck("target language is not a reading", g.parse_reading("bring the DWC up to 800 ppm") is None)
 
+    print("one parser, and nothing the grower said is dropped")
+    spoken = ("I am taking new readings on the LWC. We have a 6.27, a 4.09 ppm, "
+              "819 EC, and 25.5 Celsius. Back at five liters.")
+    r = g.parse_reading(spoken)
+    ck("Celsius spelled out is read", r.get("temp") == 25.5)
+    ck("a spoken volume is read", r.get("volume_liters") == 5.0)
+    ck("EC is read", r.get("ec") == 819.0)
+    ck("a number with no unit is carried, not dropped",
+       any(u["value"] == 6.27 for u in r.get("unassigned", [])))
+    ck("target language is still not a reading", g.parse_reading("bring it up to 800 ppm") is None)
+
     print("log_from_text never defaults the plant")
     records = {"current_plant": {"instance_label": "GSC-1", "vessel": "DWC bucket", "alive": True},
                "gsc_auto_2": {"instance_label": "GSC-2", "vessel": "LWC nursery", "alive": True},
@@ -53,6 +64,10 @@ def main():
     ck("no vessel named -> nothing stored, and it says so", not r["logged"] and r["reason"] == "no plant named"
        and "Nothing was stored" in r["ask"])
     ck("intake was not called", calls == [])
+    r = g.log_from_text(spoken)
+    ck("an unattributed number comes back as a question naming the empty channel",
+       r.get("unattributed") and r["unattributed"][0]["probably"] == "ph"
+       and "is it the ph?" in (r.get("ask") or ""), str(r.get("ask")))
     r = g.log_from_text("LWC 600 ppm pH 6.0")
     ck("vessel named -> stored on that plant, with the receipt",
        r["logged"] and r["plant_id"] == "gsc_auto_2" and r["receipt"].startswith("GSC-2 in LWC"))
