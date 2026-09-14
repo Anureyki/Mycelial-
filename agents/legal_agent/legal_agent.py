@@ -3959,6 +3959,51 @@ class LegalAgent(AgentBase):
                     f"where statute, regulation or case law disagree with it, they win.)")
         return None
 
+    _DISPUTE_ASK = re.compile(
+        r"\b(dispute (?:letter|this|that|the)|dispute it\b|"
+        r"validation (?:letter|demand|notice)|debt validation|"
+        r"(?:draft|write|send|prepare|make|do) (?:me )?a? ?(?:dispute|validation|fcra|fdcpa)|"
+        r"(?:fcra|fdcpa) (?:letter|dispute|demand)|"
+        r"letter to (?:the )?(?:bureau|collector|furnisher|credit bureau)|"
+        r"(?:make|write|draft) (?:them|him|her|it) a letter)\b", re.I)
+
+    def _dispute_letter_from_text(self, text):
+        """Draft from what he said, or ask for exactly what is missing.
+
+        It never guesses the creditor, the tradeline language, or what is
+        true - see core/dispute_letters.parse_request. A letter over his
+        signature naming the wrong company, or asserting something he did
+        not say, is worse than one more question."""
+        from core.dispute_letters import parse_request, KINDS
+        req = parse_request(text)
+        if req["missing"]:
+            kind_name = KINDS[req["kind"]][0] if req["kind"] else None
+            lines = ([f"To draft the {kind_name}, I still need:"] if kind_name
+                     else ["Before drafting I need to know:"])
+            lines += [f"  - {a}" for a in req["asked"]]
+            if req["facts"]:
+                lines.append("Held so far: " + "; ".join(
+                    f"{k} = {v}" for k, v in sorted(req["facts"].items())))
+            lines.append("Nothing is drafted until those are answered - a letter that "
+                         "names the wrong company, or states something you did not say, "
+                         "goes out over your signature.")
+            return {"answered_as": "dispute_letter_needs_facts",
+                    "text": "\n".join(lines),
+                    "facts": {"kind": req["kind"], "have": req["facts"],
+                              "missing": req["missing"], "drafted": False}}
+        out = self.draft_dispute_letter({"kind": req["kind"], "facts": req["facts"]})
+        if not out.get("drafted"):
+            return {"answered_as": "dispute_letter_refused",
+                    "text": f"Not drafted: {out.get('why')}", "facts": out}
+        kind_name = KINDS[req["kind"]][0]
+        note = ("" if out.get("complete") else
+                "\nSome paragraphs were left out - " + "; ".join(
+                    f"{x['paragraph']} ({x['detail']})" for x in out["refused"]))
+        return {"answered_as": "dispute_letter",
+                "text": (f"{kind_name}, drafted from the corpus. Nothing has been sent - "
+                         f"this is yours to sign and send.{note}\n\n" + out["letter"]),
+                "facts": out}
+
     def answer(self, prompt):
         """Pick this agent's own capability for a legal question.
 
@@ -3978,6 +4023,18 @@ class LegalAgent(AgentBase):
         text = (prompt or "").strip()
         if not text:
             return None
+
+        # A DISPUTE LETTER IS A THING THIS AGENT MAKES, asked for in plain
+        # words. The principal: "I should be able to give Anansi the creditor
+        # or name, the tradeline language, and what's wrong, and Legal drafts
+        # it." Anansi routes the sentence here and this agent picks its own
+        # verb - it does not need to know draft_dispute_letter exists.
+        #
+        # Placed before the citation branch because "dispute this under
+        # 1681s-2" carries a citation AND is a request to draft; answering it
+        # with the section text would be a lookup standing in for the letter.
+        if self._DISPUTE_ASK.search(text):
+            return self._dispute_letter_from_text(text)
 
         cite = self._CITATION.search(text)
         if cite:

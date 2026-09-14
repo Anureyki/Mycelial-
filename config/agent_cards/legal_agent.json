@@ -97,5 +97,10 @@
   "public_key": "",
   "owner": "anureyki",
   "created": "2026-07-31T17:59:12.877063",
-  "updated": "2026-09-14T14:13:28.321203"
+  "updated": "2026-09-14T14:13:28.321203",
+  "roles": [
+    "credit dispute",
+    "debt validation",
+    "dispute letter"
+  ]
 }

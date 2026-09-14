@@ -277,3 +277,115 @@ def render(title, shipped, schedule):
     lines.append("")
     lines.append(HOW_TO_SEND)
     return "\n".join(lines).rstrip() + "\n"
+
+
+# ----------------------------------------------------------------------
+# What the principal SAYS, turned into the facts a letter needs
+# ----------------------------------------------------------------------
+
+KIND_CUES = (
+    # Most specific first. "both" and "they collect and report" name the
+    # combined notice; a portal or CFPB box names the short one.
+    ("combined", r"\b(both|combined|dual notice|collect(?:s|ing)? and report|"
+                 r"report(?:s|ing)? and collect)\b"),
+    ("portal_short", r"\b(portal|cfpb|online form|short version|box)\b"),
+    ("fdcpa_validation", r"\b(collector|collection agency|validate|validation|"
+                         r"debt collector|stop calling|cease)\b"),
+    ("fcra_dispute", r"\b(bureau|credit report|consumer report|tradeline|furnish|"
+                     r"experian|equifax|transunion|reporting)\b"),
+)
+
+_LABELLED = {
+    "furnisher": r"(?:creditor|furnisher|collector|company|outfit)\s*(?:name)?\s*[:\-]\s*(.+)",
+    "account_last4": r"(?:account|acct)\s*(?:number)?\s*[:\-]?\s*(?:ending\s*(?:in\s*)?)?(\d{4})\b",
+    "what_is_wrong": r"(?:what(?:'s| is)? wrong|wrong|they say|tradeline(?: says| language)?|"
+                     r"reported as)\s*[:\-]\s*(.+)",
+    # Bare "truth:" as well as "the truth:" - dictation drops the article,
+    # and without it the value ran on into what_is_wrong.
+    "what_is_true": r"(?:what(?:'s| is)? true|(?:the\s+)?truth|actually|in fact)\s*[:\-]\s*(.+)",
+    "date_first_reported": r"(?:first reported|date first reported|reported on)\s*[:\-]?\s*"
+                           r"(\d{4}-\d{2}-\d{2}|\d{1,2}/\d{1,2}/\d{2,4}|[A-Z][a-z]+ \d{4})",
+    "mailing_address": r"(?:mail(?:ing)? address|write to|send to)\s*[:\-]\s*(.+)",
+}
+
+
+def parse_request(text):
+    """-> {kind, facts, missing, asked}. Deterministic; invents nothing.
+
+    WHAT IT WILL NOT DO. It never guesses the creditor's name from
+    capitalisation, never paraphrases the tradeline language, and never
+    fills `what_is_true` from anything but the principal's own words. Those
+    three are the substance of the dispute: a guessed furnisher sends the
+    letter to the wrong company, and an invented "what is true" is a false
+    statement over his signature. Anything not said plainly comes back in
+    `missing` as a question, and nothing drafts until he answers.
+
+    What it does read: a labelled line ("creditor: X", "wrong: Y"), a
+    four-digit ending ("account ending 1234"), a quoted tradeline, and the
+    cue words that choose which of the four letters he means."""
+    t = (text or "").strip()
+    low = t.lower()
+    kind = next((k for k, pat in KIND_CUES if re.search(pat, low)), None)
+    facts, asked = {}, []
+
+    # A LABELLED VALUE ENDS WHERE THE NEXT LABEL BEGINS, not at the end of
+    # the message. Dictation runs the fields together on one line -
+    # "creditor: Acme LLC. account ending 1234. wrong: charged off" - and
+    # taking each value to end-of-line put three facts into the furnisher's
+    # name, which would address the letter to a sentence.
+    hits = []
+    for field, pat in _LABELLED.items():
+        for m in re.finditer(pat, t, re.I):
+            hits.append((m.start(), m.start(1), m.end(), field))
+    hits.sort()
+    for i, (lab_start, val_start, m_end, field) in enumerate(hits):
+        if field in facts:
+            continue
+        stop = len(t)
+        for later_start, _, _, _ in hits[i + 1:]:
+            if later_start > lab_start:
+                stop = later_start
+                break
+        # A fixed-width field (a four-digit ending, a date) ends where its
+        # own match ended; only a free-text field runs to the next label.
+        if field in ("account_last4", "date_first_reported"):
+            val = t[val_start:m_end]
+        else:
+            val = t[val_start:stop]
+        val = val.splitlines()[0].strip().strip(",;").rstrip(".").strip()
+        if val:
+            facts[field] = val
+
+    if "account_last4" not in facts:
+        m = re.search(r"\bending(?:\s+in)?\s+(\d{4})\b", t, re.I) or \
+            re.search(r"\blast\s*four\s*(?:is\s*)?(\d{4})\b", t, re.I)
+        if m:
+            facts["account_last4"] = m.group(1)
+    if "what_is_wrong" not in facts:
+        # A quoted passage is the tradeline as it reads - his words about
+        # their words, which is exactly what belongs in "what is wrong".
+        m = re.search(r"[\"\u201c]([^\"\u201d]{4,200})[\"\u201d]", t)
+        if m:
+            facts["what_is_wrong"] = m.group(1).strip()
+
+    needed = {"fcra_dispute": ("furnisher", "account_last4", "date_first_reported",
+                              "what_is_wrong", "what_is_true"),
+              "fdcpa_validation": ("mailing_address",),
+              "combined": ("furnisher", "account_last4", "mailing_address"),
+              "portal_short": ()}
+    if kind is None:
+        return {"kind": None, "facts": facts, "missing": ["kind"],
+                "asked": ["Which letter: the FCRA dispute to a bureau or furnisher, the "
+                          "FDCPA validation demand to a collector, the combined notice when "
+                          "one outfit does both, or the short portal version?"]}
+    missing = [f for f in needed[kind] if not str(facts.get(f, "")).strip()]
+    prompts = {
+        "furnisher": "the creditor or collector's name, exactly as it appears",
+        "account_last4": "the account's last four digits",
+        "date_first_reported": "the date it was first reported",
+        "what_is_wrong": "the tradeline language - what it says that is wrong",
+        "what_is_true": "what is actually true, in your words",
+        "mailing_address": "the mailing address all contact must go to",
+    }
+    asked = [prompts[f] for f in missing]
+    return {"kind": kind, "facts": facts, "missing": missing, "asked": asked}

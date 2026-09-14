@@ -103,6 +103,45 @@ def main():
        not r["complete"] and {x["paragraph"] for x in r["refused"]} == {"dispute", "validation"}
        and "cease" in r["paragraphs_shipped"])
 
+    print("a plain request reaches the letter, and never invents the substance")
+    from core.dispute_letters import parse_request
+    full = ("Draft a dispute letter to the bureau. creditor: Example Furnisher LLC. "
+            "account ending 1234. first reported: 2026-03-01. wrong: reported as "
+            "charge-off, 120 days late. truth: never late, paid as agreed")
+    r = parse_request(full)
+    ck("a labelled value stops at the next label, not the end of the line",
+       r["facts"]["furnisher"] == "Example Furnisher LLC" and not r["missing"], str(r["facts"]))
+    ck("the tradeline language is his, verbatim",
+       r["facts"]["what_is_wrong"] == "reported as charge-off, 120 days late")
+    ck("what is true is his, verbatim", r["facts"]["what_is_true"] == "never late, paid as agreed")
+    r = parse_request('the tradeline says "Charge-off - 120 days late" and it is wrong')
+    ck("a quoted tradeline is read as what is wrong",
+       r["facts"].get("what_is_wrong") == "Charge-off - 120 days late")
+    ck("and the creditor is NOT guessed from the sentence", "furnisher" not in r["facts"])
+    for text, kind in (("the collector keeps calling, I want a validation demand", "fdcpa_validation"),
+                       ("they collect and report, send the dual notice", "combined"),
+                       ("short version for the CFPB portal", "portal_short"),
+                       ("dispute this tradeline with the credit bureau", "fcra_dispute")):
+        ck(f"{kind} is chosen from plain words", parse_request(text)["kind"] == kind, text)
+    r = parse_request("write a dispute letter")
+    ck("a request naming no letter asks which, and drafts nothing",
+       r["kind"] is None and r["missing"] == ["kind"])
+
+    ag2 = LegalAgent.__new__(LegalAgent)
+    ag2.agent_id = "legal_agent"
+    ag2._refdocs = None
+    ag2.log = lambda *a, **k: None
+    ag2.SHARED_CORPORA = getattr(LegalAgent, "SHARED_CORPORA", ())
+    a = ag2.answer("I need a dispute letter for the credit bureau")
+    ck("answer() asks for the missing facts rather than drafting",
+       a["answered_as"] == "dispute_letter_needs_facts" and a["facts"]["drafted"] is False)
+    ck("and names every missing field", all(w in a["text"] for w in
+       ("creditor", "last four", "first reported", "tradeline", "actually true")))
+    a = ag2.answer(full)
+    ck("answer() drafts a complete request", a["answered_as"] == "dispute_letter"
+       and "Example Furnisher LLC" in a["text"])
+    ck("and says nothing was sent", "Nothing has been sent" in a["text"])
+
     print()
     if fails:
         print(f"FAIL: {len(fails)} check(s): " + "; ".join(fails[:6]))

@@ -87,16 +87,19 @@
   "entry_point": "agents.legal_agent.legal_agent:main",
   "description": "Models legal/financial relationships from contract text (extraction and structuring only - not legal advice)",
   "roles": [
-    "statute",
-    "contract",
-    "jurisdiction",
     "cause of action",
     "consumer report",
+    "contract",
+    "credit dispute",
     "credit reporting",
+    "debt validation",
+    "dispute letter",
     "housing discrimination",
+    "jurisdiction",
     "lease",
-    "tenant right",
-    "regulation"
+    "regulation",
+    "statute",
+    "tenant right"
   ],
   "_roles_note": "Subjects this agent OWNS. Exactly one agent may own a role; core/roles.py refuses duplicates at load. Declared here and not in code so changing what a department owns is a config edit."
 }
