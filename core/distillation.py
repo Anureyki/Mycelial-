@@ -102,7 +102,13 @@ def record_pair(prompt, output, model=None, capability=None, verdict=None,
     os.makedirs(os.path.dirname(path), mode=0o700, exist_ok=True)  # datasets/
     line = json.dumps(rec, ensure_ascii=False)
     with _LOCK:
-        with open(path, "a", encoding="utf-8") as fh:
+        # 0600 at creation. The directory is 0700 and a day's first pair
+        # created the file at the umask - 0644 - so every prompt that
+        # named a live matter was readable by any user on the box until
+        # check_fs_boundary caught it on the tree. The creator sets the
+        # mode; a later chmod is a repair, not a boundary.
+        fd = os.open(path, os.O_WRONLY | os.O_CREAT | os.O_APPEND, 0o600)
+        with os.fdopen(fd, "a", encoding="utf-8") as fh:
             fh.write(line + "\n")
     return rec
 
