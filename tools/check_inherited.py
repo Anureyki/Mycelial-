@@ -569,7 +569,10 @@ def check_declared_matches_dispatched():
                   # Inherited by EVERY agent from core/base_agent.py, so no
                   # per-agent config declares them and their absence from a
                   # capability list is not drift.
-                  "trace_account", "acquire_authority", "ingest_document"}
+                  "trace_account", "acquire_authority", "ingest_document",
+                  "draft_contract", "instrument_doctrine", "classify_instrument",
+                  "check_discharge", "flag_contradiction", "log_system_flag",
+                  "record_inversion"}
 
     undeclared, dead, checked = {}, {}, 0
     for a in agents:

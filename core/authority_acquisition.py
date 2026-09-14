@@ -60,6 +60,7 @@ actually resolves. A shelved file the agent's own lookup cannot reach is the
 `inert knowledge` state from CLAUDE.md - information held that no verb can
 reason with - and it is invisible unless something asks.
 """
+import json
 import os
 import re
 import sys
@@ -147,6 +148,20 @@ def parse_citation(text):
     if m:
         return ("plaw", {"congress": m.group(1), "number": m.group(2)},
                 f"Pub. L. {m.group(1)}-{m.group(2)}")
+    # Texas codes by chapter: "Tex. Bus. & Com. Code ch. 2", "Tex. Transp.
+    # Code Chapter 501", "Tex. Prop. Code ch. 5". A section cite - "Tex. Bus.
+    # & Com. Code § 3.311" - names the chapter it lives in, which is the
+    # unit fetched; the section is then reachable by its own number.
+    m = re.match(r"^Tex(?:as)?\.?\s*(Bus(?:iness)?\.?\s*(?:&|and)\s*Com(?:merce)?\.?|"
+                 r"Transp(?:ortation)?\.?|Prop(?:erty)?\.?|Fin(?:ance)?\.?)\s*Code\s*"
+                 r"(?:(?:ch(?:apter)?\.?|\u00a7+)\s*)?(\d+[A-Z]?)(?:\.\d+[A-Za-z]?)?\s*$", t, re.I)
+    if m:
+        code = {"b": "bc", "t": "transp", "p": "prop", "f": "fin"}[m.group(1)[0].lower()]
+        name = {"bc": "Tex. Bus. & Com. Code", "transp": "Tex. Transp. Code",
+                "prop": "Tex. Prop. Code", "fin": "Tex. Fin. Code"}[code]
+        return ("tex", {"code": code, "chapter": m.group(2)},
+                f"{name} ch. {m.group(2)}")
+
     m = re.match(r"^IRM\s*(?:Part\s*)?(\d+)\s*$", t, re.I)
     if m:
         return ("irm", {"part": m.group(1)}, f"IRM Part {m.group(1)}")
@@ -219,6 +234,15 @@ def check_subject(body, expect, window=None):
     }
 
 
+def _first_section(path):
+    try:
+        with open(path, encoding="utf-8") as fh:
+            secs = json.load(fh).get("sections") or []
+        return str(secs[0].get("citation") or "") if secs else None
+    except Exception:
+        return None
+
+
 def acquire(agent, citation, expect=None, force=False, lookup=None,
             reload=None):
     """Fetch, read, verify, class and shelve one provision. -> result dict."""
@@ -234,6 +258,7 @@ def acquire(agent, citation, expect=None, force=False, lookup=None,
                "cfr": ingest_law.fetch_cfr,
                "irm": ingest_law.fetch_irm,
                "plaw": ingest_law.fetch_plaw,
+               "tex": ingest_law.fetch_texas,
                "orc": ingest_law.fetch_orc}[kind]
     try:
         body, title, source = fetcher(**kw)
@@ -285,10 +310,18 @@ def acquire(agent, citation, expect=None, force=False, lookup=None,
     # VERIFY THE EFFECT, NOT THE EXIT CODE. A shelved file the agent's own
     # lookup cannot reach is `inert knowledge` - held, and unreachable by any
     # verb. It is invisible unless something asks, so this asks.
-    reachable, found = None, 0
+    reachable, found, probed = None, 0, canonical
     if lookup is not None:
         try:
             hits = lookup(canonical) or []
+            if not hits:
+                # A chapter is not a citation anyone looks up; its sections
+                # are. Probe the first shelved section so a whole chapter
+                # that shelved correctly is not reported unreachable.
+                first = _first_section(res["path"])
+                if first:
+                    probed = first
+                    hits = lookup(first) or []
             found = len(hits)
             reachable = found > 0
         except Exception as exc:
@@ -304,6 +337,7 @@ def acquire(agent, citation, expect=None, force=False, lookup=None,
         "subject": subject,
         "subject_verified": subject["verified"],
         "reachable_by_lookup": reachable,
+        "lookup_probe": probed,
         "lookup_hits": found,
         "reload_error": reload_error,
         "reachability_note": (

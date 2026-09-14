@@ -506,6 +506,104 @@ class AgentBase:
                      f"{res.get('error', '')[:120]}")
         return res
 
+    # ------------------------------------------------------------------
+    # Contracts and instruments - inherited, so two agents draft alike
+    # ------------------------------------------------------------------
+
+    def _resolve_authority(self, citation):
+        """One section entry for a citation: this agent's shelf first, then
+        Legal's, borrowed and marked so. -> entry dict or None.
+
+        Used by draft_contract. The entry carries the section's text, and
+        the engine hashes that text into the schedule - so two agents
+        resolving the same enactment produce the same bytes whether one
+        holds it and the other borrows it."""
+        try:
+            hits = self._lookup_reference_raw(citation) or []
+        except Exception:
+            hits = []
+        if hits:
+            e = dict(hits[0])
+            e.setdefault("held_by", "own")
+            return e
+        if self.agent_id != "legal_agent":
+            try:
+                hits = self.ask_peer_corpus("legal_agent", citation) or []
+            except Exception:
+                hits = []
+            if hits:
+                return dict(hits[0])
+        return None
+
+    def draft_contract(self, args=None):
+        """Assemble a contract from the four-layer map and the corpus.
+
+        args: family (car_purchase | house_purchase | lease | service_agreement),
+              facts {...}, layers {holder, servicer, debt_holder, benefit: {party,
+              evidence}}, instrument {kind, maturity, value}.
+        Every clause cites a provision this agent can open - its own shelf or
+        Legal's - or is refused by name. See core/contract_engine.py."""
+        from core.contract_engine import draft, Refused
+        from core.instrument_rules import Unclassifiable
+        a = args if isinstance(args, dict) else {}
+        try:
+            out = draft(a.get("family"), a.get("facts") or {}, a.get("layers") or {},
+                        self._resolve_authority, instrument=a.get("instrument"))
+        except (Refused, Unclassifiable) as exc:
+            return {"drafted": False, "refused": True,
+                    "reason": type(exc).__name__, "why": str(exc)}
+        out["drafted"] = True
+        out["drafted_by"] = self.agent_id
+        self.log(f"draft_contract {out['family']}: {len(out['clauses_shipped'])} clauses, "
+                 f"{len(out['refused'])} refused, sha {out['sha256'][:12]}")
+        return out
+
+    def instrument_doctrine(self, args=None):
+        """Every instrument rule, tested against this agent's reachable shelf
+        right now - cited, stated, contested, or unsupported, with the words."""
+        from core.instrument_rules import doctrine_report
+        return {"rules": doctrine_report(lambda c: [e for e in [self._resolve_authority(c)] if e]),
+                "applied_states": ["cited", "stated_by_principal"]}
+
+    def classify_instrument(self, args=None):
+        from core.instrument_rules import classify_instrument, Unclassifiable
+        a = args if isinstance(args, dict) else {"kind": args}
+        try:
+            return classify_instrument(a.get("kind"), value=a.get("value"),
+                                       maturity=a.get("maturity"),
+                                       declared_by=a.get("declared_by"))
+        except Unclassifiable as exc:
+            return {"classified": False, "refused": True, "why": str(exc)}
+
+    def check_discharge(self, args=None):
+        from core.instrument_rules import discharge_by_instrument
+        a = args if isinstance(args, dict) else {}
+        return discharge_by_instrument(a, lookup=self._lookup_reference_raw)
+
+    def flag_contradiction(self, args=None):
+        from core.instrument_rules import contradiction
+        a = args if isinstance(args, dict) else {}
+        return contradiction(a.get("claim"), a.get("observation"))
+
+    def log_system_flag(self, args=None):
+        from core.instrument_rules import system_flag
+        a = args if isinstance(args, dict) else {"flag": args}
+        return system_flag(a.get("flag"), by=a.get("by"))
+
+    def record_inversion(self, args=None):
+        """A caught inversion becomes a denial pair - collected, never
+        trained on here, and refused if it carries an identifier."""
+        from core.instrument_rules import inversion_pair
+        a = args if isinstance(args, dict) else {}
+        try:
+            rec = inversion_pair(a.get("false_claim"), a.get("why_false"),
+                                 a.get("correct_classification"), a.get("authority"),
+                                 caught_by=self.agent_id)
+        except ValueError as exc:
+            return {"recorded": False, "why": str(exc)}
+        return {"recorded": True, "sha256": rec["sha256"], "trained": False}
+
+
     def trace_account(self, args=None):
         """-> the four-layer map for an account. Same answer for every agent.
 
@@ -783,6 +881,20 @@ class AgentBase:
                     result = self.ingest_document(args)
                 elif task == "acquire_authority":
                     result = self.acquire_authority(args)
+                elif task == "draft_contract":
+                    result = self.draft_contract(args)
+                elif task == "instrument_doctrine":
+                    result = self.instrument_doctrine(args)
+                elif task == "classify_instrument":
+                    result = self.classify_instrument(args)
+                elif task == "check_discharge":
+                    result = self.check_discharge(args)
+                elif task == "flag_contradiction":
+                    result = self.flag_contradiction(args)
+                elif task == "log_system_flag":
+                    result = self.log_system_flag(args)
+                elif task == "record_inversion":
+                    result = self.record_inversion(args)
                 elif task == "trace_account":
                     result = self.trace_account(args if isinstance(args, dict)
                                                 else {"account": args})
@@ -2099,6 +2211,15 @@ class AgentBase:
         # sitting on the shelf. Verified: 12 CFR 1022.3 resolved and every FCRA
         # section ingested minutes earlier did not.
         key = re.sub(r'^\d+\s*u\.?\s*s\.?\s*c\.?(\s*a\.?)?\s*', '', key).strip()
+        # Texas codes are keyed as they cite themselves - "§ 2.313",
+        # "§ 501.071" - so "Tex. Bus. & Com. Code § 2.313" is the section
+        # with the code name in front. Same rule as the CFR and U.S.C.
+        # prefixes above. Chapter numbers do not collide across the codes
+        # shelved today; if two codes ever share one, the first shelved wins
+        # and that is the moment to key by code as well.
+        key = re.sub(r'^tex(?:as)?\.?\s*(?:bus(?:iness)?\.?\s*(?:&|and)\s*com(?:merce)?\.?|'
+                     r'transp(?:ortation)?\.?|prop(?:erty)?\.?|fin(?:ance)?\.?)\s*code\s*',
+                     '', key).strip()
         key = re.sub(r'^(section|sec\.?|\u00a7+)\s*', '', key).strip()
         # "Pub. L. 115-59 § 2", "Public Law 115-59 sec. 2", "Pub. L. 115-59"
         # - the law-qualified forms the index builds for a Public Law's

@@ -158,6 +158,9 @@ jobs:
         # about the tooling and not the court. The shapes are held here.
         run: python tools/check_case_law.py
 
+      - name: No clause ships without a citation that opens; two agents draft alike
+        run: python tools/check_contract_engine.py
+
       - name: No sensitive material in the repository
         # The backstop. The real gate is .githooks/pre-commit, because a
         # secret caught by CI has already been pushed - this repository

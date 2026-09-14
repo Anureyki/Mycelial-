@@ -275,6 +275,104 @@ def fetch_plaw(congress, number):
             + (f" {heading}." if heading else ""))
 
 
+# Texas codes, as enacted, from texas.public.law. The state's own site
+# (statutes.capitol.texas.gov) is an Angular shell that answers 200 with no
+# statute in the body; public.law serves each section as plain HTML with the
+# operative text in <section class="... non-meta outline"> and the enactment
+# history in <section class="meta ...">. Chapter 9 was shelved from here by
+# hand on 2026-08-29; this makes it a fetch kind Legal can run itself.
+TEXAS_CODES = {
+    "bc":     ("tex._bus._&_com._code", "Tex. Bus. & Com. Code",
+               "Texas Business and Commerce Code"),
+    "transp": ("tex._transp._code", "Tex. Transp. Code", "Texas Transportation Code"),
+    "prop":   ("tex._prop._code", "Tex. Prop. Code", "Texas Property Code"),
+    "fin":    ("tex._fin._code", "Tex. Fin. Code", "Texas Finance Code"),
+}
+_TEXAS_PAUSE = 0.6      # courtesy spacing between section fetches
+
+
+def fetch_texas(code, chapter):
+    """One chapter of a Texas code: every section, from the chapter index.
+
+    A state's enactment is public domain - Georgia v. Public.Resource.Org,
+    590 U.S. 255 (2020) - and for the UCC it is also the text that actually
+    governs, where the ALI/ULC model act is copyrighted and governs nowhere.
+    """
+    if code not in TEXAS_CODES:
+        raise SystemExit(f"REFUSED: unknown Texas code {code!r}; "
+                         f"known: {sorted(TEXAS_CODES)}")
+    slug, abbrev, longname = TEXAS_CODES[code]
+    base = "https://texas.public.law/statutes/"
+    index_url = f"{base}{slug}_chapter_{chapter}"
+    index = _get(index_url, timeout=60)
+    index = index.decode("utf-8", "replace") if isinstance(index, bytes) else index
+    # The slug carries "&", which the index page writes as "&amp;". Escaped
+    # by hand: re.escape turns "&" into "\&" and a replace on that produced
+    # an unbalanced pattern.
+    slug_rx = slug.replace(".", r"\.").replace("&", "(?:&|&amp;)")
+    hrefs = sorted(set(re.findall(
+        rf'href="[^"]*?{slug_rx}_section_({re.escape(str(chapter))}\.[0-9A-Za-z]+)"',
+        index)), key=lambda x: [int(p) if p.isdigit() else p for p in re.split(r"(\d+)", x)])
+    if not hrefs:
+        raise SystemExit(f"REFUSED: {index_url} lists no sections of chapter {chapter}. "
+                         f"Nothing written.")
+    chapter_name = ""
+    m = re.search(r"<title>[^<]*?Chapter\s+\S+\s*[\u2013-]\s*([^<|]+)", index, re.I)
+    if m:
+        chapter_name = re.sub(r"\s+", " ", m.group(1)).strip()
+    out, missing, folded = [], [], 0
+    for sec in hrefs:
+        url = f"{base}{slug}_section_{sec}"
+        try:
+            page = _get(url, timeout=60)
+        except Exception as exc:
+            missing.append(f"{sec}: {exc}")
+            continue
+        page = page.decode("utf-8", "replace") if isinstance(page, bytes) else page
+        nm = re.search(r'<span id="name">\s*(.*?)\s*</span>', page, re.S)
+        heading = html.unescape(re.sub(r"\s+", " ", nm.group(1))).strip() if nm else ""
+        bodies = re.findall(r'<section class="[^"]*non-meta[^"]*">(.*?)</section>', page, re.S)
+        text = "\n".join(html.unescape(re.sub(r"<[^>]+>", " ", b)).strip() for b in bodies)
+        text = re.sub(r"[ \t]+", " ", text)
+        text = re.sub(r"\n\s*\n+", "\n", text).strip()
+        if not text:
+            missing.append(f"{sec}: no operative text found on the page")
+            continue
+        # THE INDEX IS SHORT. Chapter 2 lists 88 sections and has 103:
+        # public.law folds 2.104-2.106, 2.319-2.325 and others into the
+        # neighbouring page's body under the state's own "Sec. 2.104.
+        # HEADING." lines. Those are real sections and the segmenter
+        # recovers them - but keyed "Sec. 2.104.", a form the lookup does
+        # not normalise, while everything else is "§ 2.104". Rewritten to
+        # the one form here, so a folded section is reachable exactly like
+        # a listed one. A prefix naming THIS section is dropped as redundant
+        # with the heading line written below.
+        text = re.sub(rf"^\s*Sec\.\s*{re.escape(sec)}\.\s*", "", text)
+        text, n_folded = re.subn(r"(?m)^\s*Sec\.\s*(\d+[A-Za-z]?\.\d+[A-Za-z]?)\.\s*",
+                                 "\u00a7 \\1 ", text)
+        folded += n_folded
+        hist = re.findall(r'<section class="meta[^"]*">(.*?)</section>', page, re.S)
+        history = " ".join(html.unescape(re.sub(r"<[^>]+>", " ", h)).strip() for h in hist)
+        history = re.sub(r"\s+", " ", history).strip()
+        out.append(f"\u00a7 {sec} {heading}\n{text}"
+                   + (f"\n[History: {history}]" if history else ""))
+        time.sleep(_TEXAS_PAUSE)
+    if not out:
+        raise SystemExit(f"REFUSED: none of {len(hrefs)} sections of chapter {chapter} "
+                         f"yielded text. Nothing written.")
+    body = "\n\n".join(out)
+    title = f"{abbrev} Chapter {chapter}" + (f" - {chapter_name}" if chapter_name else "")
+    source = (f"{longname}, Chapter {chapter}, {len(out)} of {len(hrefs)} indexed sections"
+              + (f" plus {folded} sections the site folds into neighbouring pages, "
+                 f"recovered by their own headings" if folded else "") + ", "
+              f"retrieved from texas.public.law {time.strftime('%Y-%m-%d')}. STATE "
+              f"STATUTE - public domain: a legislature's enactment is an edict of "
+              f"government (Georgia v. Public.Resource.Org, 590 U.S. 255 (2020)). "
+              f"This is Texas's ENACTMENT, which is the text that governs in Texas."
+              + (f" NOT RETRIEVED: {'; '.join(missing)}." if missing else ""))
+    return body, title, source
+
+
 def fetch_orc(section):
     """One section of the Ohio Revised Code, from the state's own site.
 
@@ -340,6 +438,9 @@ CLASSIFICATION = {
     "plaw": ("federal_statute",
              "Title of the work is a Public Law citation, which fixes the class",
              "doctrinal"),
+    "tex": ("state_statute",
+            "Title of the work is a Texas code chapter citation, which fixes the class",
+            "doctrinal"),
     "orc": ("state_statute",
             "Title of the work is an Ohio Revised Code section citation, which fixes "
             "the class",
@@ -439,7 +540,9 @@ def shelve(body, title, source, agent, source_kind, stem=None, treatise=False):
 def main():
     ap = argparse.ArgumentParser(description=__doc__,
                                  formatter_class=argparse.RawDescriptionHelpFormatter)
-    ap.add_argument("source", choices=["cfr", "usc", "usc-section", "irm", "orc", "plaw"])
+    ap.add_argument("source", choices=["cfr", "usc", "usc-section", "irm", "orc", "plaw", "tex"])
+    ap.add_argument("--code", help="tex: bc | transp | prop | fin")
+    ap.add_argument("--chapter", help="tex: chapter number, e.g. 2")
     ap.add_argument("--congress")
     ap.add_argument("--number")
     ap.add_argument("--section", help="single U.S.C. section, e.g. 5103")
@@ -471,6 +574,11 @@ def main():
             ap.error("plaw needs --congress and --number, e.g. 115 59")
         body, title, source = fetch_plaw(a.congress, a.number)
         stem = f"plaw{a.congress}_{a.number}"
+    elif a.source == "tex":
+        if not (a.code and a.chapter):
+            ap.error("tex needs --code (bc|transp|prop|fin) and --chapter")
+        body, title, source = fetch_texas(a.code, a.chapter)
+        stem = f"tex_{a.code}_ch{a.chapter}"
     elif a.source == "orc":
         if not a.section:
             ap.error("orc needs --section, e.g. --section 2329.02")
