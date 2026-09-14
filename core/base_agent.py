@@ -604,6 +604,42 @@ class AgentBase:
         return {"recorded": True, "sha256": rec["sha256"], "trained": False}
 
 
+    def custody_event(self, args=None):
+        """Record one lifecycle event on an instrument - issued, transmitted,
+        received, credited, enabled, deducted, returned. Refuses an event
+        outside the lifecycle, an undeclared instrument, or an identifier."""
+        from core.instrument_custody import add_event, Refused
+        a = args if isinstance(args, dict) else {}
+        try:
+            case = add_event(a.get("case_id"), a.get("event") or {},
+                             veteran=a.get("veteran"), custodian=a.get("custodian"),
+                             instruments=a.get("instruments"))
+        except (Refused, ValueError) as exc:
+            return {"recorded": False, "refused": True, "why": str(exc)}
+        return {"recorded": True, "case_id": case["case_id"],
+                "events": len(case["events"]), "instruments": sorted(case["instruments"])}
+
+    def custody_ledger(self, args=None):
+        """The custody chain, the transactions the instruments enabled, the
+        services deducted, and the surplus owed back - as a ledger. From a
+        stored case (case_id) or a case passed inline (case). Two agents
+        given the same case produce the same bytes; the sha256 says so."""
+        from core.instrument_custody import ledger, load_case, Refused
+        a = args if isinstance(args, dict) else {"case_id": args}
+        case = a.get("case")
+        if case is None and a.get("case_id"):
+            case = load_case(a["case_id"])
+            if case is None:
+                return {"produced": False, "why": f"no case {a['case_id']!r} on this store"}
+        try:
+            out = ledger(case or {})
+        except (Refused, ValueError) as exc:
+            return {"produced": False, "refused": True, "why": str(exc)}
+        out["produced"] = True
+        out["produced_by"] = self.agent_id
+        return out
+
+
     def trace_account(self, args=None):
         """-> the four-layer map for an account. Same answer for every agent.
 
@@ -895,6 +931,10 @@ class AgentBase:
                     result = self.log_system_flag(args)
                 elif task == "record_inversion":
                     result = self.record_inversion(args)
+                elif task == "custody_event":
+                    result = self.custody_event(args)
+                elif task == "custody_ledger":
+                    result = self.custody_ledger(args)
                 elif task == "trace_account":
                     result = self.trace_account(args if isinstance(args, dict)
                                                 else {"account": args})

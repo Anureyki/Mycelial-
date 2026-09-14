@@ -161,6 +161,9 @@ jobs:
       - name: No clause ships without a citation that opens; two agents draft alike
         run: python tools/check_contract_engine.py
 
+      - name: The custody ledger audits the chain and never argues the law
+        run: python tools/check_custody.py
+
       - name: No sensitive material in the repository
         # The backstop. The real gate is .githooks/pre-commit, because a
         # secret caught by CI has already been pushed - this repository
