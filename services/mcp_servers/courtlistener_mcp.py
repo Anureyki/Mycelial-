@@ -142,6 +142,12 @@ def search(arguments):
                     # handle to open it - which came back as "case_not_found",
                     # the wrong answer to a search that had succeeded.
                     "cluster_id": r.get("cluster_id") or r.get("id"),
+                    # THE REPORTER CITE IS PART OF THE ANSWER. It was in the
+                    # API response and dropped here, so a shelved opinion
+                    # carried no "594 U.S. 413" and could not be cited by the
+                    # number a court expects. A true thing that stopped
+                    # travelling at the boundary.
+                    "citation": r.get("citation") or [],
                     "absolute_url": f"https://www.courtlistener.com{r['absolute_url']}" if r.get("absolute_url") else None,
                     "snippet": (r.get("snippet") or (r.get("text", "")[:300] if r.get("text") else None)),
                 }

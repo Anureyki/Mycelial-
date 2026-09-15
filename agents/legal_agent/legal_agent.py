@@ -2995,6 +2995,90 @@ class LegalAgent(AgentBase):
             return False
         return party is None or court.start() < party.start()
 
+    def _acquire_published_opinion(self, case, expect, a):
+        """A reported opinion, from the opinions index. -> result or None.
+
+        None means "nothing found here" so the caller can report the docket
+        finding it already has; a dict means this path answered."""
+        from core.authority_acquisition import check_subject
+        from tools import ingest_law
+
+        payload = {"q": case, "type": "o", "case_name": case}
+        if a.get("court"):
+            payload["court"] = a["court"]
+        raw = self._unwrap_mcp(self.call_tool("courtlistener", "search", payload))
+        if not isinstance(raw, dict) or raw.get("error"):
+            return None
+        parties = re.split(r"\s+v\.?\s+", re.sub(r"[,(].*$", "", case).strip(), maxsplit=1)
+        parties = [re.sub(r"[^a-z ]", "", p.lower()).strip() for p in parties if p.strip()]
+        matches = [r for r in (raw.get("results") or [])
+                   if r.get("cluster_id")
+                   and (not parties or all(
+                       p and p in re.sub(r"[^a-z ]", "", str(r.get("caseName") or "").lower())
+                       for p in parties))]
+        if not matches:
+            return None
+        # ONE CAPTION, SEVERAL DOCUMENTS. A case has a cert-grant order, the
+        # merits opinion, sometimes an order list entry - all captioned the
+        # same. Henson v. Santander came back as "Petition for writ of
+        # certiorari ... granted", one sentence, and taking the first match
+        # would have shelved that as the holding. Each is READ, and the
+        # first that is about the subject wins; a longer document is
+        # preferred only among those that pass.
+        best, text, subject, passed_over = None, None, None, []
+        for cand in matches[:3]:
+            got = self._unwrap_mcp(self.call_tool("courtlistener", "opinion_text",
+                                                  {"cluster_id": int(cand["cluster_id"])}))
+            if not isinstance(got, dict) or not got.get("readable"):
+                passed_over.append({"caseName": cand.get("caseName"), "outcome": "unreadable"})
+                continue
+            body = got.get("text") or ""
+            subj = check_subject(body, expect, window=8000)
+            if expect and not subj["verified"] and not a.get("force"):
+                passed_over.append({"caseName": cand.get("caseName"),
+                                    "outcome": "subject_mismatch", "chars": len(body),
+                                    "opening": re.sub(r"\s+", " ", body[:200])})
+                continue
+            if text is None or len(body) > len(text):
+                best, text, subject = cand, body, subj
+        if best is None:
+            if passed_over:
+                return {"acquired": False, "case": case, "verdict": "subject_mismatch",
+                        "read": passed_over,
+                        "why": ("Every reported document under this caption was read and "
+                                "none is about what `expect` says. A cert-grant order "
+                                "carries the caption and not the holding."),
+                        "disclaimer": DISCLAIMER}
+            return None
+        cites = [c for c in (best.get("citation") or []) if c] if isinstance(
+            best.get("citation"), list) else []
+        cite_str = f" {cites[0]}" if cites else ""
+        title = f"{best.get('caseName')}{cite_str} ({best.get('court')}, {str(best.get('dateFiled'))[:4]})"
+        source = (f"CourtListener opinion cluster {best['cluster_id']}: the court's own "
+                  f"published text" + (f", reported at {', '.join(cites[:3])}" if cites else "")
+                  + f". Judicial opinions are edicts of government and public domain. "
+                  f"Retrieved {time.strftime('%Y-%m-%d')}.")
+        stem = re.sub(r"[^a-z0-9]+", "_", f"{best.get('caseName')} {cites[0] if cites else ''}"
+                      .lower()).strip("_")[:50]
+        res = ingest_law.shelve(text, title, source, self.agent_id, "opinion",
+                                stem=stem, treatise=True)
+        if not res.get("ok"):
+            return {"acquired": False, "case": case, "verdict": "shelve_failed",
+                    "why": res.get("error"), "disclaimer": DISCLAIMER}
+        self._refdocs = None
+        self._load_reference_docs()
+        hits = self._lookup_reference_raw(case) or []
+        out = {"acquired": True, "case": case, "title": title, "via": "published_opinion",
+               "path": os.path.relpath(res["path"], project_root),
+               "sections": res.get("sections"),
+               "authority_class": res["authority_class"], "claim_layer": res["claim_layer"],
+               "reported_at": cites[:3],
+               "subject_verified": subject.get("verified"), "subject": subject,
+               "chars": len(text), "reachable_by_lookup": bool(hits), "lookup_hits": len(hits),
+               "disclaimer": DISCLAIMER}
+        self.log(f"acquired published opinion {title} -> {out['path']}")
+        return out
+
     def acquire_opinion(self, args):
         """Shelve a court's decision from the docket, having read it first.
 
@@ -3065,6 +3149,14 @@ class LegalAgent(AgentBase):
             if r.get("docket_id"):
                 cands.append(r)
         if not cands:
+            # No DOCKET under these parties. A reported opinion has none -
+            # see _acquire_published_opinion - so that shelf is tried before
+            # reporting the case missing. Ramirez, Spokeo and Safeco all
+            # came back "case_not_found" while sitting in the opinions
+            # index, because this branch returned before the fallback ran.
+            pub = self._acquire_published_opinion(case, expect, a)
+            if pub is not None:
+                return pub
             return {"acquired": False, "case": case, "verdict": "case_not_found",
                     "why": ("No docket found whose caption carries both party names. "
                             "NOT a finding that the case does not exist - it may be a "
@@ -3128,6 +3220,16 @@ class LegalAgent(AgentBase):
                             "This says NOTHING about whether the decision is in RECAP. "
                             "Retry; nothing was shelved."),
                     "unreachable": unreachable, "disclaimer": DISCLAIMER}
+        if not found:
+            # PUBLISHED OPINIONS DO NOT LIVE ON A DOCKET. The docket path is
+            # right for a district ruling somebody bought off PACER; a
+            # Supreme Court or circuit opinion is in the opinions index
+            # instead, and searching only RECAP reported TransUnion v.
+            # Ramirez - the case the whole standing analysis turns on - as
+            # absent from the archive. Same verb, whichever shelf holds it.
+            pub = self._acquire_published_opinion(case, expect, a)
+            if pub is not None:
+                return pub
         if not found:
             return {"acquired": False, "case": case, "verdict": "not_in_archive",
                     "why": ("The docket exists and no entry described as an opinion or "

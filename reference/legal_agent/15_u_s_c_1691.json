@@ -1,0 +1,48 @@
+{
+  "title": "15 U.S.C. \u00a7 1691",
+  "source": "United States Code title 15 section 1691, retrieved from Cornell LII (law.cornell.edu). The statutory text is a U.S. government work and is public domain; Cornell's annotations are excluded.",
+  "authority_class": "federal_statute",
+  "authority_class_basis": "Title of the work is a U.S. Code section citation, which fixes the class",
+  "claim_layer": "doctrinal",
+  "claim_layer_meaning": "States or describes the rule. Cite for what the law IS.",
+  "authorities_cited": [],
+  "term_index": {
+    "adverse action": [
+      0
+    ],
+    "standing": [
+      0
+    ]
+  },
+  "origin_pdf": "15_u_s_c_1691.txt",
+  "extraction": {
+    "extractor": "text file (already extracted)",
+    "pages": 1,
+    "no_text_layer": [],
+    "raised": [],
+    "recovered": [],
+    "lost": [],
+    "complete": true
+  },
+  "pages": 1,
+  "sections": [
+    {
+      "citation": "\u00a7 1691.",
+      "kind": "section_sign",
+      "page": 1,
+      "text": "\u00a7 1691. Scope of prohibition. (a) Activities constituting discrimination It shall be unlawful for any creditor to discriminate against any applicant , with respect to any aspect of a credit transaction\u2014 (1) on the basis of race, color, religion, national origin, sex or marital status, or age (provided the applicant has the capacity to contract); (2) because all or part of the applicant \u2019s income derives from any public assistance program; or (3) because the applicant has in good faith exercised any right under this chapter. (b) Activities not constituting discrimination It shall not constitute discrimination for purposes of this subchapter for a creditor \u2014 (1) to make an inquiry of marital status if such inquiry is for the purpose of ascertaining the creditor \u2019s rights and remedies applicable to the particular extension of credit and not to discriminate in a determination of credit- worthiness; (2) to make an inquiry of the applicant \u2019s age or of whether the applicant \u2019s income derives from any public assistance program if such inquiry is for the purpose of determining the amount and probable continuance of income levels, credit history, or other pertinent element of credit- worthiness as provided in regulations of the Bureau; (3) to use any empirically derived credit system which considers age if such system is demonstrably and statistically sound in accordance with regulations of the Bureau, except that in the operation of such system the age of an elderly applicant may not be assigned a negative factor or value; (4) to make an inquiry or to consider the age of an elderly applicant when the age of such applicant is to be used by the creditor in the extension of credit in favor of such applicant ; or (5) to make an inquiry under section 1691c\u20132 of this title , in accordance with the requirements of that section. (c) Additional activities not constituting discrimination It is not a violation of this section for a creditor to refuse to extend credit offered pursuant to\u2014 (1) any credit assistance program expressly authorized by law for an economically disadvantaged class of persons ; (2) any credit assistance program administered by a nonprofit organization for its members or an economically disadvantaged class of persons ; or (3) any special purpose credit program offered by a profit-making organization to meet special social needs which meets standards prescribed in regulations by the Bureau; if such refusal is required by or made pursuant to such program. (d) Reason for adverse action; procedure applicable; \u201cadverse action\u201d defined (1) Within thirty days (or such longer reasonable time as specified in regulations of the Bureau for any class of credit transaction) after receipt of a completed application for credit , a creditor shall notify the applicant of its action on the application. (2) Each applicant against whom adverse action is taken shall be entitled to a statement of reasons for such action from the creditor. A creditor satisfies this obligation by\u2014 (A) providing statements of reasons in writing as a matter of course to applicants against whom adverse action is taken; or (B) giving written notification of adverse action which discloses (i) the applicant\u2019 s right to a statement of reasons within thirty days after receipt by the creditor of a request made within sixty days after such notification, and (ii) the identity of the person or office from which such statement may be obtained. Such statement may be given orally if the written notification advises the applicant of his right to have the statement of reasons confirmed in writing on written request. (3) A statement of reasons meets the requirements of this section only if it contains the specific reasons for the adverse action taken. (4) Where a creditor has been requested by a third party to make a specific extension of credit directly or indirectly to an applicant , the notification and statement of reasons required by this subsection may be made directly by such creditor, or indirectly through the third party, provided in either case that the identity of the creditor is disclosed. (5) The requirements of paragraph (2), (3), or (4) may be satisfied by verbal statements or notifications in the case of any creditor who did not act on more than one hundred and fifty applications during the calendar year preceding the calendar year in which the adverse action is taken, as determined under regulations of the Bureau. (6) For purposes of this subsection, the term \u201c adverse action \u201d means a denial or revocation of credit, a change in the terms of an existing credit arrangement, or a refusal to grant credit in substantially the amount or on substantially the terms requested. Such term does not include a refusal to extend additional credit under an existing credit arrangement where the applicant is delinquent or otherwise in default, or where such additional credit would exceed a previously established credit limit. (e) Copies furnished to applicants (1) In general Each creditor shall furnish to an applicant a copy of any and all written appraisals and valuations developed in connection with the applicant\u2019 s application for a loan that is secured or would have been secured by a first lien on a dwelling promptly upon completion, but in no case later than 3 days prior to the closing of the loan, whether the creditor grants or denies the applicant\u2019 s request for credit or the application is incomplete or withdrawn. (2) Waiver The applicant may waive the 3 day requirement provided for in paragraph (1), except where otherwise required in law. (3) Reimbursement The applicant may be required to pay a reasonable fee to reimburse the creditor for the cost of the appraisal, except where otherwise required in law. (4) Free copy Notwithstanding paragraph (3), the creditor shall provide a copy of each written appraisal or valuation at no additional cost to the applicant. (5) Notification to applicants At the time of application, the creditor shall notify an applicant in writing of the right to receive a copy of each written appraisal and valuation under this subsection. (6) Valuation defined For purposes of this subsection, the term \u201c valuation \u201d shall include any estimate of the value of a dwelling developed in connection with a creditor\u2019 s decision to provide credit, including those values developed pursuant to a policy of a government sponsored enterprise or by an automated valuation model, a broker price opinion, or other methodology or mechanism.",
+      "integrity": {
+        "state": "complete",
+        "basis": "Full retrieved body of 6,516 characters stored; under the 60,000 cap, so nothing was cut.",
+        "stamped_at": "2026-09-15T01:06:47",
+        "stored_chars": 6516,
+        "source_chars": 6516,
+        "cap_applied": 60000
+      },
+      "authority_class": "federal_statute",
+      "claim_layer": "doctrinal",
+      "claim_layer_meaning": "States or describes the rule. Cite for what the law IS."
+    }
+  ],
+  "claim_layer_basis": "Set from the class, not from the text: a statute or regulation states the rule rather than describing or arguing it, which the citation in the title establishes definitionally."
+}

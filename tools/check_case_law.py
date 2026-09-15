@@ -65,6 +65,17 @@ def main():
     ck("8000-character window reaches it",
        check_subject(body, "debt collection", window=8000)["verified"])
 
+    print("a caption names several documents; only the one on subject is shelved")
+    cert_grant = ("Petition for writ of certiorari to the United States Court of Appeals "
+                  "for the Fourth Circuit granted.")
+    ck("a cert-grant order fails a subject check for the holding",
+       not check_subject(cert_grant, "debt collector owed another", window=8000)["verified"])
+    merits = ("HENSON v. SANTANDER CONSUMER USA INC. " + "x " * 60 +
+              "The question is whether a company is a debt collector when it purchases a "
+              "debt and seeks to collect it for itself, rather than one owed another.")
+    ck("the merits opinion passes it",
+       check_subject(merits, "debt collector owed another", window=8000)["verified"])
+
     print("every shelved decision is reachable by its own caption")
     shelf = os.path.join(ROOT, "reference", "legal_agent")
     cases = []
