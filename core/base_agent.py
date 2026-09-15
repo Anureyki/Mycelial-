@@ -558,6 +558,54 @@ class AgentBase:
                  f"{len(out['refused'])} refused, sha {out['sha256'][:12]}")
         return out
 
+    def fcra_claim(self, args=None):
+        """The § 1681s-2(b) furnisher sheet: open, evidence, assess, or read.
+
+        `op`: open | evidence | publication | bureau_notice | willfulness |
+        assess | get. Every op ends by assessing and saving, so the status
+        on the record is never stale relative to the evidence on it."""
+        from core import fcra_furnisher as F
+        a = args if isinstance(args, dict) else {}
+        op = str(a.get("op") or "get").lower()
+        cid = a.get("claim_id")
+        try:
+            if op == "authorities":
+                from core import fcra_furnisher as _F
+                return dict(_F.authorities(self._resolve_authority,
+                                           circuit=a.get("circuit", "5th")),
+                            lane=_F.LANE, assessed_by=self.agent_id)
+            if op == "open":
+                claim = F.open_claim(cid, a.get("caption"), circuit=a.get("circuit", "5th"),
+                                     reg=a.get("reg"), parties=a.get("parties"),
+                                     sol_start=a.get("sol_start"),
+                                     violation_date=a.get("violation_date"),
+                                     discovery_date=a.get("discovery_date"))
+            else:
+                claim = F.load(cid)
+                if claim is None:
+                    return {"error": f"no claim {cid!r} on this store", "lane": F.LANE}
+            if op == "evidence":
+                F.add_evidence(claim, a.get("doc_id"), a.get("date"),
+                               a.get("what_it_proves"), a.get("element"),
+                               proves=a.get("proves", True))
+            elif op == "publication":
+                F.set_publication(claim, recipient=a.get("recipient"),
+                                  recipient_kind=a.get("recipient_kind"),
+                                  doc_id=a.get("doc_id"), date_=a.get("date"))
+            elif op == "bureau_notice":
+                F.set_bureau_notice(claim, a.get("proved"), doc_id=a.get("doc_id"),
+                                    date_=a.get("date"), note=a.get("note", ""))
+            elif op == "willfulness":
+                F.set_willfulness(claim, a.get("theory"), a.get("evidence_needed"))
+            out = F.assess(claim)
+            if op != "get":
+                F.save(out)
+            out["assessed_by"] = self.agent_id
+            return out
+        except (F.Refused, ValueError) as exc:
+            return {"refused": True, "why": str(exc), "lane": F.LANE}
+
+
     def draft_dispute_letter(self, args=None):
         """An FCRA dispute, an FDCPA validation demand, the combined notice,
         or the short portal version - the principal's own prose, every
@@ -940,6 +988,8 @@ class AgentBase:
                     result = self.draft_contract(args)
                 elif task == "draft_dispute_letter":
                     result = self.draft_dispute_letter(args)
+                elif task == "fcra_claim":
+                    result = self.fcra_claim(args)
                 elif task == "instrument_doctrine":
                     result = self.instrument_doctrine(args)
                 elif task == "classify_instrument":

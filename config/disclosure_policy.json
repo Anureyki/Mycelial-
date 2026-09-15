@@ -66,6 +66,7 @@
         "tools/check_contract_engine.py",
         "tools/check_custody.py",
         "tools/check_dispute_letters.py",
+        "tools/check_fcra_furnisher.py",
         "tools/check_history_classes.py",
         "tools/check_ingest.py",
         "tools/check_no_secrets.py",

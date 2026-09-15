@@ -170,6 +170,9 @@ jobs:
       - name: A dispute letter cites what it asserts, carries no identifier, and never sends
         run: python tools/check_dispute_letters.py
 
+      - name: The 1681s-2(b) sheet refuses without bureau notice, standing, or a live clock
+        run: python tools/check_fcra_furnisher.py
+
       - name: No sensitive material in the repository
         # The backstop. The real gate is .githooks/pre-commit, because a
         # secret caught by CI has already been pushed - this repository
