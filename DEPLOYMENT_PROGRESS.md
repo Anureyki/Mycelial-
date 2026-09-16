@@ -504,6 +504,79 @@ needed) recommended in the plan. Not yet purchased/chosen.
 *(was Phase 8)*
 Blocked on Phase 7.
 
+### The appliance question — OPEN, asked 2026-09-16
+
+The two items above size a machine to MIGRATE ONTO. That is not the same
+question as whether MycOS ships AS a device, and the principal raised the
+second one after seeing Otto One in presale. They are different phases and
+conflating them would design the wrong thing: a box you move to is an
+infrastructure decision; an appliance is a product, and a product has
+buyers, support, updates and a return policy.
+
+**Measured requirements, from the running system on 2026-09-16.** These are
+weighed, not estimated - the point of writing them here is that the next
+hardware conversation starts from what this actually costs rather than
+from a spec sheet.
+
+| | measured | note |
+|---|---|---|
+| CPU | 4 cores | carries 12 agents + 14 services; no GPU, and `torch.cuda.is_available()` is False |
+| RAM | 7.1 GB total, ~2.8 GB in use | the binding constraint when a model is resident |
+| Disk | 54 GB, 89% full | repo+data 8.1 GB, venv 7.4 GB, Ollama models 5.8 GB |
+| Ollama | 5.8 GB across 5 models | qwen2.5:1.5b, llama3.2:3b, deepseek-coder:1.3b, moondream, nomic-embed |
+
+**What the kit system changed (2026-09-16).** Disk sizing is no longer a
+fixed number. `tools/kit.py` fetches a capability's dependency tree on
+demand and gives it back on removal - measured at 1,064 MB for
+`page_render`, 1,702 MB reclaimed on the round trip. An appliance can
+therefore ship SMALL and pull what a given owner actually uses, which is a
+real product property and not a slogan. The corollary: the base image has
+to be honest about what is not in it, which is what `kit_not_installed`
+already reports.
+
+**The reference point, recorded because a competitor's numbers are data.**
+Otto One (The Tokenry, Inc.), in presale 2026-09-16, $20 refundable
+deposit, ships January 2027:
+
+- $599 for 8 GB / 256 GB, $799 for 16 GB / 512 GB, Linux, deck-of-cards size
+- OpenClaw pre-installed, NFC phone pairing, "gateway access"
+- "Deploy agents in less than 60 seconds... No terminal or coding required"
+- "Not an on-device LLM box. Agents use cloud models"
+- $29/month to bring your own API keys, or pay-as-you-go
+
+Three things about it that bear on our design rather than on them:
+
+1. **It is a cloud client.** "Agents use cloud models" means the box is a
+   scheduler with a nice pairing story. MycOS runs Ollama locally and the
+   whole Core programme exists to keep the model sovereign, so the same
+   hardware would be doing a different job - and 8 GB is thin for that,
+   since this machine is already the binding constraint at 7.1 GB.
+2. **$29/month to use your own keys** is a subscription on top of hardware
+   for the privilege of supplying the intelligence yourself. Worth naming
+   because it is the business model MycOS is a reaction to.
+3. **"Browse from your home network — so they look like a real person
+   online"** is residential-IP framing. This project refuses stealth and
+   anti-detection as a capability class (see the Scrapling assessment:
+   official publishers do not block you, and a site that is blocking is a
+   signal to stop). An appliance of ours should not carry that claim.
+
+**What a MycOS appliance phase would have to answer, none of which is
+settled:**
+
+- Is it hardware we sell, an image we publish for hardware people already
+  own, or both? An image is a weekend; hardware is a company.
+- Base image contents vs kits. Which capabilities are in the box, and which
+  arrive from the kit store on first use.
+- The model question. On-device Ollama needs RAM that a $599 8 GB box does
+  not have; 32 GB changes the price class. Or the appliance is a Core
+  client and the sovereignty argument moves to where Core runs.
+- Updates and rollback, for a box in somebody's house that holds their
+  legal and medical records.
+- Support and returns. A product has both or it has neither.
+
+Nothing here is scheduled. It is written down so the presale that prompted
+it does not become the specification by default.
+
 ---
 
 ## Training-data loop — ✅ DONE 2026-08-25
