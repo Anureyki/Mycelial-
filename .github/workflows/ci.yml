@@ -176,6 +176,9 @@ jobs:
       - name: The TCPA lane counts calls, Duguid gates ATDS, the forfeiture is not private
         run: python tools/check_tcpa_lane.py
 
+      - name: A complaint routes by conduct, tolls nothing, and its response names an element
+        run: python tools/check_complaint_lane.py
+
       - name: No sensitive material in the repository
         # The backstop. The real gate is .githooks/pre-commit, because a
         # secret caught by CI has already been pushed - this repository

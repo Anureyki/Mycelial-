@@ -558,6 +558,50 @@ class AgentBase:
                  f"{len(out['refused'])} refused, sha {out['sha256'][:12]}")
         return out
 
+    def complaint(self, args=None):
+        """Regulator complaints: route, file, advance, record the response.
+
+        `op`: route | open | file | advance | response | summary | get.
+        Routing is by where the conduct happened; a complaint tolls nothing,
+        and its value is the response once that names an element. See
+        core/complaint_lane.py."""
+        from core import complaint_lane as C
+        a = args if isinstance(args, dict) else {}
+        op = str(a.get("op") or "summary").lower()
+        tid = a.get("tracker_id")
+        try:
+            if op == "route":
+                return dict(C.route(a.get("subject"), conduct_state=a.get("conduct_state"),
+                                    business_state=a.get("business_state")),
+                            routed_by=self.agent_id)
+            if op == "open":
+                t = C.open_tracker(tid, principal=a.get("principal"))
+            else:
+                t = C.load(tid)
+                if t is None:
+                    return {"error": f"no tracker {tid!r} on this store"}
+            if op == "file":
+                C.file_complaint(t, a.get("venue"), a.get("subject"), a.get("filed_on"),
+                                 reference=a.get("reference"), about=a.get("about"),
+                                 conduct_state=a.get("conduct_state"),
+                                 claim_id=a.get("claim_id"),
+                                 claim_deadline=a.get("claim_deadline"))
+            elif op == "advance":
+                C.advance(t, a.get("n"), a.get("status"), a.get("on"), note=a.get("note", ""))
+            elif op == "response":
+                C.record_response(t, a.get("n"), a.get("received_on"), a.get("summary"),
+                                  bears_on=a.get("bears_on"), claim_id=a.get("claim_id"),
+                                  doc_id=a.get("doc_id"))
+            if op != "get":
+                C.save(t)
+            out = C.summary(t)
+            out["tracker"] = t
+            out["tracked_by"] = self.agent_id
+            return out
+        except (C.Refused, ValueError) as exc:
+            return {"refused": True, "why": str(exc)}
+
+
     def tcpa_claim(self, args=None):
         """The 47 U.S.C. 227 lane: open, log calls, set consent, assess.
 
@@ -1037,6 +1081,8 @@ class AgentBase:
                     result = self.fcra_claim(args)
                 elif task == "tcpa_claim":
                     result = self.tcpa_claim(args)
+                elif task == "complaint":
+                    result = self.complaint(args)
                 elif task == "instrument_doctrine":
                     result = self.instrument_doctrine(args)
                 elif task == "classify_instrument":

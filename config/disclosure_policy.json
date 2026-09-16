@@ -63,6 +63,7 @@
       "approved_paths": [
         "config/disclosure_policy.json",
         "tools/check_asset_registry.py",
+        "tools/check_complaint_lane.py",
         "tools/check_contract_engine.py",
         "tools/check_custody.py",
         "tools/check_dispute_letters.py",
