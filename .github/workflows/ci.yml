@@ -179,6 +179,9 @@ jobs:
       - name: A complaint routes by conduct, tolls nothing, and its response names an element
         run: python tools/check_complaint_lane.py
 
+      - name: The page renderer fetches official publishers only and classifies nothing
+        run: python tools/check_fetch_page.py
+
       - name: No sensitive material in the repository
         # The backstop. The real gate is .githooks/pre-commit, because a
         # secret caught by CI has already been pushed - this repository

@@ -90,6 +90,7 @@ step "check_dispute_letters"        "$PY" tools/check_dispute_letters.py
 step "check_fcra_furnisher"         "$PY" tools/check_fcra_furnisher.py
 step "check_tcpa_lane"              "$PY" tools/check_tcpa_lane.py
 step "check_complaint_lane"         "$PY" tools/check_complaint_lane.py
+step "check_fetch_page"             "$PY" tools/check_fetch_page.py
 echo
 if [ "$rc" -eq 0 ]; then echo "ALL GREEN - $HONEST."
 else echo "RED - do not claim the build passes."; fi
