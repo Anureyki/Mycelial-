@@ -188,6 +188,9 @@ jobs:
       - name: The provisioner is machine-agnostic and --check changes nothing
         run: python tools/check_provision.py
 
+      - name: A retrospective hit is never counted as foresight
+        run: python tools/check_outcome_loop.py
+
       - name: No sensitive material in the repository
         # The backstop. The real gate is .githooks/pre-commit, because a
         # secret caught by CI has already been pushed - this repository

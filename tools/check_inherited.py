@@ -364,6 +364,11 @@ def check_feedback_loops():
     # OWNERSHIP, and those have different answers and different fixes.
     rungs = ("verbs", "local", "shared", "borrow", "reach", "predict", "grade")
     rows = []
+    try:
+        with open(os.path.join(ROOT, "core", "base_agent.py"), encoding="utf-8") as _fh:
+            _base_src = _fh.read()
+    except Exception:                                  # noqa: BLE001
+        _base_src = ""
     for cf in sorted(glob.glob(os.path.join(ROOT, "config", "agent_configs", "*.json"))):
         aid = os.path.basename(cf)[:-5]
         src = None
@@ -391,8 +396,19 @@ def check_feedback_loops():
             # whether its own reasoning ever does.
             "borrow": bool(_re.search(r"self\.ask_peer_corpus\(", src)),
             "reach": "lookup_reference" in src,
-            "predict": "def collect_predictions" in src,
-            "grade": "def score_one_prediction" in src,
+            # INHERITED IS AVAILABLE. These two used to be looked for in the
+            # agent's OWN file, so Legal and Trust scored 3/5 the moment the
+            # loop moved into the base class - the capability was there,
+            # dispatched and callable, and the measurement said it was not.
+            # That is the same fault this file exists to catch one layer up:
+            # a thing that works while its description of itself has gone.
+            # `borrow` above is deliberately NOT treated this way, and says
+            # why: inherited means it could be asked, and the question there
+            # is whether its own reasoning ever does.
+            "predict": ("def collect_predictions" in src
+                        or "def collect_predictions" in _base_src),
+            "grade": ("def score_one_prediction" in src
+                      or "def score_one_prediction" in _base_src),
         }
         rows.append((aid, got))
 
@@ -573,7 +589,8 @@ def check_declared_matches_dispatched():
                   "draft_contract", "instrument_doctrine", "classify_instrument",
                   "check_discharge", "flag_contradiction", "log_system_flag",
                   "record_inversion", "custody_event", "custody_ledger",
-                  "draft_dispute_letter", "fcra_claim", "tcpa_claim", "complaint"}
+                  "draft_dispute_letter", "fcra_claim", "tcpa_claim", "complaint",
+                  "predict_outcome", "grade_prediction", "calibration"}
 
     undeclared, dead, checked = {}, {}, 0
     for a in agents:

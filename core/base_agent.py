@@ -558,6 +558,74 @@ class AgentBase:
                  f"{len(out['refused'])} refused, sha {out['sha256'][:12]}")
         return out
 
+    # ------------------------------------------------------------------
+    # The predict/grade loop - the two rungs Legal and Trust never closed
+    # ------------------------------------------------------------------
+
+    def collect_predictions(self, subject=None):
+        """Every prediction this agent has recorded, optionally for one matter."""
+        from core import outcome_loop as O
+        rows = O.load_all()
+        if subject:
+            rows = [r for r in rows if str(subject).lower() in str(r.get("matter", "")).lower()]
+        return rows
+
+    def score_one_prediction(self, pred, observations=None):
+        """Grade one prediction against the outcome recorded on it."""
+        from core import outcome_loop as O
+        return O.score(dict(pred))
+
+    def predict_outcome(self, args=None):
+        """Say what a tribunal will do, and why, BEFORE the answer is known.
+
+        `kind` matters more than anything else here. A `forecast` is a live
+        matter with no outcome yet - the real rung. A `retrospective` is a
+        decided case with its holding withheld, which is CALIBRATION and is
+        labelled so everywhere it travels; the module refuses to record one
+        unless the caller declares holding_withheld."""
+        from core import outcome_loop as O
+        a = args if isinstance(args, dict) else {}
+        try:
+            pred = O.predict(a.get("prediction_id"), a.get("matter"),
+                             a.get("disposition"), kind=a.get("kind", "forecast"),
+                             defence=a.get("defence", "none_expected"),
+                             basis=a.get("basis"), lane=a.get("lane"),
+                             confidence=a.get("confidence", "medium"),
+                             made_on=a.get("made_on"), facts_seen=a.get("facts_seen"),
+                             holding_withheld=a.get("holding_withheld"))
+            O.save(pred)
+        except (O.Refused, ValueError) as exc:
+            return {"recorded": False, "refused": True, "why": str(exc)}
+        pred["recorded"] = True
+        pred["predicted_by"] = self.agent_id
+        self.log(f"predicted {pred['matter']}: {pred['predicted_disposition']} "
+                 f"({pred['kind']})")
+        return pred
+
+    def grade_prediction(self, args=None):
+        """Record what actually happened and grade the prediction against it."""
+        from core import outcome_loop as O
+        a = args if isinstance(args, dict) else {}
+        pred = O.load(a.get("prediction_id"))
+        if pred is None:
+            return {"error": f"no prediction {a.get('prediction_id')!r} on this store"}
+        try:
+            if a.get("disposition"):
+                O.record_actual(pred, a["disposition"], on=a.get("on"),
+                                source=a.get("source"), holding=a.get("holding"))
+            out = O.score(pred)
+            O.save(out)
+        except (O.Refused, ValueError) as exc:
+            return {"graded": False, "refused": True, "why": str(exc)}
+        out["graded_by"] = self.agent_id
+        return out
+
+    def calibration(self, args=None):
+        """How often this agent is right, forecast and retrospective kept apart."""
+        from core import outcome_loop as O
+        return dict(O.calibration(O.load_all()), agent=self.agent_id)
+
+
     def complaint(self, args=None):
         """Regulator complaints: route, file, advance, record the response.
 
@@ -1083,6 +1151,12 @@ class AgentBase:
                     result = self.tcpa_claim(args)
                 elif task == "complaint":
                     result = self.complaint(args)
+                elif task == "predict_outcome":
+                    result = self.predict_outcome(args)
+                elif task == "grade_prediction":
+                    result = self.grade_prediction(args)
+                elif task == "calibration":
+                    result = self.calibration(args)
                 elif task == "instrument_doctrine":
                     result = self.instrument_doctrine(args)
                 elif task == "classify_instrument":
