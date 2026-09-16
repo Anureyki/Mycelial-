@@ -92,6 +92,7 @@ step "check_tcpa_lane"              "$PY" tools/check_tcpa_lane.py
 step "check_complaint_lane"         "$PY" tools/check_complaint_lane.py
 step "check_fetch_page"             "$PY" tools/check_fetch_page.py
 step "check_kits"                   "$PY" tools/check_kits.py
+step "check_provision"              "$PY" tools/check_provision.py
 echo
 if [ "$rc" -eq 0 ]; then echo "ALL GREEN - $HONEST."
 else echo "RED - do not claim the build passes."; fi

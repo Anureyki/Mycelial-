@@ -577,6 +577,47 @@ settled:**
 Nothing here is scheduled. It is written down so the presale that prompted
 it does not become the specification by default.
 
+### Build our own — STARTED 2026-09-16
+
+The principal's answer to the above: not buying Otto, building the
+equivalent for MycOS. So the first question is not which box to buy - it is
+whether this repo can stand itself up on a machine that is not this one.
+It could not. There was a Dockerfile that builds a container, and a systemd
+unit with `User=anureyki` and `/home/anureyki/mycelial` baked into it.
+
+**`deploy/provision.sh` is the first piece.** Fresh Debian/Ubuntu to a
+running stack, idempotent, with `--check` that changes nothing. It derives
+its root from its own location, GENERATES the systemd unit for whoever is
+running it, and reads the summary back off the machine instead of
+accumulating what it thinks it did.
+
+Two behaviours worth naming:
+
+- **It refuses under the measured floor.** RAM 8 GB and disk 64 GB are
+  floors, 16 GB / 256 GB the recommendation, both taken from the live
+  system rather than a spec sheet. Run against THIS machine it fails its
+  own check - 7.1 GB RAM, 54 GB disk - which is the honest finding and the
+  reason the appliance conversation started.
+- **It installs no optional kit**, and when there is no GPU it takes torch
+  from the CPU index. The live system carried torch+cu130 with no GPU, 3.4
+  GB of CUDA runtime that cannot execute; a new box should never repeat
+  that by default.
+
+**Hardware target, from the measurements.** No GPU is needed - nothing here
+uses CUDA and the perception pipeline runs on CPU. What binds is RAM,
+because a resident Ollama model sits beside 12 agents and 14 services:
+
+| | floor | recommended | why |
+|---|---|---|---|
+| CPU | 4 cores | 4-8 cores, N100/N305 class | current load runs on 4 |
+| RAM | 8 GB | **16-32 GB** | live system is RAM-bound at 7.1 GB with 2.8 GB resident |
+| Disk | 64 GB | 256 GB NVMe | repo+data 8.1 GB, venv 7.4 GB, models 5.8 GB, and kits on top |
+| Network | wired | wired | it is a server; it should not depend on wifi |
+
+**Still open on this track:** a first-run pairing story (Otto uses NFC; ours
+has none), an update and rollback path for a box holding legal and medical
+records, and whether we publish an image or only this script.
+
 ---
 
 ## Training-data loop — ✅ DONE 2026-08-25

@@ -185,6 +185,9 @@ jobs:
       - name: A kit is weighed before it claims a size, and absence names its install
         run: python tools/check_kits.py
 
+      - name: The provisioner is machine-agnostic and --check changes nothing
+        run: python tools/check_provision.py
+
       - name: No sensitive material in the repository
         # The backstop. The real gate is .githooks/pre-commit, because a
         # secret caught by CI has already been pushed - this repository
