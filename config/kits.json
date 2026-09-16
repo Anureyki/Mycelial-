@@ -1,0 +1,105 @@
+{
+  "_what": "Downloadable capability kits. A kit is a capability MycOS knows how to use and does not carry until somebody asks for it.",
+  "_why": "This machine has 54G and sat at 91% full. A tool that costs a gigabyte and runs twice a month is not an installation, it is a rental - so the adapter code lives in this repo (small, ours, edited) and the heavy dependency tree is fetched on install and removed on uninstall.",
+  "_the_rule": "Disk cost is MEASURED at install and recorded here by the installer, never estimated by hand. A kit that claims a size it was never weighed at is the same false-success shape this project hunts.",
+  "_absence_is_a_state": "A verb whose kit is not installed reports kit_not_installed with the command that would install it. It does not crash on import and it does not silently degrade - absent and unreachable are different findings (CLAUDE.md).",
+  "schema_version": "1.0",
+  "kits": {
+    "page_render": {
+      "title": "Rendered page fetch",
+      "what_it_is_for": "Official publishers that answer a plain GET with an empty shell. statutes.capitol.texas.gov - the State of Texas publishing its own statutes - is an Angular app that returns 200 and 'Retrieving statute document...'; rendered, the same URL yields 134,919 characters of Chapter 3.",
+      "provides": [
+        "tools/fetch_page.py"
+      ],
+      "used_by": [
+        "tools/ingest_law.py",
+        "acquire_authority"
+      ],
+      "adapted_from": {
+        "repo": "unclecode/crawl4ai",
+        "licence": "Apache-2.0",
+        "path_taken": "AsyncWebCrawler + CrawlerRunConfig wait_for/markdown",
+        "what_we_changed": "wrapped as a subprocess that prints JSON, added an official-publisher allowlist, removed every write path - it renders and classifies nothing"
+      },
+      "pip": [
+        "crawl4ai==0.9.3"
+      ],
+      "post_install": [
+        [
+          "python",
+          "-m",
+          "playwright",
+          "install",
+          "chromium"
+        ]
+      ],
+      "cache_dirs": [
+        "~/.cache/ms-playwright"
+      ],
+      "pip_remove": [
+        "crawl4ai",
+        "playwright",
+        "patchright",
+        "playwright-stealth",
+        "litellm",
+        "unclecode-litellm",
+        "openai",
+        "nltk",
+        "tiktoken",
+        "rank-bm25",
+        "alphashape",
+        "trimesh",
+        "rtree",
+        "shapely",
+        "fake-useragent",
+        "snowballstemmer",
+        "lark",
+        "aiosqlite",
+        "humanize",
+        "brotli",
+        "cssselect",
+        "fastuuid",
+        "xxhash",
+        "click-log"
+      ],
+      "verify": [
+        "python3",
+        "tools/fetch_page.py",
+        "--self-test"
+      ],
+      "measured": {
+        "venv_lib_mb": 408.2,
+        "caches_mb": {
+          "~/.cache/ms-playwright": 656.0
+        },
+        "total_mb": 1064.3,
+        "measured_on": "2026-09-16"
+      },
+      "state": "installed",
+      "last_removal_freed": {
+        "venv_lib_mb": 408.2,
+        "caches_mb": {
+          "~/.cache/ms-playwright": 1294.4
+        },
+        "total_mb": 1702.6
+      }
+    }
+  },
+  "_findings": [
+    {
+      "id": "torch_cuda_build_on_a_box_with_no_gpu",
+      "found": "2026-09-16",
+      "what": "torch 2.13.0+cu130 is installed - the CUDA 13.0 build - and torch.cuda.is_available() is False. There is no nvidia-smi and no GPU on this machine.",
+      "cost": "nvidia 2.7G + triton 691M + torch 1.2G = 4.6G, of which roughly 3.4G is CUDA runtime that cannot execute here",
+      "who_needs_torch": [
+        "services/vision/plant_perception.py",
+        "services/federated/model.py",
+        "services/federated/client/fl_client.py",
+        "agents/ag_agent/agriculture_agent.py"
+      ],
+      "remedy": "reinstall torch from the CPU index (--index-url https://download.pytorch.org/whl/cpu), which drops the nvidia and triton trees",
+      "state": "reported_not_done",
+      "why_not_done": "Vision and federated learning both import torch and both are live. A reinstall is a real change to running services and is the principal's call, not a tidy-up to slip into a disk cleanup."
+    }
+  ]
+}

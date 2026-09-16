@@ -182,6 +182,9 @@ jobs:
       - name: The page renderer fetches official publishers only and classifies nothing
         run: python tools/check_fetch_page.py
 
+      - name: A kit is weighed before it claims a size, and absence names its install
+        run: python tools/check_kits.py
+
       - name: No sensitive material in the repository
         # The backstop. The real gate is .githooks/pre-commit, because a
         # secret caught by CI has already been pushed - this repository

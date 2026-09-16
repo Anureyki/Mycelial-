@@ -32,6 +32,8 @@ import json
 import re
 import sys
 
+KIT = "page_render"
+
 # Official publishers only. A renderer that will fetch anything is a
 # general-purpose scraper, and a general-purpose scraper wired to an
 # authority pipeline is how somebody's blog about Regulation Z ends up
@@ -92,17 +94,39 @@ def fetch(url, wait_for_text=None, timeout_ms=90000):
         return asyncio.run(_render(url, wait_for_text=wait_for_text, timeout_ms=timeout_ms))
     except ImportError as exc:
         return {"ok": False, "url": url, "text": "", "chars": 0,
-                "error": f"crawl4ai unavailable: {exc}. Install it in this venv, then "
-                         f"`python3 -m playwright install chromium`."}
+                "kit_not_installed": KIT,
+                "error": f"the {KIT} kit is not installed ({exc}). This is absence, not "
+                         f"failure - the capability exists and the dependency tree is "
+                         f"not on disk.",
+                "install": f"python3 tools/kit.py install {KIT}"}
     except Exception as exc:                        # noqa: BLE001
         return {"ok": False, "url": url, "text": "", "chars": 0,
                 "error": f"{type(exc).__name__}: {exc}"}
 
 
+def kit_available():
+    """Is this kit's dependency tree here? -> (bool, reason).
+
+    ABSENT AND UNREACHABLE ARE DIFFERENT FINDINGS. A caller that gets
+    `kit_not_installed` knows the capability exists and is not downloaded;
+    a caller that gets an ImportError traceback knows nothing except that
+    something broke. The install command travels with the answer."""
+    try:
+        import crawl4ai                                    # noqa: F401
+    except Exception as exc:                                # noqa: BLE001
+        return False, {"kit_not_installed": KIT, "why": f"{type(exc).__name__}: {exc}",
+                       "install": f"python3 tools/kit.py install {KIT}",
+                       "what_it_costs": "measured at install; see config/kits.json"}
+    return True, None
+
+
 def main():
     ap = argparse.ArgumentParser(description=__doc__,
                                  formatter_class=argparse.RawDescriptionHelpFormatter)
-    ap.add_argument("url")
+    ap.add_argument("url", nargs="?")
+    ap.add_argument("--self-test", action="store_true",
+                    help="report whether the kit is installed and the allowlist loads, "
+                         "without touching the network")
     ap.add_argument("--wait-for-text", default=None,
                     help="render until this string appears in the body - the honest way "
                          "to know a single-page app has finished, rather than guessing a "
@@ -111,6 +135,14 @@ def main():
     ap.add_argument("--quiet-text", action="store_true",
                     help="report the size and drop the body, for a reachability check")
     a = ap.parse_args()
+    if a.self_test:
+        ok, why = kit_available()
+        json.dump({"kit": KIT, "installed": ok, "allowlist": len(ALLOWED),
+                   "detail": why}, sys.stdout)
+        sys.stdout.write("\n")
+        return 0 if ok else 1
+    if not a.url:
+        ap.error("a url is required unless --self-test")
     out = fetch(a.url, wait_for_text=a.wait_for_text, timeout_ms=a.timeout)
     if a.quiet_text:
         out.pop("text", None)
