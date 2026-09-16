@@ -173,6 +173,9 @@ jobs:
       - name: The 1681s-2(b) sheet refuses without bureau notice, standing, or a live clock
         run: python tools/check_fcra_furnisher.py
 
+      - name: The TCPA lane counts calls, Duguid gates ATDS, the forfeiture is not private
+        run: python tools/check_tcpa_lane.py
+
       - name: No sensitive material in the repository
         # The backstop. The real gate is .githooks/pre-commit, because a
         # secret caught by CI has already been pushed - this repository

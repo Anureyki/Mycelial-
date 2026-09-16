@@ -1,0 +1,954 @@
+{
+  "title": "Seay v. Equifax Information Service LLC (District Court, E.D. Michigan, No. 5:25-cv-12140, Doc. 14)",
+  "source": "CourtListener RECAP docket 70800768, document 14: the court's own text as filed - \"Order on Motion to Dismiss\". Judicial opinions are edicts of government and public domain. Retrieved 2026-09-16.",
+  "authority_class": "case_law",
+  "authority_class_basis": "The work is a court's opinion or order, read from the docket as filed; a judicial decision is case law by what it is",
+  "claim_layer": "unknown",
+  "claim_layer_meaning": "Not declared at ingest. Treat any citation from here as unclassified: it may be rationale rather than rule.",
+  "authorities_cited": [
+    "Am. v. Burr",
+    "Ankrah v. Checkr",
+    "Ashcroft v. Iqbal",
+    "Atlantic Corp. v. Twombly",
+    "Berry v. Experian",
+    "Boggio v. USAA",
+    "Briscoe v. Equifax",
+    "Compare Armstrong v. Equifax",
+    "Dalton v. Capital",
+    "McGee v. Equifax",
+    "Nelski v. Trans",
+    "Outlaw v. Equifax",
+    "Papasan v. Allain",
+    "Young v. Equifax"
+  ],
+  "term_index": {
+    "united states district": [
+      0,
+      16
+    ],
+    "notation damages": [
+      0,
+      12
+    ],
+    "notation removed": [
+      0,
+      8,
+      10
+    ],
+    "levy united states": [
+      0,
+      16
+    ],
+    "levy united": [
+      0,
+      16
+    ],
+    "notation damages plaintiff": [
+      0,
+      12
+    ],
+    "amended complaint": [
+      0,
+      1,
+      13,
+      14,
+      16
+    ],
+    "pageid plaintiff": [
+      0,
+      3
+    ],
+    "district judge": [
+      0,
+      16
+    ],
+    "misleading information": [
+      0,
+      12
+    ],
+    "longer disputes": [
+      0,
+      6,
+      8,
+      10,
+      12
+    ],
+    "pageid filed": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10,
+      11,
+      12,
+      13,
+      14,
+      15,
+      16,
+      17
+    ],
+    "pageid defendant": [
+      0,
+      7,
+      8,
+      12
+    ],
+    "eastern district": [
+      0,
+      15
+    ],
+    "united states": [
+      0,
+      16
+    ],
+    "dispute notation": [
+      0,
+      3,
+      6,
+      7,
+      8,
+      10,
+      11,
+      12,
+      14,
+      15,
+      16
+    ],
+    "first premier bank": [
+      0,
+      7,
+      8,
+      9,
+      10,
+      12
+    ],
+    "fair credit reporting act": [
+      0
+    ],
+    "premier bank": [
+      0,
+      7,
+      8,
+      9,
+      10,
+      12
+    ],
+    "mortgage loan": [
+      0,
+      12
+    ],
+    "credit report after": [
+      0,
+      15
+    ],
+    "dispute notation removed": [
+      0,
+      8,
+      10
+    ],
+    "plaintiff sent": [
+      0,
+      10
+    ],
+    "first premier": [
+      0,
+      7,
+      8,
+      9,
+      10,
+      12
+    ],
+    "damages plaintiff": [
+      0,
+      12
+    ],
+    "alleges that defendant": [
+      0,
+      1,
+      3,
+      13,
+      16
+    ],
+    "plaintiff disputes": [
+      0,
+      2
+    ],
+    "states district": [
+      0,
+      16
+    ],
+    "continued inclusion": [
+      0,
+      12,
+      14
+    ],
+    "credit report": [
+      0,
+      2,
+      3,
+      4,
+      6,
+      7,
+      9,
+      10,
+      12,
+      14,
+      15,
+      16
+    ],
+    "states district judge": [
+      0,
+      16
+    ],
+    "report after": [
+      0,
+      15
+    ],
+    "after being": [
+      0,
+      8
+    ],
+    "plaintiff alleges": [
+      0,
+      2,
+      10
+    ],
+    "plausible claim": [
+      1,
+      2,
+      11
+    ],
+    "factual allegations": [
+      1,
+      2
+    ],
+    "defendant negligently": [
+      1,
+      3,
+      16
+    ],
+    "defendant willfully": [
+      1,
+      14,
+      15,
+      16
+    ],
+    "equifax info servs": [
+      2,
+      9,
+      15
+    ],
+    "info servs": [
+      2,
+      9,
+      15
+    ],
+    "equifax info": [
+      2,
+      9,
+      15
+    ],
+    "actual damages": [
+      3,
+      13
+    ],
+    "more requirements imposed": [
+      3,
+      13
+    ],
+    "information about": [
+      3,
+      5,
+      12
+    ],
+    "plausibly alleges": [
+      3,
+      13,
+      16
+    ],
+    "negligently failed": [
+      3,
+      16
+    ],
+    "challenged dispute notation": [
+      3,
+      11,
+      12
+    ],
+    "report contained": [
+      3,
+      6
+    ],
+    "fcra count": [
+      3,
+      13
+    ],
+    "plaintiff plausibly": [
+      3,
+      13,
+      16
+    ],
+    "requirements imposed": [
+      3,
+      13
+    ],
+    "more requirements": [
+      3,
+      13
+    ],
+    "plaintiff plausibly alleges": [
+      3,
+      13,
+      16
+    ],
+    "defendant negligently failed": [
+      3,
+      16
+    ],
+    "requirement imposed": [
+      3,
+      13,
+      14
+    ],
+    "recover actual": [
+      3,
+      13
+    ],
+    "allegedly failing": [
+      3,
+      13
+    ],
+    "challenged dispute": [
+      3,
+      9,
+      11,
+      12
+    ],
+    "recover actual damages": [
+      3,
+      13
+    ],
+    "assure maximum possible": [
+      4,
+      5
+    ],
+    "reasonable reinvestigation": [
+      4,
+      11
+    ],
+    "information contained": [
+      4,
+      11
+    ],
+    "requires consumer reporting": [
+      4,
+      7
+    ],
+    "possible accuracy": [
+      4,
+      5
+    ],
+    "maximum possible": [
+      4,
+      5
+    ],
+    "follow reasonable procedures": [
+      4,
+      5
+    ],
+    "assure maximum": [
+      4,
+      5
+    ],
+    "disputed information": [
+      4,
+      7,
+      13
+    ],
+    "reinvestigation": [
+      4,
+      5,
+      11,
+      13
+    ],
+    "consumer report": [
+      4,
+      7,
+      8,
+      9,
+      10,
+      12,
+      13,
+      14,
+      15
+    ],
+    "reasonable procedures": [
+      4,
+      5
+    ],
+    "reporting agency": [
+      4,
+      7,
+      8,
+      10,
+      12,
+      14,
+      15
+    ],
+    "follow reasonable": [
+      4,
+      5
+    ],
+    "consumer reporting": [
+      4,
+      7,
+      8,
+      9,
+      10,
+      12,
+      13,
+      14,
+      15
+    ],
+    "consumer reporting agency": [
+      4,
+      7,
+      8,
+      9,
+      10,
+      12,
+      13,
+      14,
+      15
+    ],
+    "requires consumer": [
+      4,
+      7
+    ],
+    "maximum possible accuracy": [
+      4,
+      5
+    ],
+    "twumasi ankrah": [
+      5,
+      6,
+      12,
+      13
+    ],
+    "willfully failed": [
+      5,
+      14,
+      15,
+      16
+    ],
+    "sixth circuit": [
+      5,
+      6
+    ],
+    "adverse effect": [
+      5,
+      12
+    ],
+    "inaccurate information": [
+      5,
+      6
+    ],
+    "quoting dalton": [
+      6,
+      12
+    ],
+    "once accurate dispute": [
+      6,
+      7
+    ],
+    "alleging that plaintiff": [
+      6,
+      10
+    ],
+    "accurate dispute": [
+      6,
+      7
+    ],
+    "emphasis added": [
+      6,
+      7,
+      8,
+      9,
+      11
+    ],
+    "once accurate": [
+      6,
+      7,
+      15
+    ],
+    "pageid alleging": [
+      6,
+      10
+    ],
+    "consumer reporting agencies": [
+      7,
+      9,
+      13
+    ],
+    "information regarding": [
+      7,
+      8,
+      10
+    ],
+    "reporting agencies": [
+      7,
+      9,
+      13
+    ],
+    "like defendant": [
+      7,
+      14
+    ],
+    "longer disputed": [
+      7,
+      9
+    ],
+    "furnisher": [
+      7,
+      8,
+      9,
+      10
+    ],
+    "bank account": [
+      8,
+      10,
+      12
+    ],
+    "premier bank account": [
+      8,
+      10,
+      12
+    ],
+    "defendant contends": [
+      8,
+      11
+    ],
+    "report recommendation": [
+      9,
+      10
+    ],
+    "recommendation adopted": [
+      9,
+      10
+    ],
+    "report recommendation adopted": [
+      9,
+      10
+    ],
+    "defendant fails": [
+      10,
+      11
+    ],
+    "legal obligation": [
+      11,
+      15
+    ],
+    "plausibly alleged": [
+      12,
+      13
+    ],
+    "alleged here": [
+      12,
+      16
+    ],
+    "defendant willfully failed": [
+      14,
+      15,
+      16
+    ],
+    "objectively unreasonable": [
+      14,
+      15
+    ],
+    "allege that defendant": [
+      14,
+      15,
+      16
+    ],
+    "plausibly allege": [
+      14,
+      15,
+      16
+    ],
+    "statutory text": [
+      14,
+      15
+    ],
+    "plaintiff does": [
+      15,
+      16
+    ]
+  },
+  "origin_pdf": "seay_v_equifax_information_service_llc_5_25_cv_121.txt",
+  "extraction": {
+    "extractor": "text file (already extracted)",
+    "pages": 20,
+    "no_text_layer": [
+      20
+    ],
+    "raised": [],
+    "recovered": [],
+    "lost": [],
+    "complete": true
+  },
+  "pages": 20,
+  "sections": [
+    {
+      "citation": "part 1",
+      "kind": "treatise",
+      "page": null,
+      "authorities": [],
+      "text": "Case 5:25-cv-12140-JEL-APP ECF No. 14, PageID.116 Filed 08/05/26 Page 1 of 19 UNITED STATES DISTRICT COURT EASTERN DISTRICT OF MICHIGAN SOUTHERN DIVISION Tramaine Seay, Plaintiff, Case No. 25-cv-12140 v. Judith E. Levy United States District Judge Equifax Information Service LLC, Mag. Judge Anthony P. Patti Defendant. ________________________________/ OPINION AND ORDER GRANTING IN PART AND DENYING IN PART DEFENDANT EQUIFAX INFORMATION SERVICE LLC\u2019S MOTION TO DISMISS AMENDED COMPLAINT [9] Plaintiff Tramaine Seay alleges that Defendant Equifax Information Service LLC violated the Fair Credit Reporting Act (FCRA), 15 U.S.C. \u00a7 1681 et seq., when it continued to include a \u201cdispute notation\u201d on her credit report after being notified that she \u201cno longer disputes\u201d the account that is the subject of the notation. (ECF No. 8, PageID.43, \u00b6 10.) Defendant moves to dismiss Plaintiff\u2019s Amended Complaint under Rule 12(b)(6) for failure to state a claim upon which relief may be granted. (See ECF No. 9.) For the reasons set forth below, the Court GRANTS Defendant\u2019s motion in part and DENIES it in part. Case 5:25-cv-12140-JEL-APP ECF No. 14, PageID.117 Filed 08/05/26 Page 2 of 19 I. Background Plaintiff\u2019s Equifax credit report includes a notation indicating that Plaintiff disputes a \u201ctradeline\u201d (i.e., account) with First Premier Bank. (ECF No. 8, PageID.43, \u00b6 7.) Plaintiff alleges that she \u201cno longer disputes\u201d the tradeline. (Id. at PageID.43, \u00b6 8.) In March 2025, Plaintiff sent a letter to Defendant in which she stated that she \u201cno longer disputes\u201d the tradeline and \u201cwants the dispute notation removed from the tradeline.\u201d (Id. at PageID.43, \u00b6 10.) Plaintiff separately sent a letter to First Premier Bank in which she allegedly stated that she \u201cno longer disputes\u201d the tradeline and \u201cwants the dispute notation removed from the tradeline.\u201d (Id. at PageID.43, \u00b6 11.) Defendant allegedly sent \u201cdispute results\u201d to Plaintiff in May 2025. (Id. at PageID.43, \u00b6 13.) These \u201cdispute results\u201d allegedly showed that Defendant \u201cfailed or refused to remove\u201d the dispute notation. (Id.) Plaintiff alleges that the \u201cfailure to remove\u201d the dispute notation results in her credit report containing \u201cfalse and misleading\u201d information. (Id. at PageID.43\u201344, \u00b6 14.) She further alleges that the continued inclusion of the notation \u201cdamages Plaintiff by preventing her from obtaining any mortgage loan or refinancing of the same.\u201d (Id.)",
+      "integrity": {
+        "state": "complete",
+        "basis": "Full retrieved body of 2,428 characters stored; under the 60,000 cap, so nothing was cut.",
+        "stamped_at": "2026-09-16T15:49:11",
+        "stored_chars": 2428,
+        "source_chars": 2428,
+        "cap_applied": 60000
+      },
+      "authority_class": "case_law",
+      "claim_layer": "unknown",
+      "claim_layer_meaning": "Not declared at ingest. Treat any citation from here as unclassified: it may be rationale rather than rule."
+    },
+    {
+      "citation": "p. 2",
+      "kind": "treatise",
+      "page": 2,
+      "authorities": [
+        "Ashcroft v. Iqbal",
+        "Atlantic Corp. v. Twombly"
+      ],
+      "text": "Case 5:25-cv-12140-JEL-APP ECF No. 14, PageID.118 Filed 08/05/26 Page 3 of 19 Plaintiff filed her initial Complaint on July 15, 2025. (See ECF No. 1.) She then filed an Amended Complaint on November 19, 2025 (ECF No. 8) after Defendant moved to dismiss her initial Complaint.1 The Amended Complaint asserts two counts: Count I alleges that Defendant negligently violated the FCRA, while Count II alleges that Defendant willfully violated the FCRA. Defendant moved to dismiss the Amended Complaint on December 3, 2025. (ECF No. 9.) The motion is fully briefed. (See ECF No. 10, 12.) II. Legal Standard \u201cTo survive a motion to dismiss, a complaint must contain sufficient factual matter, accepted as true, to \u2018state a claim to relief that is plausible on its face.\u2019\u201d Ashcroft v. Iqbal, 556 U.S. 662, 678 (2009) (quoting Bell Atlantic Corp. v. Twombly, 550 U.S. 544, 570 (2007)). \u201cDetermining whether a complaint states a facially plausible claim requires courts to construe the complaint in a light most favorable to the plaintiff, accept all well-pleaded factual allegations as true, and decide whether there is enough factual content to allow \u2018the court to draw the reasonable 1The Court denied as moot Defendant\u2019s motion to dismiss the initial Complaint. (See ECF No. 13.)",
+      "integrity": {
+        "state": "complete",
+        "basis": "Full retrieved body of 1,273 characters stored; under the 60,000 cap, so nothing was cut.",
+        "stamped_at": "2026-09-16T15:49:11",
+        "stored_chars": 1273,
+        "source_chars": 1273,
+        "cap_applied": 60000
+      },
+      "authority_class": "case_law",
+      "claim_layer": "unknown",
+      "claim_layer_meaning": "Not declared at ingest. Treat any citation from here as unclassified: it may be rationale rather than rule."
+    },
+    {
+      "citation": "p. 3",
+      "kind": "treatise",
+      "page": 3,
+      "authorities": [
+        "Outlaw v. Equifax",
+        "Papasan v. Allain"
+      ],
+      "text": "Case 5:25-cv-12140-JEL-APP ECF No. 14, PageID.119 Filed 08/05/26 Page 4 of 19 inference that the defendant is liable for the misconduct alleged.\u2019\u201d Mich. First Credit Union v. T-Mobile USA, Inc., 108 F.4th 421, 425 (6th Cir. 2024) (quoting Iqbal, 556 U.S. at 678). A plausible claim need not contain \u201cdetailed factual allegations,\u201d but it must contain more than \u201clabels and conclusions\u201d or \u201ca formulaic recitation of the elements of a cause of action.\u201d Twombly, 550 U.S. at 555. \u201cAlthough for the purposes of [a] motion to dismiss [a court] must take all the factual allegations in the complaint as true, [it is] not bound to accept as true a legal conclusion couched as a factual allegation.\u201d Papasan v. Allain, 478 U.S. 265, 286 (1986), cited in Twombly, 550 U.S. at 555; see also Iqbal, 556 U.S. at 678 (\u201c[T]he tenet that a court must accept as true all of the allegations contained in a complaint is inapplicable to legal conclusions.\u201d). III. Analysis \u201cThis is one of many \u2018dispute about a dispute\u2019 cases\u2014where a plaintiff disputes an account, then elects not to dispute the account, and then files a dispute about the fact that her credit report continues to list the account as disputed\u2014that have been filed in this and other federal courts.\u201d Outlaw v. Equifax Info. Servs., LLC, No. 20-2855, 2022 WL 1286295, at *3 (N.D. Ga. Jan. 28, 2022) (collecting cases). Plaintiff alleges",
+      "integrity": {
+        "state": "complete",
+        "basis": "Full retrieved body of 1,383 characters stored; under the 60,000 cap, so nothing was cut.",
+        "stamped_at": "2026-09-16T15:49:11",
+        "stored_chars": 1383,
+        "source_chars": 1383,
+        "cap_applied": 60000
+      },
+      "authority_class": "case_law",
+      "claim_layer": "unknown",
+      "claim_layer_meaning": "Not declared at ingest. Treat any citation from here as unclassified: it may be rationale rather than rule."
+    },
+    {
+      "citation": "p. 4",
+      "kind": "treatise",
+      "page": 4,
+      "authorities": [
+        "Boggio v. USAA"
+      ],
+      "text": "Case 5:25-cv-12140-JEL-APP ECF No. 14, PageID.120 Filed 08/05/26 Page 5 of 19 that, due to Defendant not removing a dispute notation from her credit report upon her request, the report \u201ccontained information about Plaintiff that was false, misleading, and inaccurate.\u201d (ECF No. 8, PageID.44, \u00b6 18; id. at PageID.46, \u00b6 25.) Plaintiff claims that Defendant violated the FCRA willfully (Count II) or, at a minimum, negligently (Count I) in allowing the challenged dispute notation to remain on her credit report. These claims are addressed in turn below. A. Alleged Negligent Violations of the FCRA (Count I) The FCRA empowers consumers to \u201cbring a suit to recover actual damages . . . from \u2018[a]ny person who is negligent in failing to comply with any requirement imposed . . . with respect to any consumer\u2019 under the Act.\u201d Boggio v. USAA Fed. Sav. Bank, 696 F.3d 611, 615 (6th Cir. 2012) (quoting 15 U.S.C. \u00a7 1681o). In this case, Plaintiff plausibly alleges that Defendant was negligent in allegedly failing to comply with one or more requirements imposed on Defendant by the FCRA. Plaintiff contends that Defendant negligently failed to comply with both \u00a7 1681e(b) and \u00a7 1681i of the FCRA. (ECF No. 8, PageID.45, \u00b6\u00b6 19\u2013",
+      "integrity": {
+        "state": "complete",
+        "basis": "Full retrieved body of 1,219 characters stored; under the 60,000 cap, so nothing was cut.",
+        "stamped_at": "2026-09-16T15:49:11",
+        "stored_chars": 1219,
+        "source_chars": 1219,
+        "cap_applied": 60000
+      },
+      "authority_class": "case_law",
+      "claim_layer": "unknown",
+      "claim_layer_meaning": "Not declared at ingest. Treat any citation from here as unclassified: it may be rationale rather than rule."
+    },
+    {
+      "citation": "p. 5",
+      "kind": "treatise",
+      "page": 5,
+      "authorities": [],
+      "text": "Case 5:25-cv-12140-JEL-APP ECF No. 14, PageID.121 Filed 08/05/26 Page 6 of 19 20.) Section 1681e(b) requires \u201cconsumer reporting agenc[ies]\u201d 2 to \u201cfollow reasonable procedures to assure maximum possible accuracy of the information concerning the individual about whom [a credit] report relates.\u201d 15 U.S.C. \u00a7 1681e(b). Section 1681i, in turn, sets forth the procedure that an agency must follow when a consumer \u201cdispute[s]\u201d the \u201ccompleteness or accuracy of any item of information contained in a consumer\u2019s file.\u201d Id. \u00a7 1681i(a)(1)(A). Once a consumer \u201cnotifies the agency directly . . . of such a dispute,\u201d the agency \u201cshall . . . conduct a reasonable reinvestigation to determine whether the disputed information is inaccurate\u201d within thirty days of receiving \u201cnotice of the dispute from the consumer,\u201d id., provided that the dispute is not \u201cfrivolous or irrelevant,\u201d see id. \u00a7 1681i(a)(3). As part of the reinvestigation, the agency must provide notice of the dispute to the entity that furnished the disputed information. See id. \u00a7 1681i(a)(2). An agency \u201cshall\u201d either \u201cpromptly delete\u201d or \u201cmodify\u201d any \u201citem of 2 The statute defines a \u201cconsumer reporting agency\u201d in relevant part as \u201cany person which . . . regularly engages in whole or in part in the practice of assembling or evaluating consumer credit information or other information on consumers for the purpose of furnishing consumer reports to third parties . . . .\u201d 15.U.S.C. \u00a7 1681e(f).",
+      "integrity": {
+        "state": "complete",
+        "basis": "Full retrieved body of 1,450 characters stored; under the 60,000 cap, so nothing was cut.",
+        "stamped_at": "2026-09-16T15:49:11",
+        "stored_chars": 1450,
+        "source_chars": 1450,
+        "cap_applied": 60000
+      },
+      "authority_class": "case_law",
+      "claim_layer": "unknown",
+      "claim_layer_meaning": "Not declared at ingest. Treat any citation from here as unclassified: it may be rationale rather than rule."
+    },
+    {
+      "citation": "p. 6",
+      "kind": "treatise",
+      "page": 6,
+      "authorities": [
+        "Ankrah v. Checkr",
+        "Berry v. Experian",
+        "Nelski v. Trans"
+      ],
+      "text": "Case 5:25-cv-12140-JEL-APP ECF No. 14, PageID.122 Filed 08/05/26 Page 7 of 19 information\u201d that \u201cis found to be inaccurate or incomplete\u201d through this reinvestigation process. Id. \u00a7 1681i(a)(5)(A). The Sixth Circuit treats claims under \u00a7 1681e(b) as involving the following four elements: \u201c(1) the defendant reported inaccurate information about the plaintiff; (2) the defendant either negligently or willfully failed to follow reasonable procedures to assure maximum possible accuracy of the information about the plaintiff; (3) the plaintiff was injured; and (4) the defendant\u2019s conduct was the proximate cause of the plaintiff\u2019s injury.\u201d Twumasi-Ankrah v. Checkr, Inc., 954 F.3d 938, 941 (6th Cir. 2020) (quoting Nelski v. Trans Union, LLC, 86 F. App\u2019x 840, 844 (6th Cir. 2004)). The Sixth Circuit \u201canalyze[s] \u00a7 1681i claims under a similar framework\u201d to 1681e(b) claims. Berry v. Experian Info. Solutions, Inc., 115 F.4th 528, 536 (6th Cir. 2024). As with a claim under \u00a7 1681e(b), \u201ca showing of inaccuracy is an essential element of a \u00a7 1681i claim.\u201d Id. A report contains \u201cinaccurate\u201d information for purposes of these provisions if it includes either (1) \u201cpatently incorrect\u201d information or (2) \u201cinformation that was \u2018misleading in such a way and to such an extent that it [could have been] expected to have an adverse effect [on the consumer].\u2019\u201d Twumasi-Ankrah, 954 F.3d at 942 (first alteration added;",
+      "integrity": {
+        "state": "complete",
+        "basis": "Full retrieved body of 1,410 characters stored; under the 60,000 cap, so nothing was cut.",
+        "stamped_at": "2026-09-16T15:49:11",
+        "stored_chars": 1410,
+        "source_chars": 1410,
+        "cap_applied": 60000
+      },
+      "authority_class": "case_law",
+      "claim_layer": "unknown",
+      "claim_layer_meaning": "Not declared at ingest. Treat any citation from here as unclassified: it may be rationale rather than rule."
+    },
+    {
+      "citation": "p. 7",
+      "kind": "treatise",
+      "page": 7,
+      "authorities": [
+        "Dalton v. Capital"
+      ],
+      "text": "Case 5:25-cv-12140-JEL-APP ECF No. 14, PageID.123 Filed 08/05/26 Page 8 of 19 second and third alteration in the original) (quoting Dalton v. Capital Assoc. Indus., Inc., 257 F.3d 409, 415 (4th Cir. 2001)); see also Berry, 115 F.4th at 536 (citing Twumasi-Ankrah, 954 F.3d at 942). \u201cIn other words, a consumer can demonstrate an inaccuracy where a report was materially misleading or incomplete, even if it was technically accurate.\u201d Berry, 115 F.4th at 536 (citing Twumasi-Ankrah, 954 F.3d at 943). In Twumusi-Ankrah, for instance, a divided panel of the Sixth Circuit held that a plaintiff adequately alleged that his credit report contained \u201cinaccurate\u201d information under \u00a7 1681e(b) when he alleged that he was fired by his employer (Uber) due to his credit report making him appear to be a \u201cmore careless driver than he was.\u201d See 954 F.3d at 944. The report in question alleged that the plaintiff was involved in multiple accidents without specifying that all but one were the fault of other parties. See id. Here, it appears that the dispute notation was accurate when it was first included in Plaintiff\u2019s credit report. (See ECF No. 8, PageID.43, \u00b6 8 (alleging that Plaintiff \u201cno longer disputes\u201d the tradeline (emphasis added)).) The question is thus whether a once-accurate dispute notation plausibly became inaccurate due to Plaintiff informing Defendant and/or",
+      "integrity": {
+        "state": "complete",
+        "basis": "Full retrieved body of 1,370 characters stored; under the 60,000 cap, so nothing was cut.",
+        "stamped_at": "2026-09-16T15:49:11",
+        "stored_chars": 1370,
+        "source_chars": 1370,
+        "cap_applied": 60000
+      },
+      "authority_class": "case_law",
+      "claim_layer": "unknown",
+      "claim_layer_meaning": "Not declared at ingest. Treat any citation from here as unclassified: it may be rationale rather than rule."
+    },
+    {
+      "citation": "p. 8",
+      "kind": "treatise",
+      "page": 8,
+      "authorities": [],
+      "text": "Case 5:25-cv-12140-JEL-APP ECF No. 14, PageID.124 Filed 08/05/26 Page 9 of 19 First Premier Bank that she \u201cno longer disputed\u201d the tradeline. (See id. at PageID.43, \u00b6\u00b6 10\u201311.) Defendant does not address this issue squarely in its briefing. Rather, it first seeks dismissal on grounds that the FCRA requires consumer reporting agencies like Defendant to note the existence of disputes in a consumer\u2019s credit report whenever a \u201cfurnisher\u201d of information such as First Premier Bank provides notice of such a dispute. (ECF No. 9, PageID.58\u201359.) See also 15 U.S.C. \u00a7 1681s(f) (\u201cIf a consumer reporting agency is notified pursuant to section 1681s-2(a)(3) of this title that information regarding a consumer who was furnished to the agency is disputed by the consumer, the agency shall indicate that fact in each consumer report that includes the disputed information.\u201d (emphasis added)). But Defendant\u2019s reporting obligations under \u00a7 1681s(f) do not resolve the question of whether once-accurate dispute information can become inaccurate. Defendant has not pointed to anything in the FCRA that specifically requires Defendant to continue to include a dispute notation in a report even if circumstances change. Defendant acknowledges that the dispute notation at issue here is, in fact, removable, as it elsewhere argues that the notation \u201ccan . . . be removed",
+      "integrity": {
+        "state": "complete",
+        "basis": "Full retrieved body of 1,354 characters stored; under the 60,000 cap, so nothing was cut.",
+        "stamped_at": "2026-09-16T15:49:11",
+        "stored_chars": 1354,
+        "source_chars": 1354,
+        "cap_applied": 60000
+      },
+      "authority_class": "case_law",
+      "claim_layer": "unknown",
+      "claim_layer_meaning": "Not declared at ingest. Treat any citation from here as unclassified: it may be rationale rather than rule."
+    },
+    {
+      "citation": "p. 9",
+      "kind": "treatise",
+      "page": 9,
+      "authorities": [],
+      "text": "Case 5:25-cv-12140-JEL-APP ECF No. 14, PageID.125 Filed 08/05/26 Page 10 of 19 by the furnisher after being told by the consumer that she no longer disputes the First Premier Account.\u201d (ECF No. 9, PageID.61 (emphasis added); see also ECF No. 12, PageID.108 (\u201c[A] dispute notation remark can only be removed if the consumer directly contacts the furnisher.\u201d).) Having acknowledged that a process exists to remove a dispute notation, Defendant cannot secure dismissal by pointing to its statutory obligation to add such a notation in the first instance. This leads to Defendant\u2019s second argument, which is that the \u201conly\u201d way for Plaintiff to have the dispute notation removed is to ask First Premier Bank to remove it. (See ECF No. 9, PageID.60\u201361.) This argument appears to be based on a statutory provision that required First Premier Bank to alert Defendant to Plaintiff\u2019s dispute when providing Defendant with information regarding Plaintiff\u2019s First Premier Bank account. See 15 U.S.C. \u00a7 1681s-2(a)(3) (\u201cIf the completeness or accuracy of any information furnished by any person to any consumer reporting agency is disputed by such person by a consumer, the person may not furnish the information to any consumer reporting agency without notice that such information is disputed by the consumer.\u201d). (See ECF No. 9, PageID.59.) Defendant contends that, under \u00a7 1681s-2(a)(3),",
+      "integrity": {
+        "state": "complete",
+        "basis": "Full retrieved body of 1,377 characters stored; under the 60,000 cap, so nothing was cut.",
+        "stamped_at": "2026-09-16T15:49:11",
+        "stored_chars": 1377,
+        "source_chars": 1377,
+        "cap_applied": 60000
+      },
+      "authority_class": "case_law",
+      "claim_layer": "unknown",
+      "claim_layer_meaning": "Not declared at ingest. Treat any citation from here as unclassified: it may be rationale rather than rule."
+    },
+    {
+      "citation": "p. 10",
+      "kind": "treatise",
+      "page": 10,
+      "authorities": [
+        "Briscoe v. Equifax",
+        "McGee v. Equifax"
+      ],
+      "text": "Case 5:25-cv-12140-JEL-APP ECF No. 14, PageID.126 Filed 08/05/26 Page 11 of 19 furnishers like First Premier Bank \u201cmust retain dispute notations unless consumers ask the furnishers, rather than the [consumer reporting agencies], to remove them.\u201d (Id. at PageID.60 (first emphasis in original; second emphasis added).) But Defendant points to no provision of the FCRA that requires consumers to contact furnishers if they wish their credit report to state that an account is no longer disputed. Although Defendant\u2019s preferred method may be the most efficient route to resolving a \u201cdispute regarding a dispute,\u201d Defendant has not identified a provision of the FCRA that specifies or implies that it is the only route. In arguing that Plaintiff\u2019s only recourse was to contact First Premier Bank directly, Defendant also relies on two decisions in which federal district courts in Georgia held that consumers may not pursue FCRA claims against companies that furnish information to consumer reporting agencies unless the consumers first reach out to such \u201cfurnishers\u201d directly and ask them to remove the challenged dispute notations. (See ECF No. 9, PageID.60 (citing McGee v. Equifax Info. Servs., LLC, No. 1:18-cv-04144-MHC-CMS, 2019 WL 2714505, at *3 (N.D. Ga. Mar. 19, 2019), report & recommendation adopted, 2019 WL 2714497 (N.D. Ga. Apr. 9, 2019); Briscoe v. Equifax Info. Servs., LLC, No.",
+      "integrity": {
+        "state": "complete",
+        "basis": "Full retrieved body of 1,391 characters stored; under the 60,000 cap, so nothing was cut.",
+        "stamped_at": "2026-09-16T15:49:11",
+        "stored_chars": 1391,
+        "source_chars": 1391,
+        "cap_applied": 60000
+      },
+      "authority_class": "case_law",
+      "claim_layer": "unknown",
+      "claim_layer_meaning": "Not declared at ingest. Treat any citation from here as unclassified: it may be rationale rather than rule."
+    },
+    {
+      "citation": "p. 11",
+      "kind": "treatise",
+      "page": 11,
+      "authorities": [],
+      "text": "Case 5:25-cv-12140-JEL-APP ECF No. 14, PageID.127 Filed 08/05/26 Page 12 of 19 1:20-cv-02239-WMR-CMS, 2020 WL 10046994, at *8 (N.D. Ga. Oct. 27, 2020), report & recommendation adopted, 2021 WL 2376663 (N.D. Ga. Jan. 12, 2021)).) At most, McGee and Briscoe support the notion that a consumer must ask a furnisher to remove a dispute notation and cannot solely ask a consumer reporting agency to modify her credit report. See, e.g., McGee, 2019 WL 2714505, at *3 (reasoning that a furnisher that \u201cremoved the \u2018account in dispute\u2019 language based solely on the word of Equifax and/or Experian . . . would have violated the FCRA\u201d). This does not help Defendant. Even if the Court were to conclude that the FCRA required Plaintiff to ask First Premier Bank to remove the dispute notation, Plaintiff alleges that she did exactly that. (See ECF No. 8, PageID.43, \u00b6\u00b6 11\u201312 (alleging that Plaintiff sent a letter that was received by First Premier Bank in which she stated that \u201cshe no longer disputes\u201d the relevant information regarding her First Premier Bank account and \u201cwants the dispute notation removed from the tradeline\u201d).) Defendant fails to address Plaintiff\u2019s allegation that she did exactly what Defendant claims was necessary to have the dispute notation removed from her credit report.",
+      "integrity": {
+        "state": "complete",
+        "basis": "Full retrieved body of 1,289 characters stored; under the 60,000 cap, so nothing was cut.",
+        "stamped_at": "2026-09-16T15:49:11",
+        "stored_chars": 1289,
+        "source_chars": 1289,
+        "cap_applied": 60000
+      },
+      "authority_class": "case_law",
+      "claim_layer": "unknown",
+      "claim_layer_meaning": "Not declared at ingest. Treat any citation from here as unclassified: it may be rationale rather than rule."
+    },
+    {
+      "citation": "p. 12",
+      "kind": "treatise",
+      "page": 12,
+      "authorities": [],
+      "text": "Case 5:25-cv-12140-JEL-APP ECF No. 14, PageID.128 Filed 08/05/26 Page 13 of 19 Defendant next argues that it had no legal obligation to \u201creinvestigate\u201d Plaintiff\u2019s challenge to the dispute notation under \u00a7 1681i. (See ECF No. 9, PageID.61\u201369.) It first points to the fact that \u00a7 1681i requires a \u201creasonable reinvestigation\u201d only when a consumer disputes \u201cthe completeness or accuracy of any item of information contained in a consumer\u2019s file.\u201d (See id. at PageID.61\u201362 (quoting 15 U.S.C. \u00a7 1681i(a)(1)(A)) (emphasis added).) Defendant contends that a dispute notation does not qualify as an \u201citem of information in a consumer\u2019s file\u201d because it is better understood as a type of \u201cmeta-information.\u201d (See id. at PageID.61\u201365.) The Court does not find this distinction meaningful and finds insufficient statutory support under \u00a7 1681i for treating \u201cmeta- information\u201d differently than other information. Defendant also argues that it would be \u201cimpossible\u201d to conduct a \u201creasonable reinvestigation\u201d regarding a challenged dispute notation. (See id. at PageID.65\u201369.) But Defendant fails to adequately explain why such a reinvestigation would be \u201cimpossible\u201d such that the Court could conclude that Plaintiff fails to state a plausible claim under the FCRA as a matter of law. Ultimately, Defendant\u2019s arguments fail to establish that the FCRA forecloses Plaintiff from pursuing a negligence claim against Defendant",
+      "integrity": {
+        "state": "complete",
+        "basis": "Full retrieved body of 1,411 characters stored; under the 60,000 cap, so nothing was cut.",
+        "stamped_at": "2026-09-16T15:49:11",
+        "stored_chars": 1411,
+        "source_chars": 1411,
+        "cap_applied": 60000
+      },
+      "authority_class": "case_law",
+      "claim_layer": "unknown",
+      "claim_layer_meaning": "Not declared at ingest. Treat any citation from here as unclassified: it may be rationale rather than rule."
+    },
+    {
+      "citation": "p. 13",
+      "kind": "treatise",
+      "page": 13,
+      "authorities": [],
+      "text": "Case 5:25-cv-12140-JEL-APP ECF No. 14, PageID.129 Filed 08/05/26 Page 14 of 19 under the circumstances alleged here. Although she proceeds with sparse and formulaic allegations, Plaintiff has plausibly alleged that, at some point after she informed both Defendant and First Premier Bank that she \u201cno longer disputes\u201d the First Premier Bank account (ECF No. 8, PageID.43, \u00b6\u00b6 8\u201312), Defendant\u2019s decision to continue to include the dispute notation in her credit report (id. at PageID.43, \u00b6 13) resulted in the report being misleading and/or incomplete. See Twumasi-Ankrah, 954 F.3d at 944. And while Plaintiff\u2019s allegations of the resulting harm are sparse, she has plausibly alleged that the continued inclusion of the challenged dispute notation \u201cdamages Plaintiff by preventing her from obtaining any mortgage loan or refinancing of the same, as conventional lenders will not grant a mortgage based on a credit report that has any tradeline reported as disputed.\u201d (ECF No. 8, PageID.43\u201344, \u00b6 14.) These allegations, taken together, suffice to state a claim for relief under \u00a7 1681o of the FCRA. See Twumasi-Ankrah, 954 F.3d at 944 (concluding that a plaintiff did \u201cenough to survive a motion to dismiss\u201d because his allegations \u201cplausibly suggest that [a consumer reporting agency] reported \u2018misleading\u2019 information about [the plaintiff] that could have been \u2018expected to have an adverse effect\u2019 on him\u201d (quoting Dalton, 257",
+      "integrity": {
+        "state": "complete",
+        "basis": "Full retrieved body of 1,425 characters stored; under the 60,000 cap, so nothing was cut.",
+        "stamped_at": "2026-09-16T15:49:11",
+        "stored_chars": 1425,
+        "source_chars": 1425,
+        "cap_applied": 60000
+      },
+      "authority_class": "case_law",
+      "claim_layer": "unknown",
+      "claim_layer_meaning": "Not declared at ingest. Treat any citation from here as unclassified: it may be rationale rather than rule."
+    },
+    {
+      "citation": "p. 14",
+      "kind": "treatise",
+      "page": 14,
+      "authorities": [],
+      "text": "Case 5:25-cv-12140-JEL-APP ECF No. 14, PageID.130 Filed 08/05/26 Page 15 of 19 F.3d at 415)); see also id. at 945 (concurring opinion by Judge Kethledge agreeing that \u201cTwumasi-Ankrah has plausibly alleged these things\u2014 albeit barely\u201d); Berry, 115 F.4th at 540 (concluding that a plaintiff \u201cpleaded sufficient facts to state a claim that Experian was negligent in discharging its obligations to conduct a reasonable investigation and reinvestigation into the disputed information pursuant to \u00a7\u00a7 1681e(b) and 1681i\u201d but declining to decide on a motion to dismiss \u201cwhether Experian\u2019s procedures were per se reasonable or unreasonable\u201d). In sum, Plaintiff plausibly alleges that Defendant was negligent in allegedly failing to comply with one or more requirements imposed on Defendant by the FCRA. See 15 U.S.C. \u00a7 1681o. Count I of the Amended Complaint will not be dismissed. B. Alleged Willful Violations of the FCRA (Count II) In addition to creating a private right of action for consumers who allege negligence by consumer reporting agencies, the FCRA also permits consumers to recover actual damages, punitive damages, and costs and fees from \u201c[a]ny person who willfully fails to comply with any requirement imposed [by the FCRA] with respect to any consumer.\u201d 15 U.S.C. \u00a7 1681n. Plaintiff cannot proceed under \u00a7 1681n because she fails",
+      "integrity": {
+        "state": "complete",
+        "basis": "Full retrieved body of 1,338 characters stored; under the 60,000 cap, so nothing was cut.",
+        "stamped_at": "2026-09-16T15:49:11",
+        "stored_chars": 1338,
+        "source_chars": 1338,
+        "cap_applied": 60000
+      },
+      "authority_class": "case_law",
+      "claim_layer": "unknown",
+      "claim_layer_meaning": "Not declared at ingest. Treat any citation from here as unclassified: it may be rationale rather than rule."
+    },
+    {
+      "citation": "p. 15",
+      "kind": "treatise",
+      "page": 15,
+      "authorities": [
+        "Am. v. Burr"
+      ],
+      "text": "Case 5:25-cv-12140-JEL-APP ECF No. 14, PageID.131 Filed 08/05/26 Page 16 of 19 to plausibly allege that Defendant willfully failed to comply with any requirement imposed on Defendant by the FCRA. A consumer reporting agency like Defendant can be found to have \u201cwillfully\u201d failed to comply with the FCRA only it failed to comply with its legal obligations either \u201cknowingly\u201d or \u201crecklessly.\u201d Safeco Ins. Co. of Am. v. Burr, 551 U.S. 47, 56\u201360 (2007). A company \u201cwillfully\u201d violates the FCRA only when it relies on an \u201cobjectively unreasonable\u201d reading of the statute that lacks a \u201cfoundation in the statutory text.\u201d Id. at 69\u201370. Moreover, a \u201ccompany subject to the FCRA does not act in reckless disregard of it unless the action is not only a violation under a reasonable reading of the statute\u2019s terms, but shows that the company ran a risk of violating the law substantially greater than the risk associated with a reading that was merely careless.\u201d Id. at 69. In this case, the FCRA appears to be silent on the specific claim raised by Plaintiff\u2019s Amended Complaint, namely: (i) whether the continued inclusion of a once-correct dispute notation in a credit report renders that report \u201cinaccurate\u201d if a consumer unilaterally elects to withdraw her dispute and (ii) the proper procedure for removing a dispute notation from a credit report. Neither party points to any binding",
+      "integrity": {
+        "state": "complete",
+        "basis": "Full retrieved body of 1,378 characters stored; under the 60,000 cap, so nothing was cut.",
+        "stamped_at": "2026-09-16T15:49:11",
+        "stored_chars": 1378,
+        "source_chars": 1378,
+        "cap_applied": 60000
+      },
+      "authority_class": "case_law",
+      "claim_layer": "unknown",
+      "claim_layer_meaning": "Not declared at ingest. Treat any citation from here as unclassified: it may be rationale rather than rule."
+    },
+    {
+      "citation": "p. 16",
+      "kind": "treatise",
+      "page": 16,
+      "authorities": [
+        "Compare Armstrong v. Equifax",
+        "Young v. Equifax"
+      ],
+      "text": "Case 5:25-cv-12140-JEL-APP ECF No. 14, PageID.132 Filed 08/05/26 Page 17 of 19 authority addressing these issues, and non-binding decisions (including decisions issued by courts in the Eastern District of Michigan) are split over whether a consumer reporting agency has any legal obligation to modify a dispute notation on a credit report after a consumer decides unilaterally to withdraw a dispute. Compare Armstrong v. Equifax Info. Servs., LLC, No. 25-11268, 2026 WL 833263, at *2\u20133 (E.D. Mich. Mar. 26, 2026) (concluding that plaintiff had a viable claim that a consumer reporting agency was required to reinvestigate the inclusion of a dispute notation in her credit report after she claimed to \u201cno longer dispute\u201d the account in question), with Young v. Equifax Info. Servs., LLC, No. 21- 10095, 2022 WL 957554, at *6 (E.D. Mich. Mar. 29, 2022) (\u201cThe Court does not find legal support for [the] conclusion that a request to remove a once-accurate notation of dispute creates an inaccuracy . . . .\u201d). \u201cGiven this dearth of guidance and the less-than-pellucid statutory text,\u201d Defendant\u2019s reading of the FCRA \u201cwas not objectively unreasonable, and so falls well short of raising the \u2018unjustifiably high risk\u2019 of violating the statute necessary for reckless liability.\u201d Safeco, 551 U.S. at 70. In sum, Plaintiff does not (and cannot) plausibly allege that Defendant willfully failed to comply with any provision of the FCRA",
+      "integrity": {
+        "state": "complete",
+        "basis": "Full retrieved body of 1,426 characters stored; under the 60,000 cap, so nothing was cut.",
+        "stamped_at": "2026-09-16T15:49:11",
+        "stored_chars": 1426,
+        "source_chars": 1426,
+        "cap_applied": 60000
+      },
+      "authority_class": "case_law",
+      "claim_layer": "unknown",
+      "claim_layer_meaning": "Not declared at ingest. Treat any citation from here as unclassified: it may be rationale rather than rule."
+    },
+    {
+      "citation": "p. 17",
+      "kind": "treatise",
+      "page": 17,
+      "authorities": [],
+      "text": "Case 5:25-cv-12140-JEL-APP ECF No. 14, PageID.133 Filed 08/05/26 Page 18 of 19 when it declined or otherwise failed to remove a dispute notation from Plaintiff\u2019s credit report. Count II of Plaintiff\u2019s Amended Complaint is therefore dismissed with prejudice. See Armstrong, 2026 WL 833263, at *3 (dismissing claim that Equifax acted willfully under identical circumstances to those alleged here). IV. Conclusion For the reasons set forth above, Plaintiff plausibly alleges that Defendant negligently failed to comply with its obligations under the FCRA by continuing to include a dispute notation in Plaintiff\u2019s credit report. Plaintiff does not, however, plausibly allege that Defendant willfully failed to comply with its statutory obligations. Defendant\u2019s motion to dismiss (ECF No. 9) is therefore GRANTED as to Count II of the Amended Complaint but DENIED as to Count I of the Amended Complaint. IT IS SO ORDERED. Dated: August 5, 2026 s/Judith E. Levy Ann Arbor, Michigan JUDITH E. LEVY United States District Judge",
+      "integrity": {
+        "state": "complete",
+        "basis": "Full retrieved body of 1,020 characters stored; under the 60,000 cap, so nothing was cut.",
+        "stamped_at": "2026-09-16T15:49:11",
+        "stored_chars": 1020,
+        "source_chars": 1020,
+        "cap_applied": 60000
+      },
+      "authority_class": "case_law",
+      "claim_layer": "unknown",
+      "claim_layer_meaning": "Not declared at ingest. Treat any citation from here as unclassified: it may be rationale rather than rule."
+    },
+    {
+      "citation": "p. 18",
+      "kind": "treatise",
+      "page": 18,
+      "authorities": [],
+      "text": "Case 5:25-cv-12140-JEL-APP ECF No. 14, PageID.134 Filed 08/05/26 Page 19 of 19 CERTIFICATE OF SERVICE The undersigned certifies that the foregoing document was served upon counsel of record and any unrepresented parties via the Court\u2019s ECF System to their respective email or first-class U.S. mail addresses disclosed on the Notice of Electronic Filing on August 5, 2026. s/William Barkholz WILLIAM BARKHOLZ Case Manager",
+      "integrity": {
+        "state": "complete",
+        "basis": "Full retrieved body of 420 characters stored; under the 60,000 cap, so nothing was cut.",
+        "stamped_at": "2026-09-16T15:49:11",
+        "stored_chars": 420,
+        "source_chars": 420,
+        "cap_applied": 60000
+      },
+      "authority_class": "case_law",
+      "claim_layer": "unknown",
+      "claim_layer_meaning": "Not declared at ingest. Treat any citation from here as unclassified: it may be rationale rather than rule."
+    }
+  ]
+}

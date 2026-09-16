@@ -558,6 +558,51 @@ class AgentBase:
                  f"{len(out['refused'])} refused, sha {out['sha256'][:12]}")
         return out
 
+    def tcpa_claim(self, args=None):
+        """The 47 U.S.C. 227 lane: open, log calls, set consent, assess.
+
+        `op`: open | call | consent | received | willfulness | assess | get.
+        Each call is counted or refused on its own facts; the damages figure
+        is a sum over the survivors. See core/tcpa_lane.py."""
+        from core import tcpa_lane as T
+        a = args if isinstance(args, dict) else {}
+        op = str(a.get("op") or "get").lower()
+        cid = a.get("claim_id")
+        try:
+            if op == "open":
+                claim = T.open_claim(cid, a.get("caption"), caller=a.get("caller"),
+                                     my_number_is_cell=a.get("my_number_is_cell"),
+                                     registry_listed_on=a.get("registry_listed_on"),
+                                     residential_subscriber=a.get("residential_subscriber"),
+                                     stop_request_on=a.get("stop_request_on"))
+            else:
+                claim = T.load(cid)
+                if claim is None:
+                    return {"error": f"no claim {cid!r} on this store", "lane": T.LANE}
+            if op == "call":
+                T.add_call(claim, a.get("date"), a.get("channel"), note=a.get("note", ""),
+                           system_description=a.get("system_description", ""),
+                           is_solicitation=a.get("is_solicitation"),
+                           prerecorded=a.get("prerecorded"), doc_id=a.get("doc_id"))
+            elif op == "consent":
+                T.set_consent(claim, a.get("state"), given_on=a.get("given_on"),
+                              revoked_on=a.get("revoked_on"), note=a.get("note", ""))
+            elif op == "received":
+                T.set_received(claim, a.get("proved"), note=a.get("note", ""))
+            elif op == "willfulness":
+                claim["willfulness_theory"] = {
+                    "standard": ("willful or knowing under 227(b)(3) - treble is 'up to' "
+                                 "and discretionary"),
+                    "theory": str(a.get("theory") or ""), "state": "asserted_not_proved"}
+            out = T.assess(claim, theory=a.get("theory"))
+            if op != "get":
+                T.save(out)
+            out["assessed_by"] = self.agent_id
+            return out
+        except (T.Refused, ValueError) as exc:
+            return {"refused": True, "why": str(exc), "lane": T.LANE}
+
+
     def fcra_claim(self, args=None):
         """The § 1681s-2(b) furnisher sheet: open, evidence, assess, or read.
 
@@ -990,6 +1035,8 @@ class AgentBase:
                     result = self.draft_dispute_letter(args)
                 elif task == "fcra_claim":
                     result = self.fcra_claim(args)
+                elif task == "tcpa_claim":
+                    result = self.tcpa_claim(args)
                 elif task == "instrument_doctrine":
                     result = self.instrument_doctrine(args)
                 elif task == "classify_instrument":

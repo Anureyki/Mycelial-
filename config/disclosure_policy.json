@@ -71,7 +71,8 @@
         "tools/check_ingest.py",
         "tools/check_no_secrets.py",
         "tools/check_ontology.py",
-        "tools/check_staging_boundary.py"
+        "tools/check_staging_boundary.py",
+        "tools/check_tcpa_lane.py"
       ]
     },
     {
