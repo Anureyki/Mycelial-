@@ -1568,6 +1568,7 @@ class AgentBase:
         ref_dirs = [os.path.join(root, self.agent_id)] + [
             os.path.join(root, d) for d in getattr(self, "SHARED_CORPORA", ())]
         by_citation, by_authority, by_term, titles = {}, {}, {}, []
+        by_citation_all = {}
         names = []
         for d in ref_dirs:
             try:
@@ -1654,6 +1655,16 @@ class AgentBase:
                                  f"\u00a7 {bare}", f"\u00a7{bare}"}:
                         if form:
                             by_citation.setdefault(form, entry)
+                            # EVERY WORK THAT KEYS THIS CITATION, not just the
+                            # first one walked. `by_citation` is one global
+                            # namespace and setdefault means the first file
+                            # wins: Reg B keys its commentary "12(a)", so the
+                            # Federal Rules' own 12(b) and 12(d) became
+                            # unreachable and "Rule 12" answered with credit
+                            # commentary. The loser of a collision is not
+                            # wrong, it is invisible - which is the failure
+                            # this file calls inert knowledge.
+                            by_citation_all.setdefault(form, []).append(entry)
                     # A PUBLIC LAW'S SECTIONS SAY NOTHING ABOUT WHICH LAW.
                     # A CFR section cites itself as "§ 226.1" and a U.S.C.
                     # section as "§ 1681i" - unique across the shelf. A
@@ -1722,7 +1733,7 @@ class AgentBase:
                              "full_length": s.get("full_length"),
                              "text": s.get("text", "")})
         self._refdocs = {"by_citation": by_citation, "by_authority": by_authority,
-                         "by_term": by_term}
+                         "by_term": by_term, "by_citation_all": by_citation_all}
         self.log(f"reference: {len(by_citation)} sections, {len(by_term)} subject terms, "
                  f"{len(by_authority)} authorities from {len(titles)} work(s): "
                  + "; ".join(titles))
@@ -2403,6 +2414,14 @@ class AgentBase:
             return []
         # The FRCP index is keyed as the rules cite themselves - "9(h)",
         # "16(e)" - so a person asking for "Rule 12" matched nothing.
+        # A QUERY THAT SAYS "RULE" MEANS A RULE. Stripping the word left a
+        # bare "12", which matched whatever work happened to key a section
+        # that way first - and the CFR commentaries key subsections bare
+        # ("12(a) Retention of prohibited information", Reg B). So "Rule 12"
+        # was answered with telecom and credit-card commentary while the
+        # Federal Rules sat on the same shelf. The word is a filter, not
+        # noise: remember it and prefer court_rules works below.
+        _wants_rule = bool(re.match(r'^(fed\.? ?r\.? ?civ\.? ?p\.?|frcp|rule)\s+', key))
         key = re.sub(r'^(fed\.? ?r\.? ?civ\.? ?p\.?|frcp|rule)\s+', '', key).strip()
         # Regulations are keyed as they cite themselves - "§ 8.4", "§ 100.204" -
         # so a person typing "8.4" or "24 CFR 8.4" matched nothing and fell
@@ -2439,6 +2458,14 @@ class AgentBase:
                 key = law
         # The index keys carry the section sign; a bare number is how a person
         # types it. Try both rather than making the caller guess.
+        # The same preference one level up: an exact hit on a bare key is
+        # only the right answer for a rule query if the work IS a rule set.
+        if _wants_rule:
+            _rule_hits = [e for c, es in idx.get("by_citation_all", {}).items()
+                          if c == key for e in es
+                          if str(e.get("authority_class") or "") == "court_rules"]
+            if _rule_hits:
+                return _rule_hits[:4]
         for candidate in (key, f"\u00a7 {key}", f"\u00a7{key}"):
             if candidate in idx["by_citation"]:
                 key = candidate
@@ -2466,8 +2493,27 @@ class AgentBase:
         # themselves - 12(b), 12(d) - so a bare rule number has to gather its
         # subsections rather than miss.
         if re.fullmatch(r'\d{1,4}', key):
-            subs = [e for c, e in idx["by_citation"].items()
-                    if c == key or c.startswith(key + "(")]
+            subs = [e for c, es in idx.get("by_citation_all", {}).items()
+                    if c == key or c.startswith(key + "(") for e in es]
+            if _wants_rule:
+                rules = [e for e in subs
+                         if str(e.get("authority_class") or "") == "court_rules"]
+                if rules:
+                    return rules[:6]
+                if subs:
+                    # Say what happened rather than hand back a regulation
+                    # dressed as a rule. An empty answer is better than a
+                    # confident wrong one, and this names the works that DID
+                    # match so the gap is visible.
+                    return [{"citation": key, "title": "no court rule on this shelf",
+                             "source": "lookup", "text": (
+                                 f"No work of class court_rules keys {key!r}. Sections "
+                                 f"keyed that way belong to "
+                                 f"{sorted({e.get('title') for e in subs})[:3]}, which are "
+                                 f"not rules of procedure. The rule was asked for by name "
+                                 f"and is not answered with a regulation."),
+                             "authority_class": "unknown",
+                             "integrity": {"state": "not_found"}}]
             if subs:
                 return subs[:6]
         if " v. " in key or " v " in key:

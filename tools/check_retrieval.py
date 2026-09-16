@@ -198,6 +198,34 @@ def main():
         json.dump(doc, open(FIXTURES, "w"), indent=2)
         print(f"\n  captured: {improved} improvement(s) recorded")
 
+    print("a rule query is answered by a rule, or by nothing")
+    try:
+        from agents.legal_agent.legal_agent import LegalAgent
+        ag = LegalAgent.__new__(LegalAgent)
+        ag.agent_id = "legal_agent"
+        ag._refdocs = None
+        ag.log = lambda *a, **k: None
+        ag.SHARED_CORPORA = getattr(LegalAgent, "SHARED_CORPORA", ())
+        hits = ag._lookup_reference_raw("Rule 12")
+        cls = str((hits[0] if hits else {}).get("authority_class") or "")
+        ck("Rule 12 resolves to a court_rules work, not a CFR commentary",
+           bool(hits) and (cls == "court_rules" or "no court rule" in
+                           str(hits[0].get("title") or "")),
+           f"{(hits[0].get('citation') if hits else None)} / {(hits[0].get('title') if hits else None)}")
+        ck("and it is the Federal Rules when the shelf holds them",
+           bool(hits) and "Federal Rules" in str(hits[0].get("title") or ""),
+           str(hits[0].get("title") if hits else None))
+        bare = ag._lookup_reference_raw("12(a)")
+        ck("a BARE subsection still reaches the regulation that owns it",
+           bool(bare) and "CFR" in str(bare[0].get("title") or ""),
+           str(bare[0].get("title") if bare else None))
+        idx = ag._load_reference_docs()
+        multi = [k for k, v in (idx.get("by_citation_all") or {}).items() if len(v) > 1]
+        ck("colliding citations keep every work, not just the first walked",
+           bool(multi), f"{len(multi)} key(s) claimed by more than one work")
+    except Exception as exc:                      # noqa: BLE001
+        ck("rule lookup checks ran", False, f"{type(exc).__name__}: {exc}")
+
     print()
     if fails:
         print(f"  {len(fails)} FAILURE(S) - retrieval regressed: {fails[:4]}")
