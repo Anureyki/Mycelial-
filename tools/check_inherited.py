@@ -590,7 +590,8 @@ def check_declared_matches_dispatched():
                   "check_discharge", "flag_contradiction", "log_system_flag",
                   "record_inversion", "custody_event", "custody_ledger",
                   "draft_dispute_letter", "fcra_claim", "tcpa_claim", "complaint",
-                  "predict_outcome", "grade_prediction", "calibration"}
+                  "predict_outcome", "grade_prediction", "calibration",
+                  "records_request"}
 
     undeclared, dead, checked = {}, {}, 0
     for a in agents:

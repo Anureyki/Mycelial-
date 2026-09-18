@@ -115,6 +115,9 @@ ALLOWED = {
         "synthetic fixtures proving the write guard reaches the ingestion "
         "path - a documented example SSN and a documented test card in an "
         "extracted value and a quoted original text, never real values",
+    "tools/check_records_request.py":
+        "one synthetic fixture (the SSA's documented example number) proving "
+        "a request carrying an identifier is refused before it is written",
     "tools/check_outcome_loop.py":
         "one synthetic fixture (the SSA's documented example number) proving "
         "a prediction carrying an identifier is refused before it is written",

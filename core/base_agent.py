@@ -627,6 +627,43 @@ class AgentBase:
         return dict(O.calibration(O.load_all()), agent=self.agent_id)
 
 
+    def records_request(self, args=None):
+        """Somebody says a record exists: find the custodian and ask them.
+
+        `op`: route | open | response | summary | get. It classifies no
+        claim - it converts "there is a record of X" into who holds that
+        kind of record and the mechanism that reaches them. See
+        core/records_request.py."""
+        from core import records_request as R
+        a = args if isinstance(args, dict) else {}
+        op = str(a.get("op") or "summary").lower()
+        try:
+            if op == "route":
+                return dict(R.route(a.get("subject"), federal=a.get("federal"),
+                                    state=a.get("state")), routed_by=self.agent_id)
+            if op == "summary":
+                return dict(R.summary(R.load_all()), agent=self.agent_id)
+            if op == "open":
+                req = R.open_request(a.get("request_id"), a.get("subject"),
+                                     a.get("mechanism"), a.get("custodian"),
+                                     a.get("seeking"), sent_on=a.get("sent_on"),
+                                     about=a.get("about"), reference=a.get("reference"))
+            else:
+                req = R.load(a.get("request_id"))
+                if req is None:
+                    return {"error": f"no request {a.get('request_id')!r} on this store"}
+            if op == "response":
+                R.record_response(req, a.get("state"), on=a.get("on"),
+                                  custodian_said=a.get("custodian_said"),
+                                  doc_id=a.get("doc_id"), produced=a.get("produced"))
+            if op != "get":
+                R.save(req)
+            req["handled_by"] = self.agent_id
+            return req
+        except (R.Refused, ValueError) as exc:
+            return {"refused": True, "why": str(exc)}
+
+
     def complaint(self, args=None):
         """Regulator complaints: route, file, advance, record the response.
 
@@ -1152,6 +1189,8 @@ class AgentBase:
                     result = self.tcpa_claim(args)
                 elif task == "complaint":
                     result = self.complaint(args)
+                elif task == "records_request":
+                    result = self.records_request(args)
                 elif task == "predict_outcome":
                     result = self.predict_outcome(args)
                 elif task == "grade_prediction":
