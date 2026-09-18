@@ -51,6 +51,7 @@
     "recommend_purchase",
     "reconcile_ec_temperature",
     "record_knowledge",
+    "record_refill",
     "remove_plant",
     "review_training_candidate",
     "roster",

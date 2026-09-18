@@ -149,6 +149,36 @@ def main():
        g2._sister_stage_days("gsc_auto_2", "veg") and not g2._sister_stage_days.__self__._sister_stage_days
        ("aloe_1", "veg"))
 
+    print("one question, one method, and the method is named")
+    import re as _re
+    src = open(os.path.join(ROOT, "agents", "grow_agent", "grow_agent.py"),
+               encoding="utf-8").read()
+    ck("situation() chooses between the two dose verbs rather than hardcoding one",
+       "plan_feed_for_target" in src.split("if target_ppm:")[1][:3000]
+       and "adjust_to_target_ppm" in src.split("if target_ppm:")[1][:3000])
+    ck("and the facet reports which method ran",
+       '"method": method' in src and '"method_basis": why' in src)
+    ck("the mass-balance method is gated on a MEASURED volume, not assumed",
+       'volume_source' in src.split("if target_ppm:")[1][:3000]
+       and '"measured", "refill_stated"' in src)
+
+    print("a refill is an event, not a reading")
+    g3 = GrowAgent.__new__(GrowAgent)
+    g3.log = lambda *a, **k: None
+    ck("refill language is recognised",
+       bool(g3._REFILL_ASK.search("Refilled dwc gsc1 to 15L"))
+       and bool(g3._REFILL_ASK.search("topped it back up to 15 L")))
+    ck("and a plain reading is not mistaken for one",
+       not g3._REFILL_ASK.search("Lwc 797 ppm 22.0c 1594 ec 6.5ph"))
+    m = g3._REFILL_TO.search("Refilled dwc gsc1 to 15L")
+    ck("the target level is read", m and float(m.group(1)) == 15.0)
+    ck("record_refill refuses with no plant",
+       g3.record_refill(None, to_liters=15).get("reason") == "no plant named")
+    ck("record_refill refuses with no volume",
+       g3.record_refill("current_plant").get("reason") == "no volume given")
+    ck("it never invents a ppm - the refusal path returns no reading fields",
+       "not_a_reading" in src)
+
     print("the receipt verb is declared everywhere it is dispatched")
     import json
     for p in ("config/agent_configs/grow_agent.json", "config/agent_cards/grow_agent.json"):

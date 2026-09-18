@@ -919,7 +919,7 @@ class GrowAgent(AgentBase):
                 "log_training_event", "recommend_feed", "plan_system_transition",
                 "set_grow_system", "get_grow_system", "amend_grow_system",
                 "field_history", "assess_root_zone", "void_reservoir_eval",
-                "which_plant",
+                "which_plant", "record_refill",
                 "reconcile_ec_temperature", "intake_reading", "when_to_top_up", "project_topup", "plan_feed_for_target", "ppm_per_ml", "round_to_instrument", "assess_ph", "quantities",
                 "get_nutrient_history",
                 "set_inventory", "get_inventory",
@@ -1654,6 +1654,180 @@ class GrowAgent(AgentBase):
                 "calendar_said": by_calendar.get("assessment"),
                 "rule": ("Morphology is evidence; the calendar is an expectation. Where "
                          "they differ the evidence wins and the difference is recorded.")}
+
+    # ------------------------------------------------------------------
+    # A refill is an event, not a reading
+    # ------------------------------------------------------------------
+
+    # "Refilled to 15L", "topped it back up to 15", "filled it to the 15 L
+    # line", "added 3 L". The grower said this three different ways in one
+    # session and the system recorded nothing: once it routed to Legal, twice
+    # log_reading refused it as "nothing measurable". The refusal was right
+    # about what it was asked - a row with only a volume WOULD hide the last
+    # real reading behind a blank one - and wrong about what to do, because a
+    # refill is the single event that most changes what the next reading
+    # means. It belongs in the volume series, not the reading series.
+    _REFILL_ASK = re.compile(
+        # Filler words sit between the verb and the particle - "topped it BACK
+        # up", "filled her RIGHT up" - so a fixed "(it )?up" missed the way
+        # people actually say it. At most two words, so the pattern cannot
+        # wander into an unrelated sentence.
+        r"\b(refill(?:ed|ing)?|top(?:ped|ping)?(?:\s+\w+){0,2}\s+(?:up|off)\b|"
+        r"top(?:ped|ping)?[- ]?(?:up|off)\b|fill(?:ed|ing)?(?:\s+\w+){0,2}\s+"
+        r"(?:up|to|back)\b|added)\b", re.I)
+    _REFILL_TO = re.compile(
+        r"\b(?:to|at|up\s+to|back\s+to)\s*(?:the\s*)?(\d{1,3}(?:\.\d+)?)\s*"
+        r"(?:l\b|liters?|litres?|\s*line)", re.I)
+    _REFILL_ADDED = re.compile(
+        r"\badded\s*(\d{1,3}(?:\.\d+)?)\s*(?:l\b|liters?|litres?)", re.I)
+
+    def _volume_events(self, plant_id):
+        raw = self._unwrap_value(self.retrieve_own_memory(f"volume_events_{plant_id}"))
+        try:
+            ev = json.loads(raw) if raw else []
+            return ev if isinstance(ev, list) else []
+        except Exception:
+            return []
+
+    def record_refill(self, plant_id=None, to_liters=None, added_liters=None,
+                      topup_ppm=0.0, note=""):
+        """Record that water went in. -> receipt, and what the next reading should read.
+
+        WHAT IT REFUSES. No plant, no record: the same rule readings run on,
+        because a refill on the wrong vessel corrupts the mass balance of two
+        plants at once. And it never invents a ppm or a pH - a refill is a
+        volume fact and nothing else was observed.
+
+        WHAT IT ADDS. Plain water changes the volume the salt is spread
+        through and not the salt, so the reservoir's ppm after a refill is
+        arithmetic on facts already held. That figure is returned as a
+        PREDICTION, which is the honest word for it - the grower has not
+        measured yet, and when he does, the difference between predicted and
+        measured is uptake, which is the one quantity a single ppm reading can
+        never show."""
+        pid = plant_id
+        if not pid:
+            return {"recorded": False, "reason": "no plant named",
+                    "ask": ("A refill needs its vessel - the DWC / the bucket, the LWC / "
+                            "nursery, or GSC-1 / GSC-2. Nothing was recorded.")}
+        rec = self._system_record(pid)
+        if rec.get("alive") is False:
+            return {"recorded": False, "reason": "plant not alive", "plant_id": pid}
+        before = self._parse_numeric(rec.get("reservoir_liters"))
+        cap = self._parse_numeric(rec.get("reservoir_capacity_liters"))
+        to_v = self._parse_numeric(to_liters)
+        add_v = self._parse_numeric(added_liters)
+        if to_v is None and add_v is None:
+            return {"recorded": False, "reason": "no volume given",
+                    "ask": "Say what it was filled TO, or how much was added."}
+        if to_v is None:
+            if before is None:
+                return {"recorded": False, "reason": "no starting volume on record",
+                        "ask": (f"{add_v} L was added but nothing on record says what it "
+                                f"started at, so the new level cannot be computed. Give "
+                                f"the level it is at now.")}
+            to_v = before + add_v
+        # A vessel cannot hold more than it holds. This is the check that
+        # would have caught a reading on the wrong bucket without any guessing.
+        if cap is not None and to_v > cap + 0.01:
+            return {"recorded": False, "reason": "over capacity",
+                    "why": (f"{to_v} L exceeds this vessel's recorded capacity of {cap} L "
+                            f"({rec.get('vessel') or pid}). Either the volume is wrong or "
+                            f"this is the wrong vessel. Nothing was recorded.")}
+        delta = None if before is None else round(to_v - before, 2)
+        now = datetime.now().isoformat()
+        ev = self._volume_events(pid)
+        ev.append({"at": now, "kind": "refill", "from_liters": before, "liters": to_v,
+                   "delta": delta, "measured": True, "source": "refill_stated",
+                   "topup_ppm": float(topup_ppm or 0.0), "note": str(note)[:300]})
+        self.store_own_memory(f"volume_events_{pid}", json.dumps(ev[-200:]))
+
+        # The standing volume fields, both of them - see the dilution path for
+        # why writing one and not the other leaves two answers to "how much
+        # water is in there".
+        sysrec = dict(rec)
+        sysrec["reservoir_liters"] = round(to_v, 1)
+        sysrec["typical_working_liters"] = round(to_v, 1)
+        sysrec["volume_source"] = "refill_stated"
+        sysrec["volume_measured_on"] = now
+        if before is not None:
+            sysrec["volume_before_last_topup_liters"] = round(before, 2)
+        key = (f"grow_system_{pid}"
+               if self._unwrap_value(self.retrieve_own_memory(f"grow_system_{pid}"))
+               else "grow_system")
+        self.store_own_memory(key, json.dumps(sysrec))
+
+        out = {"recorded": True, "plant_id": pid,
+               "receipt": (f"{rec.get('instance_label') or pid} in "
+                           f"{rec.get('vessel') or rec.get('system_type') or 'an unrecorded vessel'}"),
+               "from_liters": before, "to_liters": round(to_v, 1), "added_liters": delta,
+               "capacity_liters": cap, "at": now,
+               "not_a_reading": ("Recorded as a volume event. No ppm, EC, pH or temperature "
+                                 "was observed and none was invented.")}
+        # What the next reading should say, if nothing was taken up.
+        last = [r for r in (self._get_readings_for_plant(pid) or [])
+                if r.get("ppm") is not None]
+        if last and before:
+            p0 = self._parse_numeric(last[-1].get("ppm"))
+            v0 = self._parse_numeric(last[-1].get("volume_liters")) or before
+            if p0 and v0:
+                mass = p0 * v0 + float(topup_ppm or 0.0) * (to_v - v0)
+                out["prediction"] = {
+                    "ppm_after_refill": round(mass / to_v, 0),
+                    "from": {"ppm": p0, "liters": v0},
+                    "basis": ("Conservation of dissolved mass. Plain water changes the "
+                              "volume the salt is spread through, not the salt."),
+                    "what_a_miss_means": ("Measured BELOW this is uptake - salt the roots "
+                                          "took, which refilling cannot bring back. "
+                                          "Measured ABOVE is not uptake: the top-up water "
+                                          "was not what it was believed to be, the volume "
+                                          "was misread, or the meter has drifted."),
+                    "state": "unmeasured"}
+        self.log(f"refill on {pid}: {before} -> {round(to_v,1)} L")
+        return out
+
+    def refill_from_text(self, prompt, plant_id=None):
+        """Read a refill out of plain language and record it, or say what is missing."""
+        text = prompt or ""
+        if not self._REFILL_ASK.search(text):
+            return {"recorded": False, "reason": "not a refill"}
+        t = self._digits_for_spoken(text)
+        pid = plant_id or self._plant_from_text(text)
+        m = self._REFILL_TO.search(t)
+        to_v = float(m.group(1)) if m else None
+        m2 = self._REFILL_ADDED.search(t)
+        add_v = float(m2.group(1)) if m2 and to_v is None else None
+        if to_v is None and add_v is None:
+            return {"recorded": False, "reason": "no volume given",
+                    "ask": "How much? Say the level it is at now, or how much went in."}
+        # A VOLUME CAN NAME THE VESSEL WHEN A WORD DID NOT. 14 L cannot be a
+        # 5 L unit, and that is a fact on the record rather than an inference
+        # from which plant was discussed last - which is the inference this
+        # system refuses. Where exactly one living vessel can hold it, that
+        # one is used and the attribution is recorded as DEDUCED.
+        deduced = False
+        if not pid and to_v is not None:
+            fits = []
+            for p in (self.active_plants() or []):
+                q = p.get("plant_id")
+                cap = self._parse_numeric(self._system_record(q).get("reservoir_capacity_liters"))
+                if cap is not None and to_v <= cap + 0.01:
+                    fits.append(q)
+            if len(fits) == 1:
+                pid, deduced = fits[0], True
+        if not pid:
+            return {"recorded": False, "reason": "no plant named",
+                    "ask": ("A refill needs its vessel - the DWC / the bucket, the LWC / "
+                            "nursery, or GSC-1 / GSC-2. Nothing was recorded.")}
+        out = self.record_refill(pid, to_liters=to_v, added_liters=add_v,
+                                 note=f"spoken: {text[:280]}")
+        if deduced and out.get("recorded"):
+            out["vessel_deduced"] = True
+            out["deduced_how"] = (f"No vessel was named. {to_v} L fits exactly one living "
+                                  f"vessel's recorded capacity, so that one was used. "
+                                  f"Withdraw it if that is wrong.")
+        return out
+
 
     def volume_history(self, plant_id="current_plant", limit=12):
         """When the reservoir volume changed, and whether it was measured.
@@ -2903,13 +3077,61 @@ class GrowAgent(AgentBase):
 
         # HOW - what a change would actually cost, if a target was named.
         if target_ppm:
-            dose = self.handle_task("adjust_to_target_ppm",
-                                    {"plant_id": plant_id, "target_ppm": target_ppm}, "situation")
-            dose = dose.get("result", dose) if isinstance(dose, dict) else {}
+            # TWO VERBS ANSWER THIS AND THEY DISAGREE, so the choice has to be
+            # made on purpose rather than by which one a caller happened to
+            # reach. Asked "what do I add to get the DWC to 800", the
+            # dashboard came back with FloraGro 1.25 ml and a direct call came
+            # back with 3.75 - a threefold difference, both from this agent,
+            # because they rest on different premises:
+            #
+            #   adjust_to_target_ppm  scales the last recipe by target/measured.
+            #                         Deliberately VOLUME-FREE - correct when the
+            #                         reservoir volume is a guess from bottles
+            #                         poured in, which it was when that was written.
+            #   plan_feed_for_target  conservation of mass. Needs a real volume,
+            #                         and is the better answer once there is one.
+            #
+            # The grower now reads the litre line, so the volume is measured
+            # and the mass balance is the honest method. Where it is NOT
+            # measured the ratio method is used instead - and either way the
+            # facet says which ran and why, because a dose whose method is
+            # invisible is two sources of truth wearing one answer.
+            _sys = self._system_record(plant_id)
+            _vol = self._parse_numeric(_sys.get("reservoir_liters"))
+            _vol_src = str(_sys.get("volume_source") or "")
+            _measured = _vol is not None and _vol_src in ("measured", "refill_stated",
+                                                          "dilution")
+            _cur = None
+            _rs = [r for r in (self._get_readings_for_plant(plant_id) or [])
+                   if self._parse_numeric(r.get("ppm")) is not None]
+            if _rs:
+                _rs.sort(key=lambda r: r.get("timestamp") or "")
+                _cur = self._parse_numeric(_rs[-1].get("ppm"))
+            dose, method, why = {}, None, None
+            if _measured and _cur is not None:
+                dose = self.plan_feed_for_target(
+                    plant_id=plant_id, target_ppm=target_ppm, dose_into_liters=_vol,
+                    final_liters=_vol, current_ppm=_cur) or {}
+                if dose.get("add_now_ml"):
+                    dose = dict(dose, add_now=dose["add_now_ml"])
+                    method = "plan_feed_for_target"
+                    why = (f"conservation of mass against a measured {_vol:g} L at "
+                           f"{_cur:g} ppm ({_vol_src})")
+            if not dose.get("add_now"):
+                d2 = self.handle_task("adjust_to_target_ppm",
+                                      {"plant_id": plant_id, "target_ppm": target_ppm},
+                                      "situation")
+                dose = d2.get("result", d2) if isinstance(d2, dict) else {}
+                method = "adjust_to_target_ppm"
+                why = ("the recipe scaled by target/measured, because the reservoir "
+                       "volume is not a measured number here - the meter is the "
+                       "authority when the litres are a guess")
             if isinstance(dose, dict) and dose.get("add_now"):
                 facets["how"] = {
                     "summary": ("Add " + ", ".join(f"{k} {v}ml"
                                                    for k, v in dose["add_now"].items()) + "."),
+                    "method": method, "method_basis": why,
+                    "lands_at_ppm": dose.get("ppm_while_you_wait"),
                     "factor": dose.get("factor"),
                     "caution": dose.get("top_fed_caution"),
                 }
@@ -5543,6 +5765,28 @@ class GrowAgent(AgentBase):
         # called it, so a grower reading his meter to Anansi got an answer
         # about the plant and no row on the record. The receipt names the
         # vessel; a sentence naming no vessel stores nothing and says so.
+        # A REFILL IS CHECKED BEFORE A READING. "Refilled to 15L" carries a
+        # number and a unit, so the reading parser claims it and log_reading
+        # then refuses it as nothing measurable - which is how the grower told
+        # this system three times that he had refilled and it recorded nothing.
+        _rf = self.refill_from_text(prompt, plant_id=plant_id)
+        if _rf.get("recorded"):
+            pred = _rf.get("prediction") or {}
+            tail = (f" If nothing was taken up it should read about "
+                    f"{pred['ppm_after_refill']:.0f} ppm." if pred.get("ppm_after_refill")
+                    else "")
+            return {"answered_as": "refill_recorded", "plant_id": _rf["plant_id"],
+                    "receipt": _rf["receipt"],
+                    "text": (f"Refill recorded on {_rf['receipt']}: "
+                             f"{_rf.get('from_liters')} -> {_rf['to_liters']} L."
+                             + (" Vessel deduced from capacity, not stated."
+                                if _rf.get("vessel_deduced") else "") + tail),
+                    "facts": _rf}
+        if _rf.get("reason") in ("no plant named", "no volume given", "over capacity",
+                                 "plant not alive"):
+            return {"answered_as": "refill_refused", "plant_id": _rf.get("plant_id"),
+                    "text": _rf.get("ask") or _rf.get("why"), "facts": _rf}
+
         if self.parse_reading(prompt):
             got = self.log_from_text(prompt, plant_id=plant_id)
             if got.get("logged"):
@@ -12577,6 +12821,13 @@ class GrowAgent(AgentBase):
         elif task == "list_plants":
             return {"result": {"active": self.active_plants(),
                                "archived": self.archived_plants()}}
+
+        elif task == "record_refill":
+            a = args if isinstance(args, dict) else {}
+            return {"result": self.record_refill(
+                a.get("plant_id"), to_liters=a.get("to_liters"),
+                added_liters=a.get("added_liters"), topup_ppm=a.get("topup_ppm", 0.0),
+                note=a.get("note", ""))}
 
         elif task == "which_plant":
             # THE RECEIPT BEFORE THE READING. Which vessel is this sentence
