@@ -66,6 +66,28 @@ def main():
        any(u["value"] == 6.27 for u in r.get("unassigned", [])))
     ck("target language is still not a reading", g.parse_reading("bring it up to 800 ppm") is None)
 
+    print("a decimal is one number, and a name is not a measurement")
+    for said, want, nothing_else in (
+            ("Lwc 797 ppm 22.0c 1594 ec 6.5ph", {"ppm": 797.0, "ph": 6.5, "ec": 1594.0,
+                                                 "temp": 22.0}, True),
+            ("Dwc gsc1 is at 11L 794ppm 1580ec 19.9c", {"ppm": 794.0, "ec": 1580.0,
+                                                        "temp": 19.9,
+                                                        "volume_liters": 11.0}, True),
+            ("Gsc1 is now 15L res 1120ec 5.07ph 595ppm", {"ppm": 595.0, "ph": 5.07,
+                                                          "ec": 1120.0,
+                                                          "volume_liters": 15.0}, True)):
+        got = g.parse_reading(said)
+        ck(f"{said[:38]!r} parses exactly", {k: v for k, v in got.items()
+                                             if k != "unassigned"} == want, str(got))
+        if nothing_else:
+            # The integer part of an assigned decimal must never come back as
+            # a question: "6.5ph" asked "is 6.0 the litres?" for weeks.
+            ck(f"{said[:38]!r} leaves nothing unattributed",
+               not got.get("unassigned"), str(got.get("unassigned")))
+    ck("a genuinely unlabelled number is still flagged",
+       any(u["value"] == 25.0 for u in
+           (g.parse_reading("reading 25 and 1200 ppm") or {}).get("unassigned", [])))
+
     print("log_from_text never defaults the plant")
     records = {"current_plant": {"instance_label": "GSC-1", "vessel": "DWC bucket", "alive": True},
                "gsc_auto_2": {"instance_label": "GSC-2", "vessel": "LWC nursery", "alive": True},

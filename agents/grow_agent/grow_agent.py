@@ -5487,10 +5487,28 @@ class GrowAgent(AgentBase):
         # Leftover numbers, each with why it was not claimed. A number nobody
         # could place is a dropped measurement, and dropped measurements belong
         # in a dead letter with a reason, not in silence.
-        claimed = {v for v in (out["ppm"], out["ph"], out["temp_c"], out["litres"]) if v}
-        for raw in re.findall(r'\b(\d{1,5}(?:\.\d+)?)\b', t):
+        claimed = {v for v in (out["ppm"], out["ph"], out["temp_c"], out["litres"],
+                               out["ec_us"]) if v is not None}
+        # A DECIMAL IS ONE NUMBER. `\b(\d{1,5}(?:\.\d+)?)\b` cannot match
+        # "6.5" in "6.5ph" - there is no boundary between "5" and "p" - so it
+        # backtracked, dropped the optional decimal, and matched the bare "6",
+        # whose boundary is the dot. Every reading the grower typed with the
+        # unit jammed against the value reported a phantom: "6.5ph" asked
+        # "is 6.0 the litres?", "19.9c" asked about 19.0, "5.07ph" about 5.0.
+        # The value was right and the receipt was full of questions about
+        # numbers nobody said.
+        #
+        # Lookarounds instead of boundaries: a number may not be preceded or
+        # followed by a digit or a dot, which is what "one number" means.
+        # A DIGIT GLUED TO LETTERS IS A NAME, NOT A MEASUREMENT. With the
+        # decimal fixed, "Dwc gsc1 is at 11L..." still asked about a stray
+        # 1.0 - the plant's own id. A leading letter rules it out; a
+        # TRAILING one does not, because "797 ppm" and "11L" are exactly how
+        # a reading is written.
+        for raw in re.findall(r'(?<![0-9.A-Za-z])(\d{1,5}(?:\.\d+)?)(?![\d.])', t):
             v = float(raw)
-            if v in claimed or (out["ec_us"] and v in (out["ec_us"], out["ec_us"] / 1000)):
+            if v in claimed or (out["ec_us"] is not None
+                                and v in (out["ec_us"], out["ec_us"] / 1000)):
                 continue
             fits = [k for k, (lo, hi, _u, _w) in self.QUANTITY_RANGES.items() if lo <= v <= hi]
             out["unassigned"].append({
