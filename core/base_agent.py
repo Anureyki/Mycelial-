@@ -498,7 +498,8 @@ class AgentBase:
         res = acquire(self.agent_id, citation,
                       expect=a.get("expect") or a.get("about"),
                       force=bool(a.get("force")),
-                      lookup=self.lookup_reference, reload=_reload)
+                      lookup=self.lookup_reference, reload=_reload,
+                      official=bool(a.get("official")))
         if res.get("acquired"):
             self.log(f"acquired {res['citation']} -> {res['path']}")
         else:

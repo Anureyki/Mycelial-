@@ -287,7 +287,79 @@ TEXAS_CODES = {
     "transp": ("tex._transp._code", "Tex. Transp. Code", "Texas Transportation Code"),
     "prop":   ("tex._prop._code", "Tex. Prop. Code", "Texas Property Code"),
     "fin":    ("tex._fin._code", "Tex. Fin. Code", "Texas Finance Code"),
+    "penal":  ("tex._penal_code", "Tex. Penal Code", "Texas Penal Code"),
 }
+
+# The State's own publisher, per code. Used when the mirror is short - see
+# fetch_texas_official.
+TEXAS_OFFICIAL = {"bc": "BC", "transp": "TN", "prop": "PR", "fin": "FI", "penal": "PE"}
+
+
+def fetch_texas_official(code, chapter):
+    """One chapter from statutes.capitol.texas.gov, rendered.
+
+    WHY THIS EXISTS, and it is not a preference for the official source on
+    principle. texas.public.law is a mirror, and on 2026-09-18 its index of
+    Finance Code chapter 392 held 16 sections and went straight from 392.307
+    to 392.401 - Section 392.308, CONSUMER VICTIM OF IDENTITY THEFT, was
+    simply absent. The whole Texas coerced-debt mechanism turns on that
+    section. A mirror that silently omits a section is worse than one that
+    fails, because the corpus looks complete.
+
+    The State's own site is an Angular application that answers a plain GET
+    with 'Retrieving statute document...', which is why the mirror was used
+    in the first place. The page_render kit renders it; if the kit is not
+    installed this raises with the install command rather than falling back
+    to the short source."""
+    import subprocess as _sp
+    url = (f"https://statutes.capitol.texas.gov/Docs/{TEXAS_OFFICIAL[code]}/htm/"
+           f"{TEXAS_OFFICIAL[code]}.{chapter}.htm")
+    proc = _sp.run([sys.executable, os.path.join(ROOT, "tools", "fetch_page.py"),
+                    url, "--wait-for-text", f"{chapter}."],
+                   capture_output=True, text=True, timeout=300)
+    try:
+        got = json.loads(proc.stdout.strip().splitlines()[-1])
+    except Exception:
+        raise SystemExit(f"REFUSED: the renderer returned nothing usable for {url}. "
+                         f"{proc.stderr[-300:]}")
+    if not got.get("ok"):
+        raise SystemExit(f"REFUSED: {url} - {got.get('error')}"
+                         + (f"  Install it: {got['install']}" if got.get("install") else ""))
+    body = got["text"]
+    # The rendered markdown carries a self-link after every section heading;
+    # strip those so the heading sits at the start of its own line, which is
+    # what every segmenter pattern anchors on.
+    body = re.sub(r"\[\]\(https?://[^)]*\)", "", body)
+    body = re.sub(r"\[([^\]]*)\]\(https?://[^)]*\)", r"\1", body)
+    body = re.sub(r"(?m)^\s*(Sec\.\s*\d)", r"\1", body)
+    body = re.sub(r"\s*(Sec\.\s*\d+[A-Za-z]?\.\d+[A-Za-z]?\.)", r"\n\1", body)
+    # ONE CITATION FORM ACROSS BOTH SOURCES. The State writes "Sec. 392.308."
+    # and the mirror writes "§ 392.308"; shelved as the former, every section
+    # of these three chapters was unreachable by the number a person actually
+    # types. The mirror path already normalises its folded headings for the
+    # same reason - this is that rule applied to the official source.
+    body = re.sub(r"(?m)^Sec\.\s*(\d+[A-Za-z]?\.\d+[A-Za-z]?)\.\s*",
+                  "\u00a7 \\1 ", body)
+    body = re.sub(r"[ \t]+", " ", body)
+    body = re.sub(r"\n{3,}", "\n\n", body).strip()
+    _reject_error_page(body, url, minimum=2000)
+    n = len(re.findall(r"(?m)^\u00a7 \d", body))
+    if n == 0:
+        raise SystemExit(f"REFUSED: {url} rendered but no section headings were found. "
+                         f"Nothing written.")
+    name = TEXAS_CODES[code][2]
+    abbrev = TEXAS_CODES[code][1]
+    m = re.search(r"CHAPTER\s+" + str(chapter) + r"\.\s*([A-Z][A-Z \-,'&]{3,80})", body)
+    chapter_name = (m.group(1).strip().title() if m else "")
+    title = f"{abbrev} Chapter {chapter}" + (f" - {chapter_name}" if chapter_name else "")
+    source = (f"{name}, Chapter {chapter}, {n} sections, retrieved from "
+              f"statutes.capitol.texas.gov - the State's OWN publisher - and rendered, "
+              f"{time.strftime('%Y-%m-%d')}. Used in preference to the texas.public.law "
+              f"mirror because that mirror's index of Fin. Code ch. 392 omitted "
+              f"Sec. 392.308 entirely. STATE STATUTE - public domain: a legislature's "
+              f"enactment is an edict of government (Georgia v. Public.Resource.Org, "
+              f"590 U.S. 255 (2020)).")
+    return body, title, source
 _TEXAS_PAUSE = 0.6      # courtesy spacing between section fetches
 
 
@@ -438,6 +510,9 @@ CLASSIFICATION = {
     "plaw": ("federal_statute",
              "Title of the work is a Public Law citation, which fixes the class",
              "doctrinal"),
+    "tex-official": ("state_statute",
+                     "Title of the work is a Texas code chapter citation, which fixes the class",
+                     "doctrinal"),
     "tex": ("state_statute",
             "Title of the work is a Texas code chapter citation, which fixes the class",
             "doctrinal"),

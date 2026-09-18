@@ -1,76 +1,26 @@
 {
   "title": "Tex. Fin. Code Chapter 392 - Debt Collection",
-  "source": "Texas Finance Code, Chapter 392, 16 of 16 indexed sections, retrieved from texas.public.law 2026-09-16. STATE STATUTE - public domain: a legislature's enactment is an edict of government (Georgia v. Public.Resource.Org, 590 U.S. 255 (2020)). This is Texas's ENACTMENT, which is the text that governs in Texas.",
+  "source": "Texas Finance Code, Chapter 392, 17 sections, retrieved from statutes.capitol.texas.gov - the State's OWN publisher - and rendered, 2026-09-18. Used in preference to the texas.public.law mirror because that mirror's index of Fin. Code ch. 392 omitted Sec. 392.308 entirely. STATE STATUTE - public domain: a legislature's enactment is an edict of government (Georgia v. Public.Resource.Org, 590 U.S. 255 (2020)).",
   "authority_class": "state_statute",
   "authority_class_basis": "Title of the work is a Texas code chapter citation, which fixes the class",
   "claim_layer": "doctrinal",
   "claim_layer_meaning": "States or describes the rule. Cite for what the law IS.",
   "authorities_cited": [],
   "term_index": {
-    "debt collection": [
+    "third party debt": [
       0,
       1,
-      5,
-      6,
-      7,
+      2,
+      4,
       8,
-      9,
-      11
+      12
     ],
     "sept amended": [
       0,
       4,
       7,
       8,
-      13
-    ],
-    "creditworthiness financial responsibility": [
-      0,
-      9
-    ],
-    "collect consumer": [
-      0,
-      8
-    ],
-    "financial responsibility": [
-      0,
-      9
-    ],
-    "paying habits": [
-      0,
-      9
-    ],
-    "history acts": [
-      0,
-      1,
-      2,
-      3,
-      4,
-      5,
-      6,
-      7,
-      8,
-      9,
-      10,
-      12,
-      13,
-      14,
-      15
-    ],
-    "consumer debt": [
-      0,
-      5,
-      8,
-      11,
-      13
-    ],
-    "debt means": [
-      0,
-      11
-    ],
-    "similar information": [
-      0,
-      9
+      14
     ],
     "credit bureau": [
       0,
@@ -78,24 +28,55 @@
       2,
       3,
       4,
-      9,
-      14
+      9
     ],
-    "consumer debts": [
+    "consumer debt": [
       0,
-      8
+      5,
+      8,
+      11,
+      12
     ],
-    "collect consumer debts": [
-      0,
-      8
-    ],
-    "third party debt": [
+    "party debt": [
       0,
       1,
       2,
       4,
       8,
-      14
+      12
+    ],
+    "financial responsibility": [
+      0,
+      9
+    ],
+    "information regarding": [
+      0,
+      9,
+      11
+    ],
+    "sept subchapter": [
+      0,
+      2,
+      4
+    ],
+    "creditor debt collector": [
+      0,
+      12
+    ],
+    "similar information": [
+      0,
+      9
+    ],
+    "debt collection": [
+      0,
+      1,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      11
     ],
     "debt collector": [
       0,
@@ -108,24 +89,35 @@
       8,
       10,
       11,
-      14
+      12
     ],
-    "information regarding": [
+    "surety bond": [
       0,
-      9,
-      11
+      1
     ],
-    "party debt": [
+    "paying habits": [
+      0,
+      9
+    ],
+    "collect consumer": [
+      0,
+      8
+    ],
+    "creditor debt": [
+      0,
+      12
+    ],
+    "party debt collector": [
       0,
       1,
       2,
       4,
       8,
-      14
+      12
     ],
-    "creditworthiness financial": [
+    "debt means": [
       0,
-      9
+      11
     ],
     "third party": [
       0,
@@ -134,77 +126,81 @@
       4,
       8,
       11,
-      14
+      12
     ],
-    "party debt collector": [
+    "creditworthiness financial": [
       0,
-      1,
-      2,
-      4,
-      8,
-      14
+      9
     ],
     "similar information regarding": [
       0,
       9
     ],
-    "bond requirement": [
-      1,
-      14
+    "collect consumer debts": [
+      0,
+      8
+    ],
+    "creditworthiness financial responsibility": [
+      0,
+      9
+    ],
+    "consumer debts": [
+      0,
+      8
     ],
     "action against": [
       2,
       5,
       11
     ],
-    "credit reporting agencies": [
+    "chapter business": [
       4,
-      11
+      12,
+      16
+    ],
+    "previously received": [
+      4,
+      12
     ],
     "section does": [
       4,
-      13
-    ],
-    "reporting agencies": [
-      4,
-      11
-    ],
-    "credit reporting": [
-      4,
-      9,
-      11
+      12,
+      14
     ],
     "written statement": [
       4,
       7
     ],
-    "credit report": [
-      4,
-      9,
-      11
-    ],
     "business commerce": [
       4,
       11,
-      15
-    ],
-    "business commerce code": [
-      4,
-      11,
-      15
+      12,
+      16
     ],
     "being collected": [
       4,
       8
     ],
+    "business commerce code": [
+      4,
+      11,
+      12,
+      16
+    ],
+    "chapter business commerce": [
+      4,
+      12,
+      16
+    ],
+    "each person": [
+      4,
+      12
+    ],
     "commerce code": [
       4,
       11,
-      15
-    ],
-    "following practices using": [
-      5,
-      8
+      12,
+      16
     ],
     "consumer debt will": [
       5,
@@ -213,10 +209,6 @@
     "debt will": [
       5,
       8
-    ],
-    "coercion": [
-      5,
-      14
     ],
     "following practices": [
       5,
@@ -227,7 +219,19 @@
       5,
       8
     ],
-    "written contract": [
+    "coercion": [
+      5
+    ],
+    "following practices using": [
+      5,
+      8
+    ],
+    "standing": [
+      7,
+      12,
+      13
+    ],
+    "real property": [
       7,
       8
     ],
@@ -235,7 +239,7 @@
       7,
       8
     ],
-    "real property": [
+    "written contract": [
       7,
       8
     ],
@@ -243,66 +247,70 @@
       7,
       8
     ],
-    "standing": [
-      7,
-      12
-    ],
     "written communication": [
-      8,
-      11
-    ],
-    "united states": [
-      8,
-      9
-    ],
-    "affiliate": [
-      8
-    ],
-    "initial written": [
       8,
       11
     ],
     "bona fide": [
       8,
       9,
-      12
+      13
     ],
-    "chapter history": [
-      10,
-      14
-    ],
-    "chapter history acts": [
-      10,
-      14
-    ],
-    "consumer reporting agency": [
+    "initial written": [
+      8,
       11
     ],
-    "consumer report": [
+    "affiliate": [
+      8
+    ],
+    "united states": [
+      8,
+      9
+    ],
+    "credit reporting": [
+      9,
       11
     ],
-    "debt buyers": [
-      11,
-      13
+    "credit report": [
+      9,
+      11
     ],
-    "certain consumer": [
-      11,
-      13
-    ],
-    "certain consumer debt": [
-      11,
-      13
+    "chapter acts": [
+      10,
+      15
     ],
     "fair credit reporting act": [
       11
     ],
-    "violate this chapter": [
+    "section business commerce": [
+      11,
+      12
+    ],
+    "consumer reporting agency": [
+      11
+    ],
+    "section business": [
+      11,
+      12
+    ],
+    "consumer report": [
+      11
+    ],
+    "civil remedies": [
+      12,
+      15
+    ],
+    "criminal penalty": [
       12,
       14
     ],
-    "each violation": [
+    "violate this chapter": [
       13,
-      14
+      15
+    ],
+    "each violation": [
+      14,
+      15
     ]
   },
   "origin_pdf": "tex_fin_code_chapter_392_debt_collection.txt",
@@ -321,13 +329,13 @@
       "citation": "\u00a7 392.001",
       "kind": "section_sign",
       "page": 1,
-      "text": "\u00a7 392.001 Definitions In this chapter: (1) \u201cConsumer\u201d means an individual who has a consumer debt. (2) \u201cConsumer debt\u201d means an obligation, or an alleged obligation, primarily for personal, family, or household purposes and arising from a transaction or alleged transaction. (3) \u201cCreditor\u201d means a party, other than a consumer, to a transaction or alleged transaction involving one or more consumers. (4) \u201cCredit bureau\u201d means a person who, for compensation, gathers, records, and disseminates information relating to the creditworthiness, financial responsibility, and paying habits of, and similar information regarding, a person for the purpose of furnishing that information to another person. (5) \u201cDebt collection\u201d means an action, conduct, or practice in collecting, or in soliciting for collection, consumer debts that are due or alleged to be due a creditor. (6) \u201cDebt collector\u201d means a person who directly or indirectly engages in debt collection and includes a person who sells or offers to sell forms represented to be a collection system, device, or scheme intended to be used to collect consumer debts. (7) \u201cThird-party debt collector\u201d means a debt collector, as defined by 15 U.S.C. Section 1692a(6), but does not include an attorney collecting a debt as an attorney on behalf of and in the name of a client unless the attorney has nonattorney employees who: (A) are regularly engaged to solicit debts for collection; or (B) regularly make contact with debtors for the purpose of collection or adjustment of debts. [History: Acts 1997, 75th Leg., ch. 1008, Sec. 1, eff. Sept. 1, 1997. Amended by Acts 1999, 76th Leg., ch. 62, Sec. 7.42, eff. Sept. 1, 1999.]",
+      "text": "\u00a7 392.001 DEFINITIONS. In this chapter: (1) \"Consumer\" means an individual who has a consumer debt. (2) \"Consumer debt\" means an obligation, or an alleged obligation, primarily for personal, family, or household purposes and arising from a transaction or alleged transaction. (3) \"Creditor\" means a party, other than a consumer, to a transaction or alleged transaction involving one or more consumers. (4) \"Credit bureau\" means a person who, for compensation, gathers, records, and disseminates information relating to the creditworthiness, financial responsibility, and paying habits of, and similar information regarding, a person for the purpose of furnishing that information to another person. (5) \"Debt collection\" means an action, conduct, or practice in collecting, or in soliciting for collection, consumer debts that are due or alleged to be due a creditor. (6) \"Debt collector\" means a person who directly or indirectly engages in debt collection and includes a person who sells or offers to sell forms represented to be a collection system, device, or scheme intended to be used to collect consumer debts. (7) \"Third-party debt collector\" means a debt collector, as defined by 15 U.S.C. Section 1692a(6), but does not include an attorney collecting a debt as an attorney on behalf of and in the name of a client unless the attorney has nonattorney employees who: (A) are regularly engaged to solicit debts for collection; or (B) regularly make contact with debtors for the purpose of collection or adjustment of debts. Acts 1997, 75th Leg., ch. 1008, Sec. 1, eff. Sept. 1, 1997. Amended by Acts 1999, 76th Leg., ch. 62, Sec. 7.42, eff. Sept. 1, 1999. SUBCHAPTER B. SURETY BOND",
       "integrity": {
         "state": "complete",
-        "basis": "Full retrieved body of 1,672 characters stored; under the 60,000 cap, so nothing was cut.",
-        "stamped_at": "2026-09-16T16:09:01",
-        "stored_chars": 1672,
-        "source_chars": 1672,
+        "basis": "Full retrieved body of 1,688 characters stored; under the 60,000 cap, so nothing was cut.",
+        "stamped_at": "2026-09-18T21:58:12",
+        "stored_chars": 1688,
+        "source_chars": 1688,
         "cap_applied": 60000
       },
       "authority_class": "state_statute",
@@ -338,13 +346,13 @@
       "citation": "\u00a7 392.101",
       "kind": "section_sign",
       "page": 1,
-      "text": "\u00a7 392.101 Bond Requirement (a) A third-party debt collector or credit bureau may not engage in debt collection unless the third-party debt collector or credit bureau has obtained a surety bond issued by a surety company authorized to do business in this state as prescribed by this section. A copy of the bond must be filed with the secretary of state. (b) The bond must be in favor of: (1) any person who is damaged by a violation of this chapter; and (2) this state for the benefit of any person who is damaged by a violation of this chapter. (c) The bond must be in the amount of $10,000. [History: Acts 1997, 75th Leg., ch. 1008, Sec. 1, eff. Sept. 1, 1997.]",
+      "text": "\u00a7 392.101 BOND REQUIREMENT. (a) A third-party debt collector or credit bureau may not engage in debt collection unless the third-party debt collector or credit bureau has obtained a surety bond issued by a surety company authorized to do business in this state as prescribed by this section. A copy of the bond must be filed with the secretary of state. (b) The bond must be in favor of: (1) any person who is damaged by a violation of this chapter; and (2) this state for the benefit of any person who is damaged by a violation of this chapter. (c) The bond must be in the amount of $10,000. Acts 1997, 75th Leg., ch. 1008, Sec. 1, eff. Sept. 1, 1997.",
       "integrity": {
         "state": "complete",
-        "basis": "Full retrieved body of 662 characters stored; under the 60,000 cap, so nothing was cut.",
-        "stamped_at": "2026-09-16T16:09:01",
-        "stored_chars": 662,
-        "source_chars": 662,
+        "basis": "Full retrieved body of 652 characters stored; under the 60,000 cap, so nothing was cut.",
+        "stamped_at": "2026-09-18T21:58:12",
+        "stored_chars": 652,
+        "source_chars": 652,
         "cap_applied": 60000
       },
       "authority_class": "state_statute",
@@ -355,13 +363,13 @@
       "citation": "\u00a7 392.102",
       "kind": "section_sign",
       "page": 1,
-      "text": "\u00a7 392.102 Claim Against Bond A person who claims against a bond for a violation of this chapter may maintain an action against the third-party debt collector or credit bureau and against the surety. The aggregate liability of the surety to all persons damaged by a violation of this chapter may not exceed the amount of the bond. [History: Acts 1997, 75th Leg., ch. 1008, Sec. 1, eff. Sept. 1, 1997.]",
+      "text": "\u00a7 392.102 CLAIM AGAINST BOND. A person who claims against a bond for a violation of this chapter may maintain an action against the third-party debt collector or credit bureau and against the surety. The aggregate liability of the surety to all persons damaged by a violation of this chapter may not exceed the amount of the bond. Acts 1997, 75th Leg., ch. 1008, Sec. 1, eff. Sept. 1, 1997. SUBCHAPTER C. INFORMATION IN FILES OF CREDIT BUREAU OR DEBT COLLECTOR",
       "integrity": {
         "state": "complete",
-        "basis": "Full retrieved body of 400 characters stored; under the 60,000 cap, so nothing was cut.",
-        "stamped_at": "2026-09-16T16:09:01",
-        "stored_chars": 400,
-        "source_chars": 400,
+        "basis": "Full retrieved body of 460 characters stored; under the 60,000 cap, so nothing was cut.",
+        "stamped_at": "2026-09-18T21:58:12",
+        "stored_chars": 460,
+        "source_chars": 460,
         "cap_applied": 60000
       },
       "authority_class": "state_statute",
@@ -372,13 +380,13 @@
       "citation": "\u00a7 392.201",
       "kind": "section_sign",
       "page": 1,
-      "text": "\u00a7 392.201 Report to Consumer Not later than the 45th day after the date of the request, a credit bureau shall provide to a person in its registry a copy of all information contained in its files concerning that person. [History: Acts 1997, 75th Leg., ch. 1008, Sec. 1, eff. Sept. 1, 1997.]",
+      "text": "\u00a7 392.201 REPORT TO CONSUMER. Not later than the 45th day after the date of the request, a credit bureau shall provide to a person in its registry a copy of all information contained in its files concerning that person. Acts 1997, 75th Leg., ch. 1008, Sec. 1, eff. Sept. 1, 1997.",
       "integrity": {
         "state": "complete",
-        "basis": "Full retrieved body of 289 characters stored; under the 60,000 cap, so nothing was cut.",
-        "stamped_at": "2026-09-16T16:09:01",
-        "stored_chars": 289,
-        "source_chars": 289,
+        "basis": "Full retrieved body of 279 characters stored; under the 60,000 cap, so nothing was cut.",
+        "stamped_at": "2026-09-18T21:58:12",
+        "stored_chars": 279,
+        "source_chars": 279,
         "cap_applied": 60000
       },
       "authority_class": "state_statute",
@@ -389,13 +397,13 @@
       "citation": "\u00a7 392.202",
       "kind": "section_sign",
       "page": 1,
-      "text": "\u00a7 392.202 Correction of Third-party Debt Collector\u2019s or Credit Bureau\u2019s Files (a) An individual who disputes the accuracy of an item that is in a third-party debt collector\u2019s or credit bureau\u2019s file on the individual and that relates to a debt being collected by the third-party debt collector may notify in writing the third-party debt collector of the inaccuracy. The third-party debt collector shall make a written record of the dispute. If the third-party debt collector does not report information related to the dispute to a credit bureau, the third-party debt collector shall cease collection efforts until an investigation of the dispute described by Subsections (b)-(e) determines the accurate amount of the debt, if any. If the third-party debt collector reports information related to the dispute to a credit bureau, the reporting third-party debt collector shall initiate an investigation of the dispute described by Subsections (b)-(e) and shall cease collection efforts until the investigation determines the accurate amount of the debt, if any. This section does not affect the application of Chapter 20 (Regulation of Consumer Credit Reporting Agencies) , Business & Commerce Code, to a third-party debt collector subject to that chapter. (b) Not later than the 30th day after the date a notice of inaccuracy is received, a third-party debt collector who initiates an investigation shall send a written statement to the individual: (1) denying the inaccuracy; (2) admitting the inaccuracy; or (3) stating that the third-party debt collector has not had sufficient time to complete an investigation of the inaccuracy. (c) If the third-party debt collector admits that the item is inaccurate under Subsection (b), the third-party debt collector shall: (1) not later than the fifth business day after the date of the admission, correct the item in the relevant file; and (2) immediately cease collection efforts related to the portion of the debt that was found to be inaccurate and on correction of the item send, to each person who has previously received a report from the third-party debt collector containing the inaccurate information, notice of the inaccuracy and a copy of an accurate report. (d) If the third-party debt collector states that there has not been sufficient time to complete an investigation, the third-party debt collector shall immediately: (1) change the item in the relevant file as requested by the individual; (2) send to each person who previously received the report containing the information a notice that is equivalent to a notice under Subsection (c) and a copy of the changed report; and (3) cease collection efforts. (e) On completion by the third-party debt collector of the investigation, the third-party debt collector shall inform the individual of the determination of whether the item is accurate or inaccurate. If the third-party debt collector determines that the information was accurate, the third-party debt collector may again report that information and resume collection efforts. [History: Acts 1997, 75th Leg., ch. 1008, Sec. 1, eff. Sept. 1, 1997. Amended by Acts 2003, 78th Leg., ch. 851, Sec. 1, eff. Sept. 1, 2003.]",
+      "text": "\u00a7 392.202 CORRECTION OF THIRD-PARTY DEBT COLLECTOR'S OR CREDIT BUREAU'S FILES. (a) An individual who disputes the accuracy of an item that is in a third-party debt collector's or credit bureau's file on the individual and that relates to a debt being collected by the third-party debt collector may notify in writing the third-party debt collector of the inaccuracy. The third-party debt collector shall make a written record of the dispute. If the third-party debt collector does not report information related to the dispute to a credit bureau, the third-party debt collector shall cease collection efforts until an investigation of the dispute described by Subsections (b)-(e) determines the accurate amount of the debt, if any. If the third-party debt collector reports information related to the dispute to a credit bureau, the reporting third-party debt collector shall initiate an investigation of the dispute described by Subsections (b)-(e) and shall cease collection efforts until the investigation determines the accurate amount of the debt, if any. This section does not affect the application of Chapter 20, Business & Commerce Code, to a third-party debt collector subject to that chapter. (b) Not later than the 30th day after the date a notice of inaccuracy is received, a third-party debt collector who initiates an investigation shall send a written statement to the individual: (1) denying the inaccuracy; (2) admitting the inaccuracy; or (3) stating that the third-party debt collector has not had sufficient time to complete an investigation of the inaccuracy. (c) If the third-party debt collector admits that the item is inaccurate under Subsection (b), the third-party debt collector shall: (1) not later than the fifth business day after the date of the admission, correct the item in the relevant file; and (2) immediately cease collection efforts related to the portion of the debt that was found to be inaccurate and on correction of the item send, to each person who has previously received a report from the third-party debt collector containing the inaccurate information, notice of the inaccuracy and a copy of an accurate report. (d) If the third-party debt collector states that there has not been sufficient time to complete an investigation, the third-party debt collector shall immediately: (1) change the item in the relevant file as requested by the individual; (2) send to each person who previously received the report containing the information a notice that is equivalent to a notice under Subsection (c) and a copy of the changed report; and (3) cease collection efforts. (e) On completion by the third-party debt collector of the investigation, the third-party debt collector shall inform the individual of the determination of whether the item is accurate or inaccurate. If the third-party debt collector determines that the information was accurate, the third-party debt collector may again report that information and resume collection efforts. Acts 1997, 75th Leg., ch. 1008, Sec. 1, eff. Sept. 1, 1997. Amended by Acts 2003, 78th Leg., ch. 851, Sec. 1, eff. Sept. 1, 2003. SUBCHAPTER D. PROHIBITED DEBT COLLECTION METHODS",
       "integrity": {
         "state": "complete",
-        "basis": "Full retrieved body of 3,184 characters stored; under the 60,000 cap, so nothing was cut.",
-        "stamped_at": "2026-09-16T16:09:01",
-        "stored_chars": 3184,
-        "source_chars": 3184,
+        "basis": "Full retrieved body of 3,171 characters stored; under the 60,000 cap, so nothing was cut.",
+        "stamped_at": "2026-09-18T21:58:12",
+        "stored_chars": 3171,
+        "source_chars": 3171,
         "cap_applied": 60000
       },
       "authority_class": "state_statute",
@@ -406,13 +414,13 @@
       "citation": "\u00a7 392.301",
       "kind": "section_sign",
       "page": 1,
-      "text": "\u00a7 392.301 Threats or Coercion (a) In debt collection, a debt collector may not use threats, coercion, or attempts to coerce that employ any of the following practices: (1) using or threatening to use violence or other criminal means to cause harm to a person or property of a person; (2) accusing falsely or threatening to accuse falsely a person of fraud or any other crime; (3) representing or threatening to represent to any person other than the consumer that a consumer is wilfully refusing to pay a nondisputed consumer debt when the debt is in dispute and the consumer has notified in writing the debt collector of the dispute; (4) threatening to sell or assign to another the obligation of the consumer and falsely representing that the result of the sale or assignment would be that the consumer would lose a defense to the consumer debt or would be subject to illegal collection attempts; (5) threatening that the debtor will be arrested for nonpayment of a consumer debt without proper court proceedings; (6) threatening to file a charge, complaint, or criminal action against a debtor when the debtor has not violated a criminal law; (7) threatening that nonpayment of a consumer debt will result in the seizure, repossession, or sale of the person\u2019s property without proper court proceedings; or (8) threatening to take an action prohibited by law. (b) Subsection (a) does not prevent a debt collector from: (1) informing a debtor that the debtor may be arrested after proper court proceedings if the debtor has violated a criminal law of this state; (2) threatening to institute civil lawsuits or other judicial proceedings to collect a consumer debt; or (3) exercising or threatening to exercise a statutory or contractual right of seizure, repossession, or sale that does not require court proceedings. [History: Acts 1997, 75th Leg., ch. 1008, Sec. 1, eff. Sept. 1, 1997.]",
+      "text": "\u00a7 392.301 THREATS OR COERCION. (a) In debt collection, a debt collector may not use threats, coercion, or attempts to coerce that employ any of the following practices: (1) using or threatening to use violence or other criminal means to cause harm to a person or property of a person; (2) accusing falsely or threatening to accuse falsely a person of fraud or any other crime; (3) representing or threatening to represent to any person other than the consumer that a consumer is wilfully refusing to pay a nondisputed consumer debt when the debt is in dispute and the consumer has notified in writing the debt collector of the dispute; (4) threatening to sell or assign to another the obligation of the consumer and falsely representing that the result of the sale or assignment would be that the consumer would lose a defense to the consumer debt or would be subject to illegal collection attempts; (5) threatening that the debtor will be arrested for nonpayment of a consumer debt without proper court proceedings; (6) threatening to file a charge, complaint, or criminal action against a debtor when the debtor has not violated a criminal law; (7) threatening that nonpayment of a consumer debt will result in the seizure, repossession, or sale of the person's property without proper court proceedings; or (8) threatening to take an action prohibited by law. (b) Subsection (a) does not prevent a debt collector from: (1) informing a debtor that the debtor may be arrested after proper court proceedings if the debtor has violated a criminal law of this state; (2) threatening to institute civil lawsuits or other judicial proceedings to collect a consumer debt; or (3) exercising or threatening to exercise a statutory or contractual right of seizure, repossession, or sale that does not require court proceedings. Acts 1997, 75th Leg., ch. 1008, Sec. 1, eff. Sept. 1, 1997.",
       "integrity": {
         "state": "complete",
-        "basis": "Full retrieved body of 1,889 characters stored; under the 60,000 cap, so nothing was cut.",
-        "stamped_at": "2026-09-16T16:09:01",
-        "stored_chars": 1889,
-        "source_chars": 1889,
+        "basis": "Full retrieved body of 1,879 characters stored; under the 60,000 cap, so nothing was cut.",
+        "stamped_at": "2026-09-18T21:58:12",
+        "stored_chars": 1879,
+        "source_chars": 1879,
         "cap_applied": 60000
       },
       "authority_class": "state_statute",
@@ -423,13 +431,13 @@
       "citation": "\u00a7 392.302",
       "kind": "section_sign",
       "page": 1,
-      "text": "\u00a7 392.302 Harassment; Abuse In debt collection, a debt collector may not oppress, harass, or abuse a person by: (1) using profane or obscene language or language intended to abuse unreasonably the hearer or reader; (2) placing telephone calls without disclosing the name of the individual making the call and with the intent to annoy, harass, or threaten a person at the called number; (3) causing a person to incur a long distance telephone toll, telegram fee, or other charge by a medium of communication without first disclosing the name of the person making the communication; or (4) causing a telephone to ring repeatedly or continuously, or making repeated or continuous telephone calls, with the intent to harass a person at the called number. [History: Acts 1997, 75th Leg., ch. 1008, Sec. 1, eff. Sept. 1, 1997.]",
+      "text": "\u00a7 392.302 HARASSMENT; ABUSE. In debt collection, a debt collector may not oppress, harass, or abuse a person by: (1) using profane or obscene language or language intended to abuse unreasonably the hearer or reader; (2) placing telephone calls without disclosing the name of the individual making the call and with the intent to annoy, harass, or threaten a person at the called number; (3) causing a person to incur a long distance telephone toll, telegram fee, or other charge by a medium of communication without first disclosing the name of the person making the communication; or (4) causing a telephone to ring repeatedly or continuously, or making repeated or continuous telephone calls, with the intent to harass a person at the called number. Acts 1997, 75th Leg., ch. 1008, Sec. 1, eff. Sept. 1, 1997.",
       "integrity": {
         "state": "complete",
-        "basis": "Full retrieved body of 821 characters stored; under the 60,000 cap, so nothing was cut.",
-        "stamped_at": "2026-09-16T16:09:01",
-        "stored_chars": 821,
-        "source_chars": 821,
+        "basis": "Full retrieved body of 811 characters stored; under the 60,000 cap, so nothing was cut.",
+        "stamped_at": "2026-09-18T21:58:12",
+        "stored_chars": 811,
+        "source_chars": 811,
         "cap_applied": 60000
       },
       "authority_class": "state_statute",
@@ -440,13 +448,13 @@
       "citation": "\u00a7 392.303",
       "kind": "section_sign",
       "page": 1,
-      "text": "\u00a7 392.303 Unfair or Unconscionable Means (a) In debt collection, a debt collector may not use unfair or unconscionable means that employ the following practices: (1) seeking or obtaining a written statement or acknowledgment in any form that specifies that a consumer\u2019s obligation is one incurred for necessaries of life if the obligation was not incurred for those necessaries; (2) collecting or attempting to collect interest or a charge, fee, or expense incidental to the obligation unless the interest or incidental charge, fee, or expense is expressly authorized by the agreement creating the obligation or legally chargeable to the consumer; or (3) collecting or attempting to collect an obligation under a check, draft, debit payment, or credit card payment, if: (A) the check or draft was dishonored or the debit payment or credit card payment was refused because the check or draft was not drawn or the payment was not made by a person authorized to use the applicable account; (B) the debt collector has received written notice from a person authorized to use the account that the check, draft, or payment was unauthorized; and (C) the person authorized to use the account has filed a report concerning the unauthorized check, draft, or payment with a law enforcement agency, as defined by Article 59.01 (Definitions) , Code of Criminal Procedure, and has provided the debt collector with a copy of the report. (b) Notwithstanding Subsection (a)(2), a creditor may charge a reasonable reinstatement fee as consideration for renewal of a real property loan or contract of sale, after default, if the additional fee is included in a written contract executed at the time of renewal. (c) Subsection (a)(3) does not prohibit a debt collector from collecting or attempting to collect an obligation under a check, draft, debit payment, or credit card payment if the debt collector has credible evidence, including a document, video recording, or witness statement, that the report filed with a law enforcement agency, as required by Subsection (a)(3)(C), is fraudulent and that the check, draft, or payment was authorized. [History: Acts 1997, 75th Leg., ch. 1008, Sec. 1, eff. Sept. 1, 1997. Amended by: Acts 2005, 79th Leg., Ch. 505 (H.B. 628 ), Sec. 1, eff. September 1, 2005.]",
+      "text": "\u00a7 392.303 UNFAIR OR UNCONSCIONABLE MEANS. (a) In debt collection, a debt collector may not use unfair or unconscionable means that employ the following practices: (1) seeking or obtaining a written statement or acknowledgment in any form that specifies that a consumer's obligation is one incurred for necessaries of life if the obligation was not incurred for those necessaries; (2) collecting or attempting to collect interest or a charge, fee, or expense incidental to the obligation unless the interest or incidental charge, fee, or expense is expressly authorized by the agreement creating the obligation or legally chargeable to the consumer; or (3) collecting or attempting to collect an obligation under a check, draft, debit payment, or credit card payment, if: (A) the check or draft was dishonored or the debit payment or credit card payment was refused because the check or draft was not drawn or the payment was not made by a person authorized to use the applicable account; (B) the debt collector has received written notice from a person authorized to use the account that the check, draft, or payment was unauthorized; and (C) the person authorized to use the account has filed a report concerning the unauthorized check, draft, or payment with a law enforcement agency, as defined by Article 59.01, Code of Criminal Procedure, and has provided the debt collector with a copy of the report. (b) Notwithstanding Subsection (a)(2), a creditor may charge a reasonable reinstatement fee as consideration for renewal of a real property loan or contract of sale, after default, if the additional fee is included in a written contract executed at the time of renewal. (c) Subsection (a)(3) does not prohibit a debt collector from collecting or attempting to collect an obligation under a check, draft, debit payment, or credit card payment if the debt collector has credible evidence, including a document, video recording, or witness statement, that the report filed with a law enforcement agency, as required by Subsection (a)(3)(C), is fraudulent and that the check, draft, or payment was authorized. Acts 1997, 75th Leg., ch. 1008, Sec. 1, eff. Sept. 1, 1997. Amended by: Acts 2005, 79th Leg., Ch. 505 (H.B. 628), Sec. 1, eff. September 1, 2005.",
       "integrity": {
         "state": "complete",
-        "basis": "Full retrieved body of 2,284 characters stored; under the 60,000 cap, so nothing was cut.",
-        "stamped_at": "2026-09-16T16:09:01",
-        "stored_chars": 2284,
-        "source_chars": 2284,
+        "basis": "Full retrieved body of 2,258 characters stored; under the 60,000 cap, so nothing was cut.",
+        "stamped_at": "2026-09-18T21:58:12",
+        "stored_chars": 2258,
+        "source_chars": 2258,
         "cap_applied": 60000
       },
       "authority_class": "state_statute",
@@ -457,13 +465,13 @@
       "citation": "\u00a7 392.304",
       "kind": "section_sign",
       "page": 1,
-      "text": "\u00a7 392.304 Fraudulent, Deceptive, or Misleading Representations (a) Except as otherwise provided by this section, in debt collection or obtaining information concerning a consumer, a debt collector may not use a fraudulent, deceptive, or misleading representation that employs the following practices: (1) using a name other than the: (A) true business or professional name or the true personal or legal name of the debt collector while engaged in debt collection; or (B) name appearing on the face of the credit card while engaged in the collection of a credit card debt; (2) failing to maintain a list of all business or professional names known to be used or formerly used by persons collecting consumer debts or attempting to collect consumer debts for the debt collector; (3) representing falsely that the debt collector has information or something of value for the consumer in order to solicit or discover information about the consumer; (4) failing to disclose clearly in any communication with the debtor the name of the person to whom the debt has been assigned or is owed when making a demand for money; (5) in the case of a third-party debt collector, failing to disclose, except in a formal pleading made in connection with a legal action: (A) that the communication is an attempt to collect a debt and that any information obtained will be used for that purpose, if the communication is the initial written or oral communication between the third-party debt collector and the debtor; or (B) that the communication is from a debt collector, if the communication is a subsequent written or oral communication between the third-party debt collector and the debtor; (6) using a written communication that fails to indicate clearly the name of the debt collector and the debt collector\u2019s street address or post office box and telephone number if the written notice refers to a delinquent consumer debt; (7) using a written communication that demands a response to a place other than the debt collector\u2019s or creditor\u2019s street address or post office box; (8) misrepresenting the character, extent, or amount of a consumer debt, or misrepresenting the consumer debt\u2019s status in a judicial or governmental proceeding; (9) representing falsely that a debt collector is vouched for, bonded by, or affiliated with, or is an instrumentality, agent, or official of, this state or an agency of federal, state, or local government; (10) using, distributing, or selling a written communication that simulates or is represented falsely to be a document authorized, issued, or approved by a court, an official, a governmental agency, or any other governmental authority or that creates a false impression about the communication\u2019s source, authorization, or approval; (11) using a seal, insignia, or design that simulates that of a governmental agency; (12) representing that a consumer debt may be increased by the addition of attorney\u2019s fees, investigation fees, service fees, or other charges if a written contract or statute does not authorize the additional fees or charges; (13) representing that a consumer debt will definitely be increased by the addition of attorney\u2019s fees, investigation fees, service fees, or other charges if the award of the fees or charges is subject to judicial discretion; (14) representing falsely the status or nature of the services rendered by the debt collector or the debt collector\u2019s business; (15) using a written communication that violates the United States postal laws and regulations; (16) using a communication that purports to be from an attorney or law firm if it is not; (17) representing that a consumer debt is being collected by an attorney if it is not; (18) representing that a consumer debt is being collected by an independent, bona fide organization engaged in the business of collecting past due accounts when the debt is being collected by a subterfuge organization under the control and direction of the person who is owed the debt; or (19) using any other false representation or deceptive means to collect a debt or obtain information concerning a consumer. (b) Subsection (a)(4) does not apply to a person servicing or collecting real property first lien mortgage loans or credit card debts. (c) Subsection (a)(6) does not require a debt collector to disclose the names and addresses of employees of the debt collector. (d) Subsection (a)(7) does not require a response to the address of an employee of a debt collector. (e) Subsection (a)(18) does not prohibit a creditor from owning or operating a bona fide debt collection agency. [History: Acts 1997, 75th Leg., ch. 1008, Sec. 1, eff. Sept. 1, 1997. Amended by Acts 2003, 78th Leg., ch. 851, Sec. 2, eff. Sept. 1, 2003; Acts 2003, 78th Leg., 3rd C.S., ch. 3, Sec. 28.01, eff. Jan. 11, 2004.]",
+      "text": "\u00a7 392.304 FRAUDULENT, DECEPTIVE, OR MISLEADING REPRESENTATIONS. (a) Except as otherwise provided by this section, in debt collection or obtaining information concerning a consumer, a debt collector may not use a fraudulent, deceptive, or misleading representation that employs the following practices: (1) using a name other than the: (A) true business or professional name or the true personal or legal name of the debt collector while engaged in debt collection; or (B) name appearing on the face of the credit card while engaged in the collection of a credit card debt; (2) failing to maintain a list of all business or professional names known to be used or formerly used by persons collecting consumer debts or attempting to collect consumer debts for the debt collector; (3) representing falsely that the debt collector has information or something of value for the consumer in order to solicit or discover information about the consumer; (4) failing to disclose clearly in any communication with the debtor the name of the person to whom the debt has been assigned or is owed when making a demand for money; (5) in the case of a third-party debt collector, failing to disclose, except in a formal pleading made in connection with a legal action: (A) that the communication is an attempt to collect a debt and that any information obtained will be used for that purpose, if the communication is the initial written or oral communication between the third-party debt collector and the debtor; or (B) that the communication is from a debt collector, if the communication is a subsequent written or oral communication between the third-party debt collector and the debtor; (6) using a written communication that fails to indicate clearly the name of the debt collector and the debt collector's street address or post office box and telephone number if the written notice refers to a delinquent consumer debt; (7) using a written communication that demands a response to a place other than the debt collector's or creditor's street address or post office box; (8) misrepresenting the character, extent, or amount of a consumer debt, or misrepresenting the consumer debt's status in a judicial or governmental proceeding; (9) representing falsely that a debt collector is vouched for, bonded by, or affiliated with, or is an instrumentality, agent, or official of, this state or an agency of federal, state, or local government; (10) using, distributing, or selling a written communication that simulates or is represented falsely to be a document authorized, issued, or approved by a court, an official, a governmental agency, or any other governmental authority or that creates a false impression about the communication's source, authorization, or approval; (11) using a seal, insignia, or design that simulates that of a governmental agency; (12) representing that a consumer debt may be increased by the addition of attorney's fees, investigation fees, service fees, or other charges if a written contract or statute does not authorize the additional fees or charges; (13) representing that a consumer debt will definitely be increased by the addition of attorney's fees, investigation fees, service fees, or other charges if the award of the fees or charges is subject to judicial discretion; (14) representing falsely the status or nature of the services rendered by the debt collector or the debt collector's business; (15) using a written communication that violates the United States postal laws and regulations; (16) using a communication that purports to be from an attorney or law firm if it is not; (17) representing that a consumer debt is being collected by an attorney if it is not; (18) representing that a consumer debt is being collected by an independent, bona fide organization engaged in the business of collecting past due accounts when the debt is being collected by a subterfuge organization under the control and direction of the person who is owed the debt; or (19) using any other false representation or deceptive means to collect a debt or obtain information concerning a consumer. (b) Subsection (a)(4) does not apply to a person servicing or collecting real property first lien mortgage loans or credit card debts. (c) Subsection (a)(6) does not require a debt collector to disclose the names and addresses of employees of the debt collector. (d) Subsection (a)(7) does not require a response to the address of an employee of a debt collector. (e) Subsection (a)(18) does not prohibit a creditor from owning or operating a bona fide debt collection agency. Acts 1997, 75th Leg., ch. 1008, Sec. 1, eff. Sept. 1, 1997. Amended by Acts 2003, 78th Leg., ch. 851, Sec. 2, eff. Sept. 1, 2003; Acts 2003, 78th Leg., 3rd C.S., ch. 3, Sec. 28.01, eff. Jan. 11, 2004.",
       "integrity": {
         "state": "complete",
-        "basis": "Full retrieved body of 4,801 characters stored; under the 60,000 cap, so nothing was cut.",
-        "stamped_at": "2026-09-16T16:09:01",
-        "stored_chars": 4801,
-        "source_chars": 4801,
+        "basis": "Full retrieved body of 4,791 characters stored; under the 60,000 cap, so nothing was cut.",
+        "stamped_at": "2026-09-18T21:58:12",
+        "stored_chars": 4791,
+        "source_chars": 4791,
         "cap_applied": 60000
       },
       "authority_class": "state_statute",
@@ -474,13 +482,13 @@
       "citation": "\u00a7 392.305",
       "kind": "section_sign",
       "page": 1,
-      "text": "\u00a7 392.305 Deceptive Use of Credit Bureau Name A person may not use \u201ccredit bureau,\u201d \u201cretail merchants,\u201d or \u201cretail merchants association\u201d in the person\u2019s business or trade name unless: (1) the person is engaged in gathering, recording, and disseminating information, both favorable and unfavorable, relating to the creditworthiness, financial responsibility, and paying habits of, and similar information regarding, persons being considered for credit extension so that a prospective creditor can make a sound decision in the extension of credit; or (2) the person is a nonprofit retail trade association that: (A) consists of individual members; (B) qualifies as a bona fide business league as defined by the United States Internal Revenue Service; and (C) does not engage in the business of debt collection or credit reporting. [History: Acts 1997, 75th Leg., ch. 1008, Sec. 1, eff. Sept. 1, 1997.]",
+      "text": "\u00a7 392.305 DECEPTIVE USE OF CREDIT BUREAU NAME. A person may not use \"credit bureau,\" \"retail merchants,\" or \"retail merchants association\" in the person's business or trade name unless: (1) the person is engaged in gathering, recording, and disseminating information, both favorable and unfavorable, relating to the creditworthiness, financial responsibility, and paying habits of, and similar information regarding, persons being considered for credit extension so that a prospective creditor can make a sound decision in the extension of credit; or (2) the person is a nonprofit retail trade association that: (A) consists of individual members; (B) qualifies as a bona fide business league as defined by the United States Internal Revenue Service; and (C) does not engage in the business of debt collection or credit reporting. Acts 1997, 75th Leg., ch. 1008, Sec. 1, eff. Sept. 1, 1997.",
       "integrity": {
         "state": "complete",
-        "basis": "Full retrieved body of 900 characters stored; under the 60,000 cap, so nothing was cut.",
-        "stamped_at": "2026-09-16T16:09:01",
-        "stored_chars": 900,
-        "source_chars": 900,
+        "basis": "Full retrieved body of 890 characters stored; under the 60,000 cap, so nothing was cut.",
+        "stamped_at": "2026-09-18T21:58:12",
+        "stored_chars": 890,
+        "source_chars": 890,
         "cap_applied": 60000
       },
       "authority_class": "state_statute",
@@ -491,13 +499,13 @@
       "citation": "\u00a7 392.306",
       "kind": "section_sign",
       "page": 1,
-      "text": "\u00a7 392.306 Use of Independent Debt Collector A creditor may not use an independent debt collector if the creditor has actual knowledge that the independent debt collector repeatedly or continuously engages in acts or practices that are prohibited by this chapter. [History: Acts 1997, 75th Leg., ch. 1008, Sec. 1, eff. Sept. 1, 1997.]",
+      "text": "\u00a7 392.306 USE OF INDEPENDENT DEBT COLLECTOR. A creditor may not use an independent debt collector if the creditor has actual knowledge that the independent debt collector repeatedly or continuously engages in acts or practices that are prohibited by this chapter. Acts 1997, 75th Leg., ch. 1008, Sec. 1, eff. Sept. 1, 1997.",
       "integrity": {
         "state": "complete",
-        "basis": "Full retrieved body of 333 characters stored; under the 60,000 cap, so nothing was cut.",
-        "stamped_at": "2026-09-16T16:09:01",
-        "stored_chars": 333,
-        "source_chars": 333,
+        "basis": "Full retrieved body of 323 characters stored; under the 60,000 cap, so nothing was cut.",
+        "stamped_at": "2026-09-18T21:58:12",
+        "stored_chars": 323,
+        "source_chars": 323,
         "cap_applied": 60000
       },
       "authority_class": "state_statute",
@@ -508,13 +516,30 @@
       "citation": "\u00a7 392.307",
       "kind": "section_sign",
       "page": 1,
-      "text": "\u00a7 392.307 Collection of Certain Consumer Debt by Debt Buyers (a) In this section: (1) \u201cCharged-off debt\u201d means a consumer debt that a creditor has determined to be a loss or expense to the creditor instead of an asset. (2) \u201cDebt buyer\u201d means a person who purchases or otherwise acquires a consumer debt from a creditor or other subsequent owner of the consumer debt, regardless of whether the person collects the consumer debt, hires a third party to collect the consumer debt, or hires an attorney to pursue collection litigation in connection with the consumer debt. The term does not include: (A) a person who acquires in-default or charged-off debt that is incidental to the purchase of a portfolio that predominantly consists of consumer debt that has not been charged off; or (B) a check services company that acquires the right to collect on a paper or electronic negotiable instrument, including an Automated Clearing House (ACH) authorization to debit an account that has not been processed. (b) Unless otherwise expressly provided, this section prevails to the extent of any conflict between this section and any other law of this state. (c) A debt buyer may not, directly or indirectly, commence an action against or initiate arbitration with a consumer to collect a consumer debt after the expiration of the applicable limitations period provided by Section 16.004 (Four-year Limitations Period) , Civil Practice and Remedies Code, or Section 3.118 (Statute of Limitations) , Business & Commerce Code. (d) If an action to collect a consumer debt is barred under Subsection (c), the cause of action is not revived by a payment of the consumer debt, an oral or written reaffirmation of the consumer debt, or any other activity on the consumer debt. (e) If a debt buyer is engaged in debt collection for a consumer debt for which an action to collect the debt is barred under Subsection (c), the debt buyer, or a debt collector acting on behalf of the debt buyer, shall provide the following notice in the initial written communication with the consumer relating to the debt collection: (1) if the reporting period for including the consumer debt in a consumer report prepared by a consumer reporting agency has not expired under Section 605, Fair Credit Reporting Act (15 U.S.C. Section 1681c), and the debt buyer furnishes to a consumer reporting agency information regarding the consumer debt, \u201cTHE LAW LIMITS HOW LONG YOU CAN BE SUED ON A DEBT. BECAUSE OF THE AGE OF YOUR DEBT, WE WILL NOT SUE YOU FOR IT. IF YOU DO NOT PAY THE DEBT, [INSERT NAME OF DEBT BUYER] MAY CONTINUE TO REPORT IT TO CREDIT REPORTING AGENCIES AS UNPAID FOR AS LONG AS THE LAW PERMITS THIS REPORTING. THIS NOTICE IS REQUIRED BY LAW.\u201d; (2) if the reporting period for including the consumer debt in a consumer report prepared by a consumer reporting agency has not expired under Section 605, Fair Credit Reporting Act (15 U.S.C. Section 1681c), but the debt buyer does not furnish to a consumer reporting agency information regarding the consumer debt, \u201cTHE LAW LIMITS HOW LONG YOU CAN BE SUED ON A DEBT. BECAUSE OF THE AGE OF YOUR DEBT, WE WILL NOT SUE YOU FOR IT. THIS NOTICE IS REQUIRED BY LAW.\u201d; or (3) if the reporting period for including the consumer debt in a consumer report prepared by a consumer reporting agency has expired under Section 605, Fair Credit Reporting Act (15 U.S.C. Section 1681c), \u201cTHE LAW LIMITS HOW LONG YOU CAN BE SUED ON A DEBT. BECAUSE OF THE AGE OF YOUR DEBT, WE WILL NOT SUE YOU FOR IT, AND WE WILL NOT REPORT IT TO ANY CREDIT REPORTING AGENCY. THIS NOTICE IS REQUIRED BY LAW.\u201d (f) A notice required under Subsection (e) must be in at least 12-point type that is boldfaced, capitalized, or underlined or otherwise conspicuously set out from the surrounding written material. [History: Added by Acts 2019, 86th Leg., R.S., Ch. 1055 (H.B. 996 ), Sec. 2, eff. September 1, 2019.]",
+      "text": "\u00a7 392.307 COLLECTION OF CERTAIN CONSUMER DEBT BY DEBT BUYERS. (a) In this section: (1) \"Charged-off debt\" means a consumer debt that a creditor has determined to be a loss or expense to the creditor instead of an asset. (2) \"Debt buyer\" means a person who purchases or otherwise acquires a consumer debt from a creditor or other subsequent owner of the consumer debt, regardless of whether the person collects the consumer debt, hires a third party to collect the consumer debt, or hires an attorney to pursue collection litigation in connection with the consumer debt. The term does not include: (A) a person who acquires in-default or charged-off debt that is incidental to the purchase of a portfolio that predominantly consists of consumer debt that has not been charged off; or (B) a check services company that acquires the right to collect on a paper or electronic negotiable instrument, including an Automated Clearing House (ACH) authorization to debit an account that has not been processed. (b) Unless otherwise expressly provided, this section prevails to the extent of any conflict between this section and any other law of this state. (c) A debt buyer may not, directly or indirectly, commence an action against or initiate arbitration with a consumer to collect a consumer debt after the expiration of the applicable limitations period provided by Section 16.004, Civil Practice and Remedies Code, or Section 3.118, Business & Commerce Code. (d) If an action to collect a consumer debt is barred under Subsection (c), the cause of action is not revived by a payment of the consumer debt, an oral or written reaffirmation of the consumer debt, or any other activity on the consumer debt. (e) If a debt buyer is engaged in debt collection for a consumer debt for which an action to collect the debt is barred under Subsection (c), the debt buyer, or a debt collector acting on behalf of the debt buyer, shall provide the following notice in the initial written communication with the consumer relating to the debt collection: (1) if the reporting period for including the consumer debt in a consumer report prepared by a consumer reporting agency has not expired under Section 605, Fair Credit Reporting Act (15 U.S.C. Section 1681c), and the debt buyer furnishes to a consumer reporting agency information regarding the consumer debt, \"THE LAW LIMITS HOW LONG YOU CAN BE SUED ON A DEBT. BECAUSE OF THE AGE OF YOUR DEBT, WE WILL NOT SUE YOU FOR IT. IF YOU DO NOT PAY THE DEBT, [INSERT NAME OF DEBT BUYER] MAY CONTINUE TO REPORT IT TO CREDIT REPORTING AGENCIES AS UNPAID FOR AS LONG AS THE LAW PERMITS THIS REPORTING. THIS NOTICE IS REQUIRED BY LAW.\"; (2) if the reporting period for including the consumer debt in a consumer report prepared by a consumer reporting agency has not expired under Section 605, Fair Credit Reporting Act (15 U.S.C. Section 1681c), but the debt buyer does not furnish to a consumer reporting agency information regarding the consumer debt, \"THE LAW LIMITS HOW LONG YOU CAN BE SUED ON A DEBT. BECAUSE OF THE AGE OF YOUR DEBT, WE WILL NOT SUE YOU FOR IT. THIS NOTICE IS REQUIRED BY LAW.\"; or (3) if the reporting period for including the consumer debt in a consumer report prepared by a consumer reporting agency has expired under Section 605, Fair Credit Reporting Act (15 U.S.C. Section 1681c), \"THE LAW LIMITS HOW LONG YOU CAN BE SUED ON A DEBT. BECAUSE OF THE AGE OF YOUR DEBT, WE WILL NOT SUE YOU FOR IT, AND WE WILL NOT REPORT IT TO ANY CREDIT REPORTING AGENCY. THIS NOTICE IS REQUIRED BY LAW.\" (f) A notice required under Subsection (e) must be in at least 12-point type that is boldfaced, capitalized, or underlined or otherwise conspicuously set out from the surrounding written material. Added by Acts 2019, 86th Leg., R.S., Ch. 1055 (H.B. 996), Sec. 2, eff. September 1, 2019.",
       "integrity": {
         "state": "complete",
-        "basis": "Full retrieved body of 3,895 characters stored; under the 60,000 cap, so nothing was cut.",
-        "stamped_at": "2026-09-16T16:09:01",
-        "stored_chars": 3895,
-        "source_chars": 3895,
+        "basis": "Full retrieved body of 3,826 characters stored; under the 60,000 cap, so nothing was cut.",
+        "stamped_at": "2026-09-18T21:58:12",
+        "stored_chars": 3826,
+        "source_chars": 3826,
+        "cap_applied": 60000
+      },
+      "authority_class": "state_statute",
+      "claim_layer": "doctrinal",
+      "claim_layer_meaning": "States or describes the rule. Cite for what the law IS."
+    },
+    {
+      "citation": "\u00a7 392.308",
+      "kind": "section_sign",
+      "page": 1,
+      "text": "\u00a7 392.308 CONSUMER VICTIM OF IDENTITY THEFT. (a) In this section, \"identity theft\" means: (1) a violation of Section 521.051, Business & Commerce Code, or a substantially similar federal law or law in another state; or (2) a criminal offense described by Section 32.51, Penal Code, or a substantially similar federal law or law in another state. (b) This section does not apply to consumer debt that is a home loan, as defined by Chapter 343, or to the collection of a judgment already obtained. (c) A creditor, debt collector, or third-party debt collector that receives from a consumer a court order issued under Section 521.103, Business & Commerce Code, or a substantially similar federal law or law in another state, declaring the consumer a victim of identity theft may not attempt to collect a consumer debt or a portion of consumer debt that is a result of the identity theft described by the court order. (d) A creditor, debt collector, or third-party debt collector who receives notice that a consumer debt is a result of identity theft from a victim of identity theft in accordance with Subsection (c): (1) shall, not later than the seventh business day after the creditor, debt collector, or third-party debt collector receives the notice, cease efforts to collect the disputed debt or disputed portion of the debt from the victim of identity theft; (2) shall send to each person who has previously received a report relating to that debt from the creditor, debt collector, or third-party debt collector notice that the debt is disputed under this section and not collectible from the victim of identity theft; (3) may not sell the debt or transfer it for consideration, except to collect the debt from the alleged perpetrator of identity theft or from a responsible person other than the victim of identity theft; and (4) may, if the disputed debt or disputed portion of the debt is secured by tangible personal property, enforce the security interest under Chapter 9, Business & Commerce Code, but may not collect or seek to collect any deficiency from the victim of identity theft. (e) A creditor, debt collector, or third-party debt collector has standing to bring and may bring an action to exercise any right, seek any remedy, or use any lawful means to collect a consumer debt or a portion of consumer debt that is disputed under this section from an alleged perpetrator of identity theft who by means of identity theft obtained, used, or possessed the money, goods, services, or property of the consumer who is a victim of the alleged perpetrator's identity theft. Added by Acts 2025, 89th Leg., R.S., Ch. 453 (H.B. 4238), Sec. 1, eff. September 1, 2025. SUBCHAPTER E. DEFENSE, CRIMINAL PENALTY, AND CIVIL REMEDIES",
+      "integrity": {
+        "state": "complete",
+        "basis": "Full retrieved body of 2,734 characters stored; under the 60,000 cap, so nothing was cut.",
+        "stamped_at": "2026-09-18T21:58:12",
+        "stored_chars": 2734,
+        "source_chars": 2734,
         "cap_applied": 60000
       },
       "authority_class": "state_statute",
@@ -525,13 +550,13 @@
       "citation": "\u00a7 392.401",
       "kind": "section_sign",
       "page": 1,
-      "text": "\u00a7 392.401 Bona Fide Error A person does not violate this chapter if the action complained of resulted from a bona fide error that occurred notwithstanding the use of reasonable procedures adopted to avoid the error. [History: Acts 1997, 75th Leg., ch. 1008, Sec. 1, eff. Sept. 1, 1997.]",
+      "text": "\u00a7 392.401 BONA FIDE ERROR. A person does not violate this chapter if the action complained of resulted from a bona fide error that occurred notwithstanding the use of reasonable procedures adopted to avoid the error. Acts 1997, 75th Leg., ch. 1008, Sec. 1, eff. Sept. 1, 1997.",
       "integrity": {
         "state": "complete",
-        "basis": "Full retrieved body of 286 characters stored; under the 60,000 cap, so nothing was cut.",
-        "stamped_at": "2026-09-16T16:09:01",
-        "stored_chars": 286,
-        "source_chars": 286,
+        "basis": "Full retrieved body of 276 characters stored; under the 60,000 cap, so nothing was cut.",
+        "stamped_at": "2026-09-18T21:58:12",
+        "stored_chars": 276,
+        "source_chars": 276,
         "cap_applied": 60000
       },
       "authority_class": "state_statute",
@@ -542,13 +567,13 @@
       "citation": "\u00a7 392.402",
       "kind": "section_sign",
       "page": 1,
-      "text": "\u00a7 392.402 Criminal Penalty (a) Except as provided by Subsection (d), a person commits an offense if the person violates this chapter. (b) An offense under this section is a misdemeanor punishable by a fine of not less than $100 or more than $500 for each violation. (c) A misdemeanor charge under this section must be filed not later than the first anniversary of the date of the alleged violation. (d) This section does not apply to a violation of Section 392.307 (Collection of Certain Consumer Debt by Debt Buyers) . [History: Acts 1997, 75th Leg., ch. 1008, Sec. 1, eff. Sept. 1, 1997. Amended by: Acts 2019, 86th Leg., R.S., Ch. 1055 (H.B. 996 ), Sec. 3, eff. September 1, 2019.]",
+      "text": "\u00a7 392.402 CRIMINAL PENALTY. (a) Except as provided by Subsection (d), a person commits an offense if the person violates this chapter. (b) An offense under this section is a misdemeanor punishable by a fine of not less than $100 or more than $500 for each violation. (c) A misdemeanor charge under this section must be filed not later than the first anniversary of the date of the alleged violation. (d) This section does not apply to a violation of Section 392.307. Acts 1997, 75th Leg., ch. 1008, Sec. 1, eff. Sept. 1, 1997. Amended by: Acts 2019, 86th Leg., R.S., Ch. 1055 (H.B. 996), Sec. 3, eff. September 1, 2019.",
       "integrity": {
         "state": "complete",
-        "basis": "Full retrieved body of 684 characters stored; under the 60,000 cap, so nothing was cut.",
-        "stamped_at": "2026-09-16T16:09:01",
-        "stored_chars": 684,
-        "source_chars": 684,
+        "basis": "Full retrieved body of 619 characters stored; under the 60,000 cap, so nothing was cut.",
+        "stamped_at": "2026-09-18T21:58:12",
+        "stored_chars": 619,
+        "source_chars": 619,
         "cap_applied": 60000
       },
       "authority_class": "state_statute",
@@ -559,13 +584,13 @@
       "citation": "\u00a7 392.403",
       "kind": "section_sign",
       "page": 1,
-      "text": "\u00a7 392.403 Civil Remedies (a) A person may sue for: (1) injunctive relief to prevent or restrain a violation of this chapter; and (2) actual damages sustained as a result of a violation of this chapter. (b) A person who successfully maintains an action under Subsection (a) is entitled to attorney\u2019s fees reasonably related to the amount of work performed and costs. (c) On a finding by a court that an action under this section was brought in bad faith or for purposes of harassment, the court shall award the defendant attorney\u2019s fees reasonably related to the work performed and costs. (d) If the attorney general reasonably believes that a person is violating or is about to violate this chapter, the attorney general may bring an action in the name of this state against the person to restrain or enjoin the person from violating this chapter. (e) A person who successfully maintains an action under this section for violation of Section 392.101 (Bond Requirement) , 392.202 (Correction of Third-party Debt Collector\u2019s or Credit Bureau\u2019s Files) , or 392.301 (Threats or Coercion) (a)(3) is entitled to not less than $100 for each violation of this chapter. [History: Acts 1997, 75th Leg., ch. 1008, Sec. 1, eff. Sept. 1, 1997.]",
+      "text": "\u00a7 392.403 CIVIL REMEDIES. (a) A person may sue for: (1) injunctive relief to prevent or restrain a violation of this chapter; and (2) actual damages sustained as a result of a violation of this chapter. (b) A person who successfully maintains an action under Subsection (a) is entitled to attorney's fees reasonably related to the amount of work performed and costs. (c) On a finding by a court that an action under this section was brought in bad faith or for purposes of harassment, the court shall award the defendant attorney's fees reasonably related to the work performed and costs. (d) If the attorney general reasonably believes that a person is violating or is about to violate this chapter, the attorney general may bring an action in the name of this state against the person to restrain or enjoin the person from violating this chapter. (e) A person who successfully maintains an action under this section for violation of Section 392.101, 392.202, or 392.301(a)(3) is entitled to not less than $100 for each violation of this chapter. Acts 1997, 75th Leg., ch. 1008, Sec. 1, eff. Sept. 1, 1997.",
       "integrity": {
         "state": "complete",
-        "basis": "Full retrieved body of 1,231 characters stored; under the 60,000 cap, so nothing was cut.",
-        "stamped_at": "2026-09-16T16:09:01",
-        "stored_chars": 1231,
-        "source_chars": 1231,
+        "basis": "Full retrieved body of 1,107 characters stored; under the 60,000 cap, so nothing was cut.",
+        "stamped_at": "2026-09-18T21:58:12",
+        "stored_chars": 1107,
+        "source_chars": 1107,
         "cap_applied": 60000
       },
       "authority_class": "state_statute",
@@ -576,13 +601,13 @@
       "citation": "\u00a7 392.404",
       "kind": "section_sign",
       "page": 1,
-      "text": "\u00a7 392.404 Remedies Under Other Law (a) A violation of this chapter is a deceptive trade practice under Subchapter E, Chapter 17 (Deceptive Trade Practices) , Business & Commerce Code, and is actionable under that subchapter. (b) This chapter does not affect or alter a remedy at law or in equity otherwise available to a debtor, creditor, governmental entity, or other legal entity. [History: Acts 1997, 75th Leg., ch. 1008, Sec. 1, eff. Sept. 1, 1997.]",
+      "text": "\u00a7 392.404 REMEDIES UNDER OTHER LAW. (a) A violation of this chapter is a deceptive trade practice under Subchapter E, Chapter 17, Business & Commerce Code, and is actionable under that subchapter. (b) This chapter does not affect or alter a remedy at law or in equity otherwise available to a debtor, creditor, governmental entity, or other legal entity. Acts 1997, 75th Leg., ch. 1008, Sec. 1, eff. Sept. 1, 1997. ``` Home Statutes By Date Downloads Info Toggle Light/Dark Theme Texas Constitution and Statutes Tree Navigation Close Document Download Change Font Face Toggle Font Size Back to top of statute viewer",
       "integrity": {
         "state": "complete",
-        "basis": "Full retrieved body of 453 characters stored; under the 60,000 cap, so nothing was cut.",
-        "stamped_at": "2026-09-16T16:09:01",
-        "stored_chars": 453,
-        "source_chars": 453,
+        "basis": "Full retrieved body of 615 characters stored; under the 60,000 cap, so nothing was cut.",
+        "stamped_at": "2026-09-18T21:58:12",
+        "stored_chars": 615,
+        "source_chars": 615,
         "cap_applied": 60000
       },
       "authority_class": "state_statute",

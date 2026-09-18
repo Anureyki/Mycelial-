@@ -90,7 +90,7 @@ class Unparseable(ValueError):
     pass
 
 
-def parse_citation(text):
+def parse_citation(text, official=False):
     """-> (source_kind, kwargs, canonical). Raises Unparseable.
 
     Deliberately narrow. A parser that guesses which corpus a half-recognised
@@ -153,13 +153,27 @@ def parse_citation(text):
     # & Com. Code § 3.311" - names the chapter it lives in, which is the
     # unit fetched; the section is then reachable by its own number.
     m = re.match(r"^Tex(?:as)?\.?\s*(Bus(?:iness)?\.?\s*(?:&|and)\s*Com(?:merce)?\.?|"
-                 r"Transp(?:ortation)?\.?|Prop(?:erty)?\.?|Fin(?:ance)?\.?)\s*Code\s*"
+                 r"Transp(?:ortation)?\.?|Prop(?:erty)?\.?|Fin(?:ance)?\.?|Penal\s*)\s*Code\s*"
                  r"(?:(?:ch(?:apter)?\.?|\u00a7+)\s*)?(\d+[A-Z]?)(?:\.\d+[A-Za-z]?)?\s*$", t, re.I)
     if m:
-        code = {"b": "bc", "t": "transp", "p": "prop", "f": "fin"}[m.group(1)[0].lower()]
+        # PENAL AND PROP BOTH START WITH P. Keying the map on the first
+        # letter sent "Tex. Penal Code ch. 32" to the Property Code, which
+        # would have shelved the wrong chapter under the right name - the
+        # worst shape a corpus error takes, because every later lookup
+        # trusts it.
+        _w = re.sub(r"[^a-z]", "", m.group(1).lower())
+        code = ("penal" if _w.startswith("penal") else
+                "prop" if _w.startswith("prop") else
+                "bc" if _w.startswith("bus") else
+                "transp" if _w.startswith("transp") else "fin")
         name = {"bc": "Tex. Bus. & Com. Code", "transp": "Tex. Transp. Code",
-                "prop": "Tex. Prop. Code", "fin": "Tex. Fin. Code"}[code]
-        return ("tex", {"code": code, "chapter": m.group(2)},
+                "prop": "Tex. Prop. Code", "fin": "Tex. Fin. Code",
+                "penal": "Tex. Penal Code"}[code]
+        # `official` routes to the State's own renderer. The mirror is the
+        # default because it needs no kit, but it is a MIRROR: its index of
+        # Fin. Code ch. 392 omitted Sec. 392.308 outright.
+        kind = "tex-official" if official else "tex"
+        return (kind, {"code": code, "chapter": m.group(2)},
                 f"{name} ch. {m.group(2)}")
 
     m = re.match(r"^IRM\s*(?:Part\s*)?(\d+)\s*$", t, re.I)
@@ -244,12 +258,12 @@ def _first_section(path):
 
 
 def acquire(agent, citation, expect=None, force=False, lookup=None,
-            reload=None):
+            reload=None, official=False):
     """Fetch, read, verify, class and shelve one provision. -> result dict."""
     from tools import ingest_law
 
     try:
-        kind, kw, canonical = parse_citation(citation)
+        kind, kw, canonical = parse_citation(citation, official=bool(official))
     except Unparseable as exc:
         return {"acquired": False, "stage": "parse", "error": str(exc),
                 "citation": citation}
@@ -259,6 +273,7 @@ def acquire(agent, citation, expect=None, force=False, lookup=None,
                "irm": ingest_law.fetch_irm,
                "plaw": ingest_law.fetch_plaw,
                "tex": ingest_law.fetch_texas,
+               "tex-official": ingest_law.fetch_texas_official,
                "orc": ingest_law.fetch_orc}[kind]
     try:
         body, title, source = fetcher(**kw)
