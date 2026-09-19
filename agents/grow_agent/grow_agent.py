@@ -3187,6 +3187,23 @@ class GrowAgent(AgentBase):
     # being answered by a CODE model as "add 200".
     "how much.*add", "add.*to reach", "to reach \\d", "reach \\d{3}",
     "top ?up", "how much more",
+    # REFILLING THE RESERVOIR. This agent has FOUR refill verbs - record_refill,
+    # project_topup, when_to_top_up, reconcile_topup - and declared none of the
+    # words, which is the `undeclared` state in CLAUDE.md: implemented and
+    # dispatching, invisible to whatever reads the declaration.
+    #
+    # Measured 2026-09-19 from the grower's own dashboard session: "Refilled to
+    # 15L" scored ZERO across every department, so the decision fell through to
+    # the intent model, which answered legal_agent - and a reservoir top-up on
+    # his DWC was handed to the Legal Agent. The next line of the same log shows
+    # "Refilled dwc gsc1 to 15L" reaching this agent, and only because "dwc" and
+    # "gsc1" scored 6. The model says legal for BOTH; declared vocabulary was
+    # the only thing standing between a grow reading and Legal.
+    #
+    # A litre figure is a reservoir volume in this house. This agent already
+    # owns ppm, pH and EC for the same reason.
+    "refill\\w*", "re-?fill", "topped ?up", "litres?", "liters?",
+    "\\b\\d{1,3}(?:\\.\\d+)?\\s*(?:l|litres?|liters?)\\b",
     # the act of keeping the record itself - asking how often to log is a grow
     # question even when it names no plant, no measurement and no equipment
     "reading", "readings", "log\\b", "logging", "cadence", "how often",
@@ -9321,14 +9338,33 @@ class GrowAgent(AgentBase):
             r"(pump|recirculation|circulation|top ?feed|delivery)[^.]{0,60}"
             r"\b(off|stopped|outage|interrupt\w*|not running|failed)\b"
             r"|\b(off all night|was off for)\b", _re.I)
+        # BARE "on" IS A PREPOSITION, NOT A STATE. This alternation carried a
+        # lone `on`, so "AIR PUMP WAS OFF for about six hours on the DWC" matched
+        # `PUMP WAS OFF for about six hours on` and the note reporting an outage
+        # was discarded as describing normal operation. That is the exact mirror
+        # of the bug the comment above records fixing - a note saying the pump
+        # was on read as evidence it was off - and over-correcting produced the
+        # same defect pointing the other way. Measured 2026-09-19 on a real
+        # six-hour air-pump outage the grower reported the same day: the note
+        # was written, the detector ran, and the outage never reached the
+        # differential.
+        #
+        # A state needs a verb: "is/was on", "turned on", "back on", "running".
         _running_re = _re.compile(
-            r"(pump|feed|circulation)[^.]{0,40}\b(running|cycling|on|restored|back on)\b", _re.I)
+            r"(pump|feed|circulation)[^.]{0,40}"
+            r"\b(running|cycling|restored|back on|(?:is|was|been|came)\s+(?:back\s+)?on"
+            r"|(?:turned|switched|powered|plugged)\s+(?:back\s+)?(?:on|in))\b", _re.I)
         outage_days = set()
         for _n in notes:
             _t = str(_n.get("text") or "")
             if not _outage_re.search(_t):
                 continue
-            if _running_re.search(_t) and not _re.search(r"\boff all night\b", _t, _re.I):
+            # NEGATION-AWARE, like every other classifier in this file. "not
+            # turned back on" is a report that the pump is STILL OFF, and
+            # reading it as normal operation loses the outage entirely.
+            _run = _running_re.search(_t)
+            if (_run and not self._negation_at(_t, _run.start())
+                    and not _re.search(r"\boff all night\b", _t, _re.I)):
                 continue                      # describes normal operation
             m = _re.search(r"(20\d\d-\d\d-\d\d)", _t)
             outage_days.add(m.group(1) if m else str(_n.get("timestamp"))[:10])
