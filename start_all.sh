@@ -21,6 +21,74 @@ fi
 mkdir -p logs
 
 # ----------------------------------------------------------------------
+# 0. REFUSE TO DOUBLE-START.
+#
+# This script checked that an agent's FILE EXISTS and then launched it,
+# printing a green tick either way. It never asked whether that agent was
+# already running - so running it on a machine that is already up starts a
+# second copy of everything, and says it succeeded 25 times.
+#
+# That is not hypothetical. Measured 2026-09-19: two grow_agent processes,
+# the second up since 2026-09-18 21:33 having never bound port 9009. It
+# still held an MQTT connection and was still subscribed to the sensor
+# topic, so the first sensor to publish would have been ingested twice into
+# a record whose uptake figures are differences between consecutive
+# readings. Nothing anywhere said no.
+#
+# AgentBase now refuses to run headless, so a duplicate dies at startup
+# rather than lingering. This is the other half: do not launch it in the
+# first place, and do not report a start that did not happen.
+#
+#   ./start_all.sh            refuses if anything is already listening
+#   ./start_all.sh --restart  stops what is running, then starts clean
+#   ./start_all.sh --force    launch anyway (duplicates will die on bind)
+MYCOS_PORTS="8004 8005 8006 8007 8008 8009 8010 8011 8012 8014 8015 8016 8017 \
+8000 8001 8002 8003 8081 9006 9009 9010 9011 9012 9013 9016"
+_live=""
+for _p in $MYCOS_PORTS; do
+    if ss -ltn "sport = :$_p" 2>/dev/null | grep -q LISTEN; then
+        _live="$_live $_p"
+    fi
+done
+
+case "${1:-}" in
+  --restart)
+    if [ -n "$_live" ]; then
+        echo "⏹  Stopping what is already running (ports:$_live)"
+        pkill -f "python3 .*(-m agents\.|services/[a-z_]+/[a-z_]+\.py)" 2>/dev/null || true
+        for _i in 1 2 3 4 5 6 7 8 9 10; do
+            sleep 1
+            _still=""
+            for _p in $MYCOS_PORTS; do
+                ss -ltn "sport = :$_p" 2>/dev/null | grep -q LISTEN && _still="$_still $_p"
+            done
+            [ -z "$_still" ] && break
+        done
+        [ -n "$_still" ] && { echo "❌ ports still held:$_still - not starting over the top"; exit 1; }
+        echo "   stopped."
+    fi
+    ;;
+  --force)
+    [ -n "$_live" ] && echo "⚠️  --force: launching over ports:$_live. Duplicates will fail to bind."
+    ;;
+  *)
+    if [ -n "$_live" ]; then
+        echo "❌ Mycelial is already running - ports already listening:$_live"
+        echo
+        echo "   Starting again would launch a SECOND copy of every agent. Each"
+        echo "   duplicate now dies when it cannot bind, but it will still have"
+        echo "   connected to MQTT first, and a second subscriber on the sensor"
+        echo "   topic double-counts readings."
+        echo
+        echo "   What you probably want:"
+        echo "     ./start_all.sh --restart    stop everything, then start clean"
+        echo "     python3 tools/check_singleton.py   see exactly what is running"
+        exit 1
+    fi
+    ;;
+esac
+
+# ----------------------------------------------------------------------
 # 1. Platform Services
 # ----------------------------------------------------------------------
 echo "🚀 Starting platform services..."
