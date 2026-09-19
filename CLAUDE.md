@@ -23,9 +23,21 @@ describe what IS, while `CHANGELOG.md` holds what happened and
 `DEPLOYMENT_PROGRESS.md` holds what is planned.
 
 ## Essential Commands
-- **Start everything:** `./start_all.sh`
+- **Start everything:** `./start_all.sh` — **refuses if anything is already
+  listening**, because it used to launch a second copy of every agent and print
+  a green tick for each. `--restart` stops first and waits for the ports to
+  clear; `--force` launches anyway and says what that costs.
+- **Is anything duplicated?** `python3 tools/check_singleton.py` — censuses the
+  process table (not the registry) and names any agent running twice, with pids
+  and start times. There must be exactly one of each. A duplicate is not merely
+  untidy: only one process holds the port, but MQTT is connected in `__init__`
+  *before* the HTTP server, so the other is on the bus and invisible over HTTP —
+  a second subscriber on `mycelial/sensor/+/reading` double-counts readings into
+  a record whose uptake figures are differences between consecutive rows.
 - **Stop everything:** `pkill -f "registry_service|memory/service|policy/service|logging_auditing|inference/service|model/service|training|evaluation|data_engineering|service_manager|tool/service|boss_agent|coding_agent|hermes_interface|maintenance_agent|Anansi|analyzer_agent|grow_agent"`
-- **Check health (startup/infra level):** `./start_all.sh` (it runs a per-port health check at the end)
+- **Check health (startup/infra level):** `./start_all.sh --restart` (it runs a
+  per-port health check at the end). Plain `./start_all.sh` is no longer a
+  health check on a running system — it refuses, by design.
 - **Check health (status board):** ask Anansi "system status" for a plain-language recap of every agent's health and active projects, or open the Dashboard tab in `webapp/` for the same as live cards (System / Grow / Progress). This is the day-to-day way to check on things - `startup_health.sh` (a dead script pointing at a pre-refactor flat file path) was removed in favor of it.
 - **Interact via Anansi:** `curl -X POST http://localhost:8081/execute -H "Content-Type: application/json" -d '{"task":"process_request","args":["Your question"]}'`
 - **Talk to Coding Agent directly:** `curl -X POST http://localhost:8001/execute -H "Content-Type: application/json" -d '{"task":"reason","args":{"prompt":"Your prompt"}}'`
