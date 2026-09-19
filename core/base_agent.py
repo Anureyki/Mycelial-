@@ -1240,8 +1240,20 @@ class AgentBase:
                 return jsonify({"result": result})
             except Exception as e:
                 self._cache_end()
-                self.log(f"Error: {e}")
-                return jsonify({"error": str(e)}), 500
+                # THE FRAME IS PART OF THE FAILURE, NOT DECORATION. This used
+                # to log `Error: {e}` alone, which threw away both the task
+                # name and the stack. A real one, 2026-09-14: grow_agent
+                # logged "Error: list.index(x): x not in list" and nothing
+                # else - no verb, no file, no line - and five days later the
+                # only way to look for it was to grep every `.index(` in the
+                # repo by hand and rule them out one at a time. The defect
+                # was still unlocated when the traceback would have named it
+                # outright. CLAUDE.md: a failure with a reason that arrives
+                # as `pass` is a true thing that stopped travelling.
+                import traceback as _tb
+                self.log(f"Error in {task!r} from {sender!r}: {type(e).__name__}: {e}\n"
+                         + _tb.format_exc().rstrip())
+                return jsonify({"error": str(e), "task": task}), 500
 
         @self.app.route("/upload", methods=["POST", "OPTIONS"])
         def upload():
@@ -1291,8 +1303,40 @@ class AgentBase:
             return jsonify({"status": "alive", "agent": self.agent_id})
 
         import threading
-        from waitress import serve
-        threading.Thread(target=lambda: serve(self.app, host="127.0.0.1", port=self.port, _quiet=True)).start()
+        from waitress import create_server
+
+        # BIND IN THIS THREAD, SERVE IN THE OTHER. `serve()` does both, so
+        # running it inside a Thread put the bind out of reach: the thread
+        # died on EADDRINUSE while the line below announced success, and the
+        # process stayed up forever holding no socket.
+        #
+        # Measured 2026-09-19: a second grow_agent (pid 27671) had been
+        # running since 2026-09-18 21:33 having never bound port 9009. It
+        # still held an MQTT connection and was still subscribed to
+        # `mycelial/sensor/+/reading`, so the first sensor to publish would
+        # have been ingested twice - into a record whose uptake figures are
+        # DIFFERENCES between consecutive readings. Its log said "HTTP server
+        # started on port 9009".
+        #
+        # This is the false-success shape CLAUDE.md hunts, in the base class
+        # every agent inherits: verify the effect, not the call. create_server
+        # binds here and raises here, so a port that is already taken is a
+        # startup failure with a name on it instead of a ghost.
+        try:
+            # No `_quiet` here: serve() POPS that kwarg before constructing the
+            # server, so create_server rejects it as an unknown adjustment.
+            # It only ever suppressed serve()'s own logging.basicConfig() and
+            # its "Serving on ..." banner, neither of which this path reaches -
+            # so dropping it keeps the silence and loses nothing.
+            server = create_server(self.app, host="127.0.0.1", port=self.port)
+        except OSError as e:
+            self.log(f"FATAL: could not bind port {self.port}: {e}. "
+                     f"Another {self.agent_id} is almost certainly already running - "
+                     f"check with: ss -ltnp | grep {self.port}. Refusing to run headless: "
+                     f"an agent that cannot be reached but keeps consuming MQTT is worse "
+                     f"than one that is down, because nothing reports it missing.")
+            raise
+        threading.Thread(target=server.run, daemon=True).start()
         self.log(f"HTTP server started on port {self.port}")
 
     def handle_task(self, task, args, sender):

@@ -194,6 +194,9 @@ jobs:
       - name: A retrospective hit is never counted as foresight
         run: python tools/check_outcome_loop.py
 
+      - name: An agent that cannot bind its port fails instead of running headless
+        run: python tools/check_agent_bind.py
+
       - name: No sensitive material in the repository
         # The backstop. The real gate is .githooks/pre-commit, because a
         # secret caught by CI has already been pushed - this repository
