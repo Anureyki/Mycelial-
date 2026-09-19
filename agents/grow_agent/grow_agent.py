@@ -4280,9 +4280,26 @@ class GrowAgent(AgentBase):
         elif cur_p is None:
             cur_p = last["ppm"]
         if cur_v is None:
-            cur_v = self._parse_numeric(
-                (self.handle_task("volume_history", {"plant_id": plant_id},
-                                  "project_topup").get("result", {}) or {}).get("current_liters"))
+            # TWO CALL SITES DISAGREEING ABOUT THE ENVELOPE. The volume_history
+            # branch of handle_task returns its dict RAW, with no {"result":...}
+            # wrapper - the HTTP layer adds that. This unwrapped one anyway, so
+            # .get("result", {}) returned {} and the volume was never found:
+            # project_topup then reported "Need a current ppm and a current
+            # volume" while printing last_reading_found carrying both. It could
+            # only ever work when the caller passed current_liters by hand.
+            #
+            # Accept either shape rather than guessing which verb wraps, because
+            # the dispatcher is not consistent about it and a fix keyed to one
+            # spelling breaks the moment the other side is tidied.
+            _vh = self.handle_task("volume_history", {"plant_id": plant_id},
+                                   "project_topup") or {}
+            if isinstance(_vh, dict) and "current_liters" not in _vh:
+                _vh = _vh.get("result") or {}
+            cur_v = self._parse_numeric(_vh.get("current_liters")
+                                        if isinstance(_vh, dict) else None)
+            # Last resort: the reading that supplied the ppm also carried a volume.
+            if cur_v is None and last.get("liters"):
+                cur_v = last["liters"]
 
         if cur_p is None or cur_v is None:
             return {"error": "Need a current ppm and a current volume, or a stored "
