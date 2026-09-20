@@ -12832,8 +12832,18 @@ class GrowAgent(AgentBase):
             return {"result": {"reading": self.parse_reading(args.get("prompt") or "")}}
 
         elif task == "log_from_text":
+            # NOT `or "current_plant"` - log_from_text's own docstring says
+            # that default was removed because it is the exact pair CLAUDE.md
+            # forbids: a reading with no explicit plant, silently attributed
+            # to whichever vessel was discussed last rather than the one
+            # measured. Forcing it back on here would undo that fix at the
+            # dispatch layer while leaving the method itself looking correct.
             return {"result": self.log_from_text(
-                args.get("prompt") or "", args.get("plant_id") or "current_plant")}
+                args.get("prompt") or "", args.get("plant_id"))}
+
+        elif task == "refill_from_text":
+            return {"result": self.refill_from_text(
+                args.get("prompt") or "", args.get("plant_id"))}
 
         elif task == "project_drawdown":
             return {"result": self.project_drawdown(
