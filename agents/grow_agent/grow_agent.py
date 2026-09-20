@@ -920,7 +920,7 @@ class GrowAgent(AgentBase):
                 "set_grow_system", "get_grow_system", "amend_grow_system",
                 "field_history", "assess_root_zone", "void_reservoir_eval",
                 "which_plant", "record_refill",
-                "reconcile_ec_temperature", "intake_reading", "when_to_top_up", "project_topup", "plan_feed_for_target", "ppm_per_ml", "round_to_instrument", "assess_ph", "quantities",
+                "reconcile_ec_temperature", "intake_reading", "when_to_top_up", "project_topup", "plan_feed_for_target", "reconcile_dose", "ppm_per_ml", "round_to_instrument", "assess_ph", "quantities",
                 "get_nutrient_history",
                 "set_inventory", "get_inventory",
                 "check_in", "analyze_consumption", "adjust_to_target_ppm",
@@ -4212,6 +4212,26 @@ class GrowAgent(AgentBase):
                        f"overshoot - it only dilutes.")
         if note:
             out["note"] = note
+
+        # THE PLAN IS A PREDICTION, AND A PREDICTION THAT IS NEVER WRITTEN
+        # DOWN CANNOT BE CHECKED. project_topup's prediction only became
+        # reconcilable because record_refill persists it as an event before
+        # the grower ever measures the outcome; this one was computed and
+        # handed back with nowhere to land, so nothing later could compare a
+        # reading against it except by the caller re-typing the number by
+        # hand. Persisted at dose_into_liters/interim ppm - the FIRST
+        # checkpoint, the one the grower can actually measure next - not at
+        # target_ppm/final_liters, which assumes water that has not arrived.
+        try:
+            ev = self._volume_events(plant_id)
+            ev.append({"at": datetime.now().isoformat(), "kind": "dose",
+                       "volume_liters": round(now_v, 2), "ppm_before": round(now_p, 1),
+                       "ppm_predicted": out.get("ppm_while_you_wait"),
+                       "add_now_ml": out.get("add_now_ml"), "reconciled": False,
+                       "note": str(note)[:300]})
+            self.store_own_memory(f"volume_events_{plant_id}", json.dumps(ev[-200:]))
+        except Exception as e:
+            self.log(f"plan_feed_for_target: could not persist dose event: {e}")
         return out
 
     def project_topup(self, plant_id="current_plant", volume_to_add=None,
@@ -4651,6 +4671,87 @@ class GrowAgent(AgentBase):
                 out["persisted"] = {"key": key, "typical_working_liters": round(va, 1),
                                     "reservoir_liters": round(va, 1),
                                     "volume_source": "dilution"}
+        return out
+
+    def reconcile_dose(self, plant_id="current_plant", ppm_after=None, volume_liters=None,
+                       ppm_predicted=None, meter_tolerance_pct=3.0, note=""):
+        """reconcile_topup's counterpart for the other half of the reservoir's
+        arithmetic - a dose adds dissolved mass rather than diluting it, which
+        is exactly the case reconcile_topup refuses outright rather than
+        misapply. At an unchanged volume, any gap between what plan_feed_for_
+        target predicted and what is actually measured once the dose has
+        mixed is nutrient the plant already pulled back out - the same
+        "measured below prediction is uptake" reading record_refill's
+        prediction gives, on mass added instead of water added.
+
+        Pulls the last unreconciled dose plan_feed_for_target persisted for
+        this plant when ppm_predicted is not given directly, so a plan
+        computed earlier does not have to be retyped by hand to check it -
+        and it is that persistence, not this comparison, that was actually
+        missing; the arithmetic below is the same conservation of mass
+        every other reconciliation here runs on."""
+        pa = self._parse_numeric(ppm_after)
+        if pa is None:
+            return {"classification": "insufficient_evidence", "confidence": "low",
+                    "reason": "Nothing to reconcile against without a measured ppm.",
+                    "action": "Take a ppm reading once the dose has circulated."}
+
+        pred = self._parse_numeric(ppm_predicted)
+        vol = self._parse_numeric(volume_liters)
+        event = None
+        if pred is None:
+            for e in reversed(self._volume_events(plant_id)):
+                if e.get("kind") == "dose" and not e.get("reconciled"):
+                    event = e
+                    pred = self._parse_numeric(e.get("ppm_predicted"))
+                    if vol is None:
+                        vol = self._parse_numeric(e.get("volume_liters"))
+                    break
+            if pred is None:
+                return {"classification": "insufficient_evidence", "confidence": "low",
+                        "reason": "No unreconciled dose is on record for this plant, and no "
+                                  "ppm_predicted was given directly.",
+                        "action": "Run plan_feed_for_target first, or pass the ppm_while_you_"
+                                  "wait figure it already returned as ppm_predicted."}
+
+        tol = self._parse_numeric(meter_tolerance_pct) or 3.0
+        delta = round(pred - pa, 1)
+        delta_pct = round(100 * delta / pred, 2) if pred else None
+
+        out = {"plant_id": plant_id, "ppm_predicted": pred, "ppm_after": pa,
+               "volume_liters": vol, "delta_ppm": delta, "delta_pct": delta_pct,
+               "method": "conservation_of_dissolved_mass_after_dose"}
+
+        if abs(delta_pct or 0) <= tol:
+            out["classification"] = "matches_prediction"
+            out["reason"] = (f"{pa:g} ppm is within {tol:g}% of the {pred:g} ppm the dose "
+                             f"predicted.")
+        elif delta > 0:
+            out["classification"] = "uptake_since_dose"
+            out["uptake_ppm_litres"] = round(delta * vol, 0) if vol else None
+            out["reason"] = (f"Measured {pa:g} ppm is {delta:g} ppm below the {pred:g} ppm "
+                             f"the dose predicted. No water was added, so that mass did not "
+                             f"leave by dilution - the plant took it up.")
+        else:
+            out["classification"] = "above_prediction"
+            out["reason"] = (f"Measured {pa:g} ppm is {abs(delta):g} ppm ABOVE the {pred:g} "
+                             f"ppm predicted. Not uptake: either the dose delivered more than "
+                             f"planned, the reading the plan was based on was off, or the "
+                             f"meter has drifted.")
+
+        if event is not None:
+            try:
+                events = self._volume_events(plant_id)
+                for e in events:
+                    if e.get("kind") == "dose" and e.get("at") == event.get("at"):
+                        e["reconciled"] = True
+                        e["reconciled_result"] = out["classification"]
+                        e["reconciled_at"] = datetime.now().isoformat()
+                self.store_own_memory(f"volume_events_{plant_id}", json.dumps(events[-200:]))
+            except Exception as ex:
+                self.log(f"reconcile_dose: could not mark event reconciled: {ex}")
+        if note:
+            out["note"] = note
         return out
 
     def measure_working_volume(self, plant_id="current_plant", reference_liters=None,
@@ -11532,6 +11633,8 @@ class GrowAgent(AgentBase):
 
         elif task == "reconcile_topup":
             return {"result": self.reconcile_topup(**(args if isinstance(args, dict) else {}))}
+        elif task == "reconcile_dose":
+            return {"result": self.reconcile_dose(**(args if isinstance(args, dict) else {}))}
         elif task == "log_water_change":
             # A top-up is described by what was ADDED; a full change by what the
             # reservoir now holds. Accepting only one name made the other look
