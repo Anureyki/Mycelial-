@@ -1773,3 +1773,38 @@ right after a reading whose volume was only recorded on the reading, not the
 system record, computed `added_liters: 0` against a stale "before". Two places
 hold "current volume" and only one gets updated by readings. Not fixed here;
 flagged so it is not rediscovered as a fresh bug.
+
+## Open decision - mycelial-core compute path, past 125M (2026-09-21)
+
+Not chosen yet - recorded so the comparison survives past the conversation that
+produced it. `models/config/gpt_125m.json` already says the current machine
+cannot run a real 125M training run today (7GB total RAM, ~3GB free with the
+agent stack up) - this is not a "someday, past 125M" problem, it is blocking
+the very next real run. Machine has no discrete GPU: integrated graphics on a
+4th-gen Xeon, and disk is separately at 87% used (7GB free of 54GB).
+
+**Path A - rent cloud GPU compute (RunPod / Vast.ai over Lambda Labs or
+DigitalOcean GPU droplets - same cards, cheaper per hour for burst work).**
+A single RTX 4090/3090 at ~$0.30-0.50/hr covers 125M-350M comfortably; a 125M
+run from scratch is hours, not days, so low hundreds of dollars covers many
+iterate-and-retest cycles. Training code needs no porting - same repo, rented
+compute instead of local. Risk to weigh before the first real run: the
+DP-noised training corpora leave this machine, so the provider's data-retention
+terms need checking against the per-domain epsilon accounting this repo
+already takes seriously. Cost scales with how often training actually happens.
+
+**Path B - local rack, own the hardware.** This machine does not extend into a
+training node - it stays on OS-hosting duty. A real local path is a NEW build,
+not an upgrade: consumer platform, one RTX 4090/3090, 64GB+ RAM so the model
+and the OS agent stack are not fighting over 7GB again. Realistically
+$2,500-3,500 for a capable single-GPU box. A full rack + UPS + security
+monitoring is a separate physical-infrastructure project with its own budget
+and timeline - worth sequencing the GPU box first and treating the rack
+buildout as parallel, lower-urgency work rather than a prerequisite. Ceiling:
+comfortably covers 125M-1B, not 7B (that wants 40-80GB+ VRAM or multiple GPUs).
+
+**The actual variable the decision turns on:** how often Core will actually
+retrain. Bursty and infrequent favors renting; frequent, ongoing training
+favors owning. Common sequence discussed: rent now to unblock the current 125M
+work cheaply, decide on a local box once real retraining frequency is known
+rather than guessed at up front.
