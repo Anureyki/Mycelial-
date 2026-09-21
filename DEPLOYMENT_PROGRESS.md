@@ -1737,3 +1737,39 @@ file-number question, and the one Legal cannot yet open. Fix: a DoDI/Directive
 segmentation scheme in the corpus ingester. Not done here because it is corpus
 tooling, not evidence ingestion, and widening this increment to do it would be
 the phase creep the ladder exists to stop.
+
+## Known gap - Grow has no general cultivation-knowledge verb (2026-09-21)
+
+Asked about autoflower lifecycle length, autoflower-vs-photoperiod genetics,
+and what changes once a plant transitions from veg into flower, `answer()`
+routed every phrasing onto the same fixed facet (feed status, or stage-vs-
+day-count) and never touched the actual question. This is not a wording
+problem: `lookup` returned nothing (the reference corpus holds only authored
+notes on deficiencies, leaf symptoms and training/LST-HST - nothing on
+lifecycle biology), and `plan_system_transition` turned out to mean moving a
+plant between reservoir systems, not moving between life stages. `absent`, not
+`undeclared`: checked four capabilities before concluding this, per the
+absence-vs-unreachability rule above.
+
+`verify_growth_stage` already does the adjacent thing correctly - it runs a
+live web check ("Girl Scout Cookies (autoflower) day 55 growth stage") rather
+than answering from memory, and confirmed day 55 is normal veg length for this
+specific strain. The missing verb is the general case of the same pattern:
+web-backed, not authored-from-memory, answering "how long does this strain run"
+and "what does the grower need to do differently once flowering starts" for
+whatever plant and stage it is asked about - and staying inside the same
+evidence discipline everything else in this file runs on, rather than becoming
+a second, unverified path for cultivation advice to enter through.
+
+Not built in this increment - the grower asked for it to be queued rather than
+built on the spot, and a general-knowledge verb is a different shape of
+capability than the numeric ones Grow already has (evaluate_reservoir,
+plan_feed_for_target), worth designing rather than bolting on.
+
+Also found and left open in the same session: `record_refill`'s "before"
+volume reads the plant's system record (`reservoir_liters`), which
+`intake_reading`'s own `volume_liters` field does not write back to - a refill
+right after a reading whose volume was only recorded on the reading, not the
+system record, computed `added_liters: 0` against a stale "before". Two places
+hold "current volume" and only one gets updated by readings. Not fixed here;
+flagged so it is not rediscovered as a fresh bug.
