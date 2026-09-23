@@ -1730,7 +1730,13 @@ class GrowAgent(AgentBase):
         import csv as _csv
         rows = []
         try:
-            with open(csv_path, newline="") as fh:
+            # utf-8-sig: Mars Hydro's export carries a UTF-8 BOM, which
+            # plain utf-8 leaves attached to the first header ("deviceSerial
+            # num" instead of "deviceSerialnum") so every lookup on that one
+            # column misses silently while every other column parses fine -
+            # confirmed on a real export, not a defensive guess. utf-8-sig
+            # strips a leading BOM if present and is a no-op if it is not.
+            with open(csv_path, newline="", encoding="utf-8-sig") as fh:
                 for row in _csv.DictReader(fh):
                     rows.append(row)
         except Exception as e:
