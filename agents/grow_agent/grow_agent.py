@@ -7,6 +7,7 @@ import hashlib
 import json
 import math
 import re
+import shutil
 import requests
 from datetime import datetime, timedelta
 
@@ -893,6 +894,7 @@ class GrowAgent(AgentBase):
     # reference is codified rule looked up by citation, and a grower card is
     # somebody's note about what happens above the rule.
     SHOT_DIR = os.path.expanduser("~/mycelial/knowledge_base/grow_agent/screenshots")
+    ENV_DIR = os.path.expanduser("~/mycelial/knowledge_base/grow_agent/environment_exports")
 
     def __init__(self):
         super().__init__(
@@ -920,7 +922,7 @@ class GrowAgent(AgentBase):
                 "set_grow_system", "get_grow_system", "amend_grow_system",
                 "field_history", "assess_root_zone", "void_reservoir_eval",
                 "which_plant", "record_refill",
-                "reconcile_ec_temperature", "intake_reading", "when_to_top_up", "project_topup", "plan_feed_for_target", "reconcile_dose", "ppm_per_ml", "round_to_instrument", "assess_ph", "quantities",
+                "reconcile_ec_temperature", "intake_reading", "when_to_top_up", "project_topup", "plan_feed_for_target", "reconcile_dose", "ingest_environment_export", "ppm_per_ml", "round_to_instrument", "assess_ph", "quantities",
                 "get_nutrient_history",
                 "set_inventory", "get_inventory",
                 "check_in", "analyze_consumption", "adjust_to_target_ppm",
@@ -1688,6 +1690,101 @@ class GrowAgent(AgentBase):
             return ev if isinstance(ev, list) else []
         except Exception:
             return []
+
+    def _environment_events(self, plant_id):
+        raw = self._unwrap_value(self.retrieve_own_memory(f"environment_events_{plant_id}"))
+        try:
+            ev = json.loads(raw) if raw else []
+            return ev if isinstance(ev, list) else []
+        except Exception:
+            return []
+
+    def ingest_environment_export(self, plant_id=None, csv_path=None, note=""):
+        """Summarize a bulk ambient-conditions export (temperature, humidity,
+        VPD from a tent sensor like a Mars Hydro THP unit) and attach it to a
+        plant, keeping the raw file as durable evidence rather than a copy of
+        every row.
+
+        TENT DATA, NOT RESERVOIR DATA - a real distinction, not a formality.
+        Everything else this agent records (ppm, EC, pH) is per-vessel and
+        never crosses between plants. Ambient conditions are the opposite:
+        one sensor reports what an entire tent experiences, so the same
+        export is true for every plant sharing that tent. Attaching it to a
+        single plant_id is only correct while that plant is alone in its
+        tent. The day a second plant moves in, this needs to attach to both
+        or become tent-scoped rather than plant-scoped - not solved here,
+        recorded so it is not silently wrong later.
+
+        Refuses the same way a reading does: no plant, nothing stored. No
+        row-by-row storage - summary statistics only, with the source file
+        copied into ENV_DIR so the underlying detail is never actually lost,
+        just not individually queryable."""
+        if not plant_id:
+            return {"recorded": False, "reason": "no plant named",
+                    "ask": "Environment data needs its vessel/tent, same as a reading. "
+                           "Nothing was recorded."}
+        if not csv_path or not os.path.isfile(csv_path):
+            return {"recorded": False, "reason": "no readable csv_path given",
+                    "plant_id": plant_id}
+
+        import csv as _csv
+        rows = []
+        try:
+            with open(csv_path, newline="") as fh:
+                for row in _csv.DictReader(fh):
+                    rows.append(row)
+        except Exception as e:
+            return {"recorded": False, "reason": f"could not parse csv: {e}",
+                    "plant_id": plant_id}
+        if not rows:
+            return {"recorded": False, "reason": "csv had no data rows",
+                    "plant_id": plant_id}
+
+        def _col(row, *names):
+            for n in names:
+                if n in row:
+                    return row[n]
+            return None
+
+        def _stats(vals):
+            nums = [v for v in (self._parse_numeric(x) for x in vals) if v is not None]
+            if not nums:
+                return None
+            return {"min": round(min(nums), 2), "max": round(max(nums), 2),
+                    "avg": round(sum(nums) / len(nums), 2), "n": len(nums)}
+
+        temp_c = _stats(_col(r, "temperature(°C)", "temperature_c") for r in rows)
+        humidity = _stats(_col(r, "humidity") for r in rows)
+        vpd = _stats(_col(r, "vpd") for r in rows)
+        timestamps = [_col(r, "Timestamp", "timestamp") for r in rows if _col(r, "Timestamp", "timestamp")]
+        device = next((_col(r, "deviceSerialnum", "device") for r in rows
+                      if _col(r, "deviceSerialnum", "device")), None)
+
+        os.makedirs(self.ENV_DIR, exist_ok=True)
+        stamp = datetime.now().strftime("%Y%m%dT%H%M%S")
+        stored_name = f"{plant_id}_{device or 'unknown'}_{stamp}.csv"
+        stored_path = os.path.join(self.ENV_DIR, stored_name)
+        try:
+            shutil.copyfile(csv_path, stored_path)
+        except Exception as e:
+            stored_path = None
+            self.log(f"ingest_environment_export: could not copy source csv: {e}")
+
+        entry = {"at": datetime.now().isoformat(), "kind": "environment_export",
+                 "device_serial": device, "row_count": len(rows),
+                 "time_start": timestamps[0] if timestamps else None,
+                 "time_end": timestamps[-1] if timestamps else None,
+                 "temp_c": temp_c, "humidity_pct": humidity, "vpd_kpa": vpd,
+                 "source_file": stored_path or csv_path,
+                 "source_copied": bool(stored_path), "note": str(note)[:300]}
+        ev = self._environment_events(plant_id)
+        ev.append(entry)
+        self.store_own_memory(f"environment_events_{plant_id}", json.dumps(ev[-200:]))
+
+        out = {"recorded": True, "plant_id": plant_id, **entry}
+        out["not_a_reading"] = ("Ambient tent conditions, summarized from "
+                                "row_count rows. Not reservoir ppm/EC/pH.")
+        return out
 
     def record_refill(self, plant_id=None, to_liters=None, added_liters=None,
                       topup_ppm=0.0, note=""):
@@ -12994,6 +13091,11 @@ class GrowAgent(AgentBase):
                 a.get("plant_id"), to_liters=a.get("to_liters"),
                 added_liters=a.get("added_liters"), topup_ppm=a.get("topup_ppm", 0.0),
                 note=a.get("note", ""))}
+
+        elif task == "ingest_environment_export":
+            a = args if isinstance(args, dict) else {}
+            return {"result": self.ingest_environment_export(
+                a.get("plant_id"), csv_path=a.get("csv_path"), note=a.get("note", ""))}
 
         elif task == "which_plant":
             # THE RECEIPT BEFORE THE READING. Which vessel is this sentence
