@@ -1105,7 +1105,13 @@ class AccountingAgent(AgentBase):
 
         # --- the verdict on what was posted -----------------------------
         posted_l = posted.lower().strip().rstrip(".")
-        is_fault_code = posted_l in self.FAULT_BEARING_CODES
+        # Exact match alone let "DAMAGES / WWPC-Trip Charge" - a fault code
+        # written alongside its description, which is how ledger lines are
+        # actually read off - fall through to the "consistent" catch-all. A
+        # fault code missed here does not fail loudly; it gets certified.
+        is_fault_code = posted_l in self.FAULT_BEARING_CODES or any(
+            re.search(r"(?<![a-z])" + re.escape(code) + r"(?![a-z])", posted_l)
+            for code in self.FAULT_BEARING_CODES)
         findings, verdict = [], "posted_label_undetermined"
 
         if not posted:
