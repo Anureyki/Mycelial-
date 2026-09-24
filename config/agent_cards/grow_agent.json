@@ -45,6 +45,7 @@
     "when_to_top_up",
     "project_topup",
     "plan_feed_for_target",
+    "reconcile_dose",
     "ppm_per_ml",
     "round_to_instrument",
     "assess_ph",
@@ -72,7 +73,8 @@
     "leaf_differential",
     "lookup",
     "list_training_events",
-    "void_training_event"
+    "void_training_event",
+    "ingest_environment_export"
   ],
   "endpoint": "/execute",
   "port": 9009,

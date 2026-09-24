@@ -4029,6 +4029,14 @@ class GrowAgent(AgentBase):
                                                 "reservoir change", "into 5", "into fresh"))
             if not _fresh:
                 continue
+            # A MIX WHOSE AMOUNTS ARE IN DOUBT CANNOT CALIBRATE. The reading is
+            # real; the ml it is divided by is not known. 46.5 ml was written
+            # for a 15 L change that read 681, which divided out to 219.7 - but
+            # the grower had lost count on Gro and Micro, so the true ml was
+            # lower and the true figure higher. Calibrating on it would have
+            # shrunk every later dose by the size of one miscount.
+            if rec.get("dose_uncertain"):
+                continue
 
             # The ppm that mix produced, from the first reading at that volume
             # after it was set.
@@ -4132,8 +4140,14 @@ class GrowAgent(AgentBase):
 
     def plan_feed_for_target(self, plant_id="current_plant", target_ppm=None,
                              dose_into_liters=None, final_liters=None,
-                             current_ppm=None, note=""):
+                             current_ppm=None, note="", only_products=None):
         """Dose NOW into less water, to land in band AFTER a top-up you know is coming.
+
+        only_products restricts the dose to the named bottles, in this plant's
+        recipe proportions among themselves. A shortfall is not always spread
+        evenly across a recipe: when the grower counted Cal-Mag and Bloom
+        exactly and lost count on Gro and Micro, topping up all four restores
+        the ppm and pushes the two exact ones past plan.
 
         The grower's situation, exactly: the water is off, the reservoir is
         short, and he will fill it the rest of the way when supply returns. He
@@ -4255,6 +4269,28 @@ class GrowAgent(AgentBase):
                     ratio_from = plant_id
         except Exception as e:
             self.log(f"plan_feed_for_target: could not read own recipe ratio: {e}")
+
+        if only_products:
+            _want = [only_products] if isinstance(only_products, str) else list(only_products)
+            _lk = {k.lower(): k for k in ratio}
+            _missing = [p for p in _want if p.lower() not in _lk]
+            if _missing:
+                out["verdict"] = "unknown_product"
+                out["reason"] = (f"{_missing} not in the recipe on record for {plant_id} "
+                                 f"({sorted(ratio)}); refusing rather than guessing a proportion.")
+                return out
+            _keep = {_lk[p.lower()]: ratio[_lk[p.lower()]] for p in _want}
+            _s = sum(_keep.values())
+            if _s <= 0:
+                out["verdict"] = "unknown_product"
+                out["reason"] = f"{_want} carry no share of the recipe on record."
+                return out
+            ratio = {k: v / _s for k, v in _keep.items()}
+            out["only_products"] = sorted(ratio)
+            out["strength_caveat"] = (
+                "ppm-per-ml is measured on the whole blend, not per bottle, so a dose of only "
+                f"{', '.join(sorted(ratio))} assumes they deliver ppm at the blend's rate. "
+                "Read ppm after it circulates; that reading is the check.")
 
         total_ml = add_mass / conc["ppm_l_per_ml"]
         out["ppm_per_ml"] = conc
@@ -4825,10 +4861,50 @@ class GrowAgent(AgentBase):
                "volume_liters": vol, "delta_ppm": delta, "delta_pct": delta_pct,
                "method": "conservation_of_dissolved_mass_after_dose"}
 
+        # A DOSE INTO FRESH WATER HAS NO MEASURED BASELINE TO TAKE UPTAKE FROM.
+        # The prediction there is ppm_per_ml's coefficient times the ml added -
+        # a model output, never a reading - and ppm_per_ml itself treats the
+        # first reading after a fresh mix as exactly what that mix produced.
+        # Calling the gap uptake contradicted that verb: 46.5 ml into 15 L of DI
+        # predicted 800, measured 681 with ppm and EC agreeing to 0.6%, and this
+        # reported 119 ppm "taken up" by a veg auto within four hours of mixing,
+        # on a plant whose ppm had been RISING between changes. The gap is the
+        # coefficient being wrong for this mix, and the fix is to recalibrate it.
+        fresh = event is not None and (self._parse_numeric(event.get("ppm_before")) or 0) == 0
+        if event is not None and event.get("at"):
+            try:
+                out["hours_since_dose"] = round(
+                    (datetime.now() - datetime.fromisoformat(event["at"])).total_seconds() / 3600, 1)
+            except Exception:
+                pass
+
         if abs(delta_pct or 0) <= tol:
             out["classification"] = "matches_prediction"
             out["reason"] = (f"{pa:g} ppm is within {tol:g}% of the {pred:g} ppm the dose "
                              f"predicted.")
+        elif fresh:
+            # Two causes produce this identical reading and no meter separates
+            # them: the coefficient is off, or the dose that went in was not the
+            # dose that was planned. Only the grower's account of the pour can.
+            _ml = sum((self._parse_numeric(v) or 0) for v in (event.get("add_now_ml") or {}).values())
+            _implied = round(_ml * pa / pred, 2) if (_ml and pred) else None
+            out["classification"] = "fresh_mix_gap"
+            out["hypotheses"] = {
+                "coefficient_off": f"all {_ml:g} ml went in, and ppm-per-ml is "
+                                   f"{abs(delta_pct):g}% {'high' if delta > 0 else 'low'} for this recipe",
+                "dose_short" if delta > 0 else "dose_over":
+                    f"the coefficient holds, and about {_implied:g} ml went in rather than "
+                    f"{_ml:g}" if _implied is not None else "the dose poured differed from the plan",
+            }
+            out["reason"] = (f"This dose went into fresh water, so {pred:g} ppm was a forecast "
+                             f"and nothing was ever measured at it. {pa:g} ppm is what went in "
+                             f"actually produced. Not uptake. Whether the forecast or the pour "
+                             f"was off cannot be read from the meter.")
+            out["action"] = ("If every amount went in exactly as written, record the mix with "
+                             "set_current_nutrients so ppm_per_ml recalibrates. If any amount "
+                             "is in doubt, record it with dose_uncertain naming those bottles - "
+                             "it is then kept out of calibration - and top up only those with "
+                             "plan_feed_for_target only_products.")
         elif delta > 0:
             out["classification"] = "uptake_since_dose"
             out["uptake_ppm_litres"] = round(delta * vol, 0) if vol else None
@@ -11725,7 +11801,7 @@ class GrowAgent(AgentBase):
             return {"result": self.plan_feed_for_target(
                 a.get("plant_id", "current_plant"), a.get("target_ppm"),
                 a.get("dose_into_liters"), a.get("final_liters"),
-                a.get("current_ppm"), a.get("note", ""))}
+                a.get("current_ppm"), a.get("note", ""), a.get("only_products"))}
 
         elif task == "project_topup":
             a = args or {}
@@ -11887,6 +11963,10 @@ class GrowAgent(AgentBase):
                 # "allow_duplicate" as one holding 1.0 - both then fed into
                 # per-litre arithmetic as though they were doses.
                 "note", "notes", "nutrients", "allow_duplicate", "backfilled",
+                # Which amounts the grower is NOT sure went in as written. A
+                # recipe is a claim about what was poured, and a miscount makes
+                # the claim wrong for exactly those bottles.
+                "dose_uncertain",
             }
             # Nutrient names are top-level args. A caller passing them nested
             # under "nutrients" - a natural shape, and one this system's own
@@ -11959,6 +12039,9 @@ class GrowAgent(AgentBase):
                 "backfilled": bool(backfill_ts),
                 "source_note": args.get("source_note", ""),
             }
+            if args.get("dose_uncertain"):
+                _du = args["dose_uncertain"]
+                record["dose_uncertain"] = [_du] if isinstance(_du, str) else list(_du)
             ctx = self._reasoning_context(args)
             if ctx:
                 record["reasoning_context"] = ctx
@@ -11969,7 +12052,28 @@ class GrowAgent(AgentBase):
                 if hist_key not in hist:
                     hist.append(hist_key)
                 self.store_own_memory(idx_key, json.dumps(sorted(hist)))
-                return {"result": "Historical nutrient entry recorded", "nutrients": record}
+                # ...unless it is NEWER than the recipe in force, in which case it
+                # is not history, it is the present written down a few hours late.
+                # A full reservoir change mixed at 20:00 and recorded at midnight
+                # with its real time went to history only, so the plant's current
+                # recipe stayed a superseded one and ppm_per_ml kept calibrating
+                # every dose from another plant's 4.8 L mix - the very figure this
+                # mix had just measured 15% high.
+                try:
+                    _cur = json.loads(self._unwrap_value(self.retrieve_own_memory(cur_key)) or "{}")
+                except Exception:
+                    _cur = {}
+                # >= and not >: the same timestamp is the same mix restated, and
+                # a restatement is a correction (a miscount admitted after the
+                # reading) that must reach the record calibration reads from.
+                if str(backfill_ts) >= str(_cur.get("timestamp") or ""):
+                    self.store_own_memory(cur_key, json.dumps(record))
+                    return {"result": ("Nutrient entry recorded at its real time; it is not "
+                                       "older than the recipe in force, so it is now current"),
+                            "nutrients": record, "became_current": True,
+                            "superseded_timestamp": _cur.get("timestamp")}
+                return {"result": "Historical nutrient entry recorded", "nutrients": record,
+                        "became_current": False, "current_timestamp": _cur.get("timestamp")}
             self.store_own_memory(cur_key, json.dumps(record))
             # Also append to a history index. "current_nutrients" is a single
             # overwritten slot, so every previous recipe was silently destroyed

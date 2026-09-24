@@ -40,6 +40,7 @@
     "lookup",
     "observe_stage_markers",
     "plan_feed_for_target",
+    "reconcile_dose",
     "plan_system_transition",
     "ppm_per_ml",
     "predict_linear",
@@ -72,7 +73,8 @@
     "web_search",
     "what_i_know",
     "when_to_top_up",
-    "which_plant"
+    "which_plant",
+    "ingest_environment_export"
   ],
   "entry_point": "agents.grow_agent.grow_agent:main",
   "description": "Tracks grow stages and suggests nutrient adjustments",
