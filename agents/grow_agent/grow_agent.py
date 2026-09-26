@@ -1555,6 +1555,11 @@ class GrowAgent(AgentBase):
         },
     }
 
+    # Marker words -> the lifecycle words every stage-keyed table is written in.
+    # Anything not listed already IS a lifecycle word (germination, seedling,
+    # early_veg, flower).
+    MARKER_TO_LIFECYCLE = {"vegetative": "veg", "preflower": "flower"}
+
     def observe_stage_markers(self, args):
         """Record what is visibly present, and let the stage follow from it."""
         a = args if isinstance(args, dict) else {}
@@ -1632,18 +1637,42 @@ class GrowAgent(AgentBase):
         idx.append(entry["id"])
         self.store_own_memory("morphology_index", json.dumps(idx))
 
+        # THE MARKER TABLE AND THE LIFECYCLE SPEAK DIFFERENT WORDS. STAGE_MARKERS
+        # says "vegetative" and "preflower"; STAGE_ORDER, STAGE_FEED_EMPHASIS,
+        # STAGE_PPFD, VPD_BANDS and 21 readers of current_stage say "veg" and
+        # "flower". Writing the marker word into the lifecycle slot made every one
+        # of those lookups miss: pistils on GSC1 stored "preflower", and
+        # recommend_feed then scaled every bottle by 1.0 and returned the VEG
+        # recipe titled "Feed ratio for preflower stage". Pistils are where the
+        # feed table's own flower note says to shift ("once pistils appear, not
+        # on a date"), so preflower is flower for every decision keyed on stage.
+        # The finer word is kept as stage_detail, never lost.
+        lifecycle = self.MARKER_TO_LIFECYCLE.get(derived, derived)
+        _sp = self._get_species_for_plant(plant_id)
+        _allowed, _ = self.stages_for_species(_sp)
+        if lifecycle not in _allowed:
+            return {**entry, "stage_now": recorded, "moved": False,
+                    "refused": (f"Markers derive {derived!r} -> {lifecycle!r}, which is not a "
+                                f"stage of this plant's lifecycle ({', '.join(_allowed)}). "
+                                f"Stage left unchanged rather than written in a word no "
+                                f"stage-keyed table understands.")}
+        entry["lifecycle_stage"] = lifecycle
+        self.store_own_memory(entry["id"], json.dumps(entry), pin=True)
+
         # Move the stage, because that is the point.
         moved = False
-        if derived and derived != recorded:
+        if lifecycle and lifecycle != recorded:
             try:
                 if plant_id == "current_plant":
-                    self.store_own_memory("current_stage", derived)
+                    self.store_own_memory("current_stage", lifecycle)
+                    self.store_own_memory("current_stage_detail", derived)
                     moved = True
                 else:
                     key = f"plant_{plant_id}"
                     raw = self._unwrap_value(self.retrieve_own_memory(key))
                     rec = json.loads(raw) if raw else {}
-                    rec["stage"] = derived
+                    rec["stage"] = lifecycle
+                    rec["stage_detail"] = derived
                     rec["stage_basis"] = ("observed morphology: " + ", ".join(seen))
                     rec["stage_changed_at"] = entry["at"]
                     self.store_own_memory(key, json.dumps(rec), pin=True)
@@ -1651,7 +1680,8 @@ class GrowAgent(AgentBase):
             except Exception as exc:
                 entry["stage_write_failed"] = str(exc)
 
-        return {**entry, "stage_now": derived if moved else recorded, "moved": moved,
+        return {**entry, "stage_now": lifecycle if moved else recorded, "moved": moved,
+                "stage_detail": derived,
                 "means": self.STAGE_MARKERS[derived]["means"],
                 "calendar_said": by_calendar.get("assessment"),
                 "rule": ("Morphology is evidence; the calendar is an expectation. Where "
@@ -4140,7 +4170,7 @@ class GrowAgent(AgentBase):
 
     def plan_feed_for_target(self, plant_id="current_plant", target_ppm=None,
                              dose_into_liters=None, final_liters=None,
-                             current_ppm=None, note="", only_products=None):
+                             current_ppm=None, note="", only_products=None, stage_ratio=None):
         """Dose NOW into less water, to land in band AFTER a top-up you know is coming.
 
         only_products restricts the dose to the named bottles, in this plant's
@@ -4270,6 +4300,23 @@ class GrowAgent(AgentBase):
         except Exception as e:
             self.log(f"plan_feed_for_target: could not read own recipe ratio: {e}")
 
+        # A STAGE CHANGE CHANGES THE RATIO BEFORE ANY RECIPE IS POURED. The
+        # plant's recorded recipe is what went in last - at a flip that is the
+        # VEG proportions, and dosing a top-up in them is not switching to bloom.
+        # recommend_feed owns the stage ratio; pass its `suggested` here.
+        if stage_ratio:
+            _r = {k: self._parse_numeric(v) or 0 for k, v in dict(stage_ratio).items()}
+            _t = sum(_r.values())
+            if _t <= 0:
+                out["verdict"] = "invalid_ratio"
+                out["reason"] = "ratio carries no positive amounts."
+                return out
+            ratio = {k: v / _t for k, v in _r.items() if v > 0}
+            ratio_from = "caller (stage ratio)"
+            out["ratio_caveat"] = (
+                "Proportions supplied for this dose, not taken from the recipe on record. "
+                "ppm-per-ml was measured on a different blend, so read ppm after it circulates.")
+
         if only_products:
             _want = [only_products] if isinstance(only_products, str) else list(only_products)
             _lk = {k.lower(): k for k in ratio}
@@ -4296,7 +4343,7 @@ class GrowAgent(AgentBase):
         out["ppm_per_ml"] = conc
         out["ratio_from_plant"] = ratio_from
         out["ratio"] = {k: round(v, 4) for k, v in ratio.items()}
-        if ratio_from != plant_id:
+        if ratio_from != plant_id and not stage_ratio:
             out["ratio_caveat"] = (
                 f"Proportions taken from {ratio_from} because {plant_id} has no recipe of "
                 f"its own on record. Strength may cross between plants; a RATIO should not.")
@@ -11801,7 +11848,8 @@ class GrowAgent(AgentBase):
             return {"result": self.plan_feed_for_target(
                 a.get("plant_id", "current_plant"), a.get("target_ppm"),
                 a.get("dose_into_liters"), a.get("final_liters"),
-                a.get("current_ppm"), a.get("note", ""), a.get("only_products"))}
+                a.get("current_ppm"), a.get("note", ""), a.get("only_products"),
+                a.get("stage_ratio"))}
 
         elif task == "project_topup":
             a = args or {}
