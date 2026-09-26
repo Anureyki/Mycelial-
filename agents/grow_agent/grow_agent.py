@@ -4414,6 +4414,14 @@ class GrowAgent(AgentBase):
                        "volume_liters": round(now_v, 2), "ppm_before": round(now_p, 1),
                        "ppm_predicted": out.get("ppm_while_you_wait"),
                        "add_now_ml": out.get("add_now_ml"), "reconciled": False,
+                       # The interim checkpoint alone cannot reconcile a reading
+                       # taken after the water: GSC1's flip top-up was saved as
+                       # 999 ppm at 12 L, the grower put the water in first, and
+                       # 750 at 15 L would have been scored against 999.
+                       "final_liters": round(fin_v, 2),
+                       "ppm_predicted_at_final": round((have + add_mass) / fin_v, 0),
+                       "coefficient_ppm_l_per_ml": conc.get("ppm_l_per_ml"),
+                       "ratio_from": ratio_from,
                        "note": str(note)[:300]})
             self.store_own_memory(f"volume_events_{plant_id}", json.dumps(ev[-200:]))
         except Exception as e:
@@ -4885,6 +4893,7 @@ class GrowAgent(AgentBase):
         pred = self._parse_numeric(ppm_predicted)
         vol = self._parse_numeric(volume_liters)
         event = None
+        at_final = False
         if pred is None:
             for e in reversed(self._volume_events(plant_id)):
                 if e.get("kind") == "dose" and not e.get("reconciled"):
@@ -4892,6 +4901,25 @@ class GrowAgent(AgentBase):
                     pred = self._parse_numeric(e.get("ppm_predicted"))
                     if vol is None:
                         vol = self._parse_numeric(e.get("volume_liters"))
+                    # A reading at the FINAL volume is checked against the final
+                    # prediction, not the interim one. Events saved before the
+                    # final figure was persisted are completed from their own
+                    # fields and the coefficient in force.
+                    _fl = self._parse_numeric(e.get("final_liters"))
+                    _dv = self._parse_numeric(e.get("volume_liters"))
+                    if vol and _fl and _dv and abs(vol - _fl) < 0.25 and abs(_fl - _dv) >= 0.25:
+                        _pf = self._parse_numeric(e.get("ppm_predicted_at_final"))
+                        if _pf is None:
+                            _c = self._parse_numeric(e.get("coefficient_ppm_l_per_ml")) \
+                                 or self._parse_numeric(self.ppm_per_ml(plant_id).get("ppm_l_per_ml"))
+                            _ml = sum((self._parse_numeric(v) or 0)
+                                      for v in (e.get("add_now_ml") or {}).values())
+                            _pb = self._parse_numeric(e.get("ppm_before"))
+                            if _c and _pb is not None:
+                                _pf = round((_pb * _dv + _ml * _c) / _fl, 0)
+                        if _pf is not None:
+                            pred = _pf
+                            at_final = True
                     break
             if pred is None:
                 return {"classification": "insufficient_evidence", "confidence": "low",
@@ -4906,7 +4934,9 @@ class GrowAgent(AgentBase):
 
         out = {"plant_id": plant_id, "ppm_predicted": pred, "ppm_after": pa,
                "volume_liters": vol, "delta_ppm": delta, "delta_pct": delta_pct,
-               "method": "conservation_of_dissolved_mass_after_dose"}
+               "method": "conservation_of_dissolved_mass_after_dose",
+               "checked_against": ("final-volume prediction (water in)" if at_final
+                                   else "prediction at the dosed volume")}
 
         # A DOSE INTO FRESH WATER HAS NO MEASURED BASELINE TO TAKE UPTAKE FROM.
         # The prediction there is ppm_per_ml's coefficient times the ml added -
@@ -4952,6 +4982,18 @@ class GrowAgent(AgentBase):
                              "is in doubt, record it with dose_uncertain naming those bottles - "
                              "it is then kept out of calibration - and top up only those with "
                              "plan_feed_for_target only_products.")
+        elif delta > 0 and event is not None and str(event.get("ratio_from") or "").startswith("caller"):
+            # The coefficient was measured on a different blend than this dose
+            # was mixed in, so the forecast carries that error and a shortfall
+            # cannot be read as the plant feeding.
+            out["classification"] = "below_prediction_blend_unverified"
+            out["reason"] = (f"Measured {pa:g} ppm is {delta:g} ppm ({delta_pct:g}%) below the "
+                             f"{pred:g} ppm forecast. This dose used a stage ratio the ppm-per-ml "
+                             f"figure was never measured on, so the gap is that figure's error "
+                             f"for this blend as much as anything the plant took. Not scored as "
+                             f"uptake.")
+            out["action"] = ("Read again after a full day of circulation. A steady reading "
+                             "means this is what the blend delivers; a falling one is uptake.")
         elif delta > 0:
             out["classification"] = "uptake_since_dose"
             out["uptake_ppm_litres"] = round(delta * vol, 0) if vol else None
@@ -4972,6 +5014,7 @@ class GrowAgent(AgentBase):
                     if e.get("kind") == "dose" and e.get("at") == event.get("at"):
                         e["reconciled"] = True
                         e["reconciled_result"] = out["classification"]
+                        e["reconciled_against_ppm"] = pred
                         e["reconciled_at"] = datetime.now().isoformat()
                 self.store_own_memory(f"volume_events_{plant_id}", json.dumps(events[-200:]))
             except Exception as ex:
