@@ -132,6 +132,7 @@
     "amortization",
     "amortize",
     "biometric information",
+    "capable of repetition",
     "cease communication",
     "coercion",
     "constructive notice",
@@ -158,6 +159,9 @@
     "involuntary servitude",
     "laches",
     "least sophisticated consumer",
+    "moot",
+    "mootness",
+    "nominal damages",
     "nonaffiliated third party",
     "nonpublic personal information",
     "opt out",
@@ -171,6 +175,7 @@
     "reasonable accommodation",
     "regulatory arbitrage",
     "reinvestigation",
+    "religious freedom restoration act",
     "reseller",
     "right of access",
     "right to delete",
@@ -180,7 +185,8 @@
     "standing",
     "unclean hands",
     "undue hardship",
-    "validation notice"
+    "validation notice",
+    "voluntary cessation"
   ],
   "accounting_agent": [
     "derecognition",
