@@ -321,8 +321,16 @@ def index_terms(sections, min_freq=None, max_terms=2500, seed=()):
     # glossary heads the entry "Specialty Consumer Reporting Agencies". This
     # widens what can be FOUND and never what is claimed, which is the seed
     # file's own rule: a term absent from the text stays absent from the index.
+    # DIGITS ARE PART OF A TERM, AND A TERM IS WHOLE WORDS. Both the needle and
+    # the haystack were `[a-z]+` runs, so "form 1099-c" flattened to "form c" and
+    # indexed into 498 sections of the Exchange Act and Reg S-X, which say
+    # "Form C" (crowdfunding) and never 1099-C - and the match was a bare
+    # substring, so "form c" also hit "platform capital" and "moot" hit
+    # "mootness". A term indexed where it does not appear is the one thing the
+    # seed file's own rule forbids. Digits are kept on both sides and a match
+    # must start and end on a word boundary.
     def _variants(term):
-        flat = " ".join(re.findall(r"[a-z]+", term))
+        flat = " ".join(re.findall(r"[a-z0-9]+", term.lower()))
         if not flat:
             return ()
         head, _, last = flat.rpartition(" ")
@@ -338,9 +346,9 @@ def index_terms(sections, min_freq=None, max_terms=2500, seed=()):
 
     seed_hits = 0
     for i, s_ in enumerate(sections):
-        flat = " ".join(re.findall(r"[a-z]+", (s_.get("text") or "").lower()))
+        flat = " " + " ".join(re.findall(r"[a-z0-9]+", (s_.get("text") or "").lower())) + " "
         for term, forms in seed_variants:
-            if not any(f and f in flat for f in forms):
+            if not any(f and f" {f} " in flat for f in forms):
                 continue
             # ALWAYS add to `keep`, even when the term is already in this
             # section's grams. The guard `and term not in per_section[i]` meant a

@@ -30,10 +30,15 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--agent", required=True)
     ap.add_argument("--write", action="store_true")
+    ap.add_argument("--root", default=None,
+                    help="reference/ directory to reindex (default: this checkout's). "
+                         "The agents read the checkout they run from, which need not "
+                         "be the one this script lives in.")
     a = ap.parse_args()
 
-    root = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
-                        "reference", a.agent)
+    base = a.root or os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
+                                  "reference")
+    root = os.path.join(base, a.agent)
     if not os.path.isdir(root):
         sys.exit(f"no such shelf: {root}")
     seed = load_seed_vocabulary(a.agent)
@@ -53,10 +58,20 @@ def main():
         after = index_terms(doc["sections"], seed=seed)
         gained = sorted(set(after) - set(before))
         lost = sorted(set(before) - set(after))
-        if not gained and not lost:
+        # PLACEMENTS COUNT, NOT JUST NAMES. This compared only which terms a work
+        # had, so a term that pointed at the wrong sections and still existed
+        # after a matcher fix was left exactly as wrong: IRM Part 5 kept
+        # "form 1099-c" on 465 sections when the phrase is in one, because the
+        # key survived and the file was never rewritten.
+        moved = sorted(k for k in set(after) & set(before)
+                       if set(after[k]) != set(before.get(k) or []))
+        if not gained and not lost and not moved:
             continue
         total_new += len(gained)
-        print(f"  {os.path.basename(path)[:58]:60} +{len(gained):3} -{len(lost):3}")
+        print(f"  {os.path.basename(path)[:58]:60} +{len(gained):3} -{len(lost):3} "
+              f"~{len(moved):3}")
+        if moved:
+            print(f"      MOVED:  {', '.join(moved[:12])}" + (" ..." if len(moved) > 12 else ""))
         if gained:
             print(f"      gained: {', '.join(gained[:12])}"
                   + (" ..." if len(gained) > 12 else ""))
