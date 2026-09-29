@@ -63,6 +63,31 @@ CORE_CASE_TASKS = {
 _PUBLAW_TITLE_RE = re.compile(r"^\s*pub(?:lic)?\.?\s*l(?:aw)?\.?\s*(\d+)[-\u2013](\d+)\s*$", re.I)
 
 
+_CORP_SUFFIX = re.compile(r"(,?\s+(?:p\.?c\.?|l\.?l\.?c\.?|l\.?l\.?p\.?|inc\.?|corp\.?|co\.?|ltd\.?|n\.?a\.?|et al\.?))+$")
+_REPORTER = re.compile(r"\b\d{1,4} (?:[a-z][a-z.]*\s?){1,4}(?:\d[a-z]{1,2} )?\d{1,5}\b")
+
+
+def _case_caption_keys(caption):
+    """Every form a decision is cited by: full parties, short parties, reporter.
+
+    "christ clomon v. philip d. jackson 988 f.2d 1314" ->
+        christ clomon v. philip d. jackson / clomon v. jackson / 988 f.2d 1314
+    The short form takes the last word of each party after dropping a
+    corporate suffix, which is how opinions and briefs cite a case."""
+    keys = set()
+    cites = [c.strip() for c in _REPORTER.findall(caption)]
+    names = _REPORTER.split(caption)[0].strip(" ,")
+    names = re.split(r",?\s+no\.\s", names, maxsplit=1)[0].strip(" ,")  # docket-style caption
+    if " v. " in names or " v " in names:
+        left, right = re.split(r"\s+v\.?\s+", names, maxsplit=1)
+        keys.add(f"{left.strip()} v. {right.strip()}")
+        short = lambda part: (_CORP_SUFFIX.sub("", part.strip(" ,")).split() or [""])[-1].strip(",")
+        if short(left) and short(right):
+            keys.add(f"{short(left)} v. {short(right)}")
+    keys.update(c for c in cites if c)
+    return sorted(k for k in keys if k)
+
+
 class AgentBase:
     def __init__(self, agent_id, port, capabilities, role="agent", mqtt_broker="localhost"):
         self.agent_id = agent_id
@@ -1726,6 +1751,7 @@ class AgentBase:
         ref_dirs = [os.path.join(root, self.agent_id)] + [
             os.path.join(root, d) for d in getattr(self, "SHARED_CORPORA", ())]
         by_citation, by_authority, by_term, titles = {}, {}, {}, []
+        _own_caption = {}
         by_citation_all = {}
         names = []
         for d in ref_dirs:
@@ -1755,8 +1781,10 @@ class AgentBase:
             # did not resolve at all. The caption is the part of the title
             # before the court-and-docket parenthetical.
             _caption = None
+            _caption_keys = []
             if str(doc.get("authority_class") or "") == "case_law" and " v" in str(title):
                 _caption = re.split(r"\s*\(", str(title), maxsplit=1)[0].strip().lower()
+                _caption_keys = _case_caption_keys(_caption)
             for s in sections:
                 entry = {"title": title, "source": source,
                          "citation": s.get("citation"), "page": s.get("page"),
@@ -1843,6 +1871,8 @@ class AgentBase:
                     by_authority.setdefault(a.strip().lower(), []).append(entry)
                 if _caption:
                     by_authority.setdefault(_caption, []).append(entry)
+                    for _k in _caption_keys:
+                        _own_caption.setdefault(_k, []).append(entry)
             # Subject terms the work itself repeats, so a doctrine can be asked
             # for by name instead of by page. Exact keys only - nothing scored.
             for term, idxs in (doc.get("term_index") or {}).items():
@@ -1890,6 +1920,17 @@ class AgentBase:
                              "truncated": s.get("truncated"),
                              "full_length": s.get("full_length"),
                              "text": s.get("text", "")})
+        # A DECISION ASKED FOR BY NAME ANSWERS WITH ITSELF FIRST. The caption key
+        # was the whole title before the court parenthetical, reporter cite and
+        # all - "christ clomon v. philip d. jackson 988 f.2d 1314" - which nobody
+        # types, so "Clomon v. Jackson" matched only the opinions CITING Clomon,
+        # and Legal quoted Gonzalez's summary of Clomon as though it were Clomon.
+        # Each decision is now keyed by its full party names, the short form
+        # courts use, and its reporter citations, with its own text ahead of
+        # every work that merely cites it.
+        for _k, _own in _own_caption.items():
+            _rest = [e for e in by_authority.get(_k, []) if e not in _own]
+            by_authority[_k] = _own + _rest
         self._refdocs = {"by_citation": by_citation, "by_authority": by_authority,
                          "by_term": by_term, "by_citation_all": by_citation_all}
         self.log(f"reference: {len(by_citation)} sections, {len(by_term)} subject terms, "
