@@ -1627,7 +1627,7 @@ class AccountingAgent(AgentBase):
                     "disclaimer": DISCLAIMER}
 
         if task == "lookup":
-            term = self.lookup_term(args)
+            term = self.lookup_query(args)
             if not term:
                 return {"error": "Usage: lookup <term_or_form_or_citation>, or {term: ...}",
                         "disclaimer": DISCLAIMER}

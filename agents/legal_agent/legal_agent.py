@@ -4886,7 +4886,7 @@ class LegalAgent(AgentBase):
             # surfaced to the caller as the entire message {"error": "0"} - a
             # cryptic number where a usage line belonged, and indistinguishable
             # from a real failure. Both shapes are accepted now.
-            term = self.lookup_term(args)
+            term = self.lookup_query(args)
             if not term:
                 return {"error": "Usage: lookup <term_or_citation>, or {term: ...}",
                         "disclaimer": DISCLAIMER}

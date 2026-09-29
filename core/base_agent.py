@@ -1731,8 +1731,12 @@ class AgentBase:
     _refdocs = None
 
     @staticmethod
-    def lookup_term(args):
+    def lookup_query(args):
         """The term a `lookup` call is asking for, whatever shape it arrived in.
+
+        Named lookup_query, not lookup_term: Legal already has a lookup_term
+        (its dictionary headword lookup) that overrode this on the subclass,
+        so Legal's lookup handed a dict to the dictionary and crashed.
 
         Four agents each parsed this themselves. Legal and Grow accepted a dict
         and a list; Accounting and Trust indexed args[0], so a dict payload -
