@@ -11460,14 +11460,7 @@ class GrowAgent(AgentBase):
             # ORDER MATTERS. The list case was checked AFTER calling .get() on
             # args, so a list argument - which is how ask_peer_corpus and the
             # A2A callers send it - crashed before reaching its own branch.
-            if isinstance(args, str):
-                term = args
-            elif isinstance(args, list):
-                term = args[0] if args else ""
-            elif isinstance(args, dict):
-                term = args.get("term") or args.get("query") or ""
-            else:
-                term = ""
+            term = self.lookup_term(args)
             found = self.lookup_reference(term)
             return {"source": "reference/grow_agent corpus" if found else
                             "reference/grow_agent corpus (no headword)",

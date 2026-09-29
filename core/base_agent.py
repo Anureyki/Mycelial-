@@ -1730,6 +1730,23 @@ class AgentBase:
     DICTIONARY_FILES = ()
     _refdocs = None
 
+    @staticmethod
+    def lookup_term(args):
+        """The term a `lookup` call is asking for, whatever shape it arrived in.
+
+        Four agents each parsed this themselves. Legal and Grow accepted a dict
+        and a list; Accounting and Trust indexed args[0], so a dict payload -
+        the shape every other verb takes - raised KeyError(0) and came back as
+        the entire message {"error": "0"}. Legal had been fixed for exactly
+        this and the fix never reached its siblings: a fix in one agent for a
+        fault in all of them is a second place for the bug to hide."""
+        if isinstance(args, dict):
+            return str(args.get("term") or args.get("query") or args.get("citation")
+                       or args.get("prompt") or "").strip()
+        if isinstance(args, (list, tuple)):
+            return str(args[0] if args else "").strip()
+        return str(args or "").strip()
+
     def _load_reference_docs(self):
         """Index every section-bearing reference file by citation and by the
         authorities it cites. Exact keys only - CLAUDE.md is explicit that

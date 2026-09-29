@@ -929,9 +929,10 @@ class TrustAgent(AgentBase):
             return cag_result
 
         if task == "lookup":
-            if not args or not args[0]:
-                return {"error": "Usage: lookup <term_or_citation>", "disclaimer": DISCLAIMER}
-            term = args[0]
+            term = self.lookup_term(args)
+            if not term:
+                return {"error": "Usage: lookup <term_or_citation>, or {term: ...}",
+                        "disclaimer": DISCLAIMER}
             # The corpus comes first, before the cache and well before the web.
             # This agent has no reference/trust_agent/ yet, so today this is a
             # no-op - which is exactly why it is worth wiring now. The same

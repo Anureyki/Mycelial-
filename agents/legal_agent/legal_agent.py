@@ -4886,14 +4886,8 @@ class LegalAgent(AgentBase):
             # surfaced to the caller as the entire message {"error": "0"} - a
             # cryptic number where a usage line belonged, and indistinguishable
             # from a real failure. Both shapes are accepted now.
-            if isinstance(args, dict):
-                term = (args.get("term") or args.get("query")
-                        or args.get("citation") or args.get("prompt") or "")
-            elif isinstance(args, (list, tuple)):
-                term = args[0] if args else ""
-            else:
-                term = str(args or "")
-            if not str(term).strip():
+            term = self.lookup_term(args)
+            if not term:
                 return {"error": "Usage: lookup <term_or_citation>, or {term: ...}",
                         "disclaimer": DISCLAIMER}
             # The corpus comes first. It was consulted nowhere in this path:

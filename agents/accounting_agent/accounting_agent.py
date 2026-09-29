@@ -1627,9 +1627,10 @@ class AccountingAgent(AgentBase):
                     "disclaimer": DISCLAIMER}
 
         if task == "lookup":
-            if not args or not args[0]:
-                return {"error": "Usage: lookup <term_or_form_or_citation>", "disclaimer": DISCLAIMER}
-            term = args[0]
+            term = self.lookup_term(args)
+            if not term:
+                return {"error": "Usage: lookup <term_or_form_or_citation>, or {term: ...}",
+                        "disclaimer": DISCLAIMER}
             # The corpus comes first. This path was cache -> web -> model, so
             # a section of the Exchange Act sitting in this agent's own
             # reference/ reached the open web before it reached the books the
