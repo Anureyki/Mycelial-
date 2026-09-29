@@ -1796,12 +1796,17 @@ class GrowAgent(AgentBase):
         device = next((_col(r, "deviceSerialnum", "device") for r in rows
                       if _col(r, "deviceSerialnum", "device")), None)
 
-        os.makedirs(self.ENV_DIR, exist_ok=True)
+        # BORN PRIVATE. knowledge_base/ is a declared private tree; this made
+        # the folder 0775 and each export 0664 under the default umask, and
+        # check_fs_boundary caught three of them readable outside the owner.
+        from core.fs_boundary import ensure_dir
+        ensure_dir(self.ENV_DIR, 0o700)
         stamp = datetime.now().strftime("%Y%m%dT%H%M%S")
         stored_name = f"{plant_id}_{device or 'unknown'}_{stamp}.csv"
         stored_path = os.path.join(self.ENV_DIR, stored_name)
         try:
             shutil.copyfile(csv_path, stored_path)
+            os.chmod(stored_path, 0o600)
         except Exception as e:
             stored_path = None
             self.log(f"ingest_environment_export: could not copy source csv: {e}")
