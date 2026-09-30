@@ -41,6 +41,7 @@
     "observe_stage_markers",
     "plan_feed_for_target",
     "reconcile_dose",
+    "predict_flowering",
     "plan_system_transition",
     "ppm_per_ml",
     "predict_linear",

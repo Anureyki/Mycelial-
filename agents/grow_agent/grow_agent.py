@@ -922,7 +922,7 @@ class GrowAgent(AgentBase):
                 "set_grow_system", "get_grow_system", "amend_grow_system",
                 "field_history", "assess_root_zone", "void_reservoir_eval",
                 "which_plant", "record_refill",
-                "reconcile_ec_temperature", "intake_reading", "when_to_top_up", "project_topup", "plan_feed_for_target", "reconcile_dose", "ingest_environment_export", "ppm_per_ml", "round_to_instrument", "assess_ph", "quantities",
+                "reconcile_ec_temperature", "intake_reading", "when_to_top_up", "project_topup", "plan_feed_for_target", "reconcile_dose", "ingest_environment_export", "predict_flowering", "ppm_per_ml", "round_to_instrument", "assess_ph", "quantities",
                 "get_nutrient_history",
                 "set_inventory", "get_inventory",
                 "check_in", "analyze_consumption", "adjust_to_target_ppm",
@@ -1492,10 +1492,40 @@ class GrowAgent(AgentBase):
                            f"{out['days_from_now'][0]} to {out['days_from_now'][1]} days "
                            f"away."),
             })
-        out["caveat"] = ("This is a strain-GENERIC figure, not this plant's. No flowering "
-                         "transition has ever been observed in this grow, so there is no "
-                         "measured timing to reason from - and light, temperature and the "
-                         "delivery interruption on day 33 all move it.")
+        # THE OBSERVED FLIP OUTRANKS THE WINDOW. This said "no flowering
+        # transition has ever been observed" while observe_stage_markers held
+        # pistils on this plant at day 60 - eleven days past the generic window -
+        # so the one measured timing this grow has was the fact left out.
+        flip = None
+        try:
+            idx = json.loads(self._unwrap_value(self.retrieve_own_memory("morphology_index")) or "[]")
+            for eid in idx:
+                e = json.loads(self._unwrap_value(self.retrieve_own_memory(eid)) or "{}")
+                if (e.get("plant_id", plant_id) == plant_id
+                        and (e.get("lifecycle_stage") or e.get("derived_stage")) in ("preflower", "flower")):
+                    at = str(e.get("at") or "")[:10]
+                    if at and (flip is None or at < flip[0]):
+                        flip = (at, e.get("derived_stage"), e.get("id"))
+        except Exception as ex:
+            self.log(f"predict_flowering: could not read morphology: {ex}")
+        if flip:
+            hi_day = lo + 14   # the reference window closes two weeks after it opens
+            fday = (datetime.fromisoformat(flip[0]) - g).days
+            out["observed_flip"] = {"date": flip[0], "day": fday, "marker_stage": flip[1],
+                                    "evidence": flip[2],
+                                    "vs_reference_window_days": fday - hi_day if fday > hi_day
+                                    else (fday - lo if fday < lo else 0)}
+            out["caveat"] = (f"The window is strain-GENERIC. This plant's own flip was OBSERVED "
+                             f"on {flip[0]} (day {fday}, {flip[1]} markers)"
+                             + (f", {fday - hi_day} day(s) after the reference window closed"
+                                if fday > hi_day else "")
+                             + ". What the plant showed outranks the reference, and every later "
+                               "timing for this plant counts from the observed date.")
+        else:
+            out["caveat"] = ("This is a strain-GENERIC figure, not this plant's. No flowering "
+                             "transition has been observed in this grow, so there is no "
+                             "measured timing to reason from - and light, temperature and the "
+                             "delivery interruption on day 33 all move it.")
         return out
 
     # WHAT THE PLANT SHOWS OUTRANKS WHAT THE CALENDAR SAYS.
@@ -11901,6 +11931,13 @@ class GrowAgent(AgentBase):
 
         elif task == "reconcile_topup":
             return {"result": self.reconcile_topup(**(args if isinstance(args, dict) else {}))}
+        elif task == "predict_flowering":
+            # Implemented and never dispatched: "Unknown task" to the one verb
+            # that answers "when will it flower / how long is left" for an
+            # autoflower, found when the grower asked how many days in.
+            a = args if isinstance(args, dict) else {}
+            return {"result": self.predict_flowering(a.get("plant_id", "current_plant"))}
+
         elif task == "reconcile_dose":
             return {"result": self.reconcile_dose(**(args if isinstance(args, dict) else {}))}
         elif task == "log_water_change":

@@ -46,6 +46,7 @@
     "project_topup",
     "plan_feed_for_target",
     "reconcile_dose",
+    "predict_flowering",
     "ppm_per_ml",
     "round_to_instrument",
     "assess_ph",
