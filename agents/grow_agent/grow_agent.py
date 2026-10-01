@@ -12998,6 +12998,12 @@ class GrowAgent(AgentBase):
         elif task == "evaluate_growth_stage":
             plant_id = args.get("plant_id", "current_plant")
             morphology_text = args.get("morphology_text") or args.get("notes") or ""
+            # WHO WROTE THE TEXT decides whether a keyword in it is evidence.
+            # A grower's description is an observation; a model's description
+            # of a photo is a guess about one. Keyword-matching both the same
+            # way auto-moved gsc_auto_2 to flower on 2026-10-01 from a
+            # verification model's prose, with local perception at 0.00.
+            text_by_grower = bool(morphology_text)
             species = args.get("species") or self._get_species_for_plant(plant_id)
             photo_path = args.get("photo_path")
             vision_note = None
@@ -13023,9 +13029,11 @@ class GrowAgent(AgentBase):
                             )
                             correction = self._log_vision_correction(photo_path, fused, verification)
                             morphology_text = verification or self._describe_fused_observation(fused)
+                            text_by_grower = False
                             vision_note = f"Local perception confidence was low ({fused['overall_confidence']:.2f}) - escalated to verification model. Logged as {correction['id']} for future retraining."
                         else:
                             morphology_text = self._describe_fused_observation(fused)
+                            text_by_grower = False
                             vision_note = f"Derived from local YOLO+ViT perception pipeline (confidence {fused['overall_confidence']:.2f})."
                         self.save_checkpoint(checkpoint_id, {"fused": fused, "morphology_text": morphology_text, "vision_note": vision_note}, status="completed")
                     else:
@@ -13058,9 +13066,11 @@ class GrowAgent(AgentBase):
                     classification = inferred_stage
                     observation = f"Morphology indicates {inferred_stage} (method: {method}); current tracked stage was '{current_stage}'."
                     reason = "Current stage wasn't a recognized stage to compare against, so the morphology read is applied directly."
-                    action = f"Transition to {inferred_stage}."
-                    confidence = "high" if method == "keyword" else "medium"
-                    transition_result = self.handle_task("transition_stage", {
+                    action = (f"Transition to {inferred_stage}." if text_by_grower else
+                              f"Consider {inferred_stage} - read from a MODEL's description of the "
+                              f"photo, not an observation, so it is NOT applied.")
+                    confidence = "high" if (method == "keyword" and text_by_grower) else ("medium" if text_by_grower else "low")
+                    transition_result = {} if not text_by_grower else self.handle_task("transition_stage", {
                         "plant_id": plant_id, "new_stage": inferred_stage,
                         "notes": f"Auto-transitioned from morphology evidence ({method}): {morphology_text}"
                     }, sender)
@@ -13072,14 +13082,14 @@ class GrowAgent(AgentBase):
                         classification = inferred_stage
                         observation = f"Morphology indicates {inferred_stage} (method: {method}), ahead of tracked stage '{current_stage}'."
                         reason = "Leaf/plant structure has progressed further than the calendar/nutrient-tracked stage - likely an environment-driven early transition."
-                        confidence = "high" if method == "keyword" else "medium"
+                        confidence = "high" if (method == "keyword" and text_by_grower) else ("medium" if text_by_grower else "low")
                         # Only definitive keyword evidence auto-applies. A stage
                         # change moves feed weighting, pH/ppm targets and
                         # monitoring cadence, so an inference from a small local
                         # model recommends rather than applies - the same rule
                         # verify_growth_stage already follows. A 1.5b model read
                         # "9-blade leaves, no pistils, no calyx" as flower.
-                        if method == "keyword":
+                        if method == "keyword" and text_by_grower:
                             action = f"Transition to {inferred_stage}."
                             transition_result = self.handle_task("transition_stage", {
                                 "plant_id": plant_id, "new_stage": inferred_stage,
@@ -13102,7 +13112,7 @@ class GrowAgent(AgentBase):
                         observation = f"Morphology confirms tracked stage '{current_stage}' (method: {method})."
                         reason = "No discrepancy between morphology and tracked stage."
                         action = "No change needed."
-                        confidence = "high" if method == "keyword" else "medium"
+                        confidence = "high" if (method == "keyword" and text_by_grower) else ("medium" if text_by_grower else "low")
 
             recommendation = self._make_recommendation(observation, reason, action, confidence)
             recommendation["classification"] = classification
