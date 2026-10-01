@@ -9985,6 +9985,21 @@ class GrowAgent(AgentBase):
                   "and marks old tissue first", "contradicts")
             weigh("potassium_deficiency", "new growth affected, but potassium is mobile "
                   "and marks old tissue first", "contradicts")
+        elif a.get("new_growth_affected") is False:
+            # THE OTHER HALF OF THE MOBILITY TEST WAS NEVER WEIGHED. Only "new
+            # growth IS affected" moved anything; an explicit "new growth is
+            # clean" was listed as evidence and applied to no hypothesis, so the
+            # docstring's own sorting rule ran one way only and calcium led on
+            # spots confined to mature fan leaves. Explicit only: a value guessed
+            # from note text is not an observation.
+            weigh("calcium_shortfall", "new growth is clean; calcium is immobile and "
+                  "marks new tissue", "contradicts")
+            weigh("calcium_transport_limitation", "new growth is clean; a transport "
+                  "shortfall starves the newest tissue first", "contradicts")
+            weigh("magnesium_deficiency", "damage on mature leaves with clean new "
+                  "growth - magnesium is mobile and withdrawn from old tissue", "supports")
+            weigh("potassium_deficiency", "damage on mature leaves with clean new "
+                  "growth - potassium is mobile and withdrawn from old tissue", "supports")
         if excursion and excursion >= 2.0:
             weigh("calcium_transport_limitation",
                   f"reservoir moved {excursion:.1f} L - calcium travels with water",
@@ -10032,6 +10047,26 @@ class GrowAgent(AgentBase):
                 "and potassium rests on it. Treat those two verdicts as unsupported here.")
 
         state = self.handle_differential_task("assess_differential", {"id": did})
+        _standing = []
+        try:
+            _rec = json.loads(self._unwrap_value(self.retrieve_own_memory(did)) or "{}")
+            _standing = [h["name"] for h in _rec.get("hypotheses", [])
+                         if h.get("confidence") not in ("weakened", "ruled_out", "refuted")]
+        except Exception as ex:
+            self.log(f"leaf_differential: could not read standings: {ex}")
+        if _standing and set(_standing) <= {"calcium_transport_limitation", "calcium_shortfall"}:
+            _leading_text = (
+                "Calcium is what stands. If it is transport rather than shortfall, more "
+                "Cal-Mag Plus does not reach the tissue that needs it - the fix is "
+                "uninterrupted circulation and a reservoir that does not fall. Dosing and "
+                "delivery are different actions and this differential has not yet chosen.")
+        elif _standing:
+            _leading_text = ("Still standing after the record was weighed: "
+                             + ", ".join(_standing)
+                             + ". Run their discriminators before acting on any of them.")
+        else:
+            _leading_text = ("Every hypothesis was weakened. That is a finding: the cause "
+                             "may be one this differential does not carry.")
         out_errors = ({"weighing_errors": weigh_errors,
                        "warning": ("Some evidence did NOT land on its hypothesis. The "
                                    "differential below is missing it and must not be read "
@@ -10067,12 +10102,11 @@ class GrowAgent(AgentBase):
                     "with Cal-Mag Plus, which also contains magnesium and iron; that is "
                     "a property of the bottle, not a claim about the plant. Do not argue "
                     "against a product because one of its ingredients was ruled out."),
-                "if_transport_dosing_will_not_fix_it": (
-                    "The leading hypothesis is transport, not shortfall. If that holds, "
-                    "more Cal-Mag Plus does not reach the tissue that needs it - the fix "
-                    "is uninterrupted circulation and a reservoir that does not fall. "
-                    "Dosing and delivery are different actions and this differential has "
-                    "not yet chosen between them."),
+                # Read from the weighing, not written in advance. This sentence was
+                # fixed text naming transport as the lead, and kept saying so after
+                # clean new growth had weakened both calcium hypotheses.
+                "standing_hypotheses": _standing,
+                "leading_reading": _leading_text,
                 "claims_this_rests_on": [
                     {"citation": c, "verified": False} for c in
                     ("calcium-immobile", "calcium-transport",
