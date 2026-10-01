@@ -374,6 +374,52 @@ def index_terms(sections, min_freq=None, max_terms=2500, seed=()):
     return index
 
 
+def split_by_heading(pages, pattern):
+    """Split ONLY at headings the caller describes, never at a bare section sign.
+
+    A Westlaw-exported encyclopedia article prints its own headings ("§ 24
+    Custody and care of records" ... "View Entire Section") and also cites
+    other articles' sections inline ("Bail and Recognizance § 20"). The
+    statute splitter keys on any line starting with a section sign, so Am. Jur.
+    "Clerks of Court" came out with § 1 twice, a § 751 that belongs to another
+    article, and sections 11 and 24 merged into their neighbours. A heading
+    pattern the document actually uses is the only reliable boundary.
+
+    `pattern` is a regex over the joined text; group 1 is the citation. A
+    section longer than the cap is chunked at sentence ends, not truncated."""
+    joined, starts, off = [], [], 0
+    for t in pages:
+        starts.append(off); joined.append(t); off += len(t) + 1
+    full = "\n".join(joined)
+    page_of = lambda pos: max(i for i, s0 in enumerate(starts) if s0 <= pos) + 1
+    hits = list(re.finditer(pattern, full))
+    if not hits:
+        sys.exit(f"  --heading-regex matched nothing: {pattern!r}")
+    sections = []
+    for i, m in enumerate(hits):
+        end = hits[i + 1].start() if i + 1 < len(hits) else len(full)
+        body = dehyphenate(re.sub(r'\s+', ' ', full[m.start():end]).strip())
+        cit = normalise_citation(m.group(1))
+        parts, cur = [], 0
+        while cur < len(body):
+            stop = min(cur + MAX_SECTION, len(body))
+            if stop < len(body):
+                dot = body.rfind(". ", cur + MAX_SECTION // 2, stop)
+                stop = dot + 1 if dot > 0 else stop
+            parts.append(body[cur:stop].strip()); cur = stop
+        for k, part in enumerate(parts, 1):
+            sec = {"citation": cit if len(parts) == 1 else f"{cit} (part {k})",
+                   "kind": "heading", "page": page_of(m.start()), "text": part}
+            source_integrity.stamp(
+                sec, "complete",
+                f"Heading-delimited section of {len(body):,} characters stored"
+                + (f" in {len(parts)} parts split at sentence ends" if len(parts) > 1 else "")
+                + "; nothing was cut.",
+                source_chars=len(body), stored_chars=len(body), cap=MAX_SECTION)
+            sections.append(sec)
+    return sections
+
+
 def split_treatise(pages):
     """Segment a work that has no numbered sections.
 
@@ -554,6 +600,12 @@ def main():
     ap.add_argument("--allow-lost-pages", action="store_true",
                     help="shelve the work even though a page could not be read "
                          "by any extractor. The loss is recorded on the document")
+    ap.add_argument("--citation-prefix", default=None,
+                    help="with --heading-regex: key each section as '<prefix> § N'")
+    ap.add_argument("--heading-regex", default=None,
+                    help="split only where this regex matches (group 1 = citation), for "
+                         "documents whose headings are explicit and whose text also "
+                         "cites other works' sections inline")
     ap.add_argument("--treatise", action="store_true",
                     help="Work has no numbered sections: key by printed page and "
                          "index the authorities each passage cites")
@@ -590,7 +642,16 @@ def main():
             "    curl -sL -o book.txt https://archive.org/download/<id>/<id>_djvu.txt\n"
             "    ingest_pdf.py book.txt --agent ... --title ... --source ...")
 
-    sections = split_treatise(pages) if args.treatise else split_sections(pages)
+    if args.heading_regex:
+        sections = split_by_heading(pages, args.heading_regex)
+        # A bare "24" is every work's section 24, and the citation index is
+        # first-file-wins. A secondary source's sections are cited WITH the
+        # work's name, so they are keyed that way.
+        if args.citation_prefix:
+            for sec in sections:
+                sec["citation"] = f"{args.citation_prefix} § {sec['citation']}"
+    else:
+        sections = split_treatise(pages) if args.treatise else split_sections(pages)
     if not args.treatise and not sections:
         print("  no citation structure found - retry with --treatise to key by page "
               "and cited authority instead")
