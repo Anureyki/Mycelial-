@@ -1392,6 +1392,25 @@ class GrowAgent(AgentBase):
     # Stage progression order. A stage is never skipped backwards automatically.
     STAGE_ORDER = ("germination", "seedling", "early_veg", "veg", "flower")
 
+    def _observed_flip(self, plant_id):
+        """Earliest observed preflower/flower marker for exactly this plant.
+
+        Strict plant match: a morphology entry is evidence about the plant it
+        names and no other, so an entry without a plant_id matches nothing."""
+        flip = None
+        try:
+            idx = json.loads(self._unwrap_value(self.retrieve_own_memory("morphology_index")) or "[]")
+            for eid in idx:
+                e = json.loads(self._unwrap_value(self.retrieve_own_memory(eid)) or "{}")
+                if (e.get("plant_id") == plant_id
+                        and (e.get("lifecycle_stage") or e.get("derived_stage")) in ("preflower", "flower")):
+                    at = str(e.get("at") or "")[:10]
+                    if at and (flip is None or at < flip[0]):
+                        flip = (at, e.get("derived_stage"), e.get("id"))
+        except Exception as ex:
+            self.log(f"_observed_flip: could not read morphology for {plant_id}: {ex}")
+        return flip
+
     def predict_flowering(self, plant_id="current_plant"):
         """When flowering starts - as a window with its basis, not a date.
 
@@ -1459,14 +1478,52 @@ class GrowAgent(AgentBase):
 
         lo, hi = self.STAGE_AGE_BOUNDS.get("flower", (35, 130))
         start_lo, start_hi = g + timedelta(days=lo), g + timedelta(days=lo + 14)
+        basis = (f"STAGE_AGE_BOUNDS flower lower bound ({lo} days from germination), "
+                 f"plus a two-week spread")
+        basis_kind = "strain_generic_reference"
+
+        # A SIBLING'S OBSERVED FLIP OUTRANKS THE GENERIC WINDOW. Timing is a
+        # property of the cultivar in this room - a LESSON, which crosses
+        # between plants with its origin named - not a measurement, which does
+        # not. gsc_auto_2 was told it was "in the window" at day 41 from the
+        # generic day-35 figure while GSC1, same cultivar, same room, had
+        # flipped at day 60. The grower caught it: "gsc1 is the proof".
+        if not self._observed_flip(plant_id):
+            cands = ["current_plant"] + [p_.get("plant_id") for p_ in self._get_all_plants()
+                                         if p_.get("plant_id")]
+            norm = lambda s_: re.sub(r"[^a-z0-9]", "", str(s_ or "").lower())
+            for sib in dict.fromkeys(cands):
+                if sib == plant_id:
+                    continue
+                s_strain, _ = self._plant_state("current_strain", sib)
+                if not strain or norm(s_strain) != norm(strain):
+                    continue
+                sflip = self._observed_flip(sib)
+                s_germ, _ = self._plant_state("germination_date", sib)
+                if not (sflip and s_germ):
+                    continue
+                try:
+                    sday = (datetime.fromisoformat(sflip[0])
+                            - datetime.fromisoformat(str(s_germ)[:19])).days
+                except Exception:
+                    continue
+                lo = max(0, sday - 7)
+                start_lo, start_hi = g + timedelta(days=lo), g + timedelta(days=sday + 7)
+                basis = (f"LESSON from {sib} (same cultivar, '{s_strain}'): pistils observed on "
+                         f"{sflip[0]}, day {sday} from its germination; window is that day +/- 7. "
+                         f"Overrides the generic day-{self.STAGE_AGE_BOUNDS.get('flower', (35,))[0]} "
+                         f"reference because it was measured in this grow.")
+                basis_kind = "sibling_observed_lesson"
+                out["lesson_from"] = {"plant": sib, "flip_date": sflip[0], "flip_day": sday,
+                                      "evidence": sflip[2]}
+                break
         out.update({
             "window_start": start_lo.strftime("%Y-%m-%d"),
             "window_end": start_hi.strftime("%Y-%m-%d"),
             "days_from_now": [(start_lo - datetime.now()).days,
                               (start_hi - datetime.now()).days],
-            "basis": f"STAGE_AGE_BOUNDS flower lower bound ({lo} days from germination), "
-                     f"plus a two-week spread",
-            "basis_kind": "strain_generic_reference",
+            "basis": basis,
+            "basis_kind": basis_kind,
         })
         if stage == "flower":
             out.update({"classification": "already_flowering", "confidence": "medium",
@@ -1496,18 +1553,7 @@ class GrowAgent(AgentBase):
         # transition has ever been observed" while observe_stage_markers held
         # pistils on this plant at day 60 - eleven days past the generic window -
         # so the one measured timing this grow has was the fact left out.
-        flip = None
-        try:
-            idx = json.loads(self._unwrap_value(self.retrieve_own_memory("morphology_index")) or "[]")
-            for eid in idx:
-                e = json.loads(self._unwrap_value(self.retrieve_own_memory(eid)) or "{}")
-                if (e.get("plant_id", plant_id) == plant_id
-                        and (e.get("lifecycle_stage") or e.get("derived_stage")) in ("preflower", "flower")):
-                    at = str(e.get("at") or "")[:10]
-                    if at and (flip is None or at < flip[0]):
-                        flip = (at, e.get("derived_stage"), e.get("id"))
-        except Exception as ex:
-            self.log(f"predict_flowering: could not read morphology: {ex}")
+        flip = self._observed_flip(plant_id)
         if flip:
             hi_day = lo + 14   # the reference window closes two weeks after it opens
             fday = (datetime.fromisoformat(flip[0]) - g).days
