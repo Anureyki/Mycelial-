@@ -46,7 +46,10 @@
     "project_topup",
     "plan_feed_for_target",
     "reconcile_dose",
+    "ingest_environment_export",
     "predict_flowering",
+    "record_lesson",
+    "list_lessons",
     "ppm_per_ml",
     "round_to_instrument",
     "assess_ph",
@@ -74,8 +77,7 @@
     "leaf_differential",
     "lookup",
     "list_training_events",
-    "void_training_event",
-    "ingest_environment_export"
+    "void_training_event"
   ],
   "endpoint": "/execute",
   "port": 9009,
@@ -90,5 +92,5 @@
   "public_key": "",
   "owner": "anureyki",
   "created": "2026-07-28T23:04:50.187235",
-  "updated": "2026-09-18T21:25:52.517045"
+  "updated": "2026-10-01T16:19:11.834896"
 }

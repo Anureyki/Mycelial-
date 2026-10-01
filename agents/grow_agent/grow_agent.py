@@ -922,7 +922,7 @@ class GrowAgent(AgentBase):
                 "set_grow_system", "get_grow_system", "amend_grow_system",
                 "field_history", "assess_root_zone", "void_reservoir_eval",
                 "which_plant", "record_refill",
-                "reconcile_ec_temperature", "intake_reading", "when_to_top_up", "project_topup", "plan_feed_for_target", "reconcile_dose", "ingest_environment_export", "predict_flowering", "ppm_per_ml", "round_to_instrument", "assess_ph", "quantities",
+                "reconcile_ec_temperature", "intake_reading", "when_to_top_up", "project_topup", "plan_feed_for_target", "reconcile_dose", "ingest_environment_export", "predict_flowering", "record_lesson", "list_lessons", "ppm_per_ml", "round_to_instrument", "assess_ph", "quantities",
                 "get_nutrient_history",
                 "set_inventory", "get_inventory",
                 "check_in", "analyze_consumption", "adjust_to_target_ppm",
@@ -1392,6 +1392,36 @@ class GrowAgent(AgentBase):
     # Stage progression order. A stage is never skipped backwards automatically.
     STAGE_ORDER = ("germination", "seedling", "early_veg", "veg", "flower")
 
+    # NAMED LESSONS. CLAUDE.md: "the corpus of lessons is shared and the series
+    # of measurements is not" - but nothing could hold a lesson. A lesson
+    # carries its origin plant, the plants and topic it applies to, its rules,
+    # and who recorded it; it never carries a measurement.
+    def record_lesson(self, name="", text="", origin_plant=None, applies_to=None,
+                      topic="", rules=None, recorded_by="principal"):
+        if not name or not text:
+            return {"error": "record_lesson needs name and text"}
+        lid = f"lesson_{self._uid()}"
+        lesson = {"id": lid, "name": name, "text": text, "origin_plant": origin_plant,
+                  "applies_to": list(applies_to or []), "topic": topic,
+                  "rules": list(rules or []), "recorded_by": recorded_by,
+                  "at": datetime.now().isoformat(timespec="seconds")}
+        self.store_own_memory(lid, json.dumps(lesson), pin=True)
+        idx = json.loads(self._unwrap_value(self.retrieve_own_memory("lessons_index")) or "[]")
+        idx.append(lid)
+        self.store_own_memory("lessons_index", json.dumps(idx))
+        return {"recorded": True, "lesson": lesson}
+
+    def _list_lessons(self, topic=None, plant_id=None):
+        out = []
+        for lid in json.loads(self._unwrap_value(self.retrieve_own_memory("lessons_index")) or "[]"):
+            l_ = json.loads(self._unwrap_value(self.retrieve_own_memory(lid)) or "{}")
+            if topic and l_.get("topic") != topic:
+                continue
+            if plant_id and l_.get("applies_to") and plant_id not in l_["applies_to"]:
+                continue
+            out.append(l_)
+        return out
+
     def _observed_flip(self, plant_id):
         """Earliest observed preflower/flower marker for exactly this plant.
 
@@ -1476,102 +1506,93 @@ class GrowAgent(AgentBase):
             })
             return out
 
-        lo, hi = self.STAGE_AGE_BOUNDS.get("flower", (35, 130))
-        start_lo, start_hi = g + timedelta(days=lo), g + timedelta(days=lo + 14)
-        basis = (f"STAGE_AGE_BOUNDS flower lower bound ({lo} days from germination), "
-                 f"plus a two-week spread")
-        basis_kind = "strain_generic_reference"
+        # A DAY COUNT IS NOT AN OBSERVATION OF THE PLANT. The rules below are
+        # the principal's lesson of 2026-10-01 (record_lesson, topic
+        # flip_prediction): gsc_auto_2 at day 41 was first told it was "in the
+        # window" from a catalog day-35 average, then given GSC1's day-60 flip
+        # as its window - a stressed sibling in a different system. Both spoke
+        # a number as if the plant had been seen.
+        #   - stage without a recorded pistil is veg, whatever the day count
+        #   - a prediction is a set of PRIORS, each tagged with its basis:
+        #     catalog_default, sibling_same_system, sibling_other_system
+        #   - a sibling informs a prior; it never becomes this plant's record
+        #   - a cross-system sibling prior is weak and says so
+        #   - no spread is printed that nobody measured
+        lo = self.STAGE_AGE_BOUNDS.get("flower", (35, 130))[0]
+        def sys_of(pid):
+            try:
+                rec = json.loads(self._unwrap_value(
+                    self.retrieve_own_memory(f"grow_system_{pid}")) or "{}")
+            except Exception:
+                rec = {}
+            return str(rec.get("system_type") or "unknown").lower()
+        this_sys = sys_of(plant_id)
+        priors = [{"basis": "catalog_default", "flip_day": lo,
+                   "date_for_this_plant": (g + timedelta(days=lo)).strftime("%Y-%m-%d"),
+                   "strength": "weak",
+                   "note": "catalog average for autoflowers - not a reading of this plant"}]
+        norm = lambda s_: re.sub(r"[^a-z0-9]", "", str(s_ or "").lower())
+        cands = ["current_plant"] + [p_.get("plant_id") for p_ in self._get_all_plants()
+                                     if p_.get("plant_id")]
+        for sib in dict.fromkeys(cands):
+            if sib == plant_id:
+                continue
+            s_strain, _ = self._plant_state("current_strain", sib)
+            if not strain or norm(s_strain) != norm(strain):
+                continue
+            sflip = self._observed_flip(sib)
+            s_germ, _ = self._plant_state("germination_date", sib)
+            if not (sflip and s_germ):
+                continue
+            try:
+                sday = (datetime.fromisoformat(sflip[0])
+                        - datetime.fromisoformat(str(s_germ)[:19])).days
+            except Exception:
+                continue
+            sib_sys = sys_of(sib)
+            same = sib_sys == this_sys and this_sys != "unknown"
+            priors.append({
+                "basis": "sibling_same_system" if same else "sibling_other_system",
+                "plant": sib, "flip_date": sflip[0], "flip_day": sday, "evidence": sflip[2],
+                "sibling_system": sib_sys, "this_system": this_sys,
+                "date_for_this_plant": (g + timedelta(days=sday)).strftime("%Y-%m-%d"),
+                "strength": "moderate" if same else "weak",
+                "note": ("same strain and system - informs a prior, does not set this plant's "
+                         "record" if same else
+                         "same strain, DIFFERENT system (light, root volume): weak - informs a "
+                         "prior and is not this plant's expected date")})
+        out["priors"] = priors
+        out["pistils_recorded"] = False
+        try:
+            out["lessons"] = [l for l in self._list_lessons(topic="flip_prediction")
+                              if not l.get("applies_to") or plant_id in l["applies_to"]]
+        except Exception as ex:
+            self.log(f"predict_flowering: could not read lessons: {ex}")
 
-        # A SIBLING'S OBSERVED FLIP OUTRANKS THE GENERIC WINDOW. Timing is a
-        # property of the cultivar in this room - a LESSON, which crosses
-        # between plants with its origin named - not a measurement, which does
-        # not. gsc_auto_2 was told it was "in the window" at day 41 from the
-        # generic day-35 figure while GSC1, same cultivar, same room, had
-        # flipped at day 60. The grower caught it: "gsc1 is the proof".
-        if not self._observed_flip(plant_id):
-            cands = ["current_plant"] + [p_.get("plant_id") for p_ in self._get_all_plants()
-                                         if p_.get("plant_id")]
-            norm = lambda s_: re.sub(r"[^a-z0-9]", "", str(s_ or "").lower())
-            for sib in dict.fromkeys(cands):
-                if sib == plant_id:
-                    continue
-                s_strain, _ = self._plant_state("current_strain", sib)
-                if not strain or norm(s_strain) != norm(strain):
-                    continue
-                sflip = self._observed_flip(sib)
-                s_germ, _ = self._plant_state("germination_date", sib)
-                if not (sflip and s_germ):
-                    continue
-                try:
-                    sday = (datetime.fromisoformat(sflip[0])
-                            - datetime.fromisoformat(str(s_germ)[:19])).days
-                except Exception:
-                    continue
-                lo = max(0, sday - 7)
-                start_lo, start_hi = g + timedelta(days=lo), g + timedelta(days=sday + 7)
-                basis = (f"LESSON from {sib} (same cultivar, '{s_strain}'): pistils observed on "
-                         f"{sflip[0]}, day {sday} from its germination; window is that day +/- 7. "
-                         f"Overrides the generic day-{self.STAGE_AGE_BOUNDS.get('flower', (35,))[0]} "
-                         f"reference because it was measured in this grow.")
-                basis_kind = "sibling_observed_lesson"
-                out["lesson_from"] = {"plant": sib, "flip_date": sflip[0], "flip_day": sday,
-                                      "evidence": sflip[2]}
-                break
-        out.update({
-            "window_start": start_lo.strftime("%Y-%m-%d"),
-            "window_end": start_hi.strftime("%Y-%m-%d"),
-            "days_from_now": [(start_lo - datetime.now()).days,
-                              (start_hi - datetime.now()).days],
-            "basis": basis,
-            "basis_kind": basis_kind,
-        })
-        if stage == "flower":
-            out.update({"classification": "already_flowering", "confidence": "medium",
-                        "reason": f"Stage is already recorded as flower on day {day}."})
-        elif day >= lo:
-            out.update({
-                "classification": "window_open_now", "confidence": "low",
-                "reason": (f"Day {day}, and the reference window opens at day {lo}. On an "
-                           f"autoflower this is when preflowers appear at the nodes - so the "
-                           f"answer is not a future date, it is that this plant is IN the "
-                           f"window and the transition should be visible rather than "
-                           f"predicted."),
-                "action": ("Look at the nodes for pistils - two white hairs from a bud site. "
-                           "Photograph one and evaluate_leaf will read it. What the plant "
-                           "shows outranks the calendar; the calendar only says when to "
-                           "start looking."),
-            })
-        else:
-            out.update({
-                "classification": "predicted", "confidence": "low",
-                "reason": (f"Day {day}. On the reference timing, preflowers between "
-                           f"{out['window_start']} and {out['window_end']} - "
-                           f"{out['days_from_now'][0]} to {out['days_from_now'][1]} days "
-                           f"away."),
-            })
-        # THE OBSERVED FLIP OUTRANKS THE WINDOW. This said "no flowering
-        # transition has ever been observed" while observe_stage_markers held
-        # pistils on this plant at day 60 - eleven days past the generic window -
-        # so the one measured timing this grow has was the fact left out.
         flip = self._observed_flip(plant_id)
         if flip:
-            hi_day = lo + 14   # the reference window closes two weeks after it opens
             fday = (datetime.fromisoformat(flip[0]) - g).days
+            out["pistils_recorded"] = True
             out["observed_flip"] = {"date": flip[0], "day": fday, "marker_stage": flip[1],
-                                    "evidence": flip[2],
-                                    "vs_reference_window_days": fday - hi_day if fday > hi_day
-                                    else (fday - lo if fday < lo else 0)}
-            out["caveat"] = (f"The window is strain-GENERIC. This plant's own flip was OBSERVED "
-                             f"on {flip[0]} (day {fday}, {flip[1]} markers)"
-                             + (f", {fday - hi_day} day(s) after the reference window closed"
-                                if fday > hi_day else "")
-                             + ". What the plant showed outranks the reference, and every later "
-                               "timing for this plant counts from the observed date.")
+                                    "evidence": flip[2], "vs_catalog_default_days": fday - lo}
+            out.update({"classification": "already_flowering", "confidence": "high",
+                        "reason": (f"Pistils observed on {flip[0]} (day {fday}). The observation "
+                                   f"is the record; the priors are history only.")})
+        elif stage == "flower":
+            out.update({"classification": "already_flowering", "confidence": "medium",
+                        "reason": (f"Stage is recorded as flower, but no pistil observation is on "
+                                   f"record for {plant_id} - record one with observe_stage_markers.")})
         else:
-            out["caveat"] = ("This is a strain-GENERIC figure, not this plant's. No flowering "
-                             "transition has been observed in this grow, so there is no "
-                             "measured timing to reason from - and light, temperature and the "
-                             "delivery interruption on day 33 all move it.")
+            out.update({
+                "classification": "not_flipped", "confidence": "high",
+                "stage_basis": (f"No pistils recorded on {plant_id}, so its stage is veg "
+                                f"regardless of the day count."),
+                "reason": (f"Day {day}. No pistil has been recorded on this plant. A day number "
+                           f"is not an observation; the priors below are tagged with their basis "
+                           f"and none of them is a reading of this plant."),
+                "action": ("Watch the nodes. When a pistil is seen, record it with "
+                           "observe_stage_markers - that date replaces every prior."),
+            })
         return out
 
     # WHAT THE PLANT SHOWS OUTRANKS WHAT THE CALENDAR SAYS.
@@ -5256,15 +5277,23 @@ class GrowAgent(AgentBase):
                 return r.get("reason", "")
             head = (f"Day {r.get('day')} from germination on "
                     f"{r.get('germination_date')}.")
-            if cls == "window_open_now":
-                body = (f"The reference window for an autoflower has already opened, so this "
-                        f"is a thing to look for rather than a date to wait for.")
-            else:
-                body = (f"Preflowers between {r.get('window_start')} and "
-                        f"{r.get('window_end')} - {(r.get('days_from_now') or ['?'])[0]} to "
-                        f"{(r.get('days_from_now') or ['?', '?'])[1]} days away.")
-            return " ".join(x for x in (head, body, r.get("action"),
-                                        r.get("caveat")) if x)
+            # No window and no "in the window": a day count is not a sighting
+            # (lesson, 2026-10-01). Say there are no pistils, then name each
+            # prior with its basis and strength - never as this plant's date.
+            body = r.get("stage_basis") or "No pistils are recorded on this plant yet."
+            pri = []
+            for p_ in r.get("priors") or []:
+                if p_.get("basis") == "catalog_default":
+                    pri.append(f"the catalog average for autoflowers is day {p_.get('flip_day')} "
+                               f"({p_.get('date_for_this_plant')}), not a reading of this plant")
+                else:
+                    pri.append(f"{p_.get('plant')} flipped at day {p_.get('flip_day')} in a "
+                               f"{p_.get('sibling_system')} - a {p_.get('strength')} prior"
+                               + ("" if p_.get("basis") == "sibling_same_system"
+                                  else ", from a different system"))
+            if pri:
+                body += " For reference only: " + "; ".join(pri) + "."
+            return " ".join(x for x in (head, body, r.get("action")) if x)
 
         if task == "assess_care":
             inner = result.get("result", {}) if isinstance(result, dict) else {}
@@ -12011,6 +12040,14 @@ class GrowAgent(AgentBase):
 
         elif task == "reconcile_topup":
             return {"result": self.reconcile_topup(**(args if isinstance(args, dict) else {}))}
+        elif task == "record_lesson":
+            a = args if isinstance(args, dict) else {}
+            return {"result": self.record_lesson(**{k: a.get(k) for k in (
+                "name", "text", "origin_plant", "applies_to", "topic", "rules", "recorded_by")
+                if a.get(k) is not None})}
+        elif task == "list_lessons":
+            a = args if isinstance(args, dict) else {}
+            return {"result": self._list_lessons(a.get("topic"), a.get("plant_id"))}
         elif task == "predict_flowering":
             # Implemented and never dispatched: "Unknown task" to the one verb
             # that answers "when will it flower / how long is left" for an

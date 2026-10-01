@@ -42,6 +42,8 @@
     "plan_feed_for_target",
     "reconcile_dose",
     "predict_flowering",
+    "list_lessons",
+    "record_lesson",
     "plan_system_transition",
     "ppm_per_ml",
     "predict_linear",
