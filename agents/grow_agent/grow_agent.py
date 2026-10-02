@@ -922,7 +922,7 @@ class GrowAgent(AgentBase):
                 "set_grow_system", "get_grow_system", "amend_grow_system",
                 "field_history", "assess_root_zone", "void_reservoir_eval",
                 "which_plant", "record_refill",
-                "reconcile_ec_temperature", "intake_reading", "when_to_top_up", "project_topup", "plan_feed_for_target", "reconcile_dose", "ingest_environment_export", "predict_flowering", "record_lesson", "list_lessons", "ppm_per_ml", "round_to_instrument", "assess_ph", "quantities",
+                "reconcile_ec_temperature", "intake_reading", "when_to_top_up", "project_topup", "plan_feed_for_target", "reconcile_dose", "ingest_environment_export", "predict_flowering", "calibrate_blend", "record_lesson", "list_lessons", "ppm_per_ml", "round_to_instrument", "assess_ph", "quantities",
                 "get_nutrient_history",
                 "set_inventory", "get_inventory",
                 "check_in", "analyze_consumption", "adjust_to_target_ppm",
@@ -4418,6 +4418,22 @@ class GrowAgent(AgentBase):
             out["ratio_caveat"] = (
                 "Proportions supplied for this dose, not taken from the recipe on record. "
                 "ppm-per-ml was measured on a different blend, so read ppm after it circulates.")
+        _blend = None
+        if stage_ratio:
+            _stg, _ = self._plant_state("current_stage", plant_id)
+            _blend = f"stage_ratio:{_stg or 'unknown'}"
+            # USE WHAT THIS BLEND HAS TAUGHT. Five bloom top-ups landed 5-8% short
+            # on the same 258 from a veg mix in another vessel, and every miss was
+            # reconciled and then thrown away. A blend with enough confirmed doses
+            # is dosed from its own measured strength.
+            _cal = self._blend_coefficient(plant_id, _blend)
+            if _cal:
+                conc = dict(conc, ppm_l_per_ml=_cal["ppm_l_per_ml"],
+                            origin_plant=plant_id, basis=_cal["basis"],
+                            learned_from_n=_cal["n"], blend=_blend)
+                out["ratio_caveat"] = (f"Strength learned for {_blend} from {_cal['n']} "
+                                       f"confirmed doses on this plant ({_cal['ppm_l_per_ml']} "
+                                       f"ppm-L/ml).")
 
         if only_products:
             _want = [only_products] if isinstance(only_products, str) else list(only_products)
@@ -4524,6 +4540,7 @@ class GrowAgent(AgentBase):
                        "ppm_predicted_at_final": round((have + add_mass) / fin_v, 0),
                        "coefficient_ppm_l_per_ml": conc.get("ppm_l_per_ml"),
                        "ratio_from": ratio_from,
+                       "blend": _blend,
                        "note": str(note)[:300]})
             self.store_own_memory(f"volume_events_{plant_id}", json.dumps(ev[-200:]))
         except Exception as e:
@@ -4969,6 +4986,114 @@ class GrowAgent(AgentBase):
                                     "volume_source": "dilution"}
         return out
 
+    # LEARNING A BLEND'S STRENGTH FROM ITS OWN TOP-UPS.
+    #
+    # ppm_per_ml only calibrates from a fresh full mix, so a blend that is only
+    # ever topped up is dosed forever from someone else's figure. But a
+    # confirmed top-up IS a measurement: known mass before (ppm x litres at the
+    # volume it was read), known ml added, known mass after once settled. Plain
+    # water adds no mass, so the order of water and nutrient does not matter.
+    #   implied ppm-L/ml = (ppm_after x V_after - ppm_before x V_before) / ml
+    # The median of these is the blend's strength; it is used once MIN_N doses
+    # agree, and every value is kept so the estimate can be audited.
+    BLEND_MIN_N = 3
+    BLEND_MAX_GAP_H = 6
+
+    def calibrate_blend(self, plant_id="current_plant", blend=None, write=True):
+        events = self._volume_events(plant_id)
+        readings = [r for r in (self._get_readings_for_plant(plant_id) or [])
+                    if not r.get("voided") and self._parse_numeric(r.get("ppm"))]
+        doses = [e for e in events if e.get("kind") == "dose"]
+        rows, skipped = [], []
+        for i, e in enumerate(doses):
+            if blend and e.get("blend") != blend:
+                continue
+            if not e.get("blend"):
+                continue
+            tag = e.get("at", "")[:16]
+            if not e.get("reconciled") or e.get("reconciled_result") == "not_poured":
+                skipped.append({"at": tag, "why": "not confirmed poured"}); continue
+            if e.get("dose_uncertain"):
+                skipped.append({"at": tag, "why": "amounts in doubt"}); continue
+            ml = sum((self._parse_numeric(v) or 0) for v in (e.get("add_now_ml") or {}).values())
+            v0 = self._parse_numeric(e.get("corrected_volume_liters") or e.get("volume_liters"))
+            p0 = self._parse_numeric(e.get("corrected_ppm_before") if e.get("corrected_ppm_before")
+                                     is not None else e.get("ppm_before"))
+            v1 = self._parse_numeric(e.get("measured_at_liters") or e.get("final_liters")
+                                     or e.get("volume_liters"))
+            p1 = self._parse_numeric(e.get("measured_ppm_after"))
+            src = "recorded on reconcile"
+            if p1 is None:
+                nxt = doses[i + 1]["at"] if i + 1 < len(doses) else "9999"
+                try:
+                    t0 = datetime.fromisoformat(e["at"][:19])
+                except Exception:
+                    t0 = None
+                for r in sorted(readings, key=lambda r: str(r.get("timestamp"))):
+                    ts = str(r.get("timestamp") or "")
+                    if not (e["at"] < ts < nxt):
+                        continue
+                    rv = self._parse_numeric(r.get("volume_liters"))
+                    if rv and v1 and abs(rv - v1) > 0.5:
+                        continue
+                    if t0 and (datetime.fromisoformat(ts[:19]) - t0).total_seconds() > self.BLEND_MAX_GAP_H * 3600:
+                        break
+                    p1 = self._parse_numeric(r.get("ppm")); src = f"first ppm reading after dose ({ts[:16]})"
+                    break
+            if not (ml and v0 and v1 and p0 is not None and p1):
+                skipped.append({"at": tag, "why": "no settled reading or volume"}); continue
+            implied = (p1 * v1 - p0 * v0) / ml
+            if implied <= 0:
+                skipped.append({"at": tag, "why": f"non-physical ({implied:.0f})"}); continue
+            rows.append({"at": tag, "blend": e["blend"], "ml": round(ml, 2), "ppm_before": p0,
+                         "liters_before": v0, "ppm_after": p1, "liters_after": v1,
+                         "implied_ppm_l_per_ml": round(implied, 1), "after_source": src,
+                         "predicted_with": e.get("coefficient_ppm_l_per_ml")})
+        out = {"plant_id": plant_id, "blend": blend, "doses": rows, "skipped": skipped}
+        if not rows:
+            out.update({"n": 0, "in_use": False,
+                        "basis": "no confirmed dose of this blend with a settled reading"})
+            return out
+        vals = sorted(r["implied_ppm_l_per_ml"] for r in rows)
+        mid = len(vals) // 2
+        med = vals[mid] if len(vals) % 2 else (vals[mid - 1] + vals[mid]) / 2
+        # leave-one-out back-test: what each dose WOULD have read with the others' median
+        for r in rows:
+            rest = sorted(x["implied_ppm_l_per_ml"] for x in rows if x is not r)
+            if rest:
+                m = len(rest) // 2
+                loo = rest[m] if len(rest) % 2 else (rest[m - 1] + rest[m]) / 2
+                pred = (r["ppm_before"] * r["liters_before"] + r["ml"] * loo) / r["liters_after"]
+                r["backtest_predicted"] = round(pred)
+                r["backtest_error_pct"] = round(100 * (pred - r["ppm_after"]) / r["ppm_after"], 1)
+            r["outlier"] = abs(r["implied_ppm_l_per_ml"] - med) > 0.25 * med
+        in_use = len(rows) >= self.BLEND_MIN_N
+        out.update({"n": len(rows), "ppm_l_per_ml": round(med, 1),
+                    "range": [vals[0], vals[-1]], "in_use": in_use,
+                    "basis": (f"median of {len(rows)} confirmed dose(s) of {blend} on {plant_id}"
+                              + ("" if in_use else
+                                 f" - not used until {self.BLEND_MIN_N} agree"))})
+        if write and blend:
+            try:
+                store = json.loads(self._unwrap_value(
+                    self.retrieve_own_memory(f"blend_coefficients_{plant_id}")) or "{}")
+            except Exception:
+                store = {}
+            store[blend] = {k: out[k] for k in ("ppm_l_per_ml", "n", "range", "in_use", "basis")}
+            store[blend]["updated"] = datetime.now().isoformat(timespec="seconds")
+            store[blend]["values"] = vals
+            self.store_own_memory(f"blend_coefficients_{plant_id}", json.dumps(store))
+        return out
+
+    def _blend_coefficient(self, plant_id, blend):
+        try:
+            store = json.loads(self._unwrap_value(
+                self.retrieve_own_memory(f"blend_coefficients_{plant_id}")) or "{}")
+        except Exception:
+            return None
+        c = store.get(blend)
+        return c if c and c.get("in_use") and c.get("ppm_l_per_ml") else None
+
     def reconcile_dose(self, plant_id="current_plant", ppm_after=None, volume_liters=None,
                        ppm_predicted=None, meter_tolerance_pct=3.0, note=""):
         """reconcile_topup's counterpart for the other half of the reservoir's
@@ -5118,9 +5243,21 @@ class GrowAgent(AgentBase):
                         e["reconciled_result"] = out["classification"]
                         e["reconciled_against_ppm"] = pred
                         e["reconciled_at"] = datetime.now().isoformat()
+                        # The settled reading is the evidence calibration needs;
+                        # it was compared and then discarded.
+                        e["measured_ppm_after"] = pa
+                        if vol:
+                            e["measured_at_liters"] = vol
                 self.store_own_memory(f"volume_events_{plant_id}", json.dumps(events[-200:]))
             except Exception as ex:
                 self.log(f"reconcile_dose: could not mark event reconciled: {ex}")
+            if event.get("blend"):
+                try:
+                    _c = self.calibrate_blend(plant_id, event["blend"])
+                    out["calibration"] = {k: _c.get(k) for k in
+                                          ("blend", "ppm_l_per_ml", "n", "in_use", "basis")}
+                except Exception as ex:
+                    self.log(f"reconcile_dose: calibration failed: {ex}")
         if note:
             out["note"] = note
         return out
@@ -12048,6 +12185,10 @@ class GrowAgent(AgentBase):
         elif task == "list_lessons":
             a = args if isinstance(args, dict) else {}
             return {"result": self._list_lessons(a.get("topic"), a.get("plant_id"))}
+        elif task == "calibrate_blend":
+            a = args if isinstance(args, dict) else {}
+            return {"result": self.calibrate_blend(a.get("plant_id", "current_plant"),
+                                                   a.get("blend"), a.get("write", True))}
         elif task == "predict_flowering":
             # Implemented and never dispatched: "Unknown task" to the one verb
             # that answers "when will it flower / how long is left" for an

@@ -48,6 +48,7 @@
     "reconcile_dose",
     "ingest_environment_export",
     "predict_flowering",
+    "calibrate_blend",
     "record_lesson",
     "list_lessons",
     "ppm_per_ml",
