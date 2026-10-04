@@ -922,7 +922,7 @@ class GrowAgent(AgentBase):
                 "set_grow_system", "get_grow_system", "amend_grow_system",
                 "field_history", "assess_root_zone", "void_reservoir_eval",
                 "which_plant", "record_refill",
-                "reconcile_ec_temperature", "intake_reading", "when_to_top_up", "project_topup", "plan_feed_for_target", "reconcile_dose", "ingest_environment_export", "predict_flowering", "calibrate_blend", "record_lesson", "list_lessons", "ppm_per_ml", "round_to_instrument", "assess_ph", "quantities",
+                "reconcile_ec_temperature", "intake_reading", "when_to_top_up", "project_topup", "plan_feed_for_target", "reconcile_dose", "ingest_environment_export", "predict_flowering", "calibrate_blend", "record_ripeness", "assess_ripeness", "record_lesson", "list_lessons", "ppm_per_ml", "round_to_instrument", "assess_ph", "quantities",
                 "get_nutrient_history",
                 "set_inventory", "get_inventory",
                 "check_in", "analyze_consumption", "adjust_to_target_ppm",
@@ -5083,6 +5083,138 @@ class GrowAgent(AgentBase):
             store[blend]["updated"] = datetime.now().isoformat(timespec="seconds")
             store[blend]["values"] = vals
             self.store_own_memory(f"blend_coefficients_{plant_id}", json.dumps(store))
+        return out
+
+    # RIPENESS IS READ OFF THE PLANT, NEVER OFF ITS AGE.
+    #
+    # Asked "how long until the buds finish", Grow had nothing: the harvest
+    # track was planned and unbuilt, and the only date on record was a vendor's
+    # day 77 that would have given 17 days of flower. The principal's lesson of
+    # 2026-10-01 applies unchanged: a day count is not a sighting. So harvest is
+    # called from what was SEEN - pistil colour, trichome colour, whether new
+    # pistils are still forming - and timing is projected only from this plant's
+    # own observed rate of change, never from a calendar. Only observations the
+    # grower made count as evidence; a model's read of a photo is kept but does
+    # not move the call.
+    RIPENESS_REF = {
+        "basis": ("Generic cannabis practice, AUTHORED reference - not measured on this "
+                  "grow: harvest window opens when most trichomes are cloudy and a few are "
+                  "amber; pistils mostly darkened and curled in; no new pistils forming."),
+        "clear_max_for_window": 10, "cloudy_min_for_window": 70,
+        "amber_window": (5, 20), "amber_heavy": 30, "pistils_brown_min": 60,
+    }
+
+    def _ripeness_obs(self, plant_id):
+        try:
+            return json.loads(self._unwrap_value(
+                self.retrieve_own_memory(f"ripeness_{plant_id}")) or "[]")
+        except Exception:
+            return []
+
+    def record_ripeness(self, plant_id=None, pistils_brown_pct=None, trichomes_clear_pct=None,
+                        trichomes_cloudy_pct=None, trichomes_amber_pct=None,
+                        new_pistils_forming=None, observed_by="principal", photo_ref=None,
+                        note=""):
+        if not plant_id:
+            return {"error": "record_ripeness needs plant_id - a ripeness reading is never "
+                             "defaulted onto a plant"}
+        vals = {}
+        for k, v in (("pistils_brown_pct", pistils_brown_pct),
+                     ("trichomes_clear_pct", trichomes_clear_pct),
+                     ("trichomes_cloudy_pct", trichomes_cloudy_pct),
+                     ("trichomes_amber_pct", trichomes_amber_pct)):
+            n = self._parse_numeric(v)
+            if n is not None and not (0 <= n <= 100):
+                return {"error": f"{k} must be 0-100, got {v}"}
+            vals[k] = n
+        tri = [vals[k] for k in ("trichomes_clear_pct", "trichomes_cloudy_pct",
+                                 "trichomes_amber_pct")]
+        if all(t is not None for t in tri) and abs(sum(tri) - 100) > 10:
+            return {"error": f"trichome clear+cloudy+amber should total about 100, got {sum(tri):g}"}
+        if all(v is None for v in vals.values()) and new_pistils_forming is None:
+            return {"error": "nothing observed - give pistil and/or trichome percentages, or "
+                             "new_pistils_forming"}
+        ob = {"at": datetime.now().isoformat(timespec="seconds"), **vals,
+              "new_pistils_forming": new_pistils_forming,
+              "observed_by": observed_by or "principal", "photo_ref": photo_ref,
+              "note": str(note)[:400]}
+        obs = self._ripeness_obs(plant_id)
+        obs.append(ob)
+        self.store_own_memory(f"ripeness_{plant_id}", json.dumps(obs[-100:]))
+        return {"recorded": True, "plant_id": plant_id, "observation": ob,
+                "assessment": self.assess_ripeness(plant_id)}
+
+    def assess_ripeness(self, plant_id=None):
+        if not plant_id:
+            return {"error": "assess_ripeness needs plant_id"}
+        ref = self.RIPENESS_REF
+        allobs = self._ripeness_obs(plant_id)
+        obs = [o for o in allobs if o.get("observed_by") == "principal"]
+        out = {"plant_id": plant_id, "observations": len(obs),
+               "model_reads_not_counted": len(allobs) - len(obs), "reference": ref["basis"]}
+        if not obs:
+            out.update({"classification": "no_observation", "confidence": "high",
+                        "reason": ("No ripeness observation on record for this plant. Its age "
+                                   "is not one - harvest is called from pistils and trichomes."),
+                        "action": ("Record pistil darkening (%) and, with a loupe or phone "
+                                   "macro, the share of clear / cloudy / amber trichomes "
+                                   "using record_ripeness.")})
+            return out
+        last = obs[-1]
+        cl, cd, am, pb = (last.get("trichomes_clear_pct"), last.get("trichomes_cloudy_pct"),
+                          last.get("trichomes_amber_pct"), last.get("pistils_brown_pct"))
+        out["latest"] = last
+        why = []
+        if last.get("new_pistils_forming"):
+            cls = "not_ready"; why.append("new pistils are still forming - the buds are still building")
+        elif cd is None and am is None:
+            cls = "not_ready" if (pb is None or pb < ref["pistils_brown_min"]) else "approaching"
+            why.append("no trichome reading - pistils alone give only a rough read"
+                       + (f"; {pb:g}% darkened" if pb is not None else ""))
+        elif am is not None and am >= ref["amber_heavy"]:
+            cls = "past_peak"; why.append(f"{am:g}% amber - past the usual window, effect heavier")
+        elif ((cl or 0) <= ref["clear_max_for_window"] and (cd or 0) >= ref["cloudy_min_for_window"]
+              and am is not None and ref["amber_window"][0] <= am <= ref["amber_window"][1]):
+            cls = "harvest_window"; why.append(f"{cd:g}% cloudy, {am:g}% amber, {cl or 0:g}% clear")
+        elif (cl or 0) > 30:
+            cls = "not_ready"; why.append(f"{cl:g}% trichomes still clear")
+        else:
+            cls = "approaching"; why.append(f"clear {cl}, cloudy {cd}, amber {am}")
+        if pb is not None and cls == "harvest_window" and pb < ref["pistils_brown_min"]:
+            why.append(f"but only {pb:g}% of pistils darkened - confirm before cutting")
+        out.update({"classification": cls, "reason": "; ".join(why),
+                    "confidence": "medium" if (cd is not None or am is not None) else "low"})
+        # PROJECTION ONLY FROM THIS PLANT'S OWN RATE
+        series = [o for o in obs if o.get("trichomes_cloudy_pct") is not None]
+        if cls in ("not_ready", "approaching") and len(series) >= 2:
+            a, b = series[-2], series[-1]
+            try:
+                dd = (datetime.fromisoformat(b["at"]) - datetime.fromisoformat(a["at"])).total_seconds() / 86400
+            except Exception:
+                dd = 0
+            rate = (b["trichomes_cloudy_pct"] - a["trichomes_cloudy_pct"]) / dd if dd >= 1 else None
+            if rate and rate > 0:
+                need = max(0, ref["cloudy_min_for_window"] - b["trichomes_cloudy_pct"])
+                days = need / rate
+                out["projection"] = {
+                    "days_to_window_estimate": round(days),
+                    "basis": (f"this plant's own cloudy-trichome rate: "
+                              f"{rate:.1f} percentage points/day between {a['at'][:10]} and "
+                              f"{b['at'][:10]}. Two observations; re-observe to tighten."),
+                }
+            else:
+                out["projection"] = {"days_to_window_estimate": None,
+                                     "basis": "cloudy share not rising between the last two "
+                                              "observations at least a day apart - no rate"}
+        elif cls in ("not_ready", "approaching"):
+            out["projection"] = {"days_to_window_estimate": None,
+                                 "basis": "needs two trichome observations a day or more apart"}
+        out["action"] = {"no_observation": None,
+                         "not_ready": "Keep feeding; re-observe trichomes in about a week.",
+                         "approaching": "Check trichomes every 2-3 days.",
+                         "harvest_window": "In the window - choose the cut day; consider a "
+                                           "final water-only reservoir per your own plan.",
+                         "past_peak": "Harvest soon if a lighter effect is wanted."}.get(cls)
         return out
 
     def _blend_coefficient(self, plant_id, blend):
@@ -12185,6 +12317,15 @@ class GrowAgent(AgentBase):
         elif task == "list_lessons":
             a = args if isinstance(args, dict) else {}
             return {"result": self._list_lessons(a.get("topic"), a.get("plant_id"))}
+        elif task == "record_ripeness":
+            a = args if isinstance(args, dict) else {}
+            return {"result": self.record_ripeness(**{k: a.get(k) for k in (
+                "plant_id", "pistils_brown_pct", "trichomes_clear_pct", "trichomes_cloudy_pct",
+                "trichomes_amber_pct", "new_pistils_forming", "observed_by", "photo_ref", "note")
+                if a.get(k) is not None})}
+        elif task == "assess_ripeness":
+            a = args if isinstance(args, dict) else {}
+            return {"result": self.assess_ripeness(a.get("plant_id"))}
         elif task == "calibrate_blend":
             a = args if isinstance(args, dict) else {}
             return {"result": self.calibrate_blend(a.get("plant_id", "current_plant"),

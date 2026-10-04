@@ -43,6 +43,8 @@
     "reconcile_dose",
     "predict_flowering",
     "calibrate_blend",
+    "record_ripeness",
+    "assess_ripeness",
     "list_lessons",
     "record_lesson",
     "plan_system_transition",

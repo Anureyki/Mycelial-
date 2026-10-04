@@ -49,6 +49,8 @@
     "ingest_environment_export",
     "predict_flowering",
     "calibrate_blend",
+    "record_ripeness",
+    "assess_ripeness",
     "record_lesson",
     "list_lessons",
     "ppm_per_ml",
