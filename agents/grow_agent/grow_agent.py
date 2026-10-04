@@ -1561,6 +1561,23 @@ class GrowAgent(AgentBase):
                          "record" if same else
                          "same strain, DIFFERENT system (light, root volume): weak - informs a "
                          "prior and is not this plant's expected date")})
+        # THE GROWER CAN TAKE A CLOCK AWAY. gsc_auto_2 is the control in a pair
+        # whose variable is the container; scoring it against the catalog
+        # day-35 or against GSC1's 2026-09-26 pistils would read a root-volume
+        # stall as a late flip. Excluded priors are removed, and named.
+        try:
+            _sysrec = json.loads(self._unwrap_value(
+                self.retrieve_own_memory(f"grow_system_{plant_id}")) or "{}")
+        except Exception:
+            _sysrec = {}
+        _excl = set(_sysrec.get("flip_priors_excluded") or [])
+        if _excl:
+            kept = [p_ for p_ in priors
+                    if p_["basis"] not in _excl and f"sibling:{p_.get('plant')}" not in _excl]
+            out["priors_excluded_by_grower"] = sorted(_excl)
+            priors = kept
+        if _sysrec.get("comparison_pair"):
+            out["comparison_pair"] = _sysrec["comparison_pair"]
         out["priors"] = priors
         out["pistils_recorded"] = False
         try:
@@ -1592,6 +1609,9 @@ class GrowAgent(AgentBase):
                            f"and none of them is a reading of this plant."),
                 "action": ("Watch the nodes. When a pistil is seen, record it with "
                            "observe_stage_markers - that date replaces every prior."),
+                **({"no_flower_date": ("No flower date for this plant until pistils are "
+                                       "recorded on it - the grower excluded every clock "
+                                       "it could be scored against.")} if (_excl and not priors) else {}),
             })
         return out
 
