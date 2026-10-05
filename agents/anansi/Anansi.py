@@ -47,7 +47,7 @@ class Anansi(AgentBase):
                           # it was documented.
                           "notify", "receive_mail", "ingest_upload", "grow_roster",
                           "grow_snapshot", "recent_changes", "phase_status",
-                          "system_graph", "actions", "deadlines",
+                          "system_graph", "actions", "deadlines", "reminders",
                           "training_candidates", "training_quest_status",
                           "advance_campaign", "review_candidate", "voice"],
             role="interface"
@@ -613,6 +613,18 @@ class Anansi(AgentBase):
             return self.send_a2a("legal_agent", "actions",
                                  {"case_id": payload.get("case_id"),
                                   "include_closed": bool(payload.get("include_closed"))})
+
+        # What a domain says is coming due, for its card. Read live from the
+        # domain every time - Anansi keeps no copy of a reminder. This is what
+        # makes notify's "visible on the domain's own card" true: before it,
+        # the Grow card asked for maintenance_due, this agent answered
+        # "Unknown task", and the card rendered without the banner, silently.
+        if task == "reminders":
+            agent = (args or {}).get("agent") if isinstance(args, dict) else None
+            if agent not in ("grow_agent", "legal_agent", "accounting_agent"):
+                return {"error": "reminders needs agent: grow_agent, legal_agent "
+                                 "or accounting_agent"}
+            return self.send_a2a(agent, "reminders_due", {})
 
         if task == "deadlines":
             payload = args if isinstance(args, dict) else {}

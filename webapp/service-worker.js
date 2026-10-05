@@ -1,6 +1,6 @@
 // Bump CACHE on every shell change - the activate handler below deletes any
 // cache whose key doesn't match, so a new version is what evicts the old one.
-const CACHE = 'mycelial-shell-v30';
+const CACHE = 'mycelial-shell-v31';
 // PRECACHE MUST MATCH WHAT index.html ASKS FOR. This listed
 // app.js?v=24 while index.html requested v=26, so the service worker
 // warmed a URL nobody fetched and app.js was never actually

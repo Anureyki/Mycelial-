@@ -1172,6 +1172,11 @@ class AgentBase:
                                        if isinstance(args, dict) else None)
                 elif task == "base_version":
                     result = self.base_version()
+                elif task == "reminders_due":
+                    result = self.reminders_due()
+                elif task == "notify_reminders":
+                    result = self.notify_reminders(bool((args or {}).get("force"))
+                                                   if isinstance(args, dict) else False)
                 elif task == "corpus_currency":
                     result = self.corpus_currency(args if isinstance(args, dict) else {})
                 elif task == "refer_finding":
@@ -2119,6 +2124,70 @@ class AgentBase:
     # find out. Just like if you don't know something, you can find out."* An
     # agent guessing to avoid asking is choosing a wrong record over a short
     # delay.
+
+    # ------------------------------------------------------------------
+    # Reminders. The domain remembers what is due; Anansi delivers it.
+    #
+    # Grow built this first (maintenance_due / notify_maintenance), and the
+    # principal's next sentence was the class: *"make sure legal and
+    # accounting are doing the same thing"* - a docket response or a filed
+    # motion slipping is worse than a reservoir aging. So the delivery half is
+    # inherited and only the knowing half is per domain: a domain overrides
+    # reminders_due() and says what is coming, and nothing else changes.
+    #
+    # Each item: key (stable - the same key is delivered ONCE, so a domain
+    # that wants a daily nag puts the date in it), subject, body, urgency
+    # ("soon" waits on the dashboard; "due" and "overdue" also go to email),
+    # and optionally register. An item is marked delivered only when
+    # something was actually delivered - the false-success rule.
+    REMINDER_REGISTER = "low_stakes"
+
+    def reminders_due(self):
+        return {"items": [], "basis": ["this agent tracks nothing time-bound"]}
+
+    def notify_reminders(self, force=False):
+        due = self.reminders_due() or {}
+        basis = due.get("basis")
+        basis = [basis] if isinstance(basis, str) else (basis or [])
+        items = due.get("items") or []
+        try:
+            sent_log = json.loads(self._unwrap_value(
+                self.retrieve_own_memory("reminders_notified")) or "{}")
+        except Exception:
+            sent_log = {}
+        fresh, skipped = [], []
+        for it in items:
+            key = it.get("key")
+            if key and key in sent_log and not force:
+                skipped.append({"item": key, "skipped": f"already delivered {sent_log[key]}"})
+            elif key:
+                fresh.append(it)
+        if not fresh:
+            return {"agent": self.agent_id, "due_count": len(items), "sent": 0,
+                    "skipped": skipped, "basis": basis}
+        # ONE message per agent per run. Six overdue actions arriving as six
+        # emails is how a reminder channel gets filtered to a folder nobody reads.
+        urgent = any(it.get("urgency") in ("due", "overdue") for it in fresh)
+        if len(fresh) == 1:
+            subject, body = fresh[0].get("subject"), fresh[0].get("body") or fresh[0].get("subject")
+        else:
+            subject = f"{len(fresh)} reminders from {self.agent_id.replace('_', ' ')}"
+            body = "\n\n".join(f"{n}. {it.get('subject')}\n   {it.get('body') or ''}".rstrip()
+                                for n, it in enumerate(fresh, 1))
+        r = self.send_a2a("anansi", "notify", {
+            "body": body, "subject": subject, "from_agent": self.agent_id,
+            "register": fresh[0].get("register") or self.REMINDER_REGISTER,
+            "channels": ["email", "dashboard"] if urgent else ["dashboard"]})
+        res = r.get("result", r) if isinstance(r, dict) else r
+        delivered = isinstance(res, dict) and (res.get("sent_any") or not res.get("unsent"))
+        if delivered:
+            stamp = datetime.now().strftime("%Y-%m-%d")
+            for it in fresh:
+                sent_log[it["key"]] = stamp
+            self.store_own_memory("reminders_notified", json.dumps(sent_log))
+        return {"agent": self.agent_id, "due_count": len(items), "sent": len(fresh),
+                "subject": subject, "delivery": res, "marked_delivered": delivered,
+                "skipped": skipped, "basis": basis}
 
     def ask_principal(self, question, options=None, blocked_on=None,
                       why=None, register=None, ref=None):

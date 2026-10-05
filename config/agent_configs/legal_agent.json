@@ -6,6 +6,8 @@
     "acquire_opinion",
     "actions",
     "add_deadline",
+    "watch_docket",
+    "watched_dockets",
     "add_to_evidence_binder",
     "add_to_filing_layer",
     "add_to_notebook",

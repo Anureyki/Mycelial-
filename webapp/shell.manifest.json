@@ -1,9 +1,9 @@
 {
-  "version": 30,
+  "version": 31,
   "files": {
-    "webapp/index.html": "24e7d20ccbb87ebb",
-    "webapp/app.js": "836237a939234511",
+    "webapp/index.html": "45057e76a1358e2f",
+    "webapp/app.js": "4ccd4cc9544a30c5",
     "webapp/style.css": "8b6c06b3a940977a",
-    "webapp/service-worker.js": "1fb7034386f6159f"
+    "webapp/service-worker.js": "b8e9d1e05230ba99"
   }
 }

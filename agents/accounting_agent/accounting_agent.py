@@ -1560,6 +1560,76 @@ class AccountingAgent(AgentBase):
                     "why": ("The lookup failed. That is not a finding about "
                             "ownership - nothing was determined either way.")}
 
+    # ------------------------------------------------------------------
+    # Reminders (delivery inherited - see AgentBase.reminders_due).
+    #
+    # An obligation with a due day either has a payment recorded against this
+    # period or it does not, and the second case is a reminder whichever way
+    # the truth falls: unpaid, it is due; paid but unrecorded, the record is
+    # missing the evidence a dispute would turn on. The body says both.
+    REMINDER_REGISTER = "financial"
+    REMIND_DAYS_BEFORE = 3
+    STILL_UNRECORDED_DAYS = 5
+
+    def reminders_due(self):
+        import calendar
+        from datetime import date, timedelta
+        from core.case_manager import CaseManager
+        cm = CaseManager(self)
+        today = datetime.now().date()
+        items, basis, no_day = [], [], []
+        for c in cm.list_cases():
+            case = cm.get(c["case_id"])
+            if not isinstance(case, dict) or case.get("error"):
+                basis.append(f"{c['case_id']}: unreadable")
+                continue
+            for ob in case.get("obligations") or []:
+                if ob.get("voided") or ob.get("cadence") != "monthly":
+                    continue
+                if not ob.get("due_day"):
+                    no_day.append(ob.get("name"))
+                    continue
+                day = int(ob["due_day"])
+                due = today.replace(day=min(day, calendar.monthrange(today.year, today.month)[1]))
+                if due - today > timedelta(days=self.REMIND_DAYS_BEFORE):
+                    continue
+                # A payment counts toward this period from 10 days before the due
+                # date to the end of the following month window - rent paid on the
+                # 31st for the 1st belongs to the 1st.
+                lo, hi = due - timedelta(days=10), due + timedelta(days=31)
+                paid = []
+                for p in ob.get("payments") or []:
+                    try:
+                        if lo <= date.fromisoformat(str(p.get("paid_on"))[:10]) < hi:
+                            paid.append(p)
+                    except ValueError:
+                        continue
+                if paid:
+                    continue
+                late = (today - due).days
+                stage = ("soon" if late < 0 else "due" if late < self.STILL_UNRECORDED_DAYS
+                         else "still")
+                payors = ", ".join(ob.get("authorized_payors") or []) or "no payor recorded"
+                period = due.strftime("%B %Y")
+                items.append({
+                    "key": f"{ob['obligation_id']}:{due.isoformat()}:{stage}",
+                    "urgency": "soon" if late < 0 else "overdue" if stage == "still" else "due",
+                    "subject": (f"{ob['name']} ${ob['amount']} due {due.isoformat()}" if late < 0
+                                else f"No {period} payment recorded: {ob['name']} ${ob['amount']}"),
+                    "body": (f"{ob['name']}: ${ob['amount']} due {due.isoformat()}, payable by "
+                             f"{payors}. "
+                             + ("Nothing recorded against it yet." if late < 0 else
+                                f"No payment for {period} is on the record, {late} day"
+                                f"{'s' * (late != 1)} after the due date. If it was paid, record "
+                                "it with the receipt - a payment with no evidence is contestable. "
+                                "If it was not, it is outstanding.")
+                             + f" Case: {case.get('title') or c['case_id']}.")})
+        basis.append("monthly obligations with a due day: reminded 3 days before, on the due "
+                     "date if no payment is recorded, and again 5 days later")
+        if no_day:
+            basis.append("no due day recorded, so no reminder possible: " + "; ".join(no_day))
+        return {"items": items, "basis": basis}
+
     def handle_task(self, task, args, sender):
         self.log(f"Task {task} from {sender}")
 

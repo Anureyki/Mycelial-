@@ -198,7 +198,7 @@ class LegalAgent(AgentBase):
                 "claim_open", "claim_cite", "claim_answer", "claim_set_right",
                 "claim_evidence", "claim_observe", "claim_reproducibility",
                 "claim_corroborate", "claim_get", "claim_list", "claim_ontology",
-                "add_deadline", "deadlines",
+                "add_deadline", "deadlines", "watch_docket", "watched_dockets",
                 "open_action", "complete_action", "amend_action", "actions",
                 "add_venue", "venues", "running_clocks", "complaint_path",
                 "read_filed_document", "ingest_screenshot", "read_docket_document", "learn_from_case", "verify_quote", "set_principal", "classify_matter",
@@ -581,6 +581,133 @@ class LegalAgent(AgentBase):
     # refuses without one - the same rule the case layer applies to a payment.
 
     ACTION_STATES = ("open", "in_progress", "blocked", "done", "not_needed")
+
+    # ------------------------------------------------------------------
+    # Reminders (the delivery half is inherited - see AgentBase.reminders_due).
+    #
+    # Three things Legal holds that can run out on the principal: deadlines on
+    # the register, open actions he owns, and filings on a watched docket. The
+    # last is the one he named - *"I need to be reminded of the docket
+    # responses ... of the motions that get filed"* - and the one that arrives
+    # from outside, so it is checked against the court's record rather than
+    # anything this agent wrote down.
+    REMINDER_REGISTER = "legal"
+    MOTION = re.compile(r"\bmotion\b|\bmot\.|order to show cause|summary judgment", re.I)
+
+    def _watched(self):
+        try:
+            return json.loads(self._unwrap_value(
+                self.retrieve_own_memory("watched_dockets")) or "{}")
+        except Exception:
+            return {}
+
+    def _docket_newest(self, docket_id):
+        lst = self._unwrap_mcp(self.call_tool("courtlistener", "docket_documents",
+                                              {"docket_id": int(docket_id), "order_by": "-id"}))
+        if not isinstance(lst, dict) or lst.get("error"):
+            return None, ((lst or {}).get("error") if isinstance(lst, dict) else "no response")
+        return lst.get("documents") or [], None
+
+    def watch_docket(self, docket_id=None, case_id=None, label=None, remove=False,
+                     subscribe=True):
+        """Watch a federal docket for new filings. What is on it NOW is the
+        baseline and is never reported; anything filed after it is."""
+        try:
+            did = str(int(docket_id))
+        except (TypeError, ValueError):
+            return {"error": "docket_id must be the CourtListener docket id (an integer, "
+                             "from search_dockets / a search result)."}
+        w = self._watched()
+        if remove:
+            gone = w.pop(did, None)
+            self.store_own_memory("watched_dockets", json.dumps(w))
+            return {"removed": bool(gone), "docket_id": did, "watching": len(w)}
+        docs, err = self._docket_newest(did)
+        if docs is None:
+            # No baseline means every existing entry would later read as new.
+            return {"error": f"Could not read docket {did} to set a baseline: {err}. "
+                             "Nothing was recorded - try again.", "recorded": False}
+        w[did] = {"case_id": case_id, "label": label or f"docket {did}",
+                  "baseline_ids": [d.get("id") for d in docs if d.get("id")],
+                  "baseline_newest": (docs[0].get("date_created") or "")[:10] if docs else None,
+                  "added": datetime.now().isoformat(timespec="seconds")}
+        self.store_own_memory("watched_dockets", json.dumps(w), pin=True)
+        sub = None
+        if subscribe:
+            # CourtListener refreshes a docket from the court's feed only while
+            # someone is subscribed - without this a watch can sit on a stale copy.
+            sub = self._unwrap_mcp(self.call_tool("courtlistener", "subscribe_docket_alert",
+                                                  {"docket": int(did)}))
+        return {"watching": did, "label": w[did]["label"], "case_id": case_id,
+                "baseline_entries": len(w[did]["baseline_ids"]),
+                "baseline_newest": w[did]["baseline_newest"],
+                "courtlistener_subscription": sub,
+                "coverage": ("Federal courts only (RECAP/PACER). A state or county court "
+                             "docket is not visible here - record its filings and response "
+                             "deadlines with add_deadline instead.")}
+
+    def reminders_due(self):
+        items, basis, now = [], [], datetime.now()
+        dls = (self.deadlines().get("deadlines") or [])
+        for d in dls:
+            left = d.get("days_remaining")
+            if left is None or left > 45 or left < -3:
+                continue
+            bucket = ("d45" if left > 30 else "d30" if left > 14 else "d14" if left > 7
+                      else f"d{left}" if left >= 0 else "passed")
+            when = ("TODAY" if left == 0 else f"in {left} day{'s' * (left != 1)}" if left > 0
+                    else f"{-left} day{'s' * (left != -1)} ago")
+            items.append({
+                "key": f"{d['id']}:{bucket}",
+                "urgency": "soon" if left > 14 else "due" if left >= 0 else "overdue",
+                "subject": f"Deadline {when}: {d.get('name')}",
+                "body": (f"{d.get('name')} is due {d.get('due')} ({when}). "
+                         f"Authority: {d.get('citation')}. If missed: {d.get('consequence')}"
+                         + (f" Case {d['case_id']}." if d.get("case_id") else ""))})
+        basis.append(f"{len(dls)} deadline(s) on the register; reminded at 45, 30 and 14 "
+                     "days out, daily from 7 days, and once if one passes")
+        acts = [a for a in (self.actions().get("actions") or [])
+                if a.get("status") == "open" and a.get("owner") == "principal"
+                and a.get("days_remaining") is not None and a["days_remaining"] <= 7]
+        for a in acts:
+            left = a["days_remaining"]
+            items.append({
+                "key": f"{a['id']}:" + ("overdue" if left < 0 else f"d{left}"),
+                "urgency": "overdue" if left < 0 else "due",
+                "subject": (f"Still open on the record: {a.get('what')}" if left < 0
+                            else f"Due {a.get('due')}: {a.get('what')}"),
+                "body": (f"{a.get('what')} - due {a.get('due')}"
+                         + (f", {-left} days ago" if left < 0 else "")
+                         + f". Proof that closes it: {a.get('evidence_expected')}."
+                         + (" If it is done, tell Legal and attach the proof; it is still "
+                            "open on the record." if left < 0 else ""))})
+        basis.append(f"{len(acts)} open action(s) of yours due within 7 days or past due")
+        watched = self._watched()
+        for did, w in watched.items():
+            docs, err = self._docket_newest(did)
+            if docs is None:
+                # Unreadable is not "nothing new" - said apart, never as quiet.
+                basis.append(f"{w.get('label')}: could not be checked ({err})")
+                continue
+            base = set(w.get("baseline_ids") or [])
+            new = [x for x in docs if x.get("id") and x["id"] not in base]
+            for x in reversed(new[:10]):
+                desc = (x.get("description") or x.get("short_description") or "untitled").strip()
+                num = x.get("document_number") or "(unnumbered)"
+                motion = bool(self.MOTION.search(desc))
+                items.append({
+                    "key": f"docket_{did}:{x['id']}", "urgency": "due",
+                    "subject": f"New filing on {w.get('label')}: "
+                               + ("MOTION - " if motion else "") + desc[:80],
+                    "body": (f"Entry {num}, added {(x.get('date_created') or '')[:10]}: {desc}."
+                             + (" A motion can start a response period. No response deadline "
+                                "is on the register for it: tell Legal the date you were served "
+                                "and the rule or local rule setting the period, and it will "
+                                "record the deadline and remind you." if motion else ""))})
+            basis.append(f"{w.get('label')}: {len(new)} new filing(s) since the watch began")
+        if not watched:
+            basis.append("no dockets watched - watch_docket adds one (federal courts only)")
+        return {"items": items, "basis": basis, "checked_at": now.isoformat(timespec="seconds")}
 
     def open_action(self, args):
         """Record something that still has to be done, and what will show it was."""
@@ -4875,6 +5002,10 @@ class LegalAgent(AgentBase):
             return self.actions(a.get("case_id"), bool(a.get("include_closed")))
         if task == "add_deadline":
             return self.add_deadline(**(args if isinstance(args, dict) else {}))
+        if task == "watch_docket":
+            return self.watch_docket(**(args if isinstance(args, dict) else {}))
+        if task == "watched_dockets":
+            return {"watched": self._watched()}
         if task == "deadlines":
             return self.deadlines(**(args if isinstance(args, dict) else {}))
 

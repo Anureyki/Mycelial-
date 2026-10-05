@@ -298,22 +298,55 @@ function renderRows(body, rows) {
 // plant" down the narration path, which answered the question - returning an
 // argument about feed strength while the grower wanted the numbers - and
 // carried no timestamp, so output from an old conversation looked current.
-// Maintenance Grow says is due, as banners. Anansi's dashboard channel
-// reports "visible on the domain's own card" - this is what makes that true.
-async function appendMaintenance(body, plantId) {
+// What a domain says is coming due, as banners at the top of its card.
+// Anansi's dashboard channel reports "visible on the domain's own card" -
+// this is what makes that true. An unreachable domain says so on the card:
+// this used to swallow the error, and the Grow banners never showed because
+// the task it asked for did not exist, with nothing on screen to say so.
+async function appendReminders(body, agent, keep) {
+  let d;
   try {
-    const m = unwrap(await callTask('maintenance_due', { plant_id: plantId }), 'items');
-    for (const it of (m && m.due) || []) {
-      const p = document.createElement('p');
-      p.className = `due due-${it.status === 'overdue' ? 'overdue' : it.status === 'due' ? 'due_now' : 'due_soon'}`;
-      p.textContent = it.text;
-      body.prepend(p);
-    }
-  } catch (e) { /* the card still renders without it */ }
+    d = unwrap(await callTask('reminders', { agent }), 'items');
+  } catch (e) { d = { error: String(e) }; }
+  if (!d || d.error || !Array.isArray(d.items)) {
+    const p = document.createElement('p');
+    p.className = 'muted';
+    p.textContent = `Reminders unavailable: ${(d && d.error) || 'no answer'}`;
+    body.prepend(p);
+    return d;
+  }
+  for (const it of d.items.filter(keep || (() => true)).reverse()) {
+    const p = document.createElement('p');
+    p.className = `due due-${it.urgency === 'overdue' ? 'overdue' : it.urgency === 'due' ? 'due_now' : 'due_soon'}`;
+    p.textContent = it.subject;
+    p.title = it.body || '';
+    body.prepend(p);
+  }
+  return d;
+}
+
+// Money: Accounting's obligations as reminders. There was no card for this
+// domain at all, so a rent payment with nothing recorded against it had
+// nowhere on the dashboard to appear.
+async function renderMoneyCard(body) {
+  body.textContent = '';
+  const d = await appendReminders(body, 'accounting_agent');
+  if (d && Array.isArray(d.items) && !d.items.length) {
+    const p = document.createElement('p');
+    p.className = 'muted';
+    p.textContent = 'Nothing due.';
+    body.append(p);
+  }
+  for (const b of (d && d.basis) || []) {
+    const p = document.createElement('p');
+    p.className = 'muted';
+    p.textContent = b;
+    body.append(p);
+  }
 }
 
 async function renderGrowCard(body) {
-  appendMaintenance(body, 'current_plant');
+  appendReminders(body, 'grow_agent');
   const d = unwrap(await callTask('grow_snapshot', {}), 'last_reading');
   if (!d || d.error) { body.textContent = d && d.error ? d.error : 'No grow data.'; return; }
   const r = d.last_reading || {};
@@ -667,6 +700,8 @@ async function renderGraphCard(body) {
 // that closes on assertion is a list of things somebody believes happened.
 async function renderLegalCard(body) {
   body.textContent = '';
+  // Only new filings: the open actions and deadlines are already listed below.
+  appendReminders(body, 'legal_agent', it => (it.key || '').startsWith('docket_'));
 
   const act = unwrap(await callTask('actions', {}), 'actions');
   if (!act || act.error) {
@@ -919,7 +954,6 @@ async function renderGrow2Card(body) {
     return;
   }
   for (const pl of others) {
-    appendMaintenance(body, pl.plant_id);
     const r = pl.last_reading || {};
     const res = pl.reservoir || {};
     const h = document.createElement('p');
@@ -987,6 +1021,7 @@ async function refreshDashboard() {
     { id: 'grow2Card', render: renderGrow2Card },
     { id: 'progressCard', render: renderProgressCard },
     { id: 'legalCard', render: renderLegalCard },
+    { id: 'moneyCard', render: renderMoneyCard },
     { id: 'graphCard', render: renderGraphCard },
   ];
   for (const { id } of [...narrated, ...structured]) {

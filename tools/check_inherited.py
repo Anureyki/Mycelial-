@@ -579,6 +579,7 @@ def check_declared_matches_dispatched():
         inherited = set()
     inherited |= {"routing_terms", "describe", "answer", "corpus_currency",
                   "base_version", "ask_peer_corpus", "refer_finding",
+                  "reminders_due", "notify_reminders",
                   "receive_finding", "health", "store_memory", "retrieve_memory",
                   "ask_principal", "open_questions", "answer_question",
                   "case_event_notice", "reason", "think",

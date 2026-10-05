@@ -5341,33 +5341,25 @@ class GrowAgent(AgentBase):
                           f"reference adopted at the principal's request; reading stale after "
                           f"{self.READING_STALE_DAYS} days")}
 
-    def notify_maintenance(self, plant_id=None, force=False):
-        m = self.maintenance_due(plant_id)
+    def reminders_due(self):
+        """maintenance_due, in the shape every agent's reminders share. Keyed by
+        day, so a due change is repeated daily until it is done - that it went
+        unrepeated is how the GSC2 reservoir aged."""
+        m = self.maintenance_due()
         today = datetime.now().strftime("%Y-%m-%d")
-        try:
-            sent_log = json.loads(self._unwrap_value(
-                self.retrieve_own_memory("maintenance_notified")) or "{}")
-        except Exception:
-            sent_log = {}
-        out = []
+        items = []
         for it in m["due"]:
-            key = f"{it['plant_id']}:{it['kind']}:{it['status']}"
-            if sent_log.get(key) == today and not force:
-                out.append({"item": key, "skipped": "already sent today"}); continue
             label = {"current_plant": "GSC1", "gsc_auto_2": "GSC2"}.get(it["plant_id"], it["plant_id"])
-            r = self.send_a2a("anansi", "notify", {
-                "body": f"{label}: {it['text']}", "subject": f"{label}: {it['kind'].replace('_', ' ')} {it['status'].replace('_', ' ')}",
-                "from_agent": "grow_agent", "register": "low_stakes",
-                # A due or overdue change is the kind of thing that slipped before
-                # because nobody was looking - it goes to email as well.
-                "channels": (["email", "dashboard"] if it["status"] in ("due", "overdue")
-                             else ["dashboard"])})
-            res = r.get("result", r) if isinstance(r, dict) else r
-            out.append({"item": key, "delivery": res})
-            if isinstance(res, dict) and (res.get("sent_any") or not res.get("unsent")):
-                sent_log[key] = today
-        self.store_own_memory("maintenance_notified", json.dumps(sent_log))
-        return {"notified": out, "due_count": len(m["due"])}
+            items.append({
+                "key": f"{it['plant_id']}:{it['kind']}:{it['status']}:{today}",
+                "urgency": it["status"] if it["status"] in ("due", "overdue") else "soon",
+                "subject": f"{label}: {it['kind'].replace('_', ' ')} {it['status'].replace('_', ' ')}",
+                "body": f"{label}: {it['text']}"})
+        return {"items": items, "basis": m.get("basis")}
+
+    def notify_maintenance(self, plant_id=None, force=False):
+        # Kept as a name; the delivery is the inherited notify_reminders now.
+        return self.notify_reminders(force)
 
     def _blend_coefficient(self, plant_id, blend):
         try:

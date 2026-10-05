@@ -180,13 +180,18 @@ def docket_documents(arguments):
     number = arguments.get("document_number")
     try:
         params = {"docket_entry__docket": docket_id, "page_size": 50}
+        if arguments.get("order_by"):
+            # "-id" lists newest first, which is what watching a docket for new
+            # filings needs - the default order is oldest first and a busy
+            # docket's new entries fall off the 50-row page.
+            params["order_by"] = str(arguments["order_by"])
         # BOTH description fields. An entry can carry its title in either:
         # Smith v. National Credit Systems' 11-page ruling (D. Md. doc 17)
         # has an empty `description` and "Memorandum Opinion" in
         # `short_description`, and asking for one field made an available
         # ruling look like an untitled attachment.
         fields = ["id", "document_number", "description", "short_description",
-                  "is_available", "page_count"]
+                  "is_available", "page_count", "date_created"]
         if number is not None:
             params["document_number"] = str(number)
             fields.append("plain_text")
@@ -204,7 +209,8 @@ def docket_documents(arguments):
         results = resp.json().get("results", [])
         if number is None:
             return {"docket_id": docket_id, "documents": [
-                {"document_number": r.get("document_number"),
+                {"id": r.get("id"), "document_number": r.get("document_number"),
+                 "date_created": r.get("date_created"),
                  "description": r.get("description") or r.get("short_description") or "",
                  "short_description": r.get("short_description"),
                  "is_available": r.get("is_available"), "page_count": r.get("page_count")}
@@ -348,6 +354,8 @@ TOOLS = {
                               "description": "docket_id from a search result"},
                 "document_number": {"type": "string",
                                     "description": "entry number to read in full"},
+                "order_by": {"type": "string",
+                             "description": "e.g. -id for newest first"},
             },
             "required": ["docket_id"],
         },
