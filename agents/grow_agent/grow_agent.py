@@ -909,7 +909,7 @@ class GrowAgent(AgentBase):
                 # the interface layer doing this agent's job and re-editing
                 # itself every time a plant gains a field.
                 "roster",
-                "log_reading", "check_stage", "observe_stage_markers", "volume_history", "correct_volume_event", "reconcile_topup", "prediction_check",
+                "log_reading", "check_stage", "observe_stage_markers", "volume_history", "correct_volume_event", "reconcile_topup", "prediction_check", "record_species", "record_genetics", "record_plant", "compare_plants", "adopt_species_layer", "record_light_flip",
                 "adjust_nutrients",
                 "transition_stage", "log_water_change", "get_status",
                 "set_germination_date", "set_current_nutrients",
@@ -1470,10 +1470,20 @@ class GrowAgent(AgentBase):
 
         out = {"plant_id": plant_id, "strain": strain, "stage": stage,
                "species": species or "unknown"}
-        if species and species != "cannabis":
+        _v = self._vocab(plant_id)
+        if not _v or "flower" not in (_v.get("stages") or []):
             out.update({"classification": "not_applicable", "confidence": "low",
-                        "reason": f"Flowering timing here is a cannabis question; "
-                                  f"{plant_id} is recorded as {species}."})
+                        "reason": (f"{plant_id}'s species record has no flower stage"
+                                   if _v else f"no species record for {plant_id}")})
+            return out
+        if _v.get("flower_trigger") == "light_schedule_flip":
+            flip = self._observed_flip(plant_id)
+            out.update({"classification": "already_flowering" if flip else "decided_by_grower",
+                        "confidence": "high",
+                        "flowering_mode": _v.get("flowering_mode"),
+                        "observed_flip": ({"date": flip[0], "evidence": flip[2]} if flip else None),
+                        "reason": ("Photoperiod: flower starts when you flip the light "
+                                   "schedule. There is no date to predict - it is yours to set.")})
             return out
         if not germ:
             out.update({"classification": "insufficient_evidence", "confidence": "low",
@@ -1518,7 +1528,7 @@ class GrowAgent(AgentBase):
         #   - a sibling informs a prior; it never becomes this plant's record
         #   - a cross-system sibling prior is weak and says so
         #   - no spread is printed that nobody measured
-        lo = self.STAGE_AGE_BOUNDS.get("flower", (35, 130))[0]
+        lo = ((_v.get("stage_age_days") or {}).get("flower") or (35, 130))[0]
         def sys_of(pid):
             try:
                 rec = json.loads(self._unwrap_value(
@@ -1677,10 +1687,388 @@ class GrowAgent(AgentBase):
     # early_veg, flower).
     MARKER_TO_LIFECYCLE = {"vegetative": "veg", "preflower": "flower"}
 
+    # ------------------------------------------------------------------
+    # Species -> genetics -> plant (principal, 2026-10-05).
+    #
+    # "Cannabis, spinach, tulsi, lavender, tomatoes, parsley, chamomile, star
+    # anise, and mushrooms are different species - not different strains." Grow
+    # held a stage clock, a marker table and a ripeness test that were all
+    # cannabis, behind guards that said `if species != "cannabis"` - species
+    # logic inside the verbs. Now the SPECIES RECORD owns the vocabulary
+    # (stages, markers, how ripeness is judged), GENETICS sits under it (a line:
+    # cultivar, seed source, anything that varies by line - the autoflower stage
+    # clock is a genetics fact, not a cannabis one), and plants keep their ids
+    # and gain a genetics_id. A verb asks _vocab(plant) what applies and the
+    # record answers; a method the verb has no handler for is said, not guessed.
+    GROWTH_TYPES = ("annual", "biennial", "perennial", "fungus")
+    # pistils_observed: the plant decides (autoflower). light_schedule_flip:
+    # the grower decides, by changing the schedule (photoperiod).
+    FLOWER_TRIGGERS = ("pistils_observed", "light_schedule_flip")
+
+    def _jload(self, key, default):
+        try:
+            raw = self._unwrap_value(self.retrieve_own_memory(key))
+            v = json.loads(raw) if raw else default
+            return v if isinstance(v, type(default)) else default
+        except Exception:
+            return default
+
+    def _index_add(self, key, item):
+        idx = self._jload(key, [])
+        if item not in idx:
+            idx.append(item)
+            self.store_own_memory(key, json.dumps(idx))
+
+    def _species_rec(self, species_id):
+        return self._jload(f"species_{species_id}", {}) if species_id else {}
+
+    def _genetics_rec(self, genetics_id):
+        return self._jload(f"genetics_{genetics_id}", {}) if genetics_id else {}
+
+    def _plant_genetics_id(self, plant_id):
+        for key in (f"grow_system_{plant_id}", f"plant_{plant_id}"):
+            gid = self._jload(key, {}).get("genetics_id")
+            if gid:
+                return gid
+        return None
+
+    def _lineage(self, plant_id):
+        g = self._genetics_rec(self._plant_genetics_id(plant_id))
+        sp = self._species_rec(g.get("species_id")) if g else {}
+        return g, sp
+
+    def _builtin_cannabis_vocab(self):
+        return {
+            "stages": list(self.STAGE_ORDER),
+            "default_stage": "seedling",
+            "markers": {k: {"markers": list(v["markers"]), "means": v.get("means")}
+                        for k, v in self.STAGE_MARKERS.items()},
+            "marker_to_lifecycle": dict(self.MARKER_TO_LIFECYCLE),
+            "ripeness": {"method": "trichome_shares",
+                         "observe": ["pistils_brown_pct", "trichomes_clear_pct",
+                                     "trichomes_cloudy_pct", "trichomes_amber_pct",
+                                     "new_pistils_forming"],
+                         "reference": dict(self.RIPENESS_REF,
+                                           amber_window=list(self.RIPENESS_REF["amber_window"]))},
+        }
+
+    def _vocab(self, plant_id):
+        """What applies to this plant: the species record, with its genetics'
+        overrides on top. None when nothing is known - never cannabis by default."""
+        g, sp = self._lineage(plant_id)
+        if sp:
+            v = {k: sp.get(k) for k in ("stages", "default_stage", "stage_age_days", "markers",
+                                        "marker_to_lifecycle", "ripeness")}
+            # THE MODE IS THE SPECIES' WORD, CHOSEN BY THE LINE. Auto and photo
+            # are the same species with different flower triggers: an auto
+            # flowers on its own clock and the pistils mark it; a photo flowers
+            # when the grower flips the light and may stay in veg as long as he
+            # wants. The species defines what each mode means; the genetics says
+            # which one it is.
+            mode = g.get("flowering_mode")
+            mdef = (sp.get("flowering_modes") or {}).get(mode) if mode else None
+            if mdef:
+                v["stage_age_days"] = mdef.get("stage_age_days")
+                v["flower_trigger"] = mdef.get("flower_trigger")
+                v["veg_can_persist"] = bool(mdef.get("veg_can_persist"))
+            v["flowering_mode"] = mode
+            if g.get("ripeness"):
+                v["ripeness"] = g["ripeness"]
+            v["source"] = (f"species record {sp.get('species_id')}"
+                           + (f", genetics {g.get('genetics_id')}" if g else ""))
+            v["species_id"], v["genetics_id"] = sp.get("species_id"), g.get("genetics_id")
+            return v
+        # Not yet adopted. The built-in tables are cannabis tables, so they apply
+        # only to a plant whose OWN record already says cannabis.
+        legacy = (self._get_species_for_plant(plant_id) or "").lower()
+        if legacy == "cannabis":
+            v = self._builtin_cannabis_vocab()
+            v["stage_age_days"] = {k: list(b) for k, b in self.STAGE_AGE_BOUNDS.items()}
+            v["flowering_mode"], v["flower_trigger"] = "auto", "pistils_observed"
+            v["source"] = "built-in cannabis tables (no species record linked yet)"
+            v["species_id"], v["genetics_id"] = "cannabis", None
+            return v
+        return None
+
+    def record_species(self, species_id=None, name=None, family=None, growth_type=None,
+                       stages=None, default_stage=None, stage_age_days=None, markers=None,
+                       marker_to_lifecycle=None, ripeness=None, vocabulary=None,
+                       flowering_modes=None, source=None, note="", replace=False,
+                       dry_run=False):
+        sid = re.sub(r"[^a-z0-9_]", "_", str(species_id or name or "").strip().lower()).strip("_")
+        if not (sid and name and family and growth_type and stages and source):
+            return {"error": ("record_species needs name, family, growth_type, stages and "
+                              "source - where this vocabulary came from. A stage list nobody "
+                              "can trace is a guess the verbs would obey.")}
+        if growth_type not in self.GROWTH_TYPES:
+            return {"error": f"growth_type must be one of {self.GROWTH_TYPES}"}
+        stages = [str(x) for x in stages]
+        m2l = dict(marker_to_lifecycle or {})
+        bad = [k for k in (markers or {}) if m2l.get(k, k) not in stages]
+        if bad:
+            return {"error": f"marker groups {bad} name no stage in {stages} "
+                             "(map them with marker_to_lifecycle)"}
+        if ripeness is not None and not (isinstance(ripeness, dict) and ripeness.get("method")):
+            return {"error": "ripeness must be a dict with at least a `method`"}
+        for mname, m in (flowering_modes or {}).items():
+            if (m or {}).get("flower_trigger") not in self.FLOWER_TRIGGERS:
+                return {"error": f"flowering mode {mname!r} needs flower_trigger in "
+                                 f"{self.FLOWER_TRIGGERS}"}
+        old = self._species_rec(sid)
+        if old and not replace:
+            return {"error": f"species {sid!r} exists; pass replace=true to supersede it",
+                    "existing": old}
+        rec = {"species_id": sid, "name": name, "family": family, "growth_type": growth_type,
+               "stages": stages, "default_stage": default_stage or stages[0],
+               "stage_age_days": stage_age_days, "markers": markers or {},
+               "marker_to_lifecycle": m2l, "ripeness": ripeness,
+               "flowering_modes": flowering_modes or None,
+               "vocabulary": sorted(set(vocabulary or [])), "source": source,
+               "note": note or None, "recorded_at": datetime.now().isoformat(timespec="seconds")}
+        if old:
+            rec["supersedes"] = old
+        if not dry_run:
+            self.store_own_memory(f"species_{sid}", json.dumps(rec), pin=True)
+            self._index_add("species_index", sid)
+        return {"recorded": not dry_run, "dry_run": bool(dry_run), "species": rec}
+
+    def record_genetics(self, genetics_id=None, species_id=None, name=None, seed_source=None,
+                        vendor_ref=None, breeder=None, flowering_mode=None, ripeness=None,
+                        note="", dry_run=False, species_preview=None):
+        gid = re.sub(r"[^a-z0-9_]", "_", str(genetics_id or name or "").strip().lower()).strip("_")
+        if not (gid and name and species_id):
+            return {"error": "record_genetics needs name and species_id"}
+        sp = self._species_rec(species_id) or (species_preview or {})
+        if not sp and not dry_run:
+            return {"error": f"no species record {species_id!r} - record_species first"}
+        modes = sp.get("flowering_modes") or {}
+        if modes and flowering_mode not in modes:
+            return {"error": (f"{species_id} has flowering modes {sorted(modes)}; a line of it "
+                              f"must say which it is (flowering_mode). A photo treated as an "
+                              f"auto gets pushed toward flower by a clock it does not have.")}
+        old = self._genetics_rec(gid)
+        rec = {**old, "genetics_id": gid, "species_id": species_id, "name": name,
+               "seed_source": seed_source or old.get("seed_source") or "unknown",
+               "vendor_ref": vendor_ref or old.get("vendor_ref"),
+               "breeder": breeder or old.get("breeder"),
+               "flowering_mode": flowering_mode or old.get("flowering_mode"),
+               "ripeness": ripeness or old.get("ripeness"),
+               "note": note or old.get("note"),
+               "recorded_at": old.get("recorded_at") or datetime.now().isoformat(timespec="seconds")}
+        if not dry_run:
+            self.store_own_memory(f"genetics_{gid}", json.dumps(rec), pin=True)
+            self._index_add("genetics_index", gid)
+        return {"recorded": not dry_run, "dry_run": bool(dry_run), "genetics": rec}
+
+    def record_plant(self, plant_id=None, genetics_id=None, germination_date=None,
+                     container=None, location=None, stage=None, note="", dry_run=False):
+        """Put a plant under a genetics line. An existing plant keeps its id and
+        record and gains genetics_id; a new id creates the instance."""
+        if not (plant_id and genetics_id):
+            return {"error": "record_plant needs plant_id and genetics_id"}
+        g = self._genetics_rec(genetics_id)
+        if not g and not dry_run:
+            return {"error": f"no genetics record {genetics_id!r} - record_genetics first"}
+        legacy = (self._get_species_for_plant(plant_id) or "").lower()
+        exists = (plant_id == "current_plant" or plant_id in self._load_plant_index())
+        if exists and legacy and g and legacy != str(g.get("species_id")).lower():
+            return {"error": (f"{plant_id} is recorded as {legacy}; genetics {genetics_id} is "
+                              f"{g.get('species_id')}. Nothing linked.")}
+        if exists:
+            if not dry_run:
+                if self._jload(f"grow_system_{plant_id}", {}):
+                    self.amend_grow_system(plant_id, genetics_id=genetics_id)
+                if plant_id != "current_plant":
+                    rec = self._jload(f"plant_{plant_id}", {})
+                    if rec:
+                        rec["genetics_id"] = genetics_id
+                        self.store_own_memory(f"plant_{plant_id}", json.dumps(rec))
+            return {"linked": not dry_run, "dry_run": bool(dry_run), "plant_id": plant_id,
+                    "genetics_id": genetics_id, "flowering_mode": (g or {}).get("flowering_mode"),
+                    "renamed": False}
+        if not germination_date:
+            return {"error": "a new plant needs germination_date (or record it as acquired)"}
+        sp = self._species_rec(g.get("species_id")) if g else {}
+        rec = {"plant_id": plant_id, "genetics_id": genetics_id,
+               "species": g.get("species_id"), "strain": g.get("name"),
+               "flowering_mode": g.get("flowering_mode"),
+               "germination_date": germination_date, "container": container,
+               "location": location, "stage": stage or sp.get("default_stage"),
+               "status": "active", "note": note or None,
+               "logged_at": datetime.now().isoformat(timespec="seconds")}
+        if not dry_run:
+            self.store_own_memory(f"plant_{plant_id}", json.dumps(rec))
+            self._index_add("plant_index", plant_id)
+        return {"created": not dry_run, "dry_run": bool(dry_run), "plant": rec}
+
+    def record_light_flip(self, plant_id=None, schedule="12/12", at=None, note=""):
+        """A photoperiod plant's flower start: the grower changed the schedule.
+        Refused for a plant whose trigger is its own pistils."""
+        if not plant_id:
+            return {"error": "record_light_flip needs plant_id"}
+        v = self._vocab(plant_id)
+        trig = (v or {}).get("flower_trigger")
+        if trig != "light_schedule_flip":
+            return {"recorded": False, "plant_id": plant_id, "flower_trigger": trig,
+                    "reason": (f"{plant_id} is {(v or {}).get('flowering_mode') or 'not recorded'}"
+                               f" - its flower start is "
+                               + ("its pistils (observe_stage_markers), not the light"
+                                  if trig == "pistils_observed" else "not on record"))}
+        when = str(at or datetime.now().isoformat(timespec="seconds"))
+        entry = {"id": f"morph_{self._uid()}", "plant_id": plant_id,
+                 "observed_markers": ["light_schedule_flip"], "derived_stage": "flower",
+                 "lifecycle_stage": "flower", "trigger": "light_schedule_flip",
+                 "schedule": schedule, "observed_by": "principal", "note": note or None,
+                 "at": when}
+        self.store_own_memory(entry["id"], json.dumps(entry), pin=True)
+        self._index_add("morphology_index", entry["id"])
+        moved = self.handle_task("transition_stage", {
+            "plant_id": plant_id, "new_stage": "flower",
+            "notes": f"light schedule flipped to {schedule} ({when[:10]}) - photoperiod trigger"},
+            "record_light_flip")
+        return {"recorded": True, "plant_id": plant_id, "flower_start": when[:10],
+                "schedule": schedule, "stage_change": moved}
+
+    def compare_plants(self, plant_a=None, plant_b=None):
+        """What two plants share, and so which variable a difference between
+        them can be laid at."""
+        if not (plant_a and plant_b):
+            return {"error": "compare_plants needs plant_a and plant_b"}
+        def facts(pid):
+            g, sp = self._lineage(pid)
+            sysrec = self._jload(f"grow_system_{pid}", {})
+            prec = self._jload(f"plant_{pid}", {})
+            return {"species": sp.get("species_id") or self._get_species_for_plant(pid),
+                    "genetics": g.get("genetics_id"),
+                    "location": (sysrec.get("location") or prec.get("location") or None),
+                    "container": (sysrec.get("system_type") or prec.get("container") or None),
+                    "vessel": sysrec.get("vessel")}
+        a, b = facts(plant_a), facts(plant_b)
+        shared, differs, unknown = [], [], []
+        for k in ("species", "genetics", "location", "container"):
+            if a[k] is None or b[k] is None:
+                unknown.append(k)
+            elif str(a[k]).lower() == str(b[k]).lower():
+                shared.append(k)
+            else:
+                differs.append(k)
+        if "species" in differs:
+            isolates = ("nothing - different species; a difference is the species' before "
+                        "it is anything the environment did")
+        elif not differs:
+            isolates = "nothing differs on record - differences are the plants' own"
+        elif len(differs) == 1:
+            isolates = {"genetics": "the genetics (strain) variable",
+                        "container": "the container / system variable",
+                        "location": "the location (environment) variable"}[differs[0]]
+        else:
+            isolates = f"nothing cleanly - {', '.join(differs)} all differ"
+        out = {"plant_a": {"id": plant_a, **a}, "plant_b": {"id": plant_b, **b},
+               "shared": shared, "differs": differs, "unknown": unknown, "isolates": isolates}
+        if unknown:
+            out["caveat"] = (f"{', '.join(unknown)} not recorded for one or both - a variable "
+                             "that is not on record cannot be called shared or isolated")
+        return out
+
+    def adopt_species_layer(self, dry_run=True):
+        """Build the species/genetics layer under the plants already held.
+        Dry run by default: says what it would write and writes nothing."""
+        dry = dry_run is not False and str(dry_run).lower() != "false"
+        plan, notes = [], []
+        cv = self._builtin_cannabis_vocab()
+        plan.append(("species", self.record_species(
+            species_id="cannabis", name="Cannabis", family="Cannabaceae", growth_type="annual",
+            stages=cv["stages"], default_stage="seedling", markers=cv["markers"],
+            marker_to_lifecycle=cv["marker_to_lifecycle"], ripeness=cv["ripeness"],
+            vocabulary=["pistils", "trichomes", "nodes", "fan leaves", "colas"],
+            flowering_modes={
+                "auto": {"flower_trigger": "pistils_observed",
+                         "stage_age_days": {k: list(b) for k, b in self.STAGE_AGE_BOUNDS.items()},
+                         "veg_can_persist": False,
+                         "means": ("Autoflower: flowers on an internal, age-driven clock. "
+                                   "Flower start is recorded when pistils appear.")},
+                "photo": {"flower_trigger": "light_schedule_flip",
+                          "stage_age_days": {k: list(b) for k, b in self.STAGE_AGE_BOUNDS.items()
+                                             if k in ("germination", "seedling")},
+                          "veg_can_persist": True,
+                          "means": ("Photoperiod: flowers when the light schedule is "
+                                    "flipped. Veg can persist indefinitely (mother plant, "
+                                    "or by choice); flower start is the flip the grower "
+                                    "records.")}},
+            source=("Grow's built-in stage, marker and ripeness tables (authored, generic "
+                    "cannabis practice); family and growth type from general botany"),
+            dry_run=True)))
+        plan.append(("genetics", self.record_genetics(
+            genetics_id="gsc_auto", species_id="cannabis",
+            name="Girl Scout Cookies (autoflower)", seed_source=None, flowering_mode="auto",
+            species_preview=plan[0][1]["species"], dry_run=True)))
+        notes.append("gsc_auto seed_source is unknown - ILGM came up in conversation but was "
+                     "never recorded; confirm it and it goes on the genetics record")
+        for pid in ("current_plant", "gsc_auto_2"):
+            plan.append(("plant", self.record_plant(pid, "gsc_auto", dry_run=True)))
+        aloe = SPECIES_PROFILES.get("aloe") or {}
+        for pid in self._load_plant_index():
+            if pid in ("gsc_auto_2",):
+                continue
+            sp = (self._get_species_for_plant(pid) or "").lower()
+            if sp == "aloe" and aloe:
+                plan.append(("species", self.record_species(
+                    species_id="aloe", name="Aloe vera", family="Asphodelaceae",
+                    growth_type="perennial", stages=list(aloe["stages"]),
+                    default_stage=aloe.get("default_stage"),
+                    ripeness={"method": "not_harvested",
+                              "note": "grown as a plant, not a crop"},
+                    source="Grow's built-in aloe care profile (authored); family from general botany",
+                    dry_run=True)))
+                plan.append(("genetics", self.record_genetics(
+                    genetics_id="aloe_vera_unknown", species_id="aloe",
+                    name="Aloe vera (line unknown)", species_preview=plan[-1][1]["species"],
+                    dry_run=True)))
+                plan.append(("plant", self.record_plant(pid, "aloe_vera_unknown", dry_run=True)))
+            else:
+                notes.append(f"{pid}: species {sp or 'unknown'} has no species source here - "
+                             "left unlinked")
+        a = facts_loc = self.compare_plants("current_plant", "gsc_auto_2")
+        if "location" in (a.get("unknown") or []) + (a.get("differs") or []):
+            notes.append(("location disagrees with the record: GSC1 location is blank and GSC2 "
+                          "still says 'Suncoze countertop unit' while its vessel reads 'second "
+                          "DWC bucket in the tent ... alongside GSC1' (moved 2026-10-04). "
+                          "compare_plants cannot call them same-tent until location is "
+                          "recorded for both - not set here, because it was not stated as a "
+                          "location."))
+        if dry:
+            return {"dry_run": True, "would_write": [{"kind": k, **v} for k, v in plan],
+                    "notes": notes, "to_apply": "adopt_species_layer with dry_run=false"}
+        done = []
+        for k, v in plan:
+            if k == "species":
+                r = self.record_species(**{kk: v["species"].get(kk) for kk in (
+                    "species_id", "name", "family", "growth_type", "stages", "default_stage",
+                    "stage_age_days", "markers", "marker_to_lifecycle", "ripeness",
+                    "vocabulary", "flowering_modes", "source", "note")}, replace=bool(self._species_rec(
+                    v["species"]["species_id"])))
+            elif k == "genetics":
+                gg = v["genetics"]
+                r = self.record_genetics(**{kk: gg.get(kk) for kk in (
+                    "genetics_id", "species_id", "name", "seed_source", "vendor_ref",
+                    "breeder", "flowering_mode", "ripeness", "note")})
+            else:
+                r = self.record_plant(v["plant_id"], v["genetics_id"])
+            done.append({"kind": k, **r})
+        return {"dry_run": False, "wrote": done, "notes": notes}
+
     def observe_stage_markers(self, args):
         """Record what is visibly present, and let the stage follow from it."""
         a = args if isinstance(args, dict) else {}
         plant_id = str(a.get("plant_id") or "current_plant")
+        _v = self._vocab(plant_id)
+        if not _v or not _v.get("markers"):
+            return {"error": (f"No stage markers on record for {plant_id}'s species. Record "
+                              f"the species (record_species with markers) and link the plant "
+                              f"(record_plant) - this verb does not assume a vocabulary.")}
+        _markers = {k: {"markers": tuple(v.get("markers") or ()), "means": v.get("means")}
+                    for k, v in _v["markers"].items()}
+        _m2l = _v.get("marker_to_lifecycle") or {}
         # A STRING IS NOT A LIST OF MARKERS. Passing markers="second set of
         # true leaves" iterated it character by character and reported
         # "unrecognised: s, e, c, o, n, d..." - a caller mistake turned into
@@ -1697,24 +2085,24 @@ class GrowAgent(AgentBase):
                               "set by assertion, which is what the calendar path already "
                               "does better."),
                     "known_markers": {k: list(v["markers"]) for k, v in
-                                      self.STAGE_MARKERS.items()}}
+                                      _markers.items()}}
 
         # Furthest stage with any marker present. A plant does not go backwards,
         # and a cotyledon still attached while true leaves are established is
         # normal rather than contradictory.
-        order = list(self.STAGE_MARKERS)
+        order = list(_markers)
         derived, matched = None, {}
         for st in order:
-            hits = [m for m in seen if m in self.STAGE_MARKERS[st]["markers"]]
+            hits = [m for m in seen if m in _markers[st]["markers"]]
             if hits:
                 derived, matched[st] = st, hits
         unknown = [m for m in seen
-                   if not any(m in v["markers"] for v in self.STAGE_MARKERS.values())]
+                   if not any(m in v["markers"] for v in _markers.values())]
         if not derived:
             return {"error": "None of those markers is one this agent knows.",
                     "unrecognised": unknown,
                     "known_markers": {k: list(v["markers"]) for k, v in
-                                      self.STAGE_MARKERS.items()}}
+                                      _markers.items()}}
 
         by_calendar = self.assess_stage(plant_id)
         recorded = by_calendar.get("stage")
@@ -1764,9 +2152,17 @@ class GrowAgent(AgentBase):
         # feed table's own flower note says to shift ("once pistils appear, not
         # on a date"), so preflower is flower for every decision keyed on stage.
         # The finer word is kept as stage_detail, never lost.
-        lifecycle = self.MARKER_TO_LIFECYCLE.get(derived, derived)
+        lifecycle = _m2l.get(derived, derived)
         _sp = self._get_species_for_plant(plant_id)
         _allowed, _ = self.stages_for_species(_sp)
+        if (_v.get("flower_trigger") == "light_schedule_flip" and lifecycle == "flower"
+                and recorded != "flower"):
+            # A photo can show pistils in veg - sex, not a flip. Its flower
+            # starts when the grower flips the light, which he records.
+            return {**entry, "stage_now": recorded, "moved": False,
+                    "photoperiod": ("Recorded as an observation. This plant is photoperiod: "
+                                    "flower begins when you flip the light schedule "
+                                    "(record_light_flip), not when pistils show.")}
         if lifecycle not in _allowed:
             return {**entry, "stage_now": recorded, "moved": False,
                     "refused": (f"Markers derive {derived!r} -> {lifecycle!r}, which is not a "
@@ -1799,7 +2195,7 @@ class GrowAgent(AgentBase):
 
         return {**entry, "stage_now": lifecycle if moved else recorded, "moved": moved,
                 "stage_detail": derived,
-                "means": self.STAGE_MARKERS[derived]["means"],
+                "means": _markers[derived]["means"],
                 "calendar_said": by_calendar.get("assessment"),
                 "rule": ("Morphology is evidence; the calendar is an expectation. Where "
                          "they differ the evidence wins and the difference is recorded.")}
@@ -2262,11 +2658,21 @@ class GrowAgent(AgentBase):
         # flower, with autoflower timings. It means nothing for an aloe, a
         # pepper, or anything else, and applying it would produce confident
         # nonsense about a plant whose life cycle this agent has no model of.
-        species = self._get_species_for_plant(plant_id)
-        if species and species.lower() != "cannabis":
-            return {"assessment": (f"No stage model for {species}. The stage clock here is "
-                                   "cannabis-specific and does not transfer."),
+        _v = self._vocab(plant_id)
+        if not _v or not _v.get("stage_age_days"):
+            species = self._get_species_for_plant(plant_id)
+            return {"assessment": (f"No stage-age model on record for "
+                                   f"{species or 'this plant'}'s species or genetics, so age "
+                                   f"cannot be checked against stage."),
                     "stage": stage, "days": age, "species": species, "acted": False}
+        if (_v.get("veg_can_persist") and str(stage).lower() in ("veg", "early_veg", "vegetative")):
+            return {"assessment": (f"'{stage}' at {age} days - photoperiod, so veg lasts as long "
+                                   f"as you keep it there. Flower starts when you flip the light "
+                                   f"(record_light_flip); age puts no pressure on it."),
+                    "stage": stage, "days": age, "flowering_mode": _v.get("flowering_mode"),
+                    "acted": False}
+        _bounds = {k: tuple(b) for k, b in _v["stage_age_days"].items()}
+        _order = tuple(_v.get("stages") or ())
 
         # A germination date inferred FROM the stage cannot then be evidence
         # ABOUT the stage - that is circular, and it would auto-transition an
@@ -2279,7 +2685,7 @@ class GrowAgent(AgentBase):
             except Exception:
                 estimated = False
 
-        bounds = self.STAGE_AGE_BOUNDS.get(str(stage).lower())
+        bounds = _bounds.get(str(stage).lower())
         impossible = bool(bounds) and age > bounds[1] and not estimated
         if estimated and bounds and age > bounds[1]:
             return {"assessment": (f"'{stage}' sits outside the usual window for {age} days, but "
@@ -2303,10 +2709,10 @@ class GrowAgent(AgentBase):
 
         # The furthest stage the age alone supports, never past veg.
         candidate = stage
-        for s in self.STAGE_ORDER:
+        for s in _order:
             if s == "flower":
                 break
-            b = self.STAGE_AGE_BOUNDS.get(s)
+            b = _bounds.get(s)
             if b and b[0] <= age <= b[1]:
                 candidate = s
         if candidate == stage and not impossible:
@@ -2806,6 +3212,9 @@ class GrowAgent(AgentBase):
         dormant, and rarely flowers indoors. Registering the aloe as "veg" was
         cannabis vocabulary applied to a succulent, which is the same error as
         running its age through the cannabis stage bounds."""
+        rec = self._species_rec(str(species or "").strip().lower())
+        if rec.get("stages"):
+            return list(rec["stages"]), rec.get("default_stage")
         profile = self._profile_for(species)
         if profile and profile.get("stages"):
             return list(profile["stages"]), profile.get("default_stage")
@@ -5168,6 +5577,17 @@ class GrowAgent(AgentBase):
         if not plant_id:
             return {"error": "record_ripeness needs plant_id - a ripeness reading is never "
                              "defaulted onto a plant"}
+        _v = self._vocab(plant_id)
+        _rm = ((_v or {}).get("ripeness") or {})
+        if _rm.get("method") != "trichome_shares":
+            return {"applicable": False, "plant_id": plant_id,
+                    "ripeness_method": _rm.get("method"),
+                    "observe": _rm.get("observe"),
+                    "reason": ((f"{plant_id}'s species record judges ripeness by "
+                                f"{_rm.get('method')!r}; this verb has a handler only for "
+                                f"trichome_shares, so nothing was assessed")
+                               if _rm.get("method") else
+                               f"no ripeness method on record for {plant_id}'s species")}
         vals = {}
         for k, v in (("pistils_brown_pct", pistils_brown_pct),
                      ("trichomes_clear_pct", trichomes_clear_pct),
@@ -5197,7 +5617,18 @@ class GrowAgent(AgentBase):
     def assess_ripeness(self, plant_id=None):
         if not plant_id:
             return {"error": "assess_ripeness needs plant_id"}
-        ref = self.RIPENESS_REF
+        _v = self._vocab(plant_id)
+        _rm = ((_v or {}).get("ripeness") or {})
+        if _rm.get("method") != "trichome_shares":
+            return {"applicable": False, "plant_id": plant_id,
+                    "ripeness_method": _rm.get("method"),
+                    "observe": _rm.get("observe"),
+                    "reason": ((f"{plant_id}'s species record judges ripeness by "
+                                f"{_rm.get('method')!r}; this verb has a handler only for "
+                                f"trichome_shares, so nothing was assessed")
+                               if _rm.get("method") else
+                               f"no ripeness method on record for {plant_id}'s species")}
+        ref = dict(self.RIPENESS_REF, **(_rm.get("reference") or {}))
         allobs = self._ripeness_obs(plant_id)
         obs = [o for o in allobs if o.get("observed_by") == "principal"]
         out = {"plant_id": plant_id, "observations": len(obs),
@@ -10067,6 +10498,9 @@ class GrowAgent(AgentBase):
         that asserts a species is worse than no species: the guard that refuses
         to classify an unsupported plant relies on being told the truth, and the
         prompt builder repeats whatever it is given."""
+        _g = self._genetics_rec(self._plant_genetics_id(plant_id))
+        if _g.get("species_id"):
+            return _g["species_id"]
         if plant_id == "current_plant":
             return self._unwrap_value(self.retrieve_own_memory("current_species")) or "cannabis"
         plant = next((p for p in self._get_all_plants() if p.get("plant_id") == plant_id), None)
@@ -12598,6 +13032,10 @@ class GrowAgent(AgentBase):
             return {"result": self.assess_vpd(**(args if isinstance(args, dict) else {}))}
         elif task == "grow_snapshot":
             return {"result": self.grow_snapshot(**(args if isinstance(args, dict) else {}))}
+        elif task in ("record_species", "record_genetics", "record_plant", "compare_plants",
+                      "adopt_species_layer", "record_light_flip"):
+            a = args if isinstance(args, dict) else {}
+            return {"result": getattr(self, task)(**a)}
         elif task == "prediction_check":
             a = args if isinstance(args, dict) else {}
             return {"result": self.prediction_check(a.get("plant_id", "current_plant"),
