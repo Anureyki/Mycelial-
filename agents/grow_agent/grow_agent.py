@@ -909,7 +909,7 @@ class GrowAgent(AgentBase):
                 # the interface layer doing this agent's job and re-editing
                 # itself every time a plant gains a field.
                 "roster",
-                "log_reading", "check_stage", "observe_stage_markers", "volume_history", "correct_volume_event", "reconcile_topup",
+                "log_reading", "check_stage", "observe_stage_markers", "volume_history", "correct_volume_event", "reconcile_topup", "prediction_check",
                 "adjust_nutrients",
                 "transition_stage", "log_water_change", "get_status",
                 "set_germination_date", "set_current_nutrients",
@@ -11481,6 +11481,14 @@ class GrowAgent(AgentBase):
             out["store_error"] = (
                 f"log_reading did not add a row (index {before} -> {after}). "
                 f"The reading was NOT saved. Its response was: {str(res)[:200]}")
+        else:
+            # Every reading closes whatever prediction was open before it.
+            try:
+                chk = self.prediction_check(plant_id, limit=1)
+                if chk.get("intervals"):
+                    out["prediction_check"] = chk["intervals"][-1]
+            except Exception as exc:
+                out["prediction_check_error"] = f"{type(exc).__name__}: {exc}"
         return out
 
     def reconcile_ec_temperature(self, ec_before=None, temp_before_c=None,
@@ -11955,6 +11963,126 @@ class GrowAgent(AgentBase):
             out["reading_due"] = {"error": str(exc)}
         out["readings_recorded"] = len(readings)
         return out
+
+    # ------------------------------------------------------------------
+    # Prediction against measurement (principal, 2026-10-05: "build it out").
+    #
+    # A refill returned "it should read X" and nothing ever looked at the next
+    # reading, so the one quantity a ppm series can show - what the plant took
+    # between readings - was computed for a moment and thrown away. And whether
+    # Grow's dosing is getting closer to its target was only visible by asking.
+    #
+    # Nothing new is stored. Every figure is recomputed from the readings and
+    # volume events already held, so it covers history as well as today and
+    # cannot drift from the record it is derived from.
+    REFILL_METER_TOLERANCE_PCT = 3.0
+
+    def prediction_check(self, plant_id="current_plant", limit=12):
+        rds = sorted([r for r in (self._get_readings_for_plant(plant_id) or [])
+                      if not r.get("voided") and self._parse_numeric(r.get("ppm"))],
+                     key=lambda r: str(r.get("timestamp") or ""))
+        evs = sorted(self._volume_events(plant_id), key=lambda e: str(e.get("at") or ""))
+        out = []
+        for r0, r1 in zip(rds, rds[1:]):
+            t0, t1 = str(r0.get("timestamp")), str(r1.get("timestamp"))
+            between = [e for e in evs if t0 < str(e.get("at") or "") <= t1]
+            poured = [e for e in between if e.get("kind") == "dose"
+                      and e.get("reconciled_result") != "not_poured"]
+            refills = [e for e in between if e.get("kind") == "refill"]
+            if not between or (not poured and not refills):
+                continue
+            p0, p1 = self._parse_numeric(r0["ppm"]), self._parse_numeric(r1["ppm"])
+            v0 = self._parse_numeric(r0.get("volume_liters"))
+            v1 = self._parse_numeric(r1.get("volume_liters"))
+            try:
+                days = round((datetime.fromisoformat(t1[:19]) - datetime.fromisoformat(t0[:19]))
+                             .total_seconds() / 86400, 2)
+            except Exception:
+                days = None
+            row = {"from_reading": t0[:16], "to_reading": t1[:16], "days": days,
+                   "ppm_before": p0, "ppm_measured": p1}
+            if poured:
+                d = poured[-1]
+                pred = self._parse_numeric(d.get("ppm_predicted_at_final") or d.get("ppm_predicted"))
+                meas = self._parse_numeric(d.get("measured_ppm_after")) or p1
+                row.update({"kind": "dose", "blend": d.get("blend"),
+                            "coefficient": d.get("coefficient_ppm_l_per_ml"),
+                            "ppm_predicted": pred, "ppm_measured": meas,
+                            # CONFIRMED THE WAY calibrate_blend CONFIRMS: reconciled
+                            # as poured. A different definition here would grade
+                            # the learning on different doses than it learned from.
+                            "measured_from": ("confirmed after circulation"
+                                              if d.get("reconciled") and d.get("reconciled_result")
+                                              not in (None, "not_poured") else
+                                              "next reading - not yet reconciled")})
+                if pred:
+                    row["error_pct"] = round((meas - pred) / pred * 100, 1)
+                if refills and refills[-1].get("at", "") > d.get("at", ""):
+                    row["caveat"] = "water was added after the dose; the prediction may not cover it"
+            else:
+                last = refills[-1]
+                vf = self._parse_numeric(last.get("liters")) or v1
+                base_v = v0 or self._parse_numeric(refills[0].get("from_liters"))
+                if not (vf and base_v):
+                    continue
+                mass = p0 * base_v + sum(float(e.get("topup_ppm") or 0) *
+                                         float(e.get("delta") or 0) for e in refills)
+                pred = round(mass / vf, 0)
+                gap = p1 - pred
+                tol = pred * self.REFILL_METER_TOLERANCE_PCT / 100
+                took = round(mass - p1 * (v1 or vf), 0)
+                drank = None
+                start = self._parse_numeric(refills[0].get("from_liters"))
+                if v0 and start is not None:
+                    drank = round(v0 - start, 2)
+                row.update({
+                    "kind": "refill", "ppm_predicted": pred, "gap_ppm": round(gap, 0),
+                    "liters_after": vf,
+                    "reading": ("uptake" if gap < -tol else
+                                "matched - little taken" if abs(gap) <= tol else
+                                "ABOVE prediction - not uptake: the top-up water, the volume, "
+                                "or the meter is off"),
+                    "uptake_ppm_l": took if gap < -tol else 0,
+                    "uptake_share_pct": (round(took / mass * 100, 1) if gap < -tol and mass else 0),
+                    "water_drunk_liters": drank})
+                if days and gap < -tol:
+                    row["uptake_ppm_l_per_day"] = round(took / days, 0)
+                    if drank:
+                        row["water_drunk_l_per_day"] = round(drank / days, 2)
+            out.append(row)
+        doses = [r for r in out if r["kind"] == "dose" and r.get("error_pct") is not None
+                 and r.get("measured_from") == "confirmed after circulation"]
+        trend = None
+        if len(doses) >= 4:
+            h = len(doses) // 2
+            early = sum(abs(r["error_pct"]) for r in doses[:h]) / h
+            late = sum(abs(r["error_pct"]) for r in doses[h:]) / (len(doses) - h)
+            trend = {"confirmed_doses": len(doses),
+                     "early_mean_abs_error_pct": round(early, 1),
+                     "recent_mean_abs_error_pct": round(late, 1),
+                     "verdict": ("improving" if late < early * 0.8 else
+                                 "worse" if late > early * 1.2 else "about the same")}
+        # BY COEFFICIENT, because that is where learning shows. A trend across
+        # doses that all used one strength measures the grower's pours and the
+        # meter, not Grow - the first "improving" verdict here was exactly that,
+        # eight doses at 258 before 173.7 was learned.
+        by_coef = {}
+        for r in doses:
+            k = str(r.get("coefficient") or "recipe on record")
+            by_coef.setdefault(k, []).append(r["error_pct"])
+        if trend is not None:
+            trend["by_coefficient"] = {k: {"doses": len(v), "mean_error_pct": round(sum(v) / len(v), 1),
+                                           "mean_abs_error_pct": round(sum(abs(x) for x in v) / len(v), 1)}
+                                       for k, v in by_coef.items()}
+            if len(by_coef) < 2:
+                trend["verdict"] += " - but every confirmed dose used the same strength, so this is not learning"
+        return {"plant_id": plant_id, "intervals": out[-int(limit):],
+                "dose_accuracy": trend or {
+                    "verdict": "not enough confirmed doses to say",
+                    "confirmed_doses": len(doses)},
+                "basis": ("Recomputed from the readings and volume events on record. A refill "
+                          "interval's mass drop is what the plant took; a dose interval's error "
+                          "is how far Grow's plan landed from what the meter read.")}
 
     def correct_volume_event(self, plant_id=None, at=None, from_liters=None, reason=""):
         """Correct the starting level of a recorded refill, keeping what it said.
@@ -12470,6 +12598,10 @@ class GrowAgent(AgentBase):
             return {"result": self.assess_vpd(**(args if isinstance(args, dict) else {}))}
         elif task == "grow_snapshot":
             return {"result": self.grow_snapshot(**(args if isinstance(args, dict) else {}))}
+        elif task == "prediction_check":
+            a = args if isinstance(args, dict) else {}
+            return {"result": self.prediction_check(a.get("plant_id", "current_plant"),
+                                                    int(a.get("limit", 12)))}
         elif task == "correct_volume_event":
             return {"result": self.correct_volume_event(**(args if isinstance(args, dict) else {}))}
         elif task == "void_reading":

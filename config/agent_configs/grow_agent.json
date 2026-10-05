@@ -80,6 +80,7 @@
     "volume_history",
     "correct_volume_event",
     "reconcile_topup",
+    "prediction_check",
     "web_search",
     "what_i_know",
     "when_to_top_up",
