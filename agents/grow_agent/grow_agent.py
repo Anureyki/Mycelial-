@@ -4343,6 +4343,26 @@ class GrowAgent(AgentBase):
             record = json.loads(raw)
         except Exception as e:
             return {"error": f"System record unreadable: {e}"}
+        # NOTES ARE APPEND-ONLY UNLESS REPLACING IS SAID. Setting both plants'
+        # location on 2026-10-05 passed note= as a change label, and the verb
+        # replaced GSC1's drying constraint and GSC2's dosing-instrument note
+        # without a word. superseded kept them, which is recovery; this is
+        # prevention. A prose field gains the new text under the old, dated,
+        # and only replace_notes=true overwrites. Fact fields still update in
+        # place - correcting a fact is what this verb is for.
+        replace_notes = bool(fields.pop("replace_notes", False))
+        appended = []
+        for k in list(fields):
+            v, old = fields[k], record.get(k)
+            if (k in ("note", "notes") or k.endswith(("_note", "_notes"))) and not replace_notes \
+                    and v is not None and old not in (None, "", []) and old != v:
+                if isinstance(old, list):
+                    fields[k] = old + ([v] if v not in old else [])
+                elif str(v) in str(old):
+                    fields[k] = old
+                else:
+                    fields[k] = f"{old}\n\n[{datetime.now().strftime('%Y-%m-%d')}] {v}"
+                appended.append(k)
         changed = {k: v for k, v in fields.items() if v is not None and record.get(k) != v}
         if not changed:
             return {"changed": {}, "record": record, "note": "nothing to change"}
@@ -4376,7 +4396,8 @@ class GrowAgent(AgentBase):
         record["superseded"] = superseded
         record["amended_at"] = now
         self.store_own_memory(key, json.dumps(record))
-        return {"changed": changed, "superseded": superseded[-len(changed):], "record": record}
+        return {"changed": changed, "superseded": superseded[-len(changed):],
+                **({"appended_not_replaced": appended} if appended else {}), "record": record}
 
     def field_history(self, plant_id="current_plant", field=None):
         """What a system-record field used to say, and when it stopped saying it.

@@ -166,6 +166,8 @@ jobs:
 
       - name: A spoken reading lands on the vessel named, or on nothing
         run: python tools/check_spoken_reading.py
+      - name: Stated facts outrank the record (check_record_integrity)
+        run: python tools/check_record_integrity.py
 
       - name: A dispute letter cites what it asserts, carries no identifier, and never sends
         run: python tools/check_dispute_letters.py
