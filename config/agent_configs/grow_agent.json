@@ -45,6 +45,8 @@
     "calibrate_blend",
     "record_ripeness",
     "assess_ripeness",
+    "maintenance_due",
+    "notify_maintenance",
     "list_lessons",
     "record_lesson",
     "plan_system_transition",

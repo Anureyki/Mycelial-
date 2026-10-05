@@ -298,7 +298,22 @@ function renderRows(body, rows) {
 // plant" down the narration path, which answered the question - returning an
 // argument about feed strength while the grower wanted the numbers - and
 // carried no timestamp, so output from an old conversation looked current.
+// Maintenance Grow says is due, as banners. Anansi's dashboard channel
+// reports "visible on the domain's own card" - this is what makes that true.
+async function appendMaintenance(body, plantId) {
+  try {
+    const m = unwrap(await callTask('maintenance_due', { plant_id: plantId }), 'items');
+    for (const it of (m && m.due) || []) {
+      const p = document.createElement('p');
+      p.className = `due due-${it.status === 'overdue' ? 'overdue' : it.status === 'due' ? 'due_now' : 'due_soon'}`;
+      p.textContent = it.text;
+      body.prepend(p);
+    }
+  } catch (e) { /* the card still renders without it */ }
+}
+
 async function renderGrowCard(body) {
+  appendMaintenance(body, 'current_plant');
   const d = unwrap(await callTask('grow_snapshot', {}), 'last_reading');
   if (!d || d.error) { body.textContent = d && d.error ? d.error : 'No grow data.'; return; }
   const r = d.last_reading || {};
@@ -904,6 +919,7 @@ async function renderGrow2Card(body) {
     return;
   }
   for (const pl of others) {
+    appendMaintenance(body, pl.plant_id);
     const r = pl.last_reading || {};
     const res = pl.reservoir || {};
     const h = document.createElement('p');

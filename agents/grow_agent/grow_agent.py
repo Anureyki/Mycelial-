@@ -922,7 +922,7 @@ class GrowAgent(AgentBase):
                 "set_grow_system", "get_grow_system", "amend_grow_system",
                 "field_history", "assess_root_zone", "void_reservoir_eval",
                 "which_plant", "record_refill",
-                "reconcile_ec_temperature", "intake_reading", "when_to_top_up", "project_topup", "plan_feed_for_target", "reconcile_dose", "ingest_environment_export", "predict_flowering", "calibrate_blend", "record_ripeness", "assess_ripeness", "record_lesson", "list_lessons", "ppm_per_ml", "round_to_instrument", "assess_ph", "quantities",
+                "reconcile_ec_temperature", "intake_reading", "when_to_top_up", "project_topup", "plan_feed_for_target", "reconcile_dose", "ingest_environment_export", "predict_flowering", "calibrate_blend", "record_ripeness", "assess_ripeness", "maintenance_due", "notify_maintenance", "record_lesson", "list_lessons", "ppm_per_ml", "round_to_instrument", "assess_ph", "quantities",
                 "get_nutrient_history",
                 "set_inventory", "get_inventory",
                 "check_in", "analyze_consumption", "adjust_to_target_ppm",
@@ -5236,6 +5236,134 @@ class GrowAgent(AgentBase):
                                            "final water-only reservoir per your own plan.",
                          "past_peak": "Harvest soon if a lighter effect is wanted."}.get(cls)
         return out
+
+    # MAINTENANCE THE GROWER DOES NOT HAVE TO REMEMBER.
+    #
+    # Both plants slipped on cadence, not knowledge: GSC1's reservoir went
+    # stale between changes, and GSC2's 5 L LWC went 20 days without nutrients
+    # and 29 without a full change, on water-only top-ups (lesson recorded
+    # 2026-10-04, topic reservoir_maintenance). Grow already knew drawdown and
+    # had the dates; nothing ever SAID so. These verbs compute what is due and
+    # hand it to Anansi, which owns every channel to the principal.
+    #
+    # Change interval: about a week for a small (<= 6 L) reservoir, two weeks
+    # for a full DWC bucket - AUTHORED reference from common hydro practice,
+    # adopted by the principal's request, not measured on this grow.
+    CHANGE_DAYS_SMALL, CHANGE_DAYS_LARGE, SMALL_RES_L = 7, 14, 6
+    READING_STALE_DAYS = 3
+
+    def _active_plants(self):
+        ids = ["current_plant"]
+        for p_ in self._get_all_plants():
+            pid = p_.get("plant_id")
+            if pid and pid not in ids and str(p_.get("status") or "").lower() not in (
+                    "harvested", "archived", "dead", "removed"):
+                ids.append(pid)
+        return ids
+
+    def _last_full_change(self, plant_id):
+        last = None
+        for rec in self._get_nutrient_history(plant_id):
+            txt = str(rec.get("source_note") or rec.get("note") or "").lower()
+            fresh = bool(rec.get("fresh_mix") or rec.get("after_reservoir_change")) or any(
+                k in txt for k in ("fresh", "full change", "reservoir change", "complete reservoir"))
+            if fresh and rec.get("timestamp"):
+                last = rec
+        return last
+
+    def maintenance_due(self, plant_id=None):
+        plants = [plant_id] if plant_id else self._active_plants()
+        now = datetime.now()
+        items = []
+        for pid in plants:
+            try:
+                sysrec = json.loads(self._unwrap_value(
+                    self.retrieve_own_memory(f"grow_system_{pid}")) or "{}")
+            except Exception:
+                sysrec = {}
+            cap = self._parse_numeric(sysrec.get("typical_working_liters")
+                                      or sysrec.get("reservoir_liters")) or 0
+            # A reservoir reminder only for a plant that HAS a reservoir: the
+            # aloe in soil got "no full reservoir change on record".
+            hydro = str(sysrec.get("system_type") or "").lower() in (
+                "dwc", "lwc", "top_fed_dwc", "rdwc", "nft", "ebb_flow", "hydro", "kratky")
+            if not hydro:
+                continue
+            interval = self.CHANGE_DAYS_SMALL if (cap and cap <= self.SMALL_RES_L) else self.CHANGE_DAYS_LARGE
+            lc = self._last_full_change(pid)
+            if lc:
+                try:
+                    age = max(0.0, (now - datetime.fromisoformat(str(lc["timestamp"])[:19])).total_seconds() / 86400)
+                except Exception:
+                    age = None
+            else:
+                age = None
+            if age is None:
+                st, txt = "unknown", "No full reservoir change on record - log the next one with set_current_nutrients."
+            else:
+                left = interval - age
+                st = ("ok" if left > 2 else "due_soon" if left > 0 else
+                      "due" if left > -3 else "overdue")
+                txt = (f"Reservoir is {age:.0f} day(s) old (last full change "
+                       f"{str(lc['timestamp'])[:10]}); full change every ~{interval} days "
+                       f"for a {cap or '?'} L reservoir.")
+            items.append({"plant_id": pid, "kind": "full_change", "status": st, "text": txt,
+                          "age_days": round(age, 1) if age is not None else None,
+                          "interval_days": interval})
+            rds = [r for r in (self._get_readings_for_plant(pid) or [])
+                   if not r.get("voided") and self._parse_numeric(r.get("ppm"))]
+            if rds:
+                ts = max(str(r.get("timestamp") or "") for r in rds)
+                try:
+                    # max(0): entries before 2026-10-04 22:00 are stamped UTC, up to
+                    # 5 h ahead of the local clock now in use.
+                    since = max(0.0, (now - datetime.fromisoformat(ts[:19])).total_seconds() / 86400)
+                except Exception:
+                    since = None
+                if since is not None:
+                    items.append({"plant_id": pid, "kind": "reading",
+                                  "status": "due" if since >= self.READING_STALE_DAYS else "ok",
+                                  "text": f"Last ppm reading {since:.1f} day(s) ago ({ts[:10]}).",
+                                  "days_since": round(since, 1)})
+            try:
+                w = self.when_to_top_up(pid)
+                due = str((w or {}).get("due") or "")
+                if due:
+                    items.append({"plant_id": pid, "kind": "top_up",
+                                  "status": "due" if due in ("now", "overdue", "within a day") else "ok",
+                                  "text": f"Top-up {due} (Grow's drawdown estimate)."})
+            except Exception as ex:
+                self.log(f"maintenance_due: top-up check failed for {pid}: {ex}")
+        return {"items": items,
+                "due": [i for i in items if i["status"] in ("due", "overdue", "due_soon")],
+                "basis": (f"full change every {self.CHANGE_DAYS_SMALL} days for reservoirs "
+                          f"<= {self.SMALL_RES_L} L, {self.CHANGE_DAYS_LARGE} days above - authored "
+                          f"reference adopted at the principal's request; reading stale after "
+                          f"{self.READING_STALE_DAYS} days")}
+
+    def notify_maintenance(self, plant_id=None, force=False):
+        m = self.maintenance_due(plant_id)
+        today = datetime.now().strftime("%Y-%m-%d")
+        try:
+            sent_log = json.loads(self._unwrap_value(
+                self.retrieve_own_memory("maintenance_notified")) or "{}")
+        except Exception:
+            sent_log = {}
+        out = []
+        for it in m["due"]:
+            key = f"{it['plant_id']}:{it['kind']}:{it['status']}"
+            if sent_log.get(key) == today and not force:
+                out.append({"item": key, "skipped": "already sent today"}); continue
+            label = {"current_plant": "GSC1", "gsc_auto_2": "GSC2"}.get(it["plant_id"], it["plant_id"])
+            r = self.send_a2a("anansi", "notify", {
+                "body": f"{label}: {it['text']}", "subject": f"{label}: {it['kind'].replace('_', ' ')} {it['status'].replace('_', ' ')}",
+                "from_agent": "grow_agent", "register": "low_stakes"})
+            res = r.get("result", r) if isinstance(r, dict) else r
+            out.append({"item": key, "delivery": res})
+            if isinstance(res, dict) and res.get("sent"):
+                sent_log[key] = today
+        self.store_own_memory("maintenance_notified", json.dumps(sent_log))
+        return {"notified": out, "due_count": len(m["due"])}
 
     def _blend_coefficient(self, plant_id, blend):
         try:
@@ -12337,6 +12465,12 @@ class GrowAgent(AgentBase):
         elif task == "list_lessons":
             a = args if isinstance(args, dict) else {}
             return {"result": self._list_lessons(a.get("topic"), a.get("plant_id"))}
+        elif task == "maintenance_due":
+            a = args if isinstance(args, dict) else {}
+            return {"result": self.maintenance_due(a.get("plant_id"))}
+        elif task == "notify_maintenance":
+            a = args if isinstance(args, dict) else {}
+            return {"result": self.notify_maintenance(a.get("plant_id"), bool(a.get("force")))}
         elif task == "record_ripeness":
             a = args if isinstance(args, dict) else {}
             return {"result": self.record_ripeness(**{k: a.get(k) for k in (
