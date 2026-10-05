@@ -5357,10 +5357,14 @@ class GrowAgent(AgentBase):
             label = {"current_plant": "GSC1", "gsc_auto_2": "GSC2"}.get(it["plant_id"], it["plant_id"])
             r = self.send_a2a("anansi", "notify", {
                 "body": f"{label}: {it['text']}", "subject": f"{label}: {it['kind'].replace('_', ' ')} {it['status'].replace('_', ' ')}",
-                "from_agent": "grow_agent", "register": "low_stakes"})
+                "from_agent": "grow_agent", "register": "low_stakes",
+                # A due or overdue change is the kind of thing that slipped before
+                # because nobody was looking - it goes to email as well.
+                "channels": (["email", "dashboard"] if it["status"] in ("due", "overdue")
+                             else ["dashboard"])})
             res = r.get("result", r) if isinstance(r, dict) else r
             out.append({"item": key, "delivery": res})
-            if isinstance(res, dict) and res.get("sent"):
+            if isinstance(res, dict) and (res.get("sent_any") or not res.get("unsent")):
                 sent_log[key] = today
         self.store_own_memory("maintenance_notified", json.dumps(sent_log))
         return {"notified": out, "due_count": len(m["due"])}

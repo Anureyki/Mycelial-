@@ -194,7 +194,10 @@ class Anansi(AgentBase):
             if lo <= strength < hi:
                 channels, why = ch, reason
                 break
-        if a.get("channel"):
+        if a.get("channels"):
+            channels = tuple(str(c) for c in a["channels"])
+            why = "caller named the channels"
+        elif a.get("channel"):
             channels = (str(a["channel"]),)
             why = "caller named the channel"
 
@@ -238,12 +241,36 @@ class Anansi(AgentBase):
                 # Legal's actions are already on their cards.
                 out["sent"][ch] = ("visible on the domain's own card; nothing was copied "
                                    "here to make that true")
+            elif ch == "email" and os.getenv("AGENTMAIL_API_KEY") and os.getenv("AGENTMAIL_INBOX") \
+                    and os.getenv("NOTIFY_TO"):
+                # AgentMail (the principal's choice, 2026-10-04): MycOS sends from
+                # its own inbox, so no personal mail credential lives here.
+                try:
+                    import urllib.request, urllib.parse
+                    inbox = os.environ["AGENTMAIL_INBOX"]
+                    req = urllib.request.Request(
+                        "https://api.agentmail.to/v0/inboxes/"
+                        + urllib.parse.quote(inbox, safe="") + "/messages/send",
+                        data=json.dumps({"to": os.environ["NOTIFY_TO"],
+                                         "subject": subject or f"MycOS: {sender}",
+                                         "text": text}).encode(),
+                        headers={"Authorization": "Bearer " + os.environ["AGENTMAIL_API_KEY"],
+                                 "Content-Type": "application/json"}, method="POST")
+                    with urllib.request.urlopen(req, timeout=30) as resp:
+                        code = resp.status
+                    if 200 <= code < 300:
+                        out["sent"][ch] = f"emailed to {os.environ['NOTIFY_TO']} from {inbox}"
+                    else:
+                        out["unsent"][ch] = f"AgentMail returned HTTP {code}"
+                except Exception as exc:
+                    out["unsent"][ch] = f"AgentMail send failed: {type(exc).__name__}: {exc}"
+                    self.log(f"notify: AgentMail delivery failed: {exc}")
             elif ch == "email":
                 if not (os.getenv("NOTIFY_SMTP_HOST") and os.getenv("NOTIFY_SMTP_USER")
                         and os.getenv("NOTIFY_SMTP_PASS") and os.getenv("NOTIFY_TO")):
                     out["unsent"][ch] = (
-                        "No mail credential on this machine. Set NOTIFY_SMTP_HOST, "
-                        "NOTIFY_SMTP_USER, NOTIFY_SMTP_PASS and NOTIFY_TO in .env. "
+                        "No mail credential on this machine. Set AGENTMAIL_API_KEY, "
+                        "AGENTMAIL_INBOX and NOTIFY_TO (or the NOTIFY_SMTP_* set) in .env. "
                         "Until then this system cannot reach the principal when he is "
                         "not looking at it - every reminder it holds is a note to "
                         "someone it cannot contact.")
