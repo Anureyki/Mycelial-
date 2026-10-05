@@ -204,6 +204,7 @@ class LegalAgent(AgentBase):
                 "claim_evidence", "claim_observe", "claim_reproducibility",
                 "claim_corroborate", "claim_get", "claim_list", "claim_ontology",
                 "add_deadline", "deadlines", "watch_docket", "watched_dockets",
+                "record_settlement_offer", "settlement_offers",
                 "open_action", "complete_action", "amend_action", "actions",
                 "add_venue", "venues", "running_clocks", "complaint_path",
                 "read_filed_document", "ingest_screenshot", "read_docket_document", "learn_from_case", "verify_quote", "set_principal", "classify_matter",
@@ -613,6 +614,105 @@ class LegalAgent(AgentBase):
             return None, ((lst or {}).get("error") if isinstance(lst, dict) else "no response")
         return lst.get("documents") or [], None
 
+    # ------------------------------------------------------------------
+    # Settlement offers (principal, 2026-10-05): "Track settlement offers by
+    # release scope and confidentiality. Flag any offer that includes a full
+    # release or a confidentiality clause as a nuisance settlement, not a
+    # damages settlement. I don't accept those."
+    #
+    # The classification is HIS ACCEPTANCE RULE and is recorded as his. A
+    # general release is ordinary in settlements that pay real damages too,
+    # so "general release" is not a legal category of nuisance - and filing
+    # his rule as if it were law would put a policy in the place of analysis.
+    # Scope and confidentiality are read from the offer's own TEXT; where no
+    # text was given, what he stated is kept as stated, and otherwise the
+    # honest value is unknown.
+    SETTLEMENT_POLICY = {
+        "source": "principal, 2026-10-05",
+        "rule": ("A full (general) release or a confidentiality clause makes an offer a "
+                 "nuisance settlement, not a damages settlement. The principal does not "
+                 "accept those."),
+        "why": ("The release is what makes a small check expensive; a confidentiality clause "
+                "is the defendant buying silence about the pattern."),
+    }
+    _GENERAL_RELEASE = re.compile(
+        r"any and all claims|known (?:or|and) unknown|whether known or unknown|"
+        r"unknown claims|civil code (?:section |§ ?)?1542|general release|"
+        r"all claims[^.]{0,80}(?:arising|relating|whatsoever)|fully and forever (?:release|discharge)|"
+        r"release[^.]{0,60}(?:all|every) (?:claims?|causes? of action)", re.I)
+    _CONFIDENTIAL = re.compile(
+        r"confidential|shall not (?:disclose|discuss|publicize)|non-?disclosure|"
+        r"keep (?:the )?terms[^.]{0,30}(?:private|secret)", re.I)
+
+    def _settlements(self):
+        try:
+            return json.loads(self._unwrap_value(self.retrieve_own_memory("settlement_offers"))
+                              or "[]")
+        except Exception:
+            return []
+
+    def record_settlement_offer(self, case_id=None, matter=None, from_party=None, amount=None,
+                                received_at=None, respond_by=None, offer_text=None,
+                                release_text=None, release_scope=None,
+                                confidentiality_text=None, confidential=None,
+                                document_ref=None, note=""):
+        if not (from_party and (case_id or matter)):
+            return {"error": "record_settlement_offer needs from_party and case_id or matter"}
+        try:
+            _amt = float(re.sub(r"[^\d.]", "", str(amount))) if amount not in (None, "") else None
+        except ValueError:
+            _amt = None
+        rtext = " ".join(x for x in (release_text, offer_text) if x)
+        ctext = " ".join(x for x in (confidentiality_text, offer_text) if x)
+        if rtext:
+            hit = self._GENERAL_RELEASE.search(rtext)
+            scope, scope_basis = (("general", f"read from the text: {hit.group(0)!r}") if hit else
+                                  ("limited", "release text read; no general-release language found"))
+        elif release_scope in ("general", "limited"):
+            scope, scope_basis = release_scope, "stated by the principal; the release text was not read"
+        else:
+            scope, scope_basis = "unknown", "no release text and none stated - read the release"
+        if ctext:
+            # "This agreement is NOT confidential" must not read as a clause.
+            hit = next((m for m in self._CONFIDENTIAL.finditer(ctext)
+                        if not re.search(r"\b(?:not|no|non|neither|nor)\b[^.]{0,20}$",
+                                         ctext[max(0, m.start() - 25):m.start()], re.I)
+                        or m.group(0).lower().startswith("shall not")), None)
+            conf, conf_basis = ((True, f"read from the text: {hit.group(0)!r}") if hit else
+                                (False, "offer text read; no confidentiality language found"))
+        elif confidential is not None:
+            conf = confidential is True or str(confidential).lower() in ("true", "yes")
+            conf_basis = "stated by the principal; the text was not read"
+        else:
+            conf, conf_basis = None, "no text and none stated - read the offer"
+        if scope == "general" or conf is True:
+            cls = "nuisance_by_principal_rule"
+            stance = "not accepted - the principal's rule"
+        elif scope == "limited" and conf is False:
+            cls, stance = "damages", "within the principal's rule - his decision"
+        else:
+            cls, stance = "undetermined", "cannot be classified until the release and terms are read"
+        rec = {"id": f"offer_{self._uid()}", "case_id": case_id, "matter": matter,
+               "from_party": from_party, "amount": _amt,
+               "received_at": received_at or datetime.now().isoformat(timespec="minutes"),
+               "respond_by": respond_by, "document_ref": document_ref,
+               "release_scope": scope, "release_scope_basis": scope_basis,
+               "confidential": conf, "confidentiality_basis": conf_basis,
+               "classification": cls, "stance": stance, "policy": self.SETTLEMENT_POLICY,
+               "caution": ("General releases also appear in settlements that pay real damages; "
+                           "this classification is the principal's acceptance rule, not a legal "
+                           "category. Nothing is accepted or rejected by Legal - the principal "
+                           "decides, and nothing is sent to the other side."),
+               "note": note or None, "status": "open"}
+        offers = self._settlements()
+        offers.append(rec)
+        self.store_own_memory("settlement_offers", json.dumps(offers[-200:]), pin=True)
+        return rec
+
+    def settlement_offers(self, case_id=None):
+        offers = [o for o in self._settlements() if not case_id or o.get("case_id") == case_id]
+        return {"count": len(offers), "offers": offers, "policy": self.SETTLEMENT_POLICY}
+
     def watch_docket(self, docket_id=None, case_id=None, label=None, remove=False,
                      subscribe=True):
         """Watch a federal docket for new filings. What is on it NOW is the
@@ -687,6 +787,24 @@ class LegalAgent(AgentBase):
                          + (" If it is done, tell Legal and attach the proof; it is still "
                             "open on the record." if left < 0 else ""))})
         basis.append(f"{len(acts)} open action(s) of yours due within 7 days or past due")
+        offers = [o for o in self._settlements() if o.get("status") == "open" and o.get("respond_by")]
+        for o in offers:
+            try:
+                left = (datetime.fromisoformat(str(o["respond_by"])[:19]) - now).days
+            except Exception:
+                continue
+            if left > 7 or left < -1:
+                continue
+            items.append({
+                "key": f"{o['id']}:" + (f"d{left}" if left >= 0 else "passed"),
+                "urgency": "overdue" if left < 0 else "due",
+                "subject": (f"Settlement offer from {o['from_party']} - respond by "
+                            f"{str(o['respond_by'])[:10]}: {o['classification'].replace('_', ' ')}"),
+                "body": (f"{o['from_party']} offered {o.get('amount') or 'an amount not recorded'} "
+                         f"({o.get('case_id') or o.get('matter')}). Release: {o['release_scope']} "
+                         f"({o['release_scope_basis']}). Confidential: {o['confidential']} "
+                         f"({o['confidentiality_basis']}). {o['stance']}.")})
+        basis.append(f"{len(offers)} open settlement offer(s) with a response date")
         watched = self._watched()
         for did, w in watched.items():
             docs, err = self._docket_newest(did)
@@ -5014,6 +5132,10 @@ class LegalAgent(AgentBase):
             return self.watch_docket(**(args if isinstance(args, dict) else {}))
         if task == "watched_dockets":
             return {"watched": self._watched()}
+        if task == "record_settlement_offer":
+            return self.record_settlement_offer(**(args if isinstance(args, dict) else {}))
+        if task == "settlement_offers":
+            return self.settlement_offers(**(args if isinstance(args, dict) else {}))
         if task == "deadlines":
             return self.deadlines(**(args if isinstance(args, dict) else {}))
 

@@ -8,6 +8,8 @@
     "add_deadline",
     "watch_docket",
     "watched_dockets",
+    "record_settlement_offer",
+    "settlement_offers",
     "add_to_evidence_binder",
     "add_to_filing_layer",
     "add_to_notebook",

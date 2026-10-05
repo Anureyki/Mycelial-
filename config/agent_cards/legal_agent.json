@@ -66,6 +66,8 @@
     "deadlines",
     "watch_docket",
     "watched_dockets",
+    "record_settlement_offer",
+    "settlement_offers",
     "open_action",
     "complete_action",
     "amend_action",
