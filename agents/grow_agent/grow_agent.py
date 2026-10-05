@@ -909,7 +909,7 @@ class GrowAgent(AgentBase):
                 # the interface layer doing this agent's job and re-editing
                 # itself every time a plant gains a field.
                 "roster",
-                "log_reading", "check_stage", "observe_stage_markers", "volume_history", "correct_volume_event", "reconcile_topup", "prediction_check", "record_species", "record_genetics", "record_plant", "compare_plants", "adopt_species_layer", "record_light_flip",
+                "log_reading", "check_stage", "observe_stage_markers", "volume_history", "correct_volume_event", "reconcile_topup", "prediction_check", "record_species", "record_genetics", "record_plant", "compare_plants", "adopt_species_layer", "record_light_flip", "plan_harvest", "log_dry_start", "log_stem_check", "log_cure_start", "log_cure_burp", "log_sift", "harvest_record", "amend_species",
                 "adjust_nutrients",
                 "transition_stage", "log_water_change", "get_status",
                 "set_germination_date", "set_current_nutrients",
@@ -1701,6 +1701,23 @@ class GrowAgent(AgentBase):
     # and gain a genetics_id. A verb asks _vocab(plant) what applies and the
     # record answers; a method the verb has no handler for is said, not guessed.
     GROWTH_TYPES = ("annual", "biennial", "perennial", "fungus")
+    # The principal's own post-harvest practice, 2026-10-05. Reference for the
+    # cannabis species record - his figures, not a label's, and the stem snap
+    # outranks the calendar inside them.
+    CANNABIS_POST_HARVEST = {
+        "source": "principal, 2026-10-05",
+        "steps": ["chop", "dry", "trim", "cure", "sift"],
+        "dry": {"days": [7, 14], "meter": "stem_snap",
+                "means": "Dry seven to fourteen days. The stems snapping is the only meter "
+                         "that matters - not the calendar."},
+        "trim": {"when": "once the stems snap, before jarring"},
+        "cure": {"burp_days": 14, "burps_per_day": [1, 2], "burp_minutes": "a few",
+                 "keeps_improving_days": 30,
+                 "means": "About two weeks of burping - open the jars a few minutes once or "
+                          "twice a day. Then the jars stay sealed and keep improving for a "
+                          "month or more."},
+        "sift": {"material": "sugar leaf", "when": "after the trim"},
+    }
     # pistils_observed: the plant decides (autoflower). light_schedule_flip:
     # the grower decides, by changing the schedule (photoperiod).
     FLOWER_TRIGGERS = ("pistils_observed", "light_schedule_flip")
@@ -1744,6 +1761,7 @@ class GrowAgent(AgentBase):
             "markers": {k: {"markers": list(v["markers"]), "means": v.get("means")}
                         for k, v in self.STAGE_MARKERS.items()},
             "marker_to_lifecycle": dict(self.MARKER_TO_LIFECYCLE),
+            "post_harvest": self.CANNABIS_POST_HARVEST,
             "ripeness": {"method": "trichome_shares",
                          "observe": ["pistils_brown_pct", "trichomes_clear_pct",
                                      "trichomes_cloudy_pct", "trichomes_amber_pct",
@@ -1758,7 +1776,7 @@ class GrowAgent(AgentBase):
         g, sp = self._lineage(plant_id)
         if sp:
             v = {k: sp.get(k) for k in ("stages", "default_stage", "stage_age_days", "markers",
-                                        "marker_to_lifecycle", "ripeness")}
+                                        "marker_to_lifecycle", "ripeness", "post_harvest")}
             # THE MODE IS THE SPECIES' WORD, CHOSEN BY THE LINE. Auto and photo
             # are the same species with different flower triggers: an auto
             # flowers on its own clock and the pistils mark it; a photo flowers
@@ -1793,8 +1811,8 @@ class GrowAgent(AgentBase):
     def record_species(self, species_id=None, name=None, family=None, growth_type=None,
                        stages=None, default_stage=None, stage_age_days=None, markers=None,
                        marker_to_lifecycle=None, ripeness=None, vocabulary=None,
-                       flowering_modes=None, source=None, note="", replace=False,
-                       dry_run=False):
+                       flowering_modes=None, post_harvest=None, source=None, note="",
+                       replace=False, dry_run=False):
         sid = re.sub(r"[^a-z0-9_]", "_", str(species_id or name or "").strip().lower()).strip("_")
         if not (sid and name and family and growth_type and stages and source):
             return {"error": ("record_species needs name, family, growth_type, stages and "
@@ -1823,6 +1841,7 @@ class GrowAgent(AgentBase):
                "stage_age_days": stage_age_days, "markers": markers or {},
                "marker_to_lifecycle": m2l, "ripeness": ripeness,
                "flowering_modes": flowering_modes or None,
+               "post_harvest": post_harvest or None,
                "vocabulary": sorted(set(vocabulary or [])), "source": source,
                "note": note or None, "recorded_at": datetime.now().isoformat(timespec="seconds")}
         if old:
@@ -1929,6 +1948,289 @@ class GrowAgent(AgentBase):
         return {"recorded": True, "plant_id": plant_id, "flower_start": when[:10],
                 "schedule": schedule, "stage_change": moved}
 
+    def amend_species(self, species_id=None, reason="", **fields):
+        """Change fields on a species record, keeping what it said before."""
+        rec = self._species_rec(species_id)
+        if not rec:
+            return {"error": f"no species record {species_id!r}"}
+        if not reason:
+            return {"error": "amend_species needs a reason"}
+        allowed = {"family", "growth_type", "stages", "default_stage", "stage_age_days",
+                   "markers", "marker_to_lifecycle", "ripeness", "vocabulary",
+                   "flowering_modes", "post_harvest", "note"}
+        bad = sorted(set(fields) - allowed)
+        if bad:
+            return {"error": f"not species fields: {bad}"}
+        prev = {k: rec.get(k) for k in fields}
+        rec.update(fields)
+        rec.setdefault("amendments", []).append({
+            "at": datetime.now().isoformat(timespec="seconds"), "fields": sorted(fields),
+            "previous": prev, "reason": str(reason)[:300]})
+        self.store_own_memory(f"species_{species_id}", json.dumps(rec), pin=True)
+        return {"amended": True, "species_id": species_id, "fields": sorted(fields)}
+
+    # ------------------------------------------------------------------
+    # After the chop (principal, 2026-10-05). Ripeness said when; nothing
+    # recorded what happened next. The dry and the cure are the parts that
+    # need DATES - when it was cut, when the stems snapped, when the jars
+    # opened, when the sift ran - so a harvest has the same provenance as the
+    # dose math and the next one can learn from it. The protocol (how long,
+    # how often, what the meter is) is the species record's post_harvest;
+    # these verbs only keep the record and read the clock.
+    def _harvest(self, plant_id):
+        return self._jload(f"harvest_{plant_id}", {})
+
+    def _save_harvest(self, plant_id, rec):
+        self.store_own_memory(f"harvest_{plant_id}", json.dumps(rec), pin=True)
+        self._index_add("harvest_index", plant_id)
+
+    @staticmethod
+    def _when(at):
+        try:
+            return datetime.fromisoformat(str(at)[:19]) if at else datetime.now()
+        except ValueError:
+            return None
+
+    def _post_harvest(self, plant_id):
+        return ((self._vocab(plant_id) or {}).get("post_harvest")) or None
+
+    def _harvest_phase(self, plant_id, rec=None, now=None):
+        rec = rec if rec is not None else self._harvest(plant_id)
+        now = now or datetime.now()
+        ph = self._post_harvest(plant_id) or self.CANNABIS_POST_HARVEST
+        if not rec.get("chopped_at"):
+            return {"phase": "not_chopped"}
+        chop = self._when(rec["chopped_at"])
+        if not rec.get("stems_snapped_at"):
+            # CALENDAR days. Counting 24-hour blocks called the first morning
+            # after jarring "cure day 0".
+            return {"phase": "drying", "day": (now.date() - chop.date()).days,
+                    "window": ph["dry"]["days"]}
+        if not rec.get("cure_started_at"):
+            return {"phase": "ready_to_jar", "stems_snapped_at": rec["stems_snapped_at"]}
+        k = (now.date() - self._when(rec["cure_started_at"]).date()).days
+        if k < ph["cure"]["burp_days"]:
+            return {"phase": "curing", "day": k, "burp_days": ph["cure"]["burp_days"]}
+        return {"phase": "sealed", "cure_day": k}
+
+    def plan_harvest(self, plant_id=None, chop_date=None):
+        if not plant_id:
+            return {"error": "plan_harvest needs plant_id"}
+        ph = self._post_harvest(plant_id)
+        if not ph:
+            return {"applicable": False,
+                    "reason": f"no post-harvest protocol on {plant_id}'s species record"}
+        rec = self._harvest(plant_id)
+        rip = self.assess_ripeness(plant_id)
+        basis = None
+        if rec.get("chopped_at"):
+            chop, basis = self._when(rec["chopped_at"]), "recorded chop"
+        elif chop_date:
+            chop, basis = self._when(chop_date), "chop date you gave"
+        elif rip.get("classification") == "harvest_window":
+            chop, basis = datetime.now(), "ripeness says in the window"
+        else:
+            est = (rip.get("projection") or {}).get("days_to_window_estimate")
+            if est is not None:
+                chop, basis = datetime.now() + timedelta(days=est), \
+                    f"ripeness projection ({est} days to the window) - an estimate"
+            else:
+                return {"plant_id": plant_id, "ripeness": rip.get("classification"),
+                        "dated": False, "steps": ph["steps"], "protocol": ph,
+                        "reason": ("No chop date: ripeness is "
+                                   f"{rip.get('classification')!r} with no projection. Every "
+                                   "date below the chop follows from it - give chop_date, or "
+                                   "record trichomes until the window shows.")}
+        d = lambda n: (chop + timedelta(days=n)).date().isoformat()
+        lo, hi = ph["dry"]["days"]
+        snap = self._when(rec["stems_snapped_at"]) if rec.get("stems_snapped_at") else None
+        cure0 = self._when(rec["cure_started_at"]) if rec.get("cure_started_at") else None
+        bd = ph["cure"]["burp_days"]
+        jar = (cure0 or snap)
+        def at_or_range(actual, a, b):
+            return {"date": actual.date().isoformat(), "recorded": True} if actual \
+                else {"from": d(a), "to": d(b), "recorded": False}
+        steps = [
+            {"step": "chop", **({"date": chop.date().isoformat(), "recorded": bool(rec.get("chopped_at"))}),
+             "basis": basis},
+            {"step": "dry", "from": chop.date().isoformat(),
+             "check_stems_from": d(lo), "latest_expected": d(hi),
+             "meter": "stem snap - the calendar only frames it", **({"stems_snapped": snap.date().isoformat()} if snap else {}),
+             # The room's own limits, already on the system record as fields.
+             "room": {k: v for k, v in self._jload(f"grow_system_{plant_id}", {}).items()
+                      if k.startswith("drying_")} or None},
+            {"step": "trim", **at_or_range(jar, lo, hi), "when": ph["trim"]["when"]},
+            {"step": "cure", "burp": f"{ph['cure']['burp_minutes']} minutes, "
+                                     f"{ph['cure']['burps_per_day'][0]}-{ph['cure']['burps_per_day'][1]}x a day",
+             **({"burp_until": (jar + timedelta(days=bd)).date().isoformat(),
+                 "sealed_from": (jar + timedelta(days=bd)).date().isoformat()} if jar else
+                {"burp_until": f"{d(lo + bd)} to {d(hi + bd)}",
+                 "sealed_from": f"{d(lo + bd)} to {d(hi + bd)}"}),
+             "keeps_improving": f"{ph['cure']['keeps_improving_days']}+ days sealed"},
+            {"step": "sift", **at_or_range(jar, lo, hi),
+             "material": ph["sift"]["material"], "when": ph["sift"]["when"]},
+        ]
+        return {"plant_id": plant_id, "dated": True, "ripeness": rip.get("classification"),
+                "steps": steps, "phase": self._harvest_phase(plant_id, rec),
+                "protocol_source": ph.get("source")}
+
+    def log_dry_start(self, plant_id=None, chopped_at=None, wet_weight_g=None, note="",
+                      correct=False):
+        if not plant_id:
+            return {"error": "log_dry_start needs plant_id - a chop is never defaulted onto a plant"}
+        if not self._post_harvest(plant_id):
+            return {"error": f"no post-harvest protocol on {plant_id}'s species record"}
+        rec = self._harvest(plant_id)
+        if rec.get("chopped_at") and not correct:
+            return {"error": f"{plant_id} was already chopped {rec['chopped_at']}; pass "
+                             "correct=true to change it", "record": rec}
+        when = self._when(chopped_at)
+        if not when:
+            return {"error": f"chopped_at unparseable: {chopped_at!r}"}
+        if rec.get("chopped_at"):
+            rec.setdefault("corrections", []).append({"chopped_at_was": rec["chopped_at"],
+                                                      "at": datetime.now().isoformat(timespec="seconds")})
+        rec.update({"plant_id": plant_id, "chopped_at": when.isoformat(timespec="minutes"),
+                    "wet_weight_g": self._parse_numeric(wet_weight_g), "note": note or None})
+        rec.setdefault("stem_checks", []); rec.setdefault("burps", []); rec.setdefault("sifts", [])
+        self._save_harvest(plant_id, rec)
+        # Harvest ends the measurement series, not the grow's history.
+        try:
+            if self._jload(f"grow_system_{plant_id}", {}):
+                self.amend_grow_system(plant_id, status="harvested",
+                                       harvested_at=rec["chopped_at"])
+            prec = self._jload(f"plant_{plant_id}", {})
+            if prec:
+                prec.update(status="harvested", harvested_at=rec["chopped_at"])
+                self.store_own_memory(f"plant_{plant_id}", json.dumps(prec))
+        except Exception as exc:
+            self.log(f"log_dry_start: could not mark {plant_id} harvested: {exc}")
+        ph = self._post_harvest(plant_id)
+        return {"recorded": True, "plant_id": plant_id, "chopped_at": rec["chopped_at"],
+                "dry": ph["dry"]["means"],
+                "check_stems_from": (when + timedelta(days=ph["dry"]["days"][0])).date().isoformat()}
+
+    def log_stem_check(self, plant_id=None, snapped=None, at=None, note=""):
+        rec = self._harvest(plant_id) if plant_id else {}
+        if not rec.get("chopped_at"):
+            return {"error": f"no chop recorded for {plant_id} - log_dry_start first"}
+        if snapped is None:
+            return {"error": "log_stem_check needs snapped: true (they snap) or false (they bend)"}
+        when = self._when(at)
+        snapped = snapped is True or str(snapped).lower() in ("true", "yes", "1")
+        rec["stem_checks"].append({"at": when.isoformat(timespec="minutes"),
+                                   "snapped": snapped, "note": note or None})
+        if snapped and not rec.get("stems_snapped_at"):
+            rec["stems_snapped_at"] = when.isoformat(timespec="minutes")
+            rec["dry_days"] = (when - self._when(rec["chopped_at"])).days
+        self._save_harvest(plant_id, rec)
+        return {"recorded": True, "plant_id": plant_id, "snapped": snapped,
+                "dry_day": (when - self._when(rec["chopped_at"])).days,
+                "next": ("trim, then jar - log_cure_start" if snapped else
+                         "still bending - keep drying, check again")}
+
+    def log_cure_start(self, plant_id=None, at=None, jars=None, dry_weight_g=None,
+                       trimmed_at=None, before_snap=False, note=""):
+        rec = self._harvest(plant_id) if plant_id else {}
+        if not rec.get("chopped_at"):
+            return {"error": f"no chop recorded for {plant_id} - log_dry_start first"}
+        if not rec.get("stems_snapped_at") and not before_snap:
+            return {"error": ("No stem snap recorded. The snap is the meter that says the dry "
+                              "is done - log_stem_check first, or pass before_snap=true to "
+                              "record jarring without it (kept on the record as such)")}
+        when = self._when(at)
+        rec.update({"cure_started_at": when.isoformat(timespec="minutes"),
+                    "trimmed_at": (self._when(trimmed_at) or when).isoformat(timespec="minutes"),
+                    "jars": jars, "dry_weight_g": self._parse_numeric(dry_weight_g),
+                    "jarred_before_snap": bool(before_snap and not rec.get("stems_snapped_at"))})
+        if note:
+            rec["cure_note"] = note
+        self._save_harvest(plant_id, rec)
+        ph = self._post_harvest(plant_id)
+        return {"recorded": True, "plant_id": plant_id, "cure_started_at": rec["cure_started_at"],
+                "burp_until": (when + timedelta(days=ph["cure"]["burp_days"])).date().isoformat(),
+                "cure": ph["cure"]["means"]}
+
+    def log_cure_burp(self, plant_id=None, at=None, jar=None, minutes=None, note=""):
+        rec = self._harvest(plant_id) if plant_id else {}
+        if not rec.get("cure_started_at"):
+            return {"error": f"no cure start recorded for {plant_id} - log_cure_start first"}
+        when = self._when(at)
+        rec["burps"].append({"at": when.isoformat(timespec="minutes"), "jar": jar,
+                             "minutes": self._parse_numeric(minutes), "note": note or None})
+        self._save_harvest(plant_id, rec)
+        return {"recorded": True, "plant_id": plant_id, "burps": len(rec["burps"]),
+                "cure_day": (when - self._when(rec["cure_started_at"])).days}
+
+    def log_sift(self, plant_id=None, at=None, yield_g=None, material=None, note=""):
+        rec = self._harvest(plant_id) if plant_id else {}
+        if not rec.get("chopped_at"):
+            return {"error": f"no chop recorded for {plant_id} - log_dry_start first"}
+        y = self._parse_numeric(yield_g)
+        if y is None:
+            return {"error": "log_sift needs yield_g - a sift with no yield records only that it happened"}
+        ph = self._post_harvest(plant_id) or {}
+        when = self._when(at)
+        rec["sifts"].append({"at": when.isoformat(timespec="minutes"), "yield_g": y,
+                             "material": material or (ph.get("sift") or {}).get("material"),
+                             "note": note or None})
+        self._save_harvest(plant_id, rec)
+        return {"recorded": True, "plant_id": plant_id, "sift": rec["sifts"][-1],
+                "total_sifted_g": round(sum(x["yield_g"] for x in rec["sifts"]), 2)}
+
+    def harvest_record(self, plant_id=None):
+        if not plant_id:
+            return {"error": "harvest_record needs plant_id"}
+        rec = self._harvest(plant_id)
+        return {"plant_id": plant_id, "record": rec or None,
+                "phase": self._harvest_phase(plant_id, rec)}
+
+    def _harvest_reminders(self, now=None):
+        now = now or datetime.now()
+        today, slot = now.strftime("%Y-%m-%d"), ("am" if now.hour < 12 else "pm")
+        items = []
+        for pid in self._jload("harvest_index", []):
+            rec = self._harvest(pid)
+            ph = self._post_harvest(pid) or self.CANNABIS_POST_HARVEST
+            st = self._harvest_phase(pid, rec, now)
+            label = (self._jload(f"grow_system_{pid}", {}).get("instance_label") or pid)
+            if st["phase"] == "drying":
+                if any(c["at"][:10] == today for c in rec.get("stem_checks") or []):
+                    continue
+                lo, hi = st["window"]
+                day = st["day"]
+                items.append({
+                    "key": f"harvest:{pid}:stems:{today}",
+                    "urgency": "soon" if day < lo else "due" if day <= hi else "overdue",
+                    "subject": f"{label}: check the stems (dry day {day})",
+                    "body": (f"{label} has been drying {day} day(s) (window {lo}-{hi}). Bend a "
+                             f"small stem: if it snaps, the dry is done - log_stem_check. "
+                             + ("Past the usual window - check the room's humidity."
+                                if day > hi else "The snap is the meter, not the calendar."))})
+            elif st["phase"] == "ready_to_jar":
+                items.append({"key": f"harvest:{pid}:jar:{today}", "urgency": "due",
+                              "subject": f"{label}: stems snapped - trim and jar",
+                              "body": (f"Stems snapped {rec['stems_snapped_at'][:10]}. Trim, jar "
+                                       f"it, and record it with log_cure_start - that starts the "
+                                       f"burp clock.")})
+            elif st["phase"] == "curing":
+                done = any(b["at"][:10] == today and
+                           (("am" if int(b["at"][11:13]) < 12 else "pm") == slot)
+                           for b in rec.get("burps") or [])
+                if done:
+                    continue
+                items.append({"key": f"harvest:{pid}:burp:{today}:{slot}", "urgency": "due",
+                              "subject": f"{label}: burp the jars (cure day {st['day']} of {st['burp_days']})",
+                              "body": (f"Open the jars for {ph['cure']['burp_minutes']} minutes, "
+                                       f"then reseal. Record it with log_cure_burp.")})
+            elif st["phase"] == "sealed":
+                items.append({"key": f"harvest:{pid}:sealed", "urgency": "due",
+                              "subject": f"{label}: burping is done - keep the jars sealed",
+                              "body": (f"{label} has had {ph['cure']['burp_days']} days of "
+                                       f"burping. The jars can stay sealed now; they keep "
+                                       f"improving for {ph['cure']['keeps_improving_days']}+ days.")})
+        return items
+
     def compare_plants(self, plant_a=None, plant_b=None):
         """What two plants share, and so which variable a difference between
         them can be laid at."""
@@ -1981,6 +2283,7 @@ class GrowAgent(AgentBase):
             stages=cv["stages"], default_stage="seedling", markers=cv["markers"],
             marker_to_lifecycle=cv["marker_to_lifecycle"], ripeness=cv["ripeness"],
             vocabulary=["pistils", "trichomes", "nodes", "fan leaves", "colas"],
+            post_harvest=self.CANNABIS_POST_HARVEST,
             flowering_modes={
                 "auto": {"flower_trigger": "pistils_observed",
                          "stage_age_days": {k: list(b) for k, b in self.STAGE_AGE_BOUNDS.items()},
@@ -2045,7 +2348,7 @@ class GrowAgent(AgentBase):
                 r = self.record_species(**{kk: v["species"].get(kk) for kk in (
                     "species_id", "name", "family", "growth_type", "stages", "default_stage",
                     "stage_age_days", "markers", "marker_to_lifecycle", "ripeness",
-                    "vocabulary", "flowering_modes", "source", "note")}, replace=bool(self._species_rec(
+                    "vocabulary", "flowering_modes", "post_harvest", "source", "note")}, replace=bool(self._species_rec(
                     v["species"]["species_id"])))
             elif k == "genetics":
                 gg = v["genetics"]
@@ -5714,7 +6017,8 @@ class GrowAgent(AgentBase):
     READING_STALE_DAYS = 3
 
     def _active_plants(self):
-        ids = ["current_plant"]
+        ids = [] if str(self._jload("grow_system_current_plant", {}).get("status") or ""
+                        ).lower() == "harvested" else ["current_plant"]
         for p_ in self._get_all_plants():
             pid = p_.get("plant_id")
             if pid and pid not in ids and str(p_.get("status") or "").lower() not in (
@@ -5816,7 +6120,14 @@ class GrowAgent(AgentBase):
                 "urgency": it["status"] if it["status"] in ("due", "overdue") else "soon",
                 "subject": f"{label}: {it['kind'].replace('_', ' ')} {it['status'].replace('_', ' ')}",
                 "body": f"{label}: {it['text']}"})
-        return {"items": items, "basis": m.get("basis")}
+        h = self._harvest_reminders()
+        items.extend(h)
+        basis = m.get("basis")
+        basis = [basis] if isinstance(basis, str) else list(basis or [])
+        basis.append(f"post-harvest: {len(self._jload('harvest_index', []))} plant(s) with a "
+                     f"chop on record, {len(h)} reminder(s) - stems daily while drying, "
+                     f"jars am and pm while curing, once when burping ends")
+        return {"items": items, "basis": basis}
 
     def notify_maintenance(self, plant_id=None, force=False):
         # Kept as a name; the delivery is the inherited notify_reminders now.
@@ -13033,7 +13344,9 @@ class GrowAgent(AgentBase):
         elif task == "grow_snapshot":
             return {"result": self.grow_snapshot(**(args if isinstance(args, dict) else {}))}
         elif task in ("record_species", "record_genetics", "record_plant", "compare_plants",
-                      "adopt_species_layer", "record_light_flip"):
+                      "adopt_species_layer", "record_light_flip", "plan_harvest",
+                      "log_dry_start", "log_stem_check", "log_cure_start", "log_cure_burp",
+                      "log_sift", "harvest_record", "amend_species"):
             a = args if isinstance(args, dict) else {}
             return {"result": getattr(self, task)(**a)}
         elif task == "prediction_check":
