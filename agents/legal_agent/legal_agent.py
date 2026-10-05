@@ -164,6 +164,11 @@ class LegalAgent(AgentBase):
         "dispute.{0,20}(credit|report|tradeline)", "regulation ?v",
         "consideration", "covenant", "lien", "easement", "tort", "negligen",
         "subpoena", "affidavit", "pleading", "motion to", "pro se", "equitable",
+        # What arrives from a court by mail. "Notice of hearing - response due"
+        # reached Grow in the mail listener's dry run on Grow's bare `res`
+        # matching "response", because nothing here claimed "hearing".
+        "hearing\\b", "summons", "service of process", "electronic filing",
+        "\\bnef\\b",
         "state law", "which state", "\\bucc\\b", "article 9", "blue ?sky",
         "regulation [tuzb]\\b", "\\breg [tuzb]\\b", "preempt", "national bank",
         "security interest", "receivable", "chattel paper", "perfect(ed|ion)",

@@ -3426,7 +3426,7 @@ class GrowAgent(AgentBase):
     "roots?", "coloni[sz]", "establish", "transition", "transplant", "net ?pot",
 
     # systems and hardware
-    "dwc", "lwc", "hydro", "hydroponic", "reservoir", "res", "bucket", "tent",
+    "dwc", "lwc", "hydro", "hydroponic", "reservoir", "\\bres\\b", "bucket", "tent",
     "net pot", "clay pebble", "pebbles", "leca", "air stone", "airstone",
     "top feed", "air pump",
     # measurements and inputs

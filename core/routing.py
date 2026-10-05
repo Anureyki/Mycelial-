@@ -432,7 +432,7 @@ class DomainRouter:
             return []
         return tied
 
-    def domains_for(self, prompt, min_share=0.30):
+    def domains_for(self, prompt, min_share=0.30, fallback=True):
         """-> [agent ids] that SUBSTANTIALLY claim this request, best first.
 
         A request touching two departments is not a routing failure to be
@@ -456,6 +456,12 @@ class DomainRouter:
         for aid, n in score_roles(prompt, self.roles()).items():
             scores[aid] = scores.get(aid, 0) + n
         if not scores:
+            # fallback=False is for text nobody in this system wrote - an
+            # inbound email's subject. No declared word claims it, so no
+            # department does; guessing one for a stranger's sentence is how
+            # "20% off this weekend" reached Accounting in the mail dry run.
+            if not fallback:
+                return []
             d = self._domain_for(prompt)
             return [d] if d else []
         best = max(scores.values())

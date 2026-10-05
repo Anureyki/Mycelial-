@@ -1,0 +1,7 @@
+{
+  "mode": "dry_run",
+  "mode_note": "dry_run logs what WOULD be routed and touches no agent. live refers messages to the owning domain (record only - nothing executes from an email) and tells the principal. Switched by the principal, never by code.",
+  "poll_minutes": 5,
+  "routable": ["legal_agent", "accounting_agent", "grow_agent"],
+  "routable_note": "Legal: court filings, service notices. Accounting: payment confirmations, receipts. Grow: the plants. Anything else, or anything two of these claim, is HELD for the principal."
+}

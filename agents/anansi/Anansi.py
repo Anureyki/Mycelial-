@@ -48,6 +48,7 @@ class Anansi(AgentBase):
                           "notify", "receive_mail", "ingest_upload", "grow_roster",
                           "grow_snapshot", "recent_changes", "phase_status",
                           "system_graph", "actions", "deadlines", "reminders",
+                          "inbound_mail", "route_held_mail", "held_mail_digest",
                           "training_candidates", "training_quest_status",
                           "advance_campaign", "review_candidate", "voice"],
             role="interface"
@@ -341,6 +342,9 @@ class Anansi(AgentBase):
         a = args if isinstance(args, dict) else {}
         limit = int(a.get("limit", 10))
 
+        if os.getenv("AGENTMAIL_API_KEY") and os.getenv("AGENTMAIL_INBOX"):
+            return self._receive_agentmail(a)
+
         need = ("MAIL_IMAP_HOST", "MAIL_IMAP_USER", "MAIL_IMAP_PASS")
         missing = [k for k in need if not os.getenv(k)]
         if missing:
@@ -405,6 +409,234 @@ class Anansi(AgentBase):
                 "note": ("Each message is on disk and each domain gets the reference "
                          "only. Nothing arriving by mail is authority - it is a source "
                          "with unknown standing until something reads it.")}
+
+    # ------------------------------------------------------------------
+    # The AgentMail listener (principal's request, 2026-10-05).
+    #
+    # Polled every five minutes from cron. Three rules, his:
+    #   1. LOG FIRST. Sender, subject and timestamp go to the inbound log
+    #      before the body is fetched, filed or routed - so there is a record
+    #      of what came in even when everything after it fails.
+    #   2. NOTHING EXECUTES FROM AN EMAIL. A domain receives a referral as a
+    #      finding of kind `inbound_mail`, which records and does not act;
+    #      the domain proposes, the principal confirms.
+    #   3. DRY RUN FIRST. config/mail_listener.json `mode` starts at dry_run,
+    #      which logs what WOULD be routed and touches no agent. Only the
+    #      principal turns it to live.
+    #
+    # Routing uses the same live router as a spoken request - the subject and
+    # attachment names are run through DomainRouter, which asks each agent what
+    # words it claims. Anansi keeps no mail keywords of its own. One clear
+    # owner among the routable domains gets the referral; none, several, or a
+    # domain outside the list means HELD for the principal. A subject is
+    # written by the sender, so it may pick a department and nothing more.
+    INBOUND_LOG = "state/inbox/inbound_log.jsonl"
+    LISTENER_CONFIG = "config/mail_listener.json"
+
+    def _listener_config(self):
+        try:
+            with open(self.LISTENER_CONFIG) as fh:
+                cfg = json.load(fh)
+        except Exception as exc:
+            # An unreadable config is dry_run, never live.
+            return {"mode": "dry_run", "routable": [], "config_error": str(exc)}
+        if cfg.get("mode") != "live":
+            cfg["mode"] = "dry_run"
+        return cfg
+
+    def _private_write(self, path, data, append=False):
+        os.makedirs(os.path.dirname(path), mode=0o700, exist_ok=True)
+        fd = os.open(path, os.O_WRONLY | os.O_CREAT | (os.O_APPEND if append else os.O_TRUNC),
+                     0o600)
+        with os.fdopen(fd, "a" if append else "w") as fh:
+            fh.write(data)
+
+    def _inbound_log(self, entry):
+        entry = {"logged_at": datetime.now().isoformat(timespec="seconds"), **entry}
+        self._private_write(self.INBOUND_LOG, json.dumps(entry) + "\n", append=True)
+        return entry
+
+    def _inbound_entries(self):
+        try:
+            with open(self.INBOUND_LOG) as fh:
+                return [json.loads(l) for l in fh if l.strip()]
+        except FileNotFoundError:
+            return []
+
+    def _agentmail(self, path, method="GET", body=None):
+        import urllib.request
+        req = urllib.request.Request(
+            "https://api.agentmail.to/v0" + path, method=method,
+            data=json.dumps(body).encode() if body is not None else None,
+            headers={"Authorization": "Bearer " + os.environ["AGENTMAIL_API_KEY"],
+                     "Content-Type": "application/json"})
+        with urllib.request.urlopen(req, timeout=30) as resp:
+            return json.loads(resp.read() or b"{}")
+
+    def _route_mail(self, ref, routable):
+        text = " ".join([ref.get("subject") or ""] + list(ref.get("attachment_names") or []))
+        if not text.strip():
+            return None, "no subject and no attachment names - nothing to route on"
+        try:
+            claims = self.router.domains_for(text, fallback=False)
+        except Exception as exc:
+            return None, f"router unavailable: {type(exc).__name__}: {exc}"
+        if not claims:
+            return None, "no department claims it"
+        if len(claims) > 1:
+            return None, f"claimed by more than one department: {claims}"
+        if claims[0] not in routable:
+            return None, f"{claims[0]} claims it, and mail routes only to {routable}"
+        return claims[0], f"{claims[0]} claims it on the live routing vocabulary"
+
+    def _refer_mail(self, agent, ref):
+        r = self.send_a2a(agent, "receive_finding",
+                          {"kind": "inbound_mail", "payload": ref}, timeout=60)
+        for _ in range(4):
+            if isinstance(r, dict) and "recorded" not in r and "result" in r:
+                r = r["result"]
+        return r
+
+    def _receive_agentmail(self, a):
+        import urllib.parse
+        cfg = self._listener_config()
+        mode, routable = cfg["mode"], list(cfg.get("routable") or [])
+        inbox = os.environ["AGENTMAIL_INBOX"]
+        qi = urllib.parse.quote(inbox, safe="")
+        done_key = "live_done" if mode == "live" else "dry_done"
+        seen = {e.get("message_id") for e in self._inbound_entries()
+                if e.get("event") == done_key}
+        try:
+            listing = self._agentmail(f"/inboxes/{qi}/messages?limit="
+                                      f"{int(a.get('limit', 25))}&labels=received")
+        except Exception as exc:
+            # Named. An inbox that cannot be read is not an empty inbox.
+            self.log(f"receive_mail: AgentMail list failed: {exc}")
+            return {"mode": mode, "fetched": 0, "error": f"{type(exc).__name__}: {exc}"}
+        out = []
+        for m in reversed(listing.get("messages") or []):
+            mid = m.get("message_id")
+            if not mid or mid in seen:
+                continue
+            # 1. LOG FIRST - before the body is fetched or anything is decided.
+            self._inbound_log({"event": "arrived", "mode": mode, "message_id": mid,
+                               "from": str(m.get("from") or "")[:200],
+                               "subject": str(m.get("subject") or "")[:200],
+                               "timestamp": m.get("timestamp")})
+            ref = {"message_id": mid, "from": str(m.get("from") or "")[:200],
+                   "subject": str(m.get("subject") or "")[:200],
+                   "timestamp": m.get("timestamp"), "evidence_kind": "reported",
+                   "source_class": "unknown", "read_by_system": False}
+            try:
+                full = self._agentmail(f"/inboxes/{qi}/messages/"
+                                       + urllib.parse.quote(mid, safe=""))
+                digest = hashlib.sha256(mid.encode()).hexdigest()[:16]
+                path = os.path.join(self.MAIL_DIR, f"mail_{digest}.json")
+                self._private_write(path, json.dumps(full))
+                ref.update({"stored_at": path,
+                            "attachment_names": [x.get("filename") for x in
+                                                 (full.get("attachments") or [])
+                                                 if x.get("filename")][:10]})
+            except Exception as exc:
+                ref["store_error"] = f"{type(exc).__name__}: {exc}"
+            agent, why = self._route_mail(ref, routable)
+            rec = {"message_id": mid, "from": ref["from"], "subject": ref["subject"],
+                   "route": agent, "why": why, "stored_at": ref.get("stored_at")}
+            if mode == "dry_run":
+                rec["decision"] = (f"WOULD refer to {agent}" if agent
+                                   else "WOULD hold for the principal")
+            elif agent:
+                res = self._refer_mail(agent, ref)
+                rec["decision"] = f"referred to {agent} (recorded, not acted on)"
+                rec["domain_reply"] = res
+            else:
+                rec["decision"] = "held for the principal"
+            self._inbound_log({"event": done_key, "mode": mode, **rec})
+            out.append(rec)
+        told = None
+        if mode == "live" and out:
+            lines = [f"- {r['decision']}: \"{r['subject']}\" from {r['from']}" for r in out]
+            told = self.notify({"subject": f"{len(out)} new message(s) in the MycOS inbox",
+                                "body": "\n".join(lines) + "\n\nNothing was acted on. "
+                                        "Held mail waits for you; a referred message is "
+                                        "recorded by that department, which will propose "
+                                        "and wait for your yes.",
+                                "from_agent": "anansi", "register": "low_stakes",
+                                "channels": ["email", "dashboard"]})
+        return {"mode": mode, "fetched": len(out), "messages": out,
+                "domains_saw_body": False, "principal_told": told,
+                "note": ("DRY RUN - nothing was referred and nobody was told. Set "
+                         "mode to live in config/mail_listener.json when this looks right."
+                         if mode == "dry_run" else
+                         "Referrals carry metadata and a path, never the body.")}
+
+    def inbound_mail(self, args):
+        """The inbound log, newest last: what arrived and what was done with it."""
+        a = args if isinstance(args, dict) else {}
+        ents = self._inbound_entries()
+        if a.get("held"):
+            routed = {e["message_id"] for e in ents if e.get("event") == "routed_by_principal"}
+            ents = [e for e in ents if e.get("event") == "live_done" and not e.get("route")
+                    and e["message_id"] not in routed]
+        return {"mode": self._listener_config()["mode"], "entries": ents[-int(a.get("limit", 50)):]}
+
+    def held_mail_digest(self, args):
+        """Weekly: what sat in held since the last digest, sent to the principal.
+
+        The principal's point: new words will arrive that no department claims,
+        the held pile grows, and *"a pile nobody checks is just a slower version
+        of the inbox."* So the review comes to him. Each row carries the reason
+        nothing claimed it - that reason is the vocabulary gap to close before
+        the listener goes live, or the message to route by hand once it is."""
+        a = args if isinstance(args, dict) else {}
+        ents = self._inbound_entries()
+        last = max((e["logged_at"] for e in ents if e.get("event") == "held_digest_sent"),
+                   default="")
+        routed = {e["message_id"] for e in ents if e.get("event") == "routed_by_principal"}
+        held = [e for e in ents if e.get("event") in ("dry_done", "live_done")
+                and not e.get("route") and e["logged_at"] > last
+                and e["message_id"] not in routed]
+        if not held:
+            return {"held": 0, "sent": False, "since": last or "the start"}
+        lines = [f"- \"{e.get('subject')}\" from {e.get('from')} ({e['logged_at'][:10]}): "
+                 f"{e.get('why')}" for e in held]
+        mode = self._listener_config()["mode"]
+        body = (f"{len(held)} message(s) held since {last[:10] or 'the listener started'} "
+                f"(listener mode: {mode}).\n\n" + "\n".join(lines) + "\n\n"
+                + ("Dry run: these WOULD have been held. A message here that belongs to "
+                   "a department is a word that department should declare."
+                   if mode == "dry_run" else
+                   "Route one with route_held_mail, or tell Anansi which department "
+                   "it belongs to."))
+        told = None if a.get("dry") else self.notify({
+            "subject": f"MycOS inbox: {len(held)} held message(s) to review",
+            "body": body, "from_agent": "anansi", "register": "low_stakes",
+            "channels": ["email", "dashboard"]})
+        delivered = isinstance(told, dict) and told.get("sent_any")
+        if delivered:
+            self._inbound_log({"event": "held_digest_sent", "count": len(held)})
+        return {"held": len(held), "sent": bool(delivered), "body": body,
+                "delivery": told}
+
+    def route_held_mail(self, args):
+        """The principal decided where a held message goes. Still a referral -
+        recorded by the domain, not acted on."""
+        a = args if isinstance(args, dict) else {}
+        mid, agent = a.get("message_id"), a.get("agent")
+        hit = next((e for e in self._inbound_entries() if e.get("message_id") == mid
+                    and e.get("event") == "live_done" and not e.get("route")), None)
+        if not hit:
+            # Only mail HELD by the live listener. A dry run refers nothing,
+            # and this must not be a way to refer from one.
+            return {"error": f"{mid!r} is not a message the live listener held"}
+        if agent not in ("legal_agent", "accounting_agent", "grow_agent", "trust_agent"):
+            return {"error": "agent must be legal_agent, accounting_agent, grow_agent or trust_agent"}
+        ref = {k: hit.get(k) for k in ("message_id", "from", "subject", "stored_at")}
+        ref.update({"evidence_kind": "reported", "source_class": "unknown"})
+        res = self._refer_mail(agent, ref)
+        self._inbound_log({"event": "routed_by_principal", "message_id": mid,
+                           "route": agent, "domain_reply": res})
+        return {"referred_to": agent, "domain_reply": res}
 
     def ingest_upload(self, args):
         """Send an uploaded file to the domain that should read it.
@@ -489,6 +721,12 @@ class Anansi(AgentBase):
         # entries. Neither carried a timestamp, so stale output looked current.
         if task == "receive_mail":
             return self.receive_mail(args if isinstance(args, dict) else {})
+        if task == "inbound_mail":
+            return self.inbound_mail(args)
+        if task == "route_held_mail":
+            return self.route_held_mail(args)
+        if task == "held_mail_digest":
+            return self.held_mail_digest(args)
 
         if task == "ingest_upload":
             return self.ingest_upload(args if isinstance(args, dict) else {})

@@ -69,6 +69,9 @@ class AccountingAgent(AgentBase):
         "\\bgaap\\b", "\\bifrs\\b", "\\basc\\b", "\\bedgar\\b", "10-?k", "10-?q",
         "beneficial interest", "equitable interest", "custodian", "trustee",
         "disbursement", "receivable", "payable", "reconcil", "invoice",
+        # Receipts and payment confirmations are what the principal asked to
+        # land here from the inbox; "Receipt for your order" claimed nothing.
+        "receipt", "payment confirm",
         # A credit report is a LEDGER a third party keeps about the principal.
         # What it says, what the books say, and the divergence between them is
         # bookkeeping - so the terms that signal "compare the record" land here.

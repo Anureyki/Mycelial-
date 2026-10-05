@@ -23,7 +23,9 @@
     "actions",
     "deadlines",
     "reminders",
-    "reminders",
+    "inbound_mail",
+    "route_held_mail",
+    "held_mail_digest",
     "training_candidates",
     "training_quest_status",
     "advance_campaign",
@@ -43,5 +45,5 @@
   "public_key": "",
   "owner": "anureyki",
   "created": "2026-07-21T17:59:55.506343",
-  "updated": "2026-10-05T09:38:22.283839"
+  "updated": "2026-10-05T09:50:51.327222"
 }
