@@ -2715,6 +2715,18 @@ class AgentBase:
         # Regulations are keyed as they cite themselves - "§ 8.4", "§ 100.204" -
         # so a person typing "8.4" or "24 CFR 8.4" matched nothing and fell
         # through to public web search for a rule sitting in the corpus.
+        # A CFR APPENDIX is keyed as it heads itself - "Appendix C to Part
+        # 1002" - since resegment_appendices lifted appendices out of the
+        # part's last section. "12 CFR 1002 Appendix C", "12 CFR part 1002,
+        # app. C" and "Appendix C of Part 1002" are the same appendix.
+        _app = (re.match(r'^(?:\d+\s*c\.?f\.?r\.?\s*)?(?:part\s*)?(\d+)\s*,?\s*'
+                         r'(?:app\.?|appendix)\s*([a-z]{1,2}(?:-\d+)?)$', key)
+                or re.match(r'^(?:app\.?|appendix)\s*([a-z]{1,2}(?:-\d+)?)\s*(?:to|of)\s*'
+                            r'(?:\d+\s*c\.?f\.?r\.?\s*)?part\s*(\d+)$', key))
+        if _app:
+            part, letter = ((_app.group(1), _app.group(2)) if _app.group(1).isdigit()
+                            else (_app.group(2), _app.group(1)))
+            key = f"appendix {letter} to part {part}"
         key = re.sub(r'^\d+\s*c\.?f\.?r\.?\s*(part\s*)?', '', key).strip()
         # STATUTES HAD NO SUCH RULE, so law acquired by citation could not be
         # reached by citation. Sections are keyed as they cite themselves -

@@ -40,6 +40,14 @@ SECTION_PATTERNS = [
     # Dashes: these documents use EN DASH (U+2013) in citations like
     # "210.1-01", not a hyphen. Omitting it truncated the citation at "210.1",
     # collapsing 1-01, 1-02 and 1-03 onto one ambiguous key.
+    # A CFR APPENDIX IS ITS OWN UNIT. It heads itself "Appendix C to Part
+    # 1002—Sample Notification Forms" and matched no pattern, so every appendix
+    # of a part was glued onto the part's LAST section: Reg B's model adverse-
+    # action reasons sat inside "§ 1002.114", Reg F's model validation notice
+    # inside "§ 1006.108" - on the shelf and unreachable by citation. The dash
+    # after the part number is required, so a cross-reference ("appendix C to
+    # this part") is never read as a heading.
+    (re.compile(r'^\s*(Appendix [A-Z]{1,2}(?:-\d+)? to Part \d+)\s*[\u2010-\u2015-]'), "appendix"),
     (re.compile(r'^\s*(§+\s*\d+[A-Za-z0-9.\-\u2010-\u2015]*)'), "section_sign"),
     (re.compile(r'^\s*(SEC(?:TION)?\.\s+\d+[A-Za-z0-9.\-]*)', re.I), "section"),
     # An enacted Public Law opens "SECTION 1. SHORT TITLE." - the word spelt

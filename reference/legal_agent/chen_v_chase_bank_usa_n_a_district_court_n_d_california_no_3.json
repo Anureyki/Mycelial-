@@ -1,0 +1,2004 @@
+{
+  "title": "Chen v. Chase Bank USA, N.A. (District Court, N.D. California, No. 3:19-cv-01082, Doc. 60)",
+  "source": "CourtListener RECAP docket 14591512, document 60: the court's own text as filed - \"Order on Motion for Settlement AND Order on Motion for Attorney Fees\". Judicial opinions are edicts of government and public domain. Retrieved 2026-10-05.",
+  "authority_class": "case_law",
+  "authority_class_basis": "The work is a court's opinion or order, read from the docket as filed; a judicial decision is case law by what it is",
+  "claim_layer": "unknown",
+  "claim_layer_meaning": "Not declared at ingest. Treat any citation from here as unclassified: it may be rationale rather than rule.",
+  "authorities_cited": [
+    "Bellinghausen v. Tractor",
+    "Camancho v. Bridgeport",
+    "Camberis v. Ocwen",
+    "Cotton v. City",
+    "Diaz v. Tr.",
+    "Garner v. State",
+    "Gonzalez v. City",
+    "Kelly v. Wengler",
+    "L.L.C. v. General",
+    "Linney v. Cellular",
+    "Officers for Justice v. Civil",
+    "Ontiveros v. Zamora",
+    "Roberts v. Marshalls",
+    "Rodriguez v. West",
+    "Rural Telecomms. Coop. v. DIRECTV",
+    "S MOTION v. FOR",
+    "See Anderson v. United",
+    "See Harris v. Marhoefer",
+    "See Harris v. Vector",
+    "See Ravens v. Iftikar",
+    "See Tahara v. Matson",
+    "See Villegas v. J.P",
+    "Settlement Agreement. See Hanlon v. Chrysler",
+    "Silber v. Mabon",
+    "Staton v. Boeing",
+    "Torrisi v. Tucson"
+  ],
+  "term_index": {
+    "states district": [
+      0,
+      13,
+      14,
+      15,
+      16,
+      17,
+      26,
+      27,
+      28,
+      29,
+      30,
+      31,
+      32,
+      42,
+      43,
+      44,
+      45,
+      56,
+      71,
+      72,
+      74
+    ],
+    "united states district": [
+      0,
+      13,
+      14,
+      15,
+      16,
+      17,
+      26,
+      27,
+      28,
+      29,
+      30,
+      31,
+      32,
+      42,
+      43,
+      44,
+      45,
+      56,
+      71,
+      72,
+      74
+    ],
+    "northern district": [
+      0,
+      13,
+      14,
+      15,
+      16,
+      17,
+      26,
+      27,
+      28,
+      29,
+      30,
+      31,
+      32,
+      42,
+      43,
+      44,
+      45,
+      56,
+      71,
+      72,
+      74
+    ],
+    "california united": [
+      0,
+      13,
+      14,
+      15,
+      16,
+      17,
+      26,
+      27,
+      28,
+      29,
+      30,
+      31,
+      42,
+      43,
+      44,
+      45,
+      71,
+      72,
+      74
+    ],
+    "document filed": [
+      0,
+      13,
+      14,
+      15,
+      16,
+      17,
+      26,
+      27,
+      28,
+      29,
+      30,
+      31,
+      32,
+      42,
+      43,
+      44,
+      45,
+      46,
+      71,
+      72,
+      74
+    ],
+    "final approval": [
+      0,
+      7,
+      13,
+      15,
+      17,
+      27,
+      29,
+      31,
+      32,
+      43,
+      72
+    ],
+    "class action settlement": [
+      0,
+      4,
+      13,
+      16,
+      31,
+      32,
+      72
+    ],
+    "california united states": [
+      0,
+      13,
+      14,
+      15,
+      16,
+      17,
+      26,
+      27,
+      28,
+      29,
+      30,
+      31,
+      42,
+      43,
+      44,
+      45,
+      71,
+      72,
+      74
+    ],
+    "attorneys fees": [
+      0,
+      4,
+      7,
+      13,
+      14,
+      15,
+      16,
+      26,
+      28,
+      32,
+      39,
+      41,
+      42,
+      43,
+      44,
+      45,
+      50,
+      57,
+      68,
+      70,
+      72
+    ],
+    "incentive award": [
+      0,
+      7,
+      14,
+      43,
+      71,
+      72
+    ],
+    "united states": [
+      0,
+      13,
+      14,
+      15,
+      16,
+      17,
+      26,
+      27,
+      28,
+      29,
+      30,
+      31,
+      32,
+      42,
+      43,
+      44,
+      45,
+      56,
+      71,
+      72,
+      74
+    ],
+    "class action": [
+      0,
+      1,
+      4,
+      8,
+      13,
+      15,
+      16,
+      17,
+      21,
+      27,
+      29,
+      30,
+      31,
+      32,
+      43,
+      71,
+      72,
+      73
+    ],
+    "action settlement": [
+      0,
+      4,
+      13,
+      16,
+      17,
+      31,
+      32,
+      72
+    ],
+    "settlement agreement": [
+      4,
+      13,
+      14,
+      15,
+      16,
+      27,
+      31,
+      42,
+      43,
+      67,
+      71
+    ],
+    "action settlement agreement": [
+      4,
+      13,
+      16
+    ],
+    "proposed settlement": [
+      5,
+      27,
+      29,
+      31
+    ],
+    "injunctive relief": [
+      10,
+      28,
+      29,
+      42,
+      43
+    ],
+    "punitive damages": [
+      10,
+      28,
+      29
+    ],
+    "magistrate judge": [
+      12,
+      13,
+      74
+    ],
+    "previous unsatisfactory": [
+      13,
+      14,
+      15
+    ],
+    "chase sent": [
+      13,
+      14,
+      30
+    ],
+    "preliminary approval": [
+      13,
+      24,
+      26,
+      29,
+      70
+    ],
+    "unsatisfactory relationship": [
+      13,
+      14,
+      15
+    ],
+    "settlement administration": [
+      13,
+      14,
+      71
+    ],
+    "adverse action": [
+      13,
+      14,
+      15,
+      28
+    ],
+    "credit card": [
+      13,
+      14,
+      15
+    ],
+    "previous unsatisfactory relationship": [
+      13,
+      14,
+      15
+    ],
+    "standing": [
+      13,
+      28
+    ],
+    "requested exclusion": [
+      14,
+      16,
+      31
+    ],
+    "settlement agreement provides": [
+      14,
+      42,
+      43,
+      67
+    ],
+    "administration costs": [
+      14,
+      29,
+      71
+    ],
+    "settlement class": [
+      14,
+      15,
+      17,
+      27,
+      29,
+      41,
+      42,
+      43,
+      71
+    ],
+    "higher than anticipated": [
+      14,
+      29,
+      71
+    ],
+    "class member": [
+      14,
+      26,
+      28,
+      38,
+      40,
+      42
+    ],
+    "settlement class consideration": [
+      14,
+      29,
+      41,
+      71
+    ],
+    "agreement provides": [
+      14,
+      42,
+      43,
+      67
+    ],
+    "provides that plaintiff": [
+      14,
+      43,
+      67
+    ],
+    "class members": [
+      14,
+      15,
+      17,
+      20,
+      26,
+      27,
+      28,
+      29,
+      31,
+      32,
+      43,
+      71,
+      72
+    ],
+    "proposed class": [
+      14,
+      23,
+      31
+    ],
+    "notice packets": [
+      14,
+      16,
+      71
+    ],
+    "class consideration": [
+      14,
+      29,
+      41,
+      71
+    ],
+    "claim forms": [
+      14,
+      16,
+      71,
+      72
+    ],
+    "affiliate": [
+      14,
+      15
+    ],
+    "email address": [
+      15,
+      16,
+      71
+    ],
+    "five years": [
+      15,
+      29,
+      30
+    ],
+    "class certification": [
+      16,
+      27,
+      29,
+      32
+    ],
+    "fair adequate": [
+      16,
+      27,
+      31
+    ],
+    "opt out": [
+      16,
+      72
+    ],
+    "class actions": [
+      17,
+      30,
+      31,
+      63
+    ],
+    "putative class": [
+      17,
+      18,
+      24
+    ],
+    "preliminary approval order": [
+      24,
+      26,
+      70
+    ],
+    "approval order": [
+      24,
+      26,
+      70
+    ],
+    "class counsel": [
+      26,
+      30,
+      31,
+      32,
+      35,
+      37,
+      42,
+      44,
+      45,
+      47,
+      52,
+      57,
+      69,
+      71,
+      72
+    ],
+    "citation omitted": [
+      26,
+      27,
+      28,
+      31,
+      42,
+      44,
+      45,
+      60
+    ],
+    "quotation marks": [
+      26,
+      27,
+      28,
+      31,
+      33,
+      42,
+      44,
+      60
+    ],
+    "internal quotation": [
+      26,
+      27,
+      28,
+      31,
+      33,
+      42,
+      44,
+      60
+    ],
+    "internal quotation marks": [
+      26,
+      27,
+      28,
+      31,
+      33,
+      42,
+      44,
+      60
+    ],
+    "bluetooth factors": [
+      27,
+      32,
+      42,
+      43
+    ],
+    "fairness factors": [
+      27,
+      32,
+      43
+    ],
+    "class action settlements": [
+      30,
+      72,
+      73
+    ],
+    "action settlements": [
+      30,
+      72,
+      73
+    ],
+    "common fund": [
+      40,
+      43,
+      58
+    ],
+    "litigation costs": [
+      57,
+      61,
+      72
+    ]
+  },
+  "origin_pdf": "chen_v_chase_bank_usa_n_a_3_19_cv_01082.txt",
+  "extraction": {
+    "extractor": "text file (already extracted)",
+    "pages": 22,
+    "no_text_layer": [
+      22
+    ],
+    "raised": [],
+    "recovered": [],
+    "lost": [],
+    "complete": true
+  },
+  "pages": 22,
+  "sections": [
+    {
+      "citation": "p. 9",
+      "kind": "treatise",
+      "page": 9,
+      "authorities": [
+        "S MOTION v. FOR"
+      ],
+      "text": "Case 3:19-cv-01082-JSC Document 60 Filed 06/23/20 Page 1 of 21 4 UNITED STATES DISTRICT COURT 5 NORTHERN DISTRICT OF CALIFORNIA 7 JEFFREY CHEN, Case No. 19-cv-01082-JSC Plaintiff, ORDER RE: PLAINTIFF\u2019S MOTION v. FOR FINAL APPROVAL OF CLASS ACTION SETTLEMENT, MOTION 10 CHASE BANK USA, N.A., FOR ATTORNEYS\u2019 FEES AND COSTS, AND AN INCENTIVE AWARD Defendant. Re: Dkt. Nos. 53 & 56 Northern District of California United States District Court",
+      "integrity": {
+        "state": "complete",
+        "basis": "Full retrieved body of 438 characters stored; under the 60,000 cap, so nothing was cut.",
+        "stamped_at": "2026-10-05T12:10:13",
+        "stored_chars": 438,
+        "source_chars": 438,
+        "cap_applied": 60000
+      },
+      "authority_class": "case_law",
+      "claim_layer": "unknown",
+      "claim_layer_meaning": "Not declared at ingest. Treat any citation from here as unclassified: it may be rationale rather than rule."
+    },
+    {
+      "citation": "p. 13",
+      "kind": "treatise",
+      "page": 13,
+      "authorities": [],
+      "text": "Plaintiff Jeffrey Chen brings a class action against Chase Bank USA, N.A. (now J.P.",
+      "integrity": {
+        "state": "complete",
+        "basis": "Full retrieved body of 83 characters stored; under the 60,000 cap, so nothing was cut.",
+        "stamped_at": "2026-10-05T12:10:13",
+        "stored_chars": 83,
+        "source_chars": 83,
+        "cap_applied": 60000
+      },
+      "authority_class": "case_law",
+      "claim_layer": "unknown",
+      "claim_layer_meaning": "Not declared at ingest. Treat any citation from here as unclassified: it may be rationale rather than rule."
+    },
+    {
+      "citation": "p. 14",
+      "kind": "treatise",
+      "page": 14,
+      "authorities": [],
+      "text": "Morgan Chase) (\u201cChase\u201d) alleging violations of the Equal Credit Opportunity Act (\u201cECOA\u201d)",
+      "integrity": {
+        "state": "complete",
+        "basis": "Full retrieved body of 88 characters stored; under the 60,000 cap, so nothing was cut.",
+        "stamped_at": "2026-10-05T12:10:13",
+        "stored_chars": 88,
+        "source_chars": 88,
+        "cap_applied": 60000
+      },
+      "authority_class": "case_law",
+      "claim_layer": "unknown",
+      "claim_layer_meaning": "Not declared at ingest. Treat any citation from here as unclassified: it may be rationale rather than rule."
+    },
+    {
+      "citation": "p. 15",
+      "kind": "treatise",
+      "page": 15,
+      "authorities": [],
+      "text": "under 15 U.S.C. \u00a7 1691 et seq. Now before the Court is Plaintiff\u2019s unopposed motion for final",
+      "integrity": {
+        "state": "complete",
+        "basis": "Full retrieved body of 93 characters stored; under the 60,000 cap, so nothing was cut.",
+        "stamped_at": "2026-10-05T12:10:13",
+        "stored_chars": 93,
+        "source_chars": 93,
+        "cap_applied": 60000
+      },
+      "authority_class": "case_law",
+      "claim_layer": "unknown",
+      "claim_layer_meaning": "Not declared at ingest. Treat any citation from here as unclassified: it may be rationale rather than rule."
+    },
+    {
+      "citation": "p. 16",
+      "kind": "treatise",
+      "page": 16,
+      "authorities": [],
+      "text": "approval of the parties\u2019 class action settlement agreement and motion for attorneys\u2019 fees and",
+      "integrity": {
+        "state": "complete",
+        "basis": "Full retrieved body of 93 characters stored; under the 60,000 cap, so nothing was cut.",
+        "stamped_at": "2026-10-05T12:10:13",
+        "stored_chars": 93,
+        "source_chars": 93,
+        "cap_applied": 60000
+      },
+      "authority_class": "case_law",
+      "claim_layer": "unknown",
+      "claim_layer_meaning": "Not declared at ingest. Treat any citation from here as unclassified: it may be rationale rather than rule."
+    },
+    {
+      "citation": "p. 17",
+      "kind": "treatise",
+      "page": 17,
+      "authorities": [],
+      "text": "costs.1 (Dkt. Nos. 53, 56.) After reviewing the proposed settlement, moving papers, and",
+      "integrity": {
+        "state": "complete",
+        "basis": "Full retrieved body of 87 characters stored; under the 60,000 cap, so nothing was cut.",
+        "stamped_at": "2026-10-05T12:10:13",
+        "stored_chars": 87,
+        "source_chars": 87,
+        "cap_applied": 60000
+      },
+      "authority_class": "case_law",
+      "claim_layer": "unknown",
+      "claim_layer_meaning": "Not declared at ingest. Treat any citation from here as unclassified: it may be rationale rather than rule."
+    },
+    {
+      "citation": "p. 18",
+      "kind": "treatise",
+      "page": 18,
+      "authorities": [],
+      "text": "supporting evidence, and as no objections to the settlement have been made, the Court VACATES",
+      "integrity": {
+        "state": "complete",
+        "basis": "Full retrieved body of 93 characters stored; under the 60,000 cap, so nothing was cut.",
+        "stamped_at": "2026-10-05T12:10:13",
+        "stored_chars": 93,
+        "source_chars": 93,
+        "cap_applied": 60000
+      },
+      "authority_class": "case_law",
+      "claim_layer": "unknown",
+      "claim_layer_meaning": "Not declared at ingest. Treat any citation from here as unclassified: it may be rationale rather than rule."
+    },
+    {
+      "citation": "p. 19",
+      "kind": "treatise",
+      "page": 19,
+      "authorities": [],
+      "text": "the June 25, 2020 hearing, see N.D. Cal. Civ. L.R. 7-1(b), and GRANTS the motion for final approval and motion for attorneys\u2019 fees and costs and an incentive award. BACKGROUND",
+      "integrity": {
+        "state": "complete",
+        "basis": "Full retrieved body of 175 characters stored; under the 60,000 cap, so nothing was cut.",
+        "stamped_at": "2026-10-05T12:10:13",
+        "stored_chars": 175,
+        "source_chars": 175,
+        "cap_applied": 60000
+      },
+      "authority_class": "case_law",
+      "claim_layer": "unknown",
+      "claim_layer_meaning": "Not declared at ingest. Treat any citation from here as unclassified: it may be rationale rather than rule."
+    },
+    {
+      "citation": "p. 22",
+      "kind": "treatise",
+      "page": 22,
+      "authorities": [],
+      "text": "Plaintiff filed a class action against Chase in the Superior Court of State of California,",
+      "integrity": {
+        "state": "complete",
+        "basis": "Full retrieved body of 90 characters stored; under the 60,000 cap, so nothing was cut.",
+        "stamped_at": "2026-10-05T12:10:13",
+        "stored_chars": 90,
+        "source_chars": 90,
+        "cap_applied": 60000
+      },
+      "authority_class": "case_law",
+      "claim_layer": "unknown",
+      "claim_layer_meaning": "Not declared at ingest. Treat any citation from here as unclassified: it may be rationale rather than rule."
+    },
+    {
+      "citation": "p. 23",
+      "kind": "treatise",
+      "page": 23,
+      "authorities": [],
+      "text": "County of Alameda on January 28, 2019 alleging violations of the ECOA under 12 C.F.R. \u00a7",
+      "integrity": {
+        "state": "complete",
+        "basis": "Full retrieved body of 87 characters stored; under the 60,000 cap, so nothing was cut.",
+        "stamped_at": "2026-10-05T12:10:13",
+        "stored_chars": 87,
+        "source_chars": 87,
+        "cap_applied": 60000
+      },
+      "authority_class": "case_law",
+      "claim_layer": "unknown",
+      "claim_layer_meaning": "Not declared at ingest. Treat any citation from here as unclassified: it may be rationale rather than rule."
+    },
+    {
+      "citation": "p. 24",
+      "kind": "treatise",
+      "page": 24,
+      "authorities": [],
+      "text": "1002.2, and seeking punitive damages under the ECOA, injunctive relief, and attorney\u2019s fees and",
+      "integrity": {
+        "state": "complete",
+        "basis": "Full retrieved body of 95 characters stored; under the 60,000 cap, so nothing was cut.",
+        "stamped_at": "2026-10-05T12:10:13",
+        "stored_chars": 95,
+        "source_chars": 95,
+        "cap_applied": 60000
+      },
+      "authority_class": "case_law",
+      "claim_layer": "unknown",
+      "claim_layer_meaning": "Not declared at ingest. Treat any citation from here as unclassified: it may be rationale rather than rule."
+    },
+    {
+      "citation": "p. 25",
+      "kind": "treatise",
+      "page": 25,
+      "authorities": [],
+      "text": "costs. (Dkt. No. 1-1 (\u201cComplaint\u201d) at 1, 9, Prayer for Relief \u00b6\u00b6 1-3. 2) Chase removed the action",
+      "integrity": {
+        "state": "complete",
+        "basis": "Full retrieved body of 97 characters stored; under the 60,000 cap, so nothing was cut.",
+        "stamped_at": "2026-10-05T12:10:13",
+        "stored_chars": 97,
+        "source_chars": 97,
+        "cap_applied": 60000
+      },
+      "authority_class": "case_law",
+      "claim_layer": "unknown",
+      "claim_layer_meaning": "Not declared at ingest. Treat any citation from here as unclassified: it may be rationale rather than rule."
+    },
+    {
+      "citation": "p. 26",
+      "kind": "treatise",
+      "page": 26,
+      "authorities": [],
+      "text": "27 1 Both parties consented to the jurisdiction of a magistrate judge pursuant to 28 U.S.C. \u00a7 28 636(c). (See Dkt. Nos. 9 & 15.)",
+      "integrity": {
+        "state": "complete",
+        "basis": "Full retrieved body of 128 characters stored; under the 60,000 cap, so nothing was cut.",
+        "stamped_at": "2026-10-05T12:10:13",
+        "stored_chars": 128,
+        "source_chars": 128,
+        "cap_applied": 60000
+      },
+      "authority_class": "case_law",
+      "claim_layer": "unknown",
+      "claim_layer_meaning": "Not declared at ingest. Treat any citation from here as unclassified: it may be rationale rather than rule."
+    },
+    {
+      "citation": "p. 2",
+      "kind": "treatise",
+      "page": 2,
+      "authorities": [],
+      "text": "Record citations are to material in the Electronic Case File (\u201cECF\u201d); pinpoint citations are to the Case 3:19-cv-01082-JSC Document 60 Filed 06/23/20 Page 2 of 21 1 to this Court because the action arises under ECOA, a federal law. (Dkt. No. 1 at \u00b6 7.) Chase 2 then moved to dismiss the complaint for lack of statutory standing and failure to state a claim. 3 (Dkt. No. 8.) The Court denied the motion to dismiss, and two months later, the parties 4 participated in a mediation with retired magistrate judge Wayne D. Brazil. (Dkt. No. 22; Dkt. No. 5 43-1 at \u00b6 6.) While the parties did not settle, they made \u201csubstantial progress and continued to 6 negotiate over the following weeks.\u201d (Id. at \u00b6 7.) On August 9, 2019, the parties reached a 7 settlement in principle. (Id.) After two months of \u201cextensive negotiations concerning the final 8 terms of the Settlement,\u201d Plaintiff filed an unopposed motion for preliminary approval of the class 9 action settlement on November 22, 2019. (Id. at \u00b6 8.) At the preliminary approval hearing, the 10 Court raised concerns regarding the settlement agreement, in particular the costs of settlement 11 administration, and the notice. The parties thereafter filed a revised class action settlement 12 agreement and release, and supporting declaration to address the Court\u2019s concerns. (Dkt. No. 51.) Northern District of California United States District Court 13 On January 16, 2020, the Court approved the motion for preliminary approval. (Dkt. No. 52.) 14 Plaintiff thereafter filed the now pending motion for attorneys\u2019 fees and costs, and motion for final 15 approval of the class action settlement. (Dkt. Nos. 53, 56.) 16 I. Complaint Allegations 17 Plaintiff applied for a credit card issued by Chase. (Complaint at \u00b6 5.) On or about 18 September 19, 2018, Chase sent Plaintiff a letter denying his credit application stating that Chase 19 \u201ccan\u2019t approve your request at this time because: Previous unsatisfactory relationship with this 20 bank.\u201d (Id. at \u00b6\u00b6 18-19.) Plaintiff alleges that Chase\u2019s denial of his credit application constitutes 21 an \u201cadverse action\u201d for which a \u201cstatement of specific reasons for the action taken\u201d or a 22 \u201cdisclosure of the applicant\u2019s right to a statement of specific reasons\u201d is required within 30 days of 23 receiving Plaintiff\u2019s credit application. (Id. at \u00b6\u00b6 16-17.) Plaintiff insists that the letter he received 24 fails to meet the \u201cspecific reason\u201d requirement under the ECOA and does not disclose the specific 25 reasons for which Plaintiff\u2019s application was denied. (Id. at \u00b6\u00b6 19, 22.) 26 // ECF-generated page numbers at the top of the documents.",
+      "integrity": {
+        "state": "complete",
+        "basis": "Full retrieved body of 2,633 characters stored; under the 60,000 cap, so nothing was cut.",
+        "stamped_at": "2026-10-05T12:10:13",
+        "stored_chars": 2633,
+        "source_chars": 2633,
+        "cap_applied": 60000
+      },
+      "authority_class": "case_law",
+      "claim_layer": "unknown",
+      "claim_layer_meaning": "Not declared at ingest. Treat any citation from here as unclassified: it may be rationale rather than rule."
+    },
+    {
+      "citation": "p. 2",
+      "kind": "treatise",
+      "page": 2,
+      "authorities": [],
+      "text": "Case 3:19-cv-01082-JSC Document 60 Filed 06/23/20 Page 3 of 21 1 II. Settlement Agreement 2 A. Proposed Class 3 The settlement class consists of \u201call natural persons to whom Chase sent a letter giving 4 either \u2018previous unsatisfactory relationship with this bank\u2019 or \u2018previous unsatisfactory relationship 5 with us or one of our affiliates\u2019 as the only reason for taking adverse action in connection with a 6 credit card account during the period beginning January 28, 2014 and ending on November 22, 7 2019.\u201d (Dkt. No. 43-1, Ex. A (Settlement Agreement) \u00a7 1.29.) The class excludes \u201cofficers and 8 directors of Chase and its parents, subsidiaries, affiliates, and any entity in which Defendant has a 9 controlling interest; and all judges assigned to hear any aspect of this litigation, as well as their 10 immediate family members.\u201d (Id.) The class is comprised of approximately 18,183 persons. As 11 of June 18, 2020, 2,982 individuals have submitted valid claim forms, 10 individuals requested 12 exclusion from the settlement, and no objections have been filed. (Dkt. No. 56-2 at \u00b6\u00b6 20-22; Dkt. Northern District of California United States District Court 13 No. 58 at \u00b6 4.) 14 B. Payment Terms 15 Chase agrees to pay $244,659 for: \u201c(1) payments to the Settlement Class, (2) a Class 16 Representative Incentive Award of up to $5,000, and (3) Notice and Settlement Administration 17 Costs.\u201d (Dkt. No. 43-1 at \u00a7\u00a7 2.3, 3.2, 3.3, 4.8.) The Settlement Agreement refers to this amount 18 as the \u201cSettlement Class Consideration.\u201d (Id. at \u00a7 1.30.) The Settlement Class Consideration is 19 \u201cnon-reversionary.\u201d (Id. \u00a7 4.10(f).) The settlement administration costs were estimated at 20 $50,102, but ended up totaling $59,242.46. (Dkt. No. 43-1 at \u00b6 10; Dkt. No. 56-2 at \u00b6 23.) The 21 costs were higher than anticipated because the 16 percent claims rate is substantially higher than 22 the 7 percent claims rate predicted, 1,357 individuals who are not class members filed claim 23 forms, and notice packets were mailed to twice as many individuals as predicted. (Dkt. Nos. 43-1 24 at \u00b6 11; Dkt. No. 56-2 at \u00b6 24.) Given this, the Net Settlement Class Consideration is estimated to 25 be $180,416.54, which yields a payment of $60.89 for each claiming class member. (Dkt. No. 56- 26 1 at \u00b6 13.) 27 In addition to the Settlement Class Consideration, the Settlement Agreement provides that 28 Plaintiff\u2019s counsel may move for attorneys\u2019 fees and costs of up to $185,000, to be paid by Chase.",
+      "integrity": {
+        "state": "complete",
+        "basis": "Full retrieved body of 2,483 characters stored; under the 60,000 cap, so nothing was cut.",
+        "stamped_at": "2026-10-05T12:10:13",
+        "stored_chars": 2483,
+        "source_chars": 2483,
+        "cap_applied": 60000
+      },
+      "authority_class": "case_law",
+      "claim_layer": "unknown",
+      "claim_layer_meaning": "Not declared at ingest. Treat any citation from here as unclassified: it may be rationale rather than rule."
+    },
+    {
+      "citation": "p. 3",
+      "kind": "treatise",
+      "page": 3,
+      "authorities": [],
+      "text": "Case 3:19-cv-01082-JSC Document 60 Filed 06/23/20 Page 4 of 21 1 (Dkt. No. 43-1, Ex. A, Agreement \u00a7 3.4(a).) Plaintiff has filed a motion for attorneys\u2019 fees and 2 costs seeking $176,473.93 in fees and $8,526.07 in costs. (Dkt. No. 53.) Plaintiff contends that 3 counsels\u2019 actual attorneys\u2019 fees total $263,957.50. 4 Finally, the Settlement Agreement also provides that the Court will enjoin Chase, for five 5 years from the date of final approval, from using the phrases \u201c\u2018previous unsatisfactory relationship 6 with this bank\u2019 and \u2018previous unsatisfactory relationship with us or one of our affiliates\u2019 in adverse 7 action notices as the sole reason for denying credit card applications or otherwise taking an 8 adverse action in connection with a Chase credit card account.\u201d (Dkt. No. 43-1 at 19 \u00a7 3.5.) 9 C. Release 10 Plaintiff and class members agree to release Chase, together with the other \u201cReleased 11 Parties,\u201d from the \u201cReleased Claims\u201d (Dkt. No. 43-1 at 19-20 \u00a7 3.6(a); namely, claims arising out 12 of or related to: Northern District of California United States District Court (a) Chase\u2019s use of the language \u201cprevious unsatisfactory 13 relationship with this bank\u201d or \u201cprevious unsatisfactory 14 relationship with us or one of our affiliates\u201d in an adverse action notice sent pursuant to the ECOA in connection with a 15 credit card account on or before November 22, 2019; or (b) the acts and omissions alleged in the Complaint occurring on 16 or before November 22, 2019. 17 (Id. \u00a7 1.24.) In addition, Plaintiff and class members waive \u201cany and all rights\u201d under California 18 Civil Code \u00a7 1542 as to the Released Claims; \u00a71542 excludes from release those claims which are 19 unknown at the time of the release. (Id. \u00a7 3.6(d).) 20 D. Notice 21 On January 24, 2020, the Settlement Class Administrator, KCC Class Action Services, 22 LLC (\u201cKCC\u201d), received a list of 18,183 persons from Chase identified as the class list. (Dkt. No. 23 56-2 at \u00b6 7.) The list included names, addresses, and emails. (Id.) KCC processed the names and 24 addresses through the National Change of Address Database and updated 2,903 addresses. (Id.) 25 On February 28, 2020, KCC emailed notice to the 17,926 individuals on the class list who had 26 email addresses. (Id. at \u00b6\u00b6 8-9.) On that same date, KCC mailed copies of the notice to the 27 individuals who did not have an email address listed. (Id. at \u00b6 9.) Of the emailed notices, 1,557 28 were determined to be undeliverable and 13,557 were delivered, but not opened within 7 days of",
+      "integrity": {
+        "state": "complete",
+        "basis": "Full retrieved body of 2,530 characters stored; under the 60,000 cap, so nothing was cut.",
+        "stamped_at": "2026-10-05T12:10:13",
+        "stored_chars": 2530,
+        "source_chars": 2530,
+        "cap_applied": 60000
+      },
+      "authority_class": "case_law",
+      "claim_layer": "unknown",
+      "claim_layer_meaning": "Not declared at ingest. Treat any citation from here as unclassified: it may be rationale rather than rule."
+    },
+    {
+      "citation": "p. 4",
+      "kind": "treatise",
+      "page": 4,
+      "authorities": [
+        "Staton v. Boeing"
+      ],
+      "text": "Case 3:19-cv-01082-JSC Document 60 Filed 06/23/20 Page 5 of 21 1 receipt. (Id. at \u00b6\u00b6 10-11.) KCC mailed notice to all these individuals. (Id.) Since mailing notice, 2 KCC received 215 notice packets with forwarding addresses. KCC re-mailed the notice packets to 3 191 of these individuals (the forwarding information for 24 was incomplete). (Id. at \u00b6 12.) KCC 4 received 1,832 notice packets returned as undeliverable. KCC did further searching and re-mailed 5 notice to 479 of these individuals. (Id. at \u00b6 13.) 6 KCC also created a website (www.ECOASettlement.com) which was published at the 7 same time notice was mailed. (Id. at \u00b6 14.) From the website, individuals could download copies 8 of the notice, claim form, and other documents. (Id.) Plaintiff\u2019s motion for attorneys\u2019 fees and 9 costs was published on the website on the same date it was filed. (Id.) As of May 2, 2020, the 10 website had received 9,216 visits. (Id.) KCC also established and maintains a dedicated email 11 address and telephone hotline for individuals to call for information regarding the settlement. (Id. 12 at \u00b6\u00b6 15-16.) Northern District of California United States District Court 13 As of the April 28, 2020 deadline to submit claim forms, KCC received 4,675 claim forms. 14 (Id. at \u00b6 17; Dkt. No. 58 at \u00b6 4.) An additional 40 claims were submitted after the deadline. (Dkt. 15 No. 56-2 at \u00b6 17; Dkt. No. 58 at \u00b6 4.) Of the 4,675 claims, 333 were duplicate submissions and 16 1,356 were submitted by individuals not on the class list. (Dkt. No. 56-2 at \u00b6 18; Dkt. No. 58 at \u00b6 17 4.) Of the 40 late claims, 2 were duplicate submissions and one was submitted by someone not on 18 the class list. (Dkt. No. 56-2 at \u00b6 19; Dkt. No. 58 at \u00b6 4.) The parties have agreed to accept the 19 remaining 37 late claims. (Dkt. No. 56-2 at \u00b6 19; Dkt. No. 58 at \u00b6 4.) As of May 21, 2020, KCC 20 had determined that there were 2,982 valid claims. (Dkt. No. 58 at \u00b6 4.) 21 E. Opt-Out and Objections to the Settlement 22 Ten individuals have requested exclusion from the class. There have been no objections. 23 (Id. at \u00b6\u00b6 21-22.) 24 DISCUSSION 25 A class action settlement agreement must be fair, adequate, and reasonable. Fed. R. Civ. 26 P. 23(e)(2). Where, as here, parties reach an agreement before class certification, \u201ccourts must 27 peruse the proposed compromise to ratify both the propriety of the certification and the fairness of 28 the settlement.\u201d Staton v. Boeing Co., 327 F.3d 938, 952 (9th Cir. 2003). The approval of a class",
+      "integrity": {
+        "state": "complete",
+        "basis": "Full retrieved body of 2,507 characters stored; under the 60,000 cap, so nothing was cut.",
+        "stamped_at": "2026-10-05T12:10:13",
+        "stored_chars": 2507,
+        "source_chars": 2507,
+        "cap_applied": 60000
+      },
+      "authority_class": "case_law",
+      "claim_layer": "unknown",
+      "claim_layer_meaning": "Not declared at ingest. Treat any citation from here as unclassified: it may be rationale rather than rule."
+    },
+    {
+      "citation": "p. 5",
+      "kind": "treatise",
+      "page": 5,
+      "authorities": [
+        "Diaz v. Tr.",
+        "Ontiveros v. Zamora",
+        "Rural Telecomms. Coop. v. DIRECTV",
+        "See Villegas v. J.P"
+      ],
+      "text": "Case 3:19-cv-01082-JSC Document 60 Filed 06/23/20 Page 6 of 21 1 action settlement takes place in two stages. In the first stage of the approval process, the Court 2 preliminarily approves the settlement pending a fairness hearing, temporarily certifies a settlement 3 class, and authorizes notice to the class. See Villegas v. J.P. Morgan Chase & Co., No. CV 09\u2013 4 00261 SBA (EMC), 2012 WL 5878390, at *5 (N.D. Cal. Nov. 21, 2012). The Court has done so 5 here. (Dkt. No. 52.) At the second stage, \u201cafter notice is given to putative class members, the 6 Court entertains any of their objections to (1) the treatment of the litigation as a class action and/or 7 (2) the terms of the settlement.\u201d Ontiveros v. Zamora, 303 F.R.D. 356, 363 (E.D. Cal. Oct. 8, 8 2014) (citing Diaz v. Tr. Territory of Pac. Islands, 876 F.2d 1401, 1408 (9th Cir. 1989)). 9 Following the final fairness hearing, the Court must reach a final determination as to whether the 10 parties should be allowed to settle the class action pursuant to their agreed upon terms. See Nat'l 11 Rural Telecomms. Coop. v. DIRECTV, Inc., 221 F.R.D. 523, 525 (C.D. Cal. 2004). 12 I. Motion for Final Approval Northern District of California United States District Court 13 A. Final Certification of the Settlement Class 14 Class actions must meet the following requirements for certification: 15 (1) the class is so numerous that joinder of all members is impracticable; (2) there are questions of law or fact common to the 16 class; (3) the claims or defenses of the representative parties are typical of the claims or defenses of the class; and (4) the 17 representative parties will fairly and adequately protect the interests of the class.",
+      "integrity": {
+        "state": "complete",
+        "basis": "Full retrieved body of 1,701 characters stored; under the 60,000 cap, so nothing was cut.",
+        "stamped_at": "2026-10-05T12:10:13",
+        "stored_chars": 1701,
+        "source_chars": 1701,
+        "cap_applied": 60000
+      },
+      "authority_class": "case_law",
+      "claim_layer": "unknown",
+      "claim_layer_meaning": "Not declared at ingest. Treat any citation from here as unclassified: it may be rationale rather than rule."
+    },
+    {
+      "citation": "p. 18",
+      "kind": "treatise",
+      "page": 18,
+      "authorities": [],
+      "text": "Fed. R. Civ. P. 23(a). In addition to meeting the requirements of Rule 23(a), a putative class",
+      "integrity": {
+        "state": "complete",
+        "basis": "Full retrieved body of 94 characters stored; under the 60,000 cap, so nothing was cut.",
+        "stamped_at": "2026-10-05T12:10:13",
+        "stored_chars": 94,
+        "source_chars": 94,
+        "cap_applied": 60000
+      },
+      "authority_class": "case_law",
+      "claim_layer": "unknown",
+      "claim_layer_meaning": "Not declared at ingest. Treat any citation from here as unclassified: it may be rationale rather than rule."
+    },
+    {
+      "citation": "p. 19",
+      "kind": "treatise",
+      "page": 19,
+      "authorities": [],
+      "text": "action must also meet one of the conditions outlined in Rule 23(b)\u2014as relevant here, the condition",
+      "integrity": {
+        "state": "complete",
+        "basis": "Full retrieved body of 98 characters stored; under the 60,000 cap, so nothing was cut.",
+        "stamped_at": "2026-10-05T12:10:13",
+        "stored_chars": 98,
+        "source_chars": 98,
+        "cap_applied": 60000
+      },
+      "authority_class": "case_law",
+      "claim_layer": "unknown",
+      "claim_layer_meaning": "Not declared at ingest. Treat any citation from here as unclassified: it may be rationale rather than rule."
+    },
+    {
+      "citation": "p. 20",
+      "kind": "treatise",
+      "page": 20,
+      "authorities": [],
+      "text": "that \u201cquestions of law or fact common to class members predominate over any questions affecting",
+      "integrity": {
+        "state": "complete",
+        "basis": "Full retrieved body of 95 characters stored; under the 60,000 cap, so nothing was cut.",
+        "stamped_at": "2026-10-05T12:10:13",
+        "stored_chars": 95,
+        "source_chars": 95,
+        "cap_applied": 60000
+      },
+      "authority_class": "case_law",
+      "claim_layer": "unknown",
+      "claim_layer_meaning": "Not declared at ingest. Treat any citation from here as unclassified: it may be rationale rather than rule."
+    },
+    {
+      "citation": "p. 21",
+      "kind": "treatise",
+      "page": 21,
+      "authorities": [],
+      "text": "only individual members, and that a class action is superior to other available methods for fairly",
+      "integrity": {
+        "state": "complete",
+        "basis": "Full retrieved body of 98 characters stored; under the 60,000 cap, so nothing was cut.",
+        "stamped_at": "2026-10-05T12:10:13",
+        "stored_chars": 98,
+        "source_chars": 98,
+        "cap_applied": 60000
+      },
+      "authority_class": "case_law",
+      "claim_layer": "unknown",
+      "claim_layer_meaning": "Not declared at ingest. Treat any citation from here as unclassified: it may be rationale rather than rule."
+    },
+    {
+      "citation": "p. 22",
+      "kind": "treatise",
+      "page": 22,
+      "authorities": [],
+      "text": "and efficiently adjudicating the controversy.\u201d Fed. R. Civ. P. 23(b)(3). Prior to certifying the",
+      "integrity": {
+        "state": "complete",
+        "basis": "Full retrieved body of 96 characters stored; under the 60,000 cap, so nothing was cut.",
+        "stamped_at": "2026-10-05T12:10:13",
+        "stored_chars": 96,
+        "source_chars": 96,
+        "cap_applied": 60000
+      },
+      "authority_class": "case_law",
+      "claim_layer": "unknown",
+      "claim_layer_meaning": "Not declared at ingest. Treat any citation from here as unclassified: it may be rationale rather than rule."
+    },
+    {
+      "citation": "p. 23",
+      "kind": "treatise",
+      "page": 23,
+      "authorities": [],
+      "text": "class, the Court must determine that Plaintiff has satisfied his burden of demonstrating that the proposed class satisfies each element of Rule 23. 1) Rule 23(a)",
+      "integrity": {
+        "state": "complete",
+        "basis": "Full retrieved body of 161 characters stored; under the 60,000 cap, so nothing was cut.",
+        "stamped_at": "2026-10-05T12:10:13",
+        "stored_chars": 161,
+        "source_chars": 161,
+        "cap_applied": 60000
+      },
+      "authority_class": "case_law",
+      "claim_layer": "unknown",
+      "claim_layer_meaning": "Not declared at ingest. Treat any citation from here as unclassified: it may be rationale rather than rule."
+    },
+    {
+      "citation": "p. 26",
+      "kind": "treatise",
+      "page": 26,
+      "authorities": [],
+      "text": "The Preliminary Approval Order found that the putative class satisfied the numerosity,",
+      "integrity": {
+        "state": "complete",
+        "basis": "Full retrieved body of 86 characters stored; under the 60,000 cap, so nothing was cut.",
+        "stamped_at": "2026-10-05T12:10:13",
+        "stored_chars": 86,
+        "source_chars": 86,
+        "cap_applied": 60000
+      },
+      "authority_class": "case_law",
+      "claim_layer": "unknown",
+      "claim_layer_meaning": "Not declared at ingest. Treat any citation from here as unclassified: it may be rationale rather than rule."
+    },
+    {
+      "citation": "p. 27",
+      "kind": "treatise",
+      "page": 27,
+      "authorities": [],
+      "text": "commonality, typicality, and adequacy of representation requirements under Rule 23(a). Since",
+      "integrity": {
+        "state": "complete",
+        "basis": "Full retrieved body of 92 characters stored; under the 60,000 cap, so nothing was cut.",
+        "stamped_at": "2026-10-05T12:10:13",
+        "stored_chars": 92,
+        "source_chars": 92,
+        "cap_applied": 60000
+      },
+      "authority_class": "case_law",
+      "claim_layer": "unknown",
+      "claim_layer_meaning": "Not declared at ingest. Treat any citation from here as unclassified: it may be rationale rather than rule."
+    },
+    {
+      "citation": "p. 6",
+      "kind": "treatise",
+      "page": 6,
+      "authorities": [
+        "L.L.C. v. General",
+        "See Ravens v. Iftikar",
+        "Silber v. Mabon"
+      ],
+      "text": "Case 3:19-cv-01082-JSC Document 60 Filed 06/23/20 Page 7 of 21 1 that time, the Court is unaware of any developments that would change its analysis, and neither 2 Plaintiff nor Chase has indicated that such developments have occurred. Accordingly, the Rule 3 23(a) requirements are met. 4 2) Rule 23(b)(3) 5 The Preliminary Approval Order likewise found that the prerequisites of Rule 23(b)(3) 6 were satisfied. The Court is unaware of any changes that would alter its analysis, and there was no 7 indication in Plaintiff\u2019s papers or at the fairness hearing that any such developments had occurred. 8 Accordingly, the Rule 23(b) requirements are met. 9 3) Rule 23(c)(2) Notice Requirements 10 If the Court certifies a class under Rule 23(b)(3), it \u201cmust direct to class members the best 11 notice that is practicable under the circumstances, including individual notice to all members who 12 can be identified through reasonable effort.\u201d Fed. R. Civ. P. 23(c)(2)(B). Rule 23(c)(2) governs Northern District of California United States District Court 13 both the form and content of the notice. See Ravens v. Iftikar, 174 F.R.D. 651, 658 (N.D. Cal. 14 1997). Although the notice must be \u201creasonably certain to inform the absent members of the 15 plaintiff class,\u201d Rule 23 does not require actual notice. Silber v. Mabon, 18 F.3d 1449, 1454 (9th 16 Cir. 1994) (internal quotation marks and citation omitted). 17 As noted in the Preliminary Approval Order, the notice requirements under Rule 18 23(c)(2)(B) are met here. The Notice describes the allegations and claims in plain language, 19 defines a class member, includes contact information for Class Counsel and the Settlement 20 Administrator, and summarizes the settlement amount and its distribution. The Notice further 21 describes the options available to class members, including instructions for opting out of the 22 settlement and filing an objection. It also informs class members that receiving a settlement award 23 will release certain claims against certain parties and defines both \u201cReleased Claims\u201d and 24 \u201cReleased Parties.\u201d The Notice informs class members that they may appear at the final fairness 25 hearing in person or through an attorney. Finally, it directs class members to a website with more 26 information, including the settlement documents, motion for attorneys\u2019 fees, and pleadings. 27 The Court is satisfied that the content of the Notice was sufficient under Rule 23(c)(2)(B). 28 See Churchill Village, L.L.C. v. General Electric, 361 F.3d 566, 575 (9th Cir. 2004) (\u201cNotice is",
+      "integrity": {
+        "state": "complete",
+        "basis": "Full retrieved body of 2,560 characters stored; under the 60,000 cap, so nothing was cut.",
+        "stamped_at": "2026-10-05T12:10:13",
+        "stored_chars": 2560,
+        "source_chars": 2560,
+        "cap_applied": 60000
+      },
+      "authority_class": "case_law",
+      "claim_layer": "unknown",
+      "claim_layer_meaning": "Not declared at ingest. Treat any citation from here as unclassified: it may be rationale rather than rule."
+    },
+    {
+      "citation": "p. 7",
+      "kind": "treatise",
+      "page": 7,
+      "authorities": [
+        "Torrisi v. Tucson"
+      ],
+      "text": "Case 3:19-cv-01082-JSC Document 60 Filed 06/23/20 Page 8 of 21 1 satisfactory if it generally describes the terms of the settlement in sufficient detail to alert those 2 with adverse viewpoints to investigate and to come forward and be heard.\u201d) (internal quotation 3 marks and citation omitted). 4 *** 5 Because the settlement class satisfies Rules 23(a) and 23(b)(3), and notice was sufficient in 6 accordance with Rule 23(c), the Court grants final class certification. 7 II. Final Approval of the Settlement Agreement 8 Having certified the settlement class, the Court now addresses whether the terms of the 9 parties\u2019 settlement are fair, adequate, and reasonable under Rule 23(e). In making this 10 determination, courts generally must consider the following factors: \u201c(1) the strength of the 11 plaintiff\u2019s case; (2) the risk, expense, complexity, and likely duration of further litigation; (3) the 12 risk of maintaining class action status throughout the trial; (4) the amount offered in settlement; Northern District of California United States District Court 13 (5) the extent of discovery completed and the stage of the proceedings; (6) the experience and 14 views of counsel; (7) the presence of a governmental participant; and (8) the reaction of the class 15 members to the proposed settlement.\u201d Churchill, 361 F.3d at 575. \u201cThis list is not exclusive and 16 different factors may predominate in different factual contexts.\u201d Torrisi v. Tucson Elec. Power 17 Co., 8 F.3d 1370, 1376 (9th Cir. 1993). However, when \u201ca settlement agreement is negotiated 18 prior to formal class certification, consideration of these eight ... factors alone is [insufficient].\u201d In 19 re Bluetooth Headset Prods. Liab. Litig., 654 F.3d 935, 946 (9th Cir. 2011). In such cases, courts 20 must also ensure that the settlement did not result from collusion among the parties. Id. at 946-47. 21 As discussed below, a review of the fairness and Bluetooth factors indicates that the 22 settlement is fair, adequate, and reasonable. 23 A. The Fairness Factors 24 1) Strength of Plaintiff\u2019s Case and Risk, Expense, Complexity, and Likely 25 Duration of Further Litigation 26 The Court first considers \u201cthe strength of the [P]laintiffs\u2019 case on the merits balanced 27 against the amount offered in the settlement.\u201d See DIRECTV, Inc., 221 F.R.D. at 526 (internal 28 quotation marks and citation omitted). Although this action reached settlement before the Court",
+      "integrity": {
+        "state": "complete",
+        "basis": "Full retrieved body of 2,443 characters stored; under the 60,000 cap, so nothing was cut.",
+        "stamped_at": "2026-10-05T12:10:13",
+        "stored_chars": 2443,
+        "source_chars": 2443,
+        "cap_applied": 60000
+      },
+      "authority_class": "case_law",
+      "claim_layer": "unknown",
+      "claim_layer_meaning": "Not declared at ingest. Treat any citation from here as unclassified: it may be rationale rather than rule."
+    },
+    {
+      "citation": "p. 8",
+      "kind": "treatise",
+      "page": 8,
+      "authorities": [
+        "Officers for Justice v. Civil",
+        "See Anderson v. United"
+      ],
+      "text": "Case 3:19-cv-01082-JSC Document 60 Filed 06/23/20 Page 9 of 21 1 had occasion to consider the merits of Plaintiff\u2019s claims, the Court need not reach an ultimate 2 conclusion about the merits of the dispute now, \u201cfor it is the very uncertainty of outcome in 3 litigation and avoidance of wasteful and expensive litigation that induce consensual settlements.\u201d 4 Officers for Justice v. Civil Serv. Comm'n of City & Cty. of San Francisco, 688 F.2d 615, 625 (9th 5 Cir. 1982). To that end, there is no \u201cparticular formula by which th[e] outcome must be tested.\u201d 6 Rodriguez v. W. Publ\u2019g Corp., 563 F.3d 948, 965 (9th Cir. 2009). Rather, the Court\u2019s assessment 7 of the likelihood of success is \u201cnothing more than an amalgam of delicate balancing, gross 8 approximations and rough justice.\u201d Id. (internal quotation marks and citation omitted). \u201cIn reality, 9 parties, counsel, mediators, and district judges naturally arrive at a reasonable range for settlement 10 by considering the likelihood of a plaintiffs\u2019 or defense verdict, the potential recovery, and the 11 chances of obtaining it, discounted to a present value.\u201d Id. 12 Here, the Complaint alleges that Chase violated the violated ECOA\u2019s notice provision, 15 Northern District of California United States District Court 13 U.S.C. \u00a7 1691(d), by sending class members adverse action notices that did not include the 14 specific reason(s) for the adverse action taken or disclose the right to a statement of those reasons. 15 (Dkt. No. 1-1 \u00b6\u00b6 12-17, 35.) The Complaint seeks punitive damages of up to $500,000 (the 16 statutory cap), injunctive relief, and attorneys\u2019 fees and costs. (Id. at Prayer for Relief \u00b6\u00b61-3.) 17 Although Plaintiff believes his claims are meritorious, he concedes that further litigation of the 18 action involves risk. First, because Plaintiff only seeks punitive damages, any monetary recovery 19 in this action would require proving that Chase acted recklessly, wantonly, maliciously, or 20 oppressively. See Anderson v. United Fin. Co., 666 F.2d 1274, 1278 (9th Cir. 1982). Second, 21 Chase contends that whether an applicant is \u201caggrieved\u201d under 15 U.S.C. \u00a7 1691e(a) and whether 22 a statement of reasons is \u201cspecific\u201d under 15 U.S.C. \u00a7 1691(d) should be determined based on the 23 applicant\u2019s unique knowledge or other individualized circumstances. Chase insists that unless 24 each class member is aggrieved, Plaintiff cannot establish Article III standing for the class. Third, 25 Chase contends that its notice is protected by ECOA\u2019s \u201cgood faith\u201d safe harbor provision. Finally, 26 Plaintiff concedes that litigating these issues would involve significant discovery and motion 27 practice such that both sides fees and costs could exceed the $500,000 cap on punitive damages. 28 The challenges Plaintiff would face should this case move forward instead of settling, in",
+      "integrity": {
+        "state": "complete",
+        "basis": "Full retrieved body of 2,855 characters stored; under the 60,000 cap, so nothing was cut.",
+        "stamped_at": "2026-10-05T12:10:13",
+        "stored_chars": 2855,
+        "source_chars": 2855,
+        "cap_applied": 60000
+      },
+      "authority_class": "case_law",
+      "claim_layer": "unknown",
+      "claim_layer_meaning": "Not declared at ingest. Treat any citation from here as unclassified: it may be rationale rather than rule."
+    },
+    {
+      "citation": "p. 9",
+      "kind": "treatise",
+      "page": 9,
+      "authorities": [],
+      "text": "Case 3:19-cv-01082-JSC Document 60 Filed 06/23/20 Page 10 of 21 1 contrast to the finality and speed of recovery under the parties\u2019 agreement, weighs in favor of 2 approving the settlement. 3 2) Risk of Maintaining Class Action Status Throughout Trial 4 In considering the third factor, the Court looks to the risk of maintaining class certification 5 if the litigation were to proceed. As discussed above, Chase has raised a number of issues 6 regarding Plaintiff\u2019s ability to recover punitive damages and proceed on a class-wide basis. (See 7 also Dkt. No. 57.) In light of these difficulties in certifying the class, the Court finds that this 8 factor weighs in favor of approving the settlement. 9 3) Settlement Amount 10 The fourth fairness factor, the amount of recovery offered, also favors final approval of the 11 settlement. When considering the fairness and adequacy of the amount offered in settlement, \u201cit is 12 the complete package taken as a whole, rather than the individual component parts, that must be Northern District of California United States District Court 13 examined for overall fairness.\u201d DIRECTV, Inc., 221 F.R.D. at 527. \u201c[I]t is well-settled law that a 14 proposed settlement may be acceptable even though it amounts to only a fraction of the potential 15 recovery that might be available to the class members at trial.\u201d Id. (collecting cases). 16 As discussed above, 15 U.S.C. \u00a7 1691e(b) caps Chase\u2019s potential liability on class 17 members\u2019 punitive damages claims at $500,000. At preliminary approval, Plaintiff\u2019s counsel 18 projected Net Settlement Class Consideration of $187,659, which amounts to approximately 38% 19 of Settlement Class Members\u2019 potential recovery. (Dkt. No. 52 at 13.) Due to the higher than 20 anticipated administration costs, Net Settlement Class Consideration is now projected at 21 $180,416.54, representing approximately 36% of Settlement Class Members\u2019 potential recovery. 22 (Dkt. No. 56-1 at \u00b6 14.) In granting preliminary approval the Court concluded that the estimated 23 payout to class members was fair in relation to the risks of continued litigation, and there is 24 nothing in the final approval materials that changes the Court\u2019s analysis on that score. Further, the 25 settlement includes an injunctive relief component which prohibits Chase from engaging in the 26 challenged conduct for five years. The Court therefore concludes that the amount offered in 27 settlement also weighs in favor of final approval. 28 //",
+      "integrity": {
+        "state": "complete",
+        "basis": "Full retrieved body of 2,491 characters stored; under the 60,000 cap, so nothing was cut.",
+        "stamped_at": "2026-10-05T12:10:13",
+        "stored_chars": 2491,
+        "source_chars": 2491,
+        "cap_applied": 60000
+      },
+      "authority_class": "case_law",
+      "claim_layer": "unknown",
+      "claim_layer_meaning": "Not declared at ingest. Treat any citation from here as unclassified: it may be rationale rather than rule."
+    },
+    {
+      "citation": "p. 10",
+      "kind": "treatise",
+      "page": 10,
+      "authorities": [
+        "Linney v. Cellular"
+      ],
+      "text": "Case 3:19-cv-01082-JSC Document 60 Filed 06/23/20 Page 11 of 21 1 4) Extent of Discovery Completed and Stage of Proceedings 2 In the context of class action settlements, as long as the parties have sufficient information 3 to make an informed decision about settlement, \u201cformal discovery is not a necessary ticket to the 4 bargaining table.\u201d Linney v. Cellular Alaska P\u2019ship, 151 F.3d 1234, 1239 (9th Cir. 1998). Rather, 5 a court\u2019s focus is on whether \u201cthe parties carefully investigated the claims before reaching a 6 resolution.\u201d Ontiveros, 303 F.R.D. at 371. Here, the parties exchanged discovery in advance of 7 private mediation with an experienced mediator in July 2019. ((Dkt. No. 56-1 at \u00b6 6.) As part of 8 that production, Chase provided 650 pages of records regarding Plaintiff, information regarding 9 the class size, and the number of letters Chase sent during the relevant period. (Id.) Because 10 Plaintiff\u2019s claim is based on Chase\u2019s use of similar language in its denial letters, the number of 11 letters Chase sent containing this language was the crucial fact for purposes of valuing Plaintiff\u2019s 12 claim. (Id.) Under these circumstances, the extent of discovery in this case favors approval of the Northern District of California United States District Court 13 settlement. 14 5) Experience and Views of Counsel 15 The experience and views of counsel also weigh in favor of approving the settlement. 16 Plaintiff\u2019s counsel consists of three attorneys, Ray Gallo, Dominic Valerian, and Alexander Darr, 17 who have experience litigating class actions and ECOA cases on behalf of consumers. (Dkt. No. 18 53-1 at \u00b6\u00b6 33-36.) Mr. Gallo graduated from UCLA Law School in 1991, has been litigating in 19 consumer class actions since 2004, and has been appointed as class counsel multiple times. (Id. at 20 \u00b6\u00b6 33-34.) Mr. Valerian graduated from USC Law School in 2005, spent five years defending 21 complex cases, including consumer class actions, and since 2009, has focused primarily on 22 prosecuting consumer and employment class and mass actions, including two cases where he was 23 appointed co-counsel with Mr. Gallo. (Id. at \u00b6 35.) Lastly, Mr. Darr graduated from Ohio State 24 University Law School in 2010 and after clerking and working briefly at a law firm, he founded 25 Darr Law LLC where he prosecutes consumer protection actions. (Id. at \u00b6 36.) Mr. Darr \u201chas 26 pursued more than 100 consumer arbitrations, many alleging claims under the Equal Credit 27 Opportunity Act.\u201d (Id.) 28 Class Counsel believes that the settlement is fair, reasonable, and adequate, and in the best",
+      "integrity": {
+        "state": "complete",
+        "basis": "Full retrieved body of 2,602 characters stored; under the 60,000 cap, so nothing was cut.",
+        "stamped_at": "2026-10-05T12:10:13",
+        "stored_chars": 2602,
+        "source_chars": 2602,
+        "cap_applied": 60000
+      },
+      "authority_class": "case_law",
+      "claim_layer": "unknown",
+      "claim_layer_meaning": "Not declared at ingest. Treat any citation from here as unclassified: it may be rationale rather than rule."
+    },
+    {
+      "citation": "p. 11",
+      "kind": "treatise",
+      "page": 11,
+      "authorities": [
+        "Garner v. State",
+        "Rodriguez v. West",
+        "Settlement Agreement. See Hanlon v. Chrysler"
+      ],
+      "text": "Case 3:19-cv-01082-JSC Document 60 Filed 06/23/20 Page 12 of 21 1 interests of the Class. (Dkt. No. 56-1 at \u00b6 16.) Given Class Counsel\u2019s extensive experience in this 2 field, and their assertion that the settlement is fair, adequate, and reasonable, this factor supports 3 final approval of the Settlement Agreement. See Hanlon v. Chrysler Corp., 150 F.3d 1011, 1026 4 (9th Cir.1998); Rodriguez v. West Pub. Corp., No. CV05\u20133222 R(MCx), 2007 WL 2827379, at *8 5 (C.D.Cal. Sept. 10, 2007) (\u201cThe trial court is entitled to, and should, rely upon the judgment of 6 experienced counsel for the parties.\u201d). 7 6) Presence of a Government Participant 8 No government entity is a party to this action; however, because Chase removed this case 9 pursuant to CAFA, it was required to provide notice of the proposed settlement to the relevant 10 state and federal officials pursuant to 28 U.S.C. \u00a7 1715(b). See Chan Healthcare Grp., PS v. 11 Liberty Mut. Fire Ins. Co., 844 F.3d 1133, n.2 (\u201cIn addition to \u00a7\u00a7 1332(d) and 1453, CAFA also 12 includes \u00a7\u00a7 1711-1715, which relate to approval of settlements in class actions.\u201d). The Settlement Northern District of California United States District Court 13 Claims Administrator served the requisite notice on November 26, 2019, January 13, 2020, and 14 January 17, 2020. (Dkt. No. 56-2 at \u00b6\u00b6 2-5.) As of the date of this Order, no government entity has 15 raised an objection to the proposed settlement. See 28 U.S.C. \u00a7 1715(d) (providing that a court 16 may not grant final approval of a class action settlement in a CAFA case until 90 days after the 17 parties give the notice required by section 1715(b)). (Dkt. No. 56-2 at \u00b6 6.) 18 7) Reaction of Class Members 19 As of the final approval hearing, no objections have been received and only 10 individuals 20 requested exclusion from the class. (Dkt. No. 56-2 at \u00b6\u00b6 21-22.) \u201cCourts have repeatedly 21 recognized that the absence of a large number of objections to a proposed class action settlement 22 raises a strong presumption that the terms of a proposed class settlement action are favorable to the 23 class members.\u201d Garner v. State Farm Mut. Auto. Ins. Co., No. CV 08 1365 CW (EMC), 2010 24 WL 1687832, at *14 (N.D. Cal. Apr. 22, 2010) (internal quotation marks and citation omitted). 25 Thus, the Court \u201cmay appropriately infer that a class action settlement is fair, adequate, and 26 reasonable when few class members object to it. Id. (internal quotation marks and citation 27 omitted). 28 ***",
+      "integrity": {
+        "state": "complete",
+        "basis": "Full retrieved body of 2,491 characters stored; under the 60,000 cap, so nothing was cut.",
+        "stamped_at": "2026-10-05T12:10:13",
+        "stored_chars": 2491,
+        "source_chars": 2491,
+        "cap_applied": 60000
+      },
+      "authority_class": "case_law",
+      "claim_layer": "unknown",
+      "claim_layer_meaning": "Not declared at ingest. Treat any citation from here as unclassified: it may be rationale rather than rule."
+    },
+    {
+      "citation": "p. 12",
+      "kind": "treatise",
+      "page": 12,
+      "authorities": [],
+      "text": "Case 3:19-cv-01082-JSC Document 60 Filed 06/23/20 Page 13 of 21 1 In sum, the fairness factors weigh in favor of granting Plaintiff\u2019s motion for final approval 2 of the class action settlement. 3 B. The Bluetooth Factors 4 Given that this settlement was reached prior to class certification, the Court must look 5 beyond the Churchill factors and examine the settlement for evidence of collusion with an even 6 higher level of scrutiny. See Bluetooth, 654 F.3d at 946. The question here is whether the 7 settlement was the result of good faith, arms-length negotiations or fraud and collusion. See id. In 8 determining whether the settlement is the result of collusion, courts \u201cmust be particularly vigilant 9 not only for explicit collusion, but also for more subtle signs that class counsel have allowed 10 pursuit of their own self-interest and that of certain class members to infect the negotiations.\u201d Id. 11 at 947. The Ninth Circuit has identified three such signs: 12 (1) when counsel receive a disproportionate distribution of the Northern District of California settlement, or when the class receives no monetary distribution but United States District Court 13 class counsel are amply rewarded; (2) when the parties negotiate a \u201cclear sailing\u201d arrangement providing 14 for the payment of attorneys\u2019 fees separate and apart from class funds, which carries the potential of enabling a defendant to pay class 15 counsel excessive fees and costs in exchange for counsel accepting an unfair settlement on behalf of the class; and",
+      "integrity": {
+        "state": "complete",
+        "basis": "Full retrieved body of 1,535 characters stored; under the 60,000 cap, so nothing was cut.",
+        "stamped_at": "2026-10-05T12:10:13",
+        "stored_chars": 1535,
+        "source_chars": 1535,
+        "cap_applied": 60000
+      },
+      "authority_class": "case_law",
+      "claim_layer": "unknown",
+      "claim_layer_meaning": "Not declared at ingest. Treat any citation from here as unclassified: it may be rationale rather than rule."
+    },
+    {
+      "citation": "p. 16",
+      "kind": "treatise",
+      "page": 16,
+      "authorities": [],
+      "text": "(3) when the parties arrange for fees not awarded to revert to 17 defendants rather than be added to the class fund. Id. at 947 (internal quotation marks and citations omitted).",
+      "integrity": {
+        "state": "complete",
+        "basis": "Full retrieved body of 177 characters stored; under the 60,000 cap, so nothing was cut.",
+        "stamped_at": "2026-10-05T12:10:13",
+        "stored_chars": 177,
+        "source_chars": 177,
+        "cap_applied": 60000
+      },
+      "authority_class": "case_law",
+      "claim_layer": "unknown",
+      "claim_layer_meaning": "Not declared at ingest. Treat any citation from here as unclassified: it may be rationale rather than rule."
+    },
+    {
+      "citation": "p. 18",
+      "kind": "treatise",
+      "page": 18,
+      "authorities": [],
+      "text": "For the first Bluetooth factor, the Court compares the payout to the class (actual and",
+      "integrity": {
+        "state": "complete",
+        "basis": "Full retrieved body of 86 characters stored; under the 60,000 cap, so nothing was cut.",
+        "stamped_at": "2026-10-05T12:10:13",
+        "stored_chars": 86,
+        "source_chars": 86,
+        "cap_applied": 60000
+      },
+      "authority_class": "case_law",
+      "claim_layer": "unknown",
+      "claim_layer_meaning": "Not declared at ingest. Treat any citation from here as unclassified: it may be rationale rather than rule."
+    },
+    {
+      "citation": "p. 19",
+      "kind": "treatise",
+      "page": 19,
+      "authorities": [
+        "See Harris v. Vector"
+      ],
+      "text": "expected) to class counsel\u2019s unopposed claim for fees. See Harris v. Vector Mktg. Corp., No. C\u2013",
+      "integrity": {
+        "state": "complete",
+        "basis": "Full retrieved body of 95 characters stored; under the 60,000 cap, so nothing was cut.",
+        "stamped_at": "2026-10-05T12:10:13",
+        "stored_chars": 95,
+        "source_chars": 95,
+        "cap_applied": 60000
+      },
+      "authority_class": "case_law",
+      "claim_layer": "unknown",
+      "claim_layer_meaning": "Not declared at ingest. Treat any citation from here as unclassified: it may be rationale rather than rule."
+    },
+    {
+      "citation": "p. 20",
+      "kind": "treatise",
+      "page": 20,
+      "authorities": [],
+      "text": "08\u20135198 EMC, 2011 WL 4831157, at *6 (N.D. Cal. Oct. 12, 2011). The total payout to the Class",
+      "integrity": {
+        "state": "complete",
+        "basis": "Full retrieved body of 92 characters stored; under the 60,000 cap, so nothing was cut.",
+        "stamped_at": "2026-10-05T12:10:13",
+        "stored_chars": 92,
+        "source_chars": 92,
+        "cap_applied": 60000
+      },
+      "authority_class": "case_law",
+      "claim_layer": "unknown",
+      "claim_layer_meaning": "Not declared at ingest. Treat any citation from here as unclassified: it may be rationale rather than rule."
+    },
+    {
+      "citation": "p. 21",
+      "kind": "treatise",
+      "page": 21,
+      "authorities": [],
+      "text": "is $180,416.54. (Dkt. No. 56-1 at \u00b6 13.) Class Counsel\u2019s unopposed fees and costs claim is",
+      "integrity": {
+        "state": "complete",
+        "basis": "Full retrieved body of 90 characters stored; under the 60,000 cap, so nothing was cut.",
+        "stamped_at": "2026-10-05T12:10:13",
+        "stored_chars": 90,
+        "source_chars": 90,
+        "cap_applied": 60000
+      },
+      "authority_class": "case_law",
+      "claim_layer": "unknown",
+      "claim_layer_meaning": "Not declared at ingest. Treat any citation from here as unclassified: it may be rationale rather than rule."
+    },
+    {
+      "citation": "p. 22",
+      "kind": "treatise",
+      "page": 22,
+      "authorities": [],
+      "text": "$185,000 (Dkt. No. 53)\u2014nearly the same as the class member payout.3 This ratio taken alone",
+      "integrity": {
+        "state": "complete",
+        "basis": "Full retrieved body of 90 characters stored; under the 60,000 cap, so nothing was cut.",
+        "stamped_at": "2026-10-05T12:10:13",
+        "stored_chars": 90,
+        "source_chars": 90,
+        "cap_applied": 60000
+      },
+      "authority_class": "case_law",
+      "claim_layer": "unknown",
+      "claim_layer_meaning": "Not declared at ingest. Treat any citation from here as unclassified: it may be rationale rather than rule."
+    },
+    {
+      "citation": "p. 23",
+      "kind": "treatise",
+      "page": 23,
+      "authorities": [],
+      "text": "may be sign of collusion. See Bluetooth, 654 F.3d at 947. However, here, the attorneys\u2019 fees and",
+      "integrity": {
+        "state": "complete",
+        "basis": "Full retrieved body of 96 characters stored; under the 60,000 cap, so nothing was cut.",
+        "stamped_at": "2026-10-05T12:10:13",
+        "stored_chars": 96,
+        "source_chars": 96,
+        "cap_applied": 60000
+      },
+      "authority_class": "case_law",
+      "claim_layer": "unknown",
+      "claim_layer_meaning": "Not declared at ingest. Treat any citation from here as unclassified: it may be rationale rather than rule."
+    },
+    {
+      "citation": "p. 24",
+      "kind": "treatise",
+      "page": 24,
+      "authorities": [],
+      "text": "class member recovery do not come from a common fund. Thus, this Bluetooth warning sign,",
+      "integrity": {
+        "state": "complete",
+        "basis": "Full retrieved body of 88 characters stored; under the 60,000 cap, so nothing was cut.",
+        "stamped_at": "2026-10-05T12:10:13",
+        "stored_chars": 88,
+        "source_chars": 88,
+        "cap_applied": 60000
+      },
+      "authority_class": "case_law",
+      "claim_layer": "unknown",
+      "claim_layer_meaning": "Not declared at ingest. Treat any citation from here as unclassified: it may be rationale rather than rule."
+    },
+    {
+      "citation": "p. 3",
+      "kind": "treatise",
+      "page": 3,
+      "authorities": [],
+      "text": "27 In discussing the first Bluetooth factor, Plaintiff compares the Settlement Class Consideration of $244,659 to the attorneys\u2019 fees of $176,473.93. This comparison, however, is inaccurate. The 28 $244,659 includes the $59,242.46 for the settlement administrator and the $5,000 incentive payment for Mr. Chen\u2014neither of these are part of the payment to the class.",
+      "integrity": {
+        "state": "complete",
+        "basis": "Full retrieved body of 364 characters stored; under the 60,000 cap, so nothing was cut.",
+        "stamped_at": "2026-10-05T12:10:13",
+        "stored_chars": 364,
+        "source_chars": 364,
+        "cap_applied": 60000
+      },
+      "authority_class": "case_law",
+      "claim_layer": "unknown",
+      "claim_layer_meaning": "Not declared at ingest. Treat any citation from here as unclassified: it may be rationale rather than rule."
+    },
+    {
+      "citation": "p. 13",
+      "kind": "treatise",
+      "page": 13,
+      "authorities": [],
+      "text": "Case 3:19-cv-01082-JSC Document 60 Filed 06/23/20 Page 14 of 21 1 although perhaps initially a red flag, is not a sign of collusion. 2 The second warning sign\u2014a \u201cclear sailing\u201d provision\u2014is also present here. A clear sailing 3 arrangement provides \u201cfor the payment of attorneys\u2019 fees separate and apart from class funds, 4 which carries the potential of enabling a defendant to pay class counsel excessive fees and costs in 5 exchange for counsel accepting an unfair settlement on behalf of the class[.]\u201d Bluetooth, 654 F.3d 6 at 947 (internal quotation marks and citation omitted). Thus, the Court \u201chas a heightened duty to 7 peer into the provision and scrutinize closely the relationship between attorneys\u2019 fees and benefit 8 to the class, being careful to avoid unreasonably high fees simply because they are uncontested.\u201d 9 Id. (internal quotation marks and citation omitted). The Settlement Agreement provides that 10 \u201cChase has no present intention to oppose any [] motion [for attorneys\u2019 fees] that does not exceed 11 $185,000\u201dand that [s]ubject to Court approval, Chase agrees to pay Settlement Class Counsel\u2019s 12 fees and costs in an amount awarded by the Court, provided that any such award of such fees and Northern District of California United States District Court 13 costs does not exceed $185,000.\u201d (Dkt. No. 43-1 at 18-19, \u00a7 3.4(a).) And, in fact, Chase did not 14 file an opposition to Plaintiff\u2019s motion for attorneys\u2019 fees and costs. However, under the 15 circumstances presented here, the Settlement Agreement does not appear to be an example of 16 Chase agreeing to pay Class Counsel excessive fees and costs in exchange for accepting an unfair 17 settlement for the Class; instead, as discussed above, given the cap on any damages recovery, the 18 risks of continuing to litigate this action, and the injunctive relief, the class member recovery is 19 fair, and as discussed below, the amount of fees and costs is reasonable. Thus, the clear sailing 20 provision, though a Bluetooth warning sign, does not signal collusion under the circumstances 21 presented here. 22 The third warning sign\u2014whether the parties have arranged for fees not awarded to the 23 class to revert to defendant rather than be added to the settlement fund, see Bluetooth, 654 F.3d at 24 948\u2014is not present here. The Settlement Agreement is non-reversionary and the Settlement Class 25 Administrator will make a second disbursement to the class if there are funds remaining after the 26 first distribution. (Dkt. No. 43-1 at 25, \u00a7 4.10(e)-(f).) 27 Notwithstanding the existence of two of the three Bluetooth factors, the Court concludes 28 that the Settlement Agreement did not result from, nor was influenced by, collusion because the",
+      "integrity": {
+        "state": "complete",
+        "basis": "Full retrieved body of 2,732 characters stored; under the 60,000 cap, so nothing was cut.",
+        "stamped_at": "2026-10-05T12:10:13",
+        "stored_chars": 2732,
+        "source_chars": 2732,
+        "cap_applied": 60000
+      },
+      "authority_class": "case_law",
+      "claim_layer": "unknown",
+      "claim_layer_meaning": "Not declared at ingest. Treat any citation from here as unclassified: it may be rationale rather than rule."
+    },
+    {
+      "citation": "p. 14",
+      "kind": "treatise",
+      "page": 14,
+      "authorities": [
+        "See Tahara v. Matson"
+      ],
+      "text": "Case 3:19-cv-01082-JSC Document 60 Filed 06/23/20 Page 15 of 21 1 Settlement Agreement adequately satisfies the Class Members\u2019 claims. Specifically, there are no 2 objections to the Settlement Agreement, and the Settlement Agreement provides injunctive relief 3 in addition to the monetary relief. As explained below, the amount of fees sought is reasonable. 4 *** 5 In sum, the Churchill fairness factors support approval, and the Bluetooth factors do not 6 indicate collusion. The Court is therefore satisfied that the Settlement Agreement was not the 7 result of collusion between the parties and instead is the product of arms-length negotiations 8 between experienced and professional counsel. There are no objections to address. For each of 9 these reasons, the Settlement Agreement passes muster under Rule 23(e) and final approval is 10 appropriate. 11 III. Motion for Attorneys\u2019 Fees, Costs, and Class Representative Incentive Award 12 As previously discussed, the Settlement Agreement provides that Chase will pay Plaintiff\u2019s Northern District of California United States District Court 13 attorneys\u2019 fees and costs of no more than $185,000 as ordered by the Court. (Dkt. No. 43-1 at 18, 14 \u00a7 3.4(a).) The Settlement Agreement also provides that Plaintiff as the Settlement Class 15 Representative shall receive an incentive award not to exceed $5,000. (Id. at \u00a7 3.3(a).) The Court 16 addresses in turn Plaintiff\u2019s motion for attorneys\u2019 fees, costs, and an incentive award. 17 A. Attorneys\u2019 Fees 18 \u201cWhile attorneys\u2019 fees and costs may be awarded in a certified class action where so 19 authorized by law or the parties\u2019 agreement, Fed. R. Civ. Pro. 23(h), courts have an independent 20 obligation to ensure that the award, like the settlement itself, is reasonable, even if the parties have 21 already agreed to an amount.\u201d Bluetooth, 654 F.3d at 941. 22 ECOA authorizes an award of attorneys\u2019 fees and costs in a successful action. See 15 23 U.S.C. \u00a7 1691e(d). Where, as here, Plaintiff is entitled to attorneys\u2019 fees under the statute and the 24 fees are to be paid out of a fund separate from the common fund, the lodestar method is the 25 appropriate method for calculating attorneys\u2019 fees. See Tahara v. Matson Terminals, Inc., 511 26 F.3d 950, 955 (9th Cir. 2007). \u201cThe lodestar figure is calculated by multiplying the number of 27 hours the prevailing party reasonably expended on the litigation (as supported by adequate 28 documentation) by a reasonable hourly rate for the region and for the experience of the lawyer.\u201d",
+      "integrity": {
+        "state": "complete",
+        "basis": "Full retrieved body of 2,539 characters stored; under the 60,000 cap, so nothing was cut.",
+        "stamped_at": "2026-10-05T12:10:13",
+        "stored_chars": 2539,
+        "source_chars": 2539,
+        "cap_applied": 60000
+      },
+      "authority_class": "case_law",
+      "claim_layer": "unknown",
+      "claim_layer_meaning": "Not declared at ingest. Treat any citation from here as unclassified: it may be rationale rather than rule."
+    },
+    {
+      "citation": "p. 15",
+      "kind": "treatise",
+      "page": 15,
+      "authorities": [
+        "Camancho v. Bridgeport",
+        "Cotton v. City",
+        "Kelly v. Wengler",
+        "Roberts v. Marshalls"
+      ],
+      "text": "Case 3:19-cv-01082-JSC Document 60 Filed 06/23/20 Page 16 of 21 1 Bluetooth, 654 F.3d at 941. 2 1) Reasonable Rate 3 \u201cThe first step in the lodestar analysis requires the court to determine a reasonable hourly 4 rate for the fee applicant\u2019s services.\u201d Cotton v. City of Eureka, 889 F.Supp.2d 1154, 1167 5 (N.D.Cal.2012) (internal quotation marks and citation omitted). \u201cA reasonable hourly rate is 6 ordinarily the prevailing market rate in the relevant community.\u201d Kelly v. Wengler, 822 F.3d 1085, 7 1099 (9th Cir. 2016) (internal quotation marks and citation omitted). \u201c[T]he burden is on the fee 8 applicant to produce satisfactory evidence\u2014in addition to the attorneys\u2019 own affidavits\u2014that the 9 requested rates are in line with those prevailing in the community for similar services by lawyers 10 of reasonably comparable skill, experience and reputation.\u201d Camancho v. Bridgeport Fin., Inc., 11 523 F.3d 973, 980 (9th Cir. 2008) (internal quotation marks and citation omitted). In addition, 12 Civil Local Rule 54-5(b)(3) requires the party seeking fees to submit \u201c[a] brief description of Northern District of California United States District Court 13 relevant qualifications and experience and a statement of the customary hourly charges of each 14 such person or of comparable prevailing hourly rates or other indication of value of the services.\u201d 15 Plaintiff submits a joint declaration from Class Counsel Ray Gallo, Alexander Darr, and 16 Dominic Valerian in support of his motion for attorneys\u2019 fees and costs. (Dkt. No. 53-1.) Mr. 17 Gallo\u2019s standard litigation rate is $750 per hour. (Id. at \u00b6 34.) Mr. Valerian\u2019s standard litigation 18 rate is $550. (Id. at \u00b6 35.) Mr. Darr\u2019s standard litigation rate is $475. (Id. at \u00b6 36.) Plaintiff also 19 seeks fees for work performed by Marc van Anda who is a paralegal with Mr. Gallo\u2019s office. (Id. 20 at \u00b6 37.) His hourly rate is $225. (Id.) 21 These billing rates are reasonable and in line with prevailing rates in this district for 22 lawyers of comparable experience, skill, and reputation. See, e.g., Roberts v. Marshalls of CA, 23 LLC, No. 13-cv-04731-MEJ, 2018 WL 510286, at *14-15 (N.D. Cal. Jan. 23, 2018) (approving 24 rates between $300 and $750 per hour); In re Magsafe Apple Power Adapter Litig., No. 5:09-CV- 25 01911-EJD, 2015 WL 428105, at *12 (N.D. Cal. Jan. 30, 2015) (\u201cIn the Bay Area, reasonable 26 hourly rates for partners range from $560 to $800, for associates from $285 to $510, and for 27 paralegals and litigation support staff from $150 to $240.\u201d) (collecting cases). 28 //",
+      "integrity": {
+        "state": "complete",
+        "basis": "Full retrieved body of 2,558 characters stored; under the 60,000 cap, so nothing was cut.",
+        "stamped_at": "2026-10-05T12:10:13",
+        "stored_chars": 2558,
+        "source_chars": 2558,
+        "cap_applied": 60000
+      },
+      "authority_class": "case_law",
+      "claim_layer": "unknown",
+      "claim_layer_meaning": "Not declared at ingest. Treat any citation from here as unclassified: it may be rationale rather than rule."
+    },
+    {
+      "citation": "p. 16",
+      "kind": "treatise",
+      "page": 16,
+      "authorities": [
+        "Gonzalez v. City"
+      ],
+      "text": "Case 3:19-cv-01082-JSC Document 60 Filed 06/23/20 Page 17 of 21 1 2) Hours Expended 2 As to the number of hours billed, they must equal the number of hours that can reasonably 3 be billed to a private client. Gonzalez v. City of Maywood, 729 F.3d 1196, 1202 (9th Cir. 2013). 4 Thus, the court should only award fees based on \u201cthe number of hours reasonably expended on the 5 litigation\u201d and should exclude \u201chours that are excessive, redundant, or otherwise unnecessary[.]\u201d 6 Hensley, 461 U.S. at 433\u201334. \u201cThere is no precise rule or formula for making these 7 determinations[,]\u201d and the court \u201cnecessarily has discretion in making this equitable judgment.\u201d 8 Id. at 436\u201337. 9 Class counsel attest that they spent a total of 510.5 hours on this case with the three 10 attorneys billing 21.7 (Gallo), 306.7 (Valerian), and 152.1 (Darr) hours respectively. (Dkt. No. 11 53-1 at \u00b6 27.) Class counsel attached detailed billing records to their declaration which reflect the 12 hours Class Counsel billed for the case. (Dkt. No. 53-1, Exhibit 1, ECF 16-36.) While the billing Northern District of California United States District Court 13 records reflect some excessive duplication of work between the three attorneys\u2014for example, the 14 three attorneys collectively billed 68 hours preparing an opposition to the motion to dismiss (Id. at 15 ECF 18-19)\u2014because the attorneys\u2019 fees requested here are nearly $100,000 less than those 16 billed, the Court finds it unnecessary to make deductions based on excessive or duplicative billing. 17 3) Lodestar Calculation 18 Class Counsel attest that their lodestar is $263,957.50 which represents 510.5 hours of 19 work through March 9, 2020. (Dkt. No. 53-1 at \u00b6\u00b6 27-29.) After determining the lodestar, the 20 Court divides the total fees sought by the lodestar to arrive at the multiplier. See Hopkins v. 21 Stryker Sales Corp., No. 11\u2013CV\u201302786\u2013LHK, 2013 WL 496358, at *4 (N.D. Cal. Feb. 6, 2013) 22 (citation omitted). \u201cThe purpose of this multiplier is to account for the risk Class Counsel assumes 23 when they take on a contingent-fee case.\u201d Id. (citation omitted). If the multiplier falls within an 24 acceptable range, it further supports the conclusion that the fees sought are, in fact, reasonable. Id. 25 In determining whether a multiplier is appropriate, courts consider the following factors: 26 (1) the time and labor required, (2) the novelty and difficulty of the questions involved, (3) the skill requisite to perform the legal service 27 properly, (4) the preclusion of other employment by the attorney due to acceptance of the case, (5) the customary fee, (6) whether the fee 28 is fixed or contingent, (7) time limitations imposed by the client or",
+      "integrity": {
+        "state": "complete",
+        "basis": "Full retrieved body of 2,706 characters stored; under the 60,000 cap, so nothing was cut.",
+        "stamped_at": "2026-10-05T12:10:13",
+        "stored_chars": 2706,
+        "source_chars": 2706,
+        "cap_applied": 60000
+      },
+      "authority_class": "case_law",
+      "claim_layer": "unknown",
+      "claim_layer_meaning": "Not declared at ingest. Treat any citation from here as unclassified: it may be rationale rather than rule."
+    },
+    {
+      "citation": "p. 17",
+      "kind": "treatise",
+      "page": 17,
+      "authorities": [],
+      "text": "Case 3:19-cv-01082-JSC Document 60 Filed 06/23/20 Page 18 of 21 the circumstances, (8) the amount involved and the results obtained, 1 (9) the experience, reputation, and ability of the attorneys, (10) the \u201cundesirability\u201d of the case, (11) the nature and length of the 2 professional relationship with the client, and (12) awards in similar cases.",
+      "integrity": {
+        "state": "complete",
+        "basis": "Full retrieved body of 348 characters stored; under the 60,000 cap, so nothing was cut.",
+        "stamped_at": "2026-10-05T12:10:13",
+        "stored_chars": 348,
+        "source_chars": 348,
+        "cap_applied": 60000
+      },
+      "authority_class": "case_law",
+      "claim_layer": "unknown",
+      "claim_layer_meaning": "Not declared at ingest. Treat any citation from here as unclassified: it may be rationale rather than rule."
+    },
+    {
+      "citation": "p. 3",
+      "kind": "treatise",
+      "page": 3,
+      "authorities": [],
+      "text": "Id. (citations omitted). Class Counsel argue that a lodestar multiplier would be warranted here",
+      "integrity": {
+        "state": "complete",
+        "basis": "Full retrieved body of 95 characters stored; under the 60,000 cap, so nothing was cut.",
+        "stamped_at": "2026-10-05T12:10:13",
+        "stored_chars": 95,
+        "source_chars": 95,
+        "cap_applied": 60000
+      },
+      "authority_class": "case_law",
+      "claim_layer": "unknown",
+      "claim_layer_meaning": "Not declared at ingest. Treat any citation from here as unclassified: it may be rationale rather than rule."
+    },
+    {
+      "citation": "p. 4",
+      "kind": "treatise",
+      "page": 4,
+      "authorities": [],
+      "text": "based on the quality of the representation, the benefit obtained for the class, the complexity and",
+      "integrity": {
+        "state": "complete",
+        "basis": "Full retrieved body of 98 characters stored; under the 60,000 cap, so nothing was cut.",
+        "stamped_at": "2026-10-05T12:10:13",
+        "stored_chars": 98,
+        "source_chars": 98,
+        "cap_applied": 60000
+      },
+      "authority_class": "case_law",
+      "claim_layer": "unknown",
+      "claim_layer_meaning": "Not declared at ingest. Treat any citation from here as unclassified: it may be rationale rather than rule."
+    },
+    {
+      "citation": "p. 5",
+      "kind": "treatise",
+      "page": 5,
+      "authorities": [],
+      "text": "novelty of the issues presented, the risk of nonpayment, and the preclusion of other employment.",
+      "integrity": {
+        "state": "complete",
+        "basis": "Full retrieved body of 96 characters stored; under the 60,000 cap, so nothing was cut.",
+        "stamped_at": "2026-10-05T12:10:13",
+        "stored_chars": 96,
+        "source_chars": 96,
+        "cap_applied": 60000
+      },
+      "authority_class": "case_law",
+      "claim_layer": "unknown",
+      "claim_layer_meaning": "Not declared at ingest. Treat any citation from here as unclassified: it may be rationale rather than rule."
+    },
+    {
+      "citation": "p. 6",
+      "kind": "treatise",
+      "page": 6,
+      "authorities": [],
+      "text": "(Dkt. No. 53 at 12:7-12.) However, their request for $176,473.93 in attorneys\u2019 fees represents a",
+      "integrity": {
+        "state": "complete",
+        "basis": "Full retrieved body of 96 characters stored; under the 60,000 cap, so nothing was cut.",
+        "stamped_at": "2026-10-05T12:10:13",
+        "stored_chars": 96,
+        "source_chars": 96,
+        "cap_applied": 60000
+      },
+      "authority_class": "case_law",
+      "claim_layer": "unknown",
+      "claim_layer_meaning": "Not declared at ingest. Treat any citation from here as unclassified: it may be rationale rather than rule."
+    },
+    {
+      "citation": "p. 7",
+      "kind": "treatise",
+      "page": 7,
+      "authorities": [],
+      "text": "negative multiplier of .67. A negative multiplier \u201csuggests that the negotiated fee award is a",
+      "integrity": {
+        "state": "complete",
+        "basis": "Full retrieved body of 94 characters stored; under the 60,000 cap, so nothing was cut.",
+        "stamped_at": "2026-10-05T12:10:13",
+        "stored_chars": 94,
+        "source_chars": 94,
+        "cap_applied": 60000
+      },
+      "authority_class": "case_law",
+      "claim_layer": "unknown",
+      "claim_layer_meaning": "Not declared at ingest. Treat any citation from here as unclassified: it may be rationale rather than rule."
+    },
+    {
+      "citation": "p. 8",
+      "kind": "treatise",
+      "page": 8,
+      "authorities": [],
+      "text": "reasonable and fair valuation of the services rendered to the class by class counsel.\u201d Chun-Hoon v.",
+      "integrity": {
+        "state": "complete",
+        "basis": "Full retrieved body of 99 characters stored; under the 60,000 cap, so nothing was cut.",
+        "stamped_at": "2026-10-05T12:10:13",
+        "stored_chars": 99,
+        "source_chars": 99,
+        "cap_applied": 60000
+      },
+      "authority_class": "case_law",
+      "claim_layer": "unknown",
+      "claim_layer_meaning": "Not declared at ingest. Treat any citation from here as unclassified: it may be rationale rather than rule."
+    },
+    {
+      "citation": "p. 9",
+      "kind": "treatise",
+      "page": 9,
+      "authorities": [],
+      "text": "McKee Foods Corp., 716 F. Supp. 2d 848, 854 (N.D. Cal. 2010); see also Schuchardt v. Law",
+      "integrity": {
+        "state": "complete",
+        "basis": "Full retrieved body of 88 characters stored; under the 60,000 cap, so nothing was cut.",
+        "stamped_at": "2026-10-05T12:10:13",
+        "stored_chars": 88,
+        "source_chars": 88,
+        "cap_applied": 60000
+      },
+      "authority_class": "case_law",
+      "claim_layer": "unknown",
+      "claim_layer_meaning": "Not declared at ingest. Treat any citation from here as unclassified: it may be rationale rather than rule."
+    },
+    {
+      "citation": "p. 10",
+      "kind": "treatise",
+      "page": 10,
+      "authorities": [],
+      "text": "Office of Rory W. Clark, 314 F.R.D. 673, 690 (N.D. Cal. 2016) (\u201c[C]ourts view self-reduced fees",
+      "integrity": {
+        "state": "complete",
+        "basis": "Full retrieved body of 95 characters stored; under the 60,000 cap, so nothing was cut.",
+        "stamped_at": "2026-10-05T12:10:13",
+        "stored_chars": 95,
+        "source_chars": 95,
+        "cap_applied": 60000
+      },
+      "authority_class": "case_law",
+      "claim_layer": "unknown",
+      "claim_layer_meaning": "Not declared at ingest. Treat any citation from here as unclassified: it may be rationale rather than rule."
+    },
+    {
+      "citation": "p. 11",
+      "kind": "treatise",
+      "page": 11,
+      "authorities": [],
+      "text": "favorably.\u201d). The Court thus concludes that the negative multiplier of 0.67 supports the",
+      "integrity": {
+        "state": "complete",
+        "basis": "Full retrieved body of 88 characters stored; under the 60,000 cap, so nothing was cut.",
+        "stamped_at": "2026-10-05T12:10:13",
+        "stored_chars": 88,
+        "source_chars": 88,
+        "cap_applied": 60000
+      },
+      "authority_class": "case_law",
+      "claim_layer": "unknown",
+      "claim_layer_meaning": "Not declared at ingest. Treat any citation from here as unclassified: it may be rationale rather than rule."
+    },
+    {
+      "citation": "p. 12",
+      "kind": "treatise",
+      "page": 12,
+      "authorities": [],
+      "text": "Northern District of California conclusion that the requested fees are reasonable. United States District Court",
+      "integrity": {
+        "state": "complete",
+        "basis": "Full retrieved body of 111 characters stored; under the 60,000 cap, so nothing was cut.",
+        "stamped_at": "2026-10-05T12:10:13",
+        "stored_chars": 111,
+        "source_chars": 111,
+        "cap_applied": 60000
+      },
+      "authority_class": "case_law",
+      "claim_layer": "unknown",
+      "claim_layer_meaning": "Not declared at ingest. Treat any citation from here as unclassified: it may be rationale rather than rule."
+    },
+    {
+      "citation": "p. 13",
+      "kind": "treatise",
+      "page": 13,
+      "authorities": [],
+      "text": "Accordingly, the court awards Class Counsel attorneys\u2019 fees in the amount of $176,473.93. B. Litigation Costs",
+      "integrity": {
+        "state": "complete",
+        "basis": "Full retrieved body of 109 characters stored; under the 60,000 cap, so nothing was cut.",
+        "stamped_at": "2026-10-05T12:10:13",
+        "stored_chars": 109,
+        "source_chars": 109,
+        "cap_applied": 60000
+      },
+      "authority_class": "case_law",
+      "claim_layer": "unknown",
+      "claim_layer_meaning": "Not declared at ingest. Treat any citation from here as unclassified: it may be rationale rather than rule."
+    },
+    {
+      "citation": "p. 15",
+      "kind": "treatise",
+      "page": 15,
+      "authorities": [],
+      "text": "\u201cThere is no doubt that an attorney who has created a common fund for the benefit of the",
+      "integrity": {
+        "state": "complete",
+        "basis": "Full retrieved body of 88 characters stored; under the 60,000 cap, so nothing was cut.",
+        "stamped_at": "2026-10-05T12:10:13",
+        "stored_chars": 88,
+        "source_chars": 88,
+        "cap_applied": 60000
+      },
+      "authority_class": "case_law",
+      "claim_layer": "unknown",
+      "claim_layer_meaning": "Not declared at ingest. Treat any citation from here as unclassified: it may be rationale rather than rule."
+    },
+    {
+      "citation": "p. 16",
+      "kind": "treatise",
+      "page": 16,
+      "authorities": [],
+      "text": "class is entitled to reimbursement of reasonable litigation expenses from that fund.\u201d Ontiveros v.",
+      "integrity": {
+        "state": "complete",
+        "basis": "Full retrieved body of 98 characters stored; under the 60,000 cap, so nothing was cut.",
+        "stamped_at": "2026-10-05T12:10:13",
+        "stored_chars": 98,
+        "source_chars": 98,
+        "cap_applied": 60000
+      },
+      "authority_class": "case_law",
+      "claim_layer": "unknown",
+      "claim_layer_meaning": "Not declared at ingest. Treat any citation from here as unclassified: it may be rationale rather than rule."
+    },
+    {
+      "citation": "p. 17",
+      "kind": "treatise",
+      "page": 17,
+      "authorities": [],
+      "text": "Zamora, 303 F.R.D. 356, 375 (E.D. Cal. 2014) (internal quotation marks and citation omitted). To",
+      "integrity": {
+        "state": "complete",
+        "basis": "Full retrieved body of 96 characters stored; under the 60,000 cap, so nothing was cut.",
+        "stamped_at": "2026-10-05T12:10:13",
+        "stored_chars": 96,
+        "source_chars": 96,
+        "cap_applied": 60000
+      },
+      "authority_class": "case_law",
+      "claim_layer": "unknown",
+      "claim_layer_meaning": "Not declared at ingest. Treat any citation from here as unclassified: it may be rationale rather than rule."
+    },
+    {
+      "citation": "p. 18",
+      "kind": "treatise",
+      "page": 18,
+      "authorities": [],
+      "text": "that end, courts throughout the Ninth Circuit regularly award litigation costs and expenses\u2014",
+      "integrity": {
+        "state": "complete",
+        "basis": "Full retrieved body of 92 characters stored; under the 60,000 cap, so nothing was cut.",
+        "stamped_at": "2026-10-05T12:10:13",
+        "stored_chars": 92,
+        "source_chars": 92,
+        "cap_applied": 60000
+      },
+      "authority_class": "case_law",
+      "claim_layer": "unknown",
+      "claim_layer_meaning": "Not declared at ingest. Treat any citation from here as unclassified: it may be rationale rather than rule."
+    },
+    {
+      "citation": "p. 19",
+      "kind": "treatise",
+      "page": 19,
+      "authorities": [],
+      "text": "including photocopying, printing, postage, court costs, research on online databases, experts and",
+      "integrity": {
+        "state": "complete",
+        "basis": "Full retrieved body of 97 characters stored; under the 60,000 cap, so nothing was cut.",
+        "stamped_at": "2026-10-05T12:10:13",
+        "stored_chars": 97,
+        "source_chars": 97,
+        "cap_applied": 60000
+      },
+      "authority_class": "case_law",
+      "claim_layer": "unknown",
+      "claim_layer_meaning": "Not declared at ingest. Treat any citation from here as unclassified: it may be rationale rather than rule."
+    },
+    {
+      "citation": "p. 20",
+      "kind": "treatise",
+      "page": 20,
+      "authorities": [],
+      "text": "consultants, and reasonable travel expenses\u2014in securities class actions, as attorneys routinely bill",
+      "integrity": {
+        "state": "complete",
+        "basis": "Full retrieved body of 100 characters stored; under the 60,000 cap, so nothing was cut.",
+        "stamped_at": "2026-10-05T12:10:13",
+        "stored_chars": 100,
+        "source_chars": 100,
+        "cap_applied": 60000
+      },
+      "authority_class": "case_law",
+      "claim_layer": "unknown",
+      "claim_layer_meaning": "Not declared at ingest. Treat any citation from here as unclassified: it may be rationale rather than rule."
+    },
+    {
+      "citation": "p. 21",
+      "kind": "treatise",
+      "page": 21,
+      "authorities": [
+        "See Harris v. Marhoefer"
+      ],
+      "text": "private clients for such expenses in non-contingent litigation. See Harris v. Marhoefer, 24 F.3d 16,",
+      "integrity": {
+        "state": "complete",
+        "basis": "Full retrieved body of 100 characters stored; under the 60,000 cap, so nothing was cut.",
+        "stamped_at": "2026-10-05T12:10:13",
+        "stored_chars": 100,
+        "source_chars": 100,
+        "cap_applied": 60000
+      },
+      "authority_class": "case_law",
+      "claim_layer": "unknown",
+      "claim_layer_meaning": "Not declared at ingest. Treat any citation from here as unclassified: it may be rationale rather than rule."
+    },
+    {
+      "citation": "p. 22",
+      "kind": "treatise",
+      "page": 22,
+      "authorities": [],
+      "text": "19 (9th Cir. 1994) (noting that a prevailing plaintiff may be entitled to costs including, among",
+      "integrity": {
+        "state": "complete",
+        "basis": "Full retrieved body of 96 characters stored; under the 60,000 cap, so nothing was cut.",
+        "stamped_at": "2026-10-05T12:10:13",
+        "stored_chars": 96,
+        "source_chars": 96,
+        "cap_applied": 60000
+      },
+      "authority_class": "case_law",
+      "claim_layer": "unknown",
+      "claim_layer_meaning": "Not declared at ingest. Treat any citation from here as unclassified: it may be rationale rather than rule."
+    },
+    {
+      "citation": "p. 23",
+      "kind": "treatise",
+      "page": 23,
+      "authorities": [],
+      "text": "other things, \u201cpostage, investigator, copying costs, hotel bills, meals,\u201d and messenger services).",
+      "integrity": {
+        "state": "complete",
+        "basis": "Full retrieved body of 98 characters stored; under the 60,000 cap, so nothing was cut.",
+        "stamped_at": "2026-10-05T12:10:13",
+        "stored_chars": 98,
+        "source_chars": 98,
+        "cap_applied": 60000
+      },
+      "authority_class": "case_law",
+      "claim_layer": "unknown",
+      "claim_layer_meaning": "Not declared at ingest. Treat any citation from here as unclassified: it may be rationale rather than rule."
+    },
+    {
+      "citation": "p. 24",
+      "kind": "treatise",
+      "page": 24,
+      "authorities": [],
+      "text": "Here, the Settlement Agreement provides that Plaintiff\u2019s counsel may obtain up to $185,000 in",
+      "integrity": {
+        "state": "complete",
+        "basis": "Full retrieved body of 93 characters stored; under the 60,000 cap, so nothing was cut.",
+        "stamped_at": "2026-10-05T12:10:13",
+        "stored_chars": 93,
+        "source_chars": 93,
+        "cap_applied": 60000
+      },
+      "authority_class": "case_law",
+      "claim_layer": "unknown",
+      "claim_layer_meaning": "Not declared at ingest. Treat any citation from here as unclassified: it may be rationale rather than rule."
+    },
+    {
+      "citation": "p. 25",
+      "kind": "treatise",
+      "page": 25,
+      "authorities": [],
+      "text": "attorneys\u2019 fees and costs, and, specifically, requests $7,685 in costs. (Dkt. No. 43-1 at \u00b6 21.) This",
+      "integrity": {
+        "state": "complete",
+        "basis": "Full retrieved body of 101 characters stored; under the 60,000 cap, so nothing was cut.",
+        "stamped_at": "2026-10-05T12:10:13",
+        "stored_chars": 101,
+        "source_chars": 101,
+        "cap_applied": 60000
+      },
+      "authority_class": "case_law",
+      "claim_layer": "unknown",
+      "claim_layer_meaning": "Not declared at ingest. Treat any citation from here as unclassified: it may be rationale rather than rule."
+    },
+    {
+      "citation": "p. 26",
+      "kind": "treatise",
+      "page": 26,
+      "authorities": [],
+      "text": "amount is separate from the class recovery. Class counsel has submitted an itemized summary of",
+      "integrity": {
+        "state": "complete",
+        "basis": "Full retrieved body of 94 characters stored; under the 60,000 cap, so nothing was cut.",
+        "stamped_at": "2026-10-05T12:10:13",
+        "stored_chars": 94,
+        "source_chars": 94,
+        "cap_applied": 60000
+      },
+      "authority_class": "case_law",
+      "claim_layer": "unknown",
+      "claim_layer_meaning": "Not declared at ingest. Treat any citation from here as unclassified: it may be rationale rather than rule."
+    },
+    {
+      "citation": "p. 27",
+      "kind": "treatise",
+      "page": 27,
+      "authorities": [],
+      "text": "these costs with its motion for attorneys\u2019 fees as instructed in the preliminary approval order.",
+      "integrity": {
+        "state": "complete",
+        "basis": "Full retrieved body of 96 characters stored; under the 60,000 cap, so nothing was cut.",
+        "stamped_at": "2026-10-05T12:10:13",
+        "stored_chars": 96,
+        "source_chars": 96,
+        "cap_applied": 60000
+      },
+      "authority_class": "case_law",
+      "claim_layer": "unknown",
+      "claim_layer_meaning": "Not declared at ingest. Treat any citation from here as unclassified: it may be rationale rather than rule."
+    },
+    {
+      "citation": "p. 18",
+      "kind": "treatise",
+      "page": 18,
+      "authorities": [
+        "Bellinghausen v. Tractor"
+      ],
+      "text": "Case 3:19-cv-01082-JSC Document 60 Filed 06/23/20 Page 19 of 21 1 (Dkt. No. 53-1, Exhibit 2, ECF 38.) The Court has reviewed this summary and concludes that the 2 costs are reasonable litigation expenses incurred for the benefit of the class. 3 Accordingly, the Court awards Plaintiff $8,526.07 in costs. 4 C. Administration Costs 5 The Settlement Agreement also requests that the settlement administrative costs be paid 6 out of the Settlement Class Consideration. According to KCC, the Settlement Claims 7 Administrator, the settlement administration costs here totaled $59,242.46 which is over $7,000 8 more that the amount preliminarily approved by the Court. (Dkt. No. 56-2 at \u00b6\u00b6 23-24.) The costs 9 were higher than anticipated because the 16 percent claims rate is substantially higher than the 7 10 percent claims rate predicted, 1,357 individuals who are not class members filed claim forms, and 11 notice packets were mailed to twice as many individuals as predicted. (Dkt. Nos. 43-1 at \u00b6 11; 12 Dkt. No. 56-2 at \u00b6 24.) Further, as detailed above, the Settlement Claims Administrator provided Northern District of California United States District Court 13 both email and mail notice, including re-mailing notice to 670 individuals, created a website, a 14 hotline, and an email address which were all monitored. (Dkt. No. 56-2 at \u00b6\u00b6 8-16.) Courts 15 regularly award administrative costs associated with providing notice to the class. See, e.g., 16 Bellinghausen v. Tractor Supply Co., 306 F.R.D. 245, 266 (N.D. Cal. 2015). The Court therefore 17 concludes that KCC\u2019s costs were reasonable incurred for the benefit of the class and approves the 18 full amount to be deducted from the Settlement Class Consideration. 19 D. Incentive Award 20 \u201cIncentive awards are fairly typical in class action cases.\u201d Rodriguez v. W. Publ\u2019g Corp., 21 563 F.3d 948, 958 (9th Cir. 2009) (distinguishing incentive awards from incentive agreements, the 22 latter of which are \u201centered into as part of the initial retention of counsel\u201d and \u201cput class counsel 23 and the contracting class representatives into a conflict position from day one\u201d). However, the 24 decision to approve such an award is a matter within the Court\u2019s discretion. In re Mego Fin. Corp. 25 Sec. Litig., 213 F.3d 454, 463 (9th Cir. 2000). Incentive awards \u201care intended to compensate class 26 representatives for work done on behalf of the class, to make up for financial or reputation risk 27 undertaken in bringing the action, and, sometimes to recognize their willingness to act as a private 28 attorney general.\u201d Rodriguez, 563 F.3d at 958-59. \u201cIncentive awards typically range from $2,000",
+      "integrity": {
+        "state": "complete",
+        "basis": "Full retrieved body of 2,654 characters stored; under the 60,000 cap, so nothing was cut.",
+        "stamped_at": "2026-10-05T12:10:13",
+        "stored_chars": 2654,
+        "source_chars": 2654,
+        "cap_applied": 60000
+      },
+      "authority_class": "case_law",
+      "claim_layer": "unknown",
+      "claim_layer_meaning": "Not declared at ingest. Treat any citation from here as unclassified: it may be rationale rather than rule."
+    },
+    {
+      "citation": "p. 19",
+      "kind": "treatise",
+      "page": 19,
+      "authorities": [
+        "Camberis v. Ocwen"
+      ],
+      "text": "Case 3:19-cv-01082-JSC Document 60 Filed 06/23/20 Page 20 of 21 1 to $10,000.\u201d Bellinghausen, 306 F.R.D. at 267. Service awards of $5,000 are presumptively 2 reasonable in this judicial district. See, e.g., Camberis v. Ocwen Loan Serv. LLC, Case No. 14-cv- 3 02970-EMC, 2015 WL 7995534, at *3 (N.D. Cal. Dec. 7, 2015). 4 Here, Plaintiff seeks a $5,000 incentive award. While he has not submitted a declaration 5 himself attesting to the adequacy of the amount sought, Class Counsel attests that Mr. Chen was 6 the one who initially brought the matter to counsel\u2019s attention, he participated in discovery, and 7 settlement negotiations, and has spent more than 40 hours on this case. (Dkt. No. 53-1 at \u00b6 42.) 8 Given the amount of time and effort Mr. Chen put into the case and the success of the recovery, an 9 incentive award in the amount of $5,000 is proportional and reasonable. See In re Online DVD- 10 Rental Antitrust Litig., 779 F.3d 934, 947 (9th Cir. 2015) (approving $5,000 incentive awards 11 where individual class members each received $12). 12 Accordingly, the Court approves the requested $5,000 incentive award here. Northern District of California United States District Court 13 CONCLUSION 14 For the reasons stated above, the Court GRANTS Plaintiff\u2019s motion for final approval of 15 the parties\u2019 class action settlement. In addition, the Court GRANTS Plaintiff\u2019s motion for 16 attorneys\u2019 fees and costs; specifically, the Court awards the following: $176,473.93 in attorneys\u2019 17 fees; $8,526.07 in litigation costs; and $5,000 as incentive award to Plaintiff. 18 In accordance with the Northern District\u2019s Procedural Guidance for Class Action 19 Settlements, \u201c[w]ithin 21 days after the distribution of the settlement funds and payment of 20 attorneys\u2019 fees,\u201d Class Counsel shall file \u201ca Post-Distribution Accounting\u201d that provides the 21 following: The total settlement fund, the total number of class members, the total 22 number of class members to whom notice was sent and not returned as undeliverable, the number and percentage of claim forms 23 submitted, the number and percentage of opt-outs, the number and percentage of objections, the average and median recovery per 24 claimant, the largest and smallest amounts paid to class members, the method(s) of notice and the method(s) of payment to class members, 25 the number and value of checks not cashed, the amounts distributed to each cy pres recipient, the administrative costs, the attorneys\u2019 fees 26 and costs, the attorneys\u2019 fees in terms of percentage of the settlement fund, and the multiplier, if any.",
+      "integrity": {
+        "state": "complete",
+        "basis": "Full retrieved body of 2,590 characters stored; under the 60,000 cap, so nothing was cut.",
+        "stamped_at": "2026-10-05T12:10:13",
+        "stored_chars": 2590,
+        "source_chars": 2590,
+        "cap_applied": 60000
+      },
+      "authority_class": "case_law",
+      "claim_layer": "unknown",
+      "claim_layer_meaning": "Not declared at ingest. Treat any citation from here as unclassified: it may be rationale rather than rule."
+    },
+    {
+      "citation": "p. 27",
+      "kind": "treatise",
+      "page": 27,
+      "authorities": [],
+      "text": "https://www.cand.uscourts.gov/forms/procedural-guidance-for-class-action-settlements/. Class",
+      "integrity": {
+        "state": "complete",
+        "basis": "Full retrieved body of 92 characters stored; under the 60,000 cap, so nothing was cut.",
+        "stamped_at": "2026-10-05T12:10:13",
+        "stored_chars": 92,
+        "source_chars": 92,
+        "cap_applied": 60000
+      },
+      "authority_class": "case_law",
+      "claim_layer": "unknown",
+      "claim_layer_meaning": "Not declared at ingest. Treat any citation from here as unclassified: it may be rationale rather than rule."
+    },
+    {
+      "citation": "p. 20",
+      "kind": "treatise",
+      "page": 20,
+      "authorities": [],
+      "text": "Case 3:19-cv-01082-JSC Document 60 Filed 06/23/20 Page 21 of 21 1 Counsel shall \u201csummarize this information in an easy-to-read chart that allows for quick 2 comparisons with other cases,\u201d and \u201cpost the Post-Distribution Accounting, including the easy-to- 3 read chart, on the settlement website.\u201d See id. 4 The Clerk is directed to close this case. 5 This Order disposes of Docket Nos. 53 and 56. 6 IT IS SO ORDERED. 7 Dated: June 23, 2020 JACQUELINE SCOTT CORLEY 10 United States Magistrate Judge Northern District of California United States District Court",
+      "integrity": {
+        "state": "complete",
+        "basis": "Full retrieved body of 558 characters stored; under the 60,000 cap, so nothing was cut.",
+        "stamped_at": "2026-10-05T12:10:13",
+        "stored_chars": 558,
+        "source_chars": 558,
+        "cap_applied": 60000
+      },
+      "authority_class": "case_law",
+      "claim_layer": "unknown",
+      "claim_layer_meaning": "Not declared at ingest. Treat any citation from here as unclassified: it may be rationale rather than rule."
+    }
+  ]
+}

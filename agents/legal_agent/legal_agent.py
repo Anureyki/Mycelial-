@@ -744,7 +744,10 @@ class LegalAgent(AgentBase):
             "evidence_expected": proof,
             "evidence_ref": None,
             "status": "open",
-            "blocked_by": None,
+            # Kept as given. This was hard-coded None, so "blocked until the
+            # Romero complaint PDF arrives" was accepted and silently dropped -
+            # a stated dependency lost at the boundary, with nothing said.
+            "blocked_by": a.get("blocked_by") or None,
             "opened_at": datetime.now().isoformat(timespec="seconds"),
             "completed_at": None,
         }
@@ -819,7 +822,7 @@ class LegalAgent(AgentBase):
             return {"error": f"action {aid} is unreadable"}
         touched = []
         for f in ("what", "why", "owner", "forum", "due", "protects_deadline",
-                  "evidence_expected", "evidence_alternatives", "note"):
+                  "evidence_expected", "evidence_alternatives", "note", "blocked_by"):
             if a.get(f) not in (None, ""):
                 rec[f] = a[f]
                 touched.append(f)
@@ -827,7 +830,7 @@ class LegalAgent(AgentBase):
             return {"error": "amend_action was given nothing to change.",
                     "amendable": ["what", "why", "owner", "forum", "due",
                                   "protects_deadline", "evidence_expected",
-                                  "evidence_alternatives", "note"]}
+                                  "evidence_alternatives", "note", "blocked_by"]}
         hist = rec.setdefault("amendments", [])
         hist.append({"at": datetime.now().isoformat(timespec="seconds"),
                      "fields": touched, "reason": a.get("reason") or "not stated"})

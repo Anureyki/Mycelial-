@@ -88,6 +88,24 @@ def main():
     ck("flower with pistils on record is not 'likely veg'",
        "observed" in str(r.get("assessment")) and not r.get("suggested"), str(r.get("assessment")))
 
+    print("a stated dependency on a Legal action is kept, not dropped")
+    from agents.legal_agent.legal_agent import LegalAgent
+    store = {}
+    lg = LegalAgent.__new__(LegalAgent)
+    lg.agent_id = "legal_agent"
+    lg.log = lambda *a, **k: None
+    lg.retrieve_own_memory = lambda k: store.get(k)
+    lg.store_own_memory = lambda k, v, pin=False: store.__setitem__(k, v) or {"success": True}
+    lg._unwrap_value = lambda v: v
+    r = lg.open_action({"what": "build the template", "evidence_expected": "a draft",
+                        "blocked_by": "the complaint PDF"})
+    ck("open_action keeps blocked_by", r.get("blocked_by") == "the complaint PDF",
+       str(r.get("blocked_by")))
+    r2 = lg.amend_action({"action_id": r.get("id"), "blocked_by": "the PDF, now requested",
+                          "reason": "test"})
+    ck("amend_action can change blocked_by",
+       isinstance(r2, dict) and r2.get("blocked_by") == "the PDF, now requested", str(r2)[:120])
+
     if fails:
         print(f"\nFAIL: {len(fails)} check(s): {fails}")
         return 1
