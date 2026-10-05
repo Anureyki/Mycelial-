@@ -909,7 +909,7 @@ class GrowAgent(AgentBase):
                 # the interface layer doing this agent's job and re-editing
                 # itself every time a plant gains a field.
                 "roster",
-                "log_reading", "check_stage", "observe_stage_markers", "volume_history",
+                "log_reading", "check_stage", "observe_stage_markers", "volume_history", "correct_volume_event", "reconcile_topup",
                 "adjust_nutrients",
                 "transition_stage", "log_water_change", "get_status",
                 "set_germination_date", "set_current_nutrients",
@@ -1975,6 +1975,18 @@ class GrowAgent(AgentBase):
         if to_v is None and add_v is None:
             return {"recorded": False, "reason": "no volume given",
                     "ask": "Say what it was filled TO, or how much was added."}
+        stated_over = None
+        if to_v is not None and add_v is not None:
+            # BOTH GIVEN MEANS THE STARTING LEVEL WAS STATED. "Refilled from 12 L
+            # to 15 L" was recorded as 15 -> 15, added 0, because the record still
+            # held the level left by the LAST refill and the stated 3 L was
+            # dropped without a word. The level fell between refills - that is
+            # what the plant drank - and a stale record must not outrank the
+            # grower's statement of where it was this morning.
+            stated_from = round(to_v - add_v, 2)
+            if before is None or abs(stated_from - before) > 0.05:
+                stated_over = before
+                before = stated_from
         if to_v is None:
             if before is None:
                 return {"recorded": False, "reason": "no starting volume on record",
@@ -1994,6 +2006,7 @@ class GrowAgent(AgentBase):
         ev = self._volume_events(pid)
         ev.append({"at": now, "kind": "refill", "from_liters": before, "liters": to_v,
                    "delta": delta, "measured": True, "source": "refill_stated",
+                   **({"record_said_from": stated_over} if stated_over is not None else {}),
                    "topup_ppm": float(topup_ppm or 0.0), "note": str(note)[:300]})
         self.store_own_memory(f"volume_events_{pid}", json.dumps(ev[-200:]))
 
@@ -2017,6 +2030,10 @@ class GrowAgent(AgentBase):
                            f"{rec.get('vessel') or rec.get('system_type') or 'an unrecorded vessel'}"),
                "from_liters": before, "to_liters": round(to_v, 1), "added_liters": delta,
                "capacity_liters": cap, "at": now,
+               **({"stated_start_overrode_record": {
+                   "record_said": stated_over, "stated": before,
+                   "why": "the grower stated the level before the refill"}}
+                  if stated_over is not None else {}),
                "not_a_reading": ("Recorded as a volume event. No ppm, EC, pH or temperature "
                                  "was observed and none was invented.")}
         # What the next reading should say, if nothing was taken up.
@@ -2270,6 +2287,19 @@ class GrowAgent(AgentBase):
                                    "grounds to move the stage."),
                     "stage": stage, "days": age, "age_estimated": True, "acted": False,
                     "resolve_with": "verify_growth_stage with a photo - morphology is observable, the germination date is not"}
+
+        # A RECORDED SIGHTING ENDS THE AGE ARGUMENT. GSC-1, pistils recorded
+        # 2026-09-26 (day 60), was told "'veg' is likely but 'flower' is still
+        # possible at 69 days" on every reading after, and the flower band was
+        # called suspect - the calendar outranking an observation, which is the
+        # exact inversion the flip_prediction lesson forbids.
+        if str(stage).lower() in ("flower", "preflower"):
+            flip = self._observed_flip(plant_id)
+            if flip:
+                return {"assessment": (f"'{stage}' is observed: {flip[1] or 'flower'} "
+                                       f"markers recorded {flip[0]}"),
+                        "stage": stage, "days": age, "acted": False,
+                        "evidence": [f"morphology {flip[2]}"]}
 
         # The furthest stage the age alone supports, never past veg.
         candidate = stage
@@ -11926,6 +11956,34 @@ class GrowAgent(AgentBase):
         out["readings_recorded"] = len(readings)
         return out
 
+    def correct_volume_event(self, plant_id=None, at=None, from_liters=None, reason=""):
+        """Correct the starting level of a recorded refill, keeping what it said.
+
+        Built for the 2026-10-05 GSC1 refill, recorded 15 -> 15 L (added 0)
+        when the grower said 12 -> 15 L. A refill's delta is what the plant
+        drank since the last one, so a wrong start corrupts every drawdown
+        rate learned from it - and correcting the store by hand would leave
+        no trace of the correction. Needs a reason, for the same reason
+        void_reading does."""
+        if not (plant_id and at and reason) or from_liters is None:
+            return {"error": "Needs plant_id, at (the event timestamp), from_liters and reason."}
+        ev = self._volume_events(plant_id)
+        hit = next((e for e in ev if str(e.get("at", "")).startswith(str(at))), None)
+        if not hit:
+            return {"error": f"No volume event at {at} for {plant_id}."}
+        f = float(from_liters)
+        hit.setdefault("corrections", []).append({
+            "at": datetime.now().isoformat(timespec="seconds"),
+            "from_liters_was": hit.get("from_liters"), "delta_was": hit.get("delta"),
+            "reason": str(reason)[:300]})
+        hit["from_liters"] = f
+        if hit.get("liters") is not None:
+            hit["delta"] = round(float(hit["liters"]) - f, 2)
+        self.store_own_memory(f"volume_events_{plant_id}", json.dumps(ev[-200:]))
+        if ev and ev[-1] is hit:
+            self.amend_grow_system(plant_id, volume_before_last_topup_liters=f)
+        return {"corrected": True, "event": hit}
+
     def void_reading(self, timestamp=None, reason="", plant_id="current_plant",
                      voided_by="principal"):
         """Withdraw a reading from analysis without erasing it.
@@ -12412,6 +12470,8 @@ class GrowAgent(AgentBase):
             return {"result": self.assess_vpd(**(args if isinstance(args, dict) else {}))}
         elif task == "grow_snapshot":
             return {"result": self.grow_snapshot(**(args if isinstance(args, dict) else {}))}
+        elif task == "correct_volume_event":
+            return {"result": self.correct_volume_event(**(args if isinstance(args, dict) else {}))}
         elif task == "void_reading":
             return {"result": self.void_reading(**(args if isinstance(args, dict) else {}))}
         elif task == "when_to_top_up":

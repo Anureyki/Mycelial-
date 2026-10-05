@@ -10,6 +10,8 @@
     "check_stage",
     "observe_stage_markers",
     "volume_history",
+    "correct_volume_event",
+    "reconcile_topup",
     "adjust_nutrients",
     "transition_stage",
     "log_water_change",

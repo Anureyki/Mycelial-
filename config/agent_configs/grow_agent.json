@@ -78,6 +78,8 @@
     "void_reservoir_eval",
     "void_training_event",
     "volume_history",
+    "correct_volume_event",
+    "reconcile_topup",
     "web_search",
     "what_i_know",
     "when_to_top_up",
