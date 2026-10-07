@@ -2744,6 +2744,15 @@ class AgentBase:
         key = re.sub(r'^tex(?:as)?\.?\s*(?:bus(?:iness)?\.?\s*(?:&|and)\s*com(?:merce)?\.?|'
                      r'transp(?:ortation)?\.?|prop(?:erty)?\.?|fin(?:ance)?\.?)\s*code\s*',
                      '', key).strip()
+        # THE UCC IS SHELVED AS ENACTED, NOT AS DRAFTED. The model text is
+        # copyright of its drafters; what binds is a state's enactment, and
+        # Texas numbers it chapter-for-article with a dot for the dash - UCC
+        # 1-310 is Tex. Bus. & Com. Code § 1.310, 9-609 is § 9.609. So "UCC
+        # 1-310" found nothing while the enacted section sat on the shelf. The
+        # answer keeps its own title (the Texas code), so which text answered
+        # is never hidden behind the model's number.
+        key = re.sub(r'^(?:u\.?\s*c\.?\s*c\.?)\s*(?:\u00a7+\s*)?(\d{1,2})-(\d{3}[a-z]?)$',
+                     r'\1.\2', key)
         key = re.sub(r'^(section|sec\.?|\u00a7+)\s*', '', key).strip()
         # "Pub. L. 115-59 § 2", "Public Law 115-59 sec. 2", "Pub. L. 115-59"
         # - the law-qualified forms the index builds for a Public Law's
