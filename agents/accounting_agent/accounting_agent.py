@@ -6,7 +6,7 @@ import json
 import time
 import uuid
 import requests
-from datetime import datetime
+from datetime import datetime, timedelta
 
 # Add project root
 project_root = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
@@ -112,7 +112,7 @@ class AccountingAgent(AgentBase):
                 "classify_value_movement",
                 "who_owns", "log_payment", "payment_ledger",
                 "veto",
-                "assess_assertion", "set_lease_terms", "reconcile", "parse_financial_instrument", "assess_tax_liability", "track_account_balance",
+                "assess_assertion", "set_lease_terms", "record_property_ledger", "lease_year_summary", "record_recurring_expense", "annual_expenses", "reconcile", "parse_financial_instrument", "assess_tax_liability", "track_account_balance",
                 "lookup", "list_relationships", "get_relationship", "find_relationships",
                 "find_relationships_by_project",
                 "refresh_cache", "query_cache", "cache_stats", "cache_manifest",
@@ -506,6 +506,247 @@ class AccountingAgent(AgentBase):
             return json.loads(raw) if raw else {}
         except Exception:
             return {}
+
+    # ------------------------------------------------------------------
+    # The year, not the month (principal, 2026-10-08): "start calculating for
+    # yearly expenses not monthly ... We pay month to month for subscriptions
+    # instead of just taking it out yearly." A $41 overpayment a month reads as
+    # nothing; the same figure across a lease year is real money, and a monthly
+    # plan's premium over an annual one only shows on a yearly view. So the
+    # property's own ledger is held as LINES (checked against its printed
+    # running balance before it is believed), the lease year is summarised by
+    # who paid what, and every recurring expense is annualised.
+    PERIODS_PER_YEAR = {"weekly": 52, "biweekly": 26, "monthly": 12, "quarterly": 4,
+                        "semiannual": 2, "yearly": 1, "annual": 1}
+
+    def _jget(self, key, default):
+        try:
+            raw = self._get_stored_value(self.retrieve_own_memory(key))
+            v = json.loads(raw) if raw else default
+            return v if isinstance(v, type(default)) else default
+        except Exception:
+            return default
+
+    def record_property_ledger(self, args):
+        a = args if isinstance(args, dict) else {}
+        cid, lines = a.get("case_id"), a.get("lines") or []
+        if not (cid and lines and a.get("as_of")):
+            return {"error": "record_property_ledger needs case_id, as_of and lines", "disclaimer": DISCLAIMER}
+        bal, problems, clean = 0.0, [], []
+        for i, ln in enumerate(lines, 1):
+            ch, cr = float(ln.get("charges") or 0), float(ln.get("credits") or 0)
+            bal = round(bal + ch - cr, 2)
+            printed = ln.get("balance")
+            if printed is not None and abs(bal - float(printed)) > 0.005:
+                problems.append(f"line {i} ({ln.get('date')} {ln.get('description')}): running "
+                                f"balance {bal:.2f} but the page prints {float(printed):.2f}")
+            clean.append({**ln, "charges": ch, "credits": cr, "computed_balance": bal})
+        closing = a.get("printed_closing")
+        if closing is not None and abs(bal - float(closing)) > 0.005:
+            problems.append(f"closing {bal:.2f} but the page prints {float(closing):.2f}")
+        if problems:
+            # A transcription that does not add up is not stored as the record.
+            return {"recorded": False, "problems": problems, "disclaimer": DISCLAIMER}
+        rec = {"case_id": cid, "as_of": str(a["as_of"])[:10], "document_ref": a.get("document_ref"),
+               "lines": clean, "closing_balance": bal, "verified": "every running balance matches the page",
+               "recorded_at": datetime.now().isoformat(timespec="seconds")}
+        store = self._jget(f"property_ledger::{cid}", [])
+        store = [x for x in store if x.get("as_of") != rec["as_of"]] + [rec]
+        self.store_own_memory(f"property_ledger::{cid}", json.dumps(store), pin=True)
+        return {"recorded": True, "lines": len(clean), "closing_balance": bal,
+                "verified": rec["verified"], "disclaimer": DISCLAIMER}
+
+    @staticmethod
+    def _side(payors):
+        p = " ".join(payors or []).lower()
+        if "housing authority" in p or "hap" in p:
+            return "hap"
+        if "villas" in p or "property" in p or "complex" in p:
+            return "owed_to_principal"
+        return "resident"
+
+    def lease_year_summary(self, args):
+        a = args if isinstance(args, dict) else {}
+        cid = a.get("case_id")
+        terms = self._lease_terms(cid) if cid else {}
+        if not (terms.get("lease_start") and terms.get("lease_end") and terms.get("base_rent")):
+            return {"error": "needs lease_start, lease_end and base_rent in the lease terms",
+                    "disclaimer": DISCLAIMER}
+        case = (self.handle_case_task("case_get", {"case_id": cid}) or {})
+        case = case.get("case", case)
+        ledgers = self._jget(f"property_ledger::{cid}", [])
+        led = max(ledgers, key=lambda x: x["as_of"]) if ledgers else None
+        today = (datetime.fromisoformat(str(a["as_of"])[:10]) if a.get("as_of") else datetime.now())
+        start, end = (datetime.fromisoformat(str(terms["lease_start"])[:10]),
+                      datetime.fromisoformat(str(terms["lease_end"])[:10]))
+        months, y, m = [], start.year, start.month
+        while datetime(y, m, 1) <= end:
+            months.append(f"{y:04d}-{m:02d}")
+            m += 1
+            if m > 12:
+                m, y = 1, y + 1
+        elapsed = [p for p in months if p <= today.strftime("%Y-%m")]
+        obs = [o for o in case.get("obligations", []) if not o.get("voided")]
+        res_ob = next((o for o in obs if self._side(o.get("authorized_payors")) == "resident"
+                       and o.get("due_day")), None)
+        res_rate = float(res_ob["amount"]) if res_ob else None
+        out = {"case_id": cid, "lease_year": f"{terms['lease_start']} to {terms['lease_end']}",
+               "as_of": today.strftime("%Y-%m-%d"), "months_in_lease": len(months),
+               "months_elapsed": len(elapsed)}
+        # Contract rent for the year: the lease's own figures.
+        contract = float(terms.get("prorated_first") or 0) + float(terms["base_rent"]) * (len(months) - 1)
+        out["contract_rent_year"] = round(contract, 2)
+        # The resident side and the HAP side, from the ledger's own subjournals.
+        res = {"charged": 0.0, "paid": 0.0, "charge_basis": [], "payments_after_ledger": []}
+        hap = {"charged": 0.0, "paid": 0.0}
+        contested = []
+        covered = set()
+        if led:
+            for ln in led["lines"]:
+                side = "hap" if str(ln.get("subjournal", "")).upper() == "VOUCHER" else "resident"
+                tgt = hap if side == "hap" else res
+                tgt["charged"] += ln["charges"]
+                tgt["paid"] += ln["credits"]
+                if ln["charges"] and side == "resident":
+                    covered.add(str(ln.get("fiscal_period") or "")[-4:] + "-" + str(ln.get("fiscal_period") or "")[:2])
+                if str(ln.get("code", "")).upper() == "DAMAGES" and ln["charges"]:
+                    contested.append({"what": ln.get("description"), "amount": ln["charges"],
+                                      "date": ln.get("date"), "basis": "posted under DAMAGES on the property ledger"})
+            res["charge_basis"].append(f"property ledger as of {led['as_of']}")
+        else:
+            out["ledger"] = "no property ledger recorded - resident charges assumed from the obligation"
+        # Months the ledger does not reach. A payment counts toward the rent month
+        # it pays: paid after the 20th it is next month's rent (the 8/31 $500 was
+        # September's). A month with no payment on record is UNRECORDED - paid or
+        # owed is not known - and is kept out of the overpayment; treating it as
+        # unpaid turned a $93 credit into "$366 owing" on the first run.
+        cutoff = led["as_of"] if led else "0000"
+        by_month, last_amt, latest = {}, None, []
+        for o in obs:
+            if self._side(o.get("authorized_payors")) != "resident":
+                continue
+            for pmt in o.get("payments") or []:
+                if pmt.get("voided") or not pmt.get("amount"):
+                    continue
+                d = str(pmt.get("paid_on", ""))[:10]
+                latest.append((d, float(pmt["amount"])))
+                if d <= cutoff:
+                    continue
+                dt = datetime.fromisoformat(d)
+                mo = (dt.replace(day=1) + timedelta(days=32)).strftime("%Y-%m") if dt.day > 20 \
+                    else dt.strftime("%Y-%m")
+                by_month.setdefault(mo, []).append({"paid_on": d, "amount": float(pmt["amount"]),
+                                                    "payor": pmt.get("payor")})
+        if latest:
+            last_amt = max(latest)[1]      # the most recent payment's amount
+        led_over = round(res["paid"] - res["charged"], 2)
+        res["ledger_resident_net_credit"] = led_over
+        unrecorded, post = [], 0.0
+        for p in elapsed:
+            if p in covered or res_rate is None:
+                continue
+            got = by_month.get(p)
+            if not got:
+                unrecorded.append(p)
+                continue
+            amt = sum(x["amount"] for x in got)
+            res["charged"] += res_rate
+            res["paid"] += amt
+            post += amt - res_rate
+            res["charge_basis"].append(f"{p}: {res_rate:.2f} due (obligation rate, not on a ledger); "
+                                       f"paid {amt:.2f}")
+            res["payments_after_ledger"].extend(got)
+        res["unrecorded_months"] = unrecorded
+        res["month_rule"] = "a payment made after the 20th pays the next month's rent"
+        res = {k: (round(v, 2) if isinstance(v, float) else v) for k, v in res.items()}
+        res["over_paid_to_date"] = round(led_over + post, 2)
+        remaining = len(months) - len(elapsed)
+        proj = None
+        if res_rate is not None and last_amt is not None:
+            per = round(last_amt - res_rate, 2)
+            ahead = remaining + len(unrecorded)
+            proj = {"if_you_keep_paying": last_amt, "against_due": res_rate, "per_month": per,
+                    "months_counted": ahead,
+                    "assumes": "every remaining AND every unrecorded month is paid at the last amount",
+                    "over_paid_by_lease_end": round(res["over_paid_to_date"] + per * ahead, 2)}
+        out["resident"] = res
+        out["resident_projection"] = proj
+        out["resident_due_year"] = (round(res["charged"] + (res_rate or 0)
+                                          * (remaining + len(res["unrecorded_months"])), 2)
+                                    if res_rate is not None else None)
+        hap = {k: round(v, 2) for k, v in hap.items()}
+        hap["net"] = round(hap["charged"] - hap["paid"], 2)
+        hap["note"] = ("HAP side of the same ledger. A negative net here is money the housing "
+                       "authority paid over what the property charged the voucher - not the "
+                       "resident's credit.") if hap["net"] < 0 else None
+        out["hap"] = hap
+        owed = [{"what": o["name"], "amount": float(o["amount"]),
+                 "paid": sum(float(x.get("amount") or 0) for x in o.get("payments") or [])}
+                for o in obs if self._side(o.get("authorized_payors")) == "owed_to_principal"]
+        ytd = round(max(res["over_paid_to_date"], 0) + sum(c["amount"] for c in contested)
+                    + sum(x["amount"] - x["paid"] for x in owed), 2)
+        out["billing_error_contributions"] = {
+            "overpayment_to_date": max(res["over_paid_to_date"], 0),
+            "contested_charges": contested,
+            "costs_owed_to_principal": owed,
+            "total_to_date": ytd,
+            "total_by_lease_end_if_unchanged": (round(ytd + max(proj["per_month"], 0)
+                                                      * proj["months_counted"], 2)
+                                                if proj else None),
+            "owed_back_to_principal_running_credit": ytd,
+        }
+        out["disclaimer"] = DISCLAIMER
+        return out
+
+    def record_recurring_expense(self, args):
+        a = args if isinstance(args, dict) else {}
+        name, amt, cad = a.get("name"), a.get("amount"), str(a.get("cadence") or "").lower()
+        if not (name and amt is not None and cad in self.PERIODS_PER_YEAR):
+            return {"error": ("record_recurring_expense needs name, amount and cadence in "
+                              f"{sorted(self.PERIODS_PER_YEAR)}"), "disclaimer": DISCLAIMER}
+        reg = self._jget("recurring_expenses", [])
+        rec = {"id": f"rx_{int(time.time() * 1000)}", "name": name, "amount": float(amt),
+               "cadence": cad, "payee": a.get("payee"), "category": a.get("category"),
+               "paid_by": a.get("paid_by") or "principal",
+               "annual_plan_price": (float(a["annual_plan_price"]) if a.get("annual_plan_price")
+                                     not in (None, "") else None),
+               "started": a.get("started"), "note": a.get("note"), "active": True,
+               "recorded_at": datetime.now().isoformat(timespec="seconds")}
+        reg = [r for r in reg if r.get("name", "").lower() != name.lower()] + [rec]
+        self.store_own_memory("recurring_expenses", json.dumps(reg), pin=True)
+        return {"recorded": rec, "annualized": round(rec["amount"] * self.PERIODS_PER_YEAR[cad], 2),
+                "disclaimer": DISCLAIMER}
+
+    def annual_expenses(self, args=None):
+        a = args if isinstance(args, dict) else {}
+        rows, total, saving = [], 0.0, 0.0
+        for r in self._jget("recurring_expenses", []):
+            if not r.get("active", True):
+                continue
+            yr = round(r["amount"] * self.PERIODS_PER_YEAR.get(r["cadence"], 0), 2)
+            row = {"name": r["name"], "billed": f"{r['amount']:.2f} {r['cadence']}", "per_year": yr,
+                   "payee": r.get("payee"), "category": r.get("category")}
+            if r.get("annual_plan_price") is not None and r["cadence"] != "yearly":
+                row["annual_plan_price"] = r["annual_plan_price"]
+                row["saved_by_paying_yearly"] = round(yr - r["annual_plan_price"], 2)
+                saving += row["saved_by_paying_yearly"]
+            elif r["cadence"] != "yearly":
+                row["saved_by_paying_yearly"] = "unknown - no annual-plan price recorded"
+            rows.append(row)
+            total += yr
+        if a.get("case_id"):
+            ly = self.lease_year_summary({"case_id": a["case_id"]})
+            if ly.get("resident_due_year") is not None:
+                rows.append({"name": "Rent - your share (lease year)", "billed": "monthly",
+                             "per_year": ly["resident_due_year"], "payee": "landlord",
+                             "category": "housing",
+                             "note": "what the lease makes you owe; overpayment is tracked separately"})
+                total += ly["resident_due_year"]
+        return {"rows": sorted(rows, key=lambda r: -r["per_year"]), "total_per_year": round(total, 2),
+                "known_saving_by_paying_yearly": round(saving, 2),
+                "missing_annual_prices": [r["name"] for r in rows
+                                          if isinstance(r.get("saved_by_paying_yearly"), str)],
+                "disclaimer": DISCLAIMER}
 
     def reconcile(self, case_id, as_of=None):
         """Charged against paid, period by period. Arithmetic done HERE, in the
@@ -1662,6 +1903,9 @@ class AccountingAgent(AgentBase):
 
         if task == "set_lease_terms":
             return self.set_lease_terms(args if isinstance(args, dict) else {})
+        if task in ("record_property_ledger", "lease_year_summary", "record_recurring_expense",
+                    "annual_expenses"):
+            return getattr(self, task)(args if isinstance(args, dict) else {})
 
         if task == "reconcile":
             a = args if isinstance(args, dict) else {}
