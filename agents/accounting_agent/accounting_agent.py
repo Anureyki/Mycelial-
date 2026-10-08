@@ -487,9 +487,13 @@ class AccountingAgent(AgentBase):
             rec = json.loads(raw) if raw else {}
         except Exception:
             rec = {}
+        # account_number / community_code: the resident account was only ever in
+        # prose - and the ledger header's unlabelled 5543320 was read as it until
+        # the principal's payment coupon showed 16540808.
         for f in ("lease_start", "lease_end", "base_rent", "prorated_first",
                   "prorated_period", "due_day", "grace_day", "late_fee_percent",
-                  "document_ref", "note"):
+                  "document_ref", "note", "account_number", "account_number_source",
+                  "community_code"):
             if args.get(f) not in (None, ""):
                 rec[f] = args[f]
         rec["updated"] = datetime.now().isoformat()
