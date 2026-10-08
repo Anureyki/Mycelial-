@@ -2715,6 +2715,10 @@ class AgentBase:
         # Regulations are keyed as they cite themselves - "§ 8.4", "§ 100.204" -
         # so a person typing "8.4" or "24 CFR 8.4" matched nothing and fell
         # through to public web search for a rule sitting in the corpus.
+        # THE DOMESTIC MAIL MANUAL is keyed "DMM 602.1.3" - its own citation
+        # form; "DMM 602 1.3" (as the principal typed it) and "602.1.3" are the
+        # same subsection.
+        key = re.sub(r'^d\.?\s*m\.?\s*m\.?\s*(\d{3})[\s.]+(\d+(?:\.\d+)*)$', r'dmm \1.\2', key)
         # A CFR APPENDIX is keyed as it heads itself - "Appendix C to Part
         # 1002" - since resegment_appendices lifted appendices out of the
         # part's last section. "12 CFR 1002 Appendix C", "12 CFR part 1002,

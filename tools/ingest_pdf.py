@@ -48,7 +48,12 @@ SECTION_PATTERNS = [
     # after the part number is required, so a cross-reference ("appendix C to
     # this part") is never read as a heading.
     (re.compile(r'^\s*(Appendix [A-Z]{1,2}(?:-\d+)? to Part \d+)\s*[\u2010-\u2015-]'), "appendix"),
-    (re.compile(r'^\s*(§+\s*\d+[A-Za-z0-9.\-\u2010-\u2015]*)'), "section_sign"),
+    # "(see § 111.1 for subscription information)" broken so the line opened
+    # "§ 111.1)." was read as a heading: 39 CFR Part 111 shelved "§ 111.1"
+    # twice and lost § 111.2 into the duplicate. A heading's citation is never
+    # followed by ")" or ",".
+    (re.compile(r'^\s*(?!§+\s*\d+[A-Za-z0-9.\-\u2010-\u2015]*[)\],;])'
+                r'(§+\s*\d+[A-Za-z0-9.\-\u2010-\u2015]*)'), "section_sign"),
     (re.compile(r'^\s*(SEC(?:TION)?\.\s+\d+[A-Za-z0-9.\-]*)', re.I), "section"),
     # An enacted Public Law opens "SECTION 1. SHORT TITLE." - the word spelt
     # out, no period after it - and every later section is "SEC. 2." The

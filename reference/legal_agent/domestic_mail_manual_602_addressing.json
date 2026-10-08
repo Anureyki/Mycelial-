@@ -1,0 +1,3257 @@
+{
+ "title": "Domestic Mail Manual 602 - Addressing",
+ "source": "USPS Mailing Standards, Domestic Mail Manual section 602 (Addressing), retrieved from pe.usps.com/text/dmm300/602.htm 2026-10-08. Incorporated by reference into federal regulation by 39 CFR 111.1 (approved by the Director of the Federal Register under 5 U.S.C. 552(a) and 1 CFR part 51) - that incorporation is what gives it the force of a regulation. U.S. government work.",
+ "authority_class": "regulation",
+ "authority_class_basis": "--authority-class regulation",
+ "claim_layer": "doctrinal",
+ "claim_layer_meaning": "States or describes the rule. Cite for what the law IS.",
+ "authorities_cited": [],
+ "term_index": {
+  "permit imprint": [
+   1,
+   9,
+   10,
+   32,
+   66
+  ],
+  "detached address labels": [
+   2,
+   39,
+   41
+  ],
+  "intended recipient": [
+   2,
+   3,
+   13
+  ],
+  "address labels": [
+   2,
+   39,
+   41
+  ],
+  "delivery address": [
+   2,
+   3,
+   5,
+   6,
+   9,
+   21,
+   51,
+   79
+  ],
+  "detached address": [
+   2,
+   39,
+   41
+  ],
+  "commercial mail": [
+   3,
+   22,
+   117
+  ],
+  "usps city state": [
+   3,
+   6,
+   76
+  ],
+  "highway contract route": [
+   3,
+   6,
+   29
+  ],
+  "usps marketing": [
+   3,
+   10,
+   29,
+   47,
+   51,
+   65,
+   66,
+   70,
+   72,
+   75,
+   79,
+   81,
+   117
+  ],
+  "usps marketing mail": [
+   3,
+   10,
+   29,
+   47,
+   51,
+   65,
+   66,
+   70,
+   72,
+   75,
+   79,
+   81,
+   117
+  ],
+  "commercial first class": [
+   3,
+   70,
+   75
+  ],
+  "state product": [
+   3,
+   6,
+   76
+  ],
+  "priority mail express": [
+   3,
+   10,
+   26,
+   63,
+   68
+  ],
+  "first class": [
+   3,
+   26,
+   27,
+   63,
+   67,
+   68,
+   70,
+   71,
+   72,
+   75
+  ],
+  "highway contract": [
+   3,
+   6,
+   29
+  ],
+  "official mail": [
+   3,
+   9,
+   10
+  ],
+  "address elements": [
+   3,
+   5,
+   6,
+   9,
+   111,
+   112
+  ],
+  "mail periodicals": [
+   3,
+   10,
+   29
+  ],
+  "first class mail": [
+   3,
+   26,
+   27,
+   63,
+   67,
+   68,
+   70,
+   71,
+   72,
+   75
+  ],
+  "rural route": [
+   3,
+   6,
+   16,
+   29,
+   35
+  ],
+  "post office": [
+   3,
+   6,
+   16,
+   20,
+   21,
+   26,
+   27,
+   29,
+   30,
+   35,
+   56,
+   60,
+   63
+  ],
+  "contract route": [
+   3,
+   6,
+   29
+  ],
+  "commercial first": [
+   3,
+   70,
+   75
+  ],
+  "simplified address": [
+   3,
+   27,
+   28,
+   29,
+   31,
+   51,
+   75,
+   80
+  ],
+  "city state product": [
+   3,
+   6,
+   76
+  ],
+  "marketing mail": [
+   3,
+   10,
+   29,
+   47,
+   51,
+   65,
+   66,
+   70,
+   72,
+   75,
+   79,
+   81,
+   117
+  ],
+  "class mail": [
+   3,
+   26,
+   27,
+   63,
+   67,
+   68,
+   70,
+   71,
+   72,
+   75
+  ],
+  "usps city": [
+   3,
+   6,
+   76
+  ],
+  "city state": [
+   3,
+   6,
+   30,
+   76
+  ],
+  "package services": [
+   3,
+   10,
+   67
+  ],
+  "mail express": [
+   3,
+   10,
+   26,
+   63,
+   68
+  ],
+  "priority mail": [
+   3,
+   10,
+   26,
+   27,
+   63,
+   67,
+   68
+  ],
+  "automation prices": [
+   5,
+   65,
+   70,
+   94,
+   102
+  ],
+  "current usps": [
+   5,
+   76,
+   81,
+   96,
+   98,
+   99
+  ],
+  "information about": [
+   6,
+   63,
+   94
+  ],
+  "national customer support": [
+   6,
+   71,
+   85,
+   110
+  ],
+  "national customer": [
+   6,
+   71,
+   85,
+   110
+  ],
+  "more information": [
+   6,
+   20,
+   71
+  ],
+  "customer support": [
+   6,
+   71,
+   85,
+   110
+  ],
+  "support center": [
+   6,
+   71,
+   85,
+   110
+  ],
+  "customer support center": [
+   6,
+   71,
+   85,
+   110
+  ],
+  "return addresses": [
+   7,
+   10,
+   20
+  ],
+  "return address": [
+   8,
+   9,
+   10,
+   12,
+   21,
+   51
+  ],
+  "service requested": [
+   9,
+   12,
+   71,
+   72
+  ],
+  "precanceled stamps": [
+   9,
+   10,
+   32
+  ],
+  "ground advantage retail": [
+   10,
+   63,
+   67
+  ],
+  "intelligent mail": [
+   10,
+   51,
+   117
+  ],
+  "advantage commercial": [
+   10,
+   26,
+   27
+  ],
+  "mail barcode": [
+   10,
+   51,
+   117
+  ],
+  "usps ground": [
+   10,
+   26,
+   27,
+   63,
+   67
+  ],
+  "labels dals": [
+   10,
+   39,
+   41
+  ],
+  "ground advantage": [
+   10,
+   26,
+   27,
+   63,
+   67
+  ],
+  "ground advantage commercial": [
+   10,
+   26,
+   27
+  ],
+  "bound printed": [
+   10,
+   29,
+   48,
+   66,
+   75,
+   79
+  ],
+  "advantage retail": [
+   10,
+   63,
+   67
+  ],
+  "usps ground advantage": [
+   10,
+   26,
+   27,
+   63,
+   67
+  ],
+  "intelligent mail barcode": [
+   10,
+   51,
+   117
+  ],
+  "printed matter": [
+   10,
+   29,
+   48,
+   66,
+   75,
+   79
+  ],
+  "bound printed matter": [
+   10,
+   29,
+   48,
+   66,
+   75,
+   79
+  ],
+  "ancillary service": [
+   10,
+   12,
+   26,
+   43,
+   71
+  ],
+  "mail processing": [
+   15,
+   71,
+   72
+  ],
+  "post offices": [
+   15,
+   30,
+   115
+  ],
+  "delivery unit": [
+   15,
+   29,
+   48,
+   61
+  ],
+  "delivery point": [
+   17,
+   89,
+   90,
+   91,
+   96,
+   110,
+   113
+  ],
+  "mailing address": [
+   22,
+   30,
+   117
+  ],
+  "alternative addressing": [
+   23,
+   25,
+   26,
+   27,
+   42
+  ],
+  "addressing formats": [
+   25,
+   26,
+   42
+  ],
+  "alternative addressing formats": [
+   25,
+   26,
+   42
+  ],
+  "extra services": [
+   26,
+   45,
+   120
+  ],
+  "mail usps ground": [
+   26,
+   27,
+   63,
+   67
+  ],
+  "class mail usps": [
+   26,
+   27,
+   63,
+   67
+  ],
+  "mail usps": [
+   26,
+   27,
+   29,
+   63,
+   67
+  ],
+  "exceptional address": [
+   27,
+   36,
+   37,
+   38
+  ],
+  "exceptional address format": [
+   27,
+   37,
+   38
+  ],
+  "address format": [
+   27,
+   29,
+   35,
+   37,
+   38,
+   42,
+   70,
+   80
+  ],
+  "simplified address format": [
+   27,
+   29,
+   80
+  ],
+  "size mailpieces": [
+   29,
+   72,
+   81
+  ],
+  "postal customer": [
+   29,
+   30,
+   35
+  ],
+  "marketing mail flats": [
+   29,
+   47,
+   51,
+   65,
+   66
+  ],
+  "apply mailers": [
+   29,
+   31,
+   61
+  ],
+  "saturation flats": [
+   29,
+   57,
+   58,
+   61
+  ],
+  "postal service": [
+   29,
+   73,
+   115
+  ],
+  "mail flats": [
+   29,
+   47,
+   51,
+   65,
+   66
+  ],
+  "business customer": [
+   29,
+   30,
+   120
+  ],
+  "flat size mailpieces": [
+   29,
+   72,
+   81
+  ],
+  "flat size": [
+   29,
+   31,
+   48,
+   72,
+   81
+  ],
+  "mailing date": [
+   30,
+   56,
+   70,
+   75,
+   98
+  ],
+  "total number": [
+   30,
+   105,
+   119
+  ],
+  "delivery post": [
+   30,
+   60,
+   63
+  ],
+  "days before": [
+   30,
+   56,
+   70
+  ],
+  "following information": [
+   30,
+   56,
+   60
+  ],
+  "postage payment": [
+   30,
+   54,
+   66
+  ],
+  "carrier route": [
+   31,
+   47,
+   48,
+   57,
+   65,
+   75,
+   78,
+   79,
+   80,
+   81,
+   82,
+   89,
+   98,
+   102,
+   110,
+   113
+  ],
+  "flat trays": [
+   31,
+   58,
+   60,
+   61,
+   62
+  ],
+  "following apply": [
+   31,
+   57,
+   58,
+   61
+  ],
+  "mail preparation": [
+   31,
+   55,
+   118
+  ],
+  "address information": [
+   38,
+   71,
+   79,
+   81,
+   113
+  ],
+  "least inch": [
+   38,
+   50,
+   53
+  ],
+  "items mailed": [
+   41,
+   45,
+   66,
+   68,
+   120
+  ],
+  "accompanying item": [
+   43,
+   52,
+   53,
+   67
+  ],
+  "mailed with dals": [
+   45,
+   47,
+   48
+  ],
+  "periodicals flats": [
+   47,
+   51,
+   66
+  ],
+  "carrier route prices": [
+   47,
+   65,
+   75,
+   79,
+   102
+  ],
+  "route prices": [
+   47,
+   65,
+   75,
+   79,
+   102
+  ],
+  "accompanying items": [
+   48,
+   52,
+   59
+  ],
+  "identification number": [
+   56,
+   57,
+   58,
+   60,
+   105
+  ],
+  "mailing identification number": [
+   56,
+   57,
+   58,
+   60
+  ],
+  "mailing identification": [
+   56,
+   57,
+   58,
+   60
+  ],
+  "basic standards": [
+   57,
+   58,
+   70,
+   75,
+   79,
+   117
+  ],
+  "price claimed": [
+   58,
+   60,
+   68
+  ],
+  "move update": [
+   69,
+   70,
+   71,
+   72,
+   73
+  ],
+  "approved methods": [
+   70,
+   71,
+   75,
+   76,
+   79,
+   81
+  ],
+  "move update standard": [
+   70,
+   71,
+   72,
+   73
+  ],
+  "usps approved": [
+   70,
+   71,
+   75,
+   76,
+   79,
+   81
+  ],
+  "address records": [
+   70,
+   73,
+   93,
+   105
+  ],
+  "each address": [
+   70,
+   73,
+   75,
+   77,
+   79,
+   82,
+   112
+  ],
+  "requirements each address": [
+   70,
+   75,
+   79
+  ],
+  "update standard": [
+   70,
+   71,
+   72,
+   73
+  ],
+  "requirements each": [
+   70,
+   75,
+   79
+  ],
+  "usps approved methods": [
+   70,
+   71,
+   75,
+   76,
+   79,
+   81
+  ],
+  "postalpro usps": [
+   71,
+   72,
+   117
+  ],
+  "mailer certification": [
+   73,
+   77,
+   82
+  ],
+  "mailing presented": [
+   73,
+   77,
+   82
+  ],
+  "edoc submission certifies": [
+   73,
+   77,
+   82,
+   98
+  ],
+  "corresponding mailing presented": [
+   73,
+   77,
+   82
+  ],
+  "confirmation during": [
+   73,
+   77,
+   82,
+   98,
+   102
+  ],
+  "corresponding mailing": [
+   73,
+   77,
+   82,
+   100
+  ],
+  "during edoc submission": [
+   73,
+   77,
+   82,
+   98,
+   102
+  ],
+  "confirmation during edoc": [
+   73,
+   77,
+   82,
+   98,
+   102
+  ],
+  "edoc submission": [
+   73,
+   77,
+   82,
+   98,
+   102
+  ],
+  "during edoc": [
+   73,
+   77,
+   82,
+   98,
+   102
+  ],
+  "submission certifies": [
+   73,
+   77,
+   82,
+   98
+  ],
+  "code accuracy": [
+   74,
+   75,
+   76,
+   77
+  ],
+  "accuracy standard": [
+   75,
+   76,
+   77,
+   78,
+   79,
+   80,
+   82
+  ],
+  "addresses used": [
+   75,
+   79,
+   100
+  ],
+  "code accuracy standard": [
+   75,
+   76,
+   77
+  ],
+  "cass certified": [
+   76,
+   81,
+   90,
+   91,
+   93,
+   94,
+   95,
+   98,
+   99,
+   104,
+   105,
+   107,
+   108,
+   113
+  ],
+  "cass certified address": [
+   76,
+   90,
+   93,
+   94,
+   99,
+   107
+  ],
+  "address matching": [
+   76,
+   89,
+   90,
+   91,
+   93,
+   94,
+   95,
+   96,
+   97,
+   98,
+   99,
+   102,
+   107,
+   110,
+   111,
+   112,
+   113
+  ],
+  "matching software": [
+   76,
+   89,
+   90,
+   91,
+   93,
+   94,
+   95,
+   96,
+   99,
+   107,
+   110,
+   111,
+   112,
+   113
+  ],
+  "coding accuracy": [
+   76,
+   87,
+   89
+  ],
+  "coding accuracy support": [
+   76,
+   87,
+   89
+  ],
+  "support system": [
+   76,
+   87,
+   89,
+   90
+  ],
+  "system cass": [
+   76,
+   87,
+   89
+  ],
+  "certified address matching": [
+   76,
+   90,
+   93,
+   94,
+   99,
+   107
+  ],
+  "accuracy support system": [
+   76,
+   87,
+   89,
+   90
+  ],
+  "address matching software": [
+   76,
+   89,
+   90,
+   91,
+   93,
+   94,
+   95,
+   96,
+   99,
+   107,
+   110,
+   111,
+   112,
+   113
+  ],
+  "certified address": [
+   76,
+   90,
+   93,
+   94,
+   99,
+   107
+  ],
+  "support system cass": [
+   76,
+   87,
+   89
+  ],
+  "accuracy support": [
+   76,
+   87,
+   89,
+   90
+  ],
+  "route accuracy standard": [
+   78,
+   79,
+   80,
+   82
+  ],
+  "carrier route accuracy": [
+   78,
+   79,
+   80,
+   82
+  ],
+  "route accuracy": [
+   78,
+   79,
+   80,
+   82
+  ],
+  "using cass": [
+   81,
+   104,
+   107,
+   108
+  ],
+  "using cass certified": [
+   81,
+   104,
+   107
+  ],
+  "certified software": [
+   81,
+   94,
+   95,
+   98,
+   99,
+   104,
+   105
+  ],
+  "cass certified software": [
+   81,
+   94,
+   95,
+   98,
+   99,
+   104,
+   105
+  ],
+  "automation price": [
+   90,
+   93,
+   99,
+   100
+  ],
+  "address lists": [
+   90,
+   93,
+   94,
+   99,
+   100,
+   104,
+   107
+  ],
+  "cass certification": [
+   90,
+   95,
+   96,
+   105,
+   109,
+   110,
+   111,
+   112,
+   113
+  ],
+  "matching software used": [
+   90,
+   93,
+   113
+  ],
+  "software used": [
+   90,
+   93,
+   108,
+   113
+  ],
+  "mailing claimed": [
+   90,
+   100,
+   102
+  ],
+  "code address": [
+   93,
+   99,
+   113
+  ],
+  "computer generated": [
+   94,
+   102,
+   105
+  ],
+  "summary output": [
+   94,
+   104,
+   105,
+   106,
+   107
+  ],
+  "current cass": [
+   94,
+   98,
+   99
+  ],
+  "address list": [
+   94,
+   99,
+   100,
+   102,
+   104,
+   105,
+   106
+  ],
+  "current cass certified": [
+   94,
+   98,
+   99
+  ],
+  "coded using": [
+   98,
+   99,
+   104
+  ],
+  "list used": [
+   100,
+   102,
+   107
+  ],
+  "produced using": [
+   102,
+   106,
+   107
+  ],
+  "matching software hardware": [
+   111,
+   112,
+   113
+  ],
+  "software hardware": [
+   111,
+   112,
+   113
+  ]
+ },
+ "origin_pdf": "dmm602_clean.txt",
+ "extraction": {
+  "extractor": "text file (already extracted)",
+  "pages": 1,
+  "no_text_layer": [],
+  "raised": [],
+  "recovered": [],
+  "lost": [],
+  "complete": true
+ },
+ "pages": 1,
+ "sections": [
+  {
+   "citation": "DMM 602.1.0",
+   "kind": "heading",
+   "page": 1,
+   "text": "1.0 Elements of Addressing",
+   "integrity": {
+    "state": "complete",
+    "basis": "Heading-delimited section of 26 characters stored; nothing was cut.",
+    "stamped_at": "2026-10-08T13:48:47",
+    "stored_chars": 26,
+    "source_chars": 26,
+    "cap_applied": 60000
+   },
+   "authority_class": "regulation",
+   "claim_layer": "doctrinal",
+   "claim_layer_meaning": "States or describes the rule. Cite for what the law IS."
+  },
+  {
+   "citation": "DMM 602.1.1",
+   "kind": "heading",
+   "page": 1,
+   "text": "1.1 Clear Space A clear space must be available on all mail for the address, postage (permit imprint, postage stamp, or meter stamp), postmarks, and postal endorsements.",
+   "integrity": {
+    "state": "complete",
+    "basis": "Heading-delimited section of 169 characters stored; nothing was cut.",
+    "stamped_at": "2026-10-08T13:48:47",
+    "stored_chars": 169,
+    "source_chars": 169,
+    "cap_applied": 60000
+   },
+   "authority_class": "regulation",
+   "claim_layer": "doctrinal",
+   "claim_layer_meaning": "States or describes the rule. Cite for what the law IS."
+  },
+  {
+   "citation": "DMM 602.1.2",
+   "kind": "heading",
+   "page": 1,
+   "text": "1.2 Delivery Address The delivery address specifies the location to which the USPS is to deliver a mailpiece. Except for mail prepared with detached address labels under 4.0 , the piece must have the address of the intended recipient, visible and legible, only on the side of the piece bearing postage.",
+   "integrity": {
+    "state": "complete",
+    "basis": "Heading-delimited section of 302 characters stored; nothing was cut.",
+    "stamped_at": "2026-10-08T13:48:47",
+    "stored_chars": 302,
+    "source_chars": 302,
+    "cap_applied": 60000
+   },
+   "authority_class": "regulation",
+   "claim_layer": "doctrinal",
+   "claim_layer_meaning": "States or describes the rule. Cite for what the law IS."
+  },
+  {
+   "citation": "DMM 602.1.3",
+   "kind": "heading",
+   "page": 1,
+   "text": "1.3 Address Elements All mail not bearing a simplified address must bear a delivery address that contains at least the following elements in this order from the top line: Intended recipient\u2019s name or other identification. Private mailbox designator (\u201cPMB\u201d or alternative \u201c#\u201d) and number if the mailpiece is addressed to a commercial mail receiving agency (CMRA) address. Street and number. (Include the apartment number, or use the Post Office box number, or general delivery, or rural route or highway contract route designation and box number, as applicable.) City and state (or state abbreviation). The city is any acceptable mailing name for the 5-digit ZIP Code serving the intended recipient as shown in the USPS City State Product. ZIP Codes are required on Priority Mail Express, commercial First-Class Mail, Periodicals, USPS Marketing Mail, Package Services and Parcel Select mailpieces, all mail sent to military addresses within the United States and to APO and FPO addresses, official mail, Business Reply Mail, and USPS Returns service packages.",
+   "integrity": {
+    "state": "complete",
+    "basis": "Heading-delimited section of 1,059 characters stored; nothing was cut.",
+    "stamped_at": "2026-10-08T13:48:47",
+    "stored_chars": 1059,
+    "source_chars": 1059,
+    "cap_applied": 60000
+   },
+   "authority_class": "regulation",
+   "claim_layer": "doctrinal",
+   "claim_layer_meaning": "States or describes the rule. Cite for what the law IS."
+  },
+  {
+   "citation": "DMM 602.1.4",
+   "kind": "heading",
+   "page": 1,
+   "text": "1.4 Complete Addresses",
+   "integrity": {
+    "state": "complete",
+    "basis": "Heading-delimited section of 22 characters stored; nothing was cut.",
+    "stamped_at": "2026-10-08T13:48:47",
+    "stored_chars": 22,
+    "source_chars": 22,
+    "cap_applied": 60000
+   },
+   "authority_class": "regulation",
+   "claim_layer": "doctrinal",
+   "claim_layer_meaning": "States or describes the rule. Cite for what the law IS."
+  },
+  {
+   "citation": "DMM 602.1.4.1",
+   "kind": "heading",
+   "page": 1,
+   "text": "1.4.1 Complete Address Definition A complete address has all the address elements necessary to allow an exact match with the current USPS ZIP+4 Product to obtain the finest level of ZIP+4 code for the delivery address. A complete address may be required on mail at some automation prices.",
+   "integrity": {
+    "state": "complete",
+    "basis": "Heading-delimited section of 288 characters stored; nothing was cut.",
+    "stamped_at": "2026-10-08T13:48:47",
+    "stored_chars": 288,
+    "source_chars": 288,
+    "cap_applied": 60000
+   },
+   "authority_class": "regulation",
+   "claim_layer": "doctrinal",
+   "claim_layer_meaning": "States or describes the rule. Cite for what the law IS."
+  },
+  {
+   "citation": "DMM 602.1.4.2",
+   "kind": "heading",
+   "page": 1,
+   "text": "1.4.2 Complete Address Elements A complete delivery address includes: Addressee name or other identifier and/or firm name where applicable. Private mail box designator and number (PMB 300 or #300). Urbanization name (Puerto Rico only, ZIP Code prefixes 006 to 009, if area is so designated). Street number and name (including predirectional, suffix, and postdirectional as shown in USPS ZIP+4 Product for the delivery address or rural route and box number (RR 5 BOX 10), highway contract route and box number (HC 4 BOX 45), or Post Office box number (PO BOX 458), as shown in USPS ZIP+4 Product for the delivery address). (\u201cPO Box\u201d is used incorrectly if preceding a private box number, e.g., a college mailroom.) Secondary address unit designator and number (such as an apartment or suite number (APT 202, STE 100)). City and state (or authorized two-letter state abbreviation). Use only city names and city and state name abbreviations as shown in USPS City State Product. Contact the National Customer Support Center (see 509.1.0 ) for more information about the City State Product. Correct 5-digit ZIP Code or ZIP+4 code. If a firm name is assigned a unique ZIP+4 code in the USPS ZIP+4 Product, the unique ZIP+4 code must be used in the delivery address.",
+   "integrity": {
+    "state": "complete",
+    "basis": "Heading-delimited section of 1,259 characters stored; nothing was cut.",
+    "stamped_at": "2026-10-08T13:48:47",
+    "stored_chars": 1259,
+    "source_chars": 1259,
+    "cap_applied": 60000
+   },
+   "authority_class": "regulation",
+   "claim_layer": "doctrinal",
+   "claim_layer_meaning": "States or describes the rule. Cite for what the law IS."
+  },
+  {
+   "citation": "DMM 602.1.5",
+   "kind": "heading",
+   "page": 1,
+   "text": "1.5 Return Addresses",
+   "integrity": {
+    "state": "complete",
+    "basis": "Heading-delimited section of 20 characters stored; nothing was cut.",
+    "stamped_at": "2026-10-08T13:48:47",
+    "stored_chars": 20,
+    "source_chars": 20,
+    "cap_applied": 60000
+   },
+   "authority_class": "regulation",
+   "claim_layer": "doctrinal",
+   "claim_layer_meaning": "States or describes the rule. Cite for what the law IS."
+  },
+  {
+   "citation": "DMM 602.1.5.1",
+   "kind": "heading",
+   "page": 1,
+   "text": "1.5.1 Purpose for Return Address The return address tells the USPS where the sender of a mailpiece wants it returned if the piece cannot be delivered.",
+   "integrity": {
+    "state": "complete",
+    "basis": "Heading-delimited section of 150 characters stored; nothing was cut.",
+    "stamped_at": "2026-10-08T13:48:47",
+    "stored_chars": 150,
+    "source_chars": 150,
+    "cap_applied": 60000
+   },
+   "authority_class": "regulation",
+   "claim_layer": "doctrinal",
+   "claim_layer_meaning": "States or describes the rule. Cite for what the law IS."
+  },
+  {
+   "citation": "DMM 602.1.5.2",
+   "kind": "heading",
+   "page": 1,
+   "text": "1.5.2 Return Address Elements The return address contains elements corresponding to those for the delivery address. A return address is required in specific circumstances (see 1.5.3 ). If the sender\u2019s name is not included in the return address, another clear designation (apartment, suite, or room number) is required to ensure proper handling of ancillary services and/or return of the piece. ZIP Codes (5-digit or ZIP+4) are required in the return address of all mail on which postage is paid with precanceled stamps or company permit imprint, and in the sender\u2019s return address on Periodicals mail when \u201cAddress Service Requested\u201d is specified. Official mail (penalty mail) also requires a ZIP Code in the return address.",
+   "integrity": {
+    "state": "complete",
+    "basis": "Heading-delimited section of 724 characters stored; nothing was cut.",
+    "stamped_at": "2026-10-08T13:48:47",
+    "stored_chars": 724,
+    "source_chars": 724,
+    "cap_applied": 60000
+   },
+   "authority_class": "regulation",
+   "claim_layer": "doctrinal",
+   "claim_layer_meaning": "States or describes the rule. Cite for what the law IS."
+  },
+  {
+   "citation": "DMM 602.1.5.3",
+   "kind": "heading",
+   "page": 1,
+   "text": "1.5.3 Required Use of Return Addresses The sender\u2019s domestic return address must appear legibly on: Mail of any class bearing a printed ancillary service request or an ancillary service request embedded within an Intelligent Mail barcode. Official mail. Mail paid with precanceled stamps (except USPS Marketing Mail pieces weighing 13 ounces or less and bearing a mailer\u2018s postmark in accordance with 604.3.4 ). Matter bearing a company permit imprint. Priority Mail. Periodicals in envelopes or opaque wrappers. USPS Ground Advantage \u2014 Retail and USPS Ground Advantage \u2014 Commercial. Package Services (except unendorsed Bound Printed Matter). Parcel Select. Registered Mail. Insured mail. Collect on delivery (COD) mail. Certified Mail if a return receipt is requested. Priority Mail Express. Detached addressed labels (DALs) and detached marketing labels (DMLs). Adult Signature. USPS Returns service. All packaging containing hazardous, restricted, or perishable mail in accordance with Publication 52, Hazardous, Restricted, and Perishable Mail (221.11). 1.5.4 Use of Foreign Return Addresses When U.S. postage is applied to a domestic mailpiece, as defined under 608.2.1 and 608.2.2 , only a domestic return address is authorized. An undeliverable domestic mailpiece bearing a foreign return address cannot be returned to sender and will be handled as dead mail under 507.1.9 .",
+   "integrity": {
+    "state": "complete",
+    "basis": "Heading-delimited section of 1,381 characters stored; nothing was cut.",
+    "stamped_at": "2026-10-08T13:48:47",
+    "stored_chars": 1381,
+    "source_chars": 1381,
+    "cap_applied": 60000
+   },
+   "authority_class": "regulation",
+   "claim_layer": "doctrinal",
+   "claim_layer_meaning": "States or describes the rule. Cite for what the law IS."
+  },
+  {
+   "citation": "DMM 602.1.5.5",
+   "kind": "heading",
+   "page": 1,
+   "text": "1.5.5 Postmark An endorsement directing return to point of mailing (postmark) is not honored.",
+   "integrity": {
+    "state": "complete",
+    "basis": "Heading-delimited section of 93 characters stored; nothing was cut.",
+    "stamped_at": "2026-10-08T13:48:47",
+    "stored_chars": 93,
+    "source_chars": 93,
+    "cap_applied": 60000
+   },
+   "authority_class": "regulation",
+   "claim_layer": "doctrinal",
+   "claim_layer_meaning": "States or describes the rule. Cite for what the law IS."
+  },
+  {
+   "citation": "DMM 602.1.6",
+   "kind": "heading",
+   "page": 1,
+   "text": "1.6 Ancillary Services The USPS uses the return address to provide ancillary services requested by the mailer (e.g., \u201cReturn Service Requested\u201d). The return address on any mailpiece endorsed for an ancillary service must identify where the piece is to be returned and where the mailer is prepared to pay applicable postage and fees for pieces returned or for ancillary service provided at the mailer\u2019s request. A domestic return address must be placed in the upper left corner of the address side of the piece or the upper left corner of the addressing area.",
+   "integrity": {
+    "state": "complete",
+    "basis": "Heading-delimited section of 558 characters stored; nothing was cut.",
+    "stamped_at": "2026-10-08T13:48:47",
+    "stored_chars": 558,
+    "source_chars": 558,
+    "cap_applied": 60000
+   },
+   "authority_class": "regulation",
+   "claim_layer": "doctrinal",
+   "claim_layer_meaning": "States or describes the rule. Cite for what the law IS."
+  },
+  {
+   "citation": "DMM 602.1.7",
+   "kind": "heading",
+   "page": 1,
+   "text": "1.7 Attachment of Different Class If the names and addresses of the sender and intended recipient do not appear on both the host and attachment, the sender\u2019s name and address must be placed on one piece and the recipient\u2019s name and address on the other. Combination containers that have inseparable parts or compartments are mailable with the names and addresses on only one.",
+   "integrity": {
+    "state": "complete",
+    "basis": "Heading-delimited section of 375 characters stored; nothing was cut.",
+    "stamped_at": "2026-10-08T13:48:47",
+    "stored_chars": 375,
+    "source_chars": 375,
+    "cap_applied": 60000
+   },
+   "authority_class": "regulation",
+   "claim_layer": "doctrinal",
+   "claim_layer_meaning": "States or describes the rule. Cite for what the law IS."
+  },
+  {
+   "citation": "DMM 602.1.8",
+   "kind": "heading",
+   "page": 1,
+   "text": "1.8 ZIP Codes",
+   "integrity": {
+    "state": "complete",
+    "basis": "Heading-delimited section of 13 characters stored; nothing was cut.",
+    "stamped_at": "2026-10-08T13:48:47",
+    "stored_chars": 13,
+    "source_chars": 13,
+    "cap_applied": 60000
+   },
+   "authority_class": "regulation",
+   "claim_layer": "doctrinal",
+   "claim_layer_meaning": "States or describes the rule. Cite for what the law IS."
+  },
+  {
+   "citation": "DMM 602.1.8.1",
+   "kind": "heading",
+   "page": 1,
+   "text": "1.8.1 Purpose of ZIP Code The ZIP (Zone Improvement Plan) Code system is a numbered coding system that facilitates efficient mail processing. The USPS assigns ZIP Codes. All Post Offices are assigned at least one unique 5-digit ZIP Code. Larger Post Offices may be assigned two or more 5-digit ZIP Codes (multi-5-digit ZIP Code offices). Separate 5-digit ZIP Codes are assigned to each delivery unit at these offices.",
+   "integrity": {
+    "state": "complete",
+    "basis": "Heading-delimited section of 417 characters stored; nothing was cut.",
+    "stamped_at": "2026-10-08T13:48:47",
+    "stored_chars": 417,
+    "source_chars": 417,
+    "cap_applied": 60000
+   },
+   "authority_class": "regulation",
+   "claim_layer": "doctrinal",
+   "claim_layer_meaning": "States or describes the rule. Cite for what the law IS."
+  },
+  {
+   "citation": "DMM 602.1.8.2",
+   "kind": "heading",
+   "page": 1,
+   "text": "1.8.2 ZIP+4 - A Complete ZIP Code The most complete ZIP Code is a nine-digit number consisting of five digits, a hyphen, and four digits, which the USPS describes by its trademark ZIP+4. The correct format for a numeric ZIP+4 code is five digits, a hyphen, and four digits. The first five digits represent the 5-digit ZIP Code; the sixth and seventh digits (the first two after the hyphen) identify an area known as a sector; the eighth and ninth digits identify a smaller area known as a segment. Together, the final four digits identify geographic units such as a side of a street between intersections, both sides of a street between intersections, a building, a floor or group of floors in a building, a firm within a building, a span of boxes on a rural route, or a group of Post Office boxes to which a single USPS employee makes delivery.",
+   "integrity": {
+    "state": "complete",
+    "basis": "Heading-delimited section of 845 characters stored; nothing was cut.",
+    "stamped_at": "2026-10-08T13:48:47",
+    "stored_chars": 845,
+    "source_chars": 845,
+    "cap_applied": 60000
+   },
+   "authority_class": "regulation",
+   "claim_layer": "doctrinal",
+   "claim_layer_meaning": "States or describes the rule. Cite for what the law IS."
+  },
+  {
+   "citation": "DMM 602.1.8.3",
+   "kind": "heading",
+   "page": 1,
+   "text": "1.8.3 Numeric Delivery Point Barcode A numeric equivalent of a delivery point barcode (DPBC) consists of five digits followed by a hyphen and seven digits as specified in 204.1.2.2 . The numeric equivalent is formed by adding three digits directly after the ZIP+4 code.",
+   "integrity": {
+    "state": "complete",
+    "basis": "Heading-delimited section of 269 characters stored; nothing was cut.",
+    "stamped_at": "2026-10-08T13:48:47",
+    "stored_chars": 269,
+    "source_chars": 269,
+    "cap_applied": 60000
+   },
+   "authority_class": "regulation",
+   "claim_layer": "doctrinal",
+   "claim_layer_meaning": "States or describes the rule. Cite for what the law IS."
+  },
+  {
+   "citation": "DMM 602.1.9",
+   "kind": "heading",
+   "page": 1,
+   "text": "1.9 Additional Addressing Standards by Class Basic addressing standards are in the Prices and Eligibility section for each class of mail.",
+   "integrity": {
+    "state": "complete",
+    "basis": "Heading-delimited section of 137 characters stored; nothing was cut.",
+    "stamped_at": "2026-10-08T13:48:47",
+    "stored_chars": 137,
+    "source_chars": 137,
+    "cap_applied": 60000
+   },
+   "authority_class": "regulation",
+   "claim_layer": "doctrinal",
+   "claim_layer_meaning": "States or describes the rule. Cite for what the law IS."
+  },
+  {
+   "citation": "DMM 602.2.0",
+   "kind": "heading",
+   "page": 1,
+   "text": "2.0 Restrictions",
+   "integrity": {
+    "state": "complete",
+    "basis": "Heading-delimited section of 16 characters stored; nothing was cut.",
+    "stamped_at": "2026-10-08T13:48:47",
+    "stored_chars": 16,
+    "source_chars": 16,
+    "cap_applied": 60000
+   },
+   "authority_class": "regulation",
+   "claim_layer": "doctrinal",
+   "claim_layer_meaning": "States or describes the rule. Cite for what the law IS."
+  },
+  {
+   "citation": "DMM 602.2.1",
+   "kind": "heading",
+   "page": 1,
+   "text": "2.1 Dual Address Mail with a dual address (both a street address and a Post Office box number) is delivered to the address immediately above the city and state (or to the Post Office box if both the street address and Post Office box are on the same line). If a ZIP+4 code or 5-digit ZIP Code is used, it must correspond to the address element immediately above the city and state (or with the Post Office box number in the address if both the street address and Post Office box are on the same line). These restrictions also apply to return addresses on mail (for more information, see Publication 28, Postal Addressing Standards ).",
+   "integrity": {
+    "state": "complete",
+    "basis": "Heading-delimited section of 633 characters stored; nothing was cut.",
+    "stamped_at": "2026-10-08T13:48:47",
+    "stored_chars": 633,
+    "source_chars": 633,
+    "cap_applied": 60000
+   },
+   "authority_class": "regulation",
+   "claim_layer": "doctrinal",
+   "claim_layer_meaning": "States or describes the rule. Cite for what the law IS."
+  },
+  {
+   "citation": "DMM 602.2.2",
+   "kind": "heading",
+   "page": 1,
+   "text": "2.2 More Than One Post Office Mail with the name of more than one Post Office in the delivery address or return address is not acceptable for mailing.",
+   "integrity": {
+    "state": "complete",
+    "basis": "Heading-delimited section of 150 characters stored; nothing was cut.",
+    "stamped_at": "2026-10-08T13:48:47",
+    "stored_chars": 150,
+    "source_chars": 150,
+    "cap_applied": 60000
+   },
+   "authority_class": "regulation",
+   "claim_layer": "doctrinal",
+   "claim_layer_meaning": "States or describes the rule. Cite for what the law IS."
+  },
+  {
+   "citation": "DMM 602.2.3",
+   "kind": "heading",
+   "page": 1,
+   "text": "2.3 Mail Addressed to CMRAs Mail sent to an addressee at a commercial mail receiving agency (CMRA) must be addressed to their private mailbox (\u201cPMB\u201d or \u201c#\u201d) number at the CMRA mailing address.",
+   "integrity": {
+    "state": "complete",
+    "basis": "Heading-delimited section of 192 characters stored; nothing was cut.",
+    "stamped_at": "2026-10-08T13:48:47",
+    "stored_chars": 192,
+    "source_chars": 192,
+    "cap_applied": 60000
+   },
+   "authority_class": "regulation",
+   "claim_layer": "doctrinal",
+   "claim_layer_meaning": "States or describes the rule. Cite for what the law IS."
+  },
+  {
+   "citation": "DMM 602.3.0",
+   "kind": "heading",
+   "page": 1,
+   "text": "3.0 Use of Alternative Addressing",
+   "integrity": {
+    "state": "complete",
+    "basis": "Heading-delimited section of 33 characters stored; nothing was cut.",
+    "stamped_at": "2026-10-08T13:48:47",
+    "stored_chars": 33,
+    "source_chars": 33,
+    "cap_applied": 60000
+   },
+   "authority_class": "regulation",
+   "claim_layer": "doctrinal",
+   "claim_layer_meaning": "States or describes the rule. Cite for what the law IS."
+  },
+  {
+   "citation": "DMM 602.3.1",
+   "kind": "heading",
+   "page": 1,
+   "text": "3.1 General Information",
+   "integrity": {
+    "state": "complete",
+    "basis": "Heading-delimited section of 23 characters stored; nothing was cut.",
+    "stamped_at": "2026-10-08T13:48:47",
+    "stored_chars": 23,
+    "source_chars": 23,
+    "cap_applied": 60000
+   },
+   "authority_class": "regulation",
+   "claim_layer": "doctrinal",
+   "claim_layer_meaning": "States or describes the rule. Cite for what the law IS."
+  },
+  {
+   "citation": "DMM 602.3.1.1",
+   "kind": "heading",
+   "page": 1,
+   "text": "3.1.1 Use Alternative addressing formats may be used as described in 3.2 through 3.4 .",
+   "integrity": {
+    "state": "complete",
+    "basis": "Heading-delimited section of 86 characters stored; nothing was cut.",
+    "stamped_at": "2026-10-08T13:48:47",
+    "stored_chars": 86,
+    "source_chars": 86,
+    "cap_applied": 60000
+   },
+   "authority_class": "regulation",
+   "claim_layer": "doctrinal",
+   "claim_layer_meaning": "States or describes the rule. Cite for what the law IS."
+  },
+  {
+   "citation": "DMM 602.3.1.2",
+   "kind": "heading",
+   "page": 1,
+   "text": "3.1.2 Prohibited Use Alternative addressing formats may not be used on: Priority Mail Express pieces. Mail with any ancillary service endorsement under 507.1.1 through 507.1.8 , except as allowed for First-Class Mail, USPS Ground Advantage \u2014 Commercial parcels, or Priority Mail under 507.1.5.1b. Periodicals intended to count as subscriber or requester copies to meet the applicable circulation standards. Mail addressed to an overseas military Post Office under 703.2.3 . Mail with the following extra services: Registered Mail. Certified Mail. Insured mail. Return receipt. Restricted delivery. Signature Confirmation. Collect on delivery (COD). Adult Signature.",
+   "integrity": {
+    "state": "complete",
+    "basis": "Heading-delimited section of 665 characters stored; nothing was cut.",
+    "stamped_at": "2026-10-08T13:48:47",
+    "stored_chars": 665,
+    "source_chars": 665,
+    "cap_applied": 60000
+   },
+   "authority_class": "regulation",
+   "claim_layer": "doctrinal",
+   "claim_layer_meaning": "States or describes the rule. Cite for what the law IS."
+  },
+  {
+   "citation": "DMM 602.3.1.3",
+   "kind": "heading",
+   "page": 1,
+   "text": "3.1.3 Treatment Mail with an occupant or an exceptional address format is delivered as addressed and is not forwarded. Such mail is treated as undeliverable only when the address is incorrect or incomplete or when the mail cannot be delivered for another reason related solely to the address (e.g., a vacant building), as shown in Exhibit 507.1.4.1 . Periodicals publishers are notified when a mailpiece with an occupant or exceptional address format is undeliverable for solely address-related reasons, (except publishers using an IMb with proper STID on non-subscriber or non-requester copies under 207.7.0 . Mail with a simplified address format is distributed to all deliveries on a route or to Post Office boxholders. Undeliverable mail with any alternative addressing format is disposed of as waste under 507.1.9.1 , except for First-Class Mail, USPS Ground Advantage \u2014 Commercial parcels, and Priority Mail under 507.1.5.1b.",
+   "integrity": {
+    "state": "complete",
+    "basis": "Heading-delimited section of 931 characters stored; nothing was cut.",
+    "stamped_at": "2026-10-08T13:48:47",
+    "stored_chars": 931,
+    "source_chars": 931,
+    "cap_applied": 60000
+   },
+   "authority_class": "regulation",
+   "claim_layer": "doctrinal",
+   "claim_layer_meaning": "States or describes the rule. Cite for what the law IS."
+  },
+  {
+   "citation": "DMM 602.3.2",
+   "kind": "heading",
+   "page": 1,
+   "text": "3.2 Simplified Address",
+   "integrity": {
+    "state": "complete",
+    "basis": "Heading-delimited section of 22 characters stored; nothing was cut.",
+    "stamped_at": "2026-10-08T13:48:47",
+    "stored_chars": 22,
+    "source_chars": 22,
+    "cap_applied": 60000
+   },
+   "authority_class": "regulation",
+   "claim_layer": "doctrinal",
+   "claim_layer_meaning": "States or describes the rule. Cite for what the law IS."
+  },
+  {
+   "citation": "DMM 602.3.2.1",
+   "kind": "heading",
+   "page": 1,
+   "text": "3.2.1 Conditions for General Use The following conditions must be met when using a simplified address on commercial mailpieces: The simplified address format (\u201cPostal Customer\u201d or one of the optional formats in 3.2.1a1 through 3.2.1a3 ) must be used on mail when complete distribution is made to each family (household residence) or boxholder on a rural or highway contract route, and to Post Office boxes in offices without city carrier service. The following also apply: Mailers may use a more specific address, such as \u201cRural Route Boxholder,\u201d for mail intended to all boxholders on a rural route, followed by the name of the Post Office and state. Mailers may use \u201cResidential Customer\u201d to indicate that delivery is desired to residential addresses only. Use of the word \u201cLocal,\u201d instead of the Post Office and state name, is optional; however the Postal Service recommends using the Post Office, state and ZIP Code for mail not dropshipped directly to a destination delivery unit. See 3.2.2 for governmental mail and 703.6.0 for Congressional mail. USPS Marketing Mail, Periodicals, and Bound Printed Matter flat-size mailpieces (including USPS Marketing Mail pieces allowed as flats under 3.2.1c ), and Periodicals nonstandard parcels for distribution to a city route or to Post Office boxes in offices with city carrier service may bear a simplified address, but only when complete distribution is made under the following conditions: Mailers must use the simplified address \u201cPostal Customer\u201d when complete distribution is intended to all active deliveries (residential and business) on any designated city route. Mailers may use a more specific address, such as \u201cPO Boxholder\u201d when delivery is intended to all active Post Office boxes. Mailers may use \u201cResidential Customer\u201d to indicate that delivery is intended only to all active residential deliveries. When preparing mail to routes with 100 percent business deliveries, mailers may use \u201cBusiness Customer\u201d to indicate that delivery is intended to all active business deliveries. Use of the word \u201cLocal,\u201d or the Post Office and state name, is optional; however the Postal Service recommends using the Post Office, state and ZIP Code for mail not entered at or dropshipped directly to a destination delivery unit. See 3.2.2 for governmental mail and 703.6.0 for Congressional mail. USPS Marketing Mail flats with simplified addresses must have one dimension larger than a letter-size maximum dimension, except under 201.5.2.2 . Simplified addressed pieces, when mailed under conditions in 201.5.2.2 , are considered to be saturation flats. See 243.6.7 for pricing eligibility. Letter-size pieces that meet the size standards in 201.5.2.2 and that are addressed to rural routes may be mailed as letters or flats with simplified addresses at the mailer\u2018s option.",
+   "integrity": {
+    "state": "complete",
+    "basis": "Heading-delimited section of 2,820 characters stored; nothing was cut.",
+    "stamped_at": "2026-10-08T13:48:47",
+    "stored_chars": 2820,
+    "source_chars": 2820,
+    "cap_applied": 60000
+   },
+   "authority_class": "regulation",
+   "claim_layer": "doctrinal",
+   "claim_layer_meaning": "States or describes the rule. Cite for what the law IS."
+  },
+  {
+   "citation": "DMM 602.3.2.2",
+   "kind": "heading",
+   "page": 1,
+   "text": "3.2.2 Use\u2014Governmental Mailers When distribution is to be made to each active possible delivery on city carrier routes or to each Post Office boxholder at a Post Office with city carrier service, the addressee\u2019s name; mailing address; and city, state, and ZIP Code may be omitted from the address only on pieces mailed as official matter by agencies of the federal government (including mail with the congressional frank prepared under 703.6.0 ); any state, county, or municipal government; and the governments of the District of Columbia, the Commonwealth of Puerto Rico, and any U.S. territory or possession listed in 608.2.0 . The requirement for distribution to each stop or Post Office boxholder may be modified for congressional mail under 703.6.0 . The following also applies: Only these forms of address may be used instead of the addressee\u2019s name and address: \u201cPostal Customer\u201d (delivery desired at all addresses). \u201cResidential Customer\u201d (delivery desired at residential addresses only). \u201cBusiness Customer\u201d (delivery desired at business addresses only). At least 10 days before the mailing date, the mailer must submit a sample mailpiece and the following information to the entry office postmaster (in response, the mailer receives a mailing schedule that must be followed): Proposed mailing date. Total number of pieces being mailed. Method of postage payment. Names of all city delivery Post Offices to receive any of the mailing and the number of pieces for each.",
+   "integrity": {
+    "state": "complete",
+    "basis": "Heading-delimited section of 1,477 characters stored; nothing was cut.",
+    "stamped_at": "2026-10-08T13:48:47",
+    "stored_chars": 1477,
+    "source_chars": 1477,
+    "cap_applied": 60000
+   },
+   "authority_class": "regulation",
+   "claim_layer": "doctrinal",
+   "claim_layer_meaning": "States or describes the rule. Cite for what the law IS."
+  },
+  {
+   "citation": "DMM 602.3.2.3",
+   "kind": "heading",
+   "page": 1,
+   "text": "3.2.3 Mail Preparation The following apply: Mailers must do the following: Prepare letter-size pieces in trays. Prepare flat-size pieces in carrier-route bundles in sacks, flat trays, or directly on pallets. Prepare nonstandard parcels in carrier-route bundles in sacks or directly on pallets. Mark pieces according to 102 or 202 202. Prepare all pieces for the same carrier route in bundles of 50, so far as practicable. If the pieces are bundled in quantities other than 50, mailers must show the actual number of pieces on the facing slip or on the top piece of the bundle. Include enough pieces to cover the routes selected if selective distribution is desired. Bundles, sacks, or trays may be placed on the following pallets under 705.8.10 : SCF; 3-digit; 5-digit; or 5-digit scheme. In addition to the required simplified address, each bundle must bear a facing slip showing the desired distribution (for example, 5-digit ZIP Code and route number), or the top piece of each bundle must include the route number and ZIP Code. Mailers may obtain delivery statistics for routes as described in 509.1.0 . All pieces must be in the same processing category.",
+   "integrity": {
+    "state": "complete",
+    "basis": "Heading-delimited section of 1,159 characters stored; nothing was cut.",
+    "stamped_at": "2026-10-08T13:48:47",
+    "stored_chars": 1159,
+    "source_chars": 1159,
+    "cap_applied": 60000
+   },
+   "authority_class": "regulation",
+   "claim_layer": "doctrinal",
+   "claim_layer_meaning": "States or describes the rule. Cite for what the law IS."
+  },
+  {
+   "citation": "DMM 602.3.2.4",
+   "kind": "heading",
+   "page": 1,
+   "text": "3.2.4 Postage Postage must be paid with permit imprint, meter indicia, precanceled stamps, or other authorized methods not requiring cancellation, according to the standards for the class of mail. Postage for pieces mailed as EDDM-Retail flats must be as described in 144.",
+   "integrity": {
+    "state": "complete",
+    "basis": "Heading-delimited section of 272 characters stored; nothing was cut.",
+    "stamped_at": "2026-10-08T13:48:47",
+    "stored_chars": 272,
+    "source_chars": 272,
+    "cap_applied": 60000
+   },
+   "authority_class": "regulation",
+   "claim_layer": "doctrinal",
+   "claim_layer_meaning": "States or describes the rule. Cite for what the law IS."
+  },
+  {
+   "citation": "DMM 602.3.2.5",
+   "kind": "heading",
+   "page": 1,
+   "text": "3.2.5 Address Designation Only the address designations in 3.2.1 or 3.2.2 may be used. Other designations (e.g., \u201cFood Buyer,\u201d \u201cVoter\u201d) are not permitted.",
+   "integrity": {
+    "state": "complete",
+    "basis": "Heading-delimited section of 154 characters stored; nothing was cut.",
+    "stamped_at": "2026-10-08T13:48:47",
+    "stored_chars": 154,
+    "source_chars": 154,
+    "cap_applied": 60000
+   },
+   "authority_class": "regulation",
+   "claim_layer": "doctrinal",
+   "claim_layer_meaning": "States or describes the rule. Cite for what the law IS."
+  },
+  {
+   "citation": "DMM 602.3.3",
+   "kind": "heading",
+   "page": 1,
+   "text": "3.3 Occupant Address",
+   "integrity": {
+    "state": "complete",
+    "basis": "Heading-delimited section of 20 characters stored; nothing was cut.",
+    "stamped_at": "2026-10-08T13:48:47",
+    "stored_chars": 20,
+    "source_chars": 20,
+    "cap_applied": 60000
+   },
+   "authority_class": "regulation",
+   "claim_layer": "doctrinal",
+   "claim_layer_meaning": "States or describes the rule. Cite for what the law IS."
+  },
+  {
+   "citation": "DMM 602.3.3.1",
+   "kind": "heading",
+   "page": 1,
+   "text": "3.3.1 Use of Occupant Address The occupant address format (\u201cPostal Customer\u201d or \u201cOccupant,\u201d \u201cHouseholder,\u201d or \u201cResident\u201d) may be used to address mail selectively to a rural route and box number, a specific street number, or a specific Post Office box number without using the addressee\u2019s name: Example POSTAL CUSTOMER 2711 ORDWAY ST NW APT 204 WASHINGTON DC 20008-5036",
+   "integrity": {
+    "state": "complete",
+    "basis": "Heading-delimited section of 368 characters stored; nothing was cut.",
+    "stamped_at": "2026-10-08T13:48:47",
+    "stored_chars": 368,
+    "source_chars": 368,
+    "cap_applied": 60000
+   },
+   "authority_class": "regulation",
+   "claim_layer": "doctrinal",
+   "claim_layer_meaning": "States or describes the rule. Cite for what the law IS."
+  },
+  {
+   "citation": "DMM 602.3.4",
+   "kind": "heading",
+   "page": 1,
+   "text": "3.4 Exceptional Address",
+   "integrity": {
+    "state": "complete",
+    "basis": "Heading-delimited section of 23 characters stored; nothing was cut.",
+    "stamped_at": "2026-10-08T13:48:47",
+    "stored_chars": 23,
+    "source_chars": 23,
+    "cap_applied": 60000
+   },
+   "authority_class": "regulation",
+   "claim_layer": "doctrinal",
+   "claim_layer_meaning": "States or describes the rule. Cite for what the law IS."
+  },
+  {
+   "citation": "DMM 602.3.4.1",
+   "kind": "heading",
+   "page": 1,
+   "text": "3.4.1 Use of Exceptional Address The exceptional address format (\u201cJane Doe or Current Resident\u201d or \u201cJane Doe or Current Occupant\u201d) may be used on any mail except mail types listed in 3.1.2 . The word \u201cCurrent\u201d is optional. The order of the words may be reversed (e.g., \u201cCurrent Resident or Jane Doe\u201d rather than \u201cJane Doe or Current Resident\u201d).",
+   "integrity": {
+    "state": "complete",
+    "basis": "Heading-delimited section of 344 characters stored; nothing was cut.",
+    "stamped_at": "2026-10-08T13:48:47",
+    "stored_chars": 344,
+    "source_chars": 344,
+    "cap_applied": 60000
+   },
+   "authority_class": "regulation",
+   "claim_layer": "doctrinal",
+   "claim_layer_meaning": "States or describes the rule. Cite for what the law IS."
+  },
+  {
+   "citation": "DMM 602.3.4.2",
+   "kind": "heading",
+   "page": 1,
+   "text": "3.4.2 Placement The exceptional address format must be placed in the address block, with the following exceptions: If all the current resident/occupant information cannot be placed on the first or second line of the address, the exceptional address format may be placed no more than 3/4 inch above the address block. If an optional endorsement line (OEL) is used, the mailer may elect to place the exceptional address format above the OEL. In these cases, the exceptional address format must be at least 1/2 inch, but not more than 3/4 inch, above the optional endorsement line. If a window envelope is used with an OEL, the exceptional address information may be printed either in the area on the insert showing through the window or on the envelope above the window.",
+   "integrity": {
+    "state": "complete",
+    "basis": "Heading-delimited section of 768 characters stored; nothing was cut.",
+    "stamped_at": "2026-10-08T13:48:47",
+    "stored_chars": 768,
+    "source_chars": 768,
+    "cap_applied": 60000
+   },
+   "authority_class": "regulation",
+   "claim_layer": "doctrinal",
+   "claim_layer_meaning": "States or describes the rule. Cite for what the law IS."
+  },
+  {
+   "citation": "DMM 602.4.0",
+   "kind": "heading",
+   "page": 1,
+   "text": "4.0 Detached Address Labels (DALs)",
+   "integrity": {
+    "state": "complete",
+    "basis": "Heading-delimited section of 34 characters stored; nothing was cut.",
+    "stamped_at": "2026-10-08T13:48:47",
+    "stored_chars": 34,
+    "source_chars": 34,
+    "cap_applied": 60000
+   },
+   "authority_class": "regulation",
+   "claim_layer": "doctrinal",
+   "claim_layer_meaning": "States or describes the rule. Cite for what the law IS."
+  },
+  {
+   "citation": "DMM 602.4.1",
+   "kind": "heading",
+   "page": 1,
+   "text": "4.1 General",
+   "integrity": {
+    "state": "complete",
+    "basis": "Heading-delimited section of 11 characters stored; nothing was cut.",
+    "stamped_at": "2026-10-08T13:48:47",
+    "stored_chars": 11,
+    "source_chars": 11,
+    "cap_applied": 60000
+   },
+   "authority_class": "regulation",
+   "claim_layer": "doctrinal",
+   "claim_layer_meaning": "States or describes the rule. Cite for what the law IS."
+  },
+  {
+   "citation": "DMM 602.4.1.1",
+   "kind": "heading",
+   "page": 1,
+   "text": "4.1.1 Definition Detached address labels (DALs) in its\u2019 basic form ( 4.3.1 through 4.3.5 ) may be used by mailers as an optional method of printing addresses and postage indicia instead of printing addresses and postage on the items mailed. For these standards, \u201citem\u201d refers to the types of eligible mail described in 4.2.1 through 4.2.3 .",
+   "integrity": {
+    "state": "complete",
+    "basis": "Heading-delimited section of 340 characters stored; nothing was cut.",
+    "stamped_at": "2026-10-08T13:48:47",
+    "stored_chars": 340,
+    "source_chars": 340,
+    "cap_applied": 60000
+   },
+   "authority_class": "regulation",
+   "claim_layer": "doctrinal",
+   "claim_layer_meaning": "States or describes the rule. Cite for what the law IS."
+  },
+  {
+   "citation": "DMM 602.4.1.2",
+   "kind": "heading",
+   "page": 1,
+   "text": "4.1.2 Alternative Address Format DALs may have alternative addressing formats under 3.0 , subject to the applicable standards under 4.0",
+   "integrity": {
+    "state": "complete",
+    "basis": "Heading-delimited section of 135 characters stored; nothing was cut.",
+    "stamped_at": "2026-10-08T13:48:47",
+    "stored_chars": 135,
+    "source_chars": 135,
+    "cap_applied": 60000
+   },
+   "authority_class": "regulation",
+   "claim_layer": "doctrinal",
+   "claim_layer_meaning": "States or describes the rule. Cite for what the law IS."
+  },
+  {
+   "citation": "DMM 602.4.1.3",
+   "kind": "heading",
+   "page": 1,
+   "text": "4.1.3 Ancillary Service Endorsements Ancillary service endorsements are not permitted. A DAL that is undeliverable as addressed is handled under 507.1.1 through 507.1.9 for the applicable class of mail. The accompanying item is treated as specified by the mailer under 4.5 .",
+   "integrity": {
+    "state": "complete",
+    "basis": "Heading-delimited section of 274 characters stored; nothing was cut.",
+    "stamped_at": "2026-10-08T13:48:47",
+    "stored_chars": 274,
+    "source_chars": 274,
+    "cap_applied": 60000
+   },
+   "authority_class": "regulation",
+   "claim_layer": "doctrinal",
+   "claim_layer_meaning": "States or describes the rule. Cite for what the law IS."
+  },
+  {
+   "citation": "DMM 602.4.1.4",
+   "kind": "heading",
+   "page": 1,
+   "text": "4.1.4 Documentation When requested by USPS , DAL mailers must provide documentation to establish that the applicable distribution standards in 4.2.1 through 4.2.3 are met.",
+   "integrity": {
+    "state": "complete",
+    "basis": "Heading-delimited section of 171 characters stored; nothing was cut.",
+    "stamped_at": "2026-10-08T13:48:47",
+    "stored_chars": 171,
+    "source_chars": 171,
+    "cap_applied": 60000
+   },
+   "authority_class": "regulation",
+   "claim_layer": "doctrinal",
+   "claim_layer_meaning": "States or describes the rule. Cite for what the law IS."
+  },
+  {
+   "citation": "DMM 602.4.1.5",
+   "kind": "heading",
+   "page": 1,
+   "text": "4.1.5 Extra Services Items mailed with DALs may not be combined with any extra service.",
+   "integrity": {
+    "state": "complete",
+    "basis": "Heading-delimited section of 87 characters stored; nothing was cut.",
+    "stamped_at": "2026-10-08T13:48:47",
+    "stored_chars": 87,
+    "source_chars": 87,
+    "cap_applied": 60000
+   },
+   "authority_class": "regulation",
+   "claim_layer": "doctrinal",
+   "claim_layer_meaning": "States or describes the rule. Cite for what the law IS."
+  },
+  {
+   "citation": "DMM 602.4.2",
+   "kind": "heading",
+   "page": 1,
+   "text": "4.2 Eligible Mail",
+   "integrity": {
+    "state": "complete",
+    "basis": "Heading-delimited section of 17 characters stored; nothing was cut.",
+    "stamped_at": "2026-10-08T13:48:47",
+    "stored_chars": 17,
+    "source_chars": 17,
+    "cap_applied": 60000
+   },
+   "authority_class": "regulation",
+   "claim_layer": "doctrinal",
+   "claim_layer_meaning": "States or describes the rule. Cite for what the law IS."
+  },
+  {
+   "citation": "DMM 602.4.2.1",
+   "kind": "heading",
+   "page": 1,
+   "text": "4.2.1 Periodicals or USPS Marketing Mail Flats Saturation Mailings Saturation mailings of only unaddressed Periodicals ( 207.23.9.4 ) or USPS Marketing Mail ( 245.9.10.4 ) flats may be mailed with DALs, but DALs may not bear simplified addresses when used with USPS Marketing Mail flats. Saturation flat mailings presented with DALs that are not automation-compatible and correctly barcoded do not qualify for saturation prices. Instead, they may be entered at applicable basic carrier route prices. This standard (for automation-compatible barcoded DALs ) does not apply to DALs with simplified addressing when correctly used with Periodicals flats.",
+   "integrity": {
+    "state": "complete",
+    "basis": "Heading-delimited section of 650 characters stored; nothing was cut.",
+    "stamped_at": "2026-10-08T13:48:47",
+    "stored_chars": 650,
+    "source_chars": 650,
+    "cap_applied": 60000
+   },
+   "authority_class": "regulation",
+   "claim_layer": "doctrinal",
+   "claim_layer_meaning": "States or describes the rule. Cite for what the law IS."
+  },
+  {
+   "citation": "DMM 602.4.2.2",
+   "kind": "heading",
+   "page": 1,
+   "text": "4.2.2 Bound Printed Matter Unaddressed pieces of Bound Printed Matter may be mailed with DALs. The mail is prepared on 5-digit pallets meeting the standards in 705.8.0 . (Exception: Separate 5-digit pallets of carrier route and Presorted price mail are not required for flat-size mail.) The destination delivery unit (DDU)/sorting and delivery center (S&DC) is determined using the Drop Shipment Product under the provisions for the DDU price in 266.3.0 through 266.6.0 . The mail may not be prepared on pallets when the Drop Shipment Product indicates that the delivery unit that serves the 5-digit pallet destination cannot handle pallets. For such delivery units, mail with DALs must be prepared in sacks. The trays or cartons of DALs must be prepared under 4.4 , placed on the same pallet as the pieces, and must be stretch-wrapped together as one unit. The mail is prepared in 5-digit sacks and entered at the destination delivery unit. The destination delivery unit is determined by using the Drop Shipment Product under the provisions for the DDU price in 266.3.0 through 266.6.0 . DALs must be bundled under 4.4 and presented to the destination delivery unit with the accompanying items to be distributed with the DALs.",
+   "integrity": {
+    "state": "complete",
+    "basis": "Heading-delimited section of 1,227 characters stored; nothing was cut.",
+    "stamped_at": "2026-10-08T13:48:47",
+    "stored_chars": 1227,
+    "source_chars": 1227,
+    "cap_applied": 60000
+   },
+   "authority_class": "regulation",
+   "claim_layer": "doctrinal",
+   "claim_layer_meaning": "States or describes the rule. Cite for what the law IS."
+  },
+  {
+   "citation": "DMM 602.4.3",
+   "kind": "heading",
+   "page": 1,
+   "text": "4.3 Label Preparation",
+   "integrity": {
+    "state": "complete",
+    "basis": "Heading-delimited section of 21 characters stored; nothing was cut.",
+    "stamped_at": "2026-10-08T13:48:47",
+    "stored_chars": 21,
+    "source_chars": 21,
+    "cap_applied": 60000
+   },
+   "authority_class": "regulation",
+   "claim_layer": "doctrinal",
+   "claim_layer_meaning": "States or describes the rule. Cite for what the law IS."
+  },
+  {
+   "citation": "DMM 602.4.3.1",
+   "kind": "heading",
+   "page": 1,
+   "text": "4.3.1 Label Construction Each DAL must be made of paper or cardboard stock that is not folded, perforated, or creased, and that meets these measurements: Between 3-1/2 and 5 inches high (perpendicular to the address). Between 5 and 9 inches long (parallel to the address). At least 0.007 inch thick, except under 4.3.1d. If more than 4-1/4 inches high or more than 6 inches long, must be at least 0.009 inch thick. Must have an aspect ratio (length divided by height) from 1.3 to 2.5, inclusive.",
+   "integrity": {
+    "state": "complete",
+    "basis": "Heading-delimited section of 495 characters stored; nothing was cut.",
+    "stamped_at": "2026-10-08T13:48:47",
+    "stored_chars": 495,
+    "source_chars": 495,
+    "cap_applied": 60000
+   },
+   "authority_class": "regulation",
+   "claim_layer": "doctrinal",
+   "claim_layer_meaning": "States or describes the rule. Cite for what the law IS."
+  },
+  {
+   "citation": "DMM 602.4.3.2",
+   "kind": "heading",
+   "page": 1,
+   "text": "4.3.2 Addressing The address for each item must be placed on a DAL parallel to the longest dimension of the DAL and may not appear on the item it accompanies. The DAL must contain a delivery address and a return address. In addition, if DALs accompany saturation mailings of Periodicals or USPS Marketing Mail flats, a correct Intelligent Mail barcode with an 11-digit routing code must be printed on each DAL except when using a simplified address for Periodicals flats as allowed by standards.",
+   "integrity": {
+    "state": "complete",
+    "basis": "Heading-delimited section of 495 characters stored; nothing was cut.",
+    "stamped_at": "2026-10-08T13:48:47",
+    "stored_chars": 495,
+    "source_chars": 495,
+    "cap_applied": 60000
+   },
+   "authority_class": "regulation",
+   "claim_layer": "doctrinal",
+   "claim_layer_meaning": "States or describes the rule. Cite for what the law IS."
+  },
+  {
+   "citation": "DMM 602.4.3.3",
+   "kind": "heading",
+   "page": 1,
+   "text": "4.3.3 One DAL Per Item Only one DAL may be prepared for each accompanying item, and only one item may be identified for delivery per DAL. (A single DAL may not be prepared to deliver one each of different accompanying items or multiples of the same item.)",
+   "integrity": {
+    "state": "complete",
+    "basis": "Heading-delimited section of 255 characters stored; nothing was cut.",
+    "stamped_at": "2026-10-08T13:48:47",
+    "stored_chars": 255,
+    "source_chars": 255,
+    "cap_applied": 60000
+   },
+   "authority_class": "regulation",
+   "claim_layer": "doctrinal",
+   "claim_layer_meaning": "States or describes the rule. Cite for what the law IS."
+  },
+  {
+   "citation": "DMM 602.4.3.4",
+   "kind": "heading",
+   "page": 1,
+   "text": "4.3.4 Required Information The following words must appear in bold type at least 1/8 inch high on the front of each DAL: \u201cUSPS regulations require that this address label be delivered with its accompanying postage-paid mail. If you should receive this label without its accompanying mail, please notify your local postmaster.%rdquo; The title or brand name of the item (which may include an illustration of the item) must also appear on the front or back of the DAL to associate it with the accompanying item.",
+   "integrity": {
+    "state": "complete",
+    "basis": "Heading-delimited section of 509 characters stored; nothing was cut.",
+    "stamped_at": "2026-10-08T13:48:47",
+    "stored_chars": 509,
+    "source_chars": 509,
+    "cap_applied": 60000
+   },
+   "authority_class": "regulation",
+   "claim_layer": "doctrinal",
+   "claim_layer_meaning": "States or describes the rule. Cite for what the law IS."
+  },
+  {
+   "citation": "DMM 602.4.3.5",
+   "kind": "heading",
+   "page": 1,
+   "text": "4.3.5 Other Information In addition to the information described in 4.3.2 and 4.3.4 , and an indicium of postage payment, only official pictures and data circulated by the National Center for Missing and Exploited Children may appear on the front of a DAL.",
+   "integrity": {
+    "state": "complete",
+    "basis": "Heading-delimited section of 256 characters stored; nothing was cut.",
+    "stamped_at": "2026-10-08T13:48:47",
+    "stored_chars": 256,
+    "source_chars": 256,
+    "cap_applied": 60000
+   },
+   "authority_class": "regulation",
+   "claim_layer": "doctrinal",
+   "claim_layer_meaning": "States or describes the rule. Cite for what the law IS."
+  },
+  {
+   "citation": "DMM 602.4.4",
+   "kind": "heading",
+   "page": 1,
+   "text": "4.4 Mail Preparation",
+   "integrity": {
+    "state": "complete",
+    "basis": "Heading-delimited section of 20 characters stored; nothing was cut.",
+    "stamped_at": "2026-10-08T13:48:47",
+    "stored_chars": 20,
+    "source_chars": 20,
+    "cap_applied": 60000
+   },
+   "authority_class": "regulation",
+   "claim_layer": "doctrinal",
+   "claim_layer_meaning": "States or describes the rule. Cite for what the law IS."
+  },
+  {
+   "citation": "DMM 602.4.4.1",
+   "kind": "heading",
+   "page": 1,
+   "text": "4.4.1 Notice to Delivery Office Each delivery office to receive a DAL mailing must be notified in writing at least 10 days before the requested delivery period begins. To ensure that the delivery office can readily relate the notice to the cartons containing the corresponding items, a copy of that letter must be enclosed with the DALs unless the initial notice and the cartons used for the DALs and items each conspicuously bears a mailing identification number. The letter must contain the following information: Name and telephone number of mailer or representative. Origin Post Office of mailing. Expected mailing date. Description of mailing. Number of addressees for each 5-digit ZIP Code. Number of DALs per carton or bundle. Number of items per carton or bundle. Expected delivery period (range of dates). Requested action for excess or undeliverable DALs, DMLS, or items (see 4.5 ).",
+   "integrity": {
+    "state": "complete",
+    "basis": "Heading-delimited section of 892 characters stored; nothing was cut.",
+    "stamped_at": "2026-10-08T13:48:47",
+    "stored_chars": 892,
+    "source_chars": 892,
+    "cap_applied": 60000
+   },
+   "authority_class": "regulation",
+   "claim_layer": "doctrinal",
+   "claim_layer_meaning": "States or describes the rule. Cite for what the law IS."
+  },
+  {
+   "citation": "DMM 602.4.4.2",
+   "kind": "heading",
+   "page": 1,
+   "text": "4.4.2 Basic Standards for DALs The following apply: The DALs must be presorted, counted, and prepared by 5-digit ZIP Code delivery area. Only DALs for the same 5-digit area may be placed in the same carton, sack, or tray. DAL mailings claimed at carrier-route basic or walk-sequence prices must be further prepared under the corresponding standards. Mailers must prepare DALs as bundles in sacks or in cartons, unless prepared in trays under 4.4.6 when mailed with saturation flats. Different size cartons may be used in the same mailing, but each must be filled with dunnage as necessary to ensure that the DALs retain their orientation and presort integrity while in transit. Each carton of DALs must bear a label showing the information in 4.4.5 unless a mailing identification number is used (see 4.4.1 ). Multiple containers of DALs must be numbered sequentially (\u201c1 of __,\u201d \u201c2 of __,\u201d etc.).",
+   "integrity": {
+    "state": "complete",
+    "basis": "Heading-delimited section of 897 characters stored; nothing was cut.",
+    "stamped_at": "2026-10-08T13:48:47",
+    "stored_chars": 897,
+    "source_chars": 897,
+    "cap_applied": 60000
+   },
+   "authority_class": "regulation",
+   "claim_layer": "doctrinal",
+   "claim_layer_meaning": "States or describes the rule. Cite for what the law IS."
+  },
+  {
+   "citation": "DMM 602.4.4.3",
+   "kind": "heading",
+   "page": 1,
+   "text": "4.4.3 Basic Standards for Items Distributed with DALs The following apply: Except for bundles of saturation flats placed directly on pallets under 4.4.7 , the items to be distributed with DALs must be placed in cartons or prepared in bundles placed in flat trays/sacks, subject to the standards for the price claimed. A label bearing the content description information in 4.4.5 must be affixed to each carton, trayed/sacked bundle, or pallet unless a mailing identification number is used (see 4.4.1 ). Cartons of items (including those on pallets) may differ in size, but must be filled with dunnage as necessary to ensure the integrity of the items while in transit. The gross weight of each carton or flat tray/sack must not be more than 40 pounds.",
+   "integrity": {
+    "state": "complete",
+    "basis": "Heading-delimited section of 752 characters stored; nothing was cut.",
+    "stamped_at": "2026-10-08T13:48:47",
+    "stored_chars": 752,
+    "source_chars": 752,
+    "cap_applied": 60000
+   },
+   "authority_class": "regulation",
+   "claim_layer": "doctrinal",
+   "claim_layer_meaning": "States or describes the rule. Cite for what the law IS."
+  },
+  {
+   "citation": "DMM 602.4.4.4",
+   "kind": "heading",
+   "page": 1,
+   "text": "4.4.4 Combined Cartons Both the DALs and the accompanying items may be enclosed in the same carton when sent to a small volume 5-digit ZIP Code area. If the DALs and the accompanying items are packed together, these standards apply: The DALs must be bundled and labeled under 4.4.2 and placed on top of the items. The carton must be packed with dunnage to ensure the integrity of the contents while in transit. The gross weight of the carton must not exceed 40 pounds. The exterior of the carton must be labeled under 4.4.5 and marked \u201cDALs ENCLOSED\u201d in letters not less than 1/2 inch high.",
+   "integrity": {
+    "state": "complete",
+    "basis": "Heading-delimited section of 590 characters stored; nothing was cut.",
+    "stamped_at": "2026-10-08T13:48:47",
+    "stored_chars": 590,
+    "source_chars": 590,
+    "cap_applied": 60000
+   },
+   "authority_class": "regulation",
+   "claim_layer": "doctrinal",
+   "claim_layer_meaning": "States or describes the rule. Cite for what the law IS."
+  },
+  {
+   "citation": "DMM 602.4.4.5",
+   "kind": "heading",
+   "page": 1,
+   "text": "4.4.5 Container Labels Sacks, flat trays, cartons, and pallets of DAL mail must be labeled under the preparation standards for the price claimed. A second label must be affixed to each bundle in a carton, flat tray, or sack to provide the following information (unless a mailing identification number is used under 4.4.1 ): Delivery Post Office name and 5-digit ZIP Code delivery area. Title, brand name, or other description of the items. Name and telephone number of the mailer or representative. Number of labels or items in the carton, as applicable. Instructions to open and distribute either the DALs with matching items or the items with matching DALs as appropriate.",
+   "integrity": {
+    "state": "complete",
+    "basis": "Heading-delimited section of 674 characters stored; nothing was cut.",
+    "stamped_at": "2026-10-08T13:48:47",
+    "stored_chars": 674,
+    "source_chars": 674,
+    "cap_applied": 60000
+   },
+   "authority_class": "regulation",
+   "claim_layer": "doctrinal",
+   "claim_layer_meaning": "States or describes the rule. Cite for what the law IS."
+  },
+  {
+   "citation": "DMM 602.4.4.6",
+   "kind": "heading",
+   "page": 1,
+   "text": "4.4.6 Optional Tray and Bundle Preparation The following apply: Mailers may prepare DALs in letter trays according to 245.9.0 when DALs are used in mailings of saturation flats. Bundles of saturation flats to be distributed with DALs may be prepared on 5-digit pallets under 4.4.7 . Pallets must not be used when the Drop Shipment Product specifies that the delivery unit that serves the 5-digit pallet destination cannot handle pallets. For such delivery units, mail with DALs must be prepared in cartons, flat trays, or sacks. The tray(s) of corresponding DALs must be placed on top of the accompanying pallet of flats, and the pallet contents must be secured with stretchwrap to avoid separation in transportation and processing. All containers must be labeled according to 4.4.5 .",
+   "integrity": {
+    "state": "complete",
+    "basis": "Heading-delimited section of 784 characters stored; nothing was cut.",
+    "stamped_at": "2026-10-08T13:48:47",
+    "stored_chars": 784,
+    "source_chars": 784,
+    "cap_applied": 60000
+   },
+   "authority_class": "regulation",
+   "claim_layer": "doctrinal",
+   "claim_layer_meaning": "States or describes the rule. Cite for what the law IS."
+  },
+  {
+   "citation": "DMM 602.4.4.7",
+   "kind": "heading",
+   "page": 1,
+   "text": "4.4.7 Optional Container Preparation Bundles of flats and cartons, flat trays, or sacks of items may be placed on pallets meeting the standards in 705.8.0 . Cartons or trays of DALs must be placed on pallets with the corresponding items under 4.4 and 705.8.0 . The USPS plant manager at whose facility a DAL mailing is deposited may authorize other containers for the portion of the mailing to be delivered in that plant\u2019s service area.",
+   "integrity": {
+    "state": "complete",
+    "basis": "Heading-delimited section of 436 characters stored; nothing was cut.",
+    "stamped_at": "2026-10-08T13:48:47",
+    "stored_chars": 436,
+    "source_chars": 436,
+    "cap_applied": 60000
+   },
+   "authority_class": "regulation",
+   "claim_layer": "doctrinal",
+   "claim_layer_meaning": "States or describes the rule. Cite for what the law IS."
+  },
+  {
+   "citation": "DMM 602.4.5",
+   "kind": "heading",
+   "page": 1,
+   "text": "4.5 Disposition of Excess or Undeliverable Material The letter required under 4.4.1 must either request that the delivery office contact the mailer (or representative) about excess DALs or items, or provide instructions for their treatment. (If the mailer does not provide information about excess DALs or items, such material is disposed of as waste by the USPS.) The mailer must choose one of the following options for each DAL mailing and the items: Disposal of any excess material as waste. Return of the excess material to the mailer, postage due at the applicable single-piece price under 4.6 . Holding of the excess material for pickup by the mailer (or representative). If pickup is not made within 15 calendar days of the notice to the mailer, the material is returned to the mailer postage due. Holding of the excess material while additional DALs or items are supplied (as applicable). If additional material is not supplied within 15 days of the notice to the mailer, the excess material is returned to the mailer postage due. Additional material must be sent prepaid to the delivery Post Office as First-Class Mail, USPS Ground Advantage \u2014 Retail, Priority Mail, or Priority Mail Express.",
+   "integrity": {
+    "state": "complete",
+    "basis": "Heading-delimited section of 1,201 characters stored; nothing was cut.",
+    "stamped_at": "2026-10-08T13:48:47",
+    "stored_chars": 1201,
+    "source_chars": 1201,
+    "cap_applied": 60000
+   },
+   "authority_class": "regulation",
+   "claim_layer": "doctrinal",
+   "claim_layer_meaning": "States or describes the rule. Cite for what the law IS."
+  },
+  {
+   "citation": "DMM 602.4.6",
+   "kind": "heading",
+   "page": 1,
+   "text": "4.6 Postage",
+   "integrity": {
+    "state": "complete",
+    "basis": "Heading-delimited section of 11 characters stored; nothing was cut.",
+    "stamped_at": "2026-10-08T13:48:47",
+    "stored_chars": 11,
+    "source_chars": 11,
+    "cap_applied": 60000
+   },
+   "authority_class": "regulation",
+   "claim_layer": "doctrinal",
+   "claim_layer_meaning": "States or describes the rule. Cite for what the law IS."
+  },
+  {
+   "citation": "DMM 602.4.6.1",
+   "kind": "heading",
+   "page": 1,
+   "text": "4.6.1 Prices DAL mailings are not eligible for automation prices, but the pieces may qualify for carrier route prices, subject to applicable standards. Mailers must pay a surcharge for each DAL used with USPS Marketing Mail flats. See Notice 123\u2014Price List for prices.",
+   "integrity": {
+    "state": "complete",
+    "basis": "Heading-delimited section of 268 characters stored; nothing was cut.",
+    "stamped_at": "2026-10-08T13:48:47",
+    "stored_chars": 268,
+    "source_chars": 268,
+    "cap_applied": 60000
+   },
+   "authority_class": "regulation",
+   "claim_layer": "doctrinal",
+   "claim_layer_meaning": "States or describes the rule. Cite for what the law IS."
+  },
+  {
+   "citation": "DMM 602.4.6.2",
+   "kind": "heading",
+   "page": 1,
+   "text": "4.6.2 Postage Computation and Payment Postage is computed based on the combined weight of the item and the accompanying DAL. If the number of DALs and items mailed is not identical, the number of pieces used to determine postage is the greater of the two. No postage refund is allowed in these situations. In addition, these methods of postage payment apply: Periodicals flats must be prepaid. A notice of entry must appear in the upper right corner of the DAL. [7-12-26] b. USPS Marketing Mail flats (except EDDM flats) and parcels (including Heavy Printed Matter) and Bound Printed Matter pieces must be paid by permit imprint, which must appear on each DAL. A surcharge applies to each DAL used in a USPS Marketing Mail flats mailing.",
+   "integrity": {
+    "state": "complete",
+    "basis": "Heading-delimited section of 737 characters stored; nothing was cut.",
+    "stamped_at": "2026-10-08T13:48:47",
+    "stored_chars": 737,
+    "source_chars": 737,
+    "cap_applied": 60000
+   },
+   "authority_class": "regulation",
+   "claim_layer": "doctrinal",
+   "claim_layer_meaning": "States or describes the rule. Cite for what the law IS."
+  },
+  {
+   "citation": "DMM 602.4.6.3",
+   "kind": "heading",
+   "page": 1,
+   "text": "4.6.3 Returns Postage for excess or undeliverable DALs that are properly endorsed, or for items being returned, is computed at the single-piece price (First-Class Mail, USPS Ground Advantage \u2014 Retail, Priority Mail, or Package Services) applicable to the combined weight of the DAL and the accompanying item, regardless of whether both are returned. The total amount due for returned material, which includes the return postage and the applicable address correction fee for each DAL or item returned, is collected when the material is returned to the mailer.",
+   "integrity": {
+    "state": "complete",
+    "basis": "Heading-delimited section of 558 characters stored; nothing was cut.",
+    "stamped_at": "2026-10-08T13:48:47",
+    "stored_chars": 558,
+    "source_chars": 558,
+    "cap_applied": 60000
+   },
+   "authority_class": "regulation",
+   "claim_layer": "doctrinal",
+   "claim_layer_meaning": "States or describes the rule. Cite for what the law IS."
+  },
+  {
+   "citation": "DMM 602.4.6.4",
+   "kind": "heading",
+   "page": 1,
+   "text": "4.6.4 Additional Items Postage for additional material (DALs or items) mailed to the USPS under 4.5d must be prepaid as First-Class Mail, Priority Mail, or Priority Mail Express, subject to the eligibility standards for the price claimed and the conditions in 4.6.2 .",
+   "integrity": {
+    "state": "complete",
+    "basis": "Heading-delimited section of 267 characters stored; nothing was cut.",
+    "stamped_at": "2026-10-08T13:48:47",
+    "stored_chars": 267,
+    "source_chars": 267,
+    "cap_applied": 60000
+   },
+   "authority_class": "regulation",
+   "claim_layer": "doctrinal",
+   "claim_layer_meaning": "States or describes the rule. Cite for what the law IS."
+  },
+  {
+   "citation": "DMM 602.5.0",
+   "kind": "heading",
+   "page": 1,
+   "text": "5.0 Move Update Standards",
+   "integrity": {
+    "state": "complete",
+    "basis": "Heading-delimited section of 25 characters stored; nothing was cut.",
+    "stamped_at": "2026-10-08T13:48:47",
+    "stored_chars": 25,
+    "source_chars": 25,
+    "cap_applied": 60000
+   },
+   "authority_class": "regulation",
+   "claim_layer": "doctrinal",
+   "claim_layer_meaning": "States or describes the rule. Cite for what the law IS."
+  },
+  {
+   "citation": "DMM 602.5.1",
+   "kind": "heading",
+   "page": 1,
+   "text": "5.1 Basic Standards The Move Update standard requires the periodic matching of a mailer\u2018s address records with customer-filed change-of-address orders maintained by the USPS. Each address, except for mail bearing an alternative address format (under 3.0 ), in a mailing at commercial First-Class Mail presorted or automation prices or USPS Marketing Mail prices is subject to the Move Update standard and must meet these requirements: Each address and associated addressee used on the mailpieces in a mailing must be updated within 95 days before the mailing date, with one of the USPS-approved methods in 5.2 . The Move Update standard is met when an address used on a mailpiece in a mailing at any class of mail is updated under 5.2 , and the same address is used in a First-Class Mail or USPS Marketing Mail mailing within 95 days after the address has been updated.",
+   "integrity": {
+    "state": "complete",
+    "basis": "Heading-delimited section of 869 characters stored; nothing was cut.",
+    "stamped_at": "2026-10-08T13:48:47",
+    "stored_chars": 869,
+    "source_chars": 869,
+    "cap_applied": 60000
+   },
+   "authority_class": "regulation",
+   "claim_layer": "doctrinal",
+   "claim_layer_meaning": "States or describes the rule. Cite for what the law IS."
+  },
+  {
+   "citation": "DMM 602.5.2",
+   "kind": "heading",
+   "page": 1,
+   "text": "5.2 USPS-Approved Methods The following methods are authorized for meeting the Move Update standard: Address Change Service (ACS). National Change of Address Linkage System (NCOALink). This includes both pre-mail NCOALink processing systems and the physical mailpiece processing equipment system: National Change of Address Linkage System Mail Processing Equipment (NCOALink MPE). See the NCOALink page (NCOALink MPE Solutions) on PostalPro at https://postalpro.usps.com for more information on the MPE application. Applicable ancillary service endorsements under 507.1.5.1 or 507.1.5.3 , except \u201cForwarding Service Requested.\u201d For First-Class Mail only: Mailer Move Update Process Certification and USPS-approved alternative methods for mailers with legitimate restrictions on incorporating USPS-supplied change-of-address information into their mailing lists. The National Customer Support Center (see 608.8.1 for address) administers and approves both Mailer Move Update Process Certification and alternative methods. Election Mail, meaning any item mailed to or from authorized election officials and that enables citizens to participate in the voting process (e.g., ballots, voter registration cards, absentee voting applications and polling place notifications), may be mailed using a USPS-approved alternative method with the approval of the National Customer Support Center.",
+   "integrity": {
+    "state": "complete",
+    "basis": "Heading-delimited section of 1,382 characters stored; nothing was cut.",
+    "stamped_at": "2026-10-08T13:48:47",
+    "stored_chars": 1382,
+    "source_chars": 1382,
+    "cap_applied": 60000
+   },
+   "authority_class": "regulation",
+   "claim_layer": "doctrinal",
+   "claim_layer_meaning": "States or describes the rule. Cite for what the law IS."
+  },
+  {
+   "citation": "DMM 602.5.3",
+   "kind": "heading",
+   "page": 1,
+   "text": "5.3 Move Update Verification Mailers who submit any Full-Service volume in a calendar month will be verified pursuant to the Address Quality Census Measurement and Assessment Process beginning in the next calendar month. First-Class Mail and USPS Marketing Mail letter and flat-size mailpieces with addresses that have not been updated in accordance with the Move Update Standard will be subject to the Move Update assessment charge, if submitted via eDoc with unique Basic or Full-Service IMbs. Supporting details are described in Publication 685, Publication for Streamlined Mail Acceptance for Letters and Flats, available at postalpro.usps.com . The Move Update assessment charge will be assessed if: The percent of all qualifying mailpieces submitted in a calendar month that have a COA error is greater than the 0.5-percent error threshold, as determined by an analysis of the data captured by mail processing equipment. Qualifying mailpieces using a Green & Secure Change Service Requested STID will be included in the count of all qualifying mailpieces submitted in a calendar month, but will be excluded from assessment. Each mailpiece with an address containing COA errors in excess of the error threshold will be assessed the Move Update assessment charge.",
+   "integrity": {
+    "state": "complete",
+    "basis": "Heading-delimited section of 1,267 characters stored; nothing was cut.",
+    "stamped_at": "2026-10-08T13:48:47",
+    "stored_chars": 1267,
+    "source_chars": 1267,
+    "cap_applied": 60000
+   },
+   "authority_class": "regulation",
+   "claim_layer": "doctrinal",
+   "claim_layer_meaning": "States or describes the rule. Cite for what the law IS."
+  },
+  {
+   "citation": "DMM 602.5.4",
+   "kind": "heading",
+   "page": 1,
+   "text": "5.4 Mailer Certification The mailer\u2019s electronic confirmation during eDoc submission certifies that the Move Update standard has been met for the address records, including each address in the corresponding mailing presented to the Postal Service.",
+   "integrity": {
+    "state": "complete",
+    "basis": "Heading-delimited section of 247 characters stored; nothing was cut.",
+    "stamped_at": "2026-10-08T13:48:47",
+    "stored_chars": 247,
+    "source_chars": 247,
+    "cap_applied": 60000
+   },
+   "authority_class": "regulation",
+   "claim_layer": "doctrinal",
+   "claim_layer_meaning": "States or describes the rule. Cite for what the law IS."
+  },
+  {
+   "citation": "DMM 602.6.0",
+   "kind": "heading",
+   "page": 1,
+   "text": "6.0 ZIP Code Accuracy Standards",
+   "integrity": {
+    "state": "complete",
+    "basis": "Heading-delimited section of 31 characters stored; nothing was cut.",
+    "stamped_at": "2026-10-08T13:48:47",
+    "stored_chars": 31,
+    "source_chars": 31,
+    "cap_applied": 60000
+   },
+   "authority_class": "regulation",
+   "claim_layer": "doctrinal",
+   "claim_layer_meaning": "States or describes the rule. Cite for what the law IS."
+  },
+  {
+   "citation": "DMM 602.6.1",
+   "kind": "heading",
+   "page": 1,
+   "text": "6.1 Basic Standards Except for mail bearing a simplified address, addresses used on pieces in a mailing at all commercial First-Class Mail, nonbarcoded presorted Periodicals, USPS Marketing Mail, and Bound Printed Matter presorted, and carrier-route prices are subject to the ZIP Code accuracy standard and must meet these requirements: Each address and associated 5-digit ZIP Code on the mailpieces in a mailing must be verified and corrected within 6 months before the mailing date with one of the USPS-approved methods in 6.2 . If an address used on a mailpiece in a mailing at one class of mail and price is verified and corrected with an approved method, the same address may be used during the following 6 months to meet the ZIP Code accuracy standard required for mailing at any other class of mail and price.",
+   "integrity": {
+    "state": "complete",
+    "basis": "Heading-delimited section of 816 characters stored; nothing was cut.",
+    "stamped_at": "2026-10-08T13:48:47",
+    "stored_chars": 816,
+    "source_chars": 816,
+    "cap_applied": 60000
+   },
+   "authority_class": "regulation",
+   "claim_layer": "doctrinal",
+   "claim_layer_meaning": "States or describes the rule. Cite for what the law IS."
+  },
+  {
+   "citation": "DMM 602.6.2",
+   "kind": "heading",
+   "page": 1,
+   "text": "6.2 USPS-Approved Methods The following methods meet the ZIP Code accuracy standard: For computerized lists, Coding Accuracy Support System (CASS)-certified address matching software and current USPS City State Product, within a mailer\u2018s computer systems or through an authorized service provider. For manually maintained lists or small computerized lists, options include the following: Any mailing list service in 507.8.0 . An authorized service provider. CASS-certified matching software. USPS Web site www.usps.com .",
+   "integrity": {
+    "state": "complete",
+    "basis": "Heading-delimited section of 520 characters stored; nothing was cut.",
+    "stamped_at": "2026-10-08T13:48:47",
+    "stored_chars": 520,
+    "source_chars": 520,
+    "cap_applied": 60000
+   },
+   "authority_class": "regulation",
+   "claim_layer": "doctrinal",
+   "claim_layer_meaning": "States or describes the rule. Cite for what the law IS."
+  },
+  {
+   "citation": "DMM 602.6.3",
+   "kind": "heading",
+   "page": 1,
+   "text": "6.3 Mailer Certification The mailer\u2018s electronic confirmation during eDoc submission certifies that the ZIP Code accuracy standard has been met for each address in the corresponding mailing presented to USPS.",
+   "integrity": {
+    "state": "complete",
+    "basis": "Heading-delimited section of 208 characters stored; nothing was cut.",
+    "stamped_at": "2026-10-08T13:48:47",
+    "stored_chars": 208,
+    "source_chars": 208,
+    "cap_applied": 60000
+   },
+   "authority_class": "regulation",
+   "claim_layer": "doctrinal",
+   "claim_layer_meaning": "States or describes the rule. Cite for what the law IS."
+  },
+  {
+   "citation": "DMM 602.7.0",
+   "kind": "heading",
+   "page": 1,
+   "text": "7.0 Carrier Route Accuracy Standard",
+   "integrity": {
+    "state": "complete",
+    "basis": "Heading-delimited section of 35 characters stored; nothing was cut.",
+    "stamped_at": "2026-10-08T13:48:47",
+    "stored_chars": 35,
+    "source_chars": 35,
+    "cap_applied": 60000
+   },
+   "authority_class": "regulation",
+   "claim_layer": "doctrinal",
+   "claim_layer_meaning": "States or describes the rule. Cite for what the law IS."
+  },
+  {
+   "citation": "DMM 602.7.1",
+   "kind": "heading",
+   "page": 1,
+   "text": "7.1 Basic Standards The carrier-route accuracy standard is a means of ensuring that the carrier-route code correctly matches the delivery address information. For the purposes of this standard, \u201cAddress\u201d means a specific address associated with a specific carrier-route code. Addresses used on pieces claimed at any Periodicals carrier-route prices, USPS Marketing Mail Enhanced Carrier Route prices, or Bound Printed Matter carrier-route prices are subject to the carrier-route accuracy standard and must meet the following requirements: Each address and associated carrier route code on mailpieces (or DALs or DMLs) in a mailing must be updated using one of the USPS-approved methods in 6.2 and a product release that is within the USPS Product Cycle in Exhibit 9.3.1 . Each individual address in the mailing is subject to the carrier route accuracy standard.",
+   "integrity": {
+    "state": "complete",
+    "basis": "Heading-delimited section of 861 characters stored; nothing was cut.",
+    "stamped_at": "2026-10-08T13:48:47",
+    "stored_chars": 861,
+    "source_chars": 861,
+    "cap_applied": 60000
+   },
+   "authority_class": "regulation",
+   "claim_layer": "doctrinal",
+   "claim_layer_meaning": "States or describes the rule. Cite for what the law IS."
+  },
+  {
+   "citation": "DMM 602.7.2",
+   "kind": "heading",
+   "page": 1,
+   "text": "7.2 Exception The carrier route accuracy standard does not apply to mail of any class bearing a simplified address format under 3.0 .",
+   "integrity": {
+    "state": "complete",
+    "basis": "Heading-delimited section of 133 characters stored; nothing was cut.",
+    "stamped_at": "2026-10-08T13:48:47",
+    "stored_chars": 133,
+    "source_chars": 133,
+    "cap_applied": 60000
+   },
+   "authority_class": "regulation",
+   "claim_layer": "doctrinal",
+   "claim_layer_meaning": "States or describes the rule. Cite for what the law IS."
+  },
+  {
+   "citation": "DMM 602.7.3",
+   "kind": "heading",
+   "page": 1,
+   "text": "7.3 USPS-Approved Methods Carrier route coding must be performed using CASS-certified software and the current USPS Carrier Route Product or another Address Information System (AIS) product containing carrier route information subject to 509.1.0 and 9.0 . Printed Carrier Route Files (schemes) may be used only for Periodicals carrier route mailpieces and for USPS Marketing Mail Enhanced Carrier Route flat-size mailpieces.",
+   "integrity": {
+    "state": "complete",
+    "basis": "Heading-delimited section of 424 characters stored; nothing was cut.",
+    "stamped_at": "2026-10-08T13:48:47",
+    "stored_chars": 424,
+    "source_chars": 424,
+    "cap_applied": 60000
+   },
+   "authority_class": "regulation",
+   "claim_layer": "doctrinal",
+   "claim_layer_meaning": "States or describes the rule. Cite for what the law IS."
+  },
+  {
+   "citation": "DMM 602.7.4",
+   "kind": "heading",
+   "page": 1,
+   "text": "7.4 Mailer Certification The mailer\u2019s electronic confirmation during eDoc submission certifies that the carrier route accuracy standard has been met for each address in the corresponding mailing presented to USPS.",
+   "integrity": {
+    "state": "complete",
+    "basis": "Heading-delimited section of 213 characters stored; nothing was cut.",
+    "stamped_at": "2026-10-08T13:48:47",
+    "stored_chars": 213,
+    "source_chars": 213,
+    "cap_applied": 60000
+   },
+   "authority_class": "regulation",
+   "claim_layer": "doctrinal",
+   "claim_layer_meaning": "States or describes the rule. Cite for what the law IS."
+  },
+  {
+   "citation": "DMM 602.8.0",
+   "kind": "heading",
+   "page": 1,
+   "text": "8.0 Presort Accuracy Validation and Evaluation (PAVE)",
+   "integrity": {
+    "state": "complete",
+    "basis": "Heading-delimited section of 53 characters stored; nothing was cut.",
+    "stamped_at": "2026-10-08T13:48:47",
+    "stored_chars": 53,
+    "source_chars": 53,
+    "cap_applied": 60000
+   },
+   "authority_class": "regulation",
+   "claim_layer": "doctrinal",
+   "claim_layer_meaning": "States or describes the rule. Cite for what the law IS."
+  },
+  {
+   "citation": "DMM 602.8.1",
+   "kind": "heading",
+   "page": 1,
+   "text": "8.1 Basic Information The Presort Accuracy Validation and Evaluation (PAVE) program is a process to evaluate presort software and determine its accuracy in sorting address files under DMM standards. PAVE is available only to software and hardware manufacturers (i.e., companies that develop presort software or manufacture presorting equipment). PAVE certification does not guarantee acceptance of customer mail prepared with PAVE-validated hardware/software.",
+   "integrity": {
+    "state": "complete",
+    "basis": "Heading-delimited section of 459 characters stored; nothing was cut.",
+    "stamped_at": "2026-10-08T13:48:47",
+    "stored_chars": 459,
+    "source_chars": 459,
+    "cap_applied": 60000
+   },
+   "authority_class": "regulation",
+   "claim_layer": "doctrinal",
+   "claim_layer_meaning": "States or describes the rule. Cite for what the law IS."
+  },
+  {
+   "citation": "DMM 602.8.2",
+   "kind": "heading",
+   "page": 1,
+   "text": "8.2 Process PAVE evaluates the accuracy of presort products by providing test address files to vendors. Vendors process the test file(s) through their presort software or hardware and return the resulting presort documentation to the USPS National Customer Support Center (NCSC) for evaluation of the answers. Each test file is evaluated for its accuracy of presort, compliance with current DMM standards, accuracy of sack/tray/pallet tag labels, and general acceptability of presort documentation. If the answers are accurate, the vendor\u2019s presort product is validated for a 12-month period or until the end of the current annual period.",
+   "integrity": {
+    "state": "complete",
+    "basis": "Heading-delimited section of 638 characters stored; nothing was cut.",
+    "stamped_at": "2026-10-08T13:48:47",
+    "stored_chars": 638,
+    "source_chars": 638,
+    "cap_applied": 60000
+   },
+   "authority_class": "regulation",
+   "claim_layer": "doctrinal",
+   "claim_layer_meaning": "States or describes the rule. Cite for what the law IS."
+  },
+  {
+   "citation": "DMM 602.8.3",
+   "kind": "heading",
+   "page": 1,
+   "text": "8.3 Participation For information on participation in PAVE, presort product developers may request the PAVE Program Technical Guide from the NCSC by calling 1-800-238-3150. Participants may use the PAVE form included in that guide to order PAVE test files.",
+   "integrity": {
+    "state": "complete",
+    "basis": "Heading-delimited section of 256 characters stored; nothing was cut.",
+    "stamped_at": "2026-10-08T13:48:47",
+    "stored_chars": 256,
+    "source_chars": 256,
+    "cap_applied": 60000
+   },
+   "authority_class": "regulation",
+   "claim_layer": "doctrinal",
+   "claim_layer_meaning": "States or describes the rule. Cite for what the law IS."
+  },
+  {
+   "citation": "DMM 602.9.0",
+   "kind": "heading",
+   "page": 1,
+   "text": "9.0 Coding Accuracy Support System (CASS)",
+   "integrity": {
+    "state": "complete",
+    "basis": "Heading-delimited section of 41 characters stored; nothing was cut.",
+    "stamped_at": "2026-10-08T13:48:47",
+    "stored_chars": 41,
+    "source_chars": 41,
+    "cap_applied": 60000
+   },
+   "authority_class": "regulation",
+   "claim_layer": "doctrinal",
+   "claim_layer_meaning": "States or describes the rule. Cite for what the law IS."
+  },
+  {
+   "citation": "DMM 602.9.1",
+   "kind": "heading",
+   "page": 1,
+   "text": "9.1 Basic Information",
+   "integrity": {
+    "state": "complete",
+    "basis": "Heading-delimited section of 21 characters stored; nothing was cut.",
+    "stamped_at": "2026-10-08T13:48:47",
+    "stored_chars": 21,
+    "source_chars": 21,
+    "cap_applied": 60000
+   },
+   "authority_class": "regulation",
+   "claim_layer": "doctrinal",
+   "claim_layer_meaning": "States or describes the rule. Cite for what the law IS."
+  },
+  {
+   "citation": "DMM 602.9.1.1",
+   "kind": "heading",
+   "page": 1,
+   "text": "9.1.1 Purpose The Coding Accuracy Support System (CASS) improves the accuracy of delivery point codes, ZIP+4 codes, 5-digit ZIP Codes, and carrier route codes on mailpieces. CASS provides a common platform to measure the quality of address matching software and to diagnose and correct software problems.",
+   "integrity": {
+    "state": "complete",
+    "basis": "Heading-delimited section of 304 characters stored; nothing was cut.",
+    "stamped_at": "2026-10-08T13:48:47",
+    "stored_chars": 304,
+    "source_chars": 304,
+    "cap_applied": 60000
+   },
+   "authority_class": "regulation",
+   "claim_layer": "doctrinal",
+   "claim_layer_meaning": "States or describes the rule. Cite for what the law IS."
+  },
+  {
+   "citation": "DMM 602.9.1.2",
+   "kind": "heading",
+   "page": 1,
+   "text": "9.1.2 Requirement Any mailing claimed at an automation price must be produced from address lists properly matched and coded with CASS-certified address matching methods listed below. A mailer using multiline optical character readers (MLOCRs) to print delivery point barcodes on mailpieces must also obtain CASS certification (including Multiline Accuracy Support System (MASS)) for the address matching software used on the MLOCRs.",
+   "integrity": {
+    "state": "complete",
+    "basis": "Heading-delimited section of 432 characters stored; nothing was cut.",
+    "stamped_at": "2026-10-08T13:48:47",
+    "stored_chars": 432,
+    "source_chars": 432,
+    "cap_applied": 60000
+   },
+   "authority_class": "regulation",
+   "claim_layer": "doctrinal",
+   "claim_layer_meaning": "States or describes the rule. Cite for what the law IS."
+  },
+  {
+   "citation": "DMM 602.9.1.3",
+   "kind": "heading",
+   "page": 1,
+   "text": "9.1.3 Methods Delivery point or ZIP+4 coding may be obtained by using the CASS-certified DPC address matching software with components DPV and LACS Link ; CASS-certified Z4CHANGE process; NCOA Link ; or DSF 2 process.",
+   "integrity": {
+    "state": "complete",
+    "basis": "Heading-delimited section of 217 characters stored; nothing was cut.",
+    "stamped_at": "2026-10-08T13:48:47",
+    "stored_chars": 217,
+    "source_chars": 217,
+    "cap_applied": 60000
+   },
+   "authority_class": "regulation",
+   "claim_layer": "doctrinal",
+   "claim_layer_meaning": "States or describes the rule. Cite for what the law IS."
+  },
+  {
+   "citation": "DMM 602.9.2",
+   "kind": "heading",
+   "page": 1,
+   "text": "9.2 Software Certification",
+   "integrity": {
+    "state": "complete",
+    "basis": "Heading-delimited section of 26 characters stored; nothing was cut.",
+    "stamped_at": "2026-10-08T13:48:47",
+    "stored_chars": 26,
+    "source_chars": 26,
+    "cap_applied": 60000
+   },
+   "authority_class": "regulation",
+   "claim_layer": "doctrinal",
+   "claim_layer_meaning": "States or describes the rule. Cite for what the law IS."
+  },
+  {
+   "citation": "DMM 602.9.2.1",
+   "kind": "heading",
+   "page": 1,
+   "text": "9.2.1 General Any user of address matching software that applies ZIP+4 codes to address lists to obtain an automation price must use address matching software that is CASS-certified. Address matching software used to ZIP+4 code address records must, as part of its process, return a standardized address to ensure that the ZIP+4 code or mailer-applied barcode represents the proper depth of code available. The original input address submitted for coding may also be returned. The CASS-certified address matching software must be used according to specific parameter settings (configurations) as described below.",
+   "integrity": {
+    "state": "complete",
+    "basis": "Heading-delimited section of 612 characters stored; nothing was cut.",
+    "stamped_at": "2026-10-08T13:48:47",
+    "stored_chars": 612,
+    "source_chars": 612,
+    "cap_applied": 60000
+   },
+   "authority_class": "regulation",
+   "claim_layer": "doctrinal",
+   "claim_layer_meaning": "States or describes the rule. Cite for what the law IS."
+  },
+  {
+   "citation": "DMM 602.9.2.2",
+   "kind": "heading",
+   "page": 1,
+   "text": "9.2.2 Software Configuration All address lists used to produce mailings for automation prices must be matched and ZIP+4 coded with current CASS-certified software in line with the configuration standards shown below. Summary output reports or computer-generated facsimile Forms 3553 must contain information about the configuration used when processing the address list on the CASS-certified address matching software.",
+   "integrity": {
+    "state": "complete",
+    "basis": "Heading-delimited section of 418 characters stored; nothing was cut.",
+    "stamped_at": "2026-10-08T13:48:47",
+    "stored_chars": 418,
+    "source_chars": 418,
+    "cap_applied": 60000
+   },
+   "authority_class": "regulation",
+   "claim_layer": "doctrinal",
+   "claim_layer_meaning": "States or describes the rule. Cite for what the law IS."
+  },
+  {
+   "citation": "DMM 602.9.2.3",
+   "kind": "heading",
+   "page": 1,
+   "text": "9.2.3 Permissible Configurations These are permissible configurations for address matching software: Vendor-Supplied Software With Vendor CASS-certified Software Configurations. The software vendor is CASS-certified for specific configurations. The user is using that software as prescribed by the vendor and with the CASS-certified configurations obtained by the vendor. Vendor-Supplied Software With User CASS-certified Software Configurations. The software user is using vendor-supplied software in a configuration not CASS-certified by the vendor but by the user. User-Developed Software for Which User Obtained CASS Certification. The software user obtained individual user CASS certification for self-developed software and is using it as certified.",
+   "integrity": {
+    "state": "complete",
+    "basis": "Heading-delimited section of 755 characters stored; nothing was cut.",
+    "stamped_at": "2026-10-08T13:48:47",
+    "stored_chars": 755,
+    "source_chars": 755,
+    "cap_applied": 60000
+   },
+   "authority_class": "regulation",
+   "claim_layer": "doctrinal",
+   "claim_layer_meaning": "States or describes the rule. Cite for what the law IS."
+  },
+  {
+   "citation": "DMM 602.9.2.4",
+   "kind": "heading",
+   "page": 1,
+   "text": "9.2.4 Use When used for ZIP+4 or delivery point barcoding, the address matching software and coding methods must have a valid CASS certification and use the current USPS ZIP+4 Product updated to include all applicable change transaction files.",
+   "integrity": {
+    "state": "complete",
+    "basis": "Heading-delimited section of 243 characters stored; nothing was cut.",
+    "stamped_at": "2026-10-08T13:48:47",
+    "stored_chars": 243,
+    "source_chars": 243,
+    "cap_applied": 60000
+   },
+   "authority_class": "regulation",
+   "claim_layer": "doctrinal",
+   "claim_layer_meaning": "States or describes the rule. Cite for what the law IS."
+  },
+  {
+   "citation": "DMM 602.9.3",
+   "kind": "heading",
+   "page": 1,
+   "text": "9.3 Date of Address Matching and Coding",
+   "integrity": {
+    "state": "complete",
+    "basis": "Heading-delimited section of 39 characters stored; nothing was cut.",
+    "stamped_at": "2026-10-08T13:48:47",
+    "stored_chars": 39,
+    "source_chars": 39,
+    "cap_applied": 60000
+   },
+   "authority_class": "regulation",
+   "claim_layer": "doctrinal",
+   "claim_layer_meaning": "States or describes the rule. Cite for what the law IS."
+  },
+  {
+   "citation": "DMM 602.9.3.1",
+   "kind": "heading",
+   "page": 1,
+   "text": "9.3.1 Update Standards Unless Z4CHANGE is used, all automation and carrier route mailings bearing addresses coded by any AIS product must be coded using current CASS-certified software and based on data in the current USPS database. Coding must be done using a product release date that is within the USPS Product Cycle in Exhibit 9.3.1 . All AIS products may be used immediately on release. New product releases must be included in address-matching systems no later than after the first of the month following the product date. The overlap in dates for product use allows mailers adequate time to install the new data files and test their systems. Mailers are expected to update their systems with the latest data files as soon as practicable and not wait until the \u201clast permissible use\u201d date. The mailer\u2019s electronic confirmation during eDoc submission certifies that this standard has been met when the corresponding mail is presented to USPS. See Exhibit 9.3.1 for the current USPS database product cycle. Exhibit 9.3.1 USPS Database Product Cycle Release Date (Posted) Product Date Expiration Date (Last permissible use date) Last Permissible Mailing Date Use of file released in\u2026 (Publish Date) And must end no later than\u2026 Mid-November December 1 February 28/29 March 31 Mid-December January 1 March 31 April 30 Mid-January February 1 April 30 May 31 Mid-February March 1 May 31 June 30 Mid-March April 1 June 30 July 31 Mid-April May 1 July 31 August 31 Mid-May June 1 August 31 September 30 Mid-June July 1 September 30 October 31 Mid-July August 1 October 31 November 30 Mid-August September 1 November 30 December 31 Mid-September October 1 December 31 January 31 Mid-October November 1 January 31 February 28/29",
+   "integrity": {
+    "state": "complete",
+    "basis": "Heading-delimited section of 1,723 characters stored; nothing was cut.",
+    "stamped_at": "2026-10-08T13:48:47",
+    "stored_chars": 1723,
+    "source_chars": 1723,
+    "cap_applied": 60000
+   },
+   "authority_class": "regulation",
+   "claim_layer": "doctrinal",
+   "claim_layer_meaning": "States or describes the rule. Cite for what the law IS."
+  },
+  {
+   "citation": "DMM 602.9.3.2",
+   "kind": "heading",
+   "page": 1,
+   "text": "9.3.2 Z4CHANGE List Matching When using Z4CHANGE to match and code address lists for automation price mailings: The entire address list must first be matched and ZIP+4 coded with current CASS-certified software and the current USPS ZIP+4 Product. Every 60 days after the first matching, the address list must be processed through Z4CHANGE using USPS-certified software to identify changed records since the last update. The changed records identified through the Z4CHANGE processing must then be matched and coded using current CASS-certified address matching software and the current ZIP+4 Product. The entire address list must be rematched and ZIP+4 coded every 3 years using current CASS-certified software and the current USPS ZIP+4 Product.",
+   "integrity": {
+    "state": "complete",
+    "basis": "Heading-delimited section of 745 characters stored; nothing was cut.",
+    "stamped_at": "2026-10-08T13:48:47",
+    "stored_chars": 745,
+    "source_chars": 745,
+    "cap_applied": 60000
+   },
+   "authority_class": "regulation",
+   "claim_layer": "doctrinal",
+   "claim_layer_meaning": "States or describes the rule. Cite for what the law IS."
+  },
+  {
+   "citation": "DMM 602.9.4",
+   "kind": "heading",
+   "page": 1,
+   "text": "9.4 Definitions\u2014Mailing and Address Lists For this section, mailing list or address list is the group of names and addresses to which mailpieces in the corresponding mailing are addressed. Whether the addresses used in a mailing are obtained from a single list or from two or more lists (whole lists or extracts of those lists), each list used to produce a mailing claimed at an automation price must meet the standards in 9.0 .",
+   "integrity": {
+    "state": "complete",
+    "basis": "Heading-delimited section of 428 characters stored; nothing was cut.",
+    "stamped_at": "2026-10-08T13:48:47",
+    "stored_chars": 428,
+    "source_chars": 428,
+    "cap_applied": 60000
+   },
+   "authority_class": "regulation",
+   "claim_layer": "doctrinal",
+   "claim_layer_meaning": "States or describes the rule. Cite for what the law IS."
+  },
+  {
+   "citation": "DMM 602.9.5",
+   "kind": "heading",
+   "page": 1,
+   "text": "9.5 Documentation",
+   "integrity": {
+    "state": "complete",
+    "basis": "Heading-delimited section of 17 characters stored; nothing was cut.",
+    "stamped_at": "2026-10-08T13:48:47",
+    "stored_chars": 17,
+    "source_chars": 17,
+    "cap_applied": 60000
+   },
+   "authority_class": "regulation",
+   "claim_layer": "doctrinal",
+   "claim_layer_meaning": "States or describes the rule. Cite for what the law IS."
+  },
+  {
+   "citation": "DMM 602.9.5.1",
+   "kind": "heading",
+   "page": 1,
+   "text": "9.5.1 Form 3553 Unless excepted by standard, the mailer must complete a Form 3553 for each mailing claimed at all automation prices and all carrier route prices. A computer-generated facsimile may be used if it contains the required data elements in a format similar to the USPS form. The data recorded on Form 3553 must refer only to the address list used to produce the mailing with which it is presented. The postage statement must be annotated in the block(s) provided to reflect the date when address matching and coding were performed. When a mailing is produced using multiple lists, the mailer must show the earliest (oldest) date of address matching and coding (shown on Form 3553, section B2). The mailer certifies compliance with electronic confirmation during eDoc submission.",
+   "integrity": {
+    "state": "complete",
+    "basis": "Heading-delimited section of 788 characters stored; nothing was cut.",
+    "stamped_at": "2026-10-08T13:48:47",
+    "stored_chars": 788,
+    "source_chars": 788,
+    "cap_applied": 60000
+   },
+   "authority_class": "regulation",
+   "claim_layer": "doctrinal",
+   "claim_layer_meaning": "States or describes the rule. Cite for what the law IS."
+  },
+  {
+   "citation": "DMM 602.9.5.2",
+   "kind": "heading",
+   "page": 1,
+   "text": "9.5.2 Retention Period Form 3553 and other documentation must be retained by the mailer or the mailer\u2019s agent for 1 year from the date of mailing and be made available to the USPS on 24-hour notice.",
+   "integrity": {
+    "state": "complete",
+    "basis": "Heading-delimited section of 198 characters stored; nothing was cut.",
+    "stamped_at": "2026-10-08T13:48:47",
+    "stored_chars": 198,
+    "source_chars": 198,
+    "cap_applied": 60000
+   },
+   "authority_class": "regulation",
+   "claim_layer": "doctrinal",
+   "claim_layer_meaning": "States or describes the rule. Cite for what the law IS."
+  },
+  {
+   "citation": "DMM 602.9.5.3",
+   "kind": "heading",
+   "page": 1,
+   "text": "9.5.3 Using Output Information The data recorded on Form 3553 is taken from the summary output report generated by the computer process by which address lists are matched and ZIP+4 coded using CASS-certified software. The summary output information may also be generated as a facsimile Form 3553. Form 3553 may show summary output information for a single address list or consolidate summary output information from multiple address lists combined to produce a single mailing. Figures on Form 3553 are not required to match total mailpiece figures on the corresponding postage statement.",
+   "integrity": {
+    "state": "complete",
+    "basis": "Heading-delimited section of 587 characters stored; nothing was cut.",
+    "stamped_at": "2026-10-08T13:48:47",
+    "stored_chars": 587,
+    "source_chars": 587,
+    "cap_applied": 60000
+   },
+   "authority_class": "regulation",
+   "claim_layer": "doctrinal",
+   "claim_layer_meaning": "States or describes the rule. Cite for what the law IS."
+  },
+  {
+   "citation": "DMM 602.9.5.4",
+   "kind": "heading",
+   "page": 1,
+   "text": "9.5.4 Providing Required Data Summary output reports or computer-generated Forms 3553 must contain this information: CASS-certified company name as it appears on the CASS certificate; name and software version that received CASS certification; and the software configuration used when processing the address list. Name of the list processor using the CASS-certified software to match and code the address list, the date the address list was processed, the date of the USPS database used to code the address list, the address list name or identification number, the total number of address records on the list submitted for coding, the total number of address records successfully coded to the appropriate depth of code, and the valid dates for the records successfully coded.",
+   "integrity": {
+    "state": "complete",
+    "basis": "Heading-delimited section of 775 characters stored; nothing was cut.",
+    "stamped_at": "2026-10-08T13:48:47",
+    "stored_chars": 775,
+    "source_chars": 775,
+    "cap_applied": 60000
+   },
+   "authority_class": "regulation",
+   "claim_layer": "doctrinal",
+   "claim_layer_meaning": "States or describes the rule. Cite for what the law IS."
+  },
+  {
+   "citation": "DMM 602.9.5.5",
+   "kind": "heading",
+   "page": 1,
+   "text": "9.5.5 Using a Single List When a mailing is produced using all or part of a single address list, the mailer must retain one Form 3553 and other required documentation reflecting the summary output information for the entire list, as obtained when the list was coded.",
+   "integrity": {
+    "state": "complete",
+    "basis": "Heading-delimited section of 266 characters stored; nothing was cut.",
+    "stamped_at": "2026-10-08T13:48:47",
+    "stored_chars": 266,
+    "source_chars": 266,
+    "cap_applied": 60000
+   },
+   "authority_class": "regulation",
+   "claim_layer": "doctrinal",
+   "claim_layer_meaning": "States or describes the rule. Cite for what the law IS."
+  },
+  {
+   "citation": "DMM 602.9.5.6",
+   "kind": "heading",
+   "page": 1,
+   "text": "9.5.6 Using Multiple Lists When a mailing is produced using multiple address lists, the mailer must retain a consolidated Form 3553 summarizing the individual summary output and/or facsimile Forms 3553 for each list used (and other required documentation). As an alternative, the mailer may combine the addresses selected from the multiple lists into a single new list, reprocess the addresses using CASS-certified address matching software, and retain one Form 3553 for the summary output generated by that process.",
+   "integrity": {
+    "state": "complete",
+    "basis": "Heading-delimited section of 516 characters stored; nothing was cut.",
+    "stamped_at": "2026-10-08T13:48:47",
+    "stored_chars": 516,
+    "source_chars": 516,
+    "cap_applied": 60000
+   },
+   "authority_class": "regulation",
+   "claim_layer": "doctrinal",
+   "claim_layer_meaning": "States or describes the rule. Cite for what the law IS."
+  },
+  {
+   "citation": "DMM 602.9.5.7",
+   "kind": "heading",
+   "page": 1,
+   "text": "9.5.7 Using CASS Certificate If the name of the CASS-certified company entered on Form 3553 does not appear on the list published by the USPS, a copy of the CASS certificate for the software used also must be retained by the mailer with the documentation.",
+   "integrity": {
+    "state": "complete",
+    "basis": "Heading-delimited section of 255 characters stored; nothing was cut.",
+    "stamped_at": "2026-10-08T13:48:47",
+    "stored_chars": 255,
+    "source_chars": 255,
+    "cap_applied": 60000
+   },
+   "authority_class": "regulation",
+   "claim_layer": "doctrinal",
+   "claim_layer_meaning": "States or describes the rule. Cite for what the law IS."
+  },
+  {
+   "citation": "DMM 602.9.6",
+   "kind": "heading",
+   "page": 1,
+   "text": "9.6 CASS Certification",
+   "integrity": {
+    "state": "complete",
+    "basis": "Heading-delimited section of 22 characters stored; nothing was cut.",
+    "stamped_at": "2026-10-08T13:48:47",
+    "stored_chars": 22,
+    "source_chars": 22,
+    "cap_applied": 60000
+   },
+   "authority_class": "regulation",
+   "claim_layer": "doctrinal",
+   "claim_layer_meaning": "States or describes the rule. Cite for what the law IS."
+  },
+  {
+   "citation": "DMM 602.9.6.1",
+   "kind": "heading",
+   "page": 1,
+   "text": "9.6.1 Testing Arrangements To obtain information on standards and arrange for testing of carrier route, ZIP+4, or delivery point address matching software, contact the National Customer Support Center by calling 1-800-238-3150, or by writing to the CASS Certification Department, National Customer Support Center (see 608.8.0 for address).",
+   "integrity": {
+    "state": "complete",
+    "basis": "Heading-delimited section of 339 characters stored; nothing was cut.",
+    "stamped_at": "2026-10-08T13:48:47",
+    "stored_chars": 339,
+    "source_chars": 339,
+    "cap_applied": 60000
+   },
+   "authority_class": "regulation",
+   "claim_layer": "doctrinal",
+   "claim_layer_meaning": "States or describes the rule. Cite for what the law IS."
+  },
+  {
+   "citation": "DMM 602.9.6.2",
+   "kind": "heading",
+   "page": 1,
+   "text": "9.6.2 CASS Stage I The CASS certification process is a two-stage procedure. Stage I is a test file with answers supplied on request to customers wanting to certify an address matching software product. The Stage I file contains fabricated sample addresses from address ranges across the country with missing or incorrect address elements. The correct answers supplied on this Stage I test file allow self-assessment of address matching software/hardware accuracy so that software/hardware vendors or users can predetermine product readiness for the actual test.",
+   "integrity": {
+    "state": "complete",
+    "basis": "Heading-delimited section of 561 characters stored; nothing was cut.",
+    "stamped_at": "2026-10-08T13:48:47",
+    "stored_chars": 561,
+    "source_chars": 561,
+    "cap_applied": 60000
+   },
+   "authority_class": "regulation",
+   "claim_layer": "doctrinal",
+   "claim_layer_meaning": "States or describes the rule. Cite for what the law IS."
+  },
+  {
+   "citation": "DMM 602.9.6.3",
+   "kind": "heading",
+   "page": 1,
+   "text": "9.6.3 CASS Stage II The Stage II file is the actual test without answers. This test measures the accuracy of address matching software/hardware. Similar to the Stage I file, the Stage II file contains fabricated sample addresses from address ranges across the country with missing or incorrect address elements that the address matching software must correct. Software vendors or users process the Stage II file against their address matching products, appending the correct or missing information in each address record. After completing the test, the vendor or user returns the Stage II file to the USPS for analysis, scoring, and, if qualified, certification. For multiline optical character readers (MLOCRs) and encoding stations, CASS certification is obtained by barcoding sample mailpieces in a test deck. After completing the test, the vendor or user returns the test deck to the USPS for analysis, scoring, and, if qualified, certification.",
+   "integrity": {
+    "state": "complete",
+    "basis": "Heading-delimited section of 949 characters stored; nothing was cut.",
+    "stamped_at": "2026-10-08T13:48:47",
+    "stored_chars": 949,
+    "source_chars": 949,
+    "cap_applied": 60000
+   },
+   "authority_class": "regulation",
+   "claim_layer": "doctrinal",
+   "claim_layer_meaning": "States or describes the rule. Cite for what the law IS."
+  },
+  {
+   "citation": "DMM 602.9.6.4",
+   "kind": "heading",
+   "page": 1,
+   "text": "9.6.4 Certification Standards To be CASS-certified: Delivery point code address matching software/hardware must correctly ZIP+4 code the addresses in the Stage II file or test deck with an accuracy rate determined by the CASS Certification Department and must correctly append the additional two digits of the delivery point code (plus a check digit) to the Stage II file or test deck with 100% accuracy. A 2-digit utility (separate or stand-alone address matching software that appends only the correct 2-digit DP9019C information) must use the standardized address information returned by DPC address matching software when determining the correct delivery point code. A 2-digit utility must assign the 2-digit delivery point code (plus a check digit) to the addresses in the Stage II file with 100% accuracy. Address matching software used to assign 5-digit ZIP Codes and carrier route codes must assign the appropriate codes to the Stage II file with an accuracy rate determined by the CASS Certification Department.",
+   "integrity": {
+    "state": "complete",
+    "basis": "Heading-delimited section of 1,020 characters stored; nothing was cut.",
+    "stamped_at": "2026-10-08T13:48:47",
+    "stored_chars": 1020,
+    "source_chars": 1020,
+    "cap_applied": 60000
+   },
+   "authority_class": "regulation",
+   "claim_layer": "doctrinal",
+   "claim_layer_meaning": "States or describes the rule. Cite for what the law IS."
+  },
+  {
+   "citation": "DMM 602.9.6.5",
+   "kind": "heading",
+   "page": 1,
+   "text": "9.6.5 Customer Notification The USPS sends written notice informing the customer of the results of the analysis and the product certification status. Follow-up notification is mailed to remind previously certified vendors and users of the next certification.",
+   "integrity": {
+    "state": "complete",
+    "basis": "Heading-delimited section of 258 characters stored; nothing was cut.",
+    "stamped_at": "2026-10-08T13:48:47",
+    "stored_chars": 258,
+    "source_chars": 258,
+    "cap_applied": 60000
+   },
+   "authority_class": "regulation",
+   "claim_layer": "doctrinal",
+   "claim_layer_meaning": "States or describes the rule. Cite for what the law IS."
+  },
+  {
+   "citation": "DMM 602.10.0",
+   "kind": "heading",
+   "page": 1,
+   "text": "10.0 Dual Shipping Labels Mailers must not use dual-shipping labels, which are used by private shippers to identify both the Postal Service and a private carrier as possible delivery agents. Postal Service Post Offices must not accept items bearing dual-shipping labels and may return such items to the sender.",
+   "integrity": {
+    "state": "complete",
+    "basis": "Heading-delimited section of 310 characters stored; nothing was cut.",
+    "stamped_at": "2026-10-08T13:48:47",
+    "stored_chars": 310,
+    "source_chars": 310,
+    "cap_applied": 60000
+   },
+   "authority_class": "regulation",
+   "claim_layer": "doctrinal",
+   "claim_layer_meaning": "States or describes the rule. Cite for what the law IS."
+  },
+  {
+   "citation": "DMM 602.11.0",
+   "kind": "heading",
+   "page": 1,
+   "text": "11.0 Commercial Plus One Mailpieces",
+   "integrity": {
+    "state": "complete",
+    "basis": "Heading-delimited section of 35 characters stored; nothing was cut.",
+    "stamped_at": "2026-10-08T13:48:47",
+    "stored_chars": 35,
+    "source_chars": 35,
+    "cap_applied": 60000
+   },
+   "authority_class": "regulation",
+   "claim_layer": "doctrinal",
+   "claim_layer_meaning": "States or describes the rule. Cite for what the law IS."
+  },
+  {
+   "citation": "DMM 602.11.1",
+   "kind": "heading",
+   "page": 1,
+   "text": "11.1 Definition [7-12-26] The commercial mail Plus One product is a bundled offering, including a host Marriage Mail (combining multiple advertisers within a single mailpiece) mailpiece and a Plus One card. The host mailpiece must meet the applicable basic standards of a USPS Marketing Mail saturation letter or saturation flat, as specified in 245.6.0 and 245.9.0 and automation standards with a correct mailing address and Intelligent Mail barcode. (Flats entered at a DDU are exempt from the IMb requirement.) For flat-sized host mailpieces, the host piece must be entered at a DDU, SDC or DSCF/LPC. The Plus One Card must be entered at a DSCF/LPC within 2 business days from entering the host mail piece to receive Plus One pricing. For letter-sized host mailpieces, the host piece must be entered at a DSCF/LPC. The Plus One Card must be entered at a DSCF/LPC within 2 business days from entering the host mailpiece to receive Plus One pricing. The Plus One mailpiece (card) must meet the following additional standards: Be addressed to the same delivery points as the host mailpiece. Be sorted and presented separately from the host piece. Must not exceed 6 inches long by 11 inches high. Must be at least 0.009 inches thick and card stock. Must have \u201cPlus One\u201d marking directly below Permit indicia. For additional information see the Plus One Product Requirements Technical Guide available on PostalPro at https://postalpro.usps.com.",
+   "integrity": {
+    "state": "complete",
+    "basis": "Heading-delimited section of 1,442 characters stored; nothing was cut.",
+    "stamped_at": "2026-10-08T13:48:47",
+    "stored_chars": 1442,
+    "source_chars": 1442,
+    "cap_applied": 60000
+   },
+   "authority_class": "regulation",
+   "claim_layer": "doctrinal",
+   "claim_layer_meaning": "States or describes the rule. Cite for what the law IS."
+  },
+  {
+   "citation": "DMM 602.11.2",
+   "kind": "heading",
+   "page": 1,
+   "text": "11.2 Mail Preparation Each Plus One mailing must be trayed and labeled according to 245.6.7 or 245.9.7 . Palletized mailings must be prepared according to 705.8.10.3 .",
+   "integrity": {
+    "state": "complete",
+    "basis": "Heading-delimited section of 167 characters stored; nothing was cut.",
+    "stamped_at": "2026-10-08T13:48:47",
+    "stored_chars": 167,
+    "source_chars": 167,
+    "cap_applied": 60000
+   },
+   "authority_class": "regulation",
+   "claim_layer": "doctrinal",
+   "claim_layer_meaning": "States or describes the rule. Cite for what the law IS."
+  },
+  {
+   "citation": "DMM 602.11.3",
+   "kind": "heading",
+   "page": 1,
+   "text": "11.3 Documentation [7-12-26] When requested by USPS, Plus One mailpiece mailers must provide standardized documentation according to 203.3.0 to establish that the mailpieces meet applicable distribution standards. Spoilage of host pieces may affect eligibility to mail Plus One pieces. Documentation must show that at least 90 percent of host pieces are saturation mail. The remaining 10 percent must be high density or high density plus. The following also apply: The total number of Plus One pieces must be less than or equal to the number of host pieces. For letters, the full automation address with IMb must be included on both pieces (Host Saturation Marriage letter and Plus One). For flats, the full automation address with IMb must be generated and submitted in documentation for both pieces (Host Saturation Marriage Flat and Plus One) but is only required to appear on the Plus One card.",
+   "integrity": {
+    "state": "complete",
+    "basis": "Heading-delimited section of 898 characters stored; nothing was cut.",
+    "stamped_at": "2026-10-08T13:48:47",
+    "stored_chars": 898,
+    "source_chars": 898,
+    "cap_applied": 60000
+   },
+   "authority_class": "regulation",
+   "claim_layer": "doctrinal",
+   "claim_layer_meaning": "States or describes the rule. Cite for what the law IS."
+  },
+  {
+   "citation": "DMM 602.11.4",
+   "kind": "heading",
+   "page": 1,
+   "text": "11.4 Extra Services Items mailed with Plus One mailpieces may not be combined with any extra service. HELPFUL LINKS Contact Us Site Index FAQs USPS JOBS Careers ON ABOUT.USPS.COM About USPS Home Newsroom USPS Service Updates Forms & Publications Government Services Other USPS Sites Business Customer Gateway Postal Inspectors Inspector General Postal Explorer National Postal Museum Resources for Developers PostalPro Legal Information Privacy Policy Terms of Use FOIA No FEAR Act/EEO Contacts Accessibility Statement Copyright \u00a9 USPS. All Rights Reserved.",
+   "integrity": {
+    "state": "complete",
+    "basis": "Heading-delimited section of 557 characters stored; nothing was cut.",
+    "stamped_at": "2026-10-08T13:48:47",
+    "stored_chars": 557,
+    "source_chars": 557,
+    "cap_applied": 60000
+   },
+   "authority_class": "regulation",
+   "claim_layer": "doctrinal",
+   "claim_layer_meaning": "States or describes the rule. Cite for what the law IS."
+  }
+ ]
+}
