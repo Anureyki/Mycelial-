@@ -112,7 +112,7 @@ class AccountingAgent(AgentBase):
                 "classify_value_movement",
                 "who_owns", "log_payment", "payment_ledger",
                 "veto",
-                "assess_assertion", "set_lease_terms", "record_property_ledger", "lease_year_summary", "record_recurring_expense", "annual_expenses", "reconcile", "parse_financial_instrument", "assess_tax_liability", "track_account_balance",
+                "assess_assertion", "set_lease_terms", "record_property_ledger", "lease_year_summary", "record_recurring_expense", "annual_expenses", "keep_blank_form", "check_form_revisions", "blank_forms", "acknowledge_form_revision", "reconcile", "parse_financial_instrument", "assess_tax_liability", "track_account_balance",
                 "lookup", "list_relationships", "get_relationship", "find_relationships",
                 "find_relationships_by_project",
                 "refresh_cache", "query_cache", "cache_stats", "cache_manifest",
@@ -697,6 +697,119 @@ class AccountingAgent(AgentBase):
         }
         out["disclaimer"] = DISCLAIMER
         return out
+
+    # ------------------------------------------------------------------
+    # Blank forms, kept and watched (principal, 2026-10-08): "Keep a blank
+    # copy ... We need learn to use and fill out these forms and track
+    # changes." Each form is stored as fetched from irs.gov with what
+    # identifies its revision - the IRS's own title (which carries the
+    # revision or tax year), its Cat. No., and a SHA-256 of the file. A changed
+    # file is a new revision: stored BESIDE the old one, never over it, and
+    # surfaced until the principal has seen it - a form that silently changes
+    # under a half-filled return is the failure being prevented.
+    FORMS_DIR = "knowledge_base/accounting_agent/forms/blank"
+    FORMS_CHECK_DAYS = 7
+
+    def _fetch_form(self, url):
+        import hashlib
+        r = requests.get(url, timeout=90, headers={"User-Agent": "Mozilla/5.0"})
+        if r.status_code != 200 or not r.content.startswith(b"%PDF"):
+            raise ValueError(f"{url} returned HTTP {r.status_code}, not a PDF")
+        meta = {"sha256": hashlib.sha256(r.content).hexdigest()}
+        try:
+            import fitz
+            d = fitz.open(stream=r.content, filetype="pdf")
+            text = " ".join(pg.get_text() for pg in d)
+            meta.update(title=(d.metadata or {}).get("title"), pages=len(d))
+            m = re.search(r"Cat\.\s*No\.\s*(\d+\w?)", text)
+            meta["cat_no"] = m.group(1) if m else None
+        except Exception as exc:
+            meta["read_error"] = f"{type(exc).__name__}: {exc}"
+        return r.content, meta
+
+    def keep_blank_form(self, args):
+        a = args if isinstance(args, dict) else {}
+        form, url = a.get("form"), a.get("url")
+        if not (form and url):
+            return {"error": "keep_blank_form needs form (e.g. 'Schedule C (Form 1040)') and url",
+                    "disclaimer": DISCLAIMER}
+        try:
+            blob, meta = self._fetch_form(url)
+        except Exception as exc:
+            return {"kept": False, "error": str(exc), "disclaimer": DISCLAIMER}
+        reg = self._jget("blank_forms", {})
+        slug = re.sub(r"[^a-z0-9]+", "_", form.lower()).strip("_")
+        entry = reg.get(slug) or {"form": form, "url": url, "revisions": []}
+        entry["url"] = url
+        known = {r["sha256"] for r in entry["revisions"]}
+        now = datetime.now().isoformat(timespec="seconds")
+        if meta["sha256"] not in known:
+            # knowledge_base/ is a private tree (check_fs_boundary): owner-only.
+            for d_ in (self.FORMS_DIR, os.path.join(self.FORMS_DIR, slug)):
+                os.makedirs(d_, mode=0o700, exist_ok=True)
+                os.chmod(d_, 0o700)
+            path = os.path.join(self.FORMS_DIR, slug, f"{meta['sha256'][:12]}.pdf")
+            fd = os.open(path, os.O_WRONLY | os.O_CREAT | os.O_TRUNC, 0o600)
+            with os.fdopen(fd, "wb") as fh:
+                fh.write(blob)
+            entry["revisions"].append({**meta, "path": path, "first_seen": now,
+                                       "seen_by_principal": not entry["revisions"]})
+        entry["last_checked"] = now
+        entry["purpose"] = a.get("purpose") or entry.get("purpose")
+        reg[slug] = entry
+        self.store_own_memory("blank_forms", json.dumps(reg), pin=True)
+        cur = entry["revisions"][-1]
+        return {"kept": True, "form": form, "current": {k: cur.get(k) for k in
+                ("title", "cat_no", "pages", "sha256", "path", "first_seen")},
+                "revisions_held": len(entry["revisions"]), "disclaimer": DISCLAIMER}
+
+    def check_form_revisions(self, args=None):
+        a = args if isinstance(args, dict) else {}
+        reg = self._jget("blank_forms", {})
+        changed, errors = [], []
+        for slug, e in reg.items():
+            if not a.get("force") and e.get("last_checked") and (
+                    datetime.now() - datetime.fromisoformat(e["last_checked"])).days < self.FORMS_CHECK_DAYS:
+                continue
+            before = len(e["revisions"])
+            r = self.keep_blank_form({"form": e["form"], "url": e["url"]})
+            if not r.get("kept"):
+                errors.append({"form": e["form"], "error": r.get("error")})
+                continue
+            e2 = self._jget("blank_forms", {}).get(slug, {})
+            if len(e2.get("revisions", [])) > before:
+                old, new = e2["revisions"][-2], e2["revisions"][-1]
+                changed.append({"form": e["form"], "was": old.get("title"), "now": new.get("title"),
+                                "cat_no": [old.get("cat_no"), new.get("cat_no")],
+                                "old_copy": old.get("path"), "new_copy": new.get("path")})
+        return {"checked": len(reg), "changed": changed, "errors": errors or None,
+                "disclaimer": DISCLAIMER}
+
+    def acknowledge_form_revision(self, args):
+        """The principal has seen a form's new revision; it stops being flagged."""
+        a = args if isinstance(args, dict) else {}
+        reg = self._jget("blank_forms", {})
+        want = str(a.get("form") or "").lower()
+        hits = [e for e in reg.values() if e["form"].lower() == want]
+        if not hits:
+            return {"error": f"no kept form named {a.get('form')!r}", "disclaimer": DISCLAIMER}
+        n = 0
+        for r in hits[0]["revisions"]:
+            if not r.get("seen_by_principal"):
+                r["seen_by_principal"] = datetime.now().isoformat(timespec="seconds")
+                n += 1
+        self.store_own_memory("blank_forms", json.dumps(reg), pin=True)
+        return {"acknowledged": n, "form": hits[0]["form"], "disclaimer": DISCLAIMER}
+
+    def blank_forms(self, args=None):
+        reg = self._jget("blank_forms", {})
+        return {"forms": [{"form": e["form"], "url": e["url"],
+                           "current": e["revisions"][-1].get("title") if e["revisions"] else None,
+                           "revisions_held": len(e["revisions"]),
+                           "unseen_revisions": [r.get("title") for r in e["revisions"]
+                                                if not r.get("seen_by_principal")],
+                           "last_checked": e.get("last_checked"), "purpose": e.get("purpose")}
+                          for e in reg.values()], "disclaimer": DISCLAIMER}
 
     def record_recurring_expense(self, args):
         a = args if isinstance(args, dict) else {}
@@ -1872,6 +1985,19 @@ class AccountingAgent(AgentBase):
                                 "it with the receipt - a payment with no evidence is contestable. "
                                 "If it was not, it is outstanding.")
                              + f" Case: {case.get('title') or c['case_id']}.")})
+        try:
+            self.check_form_revisions({})
+        except Exception as exc:
+            basis.append(f"blank-form revision check failed: {exc}")
+        for e in self._jget("blank_forms", {}).values():
+            for r in e.get("revisions", []):
+                if not r.get("seen_by_principal"):
+                    items.append({"key": f"form_rev:{r['sha256'][:12]}", "urgency": "due",
+                                  "subject": f"The IRS changed {e['form']}",
+                                  "body": (f"{e['form']} has a new revision on irs.gov: "
+                                           f"{r.get('title')} (Cat. No. {r.get('cat_no')}). The old "
+                                           f"copy is kept beside it. Anything half-filled on the "
+                                           f"old one should be checked against the new.")})
         basis.append("monthly obligations with a due day: reminded 3 days before, on the due "
                      "date if no payment is recorded, and again 5 days later")
         if no_day:
@@ -1904,7 +2030,8 @@ class AccountingAgent(AgentBase):
         if task == "set_lease_terms":
             return self.set_lease_terms(args if isinstance(args, dict) else {})
         if task in ("record_property_ledger", "lease_year_summary", "record_recurring_expense",
-                    "annual_expenses"):
+                    "annual_expenses", "keep_blank_form", "check_form_revisions", "blank_forms",
+                    "acknowledge_form_revision"):
             return getattr(self, task)(args if isinstance(args, dict) else {})
 
         if task == "reconcile":
