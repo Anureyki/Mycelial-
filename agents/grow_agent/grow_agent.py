@@ -4296,6 +4296,11 @@ class GrowAgent(AgentBase):
 
     # systems and hardware
     "dwc", "lwc", "hydro", "hydroponic", "reservoir", "\\bres\\b", "bucket", "tent",
+    # The tent sensor's own export mail. Its subject arrives glued to the
+    # address - "mycos-anansiDevice Data Export" - so a word-boundary term
+    # cannot match it; "devices?" makes this a pattern the router uses as is.
+    # Missed on 2026-10-09: two exports held because nobody claimed them.
+    "devices? data export", "\\bthp\\b", "mars ?hydro",
     "net pot", "clay pebble", "pebbles", "leca", "air stone", "airstone",
     "top feed", "air pump",
     # measurements and inputs
