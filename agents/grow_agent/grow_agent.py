@@ -6311,12 +6311,16 @@ class GrowAgent(AgentBase):
                 _w = self._water_alert(_pid, "scheduled_backstop")
             except Exception:
                 _w = None
+            # GIRDLING HAS ITS OWN SWITCH, OFF BY DEFAULT: the principal ordered it
+            # after the water alert proves itself live, so flipping water live
+            # must not turn girdling on with it.
+            _gm = str(self._alerts_cfg().get("girdling_mode") or "off")
             try:
-                _ga = self.girdling_advice(_pid)
+                _ga = self.girdling_advice(_pid) if _gm in ("dry_run", "live") else {}
             except Exception:
                 _ga = {}
             if _ga.get("recommend"):
-                if self._alerts_cfg()["mode"] == "live":
+                if _gm == "live":
                     items.append({"key": f"girdle:{_pid}", "urgency": "due",
                                   "subject": f"{_pid}: girdling window open",
                                   "body": f"{_ga['reason']}. {_ga['how']} {_ga['evidence']}"})

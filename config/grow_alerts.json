@@ -2,5 +2,7 @@
   "mode": "dry_run",
   "mode_note": "dry_run logs what WOULD fire (state/grow/alert_log.jsonl) and sends nothing. live sends through Anansi (email + dashboard). Switched by the principal, never by code.",
   "low_water_liters": 12,
-  "alert_within_hours": 24
+  "alert_within_hours": 24,
+  "girdling_mode": "off",
+  "girdling_mode_note": "off: no girdling recommendation is made or logged. The principal 2026-10-09: girdling comes only after the water alert has proven itself live. dry_run: log what would be recommended. live: recommend through the reminder run. Switched by the principal."
 }
