@@ -909,7 +909,7 @@ class GrowAgent(AgentBase):
                 # the interface layer doing this agent's job and re-editing
                 # itself every time a plant gains a field.
                 "roster",
-                "log_reading", "check_stage", "observe_stage_markers", "volume_history", "correct_volume_event", "record_full_change", "record_gaps", "project_water", "girdling_advice", "record_girdle", "girdle_outcome", "reconcile_topup", "prediction_check", "record_species", "record_genetics", "record_plant", "compare_plants", "adopt_species_layer", "record_light_flip", "plan_harvest", "log_dry_start", "log_stem_check", "log_cure_start", "log_cure_burp", "log_sift", "harvest_record", "amend_species",
+                "log_reading", "check_stage", "observe_stage_markers", "volume_history", "correct_volume_event", "record_full_change", "record_gaps", "project_water", "ingest_tent_export", "environment_adjustment", "girdling_advice", "record_girdle", "girdle_outcome", "reconcile_topup", "prediction_check", "record_species", "record_genetics", "record_plant", "compare_plants", "adopt_species_layer", "record_light_flip", "plan_harvest", "log_dry_start", "log_stem_check", "log_cure_start", "log_cure_burp", "log_sift", "harvest_record", "amend_species",
                 "adjust_nutrients",
                 "transition_stage", "log_water_change", "get_status",
                 "set_germination_date", "set_current_nutrients",
@@ -2663,6 +2663,134 @@ class GrowAgent(AgentBase):
         except Exception:
             return []
 
+    def ingest_tent_export(self, csv_path=None, note=""):
+        """One tent sensor, every plant in the tent - each from when it entered.
+        The ingest's own docstring said this was needed "the day a second plant
+        moves in"; GSC2 moved in on 2026-10-04."""
+        if not csv_path:
+            return {"error": "ingest_tent_export needs csv_path"}
+        out = []
+        for pid in self._active_plants():
+            rec = self._jload(f"grow_system_{pid}", {})
+            if "tent" not in str(rec.get("location") or "").lower():
+                continue
+            out.append(self.ingest_environment_export(pid, csv_path=csv_path, note=note,
+                                                      since=rec.get("in_tent_since")))
+        return {"plants": [{k: r.get(k) for k in ("plant_id", "recorded", "since", "row_count",
+                                                   "time_start", "time_end", "reason")} for r in out],
+                "note": "filed to every active plant whose location is the tent, from its in_tent_since"}
+
+    def environment_adjustment(self, plant_id="current_plant"):
+        """Inside the DWC and outside it, read together. The reservoir's draw is
+        transpiration, transpiration is set by the air's VPD, and calcium rides
+        only on transpiration - so the bucket and the tent are one system, and
+        an adjustment that reads only one of them is half a reading."""
+        envs = [e for e in self._environment_events(plant_id) if e.get("last_24h")]
+        if not envs:
+            return {"plant_id": plant_id, "status": "no_environment",
+                    "reason": "no tent export with a last-24h window on record for this plant"}
+        env = envs[-1]
+        l24 = env["last_24h"]
+        air = self.assess_vpd(air_temp_c=l24["temp_c_avg"], humidity_percent=l24["humidity_avg"],
+                              plant_id=plant_id)
+        band = air.get("band_for_stage")
+        out = {"plant_id": plant_id,
+               "tent_last_24h": {**l24, "export_ends": env.get("time_end")},
+               "tent_time_in_band": env.get("vpd_time_in_band"),
+               "air": {k: air.get(k) for k in ("air_vpd_kpa", "band_for_stage", "classification",
+                                                "reason", "leaf_vpd_range_kpa", "leaf_vpd_note")},
+               "adjustments": []}
+        if band and air.get("classification") in ("below_band", "above_band"):
+            target = band[0] + 0.05 if air["classification"] == "below_band" else band[1] - 0.05
+            svp = svp_from_temp_c(l24["temp_c_avg"])
+            rh_for_target = round(max(0.0, min(100.0, 100 * (1 - target / svp))), 1)
+            t = l24["temp_c_avg"]
+            out["adjustments"].append({
+                "what": "humidity" if air["classification"] == "below_band" else "humidity",
+                "direction": "lower" if air["classification"] == "below_band" else "raise",
+                "from_rh": l24["humidity_avg"], "to_rh_about": rh_for_target, "at_temp_c": t,
+                "gives_vpd_about": round(target, 2),
+                "why": air.get("reason")})
+        # ONE TENT, ONE AIR. Each plant's band is right for that plant, and two
+        # plants at different stages share the air: on 2026-10-09 GSC2 (veg,
+        # 0.8-1.2) was told to raise humidity to ~61% - which would have put
+        # GSC1 (flower, 1.2-1.6) below its band. An adjustment for one plant
+        # that breaks its tent-mate is not an adjustment; name the conflict
+        # and give the setting both bands allow, if any.
+        mates = []
+        mine = self._jload(f"grow_system_{plant_id}", {})
+        if "tent" in str(mine.get("location") or "").lower():
+            for pid in self._active_plants():
+                if pid == plant_id:
+                    continue
+                rec = self._jload(f"grow_system_{pid}", {})
+                if "tent" not in str(rec.get("location") or "").lower():
+                    continue
+                try:
+                    st, _ = self._plant_state("current_stage", pid)
+                except Exception:
+                    st = None
+                b = self.VPD_BANDS.get(str(st or "").lower())
+                if b:
+                    mates.append({"plant_id": pid, "stage": st, "band": list(b)})
+        if mates and band:
+            lo = max([band[0]] + [m["band"][0] for m in mates])
+            hi = min([band[1]] + [m["band"][1] for m in mates])
+            svp_ = svp_from_temp_c(l24["temp_c_avg"])
+            shared = {"tent_mates": mates, "this_band": band}
+            if lo <= hi:
+                mid = (lo + hi) / 2
+                shared.update(overlap_kpa=[round(lo, 2), round(hi, 2)],
+                              rh_for_overlap_about=round(max(0.0, min(100.0, 100 * (1 - mid / svp_))), 1),
+                              at_temp_c=l24["temp_c_avg"],
+                              meaning=("the only VPD every plant in the tent can share; hold the "
+                                       "air there and let each plant sit at the edge of its band"))
+            else:
+                shared.update(overlap_kpa=None,
+                              meaning=("no VPD satisfies every plant in this tent - one of them runs "
+                                       "out of band whatever the setting; that is a choice for the "
+                                       "grower, not an adjustment"))
+            conflicts = []
+            for adj in out["adjustments"]:
+                v = adj.get("gives_vpd_about")
+                for m in mates:
+                    if v is not None and not (m["band"][0] <= v <= m["band"][1]):
+                        conflicts.append(f"{adj['direction']} {adj['what']} to ~{adj['to_rh_about']}% "
+                                         f"gives ~{v} kPa, outside {m['plant_id']}'s {m['stage']} band "
+                                         f"{m['band']}")
+            if conflicts:
+                shared["conflicts"] = conflicts
+                for adj in out["adjustments"]:
+                    adj["superseded_by_shared_air"] = True
+            out["shared_air"] = shared
+        # Reservoir side - the latest water reading.
+        rd = [r for r in (self._get_readings_for_plant(plant_id) or [])
+              if not r.get("voided") and self._parse_numeric(r.get("temp") or r.get("temp_c")) is not None]
+        if rd:
+            last = sorted(rd, key=lambda r: str(r.get("timestamp")))[-1]
+            wt = self._parse_numeric(last.get("temp") or last.get("temp_c"))
+            try:
+                rz = self.assess_root_zone(plant_id, water_temp_c=wt, persist=False)
+            except Exception as exc:
+                rz = {"error": str(exc)}
+            out["reservoir"] = {"water_temp_c": wt, "read_at": str(last.get("timestamp"))[:16],
+                                "air_minus_water_c": round(l24["temp_c_avg"] - wt, 1),
+                                "root_zone": {k: rz.get(k) for k in ("classification", "reason",
+                                                                      "band", "action") if k in rz}}
+        try:
+            pw = self.project_water(plant_id)
+            out["draw"] = {"l_per_day": pw.get("rate_l_per_day"), "status": pw.get("status"),
+                           "note": ("transpiration is what empties the bucket - lower humidity "
+                                    "raises VPD, and the draw rises with it, so top-ups come "
+                                    "sooner after an adjustment; the projection relearns from "
+                                    "the next clean intervals")}
+        except Exception:
+            pass
+        out["basis"] = ("Air VPD from the tent sensor's last 24 h; the band is the stage's; the "
+                        "target humidity is computed at the measured average temperature. Leaf "
+                        "temperature is not measured, so leaf VPD is a range.")
+        return out
+
     def _environment_events(self, plant_id):
         raw = self._unwrap_value(self.retrieve_own_memory(f"environment_events_{plant_id}"))
         try:
@@ -2671,7 +2799,7 @@ class GrowAgent(AgentBase):
         except Exception:
             return []
 
-    def ingest_environment_export(self, plant_id=None, csv_path=None, note=""):
+    def ingest_environment_export(self, plant_id=None, csv_path=None, note="", since=None):
         """Summarize a bulk ambient-conditions export (temperature, humidity,
         VPD from a tent sensor like a Mars Hydro THP unit) and attach it to a
         plant, keeping the raw file as durable evidence rather than a copy of
@@ -2714,8 +2842,13 @@ class GrowAgent(AgentBase):
         except Exception as e:
             return {"recorded": False, "reason": f"could not parse csv: {e}",
                     "plant_id": plant_id}
+        if since:
+            # Only the air this plant was actually in: GSC2 entered the tent on
+            # 2026-10-04, so September tent rows are not its environment.
+            _s = str(since)[:19].replace("T", " ")
+            rows = [r for r in rows if str(r.get("Timestamp") or r.get("timestamp") or "") >= _s]
         if not rows:
-            return {"recorded": False, "reason": "csv had no data rows",
+            return {"recorded": False, "reason": "csv had no data rows" + (f" after {since}" if since else ""),
                     "plant_id": plant_id}
 
         def _col(row, *names):
@@ -2734,6 +2867,42 @@ class GrowAgent(AgentBase):
         temp_c = _stats(_col(r, "temperature(°C)", "temperature_c") for r in rows)
         humidity = _stats(_col(r, "humidity") for r in rows)
         vpd = _stats(_col(r, "vpd") for r in rows)
+        # VPD COMPUTED WHEN THE EXPORT LACKS IT - the Mars Hydro THP export has
+        # temperature and humidity but no VPD column, so the ingest stored null
+        # (2026-10-09). Air VPD per row, the same function every other VPD here
+        # uses; and how much of the window sat in the stage's band.
+        vpd_rows = []
+        for r in rows:
+            t_ = self._parse_numeric(_col(r, "temperature(°C)", "temperature_c"))
+            h_ = self._parse_numeric(_col(r, "humidity"))
+            if t_ is not None and h_ is not None:
+                vpd_rows.append((str(_col(r, "Timestamp", "timestamp") or ""), round(calculate_vpd(t_, h_), 3), t_, h_))
+        if vpd is None and vpd_rows:
+            vpd = _stats(v for _, v, _, _ in vpd_rows)
+            vpd["computed"] = "air VPD from temperature and humidity (leaf temperature not measured)"
+        try:
+            _stage, _ = self._plant_state("current_stage", plant_id)
+        except Exception:
+            _stage = None
+        _band = self.VPD_BANDS.get(str(_stage or "").lower())
+        vpd_in_band = None
+        if _band and vpd_rows:
+            n = len(vpd_rows)
+            vpd_in_band = {"band": list(_band), "stage": _stage,
+                           "below_pct": round(100 * sum(v < _band[0] for _, v, _, _ in vpd_rows) / n, 1),
+                           "in_pct": round(100 * sum(_band[0] <= v <= _band[1] for _, v, _, _ in vpd_rows) / n, 1),
+                           "above_pct": round(100 * sum(v > _band[1] for _, v, _, _ in vpd_rows) / n, 1)}
+        last24 = None
+        if vpd_rows:
+            try:
+                _end = datetime.fromisoformat(vpd_rows[-1][0][:19].replace(" ", "T"))
+                _w = [x for x in vpd_rows
+                      if datetime.fromisoformat(x[0][:19].replace(" ", "T")) >= _end - timedelta(hours=24)]
+                last24 = {"to": vpd_rows[-1][0], "temp_c_avg": round(sum(x[2] for x in _w) / len(_w), 2),
+                          "humidity_avg": round(sum(x[3] for x in _w) / len(_w), 2),
+                          "vpd_avg": round(sum(x[1] for x in _w) / len(_w), 3), "n": len(_w)}
+            except Exception:
+                last24 = None
         timestamps = [_col(r, "Timestamp", "timestamp") for r in rows if _col(r, "Timestamp", "timestamp")]
         device = next((_col(r, "deviceSerialnum", "device") for r in rows
                       if _col(r, "deviceSerialnum", "device")), None)
@@ -2758,6 +2927,8 @@ class GrowAgent(AgentBase):
                  "time_start": timestamps[0] if timestamps else None,
                  "time_end": timestamps[-1] if timestamps else None,
                  "temp_c": temp_c, "humidity_pct": humidity, "vpd_kpa": vpd,
+                 "vpd_time_in_band": vpd_in_band, "last_24h": last24,
+                 "since": str(since) if since else None,
                  "source_file": stored_path or csv_path,
                  "source_copied": bool(stored_path), "note": str(note)[:300]}
         ev = self._environment_events(plant_id)
@@ -15307,7 +15478,14 @@ class GrowAgent(AgentBase):
         elif task == "ingest_environment_export":
             a = args if isinstance(args, dict) else {}
             return {"result": self.ingest_environment_export(
-                a.get("plant_id"), csv_path=a.get("csv_path"), note=a.get("note", ""))}
+                a.get("plant_id"), csv_path=a.get("csv_path"), note=a.get("note", ""),
+                since=a.get("since"))}
+        elif task == "ingest_tent_export":
+            a = args if isinstance(args, dict) else {}
+            return {"result": self.ingest_tent_export(a.get("csv_path"), a.get("note", ""))}
+        elif task == "environment_adjustment":
+            a = args if isinstance(args, dict) else {}
+            return {"result": self.environment_adjustment(a.get("plant_id", "current_plant"))}
 
         elif task == "which_plant":
             # THE RECEIPT BEFORE THE READING. Which vessel is this sentence

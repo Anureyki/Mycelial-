@@ -82,6 +82,8 @@
     "record_full_change",
     "record_gaps",
     "project_water",
+    "ingest_tent_export",
+    "environment_adjustment",
     "girdling_advice",
     "record_girdle",
     "girdle_outcome",

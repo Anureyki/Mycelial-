@@ -3,6 +3,7 @@ import sys
 import os
 import time
 import hashlib
+import re
 import json
 import uuid
 from datetime import datetime
@@ -527,6 +528,7 @@ class Anansi(AgentBase):
                    "subject": str(m.get("subject") or "")[:200],
                    "timestamp": m.get("timestamp"), "evidence_kind": "reported",
                    "source_class": "unknown", "read_by_system": False}
+            full = {}
             try:
                 full = self._agentmail(f"/inboxes/{qi}/messages/"
                                        + urllib.parse.quote(mid, safe=""))
@@ -539,6 +541,14 @@ class Anansi(AgentBase):
                                                  if x.get("filename")][:10]})
             except Exception as exc:
                 ref["store_error"] = f"{type(exc).__name__}: {exc}"
+            # THE ONE LINK ANANSI FOLLOWS. Mail is a stranger's text and its links
+            # are not followed - except the principal's own sensor export, under
+            # every condition he would check himself (see _marshydro_export).
+            if str((cfg.get("auto_fetch") or {}).get("marshydro_thp_export")) == "live":
+                fx = self._marshydro_export(full, mid)
+                if fx is not None:
+                    self._inbound_log({"event": "auto_fetch", "message_id": mid, **fx})
+                    ref["auto_fetch"] = fx
             agent, why = self._route_mail(ref, routable)
             rec = {"message_id": mid, "from": ref["from"], "subject": ref["subject"],
                    "route": agent, "why": why, "stored_at": ref.get("stored_at")}
@@ -569,6 +579,54 @@ class Anansi(AgentBase):
                          "mode to live in config/mail_listener.json when this looks right."
                          if mode == "dry_run" else
                          "Referrals carry metadata and a path, never the body.")}
+
+    MARSHYDRO_SENDER = "marshydro-noreply@notice00.marshydro.eu"
+    MARSHYDRO_URL = re.compile(r"https://mars-pro\.api\.lgledsolutions\.com/api/common/download/"
+                               r"file/v1\?uuid=[0-9a-f]{16,64}")
+    FETCH_DIR = "state/inbox/fetched"
+    FETCH_MAX_BYTES = 25 * 1024 * 1024
+
+    def _marshydro_export(self, full, mid):
+        """-> None when the message is not a Mars Hydro export at all; otherwise a
+        record of what was checked and what happened. Every refusal says why."""
+        sender = str((full or {}).get("from") or "")
+        if self.MARSHYDRO_SENDER not in sender.lower():
+            return None
+        auth = (full or {}).get("authentication_results") or {}
+        if not all(str(auth.get(k)).lower() == "pass" for k in ("spf", "dkim", "dmarc")):
+            return {"fetched": False, "why": f"authentication not all pass: {auth}"}
+        links = sorted(set(self.MARSHYDRO_URL.findall(str(full.get("html") or "") + " "
+                                                       + str(full.get("text") or ""))))
+        if len(links) != 1:
+            return {"fetched": False, "why": f"expected exactly one export link, found {len(links)}"}
+        try:
+            import urllib.request
+            req = urllib.request.Request(links[0], headers={"User-Agent": "Mozilla/5.0"})
+            with urllib.request.urlopen(req, timeout=60) as r:
+                ctype = str(r.headers.get("Content-Type") or "")
+                blob = r.read(self.FETCH_MAX_BYTES + 1)
+        except Exception as exc:
+            return {"fetched": False, "why": f"download failed: {type(exc).__name__}: {exc}"}
+        if len(blob) > self.FETCH_MAX_BYTES:
+            return {"fetched": False, "why": "larger than the 25 MB cap"}
+        head = blob[:400].decode("utf-8-sig", errors="replace").splitlines()[0].lower() if blob else ""
+        if "text/csv" not in ctype.lower() or not all(c in head for c in
+                                                       ("deviceserialnum", "temperature", "humidity", "timestamp")):
+            return {"fetched": False, "why": f"not a THP CSV (type {ctype!r}, header {head[:80]!r})"}
+        digest = hashlib.sha256(blob).hexdigest()[:16]
+        path = os.path.join(self.FETCH_DIR, f"marshydro_thp_{digest}.csv")
+        self._private_write(path, blob.decode("utf-8-sig", errors="replace"))
+        res = self.send_a2a("grow_agent", "ingest_tent_export",
+                            {"csv_path": os.path.abspath(path),
+                             "note": f"Mars Hydro THP export, auto-fetched by Anansi from message {mid[:40]}"},
+                            timeout=300)
+        inner = res
+        for _ in range(4):
+            if isinstance(inner, dict) and "plants" not in inner and "result" in inner:
+                inner = inner["result"]
+        return {"fetched": True, "bytes": len(blob), "stored_at": path,
+                "handed_to": "grow_agent.ingest_tent_export",
+                "grow_result": (inner.get("plants") if isinstance(inner, dict) else str(inner)[:200])}
 
     def inbound_mail(self, args):
         """The inbound log, newest last: what arrived and what was done with it."""

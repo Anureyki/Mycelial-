@@ -2,6 +2,14 @@
   "mode": "dry_run",
   "mode_note": "dry_run logs what WOULD be routed and touches no agent. live refers messages to the owning domain (record only - nothing executes from an email) and tells the principal. Switched by the principal, never by code.",
   "poll_minutes": 5,
-  "routable": ["legal_agent", "accounting_agent", "grow_agent"],
-  "routable_note": "Legal: court filings, service notices. Accounting: payment confirmations, receipts. Grow: the plants. Anything else, or anything two of these claim, is HELD for the principal."
+  "routable": [
+    "legal_agent",
+    "accounting_agent",
+    "grow_agent"
+  ],
+  "routable_note": "Legal: court filings, service notices. Accounting: payment confirmations, receipts. Grow: the plants. Anything else, or anything two of these claim, is HELD for the principal.",
+  "auto_fetch": {
+    "marshydro_thp_export": "live",
+    "note": "The principal's exception 2026-10-09 ('Auto fetch yes'): Anansi fetches the Mars Hydro THP export link and hands the CSV to Grow. ONLY when the sender is marshydro-noreply@notice00.marshydro.eu with SPF, DKIM and DMARC all pass, the link is exactly mars-pro.api.lgledsolutions.com/api/common/download/file/v1?uuid=<hex>, and the download is a CSV under 25 MB whose header carries the THP columns. Anything else is held. Independent of the listener's dry_run mode by his decision; 'off' disables it."
+  }
 }
