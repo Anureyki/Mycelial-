@@ -134,6 +134,88 @@ PORTAL_SHORT = [
      ["15 U.S.C. 1681i", "15 U.S.C. 1692g"]),
 ]
 
+# SERVICER RECORDS REQUEST - PROVISIONAL (principal, 2026-10-08): "Make
+# legal contain a general template of this document until the right
+# procedure is in effect and stable because there are a lot of elements that
+# may apply." Built from a "Notice to Servicer" circulating for car-loan
+# disputes (Carvana / Bridgecrest), corrected against the corpus: the
+# accounting request rests on UCC 9-210 and the owner request on 15 U.S.C.
+# 1641(f)(2) - neither was cited in the original - and its "draft, promissory
+# note, bill of exchange or other negotiable instrument as payment" item is
+# REMOVED: under UCC 3-310 only a certified, cashier's or teller's check
+# discharges like money, and tendering a self-made instrument in place of
+# payment is the accepted-for-value theory courts reject. Every draft says it
+# is provisional and what is unsettled, until the principal says otherwise.
+SERVICER_RECORDS = [
+    ("subject", "Subject: Written request for account records - retail installment contract, "
+                "account ending {account_last4}", []),
+    ("account", "Contract: {contract_description}. Original seller-creditor: {original_creditor}. "
+                "Servicer: {servicer}. Account ending {account_last4}. Contract governed by the "
+                "law of {contract_state}.", []),
+    ("purpose", "This is a written request for the servicing, accounting, ownership and payment "
+                "records of the account above. It is not a refusal to pay, it does not claim that "
+                "any transfer or securitization extinguished the obligation, and it is not an "
+                "admission of any disputed balance. I reserve all rights, claims and defenses.", []),
+    ("accounting", "Under the Uniform Commercial Code, section 9-210, as enacted in "
+                   "{contract_state}, a secured party must answer a debtor's authenticated request "
+                   "for an accounting within 14 days. I request an accounting of the unpaid "
+                   "obligation, including:\n"
+                   "  1. the complete transaction history from origination to your response - "
+                   "every payment, credit, debit, adjustment, reversal, refund, fee, charge and any "
+                   "suspense or unapplied amount;\n"
+                   "  2. for each payment, the dates received and posted, the amount, and its "
+                   "allocation among principal, finance charge, fees and any suspense amount;\n"
+                   "  3. the amount financed, the unpaid principal, accrued finance charge, "
+                   "outstanding fees, and the total you claim is due;\n"
+                   "  4. the interest method and rate, enough to reproduce the balance;\n"
+                   "  5. an itemized payoff statement; and\n"
+                   "  6. any payment rejected, reversed, held in suspense or reallocated, and why.",
+     ["UCC 9-210"]),
+    ("owner", "Under 15 U.S.C. § 1641(f)(2), on an obligor's written request a servicer must "
+              "provide, to the best of its knowledge, the name, address and telephone number of "
+              "the owner of the obligation or the master servicer. I request that information.",
+     ["15 U.S.C. 1641"]),
+    ("transfers", "To the extent your records maintain it, please also identify: whether you act "
+                  "solely as servicer or hold any other interest in this receivable; each sale, "
+                  "assignment or transfer of this receivable with its date, transferor and "
+                  "transferee; any securitization trust, pool or financing facility your records "
+                  "link it to; and copies of any notice of assignment or change of servicing sent "
+                  "to me. If an item is not maintained by you, please say so and name who "
+                  "maintains it.", []),
+    ("custodian", "The contract is an electronic record. Under the Uniform Commercial Code, "
+                  "section 9-105, a secured party's control of electronic chattel paper rests on "
+                  "a single authoritative copy that identifies the assignee. Please identify the "
+                  "present custodian or controller of the authoritative copy of this contract, and "
+                  "any change of custodian since origination with its date.", ["UCC 9-105"]),
+    ("payments", "Please identify the payment methods you accept on this account, the address or "
+                 "channel for paper payments, and your written policy on returned or rejected "
+                 "payments.", []),
+    ("scope", "I am not requesting other borrowers' personal information or investor data "
+              "unrelated to this account - only the records needed to identify this contract's "
+              "owner, custodian and balance.", []),
+    ("preserve", "Please preserve all records relating to this account, including transaction "
+                 "histories, payment-allocation records, servicing notes, ownership and transfer "
+                 "records, and custodial records.", []),
+    ("reply", "Please send your written response and copies of the responsive records to: "
+              "{mailing_address}.\n\nRespectfully,\n\n______________________\n"
+              "Buyer / Consumer        Date: ____________\n\nEnclosures: {enclosures}", []),
+]
+
+PROVISIONAL = {
+    "servicer_records_request": (
+        "PROVISIONAL TEMPLATE - the principal's instruction 2026-10-08, held until the procedure "
+        "is in effect and stable. Unsettled: (1) the contract state's own UCC enactment must be "
+        "checked - Legal holds Texas Bus. & Com. Code ch. 9 and resolves 'UCC 9-210' and 'UCC "
+        "9-105' to it, so a Louisiana (La. R.S. 10:9-210) or other state's version is UNVERIFIED; "
+        "(2) only the accounting (9-210, 14 days) and the owner's identity (15 U.S.C. "
+        "1641(f)(2)) are compelled by a statute held here - the transfer, securitization, "
+        "custodian and payment-policy requests are requests, not duties; (3) RESPA's qualified "
+        "written request (12 U.S.C. 2605(e)) is for mortgages and is deliberately NOT invoked; "
+        "(4) the negotiable-instrument payment item from the circulating version is removed "
+        "(UCC 3-310). 9-210 needs the request SIGNED by the debtor; the first accounting in six "
+        "months is free."),
+}
+
 KINDS = {
     "fcra_dispute": ("FCRA dispute - credit bureau / furnisher", FCRA_DISPUTE,
                      ("furnisher", "account_last4", "date_first_reported", "what_is_wrong",
@@ -143,6 +225,10 @@ KINDS = {
     "combined": ("Combined FCRA + FDCPA notice", COMBINED,
                  ("furnisher", "account_last4", "mailing_address")),
     "portal_short": ("Short version for a portal / CFPB box", PORTAL_SHORT, ()),
+    "servicer_records_request": ("Servicer records request - secured consumer loan "
+                                 "(PROVISIONAL)", SERVICER_RECORDS,
+                                 ("original_creditor", "servicer", "account_last4",
+                                  "contract_state", "contract_description", "mailing_address")),
 }
 
 HOW_TO_SEND = (
@@ -212,6 +298,11 @@ def draft(kind, facts, resolver):
     if missing:
         raise Refused(f"{kind} needs {missing}. Nothing drafted.")
     fields = dict(facts)
+    if kind == "servicer_records_request" and not facts.get("enclosures"):
+        # What this request needs to identify the account - not the credit-dispute set.
+        facts = dict(facts, enclosures=["copy of the relevant contract pages (personal "
+                                        "identifiers redacted)", "a recent statement showing the "
+                                        "account ending and balance"])
     fields["enclosures"] = _enclosures(facts)
 
     shipped, refused, schedule = [], [], []
@@ -247,6 +338,8 @@ def draft(kind, facts, resolver):
                              "held_by": e.get("held_by") or "own"})
 
     letter = render(title, shipped, schedule)
+    if kind in PROVISIONAL:
+        letter = letter + "\n" + PROVISIONAL[kind] + "\n"
     return {
         "kind": kind, "title": title, "letter": letter,
         "sha256": hashlib.sha256(letter.encode("utf-8")).hexdigest(),
@@ -254,6 +347,7 @@ def draft(kind, facts, resolver):
         "refused": refused, "schedule": schedule, "complete": not refused,
         "resolved_from": sorted({s["held_by"] for s in schedule}),
         "sends": False,
+        **({"provisional": PROVISIONAL[kind]} if kind in PROVISIONAL else {}),
         "standing": ("Self-advocacy language authored by the principal, assembled from the "
                      "corpus. Not legal advice; not a filing. Legal drafts; nothing leaves."),
     }
