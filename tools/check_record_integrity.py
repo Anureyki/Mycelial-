@@ -88,6 +88,23 @@ def main():
     ck("flower with pistils on record is not 'likely veg'",
        "observed" in str(r.get("assessment")) and not r.get("suggested"), str(r.get("assessment")))
 
+    print("a projection never stands on a gap or on a previous vessel")
+    store = {"volume_events_p3": json.dumps([
+        {"at": "2026-09-01T10:00:00", "kind": "refill", "from_liters": 3.0, "liters": 5.0},
+        {"at": "2026-10-04T21:45:00", "kind": "full_change", "liters": 15.0}])}
+    g = grow(store)
+    rd = [{"timestamp": "2026-09-01T12:00:00", "volume_liters": 5.0, "ppm": 700},
+          {"timestamp": "2026-09-08T12:00:00", "volume_liters": 3.0, "ppm": 720},
+          {"timestamp": "2026-09-20T12:00:00", "volume_liters": 5.0, "ppm": 700}]
+    g._get_readings_for_plant = lambda pid: rd
+    g._get_nutrient_history = lambda pid: []
+    gaps = g.record_gaps("p3", since_days=3650)["gaps"]
+    ck("a volume rise with no refill logged is a gap",
+       any(x["kind"] == "unrecorded_refill" for x in gaps), str([x["kind"] for x in gaps]))
+    pr = g.project_water("p3")
+    ck("no interval from before the change-out is used, and with none left it refuses",
+       pr.get("status") == "refused" and not pr.get("segments_used"), str(pr.get("status")))
+
     print("a stated dependency on a Legal action is kept, not dropped")
     from agents.legal_agent.legal_agent import LegalAgent
     store = {}

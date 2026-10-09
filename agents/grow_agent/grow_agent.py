@@ -909,7 +909,7 @@ class GrowAgent(AgentBase):
                 # the interface layer doing this agent's job and re-editing
                 # itself every time a plant gains a field.
                 "roster",
-                "log_reading", "check_stage", "observe_stage_markers", "volume_history", "correct_volume_event", "record_full_change", "reconcile_topup", "prediction_check", "record_species", "record_genetics", "record_plant", "compare_plants", "adopt_species_layer", "record_light_flip", "plan_harvest", "log_dry_start", "log_stem_check", "log_cure_start", "log_cure_burp", "log_sift", "harvest_record", "amend_species",
+                "log_reading", "check_stage", "observe_stage_markers", "volume_history", "correct_volume_event", "record_full_change", "record_gaps", "project_water", "reconcile_topup", "prediction_check", "record_species", "record_genetics", "record_plant", "compare_plants", "adopt_species_layer", "record_light_flip", "plan_harvest", "log_dry_start", "log_stem_check", "log_cure_start", "log_cure_burp", "log_sift", "harvest_record", "amend_species",
                 "adjust_nutrients",
                 "transition_stage", "log_water_change", "get_status",
                 "set_germination_date", "set_current_nutrients",
@@ -2755,6 +2755,7 @@ class GrowAgent(AgentBase):
                                           "was misread, or the meter has drifted."),
                     "state": "unmeasured"}
         self.log(f"refill on {pid}: {before} -> {round(to_v,1)} L")
+        out["water_alert"] = self._water_alert(pid, "record_refill")
         return out
 
     def refill_from_text(self, prompt, plant_id=None):
@@ -4910,7 +4911,31 @@ class GrowAgent(AgentBase):
         that happened to drink it - so it is a lesson, not a measurement, under
         the rule that lessons are inherited and measurements are bound. The
         origin plant is recorded either way, because a lesson that cannot be
-        traced back is indistinguishable from an assumption."""
+        traced back is indistinguishable from an assumption.
+
+        BUT THE PLANT'S OWN LEARNED FIGURE COMES FIRST (2026-10-09). Asked for
+        GSC1, this returned 280.2 - measured on GSC2's VEG mix - while GSC1 held
+        172.5 learned from eight of its own confirmed flower-ratio doses, the
+        figure every GSC1 dose was actually sized from. Inheritance is for a
+        plant with nothing of its own; it is not a reason to prefer another
+        plant's different blend over this one's measured one. Order: this
+        plant's learned coefficient for the blend it is on, then this plant's
+        own fresh-mix pair, then another plant's - flagged, with a warning when
+        the blend differs."""
+        try:
+            _stage, _ = self._plant_state("current_stage", plant_id)
+        except Exception:
+            _stage = None
+        _blend = f"stage_ratio:{_stage}" if _stage else None
+        _own = self._blend_coefficient(plant_id, _blend) if _blend else None
+        if _own:
+            return {"ppm_l_per_ml": _own["ppm_l_per_ml"], "origin_plant": plant_id,
+                    "blend": _blend, "learned_from_n": _own.get("n"),
+                    "crosses_plants": False,
+                    "basis": (f"Learned from {_own.get('n')} confirmed dose(s) of {_blend} on "
+                              f"this plant ({_own.get('basis') or 'calibrate_blend'}). The "
+                              f"plant's own measured figure for the blend it is on - preferred "
+                              f"over any other plant's mix.")}
         best = None
         for pid in ({plant_id} | {"current_plant", "gsc_auto_2"}):
             raw = self._unwrap_value(self.retrieve_own_memory(self._nutrient_keys(pid)[0]))
@@ -4998,6 +5023,11 @@ class GrowAgent(AgentBase):
         best["basis"] = ("Product concentration response, measured from a known mix into a "
                          "known volume. A property of the bottles and the meter, not of the "
                          "plant - so it is inherited as a lesson, with its origin named.")
+        if best["crosses_plants"]:
+            best["warning"] = (f"Inherited from {best['origin_plant']}: this plant has no learned "
+                               f"figure of its own for {_blend or 'its current blend'}. If that "
+                               f"plant's mix ran a different ratio, the strength differs - treat "
+                               f"as a starting point and confirm with this plant's next dose.")
         return best
 
     def round_to_instrument(self, plant_id, doses):
@@ -6150,6 +6180,11 @@ class GrowAgent(AgentBase):
                 "body": f"{label}: {it['text']}"})
         h = self._harvest_reminders()
         items.extend(h)
+        for _pid in self._active_plants():
+            try:
+                _w = self._water_alert(_pid, "scheduled_backstop")
+            except Exception:
+                _w = None
         basis = m.get("basis")
         basis = [basis] if isinstance(basis, str) else list(basis or [])
         basis.append(f"post-harvest: {len(self._jload('harvest_index', []))} plant(s) with a "
@@ -12265,6 +12300,11 @@ class GrowAgent(AgentBase):
                 f"log_reading did not add a row (index {before} -> {after}). "
                 f"The reading was NOT saved. Its response was: {str(res)[:200]}")
         else:
+            if cleaned.get("volume_liters"):
+                try:
+                    out["water_alert"] = self._water_alert(plant_id, "intake_reading")
+                except Exception as exc:
+                    out["water_alert_error"] = f"{type(exc).__name__}: {exc}"
             # Every reading closes whatever prediction was open before it.
             try:
                 chk = self.prediction_check(plant_id, limit=1)
@@ -12875,6 +12915,190 @@ class GrowAgent(AgentBase):
                           "interval's mass drop is what the plant took; a dose interval's error "
                           "is how far Grow's plan landed from what the meter read.")}
 
+    # ------------------------------------------------------------------
+    # Proactive low-water warning (principal, 2026-10-09). His build order:
+    # "fix the cross-plant ppm figure, make the record complete, then add the
+    # scheduled projection check. The alert is the last piece, not the first."
+    # And why: "If the record is incomplete, the proactive warning is
+    # confidently wrong - which is worse than no warning at all."
+    #
+    # So record_gaps names what would make a projection wrong, project_water
+    # computes the drawdown only from intervals the record can vouch for (and
+    # refuses when none can), and the alert re-projects on every logged event
+    # rather than on a clock - a fixed schedule misses an overnight crossing,
+    # an hourly one is noise. It starts in dry_run (config/grow_alerts.json).
+    ALERTS_CONFIG = "config/grow_alerts.json"
+    ALERT_LOG = "state/grow/alert_log.jsonl"
+
+    def _alerts_cfg(self):
+        try:
+            with open(self.ALERTS_CONFIG) as fh:
+                cfg = json.load(fh)
+        except Exception as exc:
+            return {"mode": "dry_run", "low_water_liters": 12, "alert_within_hours": 24,
+                    "config_error": str(exc)}
+        if cfg.get("mode") != "live":
+            cfg["mode"] = "dry_run"           # anything unreadable or unexpected is dry_run
+        return cfg
+
+    def _volume_points(self, plant_id):
+        """Every moment the reservoir's volume is on record, oldest first."""
+        pts = []
+        for r in self._get_readings_for_plant(plant_id) or []:
+            v = self._parse_numeric(r.get("volume_liters"))
+            if v and not r.get("voided"):
+                pts.append({"at": str(r.get("timestamp"))[:19], "liters": v, "kind": "reading",
+                            "ppm": self._parse_numeric(r.get("ppm"))})
+        for e in self._volume_events(plant_id):
+            at = str(e.get("at") or "")[:19]
+            if e.get("kind") == "refill":
+                fv = self._parse_numeric(e.get("from_liters"))
+                if fv is not None:
+                    pts.append({"at": at, "liters": fv, "kind": "before_refill"})
+                pts.append({"at": at + "~", "liters": self._parse_numeric(e.get("liters")),
+                            "kind": "after_refill"})
+            elif e.get("kind") == "full_change":
+                pts.append({"at": at, "liters": self._parse_numeric(e.get("liters")),
+                            "kind": "full_change", "date_only": len(str(e.get("at"))) <= 10})
+        return sorted([p for p in pts if p["liters"]], key=lambda p: p["at"])
+
+    def record_gaps(self, plant_id="current_plant", since_days=21):
+        """What is missing from the record that a projection would silently
+        assume. Each gap names the interval it poisons."""
+        cutoff = (datetime.now() - timedelta(days=int(since_days))).isoformat()[:19]
+        evs = [e for e in self._volume_events(plant_id) if str(e.get("at", "")) >= cutoff]
+        rds = sorted([r for r in (self._get_readings_for_plant(plant_id) or [])
+                      if not r.get("voided") and str(r.get("timestamp", "")) >= cutoff],
+                     key=lambda r: str(r.get("timestamp")))
+        gaps = []
+        for r0, r1 in zip(rds, rds[1:]):
+            t0, t1 = str(r0["timestamp"])[:19], str(r1["timestamp"])[:19]
+            between = [e for e in evs if t0 < str(e.get("at", ""))[:19] <= t1]
+            kinds = {e.get("kind") for e in between}
+            v0, v1 = self._parse_numeric(r0.get("volume_liters")), self._parse_numeric(r1.get("volume_liters"))
+            p0, p1 = self._parse_numeric(r0.get("ppm")), self._parse_numeric(r1.get("ppm"))
+            if v0 and v1 and v1 > v0 + 0.3 and not kinds & {"refill", "full_change"}:
+                gaps.append({"between": [t0[:16], t1[:16]], "kind": "unrecorded_refill",
+                             "blocks": "water", "detail": f"volume rose {v0} -> {v1} L with no "
+                             "refill or change-out logged"})
+            if p0 and p1 and p1 > p0 * 1.08 and not kinds & {"dose", "full_change"} \
+                    and not (v1 and v0 and v1 < v0 * 0.93):
+                gaps.append({"between": [t0[:16], t1[:16]], "kind": "unrecorded_dose",
+                             "blocks": "nutrient", "detail": f"ppm rose {p0:.0f} -> {p1:.0f} with "
+                             "no dose or change-out logged (and not explained by water loss)"})
+        hist = [str(h.get("timestamp", ""))[:10] for h in self._get_nutrient_history(plant_id)]
+        for e in evs:
+            if e.get("kind") == "full_change" and str(e.get("at"))[:10] not in hist:
+                gaps.append({"at": str(e.get("at"))[:16], "kind": "change_out_without_recipe",
+                             "blocks": "nutrient", "detail": "the fresh mix's amounts are not "
+                             "on record - nutrient projections from it cannot be made"})
+            if e.get("kind") == "full_change" and len(str(e.get("at"))) <= 10:
+                gaps.append({"at": str(e.get("at"))[:10], "kind": "date_only",
+                             "blocks": "precision", "detail": "change-out time of day not "
+                             "recorded - intervals from it are timed to the day"})
+        return {"plant_id": plant_id, "since_days": int(since_days), "gaps": gaps,
+                "complete_for": sorted({"water", "nutrient"} - {g["blocks"] for g in gaps}),
+                "note": ("Each gap is a fact the record does not hold. A projection across one "
+                         "would be an assumption presented as a measurement.")}
+
+    def project_water(self, plant_id="current_plant", low_water_liters=None):
+        cfg = self._alerts_cfg()
+        low = float(low_water_liters or cfg.get("low_water_liters") or 12)
+        pts = self._volume_points(plant_id)
+        # ONLY SINCE THE LAST CHANGE-OUT. A drawdown rate belongs to a vessel and
+        # a plant's size at the time: GSC2's projection for its new 15 L bucket
+        # was drawn from a September interval in the 5 L LWC.
+        _fc = [i for i, p_ in enumerate(pts) if p_["kind"] == "full_change"]
+        if _fc:
+            pts = pts[_fc[-1]:]
+        gaps = [g for g in self.record_gaps(plant_id)["gaps"] if g["blocks"] == "water"]
+        bad = {tuple(g["between"]) for g in gaps if "between" in g}
+        segs, skipped = [], []
+        for a, b in zip(pts, pts[1:]):
+            if a["kind"] in ("before_refill",) or b["kind"] in ("after_refill", "full_change"):
+                continue                      # a refill is a step up, not drawdown
+            if b["liters"] >= a["liters"]:
+                continue
+            ta = datetime.fromisoformat(a["at"].rstrip("~")[:19] if len(a["at"]) > 10 else a["at"][:10])
+            tb = datetime.fromisoformat(b["at"].rstrip("~")[:19] if len(b["at"]) > 10 else b["at"][:10])
+            days = (tb - ta).total_seconds() / 86400
+            if days <= 0.04:
+                continue
+            if any(x[0] <= a["at"][:16] <= x[1] or x[0] <= b["at"][:16] <= x[1] for x in bad):
+                skipped.append({"from": a["at"][:16], "to": b["at"][:16], "why": "a record gap"})
+                continue
+            segs.append({"from": a["at"][:16], "to": b["at"][:16], "liters": round(a["liters"] - b["liters"], 2),
+                         "days": round(days, 2), "l_per_day": round((a["liters"] - b["liters"]) / days, 2),
+                         "date_only": bool(a.get("date_only"))})
+        recent = segs[-3:]
+        out = {"plant_id": plant_id, "low_water_liters": low, "segments_used": recent,
+               "segments_skipped": skipped, "record_gaps": gaps}
+        if not recent:
+            out.update(status="refused", reason=("No clean drawdown interval on record - nothing "
+                                                 "the projection could stand on."))
+            return out
+        rate = sum(x["liters"] for x in recent) / sum(x["days"] for x in recent)
+        last = pts[-1]
+        lt = datetime.fromisoformat(last["at"].rstrip("~")[:19])
+        now = datetime.now()
+        cur = last["liters"] - rate * max(0.0, (now - lt).total_seconds() / 86400)
+        out.update(rate_l_per_day=round(rate, 2), last_known={"at": last["at"].rstrip("~")[:16],
+                   "liters": last["liters"], "kind": last["kind"]}, projected_now=round(cur, 2))
+        if cur <= low:
+            out.update(status="at_or_below_low_water", hours_to_crossing=0,
+                       message=(f"Projected at {cur:.1f} L now (last known {last['liters']} L at "
+                                f"{out['last_known']['at']}, drawing {rate:.2f} L/day) - at or "
+                                f"below the {low:g} L mark. Top up."))
+        else:
+            hrs = (cur - low) / rate * 24
+            out.update(status="ok", hours_to_crossing=round(hrs, 1),
+                       crossing_at=(now + timedelta(hours=hrs)).isoformat(timespec="minutes"),
+                       message=(f"Projected {cur:.1f} L now, drawing {rate:.2f} L/day - crosses "
+                                f"{low:g} L in about {hrs:.0f} h."))
+        if any(x["date_only"] for x in recent):
+            out["precision"] = "one interval starts at a change-out timed only to the day"
+        return out
+
+    def _water_alert(self, plant_id, trigger):
+        """Re-project after a logged event; alert when the crossing is close."""
+        cfg = self._alerts_cfg()
+        try:
+            pr = self.project_water(plant_id)
+        except Exception as exc:
+            self.log(f"_water_alert: projection failed for {plant_id}: {exc}")
+            return None
+        within = float(cfg.get("alert_within_hours") or 24)
+        fire = pr.get("status") == "at_or_below_low_water" or (
+            pr.get("status") == "ok" and pr.get("hours_to_crossing", 1e9) <= within)
+        entry = {"at": datetime.now().isoformat(timespec="seconds"), "plant_id": plant_id,
+                 "trigger": trigger, "mode": cfg["mode"], "fire": fire,
+                 "status": pr.get("status"), "message": pr.get("message") or pr.get("reason")}
+        if fire and cfg["mode"] == "live":
+            label = self._jload(f"grow_system_{plant_id}", {}).get("instance_label") or plant_id
+            day = datetime.now().strftime("%Y-%m-%d")
+            log = self._jload("water_alerts_sent", {})
+            key = f"{plant_id}:{pr.get('status')}:{day}"
+            if key not in log:
+                r = self.send_a2a("anansi", "notify", {
+                    "subject": f"{label}: reservoir will be at {pr['low_water_liters']:g} L "
+                               + ("now" if pr["status"] != "ok" else
+                                  f"in about {pr['hours_to_crossing']:.0f} h"),
+                    "body": f"{label}: {pr['message']}", "from_agent": "grow_agent",
+                    "register": "low_stakes", "channels": ["email", "dashboard"]})
+                res = r.get("result", r) if isinstance(r, dict) else r
+                entry["delivery"] = res
+                if isinstance(res, dict) and res.get("sent_any"):
+                    log[key] = entry["at"]
+                    self.store_own_memory("water_alerts_sent", json.dumps(log))
+        try:
+            os.makedirs(os.path.dirname(self.ALERT_LOG), mode=0o700, exist_ok=True)
+            fd = os.open(self.ALERT_LOG, os.O_WRONLY | os.O_CREAT | os.O_APPEND, 0o600)
+            with os.fdopen(fd, "a") as fh:
+                fh.write(json.dumps(entry) + "\n")
+        except Exception as exc:
+            self.log(f"_water_alert: could not log: {exc}")
+        return entry
+
     def record_full_change(self, plant_id=None, at=None, liters=None, emptied=True,
                            nutrients=None, stage=None, note=""):
         """The reservoir was emptied and refilled with fresh solution.
@@ -12904,6 +13128,7 @@ class GrowAgent(AgentBase):
             self.amend_grow_system(plant_id, last_full_change_at=when)
         out = {"recorded": True, "plant_id": plant_id, "at": when, "liters": lv,
                "emptied": bool(emptied), "recipe": None}
+        out["water_alert"] = self._water_alert(plant_id, "record_full_change")
         if nutrients:
             out["recipe"] = self.handle_task("set_current_nutrients", {
                 "plant_id": plant_id, "nutrients": nutrients, "volume_liters": lv,
@@ -13438,6 +13663,9 @@ class GrowAgent(AgentBase):
             a = args if isinstance(args, dict) else {}
             return {"result": self.prediction_check(a.get("plant_id", "current_plant"),
                                                     int(a.get("limit", 12)))}
+        elif task in ("record_gaps", "project_water"):
+            a = args if isinstance(args, dict) else {}
+            return {"result": getattr(self, task)(**a)}
         elif task == "record_full_change":
             return {"result": self.record_full_change(**(args if isinstance(args, dict) else {}))}
         elif task == "correct_volume_event":

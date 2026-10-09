@@ -80,6 +80,8 @@
     "volume_history",
     "correct_volume_event",
     "record_full_change",
+    "record_gaps",
+    "project_water",
     "reconcile_topup",
     "prediction_check",
     "record_species",

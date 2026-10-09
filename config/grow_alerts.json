@@ -1,0 +1,6 @@
+{
+  "mode": "dry_run",
+  "mode_note": "dry_run logs what WOULD fire (state/grow/alert_log.jsonl) and sends nothing. live sends through Anansi (email + dashboard). Switched by the principal, never by code.",
+  "low_water_liters": 12,
+  "alert_within_hours": 24
+}
