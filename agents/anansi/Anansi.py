@@ -254,7 +254,7 @@ class Anansi(AgentBase):
                         "https://api.agentmail.to/v0/inboxes/"
                         + urllib.parse.quote(inbox, safe="") + "/messages/send",
                         data=json.dumps({"to": os.environ["NOTIFY_TO"],
-                                         "subject": subject or f"MycOS: {sender}",
+                                         "subject": self._tagged_subject(subject, sender),
                                          "text": text}).encode(),
                         headers={"Authorization": "Bearer " + os.environ["AGENTMAIL_API_KEY"],
                                  "Content-Type": "application/json"}, method="POST")
@@ -281,7 +281,7 @@ class Anansi(AgentBase):
                     import smtplib
                     from email.message import EmailMessage
                     m = EmailMessage()
-                    m["Subject"] = subject or f"MycOS: {sender}"
+                    m["Subject"] = self._tagged_subject(subject, sender)
                     m["From"] = os.environ["NOTIFY_SMTP_USER"]
                     m["To"] = os.environ["NOTIFY_TO"]
                     m.set_content(text)
@@ -333,6 +333,16 @@ class Anansi(AgentBase):
     #     with the address can drive.
 
     MAIL_DIR = "state/inbox"
+
+    @staticmethod
+    def _tagged_subject(subject, sender):
+        """Every email carries the department that sent it - "[legal_agent]" -
+        so a reply finds its way back to that department without Anansi
+        holding any of its vocabulary. Thread metadata, not domain words."""
+        base = subject or f"MycOS: {sender}"
+        if sender and sender != "anansi" and f"[{sender}]" not in base:
+            base = f"[{sender}] {base}"
+        return base
 
     def receive_mail(self, args):
         """Fetch what arrived, file it, and refer it without its contents."""
@@ -541,6 +551,17 @@ class Anansi(AgentBase):
                                                  if x.get("filename")][:10]})
             except Exception as exc:
                 ref["store_error"] = f"{type(exc).__name__}: {exc}"
+            # THE PRINCIPAL'S OWN MAIL - handled like a typed message, never like a
+            # stranger's. Before routing, because his reply must not be held.
+            pc = self._principal_mail(full, cfg, mid, ref)
+            if pc is not None:
+                self._inbound_log({"event": "principal_mail", "message_id": mid, **pc})
+                self._inbound_log({"event": done_key, "mode": mode, "message_id": mid,
+                                   "from": ref["from"], "subject": ref["subject"],
+                                   "route": "principal_channel", "decision": pc.get("decision")})
+                out.append({"message_id": mid, "from": ref["from"], "subject": ref["subject"],
+                            "route": "principal_channel", "decision": pc.get("decision")})
+                continue
             # THE ONE LINK ANANSI FOLLOWS. Mail is a stranger's text and its links
             # are not followed - except the principal's own sensor export, under
             # every condition he would check himself (see _marshydro_export).
@@ -579,6 +600,79 @@ class Anansi(AgentBase):
                          "mode to live in config/mail_listener.json when this looks right."
                          if mode == "dry_run" else
                          "Referrals carry metadata and a path, never the body.")}
+
+    _QUOTE_START = re.compile(r"^\s*(On .{0,200}wrote:|-----\s*Original Message|From: .+@.+)\s*$",
+                              re.I | re.M)
+
+    def _reply_text(self, full):
+        """His new words only - the quoted history below them is Anansi's own
+        mail coming back, and routing it would re-record old reminders."""
+        txt = str(full.get("text") or full.get("extracted_text") or "")
+        if not txt.strip():
+            html_ = str(full.get("extracted_html") or full.get("html") or "")
+            txt = re.sub(r"<br\s*/?>|</p>|</div>", "\n", html_, flags=re.I)
+            txt = re.sub(r"<[^>]+>", " ", txt)
+        m = self._QUOTE_START.search(txt)
+        if m:
+            txt = txt[:m.start()]
+        lines = [l for l in txt.splitlines() if not l.lstrip().startswith(">")]
+        if "-- " in lines:
+            lines = lines[:lines.index("-- ")]
+        return "\n".join(lines).strip()
+
+    def _principal_mail(self, full, cfg, mid, ref):
+        """-> None if the message is not the principal's; else what was done."""
+        pc = cfg.get("principal_channel") or {}
+        addr = os.getenv(pc.get("address_from_env") or "NOTIFY_TO") or ""
+        sender = str((full or {}).get("from") or "").lower()
+        if not addr or addr.lower() not in sender:
+            return None
+        auth = (full or {}).get("authentication_results") or {}
+        if not all(str(auth.get(k)).lower() == "pass" for k in ("spf", "dkim", "dmarc")):
+            return {"decision": "held - from the principal's address but authentication did not "
+                                f"all pass ({auth}); not treated as his", "mode": pc.get("mode")}
+        text = self._reply_text(full)
+        subject = str(full.get("subject") or "")
+        if not text:
+            return {"decision": "nothing new in the reply (only quoted history)", "mode": pc.get("mode")}
+        prompt = (f"(reply to: {subject}) " if subject else "") + text
+        mode = "live" if pc.get("mode") == "live" else "dry_run"
+        tag = re.search(r"\[([a-z_]+_agent)\]", subject)
+        if tag:
+            # A reply to a department's own reminder goes back to that
+            # department; it decides what the words mean (AgentBase.answer).
+            would = [tag.group(1)]
+        else:
+            try:
+                would = self.router.domains_for(prompt, fallback=False)
+            except Exception as exc:
+                would = [f"router unavailable: {exc}"]
+        rec = {"mode": mode, "text": text[:1000], "subject": subject[:200], "would_route_to": would}
+        if mode == "dry_run":
+            rec["decision"] = f"DRY RUN - would route to {would or 'no department'}; nothing recorded"
+            return rec
+        hour = datetime.now().strftime("%Y-%m-%dT%H")
+        n = sum(1 for e in self._inbound_entries()
+                if e.get("event") == "principal_mail" and e.get("mode") == "live"
+                and str(e.get("logged_at", "")).startswith(hour))
+        if n >= int(pc.get("max_per_hour") or 20):
+            rec["decision"] = "held - over the per-hour cap for the principal channel"
+            return rec
+        if tag:
+            res = self.send_a2a(tag.group(1), "answer", {"prompt": prompt}, timeout=300)
+        else:
+            res = self.handle_task("process_request", [prompt], "principal_mail")
+        inner = res.get("result", res) if isinstance(res, dict) else res
+        rec["decision"] = "routed as a typed message"
+        rec["result"] = json.dumps(inner, default=str)[:1500]
+        if "[mycos ack]" not in subject.lower():
+            body = ("This is what MycOS did with your reply:\n\n"
+                    + (json.dumps(inner, indent=1, default=str)[:3000]) +
+                    "\n\nIf anything is wrong, reply with the correction.")
+            rec["ack"] = self.notify({"subject": f"[MycOS ack] {subject[:150]}", "body": body,
+                                      "from_agent": "anansi", "register": "low_stakes",
+                                      "channels": ["email"]})
+        return rec
 
     MARSHYDRO_SENDER = "marshydro-noreply@notice00.marshydro.eu"
     MARSHYDRO_URL = re.compile(r"https://mars-pro\.api\.lgledsolutions\.com/api/common/download/"

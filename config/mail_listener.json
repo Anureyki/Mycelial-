@@ -11,5 +11,11 @@
   "auto_fetch": {
     "marshydro_thp_export": "live",
     "note": "The principal's exception 2026-10-09 ('Auto fetch yes'): Anansi fetches the Mars Hydro THP export link and hands the CSV to Grow. ONLY when the sender is marshydro-noreply@notice00.marshydro.eu with SPF, DKIM and DMARC all pass, the link is exactly mars-pro.api.lgledsolutions.com/api/common/download/file/v1?uuid=<hex>, and the download is a CSV under 25 MB whose header carries the THP columns. Anything else is held. Independent of the listener's dry_run mode by his decision; 'off' disables it."
+  },
+  "principal_channel": {
+    "mode": "dry_run",
+    "address_from_env": "NOTIFY_TO",
+    "max_per_hour": 20,
+    "note": "The principal's own mail (2026-10-09 - Base44, logged into his Gmail, reads Anansi's mail and replies through it). Treated like a typed message ONLY from the NOTIFY_TO address with SPF, DKIM and DMARC all pass. dry_run: log the reply text and where it WOULD route - nothing is recorded (routing only; the write path is never called). live: route through process_request and email back what was recorded, subject tagged [MycOS ack]; a reply to an ack is never acknowledged (loop guard). Switched by the principal."
   }
 }
