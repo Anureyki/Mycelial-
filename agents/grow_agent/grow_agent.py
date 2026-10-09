@@ -11203,13 +11203,23 @@ class GrowAgent(AgentBase):
              "too little calcium in solution while the affected tissue was expanding; "
              "immobile, so it marks new growth and never reverses in old",
              "was Cal-Mag below the operating rate while these leaves formed?"),
+            # MAGNESIUM AND POTASSIUM HAD ONE TEST BETWEEN THEM ("oldest leaves
+            # first?"), so once older-leaf damage was confirmed (GSC1,
+            # 2026-10-09) both stood and nothing could separate them. Both are
+            # mobile; WHERE on the leaf the yellowing starts is what differs.
+            # Authored, general horticultural description - unverified, like
+            # the rest of this table, and the observation outranks it.
             ("magnesium_deficiency",
              "mobile, withdrawn from old leaves first - rust-brown spotting on OLDER "
-             "tissue, not new",
-             "are the OLDEST leaves affected worse than the newest?"),
+             "tissue, not new, with yellowing BETWEEN the veins while the veins stay green",
+             "on the oldest affected leaves, does the yellowing sit BETWEEN the veins with "
+             "the veins themselves still green (interveinal)?"),
             ("potassium_deficiency",
-             "mobile like magnesium - rusty-brown blotches working from older tissue",
-             "same test as magnesium: oldest leaves first?"),
+             "mobile like magnesium - rusty-brown blotches on older tissue, but the "
+             "damage starts at the MARGINS: tips and edges brown and crisp, yellowing "
+             "working inward from the edge",
+             "on the oldest affected leaves, are the TIPS and EDGES brown and crisp, with "
+             "yellowing moving inward from the margin rather than between the veins?"),
             ("pathogen",
              "Septoria-type leaf spot, which usually carries a yellow halo and SPREADS",
              "count the lesions against last time and look for a halo. Spread over "
