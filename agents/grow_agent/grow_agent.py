@@ -909,7 +909,7 @@ class GrowAgent(AgentBase):
                 # the interface layer doing this agent's job and re-editing
                 # itself every time a plant gains a field.
                 "roster",
-                "log_reading", "check_stage", "observe_stage_markers", "volume_history", "correct_volume_event", "record_full_change", "record_gaps", "project_water", "reconcile_topup", "prediction_check", "record_species", "record_genetics", "record_plant", "compare_plants", "adopt_species_layer", "record_light_flip", "plan_harvest", "log_dry_start", "log_stem_check", "log_cure_start", "log_cure_burp", "log_sift", "harvest_record", "amend_species",
+                "log_reading", "check_stage", "observe_stage_markers", "volume_history", "correct_volume_event", "record_full_change", "record_gaps", "project_water", "girdling_advice", "record_girdle", "girdle_outcome", "reconcile_topup", "prediction_check", "record_species", "record_genetics", "record_plant", "compare_plants", "adopt_species_layer", "record_light_flip", "plan_harvest", "log_dry_start", "log_stem_check", "log_cure_start", "log_cure_burp", "log_sift", "harvest_record", "amend_species",
                 "adjust_nutrients",
                 "transition_stage", "log_water_change", "get_status",
                 "set_germination_date", "set_current_nutrients",
@@ -1762,6 +1762,7 @@ class GrowAgent(AgentBase):
                         for k, v in self.STAGE_MARKERS.items()},
             "marker_to_lifecycle": dict(self.MARKER_TO_LIFECYCLE),
             "post_harvest": self.CANNABIS_POST_HARVEST,
+            "girdling": self.CANNABIS_GIRDLING,
             "ripeness": {"method": "trichome_shares",
                          "observe": ["pistils_brown_pct", "trichomes_clear_pct",
                                      "trichomes_cloudy_pct", "trichomes_amber_pct",
@@ -1776,7 +1777,8 @@ class GrowAgent(AgentBase):
         g, sp = self._lineage(plant_id)
         if sp:
             v = {k: sp.get(k) for k in ("stages", "default_stage", "stage_age_days", "markers",
-                                        "marker_to_lifecycle", "ripeness", "post_harvest")}
+                                        "marker_to_lifecycle", "ripeness", "post_harvest",
+                                        "girdling")}
             # THE MODE IS THE SPECIES' WORD, CHOSEN BY THE LINE. Auto and photo
             # are the same species with different flower triggers: an auto
             # flowers on its own clock and the pistils mark it; a photo flowers
@@ -1957,7 +1959,7 @@ class GrowAgent(AgentBase):
             return {"error": "amend_species needs a reason"}
         allowed = {"family", "growth_type", "stages", "default_stage", "stage_age_days",
                    "markers", "marker_to_lifecycle", "ripeness", "vocabulary",
-                   "flowering_modes", "post_harvest", "note"}
+                   "flowering_modes", "post_harvest", "girdling", "note"}
         bad = sorted(set(fields) - allowed)
         if bad:
             return {"error": f"not species fields: {bad}"}
@@ -1977,6 +1979,130 @@ class GrowAgent(AgentBase):
     # dose math and the next one can learn from it. The protocol (how long,
     # how often, what the meter is) is the species record's post_harvest;
     # these verbs only keep the record and read the clock.
+    # ------------------------------------------------------------------
+    # Girdling (principal, 2026-10-09). A partial score on the main cola or a
+    # branch in late flower, timed from the pistils. The protocol is the
+    # species record's `girdling` (his rule, source and evidence caveat
+    # recorded); these verbs read it. Two safety rules are his and are hard:
+    # never the main stem, never a full ring - "a full girdle on a hollow
+    # cannabis stem can snap the plant or wilt it within hours". Grow never
+    # RECOMMENDS either. It still RECORDS what was actually done, whatever it
+    # was, because a record that refuses an inconvenient fact is not a record.
+    # And his caveat travels with every answer: the cannabis evidence is
+    # grower reports, so the skill earns its keep from this grow's outcomes.
+    CANNABIS_GIRDLING = {
+        "source": "principal, 2026-10-09",
+        "trigger": {"field": "pistils_brown_pct", "at_least": 50,
+                    "means": "pistils about half darkened - the principal's 'roughly 50% amber'; "
+                             "trichome amber is a different and later signal"},
+        "window": "about two to three weeks before harvest",
+        "allowed_locations": ["main_cola", "branch"],
+        "forbidden_locations": ["main_stem"],
+        "method": "partial_score",
+        "forbidden_methods": ["full_ring"],
+        "why_forbidden": ("a full girdle on a hollow cannabis stem can snap the plant or wilt it "
+                          "within hours; the main stem carries everything above it"),
+        "evidence": ("Cannabis: mostly anecdotal grower reports, not controlled trials. Fruit-tree "
+                     "girdling has decades of commercial data - a different species, so it is "
+                     "context, not evidence for this plant. Judge it on this grow's outcomes."),
+        "outcomes_to_log": ["dry_weight_g", "trichome shares at harvest", "chop date"],
+    }
+
+    def _girdling(self, plant_id):
+        return ((self._vocab(plant_id) or {}).get("girdling")) or None
+
+    def _girdles(self, plant_id):
+        return [e for e in self._volume_events(plant_id) if e.get("kind") == "girdle"]
+
+    def girdling_advice(self, plant_id=None):
+        if not plant_id:
+            return {"error": "girdling_advice needs plant_id"}
+        g = self._girdling(plant_id)
+        if not g:
+            return {"applicable": False, "reason": f"no girdling protocol on {plant_id}'s species record"}
+        done = self._girdles(plant_id)
+        obs = [o for o in self._ripeness_obs(plant_id) if o.get("observed_by") == "principal"]
+        last = obs[-1] if obs else None
+        field, need = g["trigger"]["field"], g["trigger"]["at_least"]
+        val = self._parse_numeric((last or {}).get(field))
+        out = {"plant_id": plant_id, "protocol": {k: g[k] for k in (
+                   "window", "allowed_locations", "method", "forbidden_locations",
+                   "forbidden_methods", "why_forbidden")},
+               "evidence": g["evidence"], "already_girdled": [e["at"][:10] for e in done]}
+        if done:
+            out.update(recommend=False, reason=f"already girdled {done[-1]['at'][:10]} - log the "
+                                               f"outcome at harvest (girdle_outcome)")
+        elif val is None:
+            out.update(recommend=False, reason=(f"no principal observation of {field} on record - "
+                                                f"record pistil darkening with record_ripeness"))
+        elif val < need:
+            out.update(recommend=False, reason=(f"pistils {val:g}% darkened (principal, "
+                                                f"{last['at'][:10]}); the rule waits for about {need}%"))
+        else:
+            out.update(recommend=True, reason=(f"pistils {val:g}% darkened (principal, "
+                                               f"{last['at'][:10]}) - at the {need}% trigger"),
+                       how=("partial score only, on the main cola or a branch - never a full ring, "
+                            "never the main stem. Record it with record_girdle."))
+        return out
+
+    def record_girdle(self, plant_id=None, at=None, location=None, method=None,
+                      extent=None, note=""):
+        if not (plant_id and location and method):
+            return {"error": "record_girdle needs plant_id, location (main_cola | branch | "
+                             "main_stem) and method (partial_score | full_ring)"}
+        g = self._girdling(plant_id) or self.CANNABIS_GIRDLING
+        when = str(at or datetime.now().isoformat(timespec="minutes"))
+        warnings = []
+        if location in g["forbidden_locations"]:
+            warnings.append(f"{location} is outside the protocol: {g['why_forbidden']}")
+        if method in g["forbidden_methods"]:
+            warnings.append(f"{method} is outside the protocol: {g['why_forbidden']}")
+        ev = self._volume_events(plant_id)
+        ev.append({"at": when, "kind": "girdle", "location": location, "method": method,
+                   "extent": extent, "outside_protocol": bool(warnings), "note": str(note)[:300]})
+        ev.sort(key=lambda e: str(e.get("at", "")))
+        self.store_own_memory(f"volume_events_{plant_id}", json.dumps(ev[-200:]))
+        out = {"recorded": True, "plant_id": plant_id, "at": when, "location": location,
+               "method": method,
+               "projections_reset": ("water and uptake projections now use only intervals after "
+                                     "this girdle - the plant's draw changes, so the old "
+                                     "figures no longer hold")}
+        if warnings:
+            out["warnings"] = warnings
+            out["watch"] = "check for wilting above the cut over the next hours"
+        return out
+
+    def girdle_outcome(self, plant_id=None):
+        """What the girdle produced, from this grow's record - the measure the
+        skill is judged by, with the confounds a two-plant comparison carries."""
+        if not plant_id:
+            return {"error": "girdle_outcome needs plant_id"}
+        done = self._girdles(plant_id)
+        if not done:
+            return {"girdled": False, "plant_id": plant_id}
+        h = self._harvest(plant_id)
+        rip = [o for o in self._ripeness_obs(plant_id) if o.get("observed_by") == "principal"]
+        out = {"plant_id": plant_id, "girdle": done[-1],
+               "chopped_at": h.get("chopped_at"), "dry_weight_g": h.get("dry_weight_g"),
+               "days_girdle_to_chop": None, "trichomes_at_last_read": (rip[-1] if rip else None),
+               "evidence": (self._girdling(plant_id) or self.CANNABIS_GIRDLING)["evidence"]}
+        if h.get("chopped_at"):
+            out["days_girdle_to_chop"] = (datetime.fromisoformat(h["chopped_at"][:16])
+                                          - datetime.fromisoformat(done[-1]["at"][:16])).days
+        g_id = (self._lineage(plant_id)[0] or {}).get("genetics_id")
+        sibs = []
+        for pid in ["current_plant"] + list(self._load_plant_index()):
+            if pid == plant_id or (self._lineage(pid)[0] or {}).get("genetics_id") != g_id:
+                continue
+            hs = self._harvest(pid)
+            sibs.append({"plant_id": pid, "girdled": bool(self._girdles(pid)),
+                         "dry_weight_g": hs.get("dry_weight_g"), "chopped_at": hs.get("chopped_at")})
+        out["same_genetics"] = sibs
+        out["confounds"] = ("One plant against one is not a trial: start dates, vessels, reservoir "
+                            "history and light position all differ. Read a difference as a lead "
+                            "for the next grow, not a finding.")
+        return out
+
     def _harvest(self, plant_id):
         return self._jload(f"harvest_{plant_id}", {})
 
@@ -6185,6 +6311,25 @@ class GrowAgent(AgentBase):
                 _w = self._water_alert(_pid, "scheduled_backstop")
             except Exception:
                 _w = None
+            try:
+                _ga = self.girdling_advice(_pid)
+            except Exception:
+                _ga = {}
+            if _ga.get("recommend"):
+                if self._alerts_cfg()["mode"] == "live":
+                    items.append({"key": f"girdle:{_pid}", "urgency": "due",
+                                  "subject": f"{_pid}: girdling window open",
+                                  "body": f"{_ga['reason']}. {_ga['how']} {_ga['evidence']}"})
+                else:
+                    try:
+                        fd = os.open(self.ALERT_LOG, os.O_WRONLY | os.O_CREAT | os.O_APPEND, 0o600)
+                        with os.fdopen(fd, "a") as fh:
+                            fh.write(json.dumps({"at": datetime.now().isoformat(timespec="seconds"),
+                                                 "plant_id": _pid, "trigger": "girdling_advice",
+                                                 "mode": "dry_run", "fire": True,
+                                                 "message": _ga["reason"]}) + "\n")
+                    except Exception:
+                        pass
         basis = m.get("basis")
         basis = [basis] if isinstance(basis, str) else list(basis or [])
         basis.append(f"post-harvest: {len(self._jload('harvest_index', []))} plant(s) with a "
@@ -13011,6 +13156,10 @@ class GrowAgent(AgentBase):
         _fc = [i for i, p_ in enumerate(pts) if p_["kind"] == "full_change"]
         if _fc:
             pts = pts[_fc[-1]:]
+        # A girdle changes the plant's draw: only intervals after it count.
+        _gd = [str(e.get("at"))[:19] for e in self._girdles(plant_id)]
+        if _gd:
+            pts = [p_ for p_ in pts if p_["at"] >= max(_gd)]
         gaps = [g for g in self.record_gaps(plant_id)["gaps"] if g["blocks"] == "water"]
         bad = {tuple(g["between"]) for g in gaps if "between" in g}
         segs, skipped = [], []
@@ -13663,7 +13812,8 @@ class GrowAgent(AgentBase):
             a = args if isinstance(args, dict) else {}
             return {"result": self.prediction_check(a.get("plant_id", "current_plant"),
                                                     int(a.get("limit", 12)))}
-        elif task in ("record_gaps", "project_water"):
+        elif task in ("record_gaps", "project_water", "girdling_advice", "record_girdle",
+                      "girdle_outcome"):
             a = args if isinstance(args, dict) else {}
             return {"result": getattr(self, task)(**a)}
         elif task == "record_full_change":

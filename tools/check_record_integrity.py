@@ -105,6 +105,23 @@ def main():
     ck("no interval from before the change-out is used, and with none left it refuses",
        pr.get("status") == "refused" and not pr.get("segments_used"), str(pr.get("status")))
 
+    print("girdling: never the main stem, never a full ring")
+    from agents.grow_agent.grow_agent import GrowAgent
+    gp = GrowAgent.CANNABIS_GIRDLING
+    ck("the main stem is forbidden and a full ring is forbidden",
+       "main_stem" in gp["forbidden_locations"] and "full_ring" in gp["forbidden_methods"]
+       and "main_stem" not in gp["allowed_locations"] and gp["method"] == "partial_score")
+    store = {}
+    g = grow(store)
+    g._vocab = lambda pid: {"girdling": gp}
+    g._ripeness_obs = lambda pid: [{"observed_by": "principal", "pistils_brown_pct": 60,
+                                    "at": "2026-11-01T10:00:00"}]
+    g._volume_events = lambda pid: []
+    adv = g.girdling_advice("p4")
+    ck("a recommendation says partial score and never a full ring or the main stem",
+       adv.get("recommend") and "partial score" in adv["how"] and "never a full ring" in adv["how"]
+       and "never the main stem" in adv["how"], str(adv.get("how")))
+
     print("a stated dependency on a Legal action is kept, not dropped")
     from agents.legal_agent.legal_agent import LegalAgent
     store = {}
