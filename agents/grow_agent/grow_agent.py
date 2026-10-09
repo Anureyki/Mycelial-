@@ -6483,10 +6483,13 @@ class GrowAgent(AgentBase):
         h = self._harvest_reminders()
         items.extend(h)
         for _pid in self._active_plants():
-            try:
-                _w = self._water_alert(_pid, "scheduled_backstop")
-            except Exception:
-                _w = None
+            # Only plants with a reservoir - a potted aloe has no water to project.
+            _st = str(self._jload(f"grow_system_{_pid}", {}).get("system_type") or "").lower()
+            if _st in ("dwc", "lwc", "top_fed_dwc", "rdwc", "nft", "ebb_flow", "hydro", "kratky"):
+                try:
+                    _w = self._water_alert(_pid, "scheduled_backstop")
+                except Exception:
+                    _w = None
             # GIRDLING HAS ITS OWN SWITCH, OFF BY DEFAULT: the principal ordered it
             # after the water alert proves itself live, so flipping water live
             # must not turn girdling on with it.
