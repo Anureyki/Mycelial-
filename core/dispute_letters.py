@@ -134,86 +134,149 @@ PORTAL_SHORT = [
      ["15 U.S.C. 1681i", "15 U.S.C. 1692g"]),
 ]
 
-# SERVICER RECORDS REQUEST - PROVISIONAL (principal, 2026-10-08): "Make
-# legal contain a general template of this document until the right
-# procedure is in effect and stable because there are a lot of elements that
-# may apply." Built from a "Notice to Servicer" circulating for car-loan
-# disputes (Carvana / Bridgecrest), corrected against the corpus: the
-# accounting request rests on UCC 9-210 and the owner request on 15 U.S.C.
-# 1641(f)(2) - neither was cited in the original - and its "draft, promissory
-# note, bill of exchange or other negotiable instrument as payment" item is
-# REMOVED: under UCC 3-310 only a certified, cashier's or teller's check
-# discharges like money, and tendering a self-made instrument in place of
-# payment is the accepted-for-value theory courts reject. Every draft says it
-# is provisional and what is unsettled, until the principal says otherwise.
+# SERVICER RECORDS REQUEST - PROVISIONAL. THE PRINCIPAL'S TEMPLATE, AS HE
+# HOLDS IT (2026-10-08). His instruction: "I said generalize it. That means
+# remove Carvana and its servicer. Make it general. I will adjust as needed
+# as more information comes to me as I experience it, not how AI controls
+# it." So the text below is the circulating notice VERBATIM with only the
+# party-specific details made into fields - {seller_creditor}, {servicer},
+# and the drafting-basis contract details. Nothing removed, nothing added.
+# An earlier version of this entry removed section IV.3 and inserted
+# citations into the body without his permission; that was reverted.
+# Changes to this text are his to make.
 SERVICER_RECORDS = [
-    ("subject", "Subject: Written request for account records - retail installment contract, "
-                "account ending {account_last4}", []),
-    ("account", "Contract: {contract_description}. Original seller-creditor: {original_creditor}. "
-                "Servicer: {servicer}. Account ending {account_last4}. Contract governed by the "
-                "law of {contract_state}.", []),
-    ("purpose", "This is a written request for the servicing, accounting, ownership and payment "
-                "records of the account above. It is not a refusal to pay, it does not claim that "
-                "any transfer or securitization extinguished the obligation, and it is not an "
-                "admission of any disputed balance. I reserve all rights, claims and defenses.", []),
-    ("accounting", "Under the Uniform Commercial Code, section 9-210, as enacted in "
-                   "{contract_state}, a secured party must answer a debtor's authenticated request "
-                   "for an accounting within 14 days. I request an accounting of the unpaid "
-                   "obligation, including:\n"
-                   "  1. the complete transaction history from origination to your response - "
-                   "every payment, credit, debit, adjustment, reversal, refund, fee, charge and any "
-                   "suspense or unapplied amount;\n"
-                   "  2. for each payment, the dates received and posted, the amount, and its "
-                   "allocation among principal, finance charge, fees and any suspense amount;\n"
-                   "  3. the amount financed, the unpaid principal, accrued finance charge, "
-                   "outstanding fees, and the total you claim is due;\n"
-                   "  4. the interest method and rate, enough to reproduce the balance;\n"
-                   "  5. an itemized payoff statement; and\n"
-                   "  6. any payment rejected, reversed, held in suspense or reallocated, and why.",
-     ["UCC 9-210"]),
-    ("owner", "Under 15 U.S.C. § 1641(f)(2), on an obligor's written request a servicer must "
-              "provide, to the best of its knowledge, the name, address and telephone number of "
-              "the owner of the obligation or the master servicer. I request that information.",
-     ["15 U.S.C. 1641"]),
-    ("transfers", "To the extent your records maintain it, please also identify: whether you act "
-                  "solely as servicer or hold any other interest in this receivable; each sale, "
-                  "assignment or transfer of this receivable with its date, transferor and "
-                  "transferee; any securitization trust, pool or financing facility your records "
-                  "link it to; and copies of any notice of assignment or change of servicing sent "
-                  "to me. If an item is not maintained by you, please say so and name who "
-                  "maintains it.", []),
-    ("custodian", "The contract is an electronic record. Under the Uniform Commercial Code, "
-                  "section 9-105, a secured party's control of electronic chattel paper rests on "
-                  "a single authoritative copy that identifies the assignee. Please identify the "
-                  "present custodian or controller of the authoritative copy of this contract, and "
-                  "any change of custodian since origination with its date.", ["UCC 9-105"]),
-    ("payments", "Please identify the payment methods you accept on this account, the address or "
-                 "channel for paper payments, and your written policy on returned or rejected "
-                 "payments.", []),
-    ("scope", "I am not requesting other borrowers' personal information or investor data "
-              "unrelated to this account - only the records needed to identify this contract's "
-              "owner, custodian and balance.", []),
-    ("preserve", "Please preserve all records relating to this account, including transaction "
-                 "histories, payment-allocation records, servicing notes, ownership and transfer "
-                 "records, and custodial records.", []),
-    ("reply", "Please send your written response and copies of the responsive records to: "
-              "{mailing_address}.\n\nRespectfully,\n\n______________________\n"
-              "Buyer / Consumer        Date: ____________\n\nEnclosures: {enclosures}", []),
+    ("title", "NOTICE TO SERVICER", []),
+    ("intro", "I submit this written request concerning the servicing, accounting, ownership, "
+              "assignment, payment application, and present status of the above-referenced "
+              "automobile retail installment contract. The contract identifies {seller_creditor} "
+              "as the original Seller-Creditor and states that the contract will be serviced by "
+              "{servicer}.", []),
+    ("purpose", "This request is directed to account-specific records. Its purpose is to "
+                "determine the complete accounting of the obligation and to identify, from the "
+                "records maintained or relied upon in servicing this account, the present owner, "
+                "holder, assignee, or other entity with an interest in this particular receivable. "
+                "This information is also requested so that the account can be accurately compared "
+                "with any applicable transfer, financing, or securitization records.", []),
+    ("reservation", "This notice is not a refusal to pay, does not assert that any transfer or "
+                    "securitization extinguished the underlying obligation, and does not constitute "
+                    "an admission of any disputed balance. I expressly reserve all rights, claims, "
+                    "defenses, and remedies.", []),
+    ("part_i", "I. REQUEST FOR COMPLETE ACCOUNTING AND RECONCILIATION\n\n"
+               "1. A complete transaction history from origination through the date of your "
+               "response, including every payment, credit, debit, adjustment, reversal, refund, "
+               "fee, charge, suspense entry, unapplied amount, and other transaction.\n\n"
+               "2. For each payment or credit: the date received, date posted, amount, source/type "
+               "of payment, and allocation among principal, finance charge/interest, late fees, "
+               "other fees or charges, and any unapplied or suspense amount.\n\n"
+               "3. The original amount financed; current unpaid principal balance; accrued but "
+               "unpaid finance charge/interest; all outstanding fees or charges; and the total "
+               "amount presently claimed due.\n\n"
+               "4. The daily simple-interest calculation method used on this account, including "
+               "the applicable contractual rate and sufficient information to independently "
+               "reproduce the current balance.\n\n"
+               "5. A current payoff statement with an itemized calculation of the payoff amount.\n\n"
+               "6. Identification and explanation of any payment that was rejected, reversed, "
+               "returned, held in suspense, reallocated, or otherwise not credited as originally "
+               "tendered.", []),
+    ("part_ii", "II. REQUEST FOR ACCOUNT-SPECIFIC OWNERSHIP, ASSIGNMENT, AND TRANSFER INFORMATION\n\n"
+                "1. Identify the current owner, holder, assignee, or other entity shown in "
+                "{servicer_short}'s records as presently entitled to the economic benefit of "
+                "payments on this specific retail installment contract.\n\n"
+                "2. State whether {servicer_short} is acting solely as servicer or whether "
+                "{servicer_short}, an affiliate, or another entity is reflected as having an "
+                "ownership, beneficial, collateral, custodial, or other interest in this "
+                "receivable.\n\n"
+                "3. Identify each sale, assignment, transfer, pledge, or other change in ownership "
+                "or interest reflected in the account-level servicing records, including the "
+                "effective date and the transferor and transferee, to the extent maintained or "
+                "available to {servicer_short}.\n\n"
+                "4. If {servicer_short}'s records identify this receivable as included in a "
+                "securitization, financing facility, trust, or receivables pool, identify the name "
+                "of that trust, pool, depositor, issuing entity, or financing arrangement and the "
+                "effective transfer or inclusion date reflected in the records.\n\n"
+                "5. Provide copies of any notices of assignment, transfer, or change in ownership or "
+                "servicing that were sent to the buyer or co-buyer concerning this account.\n\n"
+                "6. If an account-level identifier, receivable number, pool number, trust code, "
+                "investor code, or similar servicing field links this receivable to another owner "
+                "or financing vehicle, identify that field and its meaning, subject to redaction of "
+                "information unrelated to this account.", []),
+    ("part_iii", "III. AUTHORITATIVE ELECTRONIC CONTRACT / CUSTODIAN INFORMATION\n\n"
+                 "The consumer copy of the transaction documents states that it is a copy view of "
+                 "an 'Authoritative Copy held by the designated custodian,' and the retail "
+                 "installment contract provides for electronic records and transfer of the "
+                 "contract. Accordingly, please:\n\n"
+                 "1. Identify the entity shown in {servicer_short}'s records as the present "
+                 "custodian or controller of the authoritative electronic copy of this contract.\n\n"
+                 "2. State whether the authoritative electronic copy has been transferred, "
+                 "reassigned, or placed under the control of another custodian since origination, "
+                 "and identify the effective date of any such change reflected in "
+                 "{servicer_short}'s records.\n\n"
+                 "3. Provide any nonprivileged account-level record, screen print, transfer record, "
+                 "or servicing notation sufficient to identify the present custodian/controller and "
+                 "current owner/holder without disclosing information concerning other "
+                 "consumers.", []),
+    ("part_iv", "IV. PAYMENT METHODS AND INSTRUMENT POLICY\n\n"
+                "1. Identify all payment methods {servicer_short} currently accepts for this "
+                "account, including ACH, debit, check, cashier's check, money order, bill-pay "
+                "service, or other instrument.\n\n"
+                "2. Provide or identify the written policy governing acceptance, rejection, return, "
+                "or conditional handling of checks, drafts, negotiable instruments, or other payment "
+                "instruments.\n\n"
+                "3. If {servicer_short} will not accept a particular form of draft, promissory note, "
+                "bill of exchange, or other negotiable instrument as payment on this account, "
+                "identify the contractual provision or written servicing/payment policy on which "
+                "{servicer_short} relies.\n\n"
+                "4. Identify the address or payment channel designated for any payment by check or "
+                "other accepted paper instrument.", []),
+    ("part_v", "V. SCOPE OF REQUEST\n\n"
+               "I am not requesting personally identifiable information of other borrowers, "
+               "confidential investor data unrelated to my account, or documents merely because "
+               "they exist in a securitization transaction. I am requesting the account-specific "
+               "records and identifying information necessary to connect—or distinguish—this "
+               "particular contract from any transfer, assignment, financing, or securitization "
+               "arrangement reflected in {servicer_short}'s own servicing records.\n\n"
+               "If a requested item is not maintained by {servicer_short}, please state that fact. "
+               "If {servicer_short} knows the identity of the entity that maintains the requested "
+               "account-specific information, please identify that entity. If any request is "
+               "declined, please identify the specific request being declined and state the reason "
+               "for the refusal.", []),
+    ("part_vi", "VI. PRESERVATION OF RECORDS\n\n"
+                "Please preserve all records relating to this account, including transaction "
+                "histories, payment-allocation records, servicing notes, communications, "
+                "ownership/investor fields, transfer and assignment records, custodial records, "
+                "authoritative-copy records, payment method records, rejected or returned payment "
+                "records, and documents or data relied upon to calculate the balance.", []),
+    ("part_vii", "VII. WRITTEN RESPONSE REQUESTED\n\n"
+                 "Please provide a written response and copies of responsive account records to "
+                 "the mailing address listed below. This request is made in good faith for account "
+                 "reconciliation and verification. Nothing in this correspondence waives any right, "
+                 "claim, defense, or remedy.\n\n"
+                 "Respectfully submitted,\n\n"
+                 "________________________________________\n\n"
+                 "name\n\n"
+                 "Buyer / Consumer\n\n"
+                 "Date: _________________________________\n\n"
+                 "Mailing Address: ______________________________________________\n\n"
+                 "City/State/ZIP: _______________________________________________", []),
+    ("enclosures", "ENCLOSURES (recommended):\n\n"
+                   "1. Copy of relevant Retail Installment Contract pages (redact unnecessary "
+                   "personal identifiers).\n\n"
+                   "2. Copy of any {servicer_short} statement or account page showing the account "
+                   "number and current balance.\n\n"
+                   "3. Keep the originals and the Certified Mail receipt/return receipt for your "
+                   "records.", []),
+    ("basis", "Drafting basis: Prepared from the {contract_date} {seller_short} {contract_state} "
+              "Retail Installment Contract and Security Agreement supplied by the consumer, "
+              "including its payment, payment-application, returned-instrument, servicing, "
+              "applicable-law, assignment, and electronic-record provisions. This notice "
+              "intentionally requests account-specific evidence rather than presuming that the "
+              "receivable was transferred to any particular securitization trust.", []),
 ]
 
 PROVISIONAL = {
     "servicer_records_request": (
-        "PROVISIONAL TEMPLATE - the principal's instruction 2026-10-08, held until the procedure "
-        "is in effect and stable. Unsettled: (1) the contract state's own UCC enactment must be "
-        "checked - Legal holds Texas Bus. & Com. Code ch. 9 and resolves 'UCC 9-210' and 'UCC "
-        "9-105' to it, so a Louisiana (La. R.S. 10:9-210) or other state's version is UNVERIFIED; "
-        "(2) only the accounting (9-210, 14 days) and the owner's identity (15 U.S.C. "
-        "1641(f)(2)) are compelled by a statute held here - the transfer, securitization, "
-        "custodian and payment-policy requests are requests, not duties; (3) RESPA's qualified "
-        "written request (12 U.S.C. 2605(e)) is for mortgages and is deliberately NOT invoked; "
-        "(4) the negotiable-instrument payment item from the circulating version is removed "
-        "(UCC 3-310). 9-210 needs the request SIGNED by the debtor; the first accounting in six "
-        "months is free."),
+        "PROVISIONAL TEMPLATE - the principal's own text, generalized 2026-10-08 (party names made "
+        "into fields; nothing else changed). His to adjust as experience shows."),
 }
 
 KINDS = {
@@ -225,10 +288,8 @@ KINDS = {
     "combined": ("Combined FCRA + FDCPA notice", COMBINED,
                  ("furnisher", "account_last4", "mailing_address")),
     "portal_short": ("Short version for a portal / CFPB box", PORTAL_SHORT, ()),
-    "servicer_records_request": ("Servicer records request - secured consumer loan "
-                                 "(PROVISIONAL)", SERVICER_RECORDS,
-                                 ("original_creditor", "servicer", "account_last4",
-                                  "contract_state", "contract_description", "mailing_address")),
+    "servicer_records_request": ("Notice to Servicer - the principal's template (PROVISIONAL)",
+                                 SERVICER_RECORDS, ("seller_creditor", "servicer")),
 }
 
 HOW_TO_SEND = (
@@ -298,12 +359,14 @@ def draft(kind, facts, resolver):
     if missing:
         raise Refused(f"{kind} needs {missing}. Nothing drafted.")
     fields = dict(facts)
-    if kind == "servicer_records_request" and not facts.get("enclosures"):
-        # What this request needs to identify the account - not the credit-dispute set.
-        facts = dict(facts, enclosures=["copy of the relevant contract pages (personal "
-                                        "identifiers redacted)", "a recent statement showing the "
-                                        "account ending and balance"])
     fields["enclosures"] = _enclosures(facts)
+    if kind == "servicer_records_request":
+        # Short names where his text says "Bridgecrest" / "Carvana" alone; the
+        # drafting-basis details stay visibly blank until he supplies them.
+        fields.setdefault("servicer_short", facts.get("servicer_short") or facts["servicer"])
+        fields.setdefault("seller_short", facts.get("seller_short") or facts["seller_creditor"])
+        fields.setdefault("contract_date", facts.get("contract_date") or "[contract date]")
+        fields.setdefault("contract_state", facts.get("contract_state") or "[state]")
 
     shipped, refused, schedule = [], [], []
     n = 0

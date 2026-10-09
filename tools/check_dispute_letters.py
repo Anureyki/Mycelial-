@@ -8,6 +8,7 @@ Fixtures are synthetic; the shelf is the committed corpus under
 reference/legal_agent.
 """
 import os
+import re
 import sys
 
 os.environ["MYCELIAL_EVENT_ORIGIN"] = "test"
@@ -35,8 +36,14 @@ def main():
 
     print("every paragraph that asserts a duty names its authority")
     for kind, (_, paras, _) in dl.KINDS.items():
+        # "under the" counts only when a law follows it - "placed under the
+        # control of another custodian" in the principal's servicer notice is
+        # plain English, not a claim of duty.
         asserting = [p for p in paras if p[0] != "subject"
-                     and any(w in p[1].lower() for w in ("must", "cease", "do not", "under the"))]
+                     and (any(w in p[1].lower() for w in ("must", "cease", "do not"))
+                          or re.search(r"\bunder (?:the )?(?:[\w-]+ ){0,4}(?:act|code|statute|"
+                                       r"regulation|law|u\.s\.c|cfr|fcra|fdcpa|ucc)\b|"
+                                       r"\bunder \d+ u\.s\.c", p[1].lower()))]
         ck(f"{kind}: asserting paragraphs cite", all(p[2] for p in asserting),
            str([p[0] for p in asserting if not p[2]]))
 
@@ -48,11 +55,9 @@ def main():
              "combined": {"furnisher": "Example Collector Inc", "account_last4": "1234",
                           "mailing_address": "[mailing address]"},
              "portal_short": {},
-             "servicer_records_request": {"original_creditor": "Example Seller LLC",
-                                          "servicer": "Example Servicing LLC",
-                                          "account_last4": "1234", "contract_state": "Texas",
-                                          "contract_description": "retail installment contract",
-                                          "mailing_address": "[mailing address]"}}
+             "servicer_records_request": {"seller_creditor": "Example Seller, LLC",
+                                          "servicer": "Example Servicing Company, LLC",
+                                          "servicer_short": "Example Servicing"}}
     docs = {}
     for kind, f in facts.items():
         r = dl.draft(kind, f, own)
@@ -62,13 +67,18 @@ def main():
            "AUTHORITIES" in r["letter"] and "[sha256" not in r["letter"].split("---")[0])
         ck(f"{kind} does not send", r["sends"] is False)
     sv = docs["servicer_records_request"]
-    ck("servicer request: accounting rests on UCC 9-210, owner on 15 USC 1641",
-       {"UCC 9-210", "15 U.S.C. 1641"} <= {e["citation"] for e in sv["schedule"]})
-    ck("servicer request: no negotiable-instrument payment item",
-       not any(w in sv["letter"].split("---")[0].lower()
-               for w in ("bill of exchange", "promissory note", "negotiable instrument")))
-    ck("servicer request says it is provisional", "PROVISIONAL TEMPLATE" in sv["letter"]
-       and sv.get("provisional"))
+    # HIS TEMPLATE, KEPT AS WRITTEN: every section present, IV.3 included,
+    # and no authority inserted into the body (2026-10-08 correction).
+    body = sv["letter"].split("---")[0]
+    ck("servicer notice keeps all seven sections and the enclosures",
+       all(h in body for h in ("I. REQUEST FOR COMPLETE ACCOUNTING", "II. REQUEST FOR ACCOUNT-SPECIFIC",
+                               "III. AUTHORITATIVE ELECTRONIC", "IV. PAYMENT METHODS",
+                               "V. SCOPE OF REQUEST", "VI. PRESERVATION", "VII. WRITTEN RESPONSE",
+                               "ENCLOSURES (recommended)", "Drafting basis")))
+    ck("servicer notice keeps IV.3 as written", "bill of exchange, or other negotiable instrument" in body)
+    ck("servicer notice carries no party name from the original",
+       not any(w in body for w in ("Carvana", "Bridgecrest")))
+    ck("servicer notice says it is provisional", "PROVISIONAL TEMPLATE" in sv["letter"])
     ck("the VA benefit bullet rests on 38 U.S.C. 5301",
        any(e["citation"] == "38 U.S.C. 5301" for e in docs["fdcpa_validation"]["schedule"]))
     ck("the validation demand rests on Regulation F § 1006.34",
