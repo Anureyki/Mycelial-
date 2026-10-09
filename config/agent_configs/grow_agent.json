@@ -79,6 +79,7 @@
     "void_training_event",
     "volume_history",
     "correct_volume_event",
+    "record_full_change",
     "reconcile_topup",
     "prediction_check",
     "record_species",

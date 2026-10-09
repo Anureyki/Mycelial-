@@ -909,7 +909,7 @@ class GrowAgent(AgentBase):
                 # the interface layer doing this agent's job and re-editing
                 # itself every time a plant gains a field.
                 "roster",
-                "log_reading", "check_stage", "observe_stage_markers", "volume_history", "correct_volume_event", "reconcile_topup", "prediction_check", "record_species", "record_genetics", "record_plant", "compare_plants", "adopt_species_layer", "record_light_flip", "plan_harvest", "log_dry_start", "log_stem_check", "log_cure_start", "log_cure_burp", "log_sift", "harvest_record", "amend_species",
+                "log_reading", "check_stage", "observe_stage_markers", "volume_history", "correct_volume_event", "record_full_change", "reconcile_topup", "prediction_check", "record_species", "record_genetics", "record_plant", "compare_plants", "adopt_species_layer", "record_light_flip", "plan_harvest", "log_dry_start", "log_stem_check", "log_cure_start", "log_cure_burp", "log_sift", "harvest_record", "amend_species",
                 "adjust_nutrients",
                 "transition_stage", "log_water_change", "get_status",
                 "set_germination_date", "set_current_nutrients",
@@ -6055,6 +6055,13 @@ class GrowAgent(AgentBase):
                 k in txt for k in ("fresh", "full change", "reservoir change", "complete reservoir"))
             if fresh and rec.get("timestamp"):
                 last = rec
+        # A change-out recorded with record_full_change counts too - with or
+        # without a recipe. Same shape as a recipe record, so callers that read
+        # last["timestamp"] work unchanged.
+        stated = self._jload(f"grow_system_{plant_id}", {}).get("last_full_change_at")
+        if stated and (last is None or str(stated)[:19] > str(last.get("timestamp", ""))[:19]):
+            last = {"timestamp": str(stated), "source_note": "full change (record_full_change)",
+                    "nutrients": None}
         return last
 
     def maintenance_due(self, plant_id=None):
@@ -12752,6 +12759,14 @@ class GrowAgent(AgentBase):
         for r0, r1 in zip(rds, rds[1:]):
             t0, t1 = str(r0.get("timestamp")), str(r1.get("timestamp"))
             between = [e for e in evs if t0 < str(e.get("at") or "") <= t1]
+            resets = [e for e in between if e.get("kind") == "full_change"]
+            if resets:
+                out.append({"from_reading": t0[:16], "to_reading": t1[:16], "kind": "full_change",
+                            "ppm_before": self._parse_numeric(r0["ppm"]),
+                            "ppm_measured": self._parse_numeric(r1["ppm"]),
+                            "reading": (f"reservoir emptied and replaced {resets[-1]['at'][:10]} - "
+                                        "no uptake computed across a change-out")})
+                continue
             poured = [e for e in between if e.get("kind") == "dose"
                       and e.get("reconciled_result") != "not_poured"]
             refills = [e for e in between if e.get("kind") == "refill"]
@@ -12849,6 +12864,45 @@ class GrowAgent(AgentBase):
                 "basis": ("Recomputed from the readings and volume events on record. A refill "
                           "interval's mass drop is what the plant took; a dose interval's error "
                           "is how far Grow's plan landed from what the meter read.")}
+
+    def record_full_change(self, plant_id=None, at=None, liters=None, emptied=True,
+                           nutrients=None, stage=None, note=""):
+        """The reservoir was emptied and refilled with fresh solution.
+
+        There was no way to say this. GSC1's 2026-10-04 change-out - old water
+        completely emptied, the same day GSC2 got its new bucket - existed
+        only as refills either side of it, so prediction_check read the
+        interval across it as "18.6% uptake" (from a solution that had been
+        poured away) and the reservoir-age reminder still counted from 9/23.
+        A full change is a reset: no uptake is computed across it, and the
+        reservoir's age starts again from it. Nutrient amounts are optional -
+        a change-out the grower remembers only roughly is still a change-out,
+        and the amounts can be added when known."""
+        if not (plant_id and at and liters):
+            return {"error": "record_full_change needs plant_id, at (date/time) and liters"}
+        when = str(at)
+        lv = self._parse_numeric(liters)
+        ev = self._volume_events(plant_id)
+        ev.append({"at": when, "kind": "full_change", "from_liters": None, "liters": lv,
+                   "delta": None, "measured": True, "emptied": bool(emptied),
+                   "source": "full_change_stated", "note": str(note)[:300]})
+        ev.sort(key=lambda e: str(e.get("at", "")))
+        self.store_own_memory(f"volume_events_{plant_id}", json.dumps(ev[-200:]))
+        rec = self._jload(f"grow_system_{plant_id}", {})
+        prev = rec.get("last_full_change_at")
+        if not prev or when > str(prev):
+            self.amend_grow_system(plant_id, last_full_change_at=when)
+        out = {"recorded": True, "plant_id": plant_id, "at": when, "liters": lv,
+               "emptied": bool(emptied), "recipe": None}
+        if nutrients:
+            out["recipe"] = self.handle_task("set_current_nutrients", {
+                "plant_id": plant_id, "nutrients": nutrients, "volume_liters": lv,
+                "stage": stage or "unknown", "timestamp": when, "basis": "total",
+                "source_note": f"full change - fresh mix. {note}"[:300]}, "record_full_change")
+        else:
+            out["recipe_note"] = ("No amounts recorded for this mix. The change-out is on the "
+                                  "record; add the recipe with set_current_nutrients when known.")
+        return out
 
     def correct_volume_event(self, plant_id=None, at=None, from_liters=None, reason=""):
         """Correct the starting level of a recorded refill, keeping what it said.
@@ -13374,6 +13428,8 @@ class GrowAgent(AgentBase):
             a = args if isinstance(args, dict) else {}
             return {"result": self.prediction_check(a.get("plant_id", "current_plant"),
                                                     int(a.get("limit", 12)))}
+        elif task == "record_full_change":
+            return {"result": self.record_full_change(**(args if isinstance(args, dict) else {}))}
         elif task == "correct_volume_event":
             return {"result": self.correct_volume_event(**(args if isinstance(args, dict) else {}))}
         elif task == "void_reading":
