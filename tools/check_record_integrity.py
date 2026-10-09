@@ -74,6 +74,18 @@ def main():
     ck("and says the record was overridden",
        (r.get("stated_start_overrode_record") or {}).get("record_said") == 15.0)
 
+    print("a newer volume reading outranks the record's level")
+    store = {"grow_system_p5": json.dumps({"plant_id": "p5", "reservoir_liters": 15.0,
+                                           "reservoir_capacity_liters": 15.5,
+                                           "volume_measured_on": "2026-10-07T12:19:00"})}
+    g = grow(store)
+    g._get_readings_for_plant = lambda pid: [{"timestamp": "2026-10-09T11:11:00",
+                                              "volume_liters": 12.0, "ppm": 918}]
+    r = g.record_refill("p5", to_liters=15)
+    ck("refill to 15 after a 12 L reading records 3 L added, not 0",
+       r.get("from_liters") == 12.0 and r.get("added_liters") == 3.0,
+       f"{r.get('from_liters')} -> {r.get('to_liters')}, added {r.get('added_liters')}")
+
     print("a recorded sighting outranks the age")
     germ = (datetime.now() - timedelta(days=69)).date().isoformat()
     store = {"current_stage": "flower", "germination_date": germ,

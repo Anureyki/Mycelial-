@@ -2965,6 +2965,23 @@ class GrowAgent(AgentBase):
         if rec.get("alive") is False:
             return {"recorded": False, "reason": "plant not alive", "plant_id": pid}
         before = self._parse_numeric(rec.get("reservoir_liters"))
+        start_basis = "the system record's level"
+        # A NEWER MEASUREMENT OUTRANKS THE RECORD. On 2026-10-09 the record
+        # still held 15 L from the 10/7 refill while three readings that morning
+        # said 12 L - "refilled to 15 L" would have been logged as 0 L added,
+        # and the drawdown it teaches the water projection would be zero.
+        try:
+            _rec_at = str(rec.get("volume_measured_on") or "")[:19]
+            _vr = [r for r in (self._get_readings_for_plant(pid) or [])
+                   if not r.get("voided") and self._parse_numeric(r.get("volume_liters"))]
+            if _vr:
+                _last = max(_vr, key=lambda r: str(r.get("timestamp") or ""))
+                if str(_last.get("timestamp") or "")[:19] > _rec_at:
+                    before = self._parse_numeric(_last["volume_liters"])
+                    start_basis = (f"the latest measured volume ({before:g} L at "
+                                   f"{str(_last['timestamp'])[:16]}), newer than the record")
+        except Exception as exc:
+            self.log(f"record_refill: could not compare with readings: {exc}")
         cap = self._parse_numeric(rec.get("reservoir_capacity_liters"))
         to_v = self._parse_numeric(to_liters)
         add_v = self._parse_numeric(added_liters)
@@ -3025,7 +3042,7 @@ class GrowAgent(AgentBase):
                "receipt": (f"{rec.get('instance_label') or pid} in "
                            f"{rec.get('vessel') or rec.get('system_type') or 'an unrecorded vessel'}"),
                "from_liters": before, "to_liters": round(to_v, 1), "added_liters": delta,
-               "capacity_liters": cap, "at": now,
+               "capacity_liters": cap, "at": now, "start_basis": start_basis,
                **({"stated_start_overrode_record": {
                    "record_said": stated_over, "stated": before,
                    "why": "the grower stated the level before the refill"}}
