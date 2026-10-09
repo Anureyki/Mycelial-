@@ -16052,6 +16052,11 @@ class GrowAgent(AgentBase):
                     "basis": rec.get("basis"),
                     "reservoir_liters": rec.get("reservoir_liters"),
                     "per_liter": rec.get("per_liter"),
+                    # Growers and their bottles speak per gallon; the conversion is
+                    # done here, once, with the agent's own constant.
+                    "per_gallon": ({k: round(v * self.ML_PER_GALLON, 2)
+                                    for k, v in (rec.get("per_liter") or {}).items()}
+                                   if rec.get("per_liter") else None),
                     "next_measured_ppm": nxt.get("ppm") if nxt else None,
                     "next_reading_at": nxt.get("timestamp") if nxt else None,
                 })
@@ -16065,9 +16070,26 @@ class GrowAgent(AgentBase):
                        "recoverable. The ppm series below is the reliable record for that period."
                        % (len(history), len(ppm_series)))
 
+            # Top-ups since the last fresh mix are dose events, not recipe
+            # changes - without them "what is in the reservoir" stops at the mix.
+            last_mix = timeline[-1]["changed_at"] if timeline else ""
+            topups = []
+            for e in self._volume_events(plant_id):
+                if (e.get("kind") != "dose" or e.get("reconciled_result") == "not_poured"
+                        or str(e.get("at", ""))[:16] <= str(last_mix)[:16]):
+                    continue
+                vol = self._parse_numeric(e.get("final_liters") or e.get("volume_liters"))
+                ml = e.get("add_now_ml") or {}
+                topups.append({"at": e.get("at"), "blend": e.get("blend"), "ml": ml,
+                               "into_liters": vol,
+                               "per_gallon_of_reservoir": ({k: round(float(v) / vol * self.ML_PER_GALLON, 2)
+                                                            for k, v in ml.items()} if vol else None),
+                               "ppm_before": e.get("ppm_before"),
+                               "ppm_after": e.get("measured_ppm_after") or e.get("ppm_predicted_at_final")})
             return {"result": {
                 "plant_id": plant_id,
                 "recipe_changes": timeline,
+                "topups_since_last_recipe": topups,
                 "ppm_series": ppm_series,
                 "history_gap": gap,
             }}
