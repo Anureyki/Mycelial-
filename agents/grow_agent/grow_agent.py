@@ -3000,6 +3000,7 @@ class GrowAgent(AgentBase):
             if before is None or abs(stated_from - before) > 0.05:
                 stated_over = before
                 before = stated_from
+            start_basis = f"stated by the grower ({stated_from:g} L before the refill)"
         if to_v is None:
             if before is None:
                 return {"recorded": False, "reason": "no starting volume on record",
