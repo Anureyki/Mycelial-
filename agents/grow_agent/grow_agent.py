@@ -13547,32 +13547,50 @@ class GrowAgent(AgentBase):
         return {"withdrawn": True, "plan": {k: hit.get(k) for k in ("at", "add_now_ml", "volume_liters",
                                                                      "ppm_predicted_at_final")}}
 
-    def correct_volume_event(self, plant_id=None, at=None, from_liters=None, reason=""):
-        """Correct the starting level of a recorded refill, keeping what it said.
+    def correct_volume_event(self, plant_id=None, at=None, from_liters=None, reason="",
+                             to_liters=None):
+        """Correct a recorded volume event's levels, keeping what it said.
 
-        Built for the 2026-10-05 GSC1 refill, recorded 15 -> 15 L (added 0)
-        when the grower said 12 -> 15 L. A refill's delta is what the plant
-        drank since the last one, so a wrong start corrupts every drawdown
-        rate learned from it - and correcting the store by hand would leave
-        no trace of the correction. Needs a reason, for the same reason
-        void_reading does."""
-        if not (plant_id and at and reason) or from_liters is None:
-            return {"error": "Needs plant_id, at (the event timestamp), from_liters and reason."}
+        A refill's start (from_liters) and end (to_liters); a dose's volume
+        (to_liters sets volume_liters, final_liters and measured_at_liters).
+        Built for GSC1's 2026-10-05 refill (15 -> 15 recorded, 12 -> 15 said),
+        widened 2026-10-10 when the principal accepted the dose maths over his
+        stated 19 L: "I didn't account for it feeding, Grow did" - the refill
+        was 14 -> 18 and the dose went into 18 L. Needs a reason."""
+        if not (plant_id and at and reason) or (from_liters is None and to_liters is None):
+            return {"error": "Needs plant_id, at (the event timestamp), reason, and from_liters and/or to_liters."}
         ev = self._volume_events(plant_id)
         hit = next((e for e in ev if str(e.get("at", "")).startswith(str(at))), None)
         if not hit:
             return {"error": f"No volume event at {at} for {plant_id}."}
-        f = float(from_liters)
-        hit.setdefault("corrections", []).append({
-            "at": datetime.now().isoformat(timespec="seconds"),
-            "from_liters_was": hit.get("from_liters"), "delta_was": hit.get("delta"),
-            "reason": str(reason)[:300]})
-        hit["from_liters"] = f
-        if hit.get("liters") is not None:
-            hit["delta"] = round(float(hit["liters"]) - f, 2)
+        corr = {"at": datetime.now().isoformat(timespec="seconds"), "reason": str(reason)[:300]}
+        if hit.get("kind") == "dose":
+            if to_liters is None:
+                return {"error": "a dose event is corrected with to_liters (the volume it went into)"}
+            t = float(to_liters)
+            for k in ("volume_liters", "final_liters", "measured_at_liters"):
+                if hit.get(k) is not None:
+                    corr[f"{k}_was"] = hit[k]
+                    hit[k] = t
+        else:
+            corr.update(from_liters_was=hit.get("from_liters"), liters_was=hit.get("liters"),
+                        delta_was=hit.get("delta"))
+            if from_liters is not None:
+                hit["from_liters"] = float(from_liters)
+            if to_liters is not None:
+                hit["liters"] = float(to_liters)
+            if hit.get("liters") is not None and hit.get("from_liters") is not None:
+                hit["delta"] = round(float(hit["liters"]) - float(hit["from_liters"]), 2)
+        hit.setdefault("corrections", []).append(corr)
         self.store_own_memory(f"volume_events_{plant_id}", json.dumps(ev[-200:]))
-        if ev and ev[-1] is hit:
-            self.amend_grow_system(plant_id, volume_before_last_topup_liters=f)
+        if hit.get("kind") == "refill" and ev and ev[-1] is hit and from_liters is not None:
+            self.amend_grow_system(plant_id, volume_before_last_topup_liters=float(from_liters))
+        if hit.get("kind") == "dose" and hit.get("blend"):
+            try:
+                hit["recalibrated"] = {k: v for k, v in self.calibrate_blend(plant_id, hit["blend"]).items()
+                                       if k in ("ppm_l_per_ml", "n", "in_use")}
+            except Exception as exc:
+                hit["recalibration_error"] = str(exc)
         return {"corrected": True, "event": hit}
 
     def void_reading(self, timestamp=None, reason="", plant_id="current_plant",
