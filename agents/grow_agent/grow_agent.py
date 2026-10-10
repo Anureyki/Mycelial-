@@ -10216,6 +10216,13 @@ class GrowAgent(AgentBase):
             return {"channel": name, "state": "rot" if value else "clean",
                     "reported": value}
         text = str(value).strip().lower()
+        # STAINED IS ITS OWN READING. GH Flora colours roots tan to brown; on
+        # 2026-10-10 GSC1's roots were reported "brown - nutrient-stained" with
+        # no smell, no slime, firm - and "brown" alone scored the colour channel
+        # as rot. Staining says nothing either way; the other channels decide.
+        if name == "colour" and any(w in text for w in ("stain", "dyed", "tinted")):
+            return {"channel": name, "state": "stained", "reported": value,
+                    "why": "colour attributed to nutrient staining - judged by the other channels"}
         vocab = self.ROOT_CHANNELS.get(name) or {}
         rot = [w for w in vocab.get("rot", ()) if w in text]
         clean = [w for w in vocab.get("clean", ()) if w in text]
@@ -10317,6 +10324,7 @@ class GrowAgent(AgentBase):
         n_clean = len(by_state.get("clean", []))
         n_unchecked = len(by_state.get("unchecked", []))
         n_mixed = len(by_state.get("mixed", []))
+        stained = bool(by_state.get("stained"))
 
         temp_f = self._parse_numeric(water_temp_f)
         if temp_f is None:
@@ -10423,6 +10431,11 @@ class GrowAgent(AgentBase):
             except Exception as e:
                 out["stored"] = False
                 out["store_error"] = str(e)
+        if stained and not (n_rot or n_mixed) and isinstance(out, dict):
+            out["reason"] = (str(out.get("reason") or "") + " Colour reported as nutrient "
+                             "staining (the Flora line stains roots); with the other channels "
+                             "clean, that is staining, not rot.").strip()
+            out["colour_stained"] = True
         return out
 
     def estimate_root_establishment(self, plant_id="current_plant", transitioned_on=None):
@@ -13431,7 +13444,14 @@ class GrowAgent(AgentBase):
         cur = last["liters"] - rate * max(0.0, (now - lt).total_seconds() / 86400)
         out.update(rate_l_per_day=round(rate, 2), last_known={"at": last["at"].rstrip("~")[:16],
                    "liters": last["liters"], "kind": last["kind"]}, projected_now=round(cur, 2))
-        if cur <= low:
+        danger = float(cfg.get("danger_liters") or 0)
+        out["danger_liters"] = danger or None
+        if danger and cur <= danger:
+            out.update(status="danger", hours_to_crossing=0,
+                       message=(f"DANGER: projected at {cur:.1f} L now (last known {last['liters']} L "
+                                f"at {out['last_known']['at']}, drawing {rate:.2f} L/day) - at or below "
+                                f"the {danger:g} L danger level. Refill now."))
+        elif cur <= low:
             out.update(status="at_or_below_low_water", hours_to_crossing=0,
                        message=(f"Projected at {cur:.1f} L now (last known {last['liters']} L at "
                                 f"{out['last_known']['at']}, drawing {rate:.2f} L/day) - at or "
@@ -13455,7 +13475,7 @@ class GrowAgent(AgentBase):
             self.log(f"_water_alert: projection failed for {plant_id}: {exc}")
             return None
         within = float(cfg.get("alert_within_hours") or 24)
-        fire = pr.get("status") == "at_or_below_low_water" or (
+        fire = pr.get("status") in ("at_or_below_low_water", "danger") or (
             pr.get("status") == "ok" and pr.get("hours_to_crossing", 1e9) <= within)
         entry = {"at": datetime.now().isoformat(timespec="seconds"), "plant_id": plant_id,
                  "trigger": trigger, "mode": cfg["mode"], "fire": fire,
@@ -13467,9 +13487,11 @@ class GrowAgent(AgentBase):
             key = f"{plant_id}:{pr.get('status')}:{day}"
             if key not in log:
                 r = self.send_a2a("anansi", "notify", {
-                    "subject": f"{label}: reservoir will be at {pr['low_water_liters']:g} L "
-                               + ("now" if pr["status"] != "ok" else
-                                  f"in about {pr['hours_to_crossing']:.0f} h"),
+                    "subject": (f"DANGER - {label}: reservoir at or below {pr['danger_liters']:g} L"
+                                if pr["status"] == "danger" else
+                                f"{label}: reservoir will be at {pr['low_water_liters']:g} L "
+                                + ("now" if pr["status"] != "ok" else
+                                   f"in about {pr['hours_to_crossing']:.0f} h")),
                     "body": f"{label}: {pr['message']}", "from_agent": "grow_agent",
                     "register": "low_stakes", "channels": ["email", "dashboard"]})
                 res = r.get("result", r) if isinstance(r, dict) else r

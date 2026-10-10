@@ -4,5 +4,7 @@
   "low_water_liters": 12,
   "alert_within_hours": 24,
   "girdling_mode": "off",
-  "girdling_mode_note": "off: no girdling recommendation is made or logged. The principal 2026-10-09: girdling comes only after the water alert has proven itself live. dry_run: log what would be recommended. live: recommend through the reminder run. Switched by the principal."
+  "girdling_mode_note": "off: no girdling recommendation is made or logged. The principal 2026-10-09: girdling comes only after the water alert has proven itself live. dry_run: log what would be recommended. live: recommend through the reminder run. Switched by the principal.",
+  "danger_liters": 10,
+  "levels_note": "Principal 2026-10-10: keep 12 L as the low level (refill due); 10 L is DANGER - refill immediately."
 }
