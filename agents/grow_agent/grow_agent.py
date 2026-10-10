@@ -909,7 +909,7 @@ class GrowAgent(AgentBase):
                 # the interface layer doing this agent's job and re-editing
                 # itself every time a plant gains a field.
                 "roster",
-                "log_reading", "check_stage", "observe_stage_markers", "volume_history", "correct_volume_event", "record_full_change", "record_gaps", "project_water", "ingest_tent_export", "environment_adjustment", "girdling_advice", "record_girdle", "girdle_outcome", "reconcile_topup", "prediction_check", "record_species", "record_genetics", "record_plant", "compare_plants", "adopt_species_layer", "record_light_flip", "plan_harvest", "log_dry_start", "log_stem_check", "log_cure_start", "log_cure_burp", "log_sift", "harvest_record", "amend_species",
+                "log_reading", "check_stage", "observe_stage_markers", "volume_history", "correct_volume_event", "withdraw_dose_plan", "record_full_change", "record_gaps", "project_water", "ingest_tent_export", "environment_adjustment", "girdling_advice", "record_girdle", "girdle_outcome", "reconcile_topup", "prediction_check", "record_species", "record_genetics", "record_plant", "compare_plants", "adopt_species_layer", "record_light_flip", "plan_harvest", "log_dry_start", "log_stem_check", "log_cure_start", "log_cure_burp", "log_sift", "harvest_record", "amend_species",
                 "adjust_nutrients",
                 "transition_stage", "log_water_change", "get_status",
                 "set_germination_date", "set_current_nutrients",
@@ -13489,6 +13489,27 @@ class GrowAgent(AgentBase):
                                   "record; add the recipe with set_current_nutrients when known.")
         return out
 
+    def withdraw_dose_plan(self, plant_id=None, at=None, reason=""):
+        """A planned dose that was NOT poured - so reconcile_dose, which takes
+        the newest unreconciled plan, lands on the one that was. On 2026-10-10
+        GSC1 was planned at 19 L and at 18 L to compare; the 19 L amounts went
+        in, and the newest pending plan was the 18 L one. Kept on the record
+        as not_poured, with its reason - never deleted."""
+        if not (plant_id and at and reason):
+            return {"error": "withdraw_dose_plan needs plant_id, at (the plan's timestamp) and reason"}
+        ev = self._volume_events(plant_id)
+        hit = next((e for e in ev if e.get("kind") == "dose" and not e.get("reconciled")
+                    and str(e.get("at", "")).startswith(str(at))), None)
+        if not hit:
+            return {"error": f"no unreconciled dose plan at {at} for {plant_id}",
+                    "pending": [e.get("at") for e in ev if e.get("kind") == "dose" and not e.get("reconciled")]}
+        hit.update(reconciled=True, reconciled_result="not_poured",
+                   not_poured_reason=str(reason)[:300],
+                   withdrawn_at=datetime.now().isoformat(timespec="seconds"))
+        self.store_own_memory(f"volume_events_{plant_id}", json.dumps(ev[-200:]))
+        return {"withdrawn": True, "plan": {k: hit.get(k) for k in ("at", "add_now_ml", "volume_liters",
+                                                                     "ppm_predicted_at_final")}}
+
     def correct_volume_event(self, plant_id=None, at=None, from_liters=None, reason=""):
         """Correct the starting level of a recorded refill, keeping what it said.
 
@@ -14019,6 +14040,8 @@ class GrowAgent(AgentBase):
             return {"result": getattr(self, task)(**a)}
         elif task == "record_full_change":
             return {"result": self.record_full_change(**(args if isinstance(args, dict) else {}))}
+        elif task == "withdraw_dose_plan":
+            return {"result": self.withdraw_dose_plan(**(args if isinstance(args, dict) else {}))}
         elif task == "correct_volume_event":
             return {"result": self.correct_volume_event(**(args if isinstance(args, dict) else {}))}
         elif task == "void_reading":

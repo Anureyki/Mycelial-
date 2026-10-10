@@ -79,6 +79,7 @@
     "void_training_event",
     "volume_history",
     "correct_volume_event",
+    "withdraw_dose_plan",
     "record_full_change",
     "record_gaps",
     "project_water",
