@@ -6715,6 +6715,43 @@ class GrowAgent(AgentBase):
                                           ("blend", "ppm_l_per_ml", "n", "in_use", "basis")}
                 except Exception as ex:
                     self.log(f"reconcile_dose: calibration failed: {ex}")
+            # THE VOLUME THE DOSE IMPLIES (principal, 2026-10-10: the gap between
+            # planned and actual volume "is data about how the reservoir behaves,
+            # and Grow should learn from it the same way it learned the 173.7").
+            # ml x the strength the plan used, over the measured rise, is the
+            # volume the dose actually went into. Kept as a running record of
+            # stated vs implied; a pattern, not a verdict - the strength was
+            # itself learned from stated volumes, so the two are entangled.
+            try:
+                ml = sum(self._parse_numeric(v) or 0 for v in (event.get("add_now_ml") or {}).values())
+                coef = self._parse_numeric(event.get("coefficient_ppm_l_per_ml"))
+                p0 = self._parse_numeric(event.get("ppm_before"))
+                stated_v = self._parse_numeric(vol or event.get("final_liters") or event.get("volume_liters"))
+                if ml and coef and p0 is not None and pa and pa - p0 > 20 and stated_v:
+                    implied = round(ml * coef / (pa - p0), 2)
+                    rec_ = self._jload(f"grow_system_{plant_id}", {})
+                    checks = list(rec_.get("volume_checks") or [])
+                    checks.append({"at": event.get("at"), "stated_liters": stated_v,
+                                   "implied_liters": implied,
+                                   "offset_liters": round(implied - stated_v, 2), "ml": ml,
+                                   "strength": coef, "ppm_rise": round(pa - p0, 1)})
+                    checks = checks[-30:]
+                    self.amend_grow_system(plant_id, volume_checks=checks)
+                    offs = sorted(c["offset_liters"] for c in checks[-5:])
+                    med = offs[len(offs) // 2]
+                    out["volume_check"] = {
+                        "stated_liters": stated_v, "implied_liters": implied,
+                        "offset_liters": round(implied - stated_v, 2),
+                        "recent_median_offset": med, "checks_on_record": len(checks),
+                        "reading": ("stated volume matches what the dose implies"
+                                    if abs(implied - stated_v) <= 0.05 * stated_v else
+                                    f"the dose behaved as if the reservoir held {implied:g} L, not "
+                                    f"{stated_v:g} L"),
+                        "caveat": ("the strength used was learned from stated volumes, so this is "
+                                   "a pattern to watch, not proof - a measured calibration of the "
+                                   "level marks settles it")}
+            except Exception as ex:
+                self.log(f"reconcile_dose: volume check failed: {ex}")
         if note:
             out["note"] = note
         return out
