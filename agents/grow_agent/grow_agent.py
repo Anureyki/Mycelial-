@@ -2941,7 +2941,7 @@ class GrowAgent(AgentBase):
         return out
 
     def record_refill(self, plant_id=None, to_liters=None, added_liters=None,
-                      topup_ppm=0.0, note=""):
+                      topup_ppm=0.0, note="", at=None):
         """Record that water went in. -> receipt, and what the next reading should read.
 
         WHAT IT REFUSES. No plant, no record: the same rule readings run on,
@@ -2972,8 +2972,13 @@ class GrowAgent(AgentBase):
         # and the drawdown it teaches the water projection would be zero.
         try:
             _rec_at = str(rec.get("volume_measured_on") or "")[:19]
+            # Only readings from BEFORE the refill can say where it started.
+            # 2026-10-11: GSC2's 603 ppm reading at 15 L was sent first, and the
+            # refill recorded after it took it as the "before".
+            _cut = str(at or "9999")[:19]
             _vr = [r for r in (self._get_readings_for_plant(pid) or [])
-                   if not r.get("voided") and self._parse_numeric(r.get("volume_liters"))]
+                   if not r.get("voided") and self._parse_numeric(r.get("volume_liters"))
+                   and str(r.get("timestamp") or "")[:19] < _cut]
             if _vr:
                 _last = max(_vr, key=lambda r: str(r.get("timestamp") or ""))
                 if str(_last.get("timestamp") or "")[:19] > _rec_at:
@@ -3016,12 +3021,14 @@ class GrowAgent(AgentBase):
                             f"({rec.get('vessel') or pid}). Either the volume is wrong or "
                             f"this is the wrong vessel. Nothing was recorded.")}
         delta = None if before is None else round(to_v - before, 2)
-        now = datetime.now().isoformat()
+        now = str(at)[:26] if at else datetime.now().isoformat()
         ev = self._volume_events(pid)
         ev.append({"at": now, "kind": "refill", "from_liters": before, "liters": to_v,
                    "delta": delta, "measured": True, "source": "refill_stated",
                    **({"record_said_from": stated_over} if stated_over is not None else {}),
+                   **({"recorded_at": datetime.now().isoformat()} if at else {}),
                    "topup_ppm": float(topup_ppm or 0.0), "note": str(note)[:300]})
+        ev.sort(key=lambda e: str(e.get("at") or ""))
         self.store_own_memory(f"volume_events_{pid}", json.dumps(ev[-200:]))
 
         # The standing volume fields, both of them - see the dilution path for
@@ -3052,7 +3059,18 @@ class GrowAgent(AgentBase):
                                  "was observed and none was invented.")}
         # What the next reading should say, if nothing was taken up.
         last = [r for r in (self._get_readings_for_plant(pid) or [])
-                if r.get("ppm") is not None]
+                if r.get("ppm") is not None and not r.get("voided")
+                and str(r.get("timestamp") or "")[:19] < now[:19]]
+        last.sort(key=lambda r: str(r.get("timestamp") or ""))
+        # A baseline older than the previous volume event has water and uptake
+        # since it that nobody measured - the prediction is still mass balance,
+        # but it says how stale its starting point is.
+        prev_ev = [e for e in ev if str(e.get("at") or "") < now and e.get("kind") != "dose"]
+        stale_base = bool(last and prev_ev and
+                          str(last[-1].get("timestamp") or "")[:19] < str(prev_ev[-1].get("at") or "")[:19])
+        if not last and before:
+            out["prediction"] = {"state": "no_baseline",
+                                 "why": "no ppm reading before this refill - nothing to predict from"}
         if last and before:
             p0 = self._parse_numeric(last[-1].get("ppm"))
             v0 = self._parse_numeric(last[-1].get("volume_liters")) or before
@@ -3068,7 +3086,12 @@ class GrowAgent(AgentBase):
                                           "Measured ABOVE is not uptake: the top-up water "
                                           "was not what it was believed to be, the volume "
                                           "was misread, or the meter has drifted."),
-                    "state": "unmeasured"}
+                    "state": "unmeasured",
+                    **({"baseline_stale": (
+                        f"the last reading before this refill was {str(last[-1].get('timestamp'))[:16]}, "
+                        f"before the {str(prev_ev[-1].get('at'))[:16]} {prev_ev[-1].get('kind')} - "
+                        f"water and uptake since then were not measured, so a miss is not "
+                        f"cleanly uptake")} if stale_base else {})}
         self.log(f"refill on {pid}: {before} -> {round(to_v,1)} L")
         out["water_alert"] = self._water_alert(pid, "record_refill")
         return out
@@ -15594,7 +15617,7 @@ class GrowAgent(AgentBase):
             return {"result": self.record_refill(
                 a.get("plant_id"), to_liters=a.get("to_liters"),
                 added_liters=a.get("added_liters"), topup_ppm=a.get("topup_ppm", 0.0),
-                note=a.get("note", ""))}
+                note=a.get("note", ""), at=a.get("at"))}
 
         elif task == "ingest_environment_export":
             a = args if isinstance(args, dict) else {}

@@ -86,6 +86,20 @@ def main():
        r.get("from_liters") == 12.0 and r.get("added_liters") == 3.0,
        f"{r.get('from_liters')} -> {r.get('to_liters')}, added {r.get('added_liters')}")
 
+    print("a reading taken after a refill is never its baseline")
+    store = {"grow_system_p6": json.dumps({"plant_id": "p6", "reservoir_liters": 12.0,
+                                           "reservoir_capacity_liters": 15.5})}
+    g = grow(store)
+    g._water_alert = lambda *a, **k: None
+    g._get_readings_for_plant = lambda pid: [
+        {"timestamp": "2026-10-05T02:35:00", "volume_liters": 15.0, "ppm": 864},
+        {"timestamp": "2026-10-11T17:34:00", "volume_liters": 15.0, "ppm": 603}]
+    r = g.record_refill("p6", to_liters=15, added_liters=3, at="2026-10-11T17:30:00")
+    pr = r.get("prediction") or {}
+    ck("the prediction starts from the reading before the refill, not the one after",
+       (pr.get("from") or {}).get("ppm") == 864, str(pr.get("from")))
+    ck("the refill is stamped at the time given", r.get("at", "").startswith("2026-10-11T17:30"))
+
     print("a recorded sighting outranks the age")
     germ = (datetime.now() - timedelta(days=69)).date().isoformat()
     store = {"current_stage": "flower", "germination_date": germ,
