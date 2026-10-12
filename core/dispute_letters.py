@@ -273,6 +273,110 @@ SERVICER_RECORDS = [
               "receivable was transferred to any particular securitization trust.", []),
 ]
 
+# TEXAS TENANT DISCLOSURE (2026-10-11). The principal asked for a Texas
+# equivalent of an Ohio "R.C. Chapter 1309 compliance form" for tenants. That
+# form's premises do not hold on the held text: UCC 9.210's accounting is a
+# DEBTOR's request to its SECURED PARTY; Article 9 excludes leases and rents of
+# real property (Tex. Bus. & Com. Code 9.109(d)(11)); presentment (3.501) is for
+# negotiable instruments and a lease is not one (3.104). What Texas does give a
+# tenant, with penalties, is Property Code ch. 92 - so the equivalent keeps the
+# form's four questions (who owns/finances it, the ledger, the lease, where rent
+# goes) and rests the one compelled disclosure on 92.201. The rest are asked as
+# requests, and say so; a request dressed as a duty is the thing the original
+# got wrong.
+TX_TENANT_DISCLOSURE = [
+    ("title", "TENANT REQUEST FOR DISCLOSURE AND RECORDS", []),
+    ("header", "To: {landlord}\n\nRental unit: {property}\n\n"
+               "Lease / ledger account: {account_ref}\n\n"
+               "Date of request: {request_date}", []),
+    ("part_i", "I. DISCLOSURE OF OWNERSHIP AND MANAGEMENT (Texas Property Code § 92.201)\n\n"
+               "Under Section 92.201 of the Texas Property Code, I request that you disclose:\n\n"
+               "1. The name and either a street or post office box address of the holder of record "
+               "title to the dwelling I rent, according to the deed records in the county clerk's "
+               "office.\n\n"
+               "2. If an entity located off-site from the dwelling is primarily responsible for "
+               "managing it, the name and street address of that management company.\n\n"
+               "Section 92.201(b) provides for this information to be given to the tenant in "
+               "writing on or before the seventh day after the landlord receives the request.",
+     ["Tex. Prop. Code 92.201"]),
+    ("part_ii", "II. ACCOUNT RECORDS (requested)\n\n"
+                "1. An itemized ledger for my tenancy from the start of the lease through the date "
+                "of your response, showing every charge, fee, payment and credit with its date and "
+                "amount.\n\n"
+                "2. The current account balance, and whether it is owed to the landlord or to the "
+                "tenant.\n\n"
+                "3. The amount of the security deposit you hold for this unit.\n\n"
+                "4. For any rent I paid in cash, the receipt and the record-book entry. A landlord "
+                "who receives a cash rental payment must provide a written receipt and enter the "
+                "payment date and amount in a record book (Texas Property Code § 92.011).",
+     ["Tex. Prop. Code 92.011"]),
+    ("part_iii", "III. THE LEASE (requested)\n\n"
+                 "1. One complete copy of my lease and every addendum, as it is currently held in "
+                 "your records, including any electronic copy. (Texas Property Code § 92.024 "
+                 "provides for a complete copy of the lease to be given to a tenant.)\n\n"
+                 "2. A statement of whether the lease as held in your records differs in any way "
+                 "from the lease as I signed it, and if so, what was changed, added or annotated "
+                 "after signing, when, and by whom.",
+     ["Tex. Prop. Code 92.024"]),
+    ("part_iv", "IV. WHERE RENT IS PAID (requested)\n\n"
+                "1. The name of the person or entity entitled to receive rent for this unit.\n\n"
+                "2. Whether you have received or given any notice that rents for this unit are to "
+                "be paid to anyone other than the landlord (for example, a lender holding an "
+                "assignment of rents), and if so, that person's name and address.", []),
+    ("reservation", "This request is not a refusal to pay rent, and rent will continue to be paid "
+                    "as the lease provides. It does not waive any right or remedy.", []),
+    ("response", "Please respond in writing. Part I is a disclosure the Property Code provides "
+                 "for; Parts II-IV are requests for records about my own tenancy, and a response "
+                 "in any clear written form is welcome.\n\n"
+                 "________________________________________\n\n"
+                 "Tenant\n\n"
+                 "Date: _________________________________", []),
+]
+
+TX_TENANT_REMEDIES_NOTICE = [
+    ("title", "NOTICE UNDER TEXAS PROPERTY CODE § 92.202", ["Tex. Prop. Code 92.202"]),
+    ("header", "To: {landlord}\n\nRental unit: {property}\n\nDate of this notice: "
+               "{notice_date}", []),
+    ("body", "On {request_date} I requested, under Section 92.201 of the Texas Property Code, "
+             "the name and address of the holder of record title to this dwelling and, if an "
+             "off-site entity is primarily responsible for managing it, the name and street "
+             "address of that management company. As of the date of this notice that information "
+             "has not been provided.\n\n"
+             "This is written notice under Section 92.202(a)(2) of the Texas Property Code that I "
+             "may exercise the remedies under Subchapter F of Chapter 92 if the information is "
+             "not provided within seven days.",
+     ["Tex. Prop. Code 92.201", "Tex. Prop. Code 92.202"]),
+    ("remedies", "Those remedies, under Section 92.205, include a court order directing the "
+                 "disclosure; my actual costs in discovering the information; one month's rent "
+                 "plus $100; court costs and attorney's fees; and unilateral termination of the "
+                 "lease without a court proceeding.",
+     ["Tex. Prop. Code 92.205"]),
+    ("signature", "________________________________________\n\nTenant\n\n"
+                  "Date: _________________________________", []),
+]
+
+HOW_TO_SEND_TENANT = (
+    "How to send it (guidance - nothing here sends anything):\n"
+    "  - Hand-deliver to the leasing office and get a dated, signed copy back, or send certified "
+    "mail, return receipt. The date the landlord receives it starts the seven days.\n"
+    "  - Check your lease and the posted office notices first: if the owner and management "
+    "company are already in the lease or posted, Section 92.201(b) counts that as disclosed.\n"
+    "  - If nothing comes within seven days, the second notice (tx_tenant_remedies_notice) is "
+    "what makes the Section 92.205 remedies available - it must say you may exercise them.\n"
+    "  - Keep copies of everything, with the dates."
+)
+
+SENDER_NOTES = {
+    "tx_tenant_disclosure_request": (
+        "SENDER NOTE (not part of the letter): Texas equivalent of the Ohio R.C. 1309 tenant form. "
+        "It leaves out that form's UCC grounds because, on the held text, they do not reach a "
+        "residential lease: Article 9 excludes leases and rents of real property (Tex. Bus. & Com. "
+        "Code 9.109(d)(11)); a 9.210 accounting is a debtor's request to its secured party; "
+        "presentment (3.501) is for negotiable instruments and a lease is not one (3.104). The "
+        "criminal-falsification warning is also left out - a private landlord owes nothing under "
+        "a penal statute for declining a request. Yours to change."),
+}
+
 PROVISIONAL = {
     "servicer_records_request": (
         "PROVISIONAL TEMPLATE - the principal's own text, generalized 2026-10-08 (party names made "
@@ -290,7 +394,14 @@ KINDS = {
     "portal_short": ("Short version for a portal / CFPB box", PORTAL_SHORT, ()),
     "servicer_records_request": ("Notice to Servicer - the principal's template (PROVISIONAL)",
                                  SERVICER_RECORDS, ("seller_creditor", "servicer")),
+    "tx_tenant_disclosure_request": ("Texas tenant request for disclosure and records",
+                                     TX_TENANT_DISCLOSURE, ("landlord",)),
+    "tx_tenant_remedies_notice": ("Texas § 92.202 notice - ownership/management not disclosed",
+                                  TX_TENANT_REMEDIES_NOTICE, ("landlord", "request_date")),
 }
+
+HOW_TO_SEND_BY_KIND = {"tx_tenant_disclosure_request": HOW_TO_SEND_TENANT,
+                       "tx_tenant_remedies_notice": HOW_TO_SEND_TENANT}
 
 HOW_TO_SEND = (
     "How to send it (guidance - nothing here sends anything):\n"
@@ -367,6 +478,11 @@ def draft(kind, facts, resolver):
         fields.setdefault("seller_short", facts.get("seller_short") or facts["seller_creditor"])
         fields.setdefault("contract_date", facts.get("contract_date") or "[contract date]")
         fields.setdefault("contract_state", facts.get("contract_state") or "[state]")
+    if kind.startswith("tx_tenant_"):
+        for k, blank in (("property", "[unit / address]"), ("account_ref", "[account number]"),
+                         ("request_date", "____________"), ("notice_date", "____________")):
+            if not str(fields.get(k) or "").strip():
+                fields[k] = blank
 
     shipped, refused, schedule = [], [], []
     n = 0
@@ -400,7 +516,9 @@ def draft(kind, facts, resolver):
                              "text_sha256": hashlib.sha256(body.encode("utf-8")).hexdigest(),
                              "held_by": e.get("held_by") or "own"})
 
-    letter = render(title, shipped, schedule)
+    letter = render(title, shipped, schedule, HOW_TO_SEND_BY_KIND.get(kind, HOW_TO_SEND))
+    if kind in SENDER_NOTES:
+        letter = letter + "\n" + SENDER_NOTES[kind] + "\n"
     if kind in PROVISIONAL:
         letter = letter + "\n" + PROVISIONAL[kind] + "\n"
     return {
@@ -416,7 +534,7 @@ def draft(kind, facts, resolver):
     }
 
 
-def render(title, shipped, schedule):
+def render(title, shipped, schedule, how_to_send=None):
     lines = []
     for s in shipped:
         lines.append(s["text"])
@@ -432,7 +550,7 @@ def render(title, shipped, schedule):
         lines.append(f"Paragraph {e['paragraph']}: {e['citation']} - {e['title']} "
                      f"[sha256 {e['text_sha256'][:16]}]")
     lines.append("")
-    lines.append(HOW_TO_SEND)
+    lines.append(how_to_send or HOW_TO_SEND)
     return "\n".join(lines).rstrip() + "\n"
 
 
@@ -443,6 +561,8 @@ def render(title, shipped, schedule):
 KIND_CUES = (
     # Most specific first. "both" and "they collect and report" name the
     # combined notice; a portal or CFPB box names the short one.
+    ("tx_tenant_remedies_notice", r"\b(92\.202|remedies notice|second (?:tenant )?notice)\b"),
+    ("tx_tenant_disclosure_request", r"\b(tenant|landlord|92\.201|ownership and management)\b"),
     ("combined", r"\b(both|combined|dual notice|collect(?:s|ing)? and report|"
                  r"report(?:s|ing)? and collect)\b"),
     ("portal_short", r"\b(portal|cfpb|online form|short version|box)\b"),

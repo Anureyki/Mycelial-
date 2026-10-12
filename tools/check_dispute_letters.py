@@ -57,7 +57,10 @@ def main():
              "portal_short": {},
              "servicer_records_request": {"seller_creditor": "Example Seller, LLC",
                                           "servicer": "Example Servicing Company, LLC",
-                                          "servicer_short": "Example Servicing"}}
+                                          "servicer_short": "Example Servicing"},
+             "tx_tenant_disclosure_request": {"landlord": "Example Apartments LLC"},
+             "tx_tenant_remedies_notice": {"landlord": "Example Apartments LLC",
+                                           "request_date": "2026-01-02"}}
     docs = {}
     for kind, f in facts.items():
         r = dl.draft(kind, f, own)
@@ -83,6 +86,21 @@ def main():
        any(e["citation"] == "38 U.S.C. 5301" for e in docs["fdcpa_validation"]["schedule"]))
     ck("the validation demand rests on Regulation F § 1006.34",
        any(e["citation"] == "12 CFR 1006.34" for e in docs["fdcpa_validation"]["schedule"]))
+
+    tx = docs["tx_tenant_disclosure_request"]["letter"]
+    ck("the Texas tenant request rests its one duty on Prop. Code 92.201",
+       any(e["citation"] == "Tex. Prop. Code 92.201"
+           for e in docs["tx_tenant_disclosure_request"]["schedule"]))
+    ck("the Texas tenant request cites no UCC provision as a tenant right",
+       not re.search(r"(?:9\.210|3\.501|1309|1303)", tx.split("---")[0]))
+    ck("the Texas tenant request carries no criminal threat",
+       not re.search(r"(?i)criminal|imprisonment|falsification", tx.split("---")[0]))
+    ck("the tenant letters carry tenant sending guidance, not credit-bureau guidance",
+       "leasing office" in tx and "Credit bureaus" not in tx)
+    ck("the 92.202 notice says remedies may be exercised and cites 92.205",
+       "may exercise the remedies" in docs["tx_tenant_remedies_notice"]["letter"]
+       and any(e["citation"] == "Tex. Prop. Code 92.205"
+               for e in docs["tx_tenant_remedies_notice"]["schedule"]))
 
     print("determinism")
     r2 = dl.draft("fcra_dispute", dict(reversed(list(facts["fcra_dispute"].items()))), own)
