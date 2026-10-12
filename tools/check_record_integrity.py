@@ -100,6 +100,16 @@ def main():
        (pr.get("from") or {}).get("ppm") == 864, str(pr.get("from")))
     ck("the refill is stamped at the time given", r.get("at", "").startswith("2026-10-11T17:30"))
 
+    print("a pH adjustment belongs to one reservoir and must fit its direction")
+    store = {"grow_system_p7": json.dumps({"plant_id": "p7", "reservoir_liters": 15.0})}
+    g = grow(store)
+    ck("no plant is refused", "error" in g.record_ph_adjustment(None, "down", 0.75, 6.96, 5.95))
+    ck("pH Down that raised pH is refused",
+       "error" in g.record_ph_adjustment("p7", "down", 0.75, 5.9, 6.5))
+    r = g.record_ph_adjustment("p7", "down", 0.75, 6.96, 5.95, 15, 603)
+    ck("a real pH Down is learned per ml",
+       r.get("recorded") and abs(r["response"]["ph_per_ml"] - 1.347) < 0.01, str(r)[:100])
+
     print("a recorded sighting outranks the age")
     germ = (datetime.now() - timedelta(days=69)).date().isoformat()
     store = {"current_stage": "flower", "germination_date": germ,

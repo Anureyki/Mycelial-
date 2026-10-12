@@ -11,6 +11,7 @@
     "amend_grow_system",
     "analyze_consumption",
     "assess_ph",
+    "record_ph_adjustment",
     "assess_plant",
     "assess_root_zone",
     "check_in",

@@ -922,7 +922,7 @@ class GrowAgent(AgentBase):
                 "set_grow_system", "get_grow_system", "amend_grow_system",
                 "field_history", "assess_root_zone", "void_reservoir_eval",
                 "which_plant", "record_refill",
-                "reconcile_ec_temperature", "intake_reading", "when_to_top_up", "project_topup", "plan_feed_for_target", "reconcile_dose", "ingest_environment_export", "predict_flowering", "calibrate_blend", "record_ripeness", "assess_ripeness", "maintenance_due", "notify_maintenance", "record_lesson", "list_lessons", "ppm_per_ml", "round_to_instrument", "assess_ph", "quantities",
+                "reconcile_ec_temperature", "intake_reading", "when_to_top_up", "project_topup", "plan_feed_for_target", "reconcile_dose", "ingest_environment_export", "predict_flowering", "calibrate_blend", "record_ripeness", "assess_ripeness", "maintenance_due", "notify_maintenance", "record_lesson", "list_lessons", "ppm_per_ml", "round_to_instrument", "assess_ph", "record_ph_adjustment", "quantities",
                 "get_nutrient_history",
                 "set_inventory", "get_inventory",
                 "check_in", "analyze_consumption", "adjust_to_target_ppm",
@@ -5158,7 +5158,7 @@ class GrowAgent(AgentBase):
                                           "rising" if delta > 0.05 else "flat")}
 
         # Does the grower's own rule apply in this direction?
-        practice, ph_up = None, None
+        practice, ph_up, ph_down, ph_down_trigger = None, None, None, None
         try:
             raw = self._unwrap_value(self.retrieve_own_memory(f"grow_system_{plant_id}")) \
                 or (self._unwrap_value(self.retrieve_own_memory("grow_system"))
@@ -5168,6 +5168,8 @@ class GrowAgent(AgentBase):
                 practice = rec.get("ph_management_practice")
                 out["adjusters_held"] = rec.get("ph_adjusters_held")
                 ph_up = rec.get("ph_up_response")
+                ph_down = rec.get("ph_down_response")
+                ph_down_trigger = self._parse_numeric(rec.get("ph_down_trigger"))
         except Exception:
             pass
         if practice:
@@ -5237,9 +5239,87 @@ class GrowAgent(AgentBase):
                 "roots driving it. Re-measure after the top-up: if dilution alone moves it "
                 "most of the way back, it is the solution; if it keeps falling at a stable "
                 "volume, it is uptake and it will keep happening.")
+        if out.get("position") == "above_band":
+            # pH DOWN, SIZED FROM THIS RESERVOIR'S MEASURED RESPONSE (2026-10-11).
+            # Mirror of the pH Up path. The step aims at the middle of the band,
+            # not its edge, and rounds DOWN - acid overshoot needs pH Up to undo.
+            # The grower's trigger (ph_down_trigger) is reported alongside: below
+            # it his practice is to let the Flora line pull pH down on its own.
+            if ph_down_trigger:
+                out["ph_down_trigger"] = ph_down_trigger
+                out["at_or_above_trigger"] = cur >= ph_down_trigger
+            if isinstance(ph_down, dict) and ph_down.get("ml") and ph_down.get("delta_ph"):
+                try:
+                    per_ml = abs(float(ph_down["delta_ph"])) / float(ph_down["ml"])
+                    lo_b, hi_b = band
+                    aim = round((lo_b + hi_b) / 2, 2)
+                    need = cur - aim
+                    vol_now = self._parse_numeric(ph_down.get("volume_liters"))
+                    if per_ml > 0 and need > 0:
+                        exact = need / per_ml
+                        step = max(0.25, math.floor(exact / 0.25) * 0.25)
+                        out["ph_down_step"] = {
+                            "add_ml": round(step, 2), "exact_ml": round(exact, 3), "aim": aim,
+                            "reaches_ph_about": round(cur - step * per_ml, 2),
+                            "response_ph_per_ml": round(per_ml, 2), "measured": ph_down,
+                            "rounded": "down to the 0.25 ml dropper increment",
+                            "then": "stir, wait, re-measure before any second step",
+                            "drift": (f"measured at {vol_now:g} L / {ph_down.get('ppm_at_time')} ppm; "
+                                      f"scale with volume and expect drift with strength")
+                                     if vol_now else "re-measure; the response drifts with strength"}
+                except (TypeError, ValueError, ZeroDivisionError):
+                    pass
+            elif ph_down_trigger is None or cur >= ph_down_trigger:
+                out["ph_down_step"] = {"add_ml": None,
+                                       "why": "no measured pH Down response on this reservoir yet - "
+                                              "small additions (0.25 ml), re-measure between each, "
+                                              "and record the result with record_ph_adjustment"}
         if note:
             out["note"] = note
         return out
+
+    def record_ph_adjustment(self, plant_id=None, direction=None, ml=None, ph_from=None,
+                             ph_to=None, volume_liters=None, ppm=None, product="", at=None,
+                             note=""):
+        """Record a pH Up or pH Down addition and learn this reservoir's response.
+
+        One addition, measured before and after, is the response the next step
+        is sized from (assess_ph -> ph_up_step / ph_down_step). Kept per plant:
+        it depends on this reservoir's volume and buffering, so it is a
+        measurement, not a lesson. History is appended; the latest becomes the
+        working response. Refuses without a plant - the response of one bucket
+        on another is the crossing rule broken."""
+        if not plant_id:
+            return {"error": "Needs plant_id. A pH response belongs to one reservoir."}
+        d = str(direction or "").lower().replace(" ", "_")
+        d = "down" if "down" in d else ("up" if "up" in d else None)
+        try:
+            ml, p0, p1 = float(ml), float(ph_from), float(ph_to)
+        except (TypeError, ValueError):
+            return {"error": "Needs ml, ph_from and ph_to as numbers."}
+        if d is None:
+            d = "down" if p1 < p0 else "up"
+        if (d == "down") != (p1 < p0) or ml <= 0:
+            return {"error": f"pH {d} of {ml} ml moved pH {p0} -> {p1}; that direction does not "
+                              f"fit. Check the numbers - nothing was recorded."}
+        rec = self._jload(f"grow_system_{plant_id}", {})
+        if not rec:
+            return {"error": f"No system record for {plant_id}."}
+        vol = self._parse_numeric(volume_liters) or self._parse_numeric(rec.get("reservoir_liters"))
+        entry = {"measured_at": str(at or datetime.now().isoformat(timespec="seconds")),
+                 "product": product or f"General Hydroponics pH {d.title()}",
+                 "ml": ml, "ph_from": p0, "ph_to": p1, "delta_ph": round(p1 - p0, 3),
+                 "ph_per_ml": round(abs(p1 - p0) / ml, 3), "volume_liters": vol,
+                 "ppm_at_time": self._parse_numeric(ppm),
+                 "basis": "one measured addition on this reservoir; drifts with volume and "
+                          "strength - re-measure, do not extrapolate far",
+                 **({"note": str(note)[:300]} if note else {})}
+        hist = list(rec.get(f"ph_{d}_response_history") or [])
+        hist.append(entry)
+        self.amend_grow_system(plant_id, **{f"ph_{d}_response": entry,
+                                            f"ph_{d}_response_history": hist[-20:]})
+        return {"recorded": True, "plant_id": plant_id, "direction": d, "response": entry,
+                "history_n": len(hist)}
 
     def ppm_per_ml(self, plant_id="current_plant"):
         """How much ppm one ml of this grow's mix actually delivers, measured.
@@ -14154,6 +14234,14 @@ class GrowAgent(AgentBase):
 
         elif task == "quantities":
             return {"result": self.quantities((args or {}).get("text") or "")}
+
+        elif task == "record_ph_adjustment":
+            a = args if isinstance(args, dict) else {}
+            return {"result": self.record_ph_adjustment(
+                a.get("plant_id"), direction=a.get("direction"), ml=a.get("ml"),
+                ph_from=a.get("ph_from"), ph_to=a.get("ph_to"),
+                volume_liters=a.get("volume_liters"), ppm=a.get("ppm"),
+                product=a.get("product", ""), at=a.get("at"), note=a.get("note", ""))}
 
         elif task == "assess_ph":
             a = args or {}
