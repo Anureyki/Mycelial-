@@ -5695,6 +5695,16 @@ class GrowAgent(AgentBase):
 
         total_ml = add_mass / conc["ppm_l_per_ml"]
         out["ppm_per_ml"] = conc
+        # The caveat says the strength was measured on a DIFFERENT blend. Check
+        # before saying it: 2026-10-11 GSC2 was dosed in exactly the 10/5
+        # proportions its 280.2 was measured on, and was told otherwise.
+        _mr = conc.get("ratio") if isinstance(conc, dict) else None
+        if stage_ratio and isinstance(_mr, dict) and _mr and not conc.get("learned_from_n") \
+                and set(_mr) == set(ratio) \
+                and all(abs(float(_mr[k]) - ratio[k]) <= 0.01 for k in ratio):
+            out["ratio_caveat"] = ("Same proportions as the mix this strength was measured on "
+                                   f"({conc.get('measured_at', '')[:10]}, "
+                                   f"{conc.get('origin_plant')}), so the strength applies directly.")
         out["ratio_from_plant"] = ratio_from
         out["ratio"] = {k: round(v, 4) for k, v in ratio.items()}
         if ratio_from != plant_id and not stage_ratio:
