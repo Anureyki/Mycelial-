@@ -12,6 +12,7 @@
     "analyze_consumption",
     "assess_ph",
     "record_ph_adjustment",
+    "reopen_dose",
     "assess_plant",
     "assess_root_zone",
     "check_in",

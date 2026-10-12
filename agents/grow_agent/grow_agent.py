@@ -922,7 +922,7 @@ class GrowAgent(AgentBase):
                 "set_grow_system", "get_grow_system", "amend_grow_system",
                 "field_history", "assess_root_zone", "void_reservoir_eval",
                 "which_plant", "record_refill",
-                "reconcile_ec_temperature", "intake_reading", "when_to_top_up", "project_topup", "plan_feed_for_target", "reconcile_dose", "ingest_environment_export", "predict_flowering", "calibrate_blend", "record_ripeness", "assess_ripeness", "maintenance_due", "notify_maintenance", "record_lesson", "list_lessons", "ppm_per_ml", "round_to_instrument", "assess_ph", "record_ph_adjustment", "quantities",
+                "reconcile_ec_temperature", "intake_reading", "when_to_top_up", "project_topup", "plan_feed_for_target", "reconcile_dose", "ingest_environment_export", "predict_flowering", "calibrate_blend", "record_ripeness", "assess_ripeness", "maintenance_due", "notify_maintenance", "record_lesson", "list_lessons", "ppm_per_ml", "round_to_instrument", "assess_ph", "record_ph_adjustment", "reopen_dose", "quantities",
                 "get_nutrient_history",
                 "set_inventory", "get_inventory",
                 "check_in", "analyze_consumption", "adjust_to_target_ppm",
@@ -5702,6 +5702,7 @@ class GrowAgent(AgentBase):
         if stage_ratio and isinstance(_mr, dict) and _mr and not conc.get("learned_from_n") \
                 and set(_mr) == set(ratio) \
                 and all(abs(float(_mr[k]) - ratio[k]) <= 0.01 for k in ratio):
+            out["ratio_matches_measured_mix"] = True
             out["ratio_caveat"] = ("Same proportions as the mix this strength was measured on "
                                    f"({conc.get('measured_at', '')[:10]}, "
                                    f"{conc.get('origin_plant')}), so the strength applies directly.")
@@ -5787,6 +5788,7 @@ class GrowAgent(AgentBase):
                        "coefficient_ppm_l_per_ml": conc.get("ppm_l_per_ml"),
                        "ratio_from": ratio_from,
                        "blend": _blend,
+                       "ratio_matches_measured_mix": bool(out.get("ratio_matches_measured_mix")),
                        "note": str(note)[:300]})
             self.store_own_memory(f"volume_events_{plant_id}", json.dumps(ev[-200:]))
         except Exception as e:
@@ -6664,6 +6666,8 @@ class GrowAgent(AgentBase):
         c = store.get(blend)
         return c if c and c.get("in_use") and c.get("ppm_l_per_ml") else None
 
+    DOSE_SETTLE_HOURS = 2.0
+
     def reconcile_dose(self, plant_id="current_plant", ppm_after=None, volume_liters=None,
                        ppm_predicted=None, meter_tolerance_pct=3.0, note=""):
         """reconcile_topup's counterpart for the other half of the reservoir's
@@ -6682,6 +6686,25 @@ class GrowAgent(AgentBase):
         missing; the arithmetic below is the same conservation of mass
         every other reconciliation here runs on."""
         pa = self._parse_numeric(ppm_after)
+        _reading_at = None
+        if pa is None:
+            # The reading is usually already logged - use the latest one taken
+            # after the pending dose, rather than asking for it twice.
+            try:
+                _pend = next((e for e in reversed(self._volume_events(plant_id))
+                              if e.get("kind") == "dose" and not e.get("reconciled")), None)
+                if _pend:
+                    _after = [r for r in (self._get_readings_for_plant(plant_id) or [])
+                              if not r.get("voided") and r.get("ppm") is not None
+                              and str(r.get("timestamp") or "")[:19] > str(_pend.get("at"))[:19]]
+                    if _after:
+                        _last = max(_after, key=lambda r: str(r.get("timestamp") or ""))
+                        pa = self._parse_numeric(_last.get("ppm"))
+                        _reading_at = str(_last.get("timestamp") or "")[:19]
+                        if volume_liters is None:
+                            volume_liters = _last.get("volume_liters")
+            except Exception as exc:
+                self.log(f"reconcile_dose: could not read the logged reading: {exc}")
         if pa is None:
             return {"classification": "insufficient_evidence", "confidence": "low",
                     "reason": "Nothing to reconcile against without a measured ppm.",
@@ -6747,12 +6770,28 @@ class GrowAgent(AgentBase):
         fresh = event is not None and (self._parse_numeric(event.get("ppm_before")) or 0) == 0
         if event is not None and event.get("at"):
             try:
+                _t = datetime.fromisoformat(_reading_at) if _reading_at else datetime.now()
                 out["hours_since_dose"] = round(
-                    (datetime.now() - datetime.fromisoformat(event["at"])).total_seconds() / 3600, 1)
+                    (_t - datetime.fromisoformat(event["at"])).total_seconds() / 3600, 1)
             except Exception:
                 pass
+        # NOT YET MIXED (2026-10-12): GSC2 read 751 against 866 twenty minutes
+        # after dosing. A shortfall that soon is the dose still circulating, not
+        # uptake and not the strength - so it is neither scored nor fed to
+        # calibration, and the dose stays open for the settled reading.
+        unsettled = (event is not None and (delta or 0) > 0 and abs(delta_pct or 0) > tol
+                     and (out.get("hours_since_dose") is not None
+                          and out["hours_since_dose"] < self.DOSE_SETTLE_HOURS))
 
-        if abs(delta_pct or 0) <= tol:
+        if unsettled:
+            out["classification"] = "below_prediction_not_settled"
+            out["reason"] = (f"Measured {pa:g} ppm is {delta:g} ppm ({delta_pct:g}%) below the "
+                             f"{pred:g} ppm forecast, {out['hours_since_dose']:g} h after dosing - "
+                             f"too soon to read as uptake or as the strength being off. The dose "
+                             f"stays open and is not used for calibration.")
+            out["action"] = (f"Read again after at least {self.DOSE_SETTLE_HOURS:g} h of "
+                             f"circulation; that reading reconciles the dose.")
+        elif abs(delta_pct or 0) <= tol:
             out["classification"] = "matches_prediction"
             out["reason"] = (f"{pa:g} ppm is within {tol:g}% of the {pred:g} ppm the dose "
                              f"predicted.")
@@ -6779,7 +6818,8 @@ class GrowAgent(AgentBase):
                              "is in doubt, record it with dose_uncertain naming those bottles - "
                              "it is then kept out of calibration - and top up only those with "
                              "plan_feed_for_target only_products.")
-        elif delta > 0 and event is not None and str(event.get("ratio_from") or "").startswith("caller"):
+        elif delta > 0 and event is not None and str(event.get("ratio_from") or "").startswith("caller") \
+                and not event.get("ratio_matches_measured_mix"):
             # The coefficient was measured on a different blend than this dose
             # was mixed in, so the forecast carries that error and a shortfall
             # cannot be read as the plant feeding.
@@ -6804,7 +6844,7 @@ class GrowAgent(AgentBase):
                              f"planned, the reading the plan was based on was off, or the "
                              f"meter has drifted.")
 
-        if event is not None:
+        if event is not None and not unsettled:
             try:
                 events = self._volume_events(plant_id)
                 for e in events:
@@ -6852,11 +6892,15 @@ class GrowAgent(AgentBase):
                     self.amend_grow_system(plant_id, volume_checks=checks)
                     offs = sorted(c["offset_liters"] for c in checks[-5:])
                     med = offs[len(offs) // 2]
+                    _cap = self._parse_numeric(rec_.get("reservoir_capacity_liters"))
                     out["volume_check"] = {
                         "stated_liters": stated_v, "implied_liters": implied,
                         "offset_liters": round(implied - stated_v, 2),
                         "recent_median_offset": med, "checks_on_record": len(checks),
-                        "reading": ("stated volume matches what the dose implies"
+                        "reading": (f"implies {implied:g} L, more than this vessel holds "
+                                    f"({_cap:g} L) - the gap is mixing time or the strength, "
+                                    f"not the volume" if _cap and implied > _cap * 1.05 else
+                                    "stated volume matches what the dose implies"
                                     if abs(implied - stated_v) <= 0.05 * stated_v else
                                     f"the dose behaved as if the reservoir held {implied:g} L, not "
                                     f"{stated_v:g} L"),
@@ -13661,6 +13705,41 @@ class GrowAgent(AgentBase):
                                   "record; add the recipe with set_current_nutrients when known.")
         return out
 
+    def reopen_dose(self, plant_id=None, at=None, reason="", ratio_matches_measured_mix=None):
+        """Reopen a dose that was reconciled too early, keeping what it said.
+
+        2026-10-12: GSC2's 20 L feed was reconciled on a reading 20 minutes after
+        dosing, before reconcile_dose held unsettled readings back - so a mixing
+        shortfall was scored and fed to calibration. Reopening clears the result
+        (the earlier one goes to `reopened`), drops the reading from calibration,
+        and lets the settled reading reconcile it. Needs a reason."""
+        if not (plant_id and at and reason):
+            return {"error": "Needs plant_id, at (the dose timestamp) and reason."}
+        ev = self._volume_events(plant_id)
+        hit = next((e for e in ev if e.get("kind") == "dose"
+                    and str(e.get("at", "")).startswith(str(at))), None)
+        if not hit:
+            return {"error": f"No dose at {at} for {plant_id}."}
+        if not hit.get("reconciled") or hit.get("reconciled_result") == "not_poured":
+            return {"error": "That dose is not reconciled (or was never poured); nothing to reopen."}
+        prev = {k: hit.pop(k, None) for k in ("reconciled_result", "reconciled_against_ppm",
+                                              "reconciled_at", "measured_ppm_after",
+                                              "measured_at_liters")}
+        hit["reconciled"] = False
+        hit.setdefault("reopened", []).append(dict(prev, reason=str(reason)[:300],
+                                                   at=datetime.now().isoformat(timespec="seconds")))
+        if ratio_matches_measured_mix is not None:
+            hit["ratio_matches_measured_mix"] = bool(ratio_matches_measured_mix)
+        self.store_own_memory(f"volume_events_{plant_id}", json.dumps(ev[-200:]))
+        out = {"reopened": True, "event": hit}
+        if hit.get("blend"):
+            try:
+                out["recalibrated"] = {k: v for k, v in self.calibrate_blend(plant_id, hit["blend"]).items()
+                                       if k in ("ppm_l_per_ml", "n", "in_use")}
+            except Exception as exc:
+                out["recalibration_error"] = str(exc)
+        return out
+
     def withdraw_dose_plan(self, plant_id=None, at=None, reason=""):
         """A planned dose that was NOT poured - so reconcile_dose, which takes
         the newest unreconciled plan, lands on the one that was. On 2026-10-10
@@ -14244,6 +14323,12 @@ class GrowAgent(AgentBase):
 
         elif task == "quantities":
             return {"result": self.quantities((args or {}).get("text") or "")}
+
+        elif task == "reopen_dose":
+            a = args if isinstance(args, dict) else {}
+            return {"result": self.reopen_dose(a.get("plant_id"), at=a.get("at"),
+                                               reason=a.get("reason", ""),
+                                               ratio_matches_measured_mix=a.get("ratio_matches_measured_mix"))}
 
         elif task == "record_ph_adjustment":
             a = args if isinstance(args, dict) else {}

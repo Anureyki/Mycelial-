@@ -110,6 +110,37 @@ def main():
     ck("a real pH Down is learned per ml",
        r.get("recorded") and abs(r["response"]["ph_per_ml"] - 1.347) < 0.01, str(r)[:100])
 
+    print("a dose in the measured proportions is not called an unverified blend")
+    store = {"grow_system_p8": json.dumps({"plant_id": "p8", "reservoir_liters": 20.0,
+                                           "reservoir_capacity_liters": 20.0}),
+             "volume_events_p8": json.dumps([{
+                 "at": "2026-10-12T10:00:00", "kind": "dose", "volume_liters": 20.0,
+                 "final_liters": 20.0, "ppm_before": 449.0, "ppm_predicted": 866.0,
+                 "ppm_predicted_at_final": 866.0, "add_now_ml": {"A": 29.75},
+                 "coefficient_ppm_l_per_ml": 280.2, "ratio_from": "caller (stage ratio)",
+                 "blend": None, "ratio_matches_measured_mix": True, "reconciled": False}])}
+    g = grow(store)
+    g._get_readings_for_plant = lambda pid: [{"timestamp": "2026-10-12T10:20:00", "ppm": 751,
+                                              "volume_liters": 20.0}]
+    r = g.reconcile_dose("p8")
+    ck("reconcile finds the logged reading itself", r.get("ppm_after") == 751.0, str(r.get("ppm_after")))
+    ck("same-proportion dose is not 'blend_unverified'",
+       r.get("classification") != "below_prediction_blend_unverified", str(r.get("classification")))
+    ck("20 minutes after dosing, a shortfall is 'not settled', not uptake",
+       r.get("classification") == "below_prediction_not_settled", str(r.get("classification")))
+    ck("and the dose stays open for the settled reading",
+       json.loads(store["volume_events_p8"])[-1].get("reconciled") is False)
+    store["volume_events_p8"] = json.dumps([dict(json.loads(store["volume_events_p8"])[-1],
+                                                 reconciled=False)])
+    g._get_readings_for_plant = lambda pid: [{"timestamp": "2026-10-12T13:00:00", "ppm": 751,
+                                              "volume_liters": 20.0}]
+    r = g.reconcile_dose("p8")
+    ck("settled after 3 h, the dose is reconciled", r.get("classification") != "below_prediction_not_settled",
+       str(r.get("classification")))
+    ck("an implied volume above capacity is not read as the volume",
+       "more than this vessel holds" in str((r.get("volume_check") or {}).get("reading")),
+       str((r.get("volume_check") or {}).get("reading")))
+
     print("a recorded sighting outranks the age")
     germ = (datetime.now() - timedelta(days=69)).date().isoformat()
     store = {"current_stage": "flower", "germination_date": germ,
