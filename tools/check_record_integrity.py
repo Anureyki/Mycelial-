@@ -130,8 +130,14 @@ def main():
        r.get("classification") == "below_prediction_not_settled", str(r.get("classification")))
     ck("and the dose stays open for the settled reading",
        json.loads(store["volume_events_p8"])[-1].get("reconciled") is False)
+    ev8 = json.loads(store["volume_events_p8"])
+    g.record_dose_poured("p8", at="2026-10-12T10:00", poured_at="2026-10-12T12:55:00")
+    r = g.reconcile_dose("p8")
+    ck("mixing time counts from the pour, not from when the plan was written",
+       r.get("classification") == "below_prediction_not_settled" and r.get("hours_counted_from") == "pour",
+       f"{r.get('classification')} {r.get('hours_since_dose')} h from {r.get('hours_counted_from')}")
     store["volume_events_p8"] = json.dumps([dict(json.loads(store["volume_events_p8"])[-1],
-                                                 reconciled=False)])
+                                                 reconciled=False, poured_at=None)])
     g._get_readings_for_plant = lambda pid: [{"timestamp": "2026-10-12T13:00:00", "ppm": 751,
                                               "volume_liters": 20.0}]
     r = g.reconcile_dose("p8")

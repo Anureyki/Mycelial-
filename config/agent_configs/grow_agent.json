@@ -13,6 +13,7 @@
     "assess_ph",
     "record_ph_adjustment",
     "reopen_dose",
+    "record_dose_poured",
     "assess_plant",
     "assess_root_zone",
     "check_in",

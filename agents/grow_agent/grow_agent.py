@@ -922,7 +922,7 @@ class GrowAgent(AgentBase):
                 "set_grow_system", "get_grow_system", "amend_grow_system",
                 "field_history", "assess_root_zone", "void_reservoir_eval",
                 "which_plant", "record_refill",
-                "reconcile_ec_temperature", "intake_reading", "when_to_top_up", "project_topup", "plan_feed_for_target", "reconcile_dose", "ingest_environment_export", "predict_flowering", "calibrate_blend", "record_ripeness", "assess_ripeness", "maintenance_due", "notify_maintenance", "record_lesson", "list_lessons", "ppm_per_ml", "round_to_instrument", "assess_ph", "record_ph_adjustment", "reopen_dose", "quantities",
+                "reconcile_ec_temperature", "intake_reading", "when_to_top_up", "project_topup", "plan_feed_for_target", "reconcile_dose", "ingest_environment_export", "predict_flowering", "calibrate_blend", "record_ripeness", "assess_ripeness", "maintenance_due", "notify_maintenance", "record_lesson", "list_lessons", "ppm_per_ml", "round_to_instrument", "assess_ph", "record_ph_adjustment", "reopen_dose", "record_dose_poured", "quantities",
                 "get_nutrient_history",
                 "set_inventory", "get_inventory",
                 "check_in", "analyze_consumption", "adjust_to_target_ppm",
@@ -6771,8 +6771,13 @@ class GrowAgent(AgentBase):
         if event is not None and event.get("at"):
             try:
                 _t = datetime.fromisoformat(_reading_at) if _reading_at else datetime.now()
+                # The plan's timestamp is when Grow WROTE it, not when it was
+                # poured (principal 2026-10-12: "the moment I gave it to you is
+                # when I did the dosing"). A recorded pour time wins.
+                _p = str(event.get("poured_at") or event["at"])[:19]
                 out["hours_since_dose"] = round(
-                    (_t - datetime.fromisoformat(event["at"])).total_seconds() / 3600, 1)
+                    max(0.0, (_t - datetime.fromisoformat(_p)).total_seconds() / 3600), 1)
+                out["hours_counted_from"] = "pour" if event.get("poured_at") else "plan (pour time not recorded)"
             except Exception:
                 pass
         # NOT YET MIXED (2026-10-12): GSC2 read 751 against 866 twenty minutes
@@ -13705,7 +13710,54 @@ class GrowAgent(AgentBase):
                                   "record; add the recipe with set_current_nutrients when known.")
         return out
 
-    def reopen_dose(self, plant_id=None, at=None, reason="", ratio_matches_measured_mix=None):
+    def record_dose_poured(self, plant_id=None, at=None, poured_at=None, note="",
+                           amounts=None):
+        """Say when a planned dose was actually poured, and what actually went in.
+
+        The plan's own time is when Grow wrote it; mixing time is counted from
+        the pour. `amounts` (ml per bottle) replaces add_now_ml when the pour
+        differed from the plan - GSC2 2026-10-12 got 9.0 ml Micro against a
+        planned 8.5 - with the plan kept as planned_ml and the prediction
+        recomputed at the plan's own strength, so the settled reading is checked
+        against the dose that is actually in the water."""
+        if not (plant_id and at):
+            return {"error": "Needs plant_id and at (the dose plan timestamp)."}
+        ev = self._volume_events(plant_id)
+        hit = next((e for e in ev if e.get("kind") == "dose"
+                    and str(e.get("at", "")).startswith(str(at))), None)
+        if not hit:
+            return {"error": f"No dose at {at} for {plant_id}."}
+        hit["poured_at"] = str(poured_at or datetime.now().isoformat(timespec="seconds"))[:26]
+        if note:
+            hit["poured_note"] = str(note)[:300]
+        if isinstance(amounts, dict) and amounts:
+            given = {k: float(v) for k, v in amounts.items()
+                     if self._parse_numeric(v) is not None}
+            planned = dict(hit.get("planned_ml") or hit.get("add_now_ml") or {})
+            unknown = sorted(set(given) - set(planned))
+            if unknown:
+                return {"error": f"{unknown} were not in this dose's plan ({sorted(planned)}). "
+                                 f"Nothing changed."}
+            actual = dict(planned, **given)
+            hit["planned_ml"] = planned
+            hit["add_now_ml"] = actual
+            coef = self._parse_numeric(hit.get("coefficient_ppm_l_per_ml"))
+            p0 = self._parse_numeric(hit.get("ppm_before"))
+            v0 = self._parse_numeric(hit.get("volume_liters"))
+            vf = self._parse_numeric(hit.get("final_liters")) or v0
+            if coef and p0 is not None and v0 and vf:
+                mass = p0 * v0 + coef * sum(actual.values())
+                hit["ppm_predicted_planned"] = hit.get("ppm_predicted")
+                hit["ppm_predicted"] = round(mass / v0, 0)
+                hit["ppm_predicted_at_final"] = round(mass / vf, 0)
+        self.store_own_memory(f"volume_events_{plant_id}", json.dumps(ev[-200:]))
+        return {"recorded": True, "poured_at": hit["poured_at"], "plan_at": hit.get("at"),
+                "add_now_ml": hit.get("add_now_ml"), "planned_ml": hit.get("planned_ml"),
+                "ppm_predicted": hit.get("ppm_predicted"),
+                "ppm_predicted_planned": hit.get("ppm_predicted_planned")}
+
+    def reopen_dose(self, plant_id=None, at=None, reason="", ratio_matches_measured_mix=None,
+                    poured_at=None):
         """Reopen a dose that was reconciled too early, keeping what it said.
 
         2026-10-12: GSC2's 20 L feed was reconciled on a reading 20 minutes after
@@ -13730,6 +13782,8 @@ class GrowAgent(AgentBase):
                                                    at=datetime.now().isoformat(timespec="seconds")))
         if ratio_matches_measured_mix is not None:
             hit["ratio_matches_measured_mix"] = bool(ratio_matches_measured_mix)
+        if poured_at:
+            hit["poured_at"] = str(poured_at)[:26]
         self.store_own_memory(f"volume_events_{plant_id}", json.dumps(ev[-200:]))
         out = {"reopened": True, "event": hit}
         if hit.get("blend"):
@@ -14324,11 +14378,19 @@ class GrowAgent(AgentBase):
         elif task == "quantities":
             return {"result": self.quantities((args or {}).get("text") or "")}
 
+        elif task == "record_dose_poured":
+            a = args if isinstance(args, dict) else {}
+            return {"result": self.record_dose_poured(a.get("plant_id"), at=a.get("at"),
+                                                      poured_at=a.get("poured_at"),
+                                                      note=a.get("note", ""),
+                                                      amounts=a.get("amounts"))}
+
         elif task == "reopen_dose":
             a = args if isinstance(args, dict) else {}
             return {"result": self.reopen_dose(a.get("plant_id"), at=a.get("at"),
                                                reason=a.get("reason", ""),
-                                               ratio_matches_measured_mix=a.get("ratio_matches_measured_mix"))}
+                                               ratio_matches_measured_mix=a.get("ratio_matches_measured_mix"),
+                                               poured_at=a.get("poured_at"))}
 
         elif task == "record_ph_adjustment":
             a = args if isinstance(args, dict) else {}
