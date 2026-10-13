@@ -147,6 +147,25 @@ def main():
        "more than this vessel holds" in str((r.get("volume_check") or {}).get("reading")),
        str((r.get("volume_check") or {}).get("reading")))
 
+    print("a reading below where the plant is run answers with the dose, and records nothing")
+    poured = {"at": "2026-10-10T15:00:00", "kind": "dose", "volume_liters": 18.0,
+              "final_liters": 18.0, "ppm_before": 740.0, "ppm_predicted_at_final": 899.0,
+              "add_now_ml": {"A": 3.5, "B": 6.25}, "coefficient_ppm_l_per_ml": 173.2,
+              "reconciled": True, "reconciled_result": "matches_prediction"}
+    store = {"grow_system_p9": json.dumps({"plant_id": "p9", "reservoir_liters": 18.0,
+                                           "reservoir_capacity_liters": 20.0}),
+             "volume_events_p9": json.dumps([poured])}
+    g = grow(store)
+    calls = []
+    g.plan_feed_for_target = lambda pid, **k: calls.append(k) or {
+        "add_now_ml": {"A": 1.0, "B": 2.0}, "target_ppm_after_rounding": 899.0}
+    sug = g.feed_suggestion("p9", ppm=732, volume_liters=18)
+    ck("a low reading gets a sized dose aimed at the last poured feed's level",
+       bool(sug) and sug["target_ppm"] == 899.0 and sug["recorded"] is False, str(sug)[:90])
+    ck("the suggestion is never persisted as a plan",
+       bool(calls) and calls[0].get("persist") is False)
+    ck("an in-spec reading gets no suggestion", g.feed_suggestion("p9", ppm=905, volume_liters=18) is None)
+
     print("a recorded sighting outranks the age")
     germ = (datetime.now() - timedelta(days=69)).date().isoformat()
     store = {"current_stage": "flower", "germination_date": germ,

@@ -5508,7 +5508,8 @@ class GrowAgent(AgentBase):
 
     def plan_feed_for_target(self, plant_id="current_plant", target_ppm=None,
                              dose_into_liters=None, final_liters=None,
-                             current_ppm=None, note="", only_products=None, stage_ratio=None):
+                             current_ppm=None, note="", only_products=None, stage_ratio=None,
+                             persist=True):
         """Dose NOW into less water, to land in band AFTER a top-up you know is coming.
 
         only_products restricts the dose to the named bottles, in this plant's
@@ -5773,6 +5774,9 @@ class GrowAgent(AgentBase):
         # hand. Persisted at dose_into_liters/interim ppm - the FIRST
         # checkpoint, the one the grower can actually measure next - not at
         # target_ppm/final_liters, which assumes water that has not arrived.
+        if not persist:
+            out["persisted"] = False
+            return out
         try:
             ev = self._volume_events(plant_id)
             ev.append({"at": datetime.now().isoformat(), "kind": "dose",
@@ -12870,7 +12874,63 @@ class GrowAgent(AgentBase):
                     out["prediction_check"] = chk["intervals"][-1]
             except Exception as exc:
                 out["prediction_check_error"] = f"{type(exc).__name__}: {exc}"
+            # OUT OF SPEC ANSWERS WITH THE DOSE (principal 2026-10-12: "What the
+            # nutrients needed to get in spec - it should've answered that, since
+            # I already gave ppm and EC"). A suggestion, never a recorded plan.
+            try:
+                sug = self.feed_suggestion(plant_id, ppm=(out.get("cleaned") or {}).get("ppm"),
+                                           volume_liters=(out.get("cleaned") or {}).get("volume_liters"))
+                if sug:
+                    out["feed_suggestion"] = sug
+            except Exception as exc:
+                out["feed_suggestion_error"] = f"{type(exc).__name__}: {exc}"
         return out
+
+    def feed_suggestion(self, plant_id, ppm=None, volume_liters=None):
+        """When a reading is below where this plant is run, the dose that brings
+        it back - sized, not recorded.
+
+        Target, in order: the last dose actually poured on this plant (what the
+        grower has been running - lived practice), then the record's target_ppm,
+        then the stage band's floor. Proportions: that same poured dose, so the
+        blend's learned strength applies. Returns None when the reading is at or
+        above target, no volume is known, or nothing has been poured to copy.
+        A dose already planned and open is not re-suggested."""
+        pp = self._parse_numeric(ppm)
+        if pp is None:
+            return None
+        ev = self._volume_events(plant_id)
+        if any(e.get("kind") == "dose" and not e.get("reconciled") for e in ev):
+            return None
+        poured = [e for e in ev if e.get("kind") == "dose" and e.get("add_now_ml")
+                  and e.get("reconciled") and e.get("reconciled_result") != "not_poured"]
+        if not poured:
+            return None
+        last = poured[-1]
+        rec = self._jload(f"grow_system_{plant_id}", {})
+        tgt = (self._parse_numeric(last.get("ppm_predicted_at_final"))
+               or self._parse_numeric(rec.get("target_ppm")))
+        basis = ("the level your last poured feed aimed at" if last.get("ppm_predicted_at_final")
+                 else "the record's target_ppm")
+        if not tgt or pp >= tgt * 0.97:
+            return None
+        vol = self._parse_numeric(volume_liters) or self._parse_numeric(rec.get("reservoir_liters"))
+        if not vol:
+            return None
+        plan = self.plan_feed_for_target(plant_id, target_ppm=tgt, current_ppm=pp,
+                                         dose_into_liters=vol, final_liters=vol,
+                                         stage_ratio=dict(last["add_now_ml"]), persist=False)
+        if not isinstance(plan, dict) or plan.get("error") or not plan.get("add_now_ml"):
+            return None
+        return {"add_ml": plan["add_now_ml"],
+                "draws": {k: v.get("draws") for k, v in
+                          ((plan.get("instrument") or {}).get("per_nutrient") or {}).items()},
+                "lands_ppm": plan.get("target_ppm_after_rounding"), "target_ppm": tgt,
+                "target_basis": basis, "at_liters": vol, "band": plan.get("stage_band"),
+                "strength": (plan.get("ppm_per_ml") or {}).get("ppm_l_per_ml"),
+                "recorded": False,
+                "to_use": "say so and it is planned with plan_feed_for_target, so the next "
+                          "reading is checked against it"}
 
     def reconcile_ec_temperature(self, ec_before=None, temp_before_c=None,
                                  ec_after=None, temp_after_c=None,
