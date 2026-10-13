@@ -592,12 +592,31 @@ class Anansi(AgentBase):
             out.append(rec)
         told = None
         if mode == "live" and out:
-            lines = [f"- {r['decision']}: \"{r['subject']}\" from {r['from']}" for r in out]
-            told = self.notify({"subject": f"{len(out)} new message(s) in the MycOS inbox",
-                                "body": "\n".join(lines) + "\n\nNothing was acted on. "
-                                        "Held mail waits for you; a referred message is "
-                                        "recorded by that department, which will propose "
-                                        "and wait for your yes.",
+            # SAY WHAT HAPPENED, NOT WHAT THE DESIGN ALLOWS. 2026-10-13 the
+            # principal asked why mail "was waiting on my yes": this footer
+            # promised every department "will propose and wait for your yes",
+            # and none of them has a proposal step for mail - Grow filed four
+            # exports and stopped. Each line now says what the department did,
+            # and only something actually awaiting him is called that.
+            def _what(r):
+                if r.get("decision") == "held for the principal":
+                    return "held - waiting for you to say where it goes"
+                reply = r.get("domain_reply") or {}
+                for _ in range(4):
+                    if isinstance(reply, dict) and "recorded" not in reply and "result" in reply:
+                        reply = reply["result"]
+                if isinstance(reply, dict) and reply.get("requires_signoff"):
+                    return f"{r.get('route')} recorded it and needs your sign-off"
+                if isinstance(reply, dict) and reply.get("acted"):
+                    return f"{r.get('route')} recorded it and acted: {str(reply.get('note') or '')[:80]}"
+                return f"filed by {r.get('route')} - nothing proposed, nothing waiting on you"
+            lines = [f"- \"{r['subject']}\" from {r['from']}: {_what(r)}" for r in out]
+            waiting = sum(1 for r in out if "waiting for you" in _what(r) or "sign-off" in _what(r))
+            told = self.notify({"subject": f"{len(out)} new message(s) in the MycOS inbox"
+                                           + (f" - {waiting} need you" if waiting else ""),
+                                "body": "\n".join(lines) + "\n\n"
+                                        + (f"{waiting} of these need you; the rest need nothing."
+                                           if waiting else "None of these need anything from you."),
                                 "from_agent": "anansi", "register": "low_stakes",
                                 "channels": ["email", "dashboard"]})
         return {"mode": mode, "fetched": len(out), "messages": out,
