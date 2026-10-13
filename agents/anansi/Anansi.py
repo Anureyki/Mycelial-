@@ -727,10 +727,19 @@ class Anansi(AgentBase):
         a = args if isinstance(args, dict) else {}
         ents = self._inbound_entries()
         if a.get("held"):
-            routed = {e["message_id"] for e in ents if e.get("event") == "routed_by_principal"}
+            routed = self._claimed_ids(ents)
             ents = [e for e in ents if e.get("event") == "live_done" and not e.get("route")
                     and e["message_id"] not in routed]
         return {"mode": self._listener_config()["mode"], "entries": ents[-int(a.get("limit", 50)):]}
+
+    @staticmethod
+    def _claimed_ids(ents):
+        """Messages that are no longer held: routed by the principal, or claimed
+        by a department on a later check of the same message id. One rule for
+        the digest and inbound_mail(held=True), which each carried a copy."""
+        return {e["message_id"] for e in ents if e.get("message_id") and (
+            e.get("event") == "routed_by_principal"
+            or (e.get("event") in ("dry_done", "live_done") and e.get("route")))}
 
     def held_mail_digest(self, args):
         """Weekly: what sat in held since the last digest, sent to the principal.
@@ -744,7 +753,7 @@ class Anansi(AgentBase):
         ents = self._inbound_entries()
         last = max((e["logged_at"] for e in ents if e.get("event") == "held_digest_sent"),
                    default="")
-        routed = {e["message_id"] for e in ents if e.get("event") == "routed_by_principal"}
+        routed = self._claimed_ids(ents)
         held = [e for e in ents if e.get("event") in ("dry_done", "live_done")
                 and not e.get("route") and e["logged_at"] > last
                 and e["message_id"] not in routed]
