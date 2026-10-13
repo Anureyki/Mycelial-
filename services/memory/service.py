@@ -6,7 +6,7 @@ from contextlib import contextmanager
 
 app = Flask(__name__)
 BASE = os.path.expanduser("~/mycelial")
-DB_PATH = os.path.join(BASE, "state", "memory.db")
+DB_PATH = os.environ.get("MEMORY_DB_PATH") or os.path.join(BASE, "state", "memory.db")
 os.makedirs(os.path.dirname(DB_PATH), mode=0o700, exist_ok=True)
 
 @contextmanager
@@ -65,8 +65,20 @@ def store():
         cur = conn.execute("SELECT id, version FROM memories WHERE namespace=? AND key=?", (namespace, key))
         row = cur.fetchone()
         if row:
-            entry_id, version = row["id"], row["version"] + 1
-            conn.execute("UPDATE memories SET value=?, timestamp=?, version=? WHERE id=?", (value, now(), version, entry_id))
+            # BY NAMESPACE AND KEY, NOT BY ID, AND CHECKED. 2026-10-13: eleven
+            # finding_index rows had been written straight into this table on
+            # 2026-09-11 with a NULL id; "WHERE id=NULL" matches nothing, so
+            # every later write to them changed nothing and returned success,
+            # and every agent's findings index froze for a month. A row with no
+            # id gets one here, and an update that touches no row is an error.
+            entry_id, version = row["id"] or str(uuid.uuid4())[:8], (row["version"] or 0) + 1
+            cur2 = conn.execute("UPDATE memories SET id=?, value=?, timestamp=?, version=? "
+                                "WHERE namespace=? AND key=?",
+                                (entry_id, value, now(), version, namespace, key))
+            if cur2.rowcount != 1:
+                conn.rollback()
+                return jsonify({"success": False,
+                                "error": f"update touched {cur2.rowcount} rows for {namespace}/{key}"}), 500
         else:
             entry_id = str(uuid.uuid4())[:8]
             version = 1
@@ -100,8 +112,15 @@ def update():
         cur = conn.execute("SELECT id, version FROM memories WHERE namespace=? AND key=?", (namespace, key))
         row = cur.fetchone()
         if not row: return jsonify({"success":False,"error":"Not found"}), 404
-        new_version = row["version"] + 1
-        conn.execute("UPDATE memories SET value=?, timestamp=?, version=? WHERE id=?", (value, now(), new_version, row["id"]))
+        new_version = (row["version"] or 0) + 1
+        cur2 = conn.execute("UPDATE memories SET id=?, value=?, timestamp=?, version=? "
+                            "WHERE namespace=? AND key=?",
+                            (row["id"] or str(uuid.uuid4())[:8], value, now(), new_version,
+                             namespace, key))
+        if cur2.rowcount != 1:
+            conn.rollback()
+            return jsonify({"success": False,
+                            "error": f"update touched {cur2.rowcount} rows for {namespace}/{key}"}), 500
         conn.commit()
         return jsonify({"success":True,"message":"Updated"})
 

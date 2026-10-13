@@ -515,8 +515,14 @@ class Anansi(AgentBase):
         inbox = os.environ["AGENTMAIL_INBOX"]
         qi = urllib.parse.quote(inbox, safe="")
         done_key = "live_done" if mode == "live" else "dry_done"
+        # A message the dry run already handled is NOT new when the listener
+        # goes live. 2026-10-13: switching live replayed the whole inbox - four
+        # week-old Mars Hydro exports were referred to Grow as fresh findings -
+        # because "seen" only counted the current mode. The dry run's held items
+        # stay on the held-mail review; nothing is lost by not replaying them.
+        _seen_events = ("dry_done", "live_done") if mode == "live" else ("dry_done",)
         seen = {e.get("message_id") for e in self._inbound_entries()
-                if e.get("event") == done_key}
+                if e.get("event") in _seen_events}
         try:
             listing = self._agentmail(f"/inboxes/{qi}/messages?limit="
                                       f"{int(a.get('limit', 25))}&labels=received")

@@ -1246,6 +1246,10 @@ class AgentBase:
                 elif task == "trace_account":
                     result = self.trace_account(args if isinstance(args, dict)
                                                 else {"account": args})
+                elif task == "close_finding":
+                    a = args if isinstance(args, dict) else {}
+                    result = self.close_finding(a.get("finding_id"), a.get("reason", ""),
+                                                a.get("closed_by", ""))
                 elif task == "unhandled_findings":
                     result = self.unhandled_findings(
                         bool((args or {}).get("include_acted")) if isinstance(args, dict) else False)
@@ -3134,6 +3138,30 @@ class AgentBase:
         return {"recorded": fid, "acted": False,
                 "note": f"{self.agent_id} recorded this {kind} but has no handler "
                         "for it yet - it is stored, not acted on."}
+
+    def close_finding(self, finding_id=None, reason="", closed_by=""):
+        """Decide a recorded finding needs no further action, and say why.
+
+        unhandled_findings asks for "a handler in this agent or an explicit
+        decision that it needs none". This is the decision. The finding is
+        kept, marked acted with the reason and who decided - closing is a
+        record, never a delete. 2026-10-13: switching the mail listener live
+        replayed four week-old Mars Hydro exports to Grow as new findings;
+        they are closed as duplicates, not erased."""
+        if not (finding_id and str(reason).strip()):
+            return {"closed": False, "why": "needs finding_id and a reason"}
+        raw = self._unwrap_value(self.retrieve_own_memory(finding_id))
+        if not raw:
+            return {"closed": False, "why": f"no finding {finding_id} in {self.agent_id}"}
+        f = json.loads(raw)
+        if f.get("acted"):
+            return {"closed": False, "why": f"{finding_id} is already acted on", "finding": f}
+        f.update(acted=True, closed_reason=str(reason)[:400], closed_by=closed_by or "unstated",
+                 closed_at=datetime.now().isoformat(timespec="seconds"))
+        self.store_own_memory(finding_id, json.dumps(f))
+        back = json.loads(self._unwrap_value(self.retrieve_own_memory(finding_id)) or "{}")
+        return {"closed": bool(back.get("acted")), "finding_id": finding_id,
+                "reason": f["closed_reason"]}
 
     def unhandled_findings(self, include_acted=False):
         """Every referral this agent recorded and never acted on.
