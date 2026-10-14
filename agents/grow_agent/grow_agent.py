@@ -2941,7 +2941,7 @@ class GrowAgent(AgentBase):
         return out
 
     def record_refill(self, plant_id=None, to_liters=None, added_liters=None,
-                      topup_ppm=0.0, note="", at=None):
+                      topup_ppm=None, note="", at=None, water=None):
         """Record that water went in. -> receipt, and what the next reading should read.
 
         WHAT IT REFUSES. No plant, no record: the same rule readings run on,
@@ -2987,6 +2987,30 @@ class GrowAgent(AgentBase):
                                    f"{str(_last['timestamp'])[:16]}), newer than the record")
         except Exception as exc:
             self.log(f"record_refill: could not compare with readings: {exc}")
+        # WHAT WENT IN, AND WHAT IT CARRIES (principal 2026-10-14: testing raw
+        # dehumidifier water against DI-purified - "you also wanted the EC and
+        # the PPM so that grow can factor that in"). `water` names the source and
+        # its ppm comes from the plant's record; an explicit topup_ppm wins. A
+        # mix with no stated ppm is bounded, not guessed: half the measured
+        # dehumidifier ppm, and said so.
+        _w = str(water or "").strip().lower() or None
+        _wk = ("di" if _w in ("di", "deionized", "ro") else
+               "dehumidifier" if _w and "dehumid" in _w else
+               "mixed" if _w and ("mix" in _w or "both" in _w) else _w)
+        if topup_ppm is None:
+            dh = self._parse_numeric(rec.get("dehumidifier_water_ppm"))
+            if _wk == "di":
+                topup_ppm, water_basis = 0.0, "DI water taken as 0 ppm"
+            elif _wk == "dehumidifier" and dh is not None:
+                topup_ppm, water_basis = dh, f"dehumidifier water as measured: {dh:g} ppm"
+            elif _wk == "mixed" and dh is not None:
+                topup_ppm, water_basis = dh / 2, (f"DI + dehumidifier mix, proportions not stated: "
+                                                  f"taken as {dh / 2:g} ppm (between 0 and {dh:g})")
+            else:
+                topup_ppm, water_basis = 0.0, "top-up water not named - taken as 0 ppm"
+        else:
+            water_basis = f"stated: {float(topup_ppm):g} ppm"
+        topup_ppm = float(topup_ppm)
         cap = self._parse_numeric(rec.get("reservoir_capacity_liters"))
         to_v = self._parse_numeric(to_liters)
         add_v = self._parse_numeric(added_liters)
@@ -3027,7 +3051,8 @@ class GrowAgent(AgentBase):
                    "delta": delta, "measured": True, "source": "refill_stated",
                    **({"record_said_from": stated_over} if stated_over is not None else {}),
                    **({"recorded_at": datetime.now().isoformat()} if at else {}),
-                   "topup_ppm": float(topup_ppm or 0.0), "note": str(note)[:300]})
+                   "topup_ppm": float(topup_ppm or 0.0), "note": str(note)[:300],
+                   **({"water": _wk} if _wk else {}), "water_basis": water_basis})
         ev.sort(key=lambda e: str(e.get("at") or ""))
         self.store_own_memory(f"volume_events_{pid}", json.dumps(ev[-200:]))
 
@@ -3051,6 +3076,7 @@ class GrowAgent(AgentBase):
                            f"{rec.get('vessel') or rec.get('system_type') or 'an unrecorded vessel'}"),
                "from_liters": before, "to_liters": round(to_v, 1), "added_liters": delta,
                "capacity_liters": cap, "at": now, "start_basis": start_basis,
+               "water": _wk, "water_basis": water_basis,
                **({"stated_start_overrode_record": {
                    "record_said": stated_over, "stated": before,
                    "why": "the grower stated the level before the refill"}}
@@ -15921,8 +15947,8 @@ class GrowAgent(AgentBase):
             a = args if isinstance(args, dict) else {}
             return {"result": self.record_refill(
                 a.get("plant_id"), to_liters=a.get("to_liters"),
-                added_liters=a.get("added_liters"), topup_ppm=a.get("topup_ppm", 0.0),
-                note=a.get("note", ""), at=a.get("at"))}
+                added_liters=a.get("added_liters"), topup_ppm=a.get("topup_ppm"),
+                note=a.get("note", ""), at=a.get("at"), water=a.get("water"))}
 
         elif task == "ingest_environment_export":
             a = args if isinstance(args, dict) else {}

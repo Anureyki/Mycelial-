@@ -166,6 +166,22 @@ def main():
        bool(calls) and calls[0].get("persist") is False)
     ck("an in-spec reading gets no suggestion", g.feed_suggestion("p9", ppm=905, volume_liters=18) is None)
 
+    print("named top-up water carries its measured ppm into the prediction")
+    store = {"grow_system_p10": json.dumps({"plant_id": "p10", "reservoir_liters": 15.0,
+                                            "reservoir_capacity_liters": 20.0,
+                                            "dehumidifier_water_ppm": 20})}
+    g = grow(store)
+    g._water_alert = lambda *a, **k: None
+    g._get_readings_for_plant = lambda pid: [{"timestamp": "2026-10-01T10:00:00",
+                                              "volume_liters": 15.0, "ppm": 900}]
+    r = g.record_refill("p10", to_liters=18, added_liters=3, water="dehumidifier",
+                        at="2026-10-02T10:00:00")
+    ck("dehumidifier water's 20 ppm is in the prediction (900x15 + 20x3)/18 = 753",
+       (r.get("prediction") or {}).get("ppm_after_refill") == 753.0, str(r.get("prediction")))
+    ck("and the refill says which water it was", r.get("water") == "dehumidifier")
+    r = g.record_refill("p10", to_liters=20, added_liters=2, water="di", at="2026-10-03T10:00:00")
+    ck("DI is 0 ppm", r.get("water_basis") == "DI water taken as 0 ppm", str(r.get("water_basis")))
+
     print("a recorded sighting outranks the age")
     germ = (datetime.now() - timedelta(days=69)).date().isoformat()
     store = {"current_stage": "flower", "germination_date": germ,
