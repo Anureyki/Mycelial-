@@ -30,6 +30,22 @@
 set -uo pipefail
 cd "$(dirname "$0")/.." || exit 2
 
+# SAME FILES, OR IT IS NOT CI. 2026-10-13: nine pushes were red on GitHub
+# (check_inherited --static) while this printed ALL GREEN, because it tested
+# the working tree. Grow rewrites config/agent_cards/grow_agent.json at
+# startup, so the card here carried three new verbs and the committed one did
+# not. Anything a gate reads that differs from what will be committed - an
+# unstaged edit or an untracked file - makes the result a statement about a
+# tree GitHub never sees. Staged changes are fine: they are the commit.
+GATED="agents core services tools config webapp .github"
+DIRTY=$( { git diff --name-only -- $GATED; git ls-files --others --exclude-standard -- $GATED; } | sort -u)
+if [ -n "$DIRTY" ]; then
+  echo "NOT RUN - these files differ from what would be committed, so a green here"
+  echo "would describe a tree CI never sees. Stage them (git add) or revert them:"
+  echo "$DIRTY" | sed 's/^/    /'
+  exit 1
+fi
+
 REQ="ci-requirements.txt"
 CIVENV="${CIVENV:-state/ci-venv}"
 STAMP="$CIVENV/.requirements-stamp"

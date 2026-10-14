@@ -84,6 +84,9 @@
     "ppm_per_ml",
     "round_to_instrument",
     "assess_ph",
+    "record_ph_adjustment",
+    "reopen_dose",
+    "record_dose_poured",
     "quantities",
     "get_nutrient_history",
     "set_inventory",
@@ -123,5 +126,5 @@
   "public_key": "",
   "owner": "anureyki",
   "created": "2026-07-28T23:04:50.187235",
-  "updated": "2026-10-01T16:19:11.834896"
+  "updated": "2026-10-12T05:23:47.757185"
 }
