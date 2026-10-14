@@ -13902,7 +13902,7 @@ class GrowAgent(AgentBase):
                                                                      "ppm_predicted_at_final")}}
 
     def correct_volume_event(self, plant_id=None, at=None, from_liters=None, reason="",
-                             to_liters=None):
+                             to_liters=None, water=None):
         """Correct a recorded volume event's levels, keeping what it said.
 
         A refill's start (from_liters) and end (to_liters); a dose's volume
@@ -13911,13 +13911,26 @@ class GrowAgent(AgentBase):
         widened 2026-10-10 when the principal accepted the dose maths over his
         stated 19 L: "I didn't account for it feeding, Grow did" - the refill
         was 14 -> 18 and the dose went into 18 L. Needs a reason."""
-        if not (plant_id and at and reason) or (from_liters is None and to_liters is None):
-            return {"error": "Needs plant_id, at (the event timestamp), reason, and from_liters and/or to_liters."}
+        if not (plant_id and at and reason) or (from_liters is None and to_liters is None
+                                                 and water is None):
+            return {"error": "Needs plant_id, at (the event timestamp), reason, and from_liters, "
+                             "to_liters and/or water."}
         ev = self._volume_events(plant_id)
         hit = next((e for e in ev if str(e.get("at", "")).startswith(str(at))), None)
         if not hit:
             return {"error": f"No volume event at {at} for {plant_id}."}
         corr = {"at": datetime.now().isoformat(timespec="seconds"), "reason": str(reason)[:300]}
+        if water is not None:
+            # Which water a refill was, learned after the fact (2026-10-14: GSC2's
+            # 10/11 "fresh water" was raw dehumidifier water - the pH 6.96).
+            if hit.get("kind") == "dose":
+                return {"error": "water belongs to a refill, not a dose"}
+            corr["water_was"] = hit.get("water")
+            hit["water"] = str(water).strip().lower()
+            if from_liters is None and to_liters is None:
+                hit.setdefault("corrections", []).append(corr)
+                self.store_own_memory(f"volume_events_{plant_id}", json.dumps(ev[-200:]))
+                return {"corrected": True, "event": hit}
         if hit.get("kind") == "dose":
             if to_liters is None:
                 return {"error": "a dose event is corrected with to_liters (the volume it went into)"}
