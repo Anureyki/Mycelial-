@@ -2987,7 +2987,7 @@ class GrowAgent(AgentBase):
                                    f"{str(_last['timestamp'])[:16]}), newer than the record")
         except Exception as exc:
             self.log(f"record_refill: could not compare with readings: {exc}")
-        # WHAT WENT IN, AND WHAT IT CARRIES (principal 2026-10-14: testing raw
+        # WHAT WENT IN, AND WHAT IT CARRIES (principal 2026-10-13: testing raw
         # dehumidifier water against DI-purified - "you also wanted the EC and
         # the PPM so that grow can factor that in"). `water` names the source and
         # its ppm comes from the plant's record; an explicit topup_ppm wins. A
@@ -13921,7 +13921,7 @@ class GrowAgent(AgentBase):
             return {"error": f"No volume event at {at} for {plant_id}."}
         corr = {"at": datetime.now().isoformat(timespec="seconds"), "reason": str(reason)[:300]}
         if water is not None:
-            # Which water a refill was, learned after the fact (2026-10-14: GSC2's
+            # Which water a refill was, learned after the fact (2026-10-13: GSC2's
             # 10/11 "fresh water" was raw dehumidifier water - the pH 6.96).
             if hit.get("kind") == "dose":
                 return {"error": "water belongs to a refill, not a dose"}
