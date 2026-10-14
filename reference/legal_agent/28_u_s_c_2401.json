@@ -1,0 +1,41 @@
+{
+  "title": "28 U.S.C. \u00a7 2401",
+  "source": "United States Code title 28 section 2401, retrieved from Cornell LII (law.cornell.edu). The statutory text is a U.S. government work and is public domain; Cornell's annotations are excluded.",
+  "authority_class": "federal_statute",
+  "authority_class_basis": "Title of the work is a U.S. Code section citation, which fixes the class",
+  "claim_layer": "doctrinal",
+  "claim_layer_meaning": "States or describes the rule. Cite for what the law IS.",
+  "authorities_cited": [],
+  "term_index": {},
+  "origin_pdf": "usc28_2401.txt",
+  "extraction": {
+    "extractor": "text file (already extracted)",
+    "pages": 1,
+    "no_text_layer": [],
+    "raised": [],
+    "recovered": [],
+    "lost": [],
+    "complete": true
+  },
+  "pages": 1,
+  "sections": [
+    {
+      "citation": "\u00a7 2401.",
+      "kind": "section_sign",
+      "page": 1,
+      "text": "\u00a7 2401. Time for commencing action against United States. (a) Except as provided by chapter 71 of title 41, every civil action commenced against the United States shall be barred unless the complaint is filed within six years after the right of action first accrues. The action of any person under legal disability or beyond the seas at the time the claim accrues may be commenced within three years after the disability ceases. (b) A tort claim against the United States shall be forever barred unless it is presented in writing to the appropriate Federal agency within two years after such claim accrues or unless action is begun within six months after the date of mailing, by certified or registered mail, of notice of final denial of the claim by the agency to which it was presented. (June 25, 1948, ch. 646, 62 Stat. 971 ; Apr. 25, 1949, ch. 92, \u00a7 1, 63 Stat. 62 ; Pub. L. 86\u2013238, \u00a7 1(3) , Sept. 8, 1959 , 73 Stat. 472 ; Pub. L. 89\u2013506, \u00a7 7 , July 18, 1966 , 80 Stat. 307 ; Pub. L. 95\u2013563, \u00a7 14(b) , Nov. 1, 1978 , 92 Stat. 2389 ; Pub. L. 111\u2013350, \u00a7 5(g)(8) , Jan. 4, 2011 , 124 Stat. 3848 .)",
+      "integrity": {
+        "state": "complete",
+        "basis": "Full retrieved body of 1,099 characters stored; under the 60,000 cap, so nothing was cut.",
+        "stamped_at": "2026-10-14T08:16:39",
+        "stored_chars": 1099,
+        "source_chars": 1099,
+        "cap_applied": 60000
+      },
+      "authority_class": "federal_statute",
+      "claim_layer": "doctrinal",
+      "claim_layer_meaning": "States or describes the rule. Cite for what the law IS."
+    }
+  ],
+  "claim_layer_basis": "Set from the class, not from the text: a statute or regulation states the rule rather than describing or arguing it, which the citation in the title establishes definitionally."
+}

@@ -203,7 +203,7 @@ class LegalAgent(AgentBase):
                 "claim_open", "claim_cite", "claim_answer", "claim_set_right",
                 "claim_evidence", "claim_observe", "claim_reproducibility",
                 "claim_corroborate", "claim_get", "claim_list", "claim_ontology",
-                "add_deadline", "deadlines", "watch_docket", "watched_dockets",
+                "add_deadline", "deadlines", "record_deadline_event", "check_deadline_register", "watch_docket", "watched_dockets",
                 "record_settlement_offer", "settlement_offers",
                 "open_action", "complete_action", "amend_action", "actions",
                 "add_venue", "venues", "running_clocks", "complaint_path",
@@ -471,9 +471,51 @@ class LegalAgent(AgentBase):
                         "why": "A court that catches a miscitation discounts the whole filing."})
         return out
 
+    @staticmethod
+    def _federal_holidays(year):
+        """Legal public holidays, 5 U.S.C. 6103(a), with the weekend shift
+        federal offices observe (Saturday -> Friday, Sunday -> Monday)."""
+        from datetime import date as _d
+        def nth(month, weekday, n):
+            d = _d(year, month, 1)
+            d += timedelta(days=(weekday - d.weekday()) % 7)
+            return d + timedelta(weeks=n - 1)
+        def last(month, weekday):
+            d = _d(year, month + 1, 1) - timedelta(days=1) if month < 12 else _d(year, 12, 31)
+            return d - timedelta(days=(d.weekday() - weekday) % 7)
+        fixed = [_d(year, 1, 1), _d(year, 6, 19), _d(year, 7, 4), _d(year, 11, 11), _d(year, 12, 25)]
+        moving = [nth(1, 0, 3), nth(2, 0, 3), last(5, 0), nth(9, 0, 1), nth(10, 0, 2), nth(11, 3, 4)]
+        out = set(moving)
+        for d in fixed:
+            out.add(d - timedelta(days=1) if d.weekday() == 5 else
+                    d + timedelta(days=1) if d.weekday() == 6 else d)
+        return out
+
+    def _add_period(self, start, period, unit):
+        """-> (due datetime, how it was counted). Business days skip weekends and
+        the 6103 holidays; months are calendar months, clamped to month end."""
+        n = int(period)
+        if unit == "business_days":
+            d, counted = start, 0
+            while counted < n:
+                d += timedelta(days=1)
+                if d.weekday() < 5 and d.date() not in self._federal_holidays(d.year):
+                    counted += 1
+            return d, (f"{n} business days after {start.date()} - Saturdays, Sundays and legal "
+                       f"public holidays (5 U.S.C. 6103) excluded")
+        if unit == "months":
+            import calendar
+            m = start.month - 1 + n
+            y, m = start.year + m // 12, m % 12 + 1
+            day = min(start.day, calendar.monthrange(y, m)[1])
+            return start.replace(year=y, month=m, day=day), f"{n} calendar months after {start.date()}"
+        return start + timedelta(days=n), f"{n} days after {start.date()}"
+
     def add_deadline(self, case_id=None, name=None, trigger_event=None,
                      trigger_date=None, period_days=None, citation=None,
-                     consequence=None, note=None):
+                     consequence=None, note=None, period=None, period_unit="days",
+                     kind="deadline", next_action=None, watch_for=None,
+                     unknown_reason=None, parent_id=None):
         """Register a deadline, computed from an authority that was READ.
 
         The principal's architecture puts *"track deadlines and procedural
@@ -488,31 +530,56 @@ class LegalAgent(AgentBase):
         the inference-become-legal-fact this system exists to prevent, and it
         would be the most dangerous instance of it - confidently wrong about
         the only thing that cannot be undone."""
-        if not (name and trigger_date and period_days and citation):
-            return {"error": ("Needs name, trigger_date, period_days and citation. The "
-                              "citation is not optional: a period this agent cannot open is "
-                              "a period it must not compute.")}
+        # KINDS (2026-10-14, the principal's register): "deadline" - missing it
+        # loses the right; "opens_option" - the date a right becomes available
+        # (FTCA: six months' agency silence lets the claimant deem the claim
+        # denied, 28 U.S.C. 2675(a) - it starts no clock); "unknown" - a period
+        # is running but its start is not on record (Privacy Act, 552a(g)(5),
+        # from when the claim arose). An unknown start is flagged every check,
+        # never skipped - a clock nobody can compute is still a clock.
+        if period is None:
+            period, period_unit = period_days, "days"
+        if kind not in ("deadline", "opens_option", "unknown"):
+            return {"error": "kind must be deadline, opens_option or unknown"}
+        if not (name and citation and (period is not None)):
+            return {"error": ("Needs name, citation and a period (period + period_unit, or "
+                              "period_days). The citation is not optional: a period this agent "
+                              "cannot open is a period it must not compute.")}
+        if not trigger_date and kind != "unknown":
+            return {"error": ("Needs trigger_date. If the start is genuinely not known, record "
+                              "kind='unknown' with unknown_reason - it is then flagged every check.")}
+        if period_unit not in ("days", "business_days", "months"):
+            return {"error": "period_unit must be days, business_days or months"}
         located = self.lookup_reference(citation)
         if not located:
             return {"error": (f"'{citation}' is not in this corpus, so the period cannot be "
                               f"verified and no deadline was recorded. Acquire it with "
                               f"tools/ingest_law.py and try again."),
                     "recorded": False, "authority_located": False}
-        try:
-            start = datetime.fromisoformat(str(trigger_date)[:19])
-            days = int(period_days)
-        except Exception as exc:
-            return {"error": f"trigger_date or period_days unusable: {exc}"}
-        due = start + timedelta(days=days)
-        left = (due - datetime.now()).days
+        start = due = None
+        counted = None
+        if trigger_date:
+            try:
+                start = datetime.fromisoformat(str(trigger_date)[:19])
+                due, counted = self._add_period(start, period, period_unit)
+            except Exception as exc:
+                return {"error": f"trigger_date or period unusable: {exc}"}
+        days = int(period) if period_unit == "days" else None
+        left = (due - datetime.now()).days if due else None
         rec = {
             "id": f"deadline_{self._uid()}",
-            "case_id": case_id, "name": name,
-            "trigger_event": trigger_event, "trigger_date": start.date().isoformat(),
-            "period_days": days, "due": due.date().isoformat(),
+            "case_id": case_id, "name": name, "kind": kind,
+            "trigger_event": trigger_event,
+            "trigger_date": start.date().isoformat() if start else None,
+            "period_days": days, "period": int(period), "period_unit": period_unit,
+            "counted": counted, "due": due.date().isoformat() if due else None,
             "days_remaining": left,
-            "status": ("PASSED" if left < 0 else "CRITICAL" if left <= 14
+            "status": ("UNKNOWN" if due is None else
+                       "PASSED" if left < 0 else "CRITICAL" if left <= 14
                        else "WARN" if left <= 45 else "OPEN"),
+            "next_action": next_action, "watch_for": list(watch_for or []),
+            "unknown_reason": unknown_reason, "parent_id": parent_id,
+            "last_checked": None, "events": [],
             "citation": citation,
             "authority_excerpt": re.sub(r"\s+", " ",
                                         str((located[0] or {}).get("text") or ""))[:400],
@@ -531,6 +598,76 @@ class LegalAgent(AgentBase):
         idx.append(rec["id"])
         self.store_own_memory("deadline_index", json.dumps(idx))
         return rec
+
+    def record_deadline_event(self, deadline_id=None, event=None, date=None, note=""):
+        """Something on a deadline's watch list happened - or the principal says
+        when an unknown start was. Kept on the entry; if the watch item says the
+        event STARTS a period, that deadline is created from the event's date.
+
+        The silent-denial rule (28 U.S.C. 2675(a) + 2401(b)): six months' silence
+        lets the claimant deem the SF-95 denied - it starts no clock. A written
+        denial MAILED by certified or registered mail starts six months from the
+        mailing date. So `denial_mailed` creates a deadline; silence does not."""
+        if not (deadline_id and event):
+            return {"error": "Needs deadline_id and event."}
+        raw = self._unwrap_value(self.retrieve_own_memory(deadline_id))
+        if not raw:
+            return {"error": f"No deadline {deadline_id}."}
+        d = json.loads(raw)
+        ev = {"event": str(event), "date": str(date or "")[:10] or None, "note": str(note)[:300],
+              "recorded_at": datetime.now().isoformat(timespec="seconds")}
+        out = {"deadline_id": deadline_id, "event": ev}
+        if event == "start_known":
+            if not date:
+                return {"error": "start_known needs the date the period began."}
+            start = datetime.fromisoformat(str(date)[:10])
+            due, counted = self._add_period(start, d.get("period"), d.get("period_unit") or "days")
+            d.update(trigger_date=start.date().isoformat(), due=due.date().isoformat(),
+                     counted=counted, kind="deadline", unknown_reason=None)
+            out["due"] = d["due"]
+        w = next((x for x in (d.get("watch_for") or []) if x.get("event") == event), None)
+        if w and w.get("closes"):
+            d["closed"] = {"by": event, "date": ev["date"], "why": w.get("closes")}
+            out["closed"] = d["closed"]
+        if w and w.get("creates"):
+            if not date:
+                return {"error": f"'{event}' starts a period, so it needs the date it happened."}
+            c = dict(w["creates"])
+            child = self.add_deadline(case_id=d.get("case_id"), trigger_date=date,
+                                      trigger_event=f"{event} ({d.get('name')})",
+                                      parent_id=deadline_id, **c)
+            out["created"] = child
+            ev["created"] = child.get("id")
+        d.setdefault("events", []).append(ev)
+        self.store_own_memory(deadline_id, json.dumps(d), pin=True)
+        return out
+
+    def check_deadline_register(self):
+        """The standing check: read every entry, stamp last_checked, and say
+        what needs the principal. Run with the reminders (twice daily by cron)
+        and on demand. A register nobody reads is a list; the stamp proves it
+        was read, and an entry whose stamp stops moving is a check that died."""
+        now = datetime.now()
+        rows = self.deadlines().get("deadlines") or []
+        flags = []
+        for d in rows:
+            raw = self._unwrap_value(self.retrieve_own_memory(d["id"]))
+            if raw:
+                rec = json.loads(raw)
+                rec["last_checked"] = now.isoformat(timespec="seconds")
+                self.store_own_memory(d["id"], json.dumps(rec), pin=True)
+            d["last_checked"] = now.isoformat(timespec="seconds")
+            if d.get("closed"):
+                continue
+            left = d.get("days_remaining")
+            if d.get("status") == "UNKNOWN":
+                flags.append({"id": d["id"], "why": "start unknown - the period cannot be "
+                              f"computed: {d.get('unknown_reason') or 'start date not on record'}"})
+            elif left is not None and left <= 30:
+                flags.append({"id": d["id"], "why": (f"{d.get('kind')} {d['due']} - "
+                                                     f"{'passed' if left < 0 else f'{left} days'}")})
+        return {"checked_at": now.isoformat(timespec="seconds"), "entries": len(rows),
+                "flagged": flags, "register": rows}
 
     def deadlines(self, case_id=None):
         """The register, soonest first. Passed deadlines stay - a limitation
@@ -551,13 +688,16 @@ class LegalAgent(AgentBase):
                 continue
             if case_id and d.get("case_id") != case_id:
                 continue
-            try:
-                left = (datetime.fromisoformat(d["due"]) - datetime.now()).days
-                d["days_remaining"] = left
-                d["status"] = ("PASSED" if left < 0 else "CRITICAL" if left <= 14
-                               else "WARN" if left <= 45 else "OPEN")
-            except Exception:
-                pass
+            if not d.get("due"):
+                d["days_remaining"], d["status"] = None, "UNKNOWN"
+            else:
+                try:
+                    left = (datetime.fromisoformat(d["due"]) - datetime.now()).days
+                    d["days_remaining"] = left
+                    d["status"] = ("PASSED" if left < 0 else "CRITICAL" if left <= 14
+                                   else "WARN" if left <= 45 else "OPEN")
+                except Exception:
+                    pass
             out.append(d)
         out.sort(key=lambda x: x.get("due") or "9999")
         return {"case_id": case_id, "count": len(out), "deadlines": out,
@@ -753,21 +893,37 @@ class LegalAgent(AgentBase):
 
     def reminders_due(self):
         items, basis, now = [], [], datetime.now()
-        dls = (self.deadlines().get("deadlines") or [])
+        dls = (self.check_deadline_register().get("register") or [])
         for d in dls:
+            if d.get("closed"):
+                continue
             left = d.get("days_remaining")
+            if d.get("status") == "UNKNOWN":
+                items.append({
+                    "key": f"{d['id']}:unknown:{now.strftime('%G-W%V')}", "urgency": "soon",
+                    "subject": f"Clock running, start unknown: {d.get('name')}",
+                    "body": (f"{d.get('name')}: {d.get('period')} {d.get('period_unit')} under "
+                             f"{d.get('citation')}, but the start is not on record "
+                             f"({d.get('unknown_reason')}). Tell Legal the date "
+                             f"(record_deadline_event start_known) so it can compute the "
+                             f"deadline. Next action: {d.get('next_action') or 'not recorded'}.")})
+                continue
             if left is None or left > 45 or left < -3:
                 continue
             bucket = ("d45" if left > 30 else "d30" if left > 14 else "d14" if left > 7
                       else f"d{left}" if left >= 0 else "passed")
             when = ("TODAY" if left == 0 else f"in {left} day{'s' * (left != 1)}" if left > 0
                     else f"{-left} day{'s' * (left != -1)} ago")
+            opens = d.get("kind") == "opens_option"
             items.append({
                 "key": f"{d['id']}:{bucket}",
                 "urgency": "soon" if left > 14 else "due" if left >= 0 else "overdue",
-                "subject": f"Deadline {when}: {d.get('name')}",
-                "body": (f"{d.get('name')} is due {d.get('due')} ({when}). "
-                         f"Authority: {d.get('citation')}. If missed: {d.get('consequence')}"
+                "subject": (f"{'Option opens' if opens else 'Deadline'} {when}: {d.get('name')}"),
+                "body": (f"{d.get('name')} - {'opens' if opens else 'due'} {d.get('due')} ({when}). "
+                         f"Authority: {d.get('citation')}. "
+                         + (f"Next action: {d['next_action']}. " if d.get("next_action") else "")
+                         + (f"This starts no clock: {d.get('consequence')}" if opens
+                            else f"If missed: {d.get('consequence')}")
                          + (f" Case {d['case_id']}." if d.get("case_id") else ""))})
         basis.append(f"{len(dls)} deadline(s) on the register; reminded at 45, 30 and 14 "
                      "days out, daily from 7 days, and once if one passes")
@@ -5128,6 +5284,10 @@ class LegalAgent(AgentBase):
             return self.actions(a.get("case_id"), bool(a.get("include_closed")))
         if task == "add_deadline":
             return self.add_deadline(**(args if isinstance(args, dict) else {}))
+        if task == "record_deadline_event":
+            return self.record_deadline_event(**(args if isinstance(args, dict) else {}))
+        if task == "check_deadline_register":
+            return self.check_deadline_register()
         if task == "watch_docket":
             return self.watch_docket(**(args if isinstance(args, dict) else {}))
         if task == "watched_dockets":

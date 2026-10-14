@@ -248,6 +248,39 @@ def main():
     ck("amend_action can change blocked_by",
        isinstance(r2, dict) and r2.get("blocked_by") == "the PDF, now requested", str(r2)[:120])
 
+    print("the deadline register counts the way the statutes do")
+    store = {"deadline_index": "[]"}
+    lg = LegalAgent.__new__(LegalAgent)
+    lg.agent_id = "legal_agent"
+    lg.log = lambda *a, **k: None
+    lg.retrieve_own_memory = lambda k: store.get(k)
+    lg.store_own_memory = lambda k, v, pin=False: store.__setitem__(k, v) or {"success": True}
+    lg._unwrap_value = lambda v: v
+    lg.lookup_reference = lambda c: [{"text": "held", "title": c}]
+    f = lg.add_deadline(name="FOIA appeal", trigger_date="2026-10-13", period=20,
+                        period_unit="business_days", citation="5 U.S.C. 552")
+    ck("FOIA: 20 business days from 10/13/2026 is 11/10 (weekends, 6103 holidays out)",
+       f.get("due") == "2026-11-10", str(f.get("due")))
+    sf = lg.add_deadline(name="SF-95", trigger_date="2026-10-13", period=6, period_unit="months",
+                         kind="opens_option", citation="28 U.S.C. 2675",
+                         watch_for=[{"event": "denial_mailed", "creates": {
+                             "name": "FTCA suit", "period": 6, "period_unit": "months",
+                             "citation": "28 U.S.C. 2401"}}])
+    ck("six months' silence is an option opening, not a deadline",
+       sf.get("kind") == "opens_option" and sf.get("due") == "2027-04-13")
+    ch = lg.record_deadline_event(sf["id"], "denial_mailed", "2027-05-03").get("created") or {}
+    ck("a mailed denial starts six months from the mailing date (2401(b))",
+       ch.get("due") == "2027-11-03" and ch.get("kind") == "deadline", str(ch.get("due")))
+    un = lg.add_deadline(name="Privacy Act", kind="unknown", period=24, period_unit="months",
+                         citation="5 U.S.C. 552a", unknown_reason="date the harm was known")
+    chk = lg.check_deadline_register()
+    ck("an unknown start is flagged, never skipped",
+       any(x["id"] == un["id"] and "unknown" in x["why"] for x in chk["flagged"]))
+    ck("every check stamps last_checked",
+       all(json.loads(store[d["id"]]).get("last_checked") for d in chk["register"]))
+    ck("a dated deadline with no start is refused",
+       "error" in lg.add_deadline(name="x", period=5, citation="5 U.S.C. 552"))
+
     if fails:
         print(f"\nFAIL: {len(fails)} check(s): {fails}")
         return 1

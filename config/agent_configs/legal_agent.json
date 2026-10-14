@@ -6,6 +6,8 @@
     "acquire_opinion",
     "actions",
     "add_deadline",
+    "record_deadline_event",
+    "check_deadline_register",
     "watch_docket",
     "watched_dockets",
     "record_settlement_offer",
@@ -105,5 +107,16 @@
     "statute",
     "tenant right"
   ],
-  "_roles_note": "Subjects this agent OWNS. Exactly one agent may own a role; core/roles.py refuses duplicates at load. Declared here and not in code so changing what a department owns is a config edit."
+  "_roles_note": "Subjects this agent OWNS. Exactly one agent may own a role; core/roles.py refuses duplicates at load. Declared here and not in code so changing what a department owns is a config edit.",
+  "standing_instructions": {
+    "deadline_register": [
+      "Read the deadline register on every run (check_deadline_register; cron runs notify_reminders at 09:00 and 18:00) and stamp last_checked on every entry, so an entry whose stamp stops moving shows the check died.",
+      "Flag to the principal: every entry inside 30 days (reminders at 45, 30, 14 days, daily from 7, and once if one passes), and every entry whose start is UNKNOWN, weekly, until he supplies the date.",
+      "A period is computed only from an authority this agent can open; never from recollection. Business days exclude Saturdays, Sundays and 5 U.S.C. 6103 holidays; months are calendar months.",
+      "Three kinds: deadline (missing it loses the right), opens_option (a right becomes available - starts no clock), unknown (a clock is running from a date not on record).",
+      "Track the trigger, not just the date: each entry's watch_for lists the events (response received, denial mailed, unusual-circumstances notice) that close it, extend it, or start the next clock. Record them with record_deadline_event.",
+      "FTCA silence: six months without final disposition lets the claimant deem the claim denied (28 U.S.C. 2675(a)) and sue any time thereafter; it starts no six-month clock. Only a written final denial mailed by certified or registered mail starts the six months (28 U.S.C. 2401(b)), counted from the mailing date."
+    ],
+    "set_by": "principal 2026-10-14; FTCA silence rule corrected against the held text of 2675(a) and 2401(b)"
+  }
 }
