@@ -45,6 +45,16 @@ if [ -n "$DIRTY" ]; then
   echo "$DIRTY" | sed 's/^/    /'
   exit 1
 fi
+# The corpus is read by the letter and lookup gates too. 2026-10-13: the
+# Texas Property Code ch. 92 shelf existed only here, so the tenant letters
+# drafted complete locally and failed on GitHub. Corpus files are not a hard
+# stop (a shelf can wait on a copyright check), but they are never silent.
+REFDIRTY=$( { git diff --name-only -- reference; git ls-files --others --exclude-standard -- reference; } | sort -u)
+if [ -n "$REFDIRTY" ]; then
+  echo "WARNING - $(echo "$REFDIRTY" | wc -l) reference file(s) differ from what is committed. A gate"
+  echo "that opens one can pass here and fail on GitHub. First few:"
+  echo "$REFDIRTY" | head -5 | sed 's/^/    /'
+fi
 
 REQ="ci-requirements.txt"
 CIVENV="${CIVENV:-state/ci-venv}"
