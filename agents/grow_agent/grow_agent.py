@@ -6726,7 +6726,9 @@ class GrowAgent(AgentBase):
                 if _pend:
                     _after = [r for r in (self._get_readings_for_plant(plant_id) or [])
                               if not r.get("voided") and r.get("ppm") is not None
-                              and str(r.get("timestamp") or "")[:19] > str(_pend.get("at"))[:19]]
+                              # full precision: a reading logged in the same
+                              # second as the plan (2026-10-15, GSC1) is still after it
+                              and str(r.get("timestamp") or "") > str(_pend.get("at") or "")]
                     if _after:
                         _last = max(_after, key=lambda r: str(r.get("timestamp") or ""))
                         pa = self._parse_numeric(_last.get("ppm"))
