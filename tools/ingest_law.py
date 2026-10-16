@@ -81,10 +81,19 @@ def _strip(raw):
     return "\n".join(l.strip() for l in t.splitlines() if l.strip())
 
 
-def fetch_cfr(title, part, date="2026-08-01"):
+def fetch_cfr(title, part, date="2026-08-01", section=None):
+    """A whole part, or with `section` ONE section of it. FAR Part 52 is the
+    clause book - thousands of clauses - and the SAM module needed two of them
+    (52.204-7, 52.204-13); fetch-on-demand means fetching those, not the book."""
     url = (f"https://www.ecfr.gov/api/versioner/v1/full/{date}/"
-           f"title-{title}.xml?part={part}")
+           f"title-{title}.xml?part={part}" + (f"&section={section}" if section else ""))
     body = _strip(_get(url))
+    if section:
+        head = re.search(re.escape(str(section)) + r'\s+([^\n]+)', body)
+        name = head.group(1).strip().rstrip(".") if head else f"section {section}"
+        return body, f"{title} CFR {section} - {name}", (
+            f"Electronic CFR, title {title} section {section}, as of {date}, retrieved "
+            f"from ecfr.gov. Federal regulation - public domain.")
     head = re.search(r'PART \d+[—-]([^\n]+)', body)
     name = (head.group(1).strip().title() if head else f"Part {part}")
     return body, f"{title} CFR Part {part} - {name}", (
@@ -620,7 +629,7 @@ def main():
     ap.add_argument("--chapter", help="tex: chapter number, e.g. 2")
     ap.add_argument("--congress")
     ap.add_argument("--number")
-    ap.add_argument("--section", help="single U.S.C. section, e.g. 5103")
+    ap.add_argument("--section", help="single U.S.C. section (e.g. 5103), or with cfr one CFR section (e.g. 52.204-7)")
     ap.add_argument("--title")
     ap.add_argument("--part")
     ap.add_argument("--year", default="2024")
@@ -632,8 +641,8 @@ def main():
     if a.source == "cfr":
         if not (a.title and a.part):
             ap.error("cfr needs --title and --part")
-        body, title, source = fetch_cfr(a.title, a.part, a.date)
-        stem = f"{a.title}cfr{a.part}"
+        body, title, source = fetch_cfr(a.title, a.part, a.date, section=a.section)
+        stem = f"{a.title}cfr{a.section}" if a.section else f"{a.title}cfr{a.part}"
     elif a.source == "usc-section":
         if not (a.title and a.section):
             ap.error("usc-section needs --title and --section")
@@ -669,8 +678,9 @@ def main():
     # and 1,339 characters, and was refused as an error page (2026-10-16). For
     # CFR, structure decides, not length: a part opens "PART nnn—" and carries
     # an "Authority:" line, and an error page carries neither.
-    _cfr_whole = (a.source == "cfr" and re.search(r"PART \d+[\u2014-]", body or "")
-                  and "Authority:" in (body or ""))
+    _cfr_whole = (a.source == "cfr" and (
+        (re.search(r"PART \d+[\u2014-]", body or "") and "Authority:" in (body or ""))
+        or (a.section and str(a.section) in (body or "") and len(body or "") > 300)))
     if a.source not in ("usc-section", "orc") and len(body) < 2000 and not _cfr_whole:
         print(f"REFUSING: retrieved only {len(body)} characters - that is not a "
               f"body of law, it is an error page.", file=sys.stderr)

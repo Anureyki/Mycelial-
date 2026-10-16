@@ -1,0 +1,41 @@
+{
+  "title": "48 CFR 52.204-13 - System for Award Management Maintenance",
+  "source": "Electronic CFR, title 48 section 52.204-13, as of 2026-08-01, retrieved from ecfr.gov. Federal regulation - public domain.",
+  "authority_class": "regulation",
+  "authority_class_basis": "Title of the work is a CFR part citation, which fixes the class",
+  "claim_layer": "doctrinal",
+  "claim_layer_meaning": "States or describes the rule. Cite for what the law IS.",
+  "authorities_cited": [],
+  "term_index": {},
+  "origin_pdf": "48cfr52.204-13.txt",
+  "extraction": {
+    "extractor": "text file (already extracted)",
+    "pages": 1,
+    "no_text_layer": [],
+    "raised": [],
+    "recovered": [],
+    "lost": [],
+    "complete": true
+  },
+  "pages": 1,
+  "sections": [
+    {
+      "citation": "52.204-13",
+      "kind": "far_section",
+      "page": 1,
+      "text": "52.204-13 System for Award Management Maintenance. As prescribed in 4.1105(b), use the following clause: System for Award Management Maintenance (OCT 2018) (a) Definitions. As used in this clause\u2014 Electronic Funds Transfer (EFT) indicator means a four-character suffix to the unique entity identifier. The suffix is assigned at the discretion of the commercial, nonprofit, or Government entity to establish additional System for Award Management (SAM) records for identifying alternative EFT accounts (see subpart 32.11) for the same entity. Registered in the System for Award Management (SAM) means that\u2014 (1) The Contractor has entered all mandatory information, including the unique entity identifier and the EFT indicator (if applicable), the Commercial and Government Entity (CAGE) code, as well as data required by the Federal Funding Accountability and Transparency Act of 2006 (see subpart 4.14), into SAM; (2) The Contractor has completed the Core, Assertions, Representations and Certifications, and Points of Contact sections of the registration in SAM; (3) The Government has validated all mandatory data fields, to include validation of the Taxpayer Identification Number (TIN) with the Internal Revenue Service (IRS). The Contractor will be required to provide consent for TIN validation to the Government as a part of the SAM registration process; and (4) The Government has marked the record \u201cActive\u201d. System for Award Management (SAM) means the primary Government repository for prospective Federal awardee and Federal awardee information and the centralized Government system for certain contracting, grants, and other assistance-related processes. It includes\u2014 (1) Data collected from prospective Federal awardees required for the conduct of business with the Government; (2) Prospective contractor-submitted annual representations and certifications in accordance with FAR subpart 4.12; and (3) Identification of those parties excluded from receiving Federal contracts, certain subcontracts, and certain types of Federal financial and non-financial assistance and benefits. Unique entity identifier means a number or other identifier used to identify a specific commercial, nonprofit, or Government entity. See www.sam.gov for the designated entity for establishing unique entity identifiers. (b) If the solicitation for this contract contained the provision 52.204-7 with its Alternate I, and the Contractor was unable to register prior to award, the Contractor shall be registered in SAM within 30 days after award or before three days prior to submission of the first invoice, whichever occurs first. (c) The Contractor shall maintain registration in SAM during contract performance and through final payment of any contract, basic agreement, basic ordering agreement, or blanket purchasing agreement. The Contractor is responsible for the currency, accuracy and completeness of the data within SAM, and for any liability resulting from the Government's reliance on inaccurate or incomplete data. To remain registered in SAM after the initial registration, the Contractor is required to review and update on an annual basis, from the date of initial registration or subsequent updates, its information in SAM to ensure it is current, accurate and complete. Updating information in SAM does not alter the terms and conditions of this contract and is not a substitute for a properly executed contractual document. (d)(1)(i) If a Contractor has legally changed its business name or \u201cdoing business as\u201d name (whichever is shown on the contract), or has transferred the assets used in performing the contract, but has not completed the necessary requirements regarding novation and change-of-name agreements in subpart 42.12, the Contractor shall provide the responsible Contracting Officer a minimum of one business day's written notification of its intention to\u2014 (A) Change the name in SAM; (B) Comply with the requirements of subpart 42.12 of the FAR; and (C) Agree in writing to the timeline and procedures specified by the responsible Contracting Officer. The Contractor shall provide with the notification sufficient documentation to support the legally changed name. (ii) If the Contractor fails to comply with the requirements of paragraph (d)(1)(i) of this clause, or fails to perform the agreement at paragraph (d)(1)(i)(C) of this clause, and, in the absence of a properly executed novation or change-of-name agreement, the SAM information that shows the Contractor to be other than the Contractor indicated in the contract will be considered to be incorrect information within the meaning of the \u201cSuspension of Payment\u201d paragraph of the electronic funds transfer (EFT) clause of this contract. (2) The Contractor shall not change the name or address for EFT payments or manual payments, as appropriate, in SAM record to reflect an assignee for the purpose of assignment of claims (see FAR subpart 32.8, Assignment of Claims). Assignees shall be separately registered in SAM. Information provided to the Contractor's SAM record that indicates payments, including those made by EFT, to an ultimate recipient other than that Contractor will be considered to be incorrect information within the meaning of the \u201cSuspension of Payment\u201d paragraph of the EFT clause of this contract. (3) The Contractor shall ensure that the unique entity identifier is maintained with the entity designated at www.sam.gov for establishment of the unique entity identifier throughout the life of the contract. The Contractor shall communicate any change to the unique entity identifier to the Contracting Officer within 30 days after the change, so an appropriate modification can be issued to update the data on the contract. A change in the unique entity identifier does not necessarily require a novation be accomplished. (e) Contractors may obtain additional information on registration and annual confirmation requirements at https://www.sam.gov. [77 FR 69719, Nov. 20, 2012, as amended at 78 FR 37681, June 21, 2013; 81 FR 67740, Sept. 30, 2016; 83 FR 48698, Sept. 26, 2018]",
+      "integrity": {
+        "state": "complete",
+        "basis": "Full retrieved body of 6,084 characters stored; under the 150,000 cap, so nothing was cut.",
+        "stamped_at": "2026-10-16T09:44:49",
+        "stored_chars": 6084,
+        "source_chars": 6084,
+        "cap_applied": 150000
+      },
+      "authority_class": "regulation",
+      "claim_layer": "doctrinal",
+      "claim_layer_meaning": "States or describes the rule. Cite for what the law IS."
+    }
+  ],
+  "claim_layer_basis": "Set from the class, not from the text: a statute or regulation states the rule rather than describing or arguing it, which the citation in the title establishes definitionally."
+}

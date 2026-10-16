@@ -203,7 +203,7 @@ class LegalAgent(AgentBase):
                 "claim_open", "claim_cite", "claim_answer", "claim_set_right",
                 "claim_evidence", "claim_observe", "claim_reproducibility",
                 "claim_corroborate", "claim_get", "claim_list", "claim_ontology",
-                "add_deadline", "deadlines", "record_deadline_event", "check_deadline_register", "classify_solicitation", "bond_requirements", "check_bond_terms", "modification_gate", "watch_docket", "watched_dockets",
+                "add_deadline", "deadlines", "record_deadline_event", "check_deadline_register", "classify_solicitation", "bond_requirements", "check_bond_terms", "modification_gate", "validate_entity_ids", "record_sam_registration", "sam_offer_check", "screen_sam_offer", "watch_docket", "watched_dockets",
                 "record_settlement_offer", "settlement_offers",
                 "open_action", "complete_action", "amend_action", "actions",
                 "add_venue", "venues", "running_clocks", "complaint_path",
@@ -5309,6 +5309,48 @@ class LegalAgent(AgentBase):
                 new_surety=bool(a.get("new_surety")),
                 alternative_security=bool(a.get("alternative_security")),
                 more_coverage_needed=bool(a.get("more_coverage_needed")))
+        if task in ("validate_entity_ids", "record_sam_registration", "sam_offer_check",
+                    "screen_sam_offer"):
+            import core.sam as _sam
+            a = args if isinstance(args, dict) else {}
+            if task == "validate_entity_ids":
+                return _sam.validate_ids(a.get("uei"), a.get("cage"))
+            if task == "screen_sam_offer":
+                return _sam.screen_service_offer(a.get("text", ""), a.get("amount"), a.get("vendor"))
+            regs = json.loads(self._unwrap_value(self.retrieve_own_memory("sam_registrations")) or "{}")
+            if task == "sam_offer_check":
+                return _sam.offer_check(regs.get(str(a.get("uei") or "").upper()),
+                                        a.get("offer_date"), a.get("award_date"))
+            ids = _sam.validate_ids(a.get("uei"), a.get("cage"))
+            if not (a.get("legal_name") and a.get("uei") and a.get("last_updated")):
+                return {"error": "record_sam_registration needs legal_name, uei and last_updated "
+                                 "(the date of registration or the last update in SAM)"}
+            if not ids["uei"]["format_ok"]:
+                return {"error": f"UEI {ids['uei']['value']} is not 12 letters/digits - check it in SAM",
+                        "ids": ids}
+            uei = ids["uei"]["value"]
+            prev = regs.get(uei)
+            rec = {"legal_name": a["legal_name"], "uei": uei,
+                   "cage": (ids.get("cage") or {}).get("value"), "status": a.get("status") or "active",
+                   "last_updated": str(a["last_updated"])[:10],
+                   "expires": _sam.renewal_due(a["last_updated"]),
+                   "recorded_at": datetime.now().isoformat(timespec="seconds")}
+            if prev and prev.get("deadline_id"):
+                self.record_deadline_event(prev["deadline_id"], "renewed", rec["last_updated"],
+                                           note="SAM registration updated - new 365-day clock")
+            dl = self.add_deadline(
+                name=f"SAM registration renewal - {rec['legal_name']}", trigger_date=rec["last_updated"],
+                trigger_event="SAM registration / last update", period=365, period_unit="days",
+                citation="48 CFR 52.204-13",
+                consequence=("Registration lapses: an entity must be registered when it submits an offer "
+                             "and at award (52.204-7(b)(1)), so a lapsed registration cannot win an award."),
+                next_action="Renew at sam.gov yourself - it is free. Never pay anyone to do it (GSA-SAM-2023-05-04).",
+                watch_for=[{"event": "renewed", "closes": "registration updated; the next clock is recorded"}])
+            rec["deadline_id"] = dl.get("id")
+            regs[uei] = rec
+            self.store_own_memory("sam_registrations", json.dumps(regs), pin=True)
+            return {"recorded": rec, "ids": ids, "renewal_deadline": dl.get("due"),
+                    "deadline_error": dl.get("error")}
         if task == "record_deadline_event":
             return self.record_deadline_event(**(args if isinstance(args, dict) else {}))
         if task == "check_deadline_register":
