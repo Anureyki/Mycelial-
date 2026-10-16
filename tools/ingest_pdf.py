@@ -86,7 +86,12 @@ SECTION_PATTERNS = [
 # section that looks whole and is a fragment, presented to the reasoning layer
 # as authority. Raised, and anything still over the limit is marked so the
 # truncation is visible rather than silent.
-MIN_SECTION, MAX_SECTION = 80, 60000
+# The cap can be raised per ingest for a provision known to be long - FAR
+# 2.101, the FAR's definitions, is 102,772 characters and stored 60,000,
+# losing every definition after "C" (2026-10-16), including the simplified
+# acquisition threshold FAR 28.103-2 turns on. The integrity record still
+# says exactly what was cut whenever a cap applies.
+MIN_SECTION, MAX_SECTION = 80, int(os.environ.get("INGEST_MAX_SECTION") or 60000)
 
 
 def spacing_looks_broken(pages):

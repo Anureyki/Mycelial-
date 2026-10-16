@@ -170,6 +170,8 @@ jobs:
         run: python tools/check_record_integrity.py
       - name: A memory write that says it worked, worked (check_memory_store)
         run: python tools/check_memory_store.py
+      - name: Bonding rules are read from the FAR and say what it says (check_bonding)
+        run: python tools/check_bonding.py
 
       - name: A dispute letter cites what it asserts, carries no identifier, and never sends
         run: python tools/check_dispute_letters.py

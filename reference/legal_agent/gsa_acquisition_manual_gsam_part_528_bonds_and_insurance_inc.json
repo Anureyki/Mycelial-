@@ -1,0 +1,509 @@
+{
+"title": "GSA Acquisition Manual (GSAM) Part 528 - Bonds and Insurance, incl. non-regulatory text (acquisition.gov)",
+"source": "GSA Acquisition Manual Part 528 as published at https://www.acquisition.gov/gsam/part-528, retrieved 2026-10-16. U.S. government work - public domain. Includes GSAM text that is NOT codified in 48 CFR chapter 5 (e.g. 528.103-2, 528.103-3), which directs GSA contracting officers and is weighed as agency guidance, not regulation; the codified GSAR portion is shelved separately as 48 CFR Part 528.",
+"authority_class": "agency_guidance",
+"authority_class_basis": "--authority-class agency_guidance",
+"claim_layer": "doctrinal",
+"claim_layer_meaning": "States or describes the rule. Cite for what the law IS.",
+"authorities_cited": [],
+"term_index": {
+"alternative payment protections": [
+0,
+6
+],
+"payment protections": [
+0,
+6
+],
+"construction contracts": [
+0,
+5,
+6,
+9
+],
+"alternative payment": [
+0,
+6
+],
+"payment bonds": [
+0,
+6,
+9
+],
+"furnishing information": [
+1,
+10
+],
+"subpart sureties": [
+1,
+10
+],
+"individual sureties": [
+2,
+13,
+14,
+15
+],
+"subpart insurance": [
+2,
+15
+],
+"insurance under cost": [
+3,
+18
+],
+"solicitation provision": [
+3,
+18
+],
+"cost reimbursement": [
+3,
+18,
+19
+],
+"liability insurance": [
+3,
+18
+],
+"cost reimbursement contracts": [
+3,
+18
+],
+"contract clause": [
+3,
+4,
+17,
+18,
+19
+],
+"reimbursement contracts": [
+3,
+18
+],
+"contracts over": [
+5,
+7,
+8
+],
+"small business": [
+5,
+7,
+8
+],
+"contracts over awarded": [
+5,
+7,
+8
+],
+"service contracts": [
+5,
+8
+],
+"awarded under section": [
+5,
+7,
+8
+],
+"building service": [
+5,
+8
+],
+"over awarded": [
+5,
+7,
+8
+],
+"building service contracts": [
+5,
+8
+],
+"contracting officer": [
+5,
+8,
+9,
+11,
+12
+],
+"service contracts over": [
+5,
+8
+],
+"performance bond": [
+5,
+8
+],
+"payment bond": [
+7,
+9
+],
+"penal amount": [
+8,
+9
+],
+"procurement executive": [
+13,
+14
+],
+"senior procurement": [
+13,
+14
+],
+"senior procurement executive": [
+13,
+14
+]
+},
+"origin_pdf": "gsam_part_528_acquisition_gov.txt",
+"extraction": {
+"extractor": "text file (already extracted)",
+"pages": 1,
+"no_text_layer": [],
+"raised": [],
+"recovered": [],
+"lost": [],
+"complete": true
+},
+"pages": 1,
+"sections": [
+{
+"citation": "528.102",
+"kind": "far_section",
+"page": 1,
+"text": "528.102 Performance and payment bonds and alternative payment protections for construction contracts.",
+"integrity": {
+"state": "complete",
+"basis": "Full retrieved body of 101 characters stored; under the 60,000 cap, so nothing was cut.",
+"stamped_at": "2026-10-16T09:27:19",
+"stored_chars": 101,
+"source_chars": 101,
+"cap_applied": 60000
+},
+"authority_class": "agency_guidance",
+"claim_layer": "doctrinal",
+"claim_layer_meaning": "States or describes the rule. Cite for what the law IS."
+},
+{
+"citation": "528.106-6",
+"kind": "far_section",
+"page": 1,
+"text": "528.106-6 Furnishing information. Subpart 528.2 - Sureties and Other Security for Bonds",
+"integrity": {
+"state": "complete",
+"basis": "Full retrieved body of 87 characters stored; under the 60,000 cap, so nothing was cut.",
+"stamped_at": "2026-10-16T09:27:19",
+"stored_chars": 87,
+"source_chars": 87,
+"cap_applied": 60000
+},
+"authority_class": "agency_guidance",
+"claim_layer": "doctrinal",
+"claim_layer_meaning": "States or describes the rule. Cite for what the law IS."
+},
+{
+"citation": "528.204",
+"kind": "far_section",
+"page": 1,
+"text": "528.204 Alternatives in lieu of corporate or individual sureties. Subpart 528.3 - Insurance",
+"integrity": {
+"state": "complete",
+"basis": "Full retrieved body of 91 characters stored; under the 60,000 cap, so nothing was cut.",
+"stamped_at": "2026-10-16T09:27:19",
+"stored_chars": 91,
+"source_chars": 91,
+"cap_applied": 60000
+},
+"authority_class": "agency_guidance",
+"claim_layer": "doctrinal",
+"claim_layer_meaning": "States or describes the rule. Cite for what the law IS."
+},
+{
+"citation": "528.311",
+"kind": "far_section",
+"page": 1,
+"text": "528.311 Solicitation provision and contract clause on liability insurance under cost-reimbursement contracts.",
+"integrity": {
+"state": "complete",
+"basis": "Full retrieved body of 109 characters stored; under the 60,000 cap, so nothing was cut.",
+"stamped_at": "2026-10-16T09:27:19",
+"stored_chars": 109,
+"source_chars": 109,
+"cap_applied": 60000
+},
+"authority_class": "agency_guidance",
+"claim_layer": "doctrinal",
+"claim_layer_meaning": "States or describes the rule. Cite for what the law IS."
+},
+{
+"citation": "528.311-1",
+"kind": "far_section",
+"page": 1,
+"text": "528.311-1 Contract clause. Subpart 528.1 - Bonds and Other Financial Protections",
+"integrity": {
+"state": "complete",
+"basis": "Full retrieved body of 80 characters stored; under the 60,000 cap, so nothing was cut.",
+"stamped_at": "2026-10-16T09:27:19",
+"stored_chars": 80,
+"source_chars": 80,
+"cap_applied": 60000
+},
+"authority_class": "agency_guidance",
+"claim_layer": "doctrinal",
+"claim_layer_meaning": "States or describes the rule. Cite for what the law IS."
+},
+{
+"citation": "528.101-1",
+"kind": "far_section",
+"page": 1,
+"text": "528.101-1 Policy on use. (a) Construction contracts . The bid guarantee requirements in FAR 28.101-1(a) apply to contracts over $150,000awarded under Section 8(a)of the Small Business Act, as amended ( 15 U.S.C. 637(a) ). (b) Building service contracts . The contracting officer may require bid guarantees for building service contracts over $150,000 if it is determined under 528.103-2 that a performance bond is essential to protect the Government\u2019s interest. (c) All other contracts . Refer to FAR 28.101 for guidance on the use of bid guarantees.",
+"integrity": {
+"state": "complete",
+"basis": "Full retrieved body of 550 characters stored; under the 60,000 cap, so nothing was cut.",
+"stamped_at": "2026-10-16T09:27:19",
+"stored_chars": 550,
+"source_chars": 550,
+"cap_applied": 60000
+},
+"authority_class": "agency_guidance",
+"claim_layer": "doctrinal",
+"claim_layer_meaning": "States or describes the rule. Cite for what the law IS."
+},
+{
+"citation": "528.102",
+"kind": "far_section",
+"page": 1,
+"text": "528.102 Performance and payment bonds and alternative payment protections for construction contracts.",
+"integrity": {
+"state": "complete",
+"basis": "Full retrieved body of 101 characters stored; under the 60,000 cap, so nothing was cut.",
+"stamped_at": "2026-10-16T09:27:19",
+"stored_chars": 101,
+"source_chars": 101,
+"cap_applied": 60000
+},
+"authority_class": "agency_guidance",
+"claim_layer": "doctrinal",
+"claim_layer_meaning": "States or describes the rule. Cite for what the law IS."
+},
+{
+"citation": "528.102-1",
+"kind": "far_section",
+"page": 1,
+"text": "528.102-1 General. (a) The performance and payment bond requirements in FAR 28.102-1 a apply to contracts over $150,000 awarded under Section 8(a) of the Small Business Act, as amended ( 15 U.S.C. 637(a) ). (b) The payment protection requirements in FAR 28.102-1(b) apply to contracts greater than $35,000, but not greater than the $150,000, awarded under Section 8(a) of the Small Business Act, as amended ( 15 U.S.C. 637(a) ).",
+"integrity": {
+"state": "complete",
+"basis": "Full retrieved body of 428 characters stored; under the 60,000 cap, so nothing was cut.",
+"stamped_at": "2026-10-16T09:27:19",
+"stored_chars": 428,
+"source_chars": 428,
+"cap_applied": 60000
+},
+"authority_class": "agency_guidance",
+"claim_layer": "doctrinal",
+"claim_layer_meaning": "States or describes the rule. Cite for what the law IS."
+},
+{
+"citation": "528.103-2",
+"kind": "far_section",
+"page": 1,
+"text": "528.103-2 Performance bonds. (a) The contracting officer shall not require performance bonds for building service contracts unless a written determination is made explaining why the bond is essential to protect the Government\u2019s interest and justifying the additional cost of the bonding requirement. (b) The contracting officer may require a performance bond for building service contracts over $150,000 awarded under Section 8(a) of the Small Business Act as amended ( 15 U.S.C. 637(a) ) if it is determined under 528.103-2 (a) that a performance bond is essential to protect the Government's interest. (c) The contracting officer shall not require a performance bond for building service contracts awarded to AbilityOne nonprofit agencies (41 U.S.C. chapter 85). (d) Consider the circumstances and determine the penal amount of the performance bond on a case-by-case basis.",
+"integrity": {
+"state": "complete",
+"basis": "Full retrieved body of 875 characters stored; under the 60,000 cap, so nothing was cut.",
+"stamped_at": "2026-10-16T09:27:19",
+"stored_chars": 875,
+"source_chars": 875,
+"cap_applied": 60000
+},
+"authority_class": "agency_guidance",
+"claim_layer": "doctrinal",
+"claim_layer_meaning": "States or describes the rule. Cite for what the law IS."
+},
+{
+"citation": "528.103-3",
+"kind": "far_section",
+"page": 1,
+"text": "528.103-3 Payment bonds. (a) The contracting officer may require payment bonds for other than construction contracts if the contracting director determines, under FAR 28.103-3, that such a requirement is in the Government\u2019s interest. (b) Consider the circumstances and determine the penal amount of the payment bond on a case-by-case basis.",
+"integrity": {
+"state": "complete",
+"basis": "Full retrieved body of 340 characters stored; under the 60,000 cap, so nothing was cut.",
+"stamped_at": "2026-10-16T09:27:19",
+"stored_chars": 340,
+"source_chars": 340,
+"cap_applied": 60000
+},
+"authority_class": "agency_guidance",
+"claim_layer": "doctrinal",
+"claim_layer_meaning": "States or describes the rule. Cite for what the law IS."
+},
+{
+"citation": "528.106-6",
+"kind": "far_section",
+"page": 1,
+"text": "528.106-6 Furnishing information. The HCA or designee performs the functions outlined in FAR 28.106\u20116(c). Subpart 528.2 - Sureties and Other Security for Bonds",
+"integrity": {
+"state": "complete",
+"basis": "Full retrieved body of 159 characters stored; under the 60,000 cap, so nothing was cut.",
+"stamped_at": "2026-10-16T09:27:19",
+"stored_chars": 159,
+"source_chars": 159,
+"cap_applied": 60000
+},
+"authority_class": "agency_guidance",
+"claim_layer": "doctrinal",
+"claim_layer_meaning": "States or describes the rule. Cite for what the law IS."
+},
+{
+"citation": "528.202",
+"kind": "far_section",
+"page": 1,
+"text": "528.202 Acceptability of corporate sureties. Corporate surety bonds must be manually signed by the Attorney-in-Fact or officer of the surety company and the corporate seal affixed. The contracting officer may waive failure of the surety to affix the corporate seal as a minor informality. (See B-184120, July 2, 1975, 75-2 CPD 9.)",
+"integrity": {
+"state": "complete",
+"basis": "Full retrieved body of 330 characters stored; under the 60,000 cap, so nothing was cut.",
+"stamped_at": "2026-10-16T09:27:19",
+"stored_chars": 330,
+"source_chars": 330,
+"cap_applied": 60000
+},
+"authority_class": "agency_guidance",
+"claim_layer": "doctrinal",
+"claim_layer_meaning": "States or describes the rule. Cite for what the law IS."
+},
+{
+"citation": "528.202-70",
+"kind": "far_section",
+"page": 1,
+"text": "528.202-70 Acceptability of bonds and sureties. Verify the acceptability of the surety on a bond by placing the words \u201cAcceptability of Bond Verified,\u201d and sign immediately thereunder, on the bond or on a properly identified attachment. Retain the bond with the original of the contract. The contracting officer may use the Notice to Proceed to notify the contractor that the bond(s) has been accepted.",
+"integrity": {
+"state": "complete",
+"basis": "Full retrieved body of 402 characters stored; under the 60,000 cap, so nothing was cut.",
+"stamped_at": "2026-10-16T09:27:19",
+"stored_chars": 402,
+"source_chars": 402,
+"cap_applied": 60000
+},
+"authority_class": "agency_guidance",
+"claim_layer": "doctrinal",
+"claim_layer_meaning": "States or describes the rule. Cite for what the law IS."
+},
+{
+"citation": "528.203",
+"kind": "far_section",
+"page": 1,
+"text": "528.203 Acceptability of individual sureties. Refer evidence of possible criminal or fraudulent activities by an individual surety first to the Assistant Inspector General for Investigations or to the appropriate Regional Special Agent in Charge. The Office of Inspector General may conduct an investigation and, when appropriate, refer the matter to the Senior Procurement Executive. Include in referrals the information required by 528.203-7 .",
+"integrity": {
+"state": "complete",
+"basis": "Full retrieved body of 445 characters stored; under the 60,000 cap, so nothing was cut.",
+"stamped_at": "2026-10-16T09:27:19",
+"stored_chars": 445,
+"source_chars": 445,
+"cap_applied": 60000
+},
+"authority_class": "agency_guidance",
+"claim_layer": "doctrinal",
+"claim_layer_meaning": "States or describes the rule. Cite for what the law IS."
+},
+{
+"citation": "528.203-7",
+"kind": "far_section",
+"page": 1,
+"text": "528.203-7 Exclusion of individual sureties. (a) The Senior Procurement Executive or designee excludes individuals from acting as a surety on bonds under FAR 28.203-7. (b) Include the following, as a minimum, in referrals for consideration of exclusion: (1) The basis for exclusion (see FAR 28.203-7(b)). (2) A statement of facts. (3) Copies of supporting documentary evidence. (4) The individuals\u2019 names and current or last known home and or business addresses, including zip codes. (5) A statement of GSA\u2019s history with such individuals, if any. (6) A statement concerning any known active or potential criminal investigations or court proceedings. (c) In accordance with GSA Order ADM 5000.4 Office of General Counsel Legal Review, legal review shall be obtained for the proposed exclusion.",
+"integrity": {
+"state": "complete",
+"basis": "Full retrieved body of 792 characters stored; under the 60,000 cap, so nothing was cut.",
+"stamped_at": "2026-10-16T09:27:19",
+"stored_chars": 792,
+"source_chars": 792,
+"cap_applied": 60000
+},
+"authority_class": "agency_guidance",
+"claim_layer": "doctrinal",
+"claim_layer_meaning": "States or describes the rule. Cite for what the law IS."
+},
+{
+"citation": "528.204",
+"kind": "far_section",
+"page": 1,
+"text": "528.204 Alternatives in lieu of corporate or individual sureties. Security deposited instead of corporate or individual sureties on bonds must be safeguarded immediately after they are received, as provided in procedures issued by the Office of the Chief Financial Officer (see GSA Order CFO 4253.1, Accounts Receivable and Debt Collection Policy Manual. United States bonds or notes received in the District of Columbia must be deposited with the Treasurer of the United States, as provided in FAR 28.204-1. Subpart 528.3 - Insurance",
+"integrity": {
+"state": "complete",
+"basis": "Full retrieved body of 534 characters stored; under the 60,000 cap, so nothing was cut.",
+"stamped_at": "2026-10-16T09:27:19",
+"stored_chars": 534,
+"source_chars": 534,
+"cap_applied": 60000
+},
+"authority_class": "agency_guidance",
+"claim_layer": "doctrinal",
+"claim_layer_meaning": "States or describes the rule. Cite for what the law IS."
+},
+{
+"citation": "528.301",
+"kind": "far_section",
+"page": 1,
+"text": "528.301 Policy. Insurance requirements must be adequate, just, and reasonable. They should be predicated on potential loss or damage, not necessarily on the value of the contract.",
+"integrity": {
+"state": "complete",
+"basis": "Full retrieved body of 179 characters stored; under the 60,000 cap, so nothing was cut.",
+"stamped_at": "2026-10-16T09:27:19",
+"stored_chars": 179,
+"source_chars": 179,
+"cap_applied": 60000
+},
+"authority_class": "agency_guidance",
+"claim_layer": "doctrinal",
+"claim_layer_meaning": "States or describes the rule. Cite for what the law IS."
+},
+{
+"citation": "528.310",
+"kind": "far_section",
+"page": 1,
+"text": "528.310 Contract clause for work on a Government installation. Insert the clause at 552.228-5 , Government as Additional Insured, in solicitations and contracts that are expected to exceed the simplified acquisition threshold and require work on a Government installation.",
+"integrity": {
+"state": "complete",
+"basis": "Full retrieved body of 272 characters stored; under the 60,000 cap, so nothing was cut.",
+"stamped_at": "2026-10-16T09:27:19",
+"stored_chars": 272,
+"source_chars": 272,
+"cap_applied": 60000
+},
+"authority_class": "agency_guidance",
+"claim_layer": "doctrinal",
+"claim_layer_meaning": "States or describes the rule. Cite for what the law IS."
+},
+{
+"citation": "528.311",
+"kind": "far_section",
+"page": 1,
+"text": "528.311 Solicitation provision and contract clause on liability insurance under cost-reimbursement contracts.",
+"integrity": {
+"state": "complete",
+"basis": "Full retrieved body of 109 characters stored; under the 60,000 cap, so nothing was cut.",
+"stamped_at": "2026-10-16T09:27:19",
+"stored_chars": 109,
+"source_chars": 109,
+"cap_applied": 60000
+},
+"authority_class": "agency_guidance",
+"claim_layer": "doctrinal",
+"claim_layer_meaning": "States or describes the rule. Cite for what the law IS."
+},
+{
+"citation": "528.311-1",
+"kind": "far_section",
+"page": 1,
+"text": "528.311-1 Contract clause. Use the clause at FAR 52.228-7, Insurance\u2013Liability to Third Persons, in solicitations and contracts, other than those for construction and those for architect-engineer services, when a cost-reimbursement contract is contemplated, unless the head of the contracting activity waives the requirement for use of the clause. \u00ab Previous Next \u00bb Favorite X GSAM Parts Changes Toggle \u00d7 FAR Overhaul Regulations Tools Archives Smart Matrix Regulations Search Acquisition Regulation Comparator (ARC) Policy Network Civilian Agency Acquisition Council (CAAC) Federal Acquisition Regulatory Council Interagency Suspension and Debarment Committee (ISDC) Search \u02c4 Top --> ACQUISITION.GOV An official website of the General Services Administration Looking for U.S. government information and services? Visit USA.gov",
+"integrity": {
+"state": "complete",
+"basis": "Full retrieved body of 827 characters stored; under the 60,000 cap, so nothing was cut.",
+"stamped_at": "2026-10-16T09:27:19",
+"stored_chars": 827,
+"source_chars": 827,
+"cap_applied": 60000
+},
+"authority_class": "agency_guidance",
+"claim_layer": "doctrinal",
+"claim_layer_meaning": "States or describes the rule. Cite for what the law IS."
+}
+]
+}

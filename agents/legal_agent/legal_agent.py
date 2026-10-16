@@ -203,7 +203,7 @@ class LegalAgent(AgentBase):
                 "claim_open", "claim_cite", "claim_answer", "claim_set_right",
                 "claim_evidence", "claim_observe", "claim_reproducibility",
                 "claim_corroborate", "claim_get", "claim_list", "claim_ontology",
-                "add_deadline", "deadlines", "record_deadline_event", "check_deadline_register", "watch_docket", "watched_dockets",
+                "add_deadline", "deadlines", "record_deadline_event", "check_deadline_register", "classify_solicitation", "bond_requirements", "check_bond_terms", "modification_gate", "watch_docket", "watched_dockets",
                 "record_settlement_offer", "settlement_offers",
                 "open_action", "complete_action", "amend_action", "actions",
                 "add_venue", "venues", "running_clocks", "complaint_path",
@@ -5284,6 +5284,31 @@ class LegalAgent(AgentBase):
             return self.actions(a.get("case_id"), bool(a.get("include_closed")))
         if task == "add_deadline":
             return self.add_deadline(**(args if isinstance(args, dict) else {}))
+        if task in ("classify_solicitation", "bond_requirements", "check_bond_terms",
+                    "modification_gate"):
+            # Bonding and surety (core/bonding.py). Every threshold is read from
+            # the held FAR through this agent's resolver; nothing is recalled.
+            import core.bonding as _bond
+            a = args if isinstance(args, dict) else {}
+            if task == "classify_solicitation":
+                return _bond.classify_solicitation(a.get("title", ""), a.get("label", ""),
+                                                   a.get("scope", ""))
+            if task == "bond_requirements":
+                cls = a.get("classification") or _bond.classify_solicitation(
+                    a.get("title", ""), a.get("label", ""), a.get("scope", ""))["classification"]
+                return _bond.bond_requirements(
+                    self._resolve_authority, cls, value=a.get("value"), gsa=bool(a.get("gsa")),
+                    building_service=bool(a.get("building_service")),
+                    section_8a=bool(a.get("section_8a")), abilityone=bool(a.get("abilityone")),
+                    situations=a.get("situations"), price_increase=bool(a.get("price_increase")))
+            if task == "check_bond_terms":
+                return _bond.check_bond_terms(a.get("text", ""))
+            return _bond.modification_gate(
+                a.get("original_price"), a.get("new_price"),
+                scope_expands=bool(a.get("scope_expands")), novation=bool(a.get("novation")),
+                new_surety=bool(a.get("new_surety")),
+                alternative_security=bool(a.get("alternative_security")),
+                more_coverage_needed=bool(a.get("more_coverage_needed")))
         if task == "record_deadline_event":
             return self.record_deadline_event(**(args if isinstance(args, dict) else {}))
         if task == "check_deadline_register":
