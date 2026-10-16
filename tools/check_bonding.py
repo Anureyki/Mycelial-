@@ -88,6 +88,35 @@ def main():
     ck("a 28.204 alternative security needs none",
        not B.modification_gate(1_000_000, 2_000_000, alternative_security=True)["consent_required"])
 
+    print("accounting: the money side, across the portfolio")
+    import json
+    from agents.accounting_agent.accounting_agent import AccountingAgent
+    ac = AccountingAgent.__new__(AccountingAgent)
+    ac.agent_id = "accounting_agent"
+    ac.log = lambda *a, **k: None
+    store = {}
+    ac._jget = lambda k, d: json.loads(store[k]) if k in store else d
+    ac.store_own_memory = lambda k, v, pin=False: store.__setitem__(k, v) or {"success": True}
+    ac._legal_section = lambda c: res(c)
+    ac.record_bond({"bond_type": "performance", "contract": "C1", "penal_sum": 400000,
+                    "premium": 8000, "indemnitors": ["owner"]})
+    ac.record_bond({"bond_type": "annual_performance", "penal_sum": 1000000, "indemnitors": ["owner"],
+                    "covered_contracts": [{"contract": "C2", "penal_sum": 600000},
+                                          {"contract": "C3", "penal_sum": 380000}]})
+    pf = ac.bond_portfolio()
+    ck("indemnity exposure sums every bond the owner signed for",
+       pf["indemnity_exposure"].get("owner") == 1400000.0, str(pf["indemnity_exposure"]))
+    ck("an annual bond 98% obligated needs an additional bond (FAR 28.104(b))",
+       pf["annual_bonds"][0]["additional_bond_needed"], str(pf["annual_bonds"][0]["used_pct"]))
+    ck("an unrecorded premium is counted as unrecorded, not as zero", pf["premiums_unrecorded"] == 1)
+    e = ac.sba_guarantee_eligibility({"contract_amount": 2000000, "veteran_owned": True})
+    ck("SBA limits read from 13 CFR 115.10; veteran-owned gets 90% (115.31)",
+       e.get("eligible") is True and e.get("guarantee_pct") == 90 and e["limits"]["base"], str(e.get("limits")))
+    e = ac.sba_guarantee_eligibility({"contract_amount": 12000000})
+    ck("between the base and certified limits needs a CO certification",
+       e.get("eligible") == "with_co_certification")
+    ck("the guarantee fee is unknown, never a guessed rate", "unknown" in e.get("guarantee_fee", ""))
+
     if fails:
         print(f"\nFAIL: {len(fails)} check(s): {fails}")
         return 1

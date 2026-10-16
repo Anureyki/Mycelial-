@@ -112,7 +112,7 @@ class AccountingAgent(AgentBase):
                 "classify_value_movement",
                 "who_owns", "log_payment", "payment_ledger",
                 "veto",
-                "assess_assertion", "set_lease_terms", "record_property_ledger", "lease_year_summary", "record_recurring_expense", "annual_expenses", "keep_blank_form", "check_form_revisions", "blank_forms", "acknowledge_form_revision", "reconcile", "parse_financial_instrument", "assess_tax_liability", "track_account_balance",
+                "assess_assertion", "set_lease_terms", "record_property_ledger", "lease_year_summary", "record_recurring_expense", "annual_expenses", "record_bond", "bond_portfolio", "sba_guarantee_eligibility", "keep_blank_form", "check_form_revisions", "blank_forms", "acknowledge_form_revision", "reconcile", "parse_financial_instrument", "assess_tax_liability", "track_account_balance",
                 "lookup", "list_relationships", "get_relationship", "find_relationships",
                 "find_relationships_by_project",
                 "refresh_cache", "query_cache", "cache_stats", "cache_manifest",
@@ -829,6 +829,133 @@ class AccountingAgent(AgentBase):
         self.store_own_memory("recurring_expenses", json.dumps(reg), pin=True)
         return {"recorded": rec, "annualized": round(rec["amount"] * self.PERIODS_PER_YEAR[cad], 2),
                 "disclaimer": DISCLAIMER}
+
+    # ------------------------------------------------------------------
+    # Bonding - the money side (principal, 2026-10-16). Legal decides WHICH
+    # bonds a contract needs (core/bonding.py); Accounting carries what they
+    # cost and who stands behind them. The authority is Legal's: 13 CFR 115
+    # and FAR 28 are borrowed through ask_peer_corpus, never copied here.
+    # ------------------------------------------------------------------
+    BOND_TYPES = ("bid", "performance", "payment", "annual_bid", "annual_performance")
+
+    def _legal_section(self, citation):
+        try:
+            hits = self.ask_peer_corpus("legal_agent", citation) or []
+        except Exception:
+            hits = []
+        return hits[0] if hits else None
+
+    def record_bond(self, args):
+        """A bond on the books: what it secures, what it costs, who indemnifies."""
+        a = args if isinstance(args, dict) else {}
+        bt = str(a.get("bond_type") or "").lower()
+        if bt not in self.BOND_TYPES or a.get("penal_sum") in (None, ""):
+            return {"error": f"record_bond needs bond_type in {list(self.BOND_TYPES)} and penal_sum",
+                    "disclaimer": DISCLAIMER}
+        annual = bt.startswith("annual")
+        if not annual and not a.get("contract"):
+            return {"error": "a per-contract bond needs the contract it secures", "disclaimer": DISCLAIMER}
+        reg = self._jget("bond_register", [])
+        rec = {"id": f"bond_{int(time.time() * 1000)}", "bond_type": bt, "annual": annual,
+               "contract": a.get("contract"), "covered_contracts": list(a.get("covered_contracts") or []),
+               "form": a.get("form"), "penal_sum": float(a["penal_sum"]),
+               "premium": float(a["premium"]) if a.get("premium") not in (None, "") else None,
+               "premium_basis": a.get("premium_basis") or ("not recorded" if a.get("premium") in (None, "")
+                                                           else "as quoted by the surety"),
+               "surety": a.get("surety"), "effective": a.get("effective"), "expires": a.get("expires"),
+               # A General Indemnity Agreement makes the indemnitors - usually the
+               # owners, personally - liable to the surety for any loss. That is
+               # the exposure a bond creates, and it is invisible in the premium.
+               "indemnitors": list(a.get("indemnitors") or []),
+               "sba_guaranteed": bool(a.get("sba_guaranteed")), "status": "active",
+               "recorded_at": datetime.now().isoformat(timespec="seconds"), "note": a.get("note")}
+        reg.append(rec)
+        self.store_own_memory("bond_register", json.dumps(reg), pin=True)
+        return {"recorded": rec, "disclaimer": DISCLAIMER}
+
+    def bond_portfolio(self, args=None):
+        """Across the whole book: penal sums, premiums, personal exposure, and
+        whether an annual bond still covers what it is meant to (FAR 28.104(b))."""
+        reg = [b for b in self._jget("bond_register", []) if b.get("status") == "active"]
+        per = [b for b in reg if not b["annual"]]
+        ann = [b for b in reg if b["annual"]]
+        exposure = {}
+        for b in reg:
+            for who in b.get("indemnitors") or []:
+                exposure[who] = exposure.get(who, 0.0) + b["penal_sum"]
+        known = [b["premium"] for b in reg if b.get("premium") is not None]
+        annual_check = []
+        for b in ann:
+            # covered_contracts: [{"contract": ..., "penal_sum": ...}] - each
+            # covered contract's obligated penal sum, recorded with the bond.
+            covered = sum(float((c or {}).get("penal_sum") or 0) for c in b.get("covered_contracts") or []
+                          if isinstance(c, dict))
+            used = covered / b["penal_sum"] if b["penal_sum"] else None
+            annual_check.append({"bond": b["id"], "gross_penal_sum": b["penal_sum"],
+                                 "obligated_by_covered_contracts": covered,
+                                 "used_pct": round(used * 100, 1) if used is not None else None,
+                                 "additional_bond_needed": bool(used is not None and used >= 0.95),
+                                 "rule": ("FAR 28.104(b): when penal sums obligated approximately equal "
+                                          "or exceed the annual bond's penal sum, an additional bond is "
+                                          "required")})
+        return {"active_bonds": len(reg),
+                "per_contract_penal_sum": round(sum(b["penal_sum"] for b in per), 2),
+                "annual_gross_penal_sum": round(sum(b["penal_sum"] for b in ann), 2),
+                "premiums_known": round(sum(known), 2),
+                "premiums_unrecorded": len(reg) - len(known),
+                "indemnity_exposure": {k: round(v, 2) for k, v in exposure.items()},
+                "exposure_note": ("Each indemnitor stands behind the full penal sum of every bond they "
+                                  "signed for, across the whole portfolio - not one job at a time."),
+                "annual_bonds": annual_check, "disclaimer": DISCLAIMER}
+
+    def sba_guarantee_eligibility(self, args):
+        """Could the SBA Surety Bond Guarantee program back this bond? Limits and
+        percentages read from 13 CFR 115 (Legal's shelf); the fee is not in the
+        regulation, so it is reported unknown rather than guessed."""
+        import re as _re
+        a = args if isinstance(args, dict) else {}
+        amt = a.get("contract_amount")
+        if amt in (None, ""):
+            return {"error": "needs contract_amount", "disclaimer": DISCLAIMER}
+        amt = float(amt)
+        d10 = (self._legal_section("13 CFR 115.10") or {}).get("text") or ""
+        d31 = (self._legal_section("13 CFR 115.31") or {}).get("text") or ""
+        lim = _re.search(r"\(1\) \$(\d+) million", d10)
+        cert = _re.search(r"\(2\) \$(\d+) million", d10)
+        small = _re.search(r"is \$([\d,]+) or less", d31)
+        base = float(lim.group(1)) * 1e6 if lim else None
+        certified = float(cert.group(1)) * 1e6 if cert else None
+        floor90 = float(small.group(1).replace(",", "")) if small else None
+        out = {"contract_amount": amt, "federal": bool(a.get("federal", True)),
+               "limits": {"base": base, "with_co_certification": certified,
+                          "basis": "13 CFR 115.10 'Applicable Statutory Limit' via Legal"
+                                   if base else "13 CFR 115.10 not readable via Legal - unknown",
+                          "inflation": "the $9 million base is 'as adjusted for inflation' (41 U.S.C. "
+                                       "1908) - the adjusted figure is not in the held text"},
+               "disclaimer": DISCLAIMER}
+        if base is None:
+            out["eligible"] = "unknown"
+            return out
+        if amt <= base:
+            out["eligible"] = True
+        elif certified and amt <= certified and a.get("federal", True):
+            out["eligible"] = "with_co_certification"
+            out["needs"] = "a signed certification from the Federal contracting officer that the guarantee is necessary (115.12)"
+        else:
+            out["eligible"] = False
+        disadvantaged = any(a.get(k) for k in ("veteran_owned", "service_disabled_veteran_owned",
+                                               "socially_economically_disadvantaged", "hubzone"))
+        if floor90 is not None:
+            pct = 90 if (amt <= floor90 or disadvantaged) else 80
+            out["guarantee_pct"] = pct
+            out["guarantee_basis"] = (f"13 CFR 115.31: 90% if the contract is ${floor90:,.0f} or less, or "
+                                      f"the firm is veteran-owned, service-disabled veteran-owned, SDB or "
+                                      f"HUBZone; otherwise 80%")
+        out["guarantee_fee"] = ("unknown - 13 CFR 115.32 sets the Principal's fee as a percentage "
+                                "published in Federal Register notices; none is on the shelf")
+        out["not_checked"] = "size standard (must be a small business, 13 CFR 121) - not assessed here"
+        out["bond_types"] = "bid, final (performance/payment) and ancillary bonds; commercial and fidelity bonds are not eligible (115.12)"
+        return out
 
     def annual_expenses(self, args=None):
         a = args if isinstance(args, dict) else {}
@@ -2031,7 +2158,8 @@ class AccountingAgent(AgentBase):
             return self.set_lease_terms(args if isinstance(args, dict) else {})
         if task in ("record_property_ledger", "lease_year_summary", "record_recurring_expense",
                     "annual_expenses", "keep_blank_form", "check_form_revisions", "blank_forms",
-                    "acknowledge_form_revision"):
+                    "acknowledge_form_revision", "record_bond", "bond_portfolio",
+                    "sba_guarantee_eligibility"):
             return getattr(self, task)(args if isinstance(args, dict) else {})
 
         if task == "reconcile":
