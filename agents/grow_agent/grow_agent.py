@@ -2977,7 +2977,7 @@ class GrowAgent(AgentBase):
             # refill recorded after it took it as the "before".
             _cut = str(at or "9999")[:19]
             _vr = [r for r in (self._get_readings_for_plant(pid) or [])
-                   if not r.get("voided") and self._parse_numeric(r.get("volume_liters"))
+                   if not r.get("voided") and self._measured_volume(r)
                    and str(r.get("timestamp") or "")[:19] < _cut]
             if _vr:
                 _last = max(_vr, key=lambda r: str(r.get("timestamp") or ""))
@@ -6819,8 +6819,24 @@ class GrowAgent(AgentBase):
         unsettled = (event is not None and (delta or 0) > 0 and abs(delta_pct or 0) > tol
                      and (out.get("hours_since_dose") is not None
                           and out["hours_since_dose"] < self.DOSE_SETTLE_HOURS))
+        # TOO LATE TO SAY WHAT THE DOSE DID (2026-10-16): GSC2's first reading
+        # after its 10/12 feed came four days later, after the plant had fed.
+        # Scored as the dose's result it would teach the blend a strength that
+        # is really strength minus uptake. Past BLEND_MAX_GAP_H - the same limit
+        # calibrate_blend's own fallback uses - the dose is closed as
+        # no_settled_reading, the reading is not stored as its result, and
+        # calibration never sees it. The reading still counts for uptake.
+        stale = (event is not None and not unsettled and out.get("hours_since_dose") is not None
+                 and out["hours_since_dose"] > self.BLEND_MAX_GAP_H)
 
-        if unsettled:
+        if stale:
+            out["classification"] = "no_settled_reading"
+            out["reason"] = (f"The first reading after this dose came {out['hours_since_dose']:g} h "
+                             f"later - past the {self.BLEND_MAX_GAP_H:g} h within which a reading "
+                             f"says what the dose delivered rather than what the plant then took. "
+                             f"Closed without scoring; not used for calibration.")
+            out["action"] = "Next feed: read 2 h or more after the pour, and within the day."
+        elif unsettled:
             out["classification"] = "below_prediction_not_settled"
             out["reason"] = (f"Measured {pa:g} ppm is {delta:g} ppm ({delta_pct:g}%) below the "
                              f"{pred:g} ppm forecast, {out['hours_since_dose']:g} h after dosing - "
@@ -6892,9 +6908,12 @@ class GrowAgent(AgentBase):
                         e["reconciled_at"] = datetime.now().isoformat()
                         # The settled reading is the evidence calibration needs;
                         # it was compared and then discarded.
-                        e["measured_ppm_after"] = pa
-                        if vol:
-                            e["measured_at_liters"] = vol
+                        if not stale:
+                            e["measured_ppm_after"] = pa
+                            if vol:
+                                e["measured_at_liters"] = vol
+                        else:
+                            e["late_reading_ppm"] = pa
                 self.store_own_memory(f"volume_events_{plant_id}", json.dumps(events[-200:]))
             except Exception as ex:
                 self.log(f"reconcile_dose: could not mark event reconciled: {ex}")
@@ -6917,7 +6936,7 @@ class GrowAgent(AgentBase):
                 coef = self._parse_numeric(event.get("coefficient_ppm_l_per_ml"))
                 p0 = self._parse_numeric(event.get("ppm_before"))
                 stated_v = self._parse_numeric(vol or event.get("final_liters") or event.get("volume_liters"))
-                if ml and coef and p0 is not None and pa and pa - p0 > 20 and stated_v:
+                if ml and coef and p0 is not None and pa and pa - p0 > 20 and stated_v and not stale:
                     implied = round(ml * coef / (pa - p0), 2)
                     rec_ = self._jload(f"grow_system_{plant_id}", {})
                     checks = list(rec_.get("volume_checks") or [])
@@ -11654,7 +11673,7 @@ class GrowAgent(AgentBase):
         latest = readings[-1] if readings else {}
 
         # Evidence the record can supply without asking anyone.
-        vols = [self._parse_numeric(r.get("volume_liters")) for r in readings]
+        vols = [self._measured_volume(r) for r in readings]
         vols = [v for v in vols if v is not None]
         excursion = (max(vols) - min(vols)) if len(vols) > 1 else None
         pests_ruled_out = "pests ruled out" in text
@@ -12548,8 +12567,7 @@ class GrowAgent(AgentBase):
         wl = self._parse_numeric(water_loss_l_per_day)
         wl_source = "supplied" if wl else None
         if wl is None:
-            pair = [r for r in readings
-                    if self._parse_numeric(r.get("volume_liters")) is not None][-2:]
+            pair = [r for r in readings if self._measured_volume(r) is not None][-2:]
             if len(pair) == 2:
                 v0 = self._parse_numeric(pair[0]["volume_liters"])
                 v1 = self._parse_numeric(pair[1]["volume_liters"])
@@ -13369,7 +13387,7 @@ class GrowAgent(AgentBase):
                 out["nutrient_basis"] = f"{ppm:.0f} ppm x {vol:g} L"
                 prev = next((r for r in reversed(readings[:-1])
                              if self._parse_numeric(r.get("ppm")) is not None
-                             and self._parse_numeric(r.get("volume_liters")) is not None),
+                             and self._measured_volume(r) is not None),
                             None)
                 if prev:
                     pg = (self._parse_numeric(prev["ppm"])
@@ -13587,11 +13605,23 @@ class GrowAgent(AgentBase):
             cfg["mode"] = "dry_run"           # anything unreadable or unexpected is dry_run
         return cfg
 
+    def _measured_volume(self, r):
+        """A reading's volume only if it was MEASURED. A level carried forward
+        from an earlier reading is unchanged by definition, so anything that
+        tracks the level over time and counts one gets a flat line it made up.
+        2026-10-16: GSC2's 493 ppm reading, logged without a volume, carried
+        10/12's 20 L forward - and the water projection read it as 'measured
+        20 L now', four days of drinking erased. The handler comparing mass
+        against volume already filtered this; the rest did not."""
+        if r.get("volume_source", "measured") != "measured":
+            return None
+        return self._parse_numeric(r.get("volume_liters"))
+
     def _volume_points(self, plant_id):
         """Every moment the reservoir's volume is on record, oldest first."""
         pts = []
         for r in self._get_readings_for_plant(plant_id) or []:
-            v = self._parse_numeric(r.get("volume_liters"))
+            v = self._measured_volume(r)
             if v and not r.get("voided"):
                 pts.append({"at": str(r.get("timestamp"))[:19], "liters": v, "kind": "reading",
                             "ppm": self._parse_numeric(r.get("ppm"))})

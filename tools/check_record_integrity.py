@@ -248,6 +248,38 @@ def main():
     ck("amend_action can change blocked_by",
        isinstance(r2, dict) and r2.get("blocked_by") == "the PDF, now requested", str(r2)[:120])
 
+    print("a reading days after a dose is not the dose's result")
+    store = {"grow_system_p11": json.dumps({"plant_id": "p11", "reservoir_liters": 20.0,
+                                            "reservoir_capacity_liters": 20.0}),
+             "volume_events_p11": json.dumps([{
+                 "at": "2026-10-12T05:00:00", "poured_at": "2026-10-12T05:12:00", "kind": "dose",
+                 "volume_liters": 20.0, "final_liters": 20.0, "ppm_before": 449.0,
+                 "ppm_predicted": 873.0, "ppm_predicted_at_final": 873.0,
+                 "add_now_ml": {"A": 30.25}, "coefficient_ppm_l_per_ml": 280.2,
+                 "ratio_from": "caller (stage ratio)", "ratio_matches_measured_mix": True,
+                 "blend": "stage_ratio:veg", "reconciled": False}])}
+    g = grow(store)
+    g.calibrate_blend = lambda *a, **k: {}
+    g._get_readings_for_plant = lambda pid: [{"timestamp": "2026-10-16T10:00:00", "ppm": 493,
+                                              "volume_liters": 20.0}]
+    r = g.reconcile_dose("p11")
+    ev = json.loads(store["volume_events_p11"])[-1]
+    ck("four days later it is no_settled_reading", r.get("classification") == "no_settled_reading",
+       str(r.get("classification")))
+    ck("and the late reading is never stored as the dose's result",
+       "measured_ppm_after" not in ev and ev.get("late_reading_ppm") == 493)
+
+    print("a carried-forward level is not a measurement")
+    g = grow({})
+    g._get_readings_for_plant = lambda pid: [
+        {"timestamp": "2026-10-12T05:00:00", "volume_liters": 20.0, "ppm": 751},
+        {"timestamp": "2026-10-16T07:11:00", "volume_liters": 20.0, "ppm": 493,
+         "volume_source": "carried forward"}]
+    g._volume_events = lambda pid: []
+    pts = g._volume_points("p12")
+    ck("the water projection ignores a carried-forward volume",
+       [p["at"][:10] for p in pts if p["kind"] == "reading"] == ["2026-10-12"], str(pts))
+
     print("the deadline register counts the way the statutes do")
     store = {"deadline_index": "[]"}
     lg = LegalAgent.__new__(LegalAgent)
