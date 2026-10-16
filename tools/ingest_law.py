@@ -665,7 +665,13 @@ def main():
         body, title, source = fetch_irm(a.part)
         stem = f"irm{a.part}"
 
-    if a.source not in ("usc-section", "orc") and len(body) < 2000:
+    # A SHORT CFR PART CAN BE THE WHOLE PART. GSAM Part 528 is three sections
+    # and 1,339 characters, and was refused as an error page (2026-10-16). For
+    # CFR, structure decides, not length: a part opens "PART nnn—" and carries
+    # an "Authority:" line, and an error page carries neither.
+    _cfr_whole = (a.source == "cfr" and re.search(r"PART \d+[\u2014-]", body or "")
+                  and "Authority:" in (body or ""))
+    if a.source not in ("usc-section", "orc") and len(body) < 2000 and not _cfr_whole:
         print(f"REFUSING: retrieved only {len(body)} characters - that is not a "
               f"body of law, it is an error page.", file=sys.stderr)
         return 2

@@ -1,0 +1,41 @@
+{
+  "title": "40 U.S.C. \u00a7 3133",
+  "source": "United States Code title 40 section 3133, retrieved from Cornell LII (law.cornell.edu). The statutory text is a U.S. government work and is public domain; Cornell's annotations are excluded.",
+  "authority_class": "federal_statute",
+  "authority_class_basis": "Title of the work is a U.S. Code section citation, which fixes the class",
+  "claim_layer": "doctrinal",
+  "claim_layer_meaning": "States or describes the rule. Cite for what the law IS.",
+  "authorities_cited": [],
+  "term_index": {},
+  "origin_pdf": "usc40_3133.txt",
+  "extraction": {
+    "extractor": "text file (already extracted)",
+    "pages": 1,
+    "no_text_layer": [],
+    "raised": [],
+    "recovered": [],
+    "lost": [],
+    "complete": true
+  },
+  "pages": 1,
+  "sections": [
+    {
+      "citation": "\u00a7 3133.",
+      "kind": "section_sign",
+      "page": 1,
+      "text": "\u00a7 3133. Rights of persons furnishing labor or material. (a) Right of Person Furnishing Labor or Material to Copy of Bond.\u2014 The department secretary or agency head of the contracting agency shall furnish a certified copy of a payment bond and the contract for which it was given to any person applying for a copy who submits an affidavit that the person has supplied labor or material for work described in the contract and payment for the work has not been made or that the person is being sued on the bond. The copy is prima facie evidence of the contents, execution, and delivery of the original. Applicants shall pay any fees the department secretary or agency head of the contracting agency fixes to cover the cost of preparing the certified copy. (b) Right To Bring a Civil Action.\u2014 (1) In general.\u2014 Every person that has furnished labor or material in carrying out work provided for in a contract for which a payment bond is furnished under section 3131 of this title and that has not been paid in full within 90 days after the day on which the person did or performed the last of the labor or furnished or supplied the material for which the claim is made may bring a civil action on the payment bond for the amount unpaid at the time the civil action is brought and may prosecute the action to final execution and judgment for the amount due. (2) Person having direct contractual relationship with a subcontractor.\u2014 A person having a direct contractual relationship with a subcontractor but no contractual relationship, express or implied, with the contractor furnishing the payment bond may bring a civil action on the payment bond on giving written notice to the contractor within 90 days from the date on which the person did or performed the last of the labor or furnished or supplied the last of the material for which the claim is made. The action must state with substantial accuracy the amount claimed and the name of the party to whom the material was furnished or supplied or for whom the labor was done or performed. The notice shall be served\u2014 (A) by any means that provides written, third-party verification of delivery to the contractor at any place the contractor maintains an office or conducts business or at the contractor \u2019s residence; or (B) in any manner in which the United States marshal of the district in which the public improvement is situated by law may serve summons. (3) Venue.\u2014 A civil action brought under this subsection must be brought\u2014 (A) in the name of the United States for the use of the person bringing the action; and (B) in the United States District Court for any district in which the contract was to be performed and executed, regardless of the amount in controversy. (4) Period in which action must be brought.\u2014 An action brought under this subsection must be brought no later than one year after the day on which the last of the labor was performed or material was supplied by the person bringing the action. (5) Liability of federal government.\u2014 The Government is not liable for the payment of any costs or expenses of any civil action brought under this subsection. (c) Waiver of Right to Civil Action.\u2014 A waiver of the right to bring a civil action on a payment bond required under this subchapter is void unless the waiver is\u2014 (1) in writing; (2) signed by the person whose right is waived; and (3) executed after the person whose right is waived has furnished labor or material for use in the performance of the contract.",
+      "integrity": {
+        "state": "complete",
+        "basis": "Full retrieved body of 3,481 characters stored; under the 60,000 cap, so nothing was cut.",
+        "stamped_at": "2026-10-16T09:05:37",
+        "stored_chars": 3481,
+        "source_chars": 3481,
+        "cap_applied": 60000
+      },
+      "authority_class": "federal_statute",
+      "claim_layer": "doctrinal",
+      "claim_layer_meaning": "States or describes the rule. Cite for what the law IS."
+    }
+  ],
+  "claim_layer_basis": "Set from the class, not from the text: a statute or regulation states the rule rather than describing or arguing it, which the citation in the title establishes definitionally."
+}

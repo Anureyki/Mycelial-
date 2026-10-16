@@ -1,0 +1,1914 @@
+{
+  "title": "13 CFR Part 115 - Surety Bond Guarantee",
+  "source": "Electronic CFR, title 13 part 115, as of 2026-08-01, retrieved from ecfr.gov. Federal regulation - public domain.",
+  "authority_class": "regulation",
+  "authority_class_basis": "Title of the work is a CFR part citation, which fixes the class",
+  "claim_layer": "doctrinal",
+  "claim_layer_meaning": "States or describes the rule. Cite for what the law IS.",
+  "authorities_cited": [],
+  "term_index": {
+    "small business investment": [
+      0,
+      3
+    ],
+    "approval program": [
+      0,
+      5,
+      24
+    ],
+    "surety bond guarantee": [
+      0,
+      3,
+      4,
+      5,
+      8,
+      11,
+      12,
+      14,
+      15,
+      16,
+      19,
+      26
+    ],
+    "surety bond": [
+      0,
+      2,
+      3,
+      4,
+      5,
+      8,
+      11,
+      12,
+      14,
+      15,
+      16,
+      19,
+      22,
+      26
+    ],
+    "prior approval": [
+      0,
+      3,
+      4,
+      5,
+      7,
+      11,
+      12,
+      13,
+      14,
+      15,
+      16,
+      17,
+      18,
+      19,
+      20,
+      21,
+      24,
+      31
+    ],
+    "prior approval program": [
+      0,
+      5,
+      24
+    ],
+    "business investment": [
+      0,
+      3
+    ],
+    "each bond": [
+      0,
+      12,
+      14,
+      27
+    ],
+    "small business": [
+      0,
+      3,
+      5,
+      6,
+      12,
+      14,
+      17,
+      19
+    ],
+    "bond guarantee": [
+      0,
+      3,
+      4,
+      5,
+      6,
+      8,
+      11,
+      12,
+      14,
+      15,
+      16,
+      18,
+      19,
+      25,
+      26
+    ],
+    "bond guarantee programs": [
+      0,
+      4,
+      5,
+      11,
+      12
+    ],
+    "guarantee programs": [
+      0,
+      4,
+      5,
+      11,
+      12
+    ],
+    "bond guarantees": [
+      2,
+      7
+    ],
+    "prior approval surety": [
+      3,
+      5,
+      7,
+      11,
+      12,
+      16,
+      17,
+      18,
+      19,
+      20,
+      21,
+      24
+    ],
+    "title united": [
+      3,
+      5
+    ],
+    "approval agreement": [
+      3,
+      16,
+      18,
+      21
+    ],
+    "bond including": [
+      3,
+      12,
+      14
+    ],
+    "surety guarantees": [
+      3,
+      5
+    ],
+    "imminent breach": [
+      3,
+      7,
+      10,
+      12,
+      14,
+      20,
+      31
+    ],
+    "performance bond": [
+      3,
+      5,
+      9,
+      12
+    ],
+    "ancillary bonds": [
+      3,
+      5
+    ],
+    "labor materials equipment": [
+      3,
+      9
+    ],
+    "service disabled veterans": [
+      3,
+      17
+    ],
+    "accordance with section": [
+      3,
+      5
+    ],
+    "final bonds": [
+      3,
+      5,
+      8,
+      9,
+      16,
+      19,
+      25,
+      27,
+      28
+    ],
+    "prime contractor": [
+      3,
+      6
+    ],
+    "prior written approval": [
+      3,
+      5,
+      12,
+      18,
+      23
+    ],
+    "service disabled": [
+      3,
+      17
+    ],
+    "contract upon default": [
+      3,
+      5
+    ],
+    "bond unless": [
+      3,
+      5
+    ],
+    "surety makes": [
+      3,
+      14,
+      31
+    ],
+    "applicable statutory limit": [
+      3,
+      5,
+      12,
+      17
+    ],
+    "final bond": [
+      3,
+      5,
+      16,
+      18,
+      25,
+      28
+    ],
+    "action against": [
+      3,
+      5,
+      9,
+      32
+    ],
+    "following circumstances": [
+      3,
+      16
+    ],
+    "indefinite quantity": [
+      3,
+      5
+    ],
+    "payment bond": [
+      3,
+      9
+    ],
+    "surety from performing": [
+      3,
+      5
+    ],
+    "prior written": [
+      3,
+      5,
+      12,
+      18,
+      23,
+      25
+    ],
+    "contracting officer": [
+      3,
+      5
+    ],
+    "federal department": [
+      3,
+      6
+    ],
+    "ancillary bond": [
+      3,
+      5,
+      9
+    ],
+    "prior approval agreement": [
+      3,
+      16,
+      18,
+      21
+    ],
+    "states code": [
+      3,
+      5
+    ],
+    "executed prior": [
+      3,
+      12
+    ],
+    "guaranteed final": [
+      3,
+      9,
+      25
+    ],
+    "applicable statutory": [
+      3,
+      5,
+      12,
+      17
+    ],
+    "individual empowered": [
+      3,
+      11
+    ],
+    "united states": [
+      3,
+      5,
+      9
+    ],
+    "labor materials": [
+      3,
+      9
+    ],
+    "actual loss": [
+      3,
+      22
+    ],
+    "preferred surety": [
+      3,
+      5,
+      22
+    ],
+    "guaranteed final bond": [
+      3,
+      25
+    ],
+    "affiliate": [
+      3,
+      5,
+      6,
+      7,
+      9,
+      18,
+      24
+    ],
+    "written approval": [
+      3,
+      5,
+      12,
+      18,
+      23,
+      26
+    ],
+    "major disaster": [
+      3,
+      5
+    ],
+    "approval surety": [
+      3,
+      5,
+      7,
+      11,
+      12,
+      16,
+      17,
+      18,
+      19,
+      20,
+      21,
+      24
+    ],
+    "small business owned": [
+      3,
+      17
+    ],
+    "bond guarantee agreement": [
+      3,
+      12,
+      16,
+      19,
+      26
+    ],
+    "contract amount": [
+      3,
+      5,
+      12,
+      15,
+      17,
+      18,
+      20,
+      28,
+      31
+    ],
+    "united states code": [
+      3,
+      5
+    ],
+    "successful completion": [
+      3,
+      8
+    ],
+    "materials equipment": [
+      3,
+      9
+    ],
+    "statutory limit": [
+      3,
+      5,
+      12,
+      17
+    ],
+    "title united states": [
+      3,
+      5
+    ],
+    "guarantee agreement": [
+      3,
+      5,
+      12,
+      16,
+      19,
+      26
+    ],
+    "business owned": [
+      3,
+      17
+    ],
+    "disabled veterans": [
+      3,
+      17
+    ],
+    "guaranteed bond": [
+      3,
+      5,
+      6,
+      7,
+      9,
+      10,
+      18,
+      20,
+      27,
+      29,
+      31,
+      33
+    ],
+    "preferred surety bond": [
+      3,
+      22
+    ],
+    "bonded contract": [
+      3,
+      9,
+      12,
+      14,
+      19,
+      21
+    ],
+    "guarantee bonds": [
+      3,
+      5,
+      6
+    ],
+    "recovery functions": [
+      4,
+      23
+    ],
+    "approval sureties": [
+      4,
+      12
+    ],
+    "will determine": [
+      4,
+      14
+    ],
+    "bond guarantee program": [
+      4,
+      5,
+      8,
+      11,
+      14
+    ],
+    "specialized services": [
+      4,
+      9
+    ],
+    "prior approval sureties": [
+      4,
+      12
+    ],
+    "salaried claims staff": [
+      4,
+      9
+    ],
+    "guarantee program": [
+      4,
+      5,
+      8,
+      11,
+      14
+    ],
+    "salaried claims": [
+      4,
+      9
+    ],
+    "claims staff": [
+      4,
+      9
+    ],
+    "after execution": [
+      5,
+      17
+    ],
+    "surety sureties": [
+      5,
+      22
+    ],
+    "contract amount unless": [
+      5,
+      20,
+      31
+    ],
+    "approval before": [
+      5,
+      23
+    ],
+    "guaranteed bonds": [
+      5,
+      10,
+      11,
+      13,
+      21,
+      23,
+      27,
+      32,
+      33
+    ],
+    "days after": [
+      5,
+      15,
+      18,
+      19,
+      25
+    ],
+    "surety executes": [
+      5,
+      25
+    ],
+    "discretion extend": [
+      5,
+      23
+    ],
+    "comparable degree": [
+      5,
+      11,
+      14
+    ],
+    "recognized authority": [
+      5,
+      23
+    ],
+    "sureties participating": [
+      5,
+      11,
+      14
+    ],
+    "guarantee percentage": [
+      5,
+      11,
+      17,
+      25,
+      30
+    ],
+    "order issued": [
+      5,
+      14
+    ],
+    "order amount": [
+      5,
+      12,
+      17
+    ],
+    "amount unless": [
+      5,
+      20,
+      31
+    ],
+    "surety must obtain": [
+      5,
+      23
+    ],
+    "time period": [
+      5,
+      12,
+      19
+    ],
+    "federal register": [
+      5,
+      18,
+      28
+    ],
+    "bond penalty": [
+      5,
+      20,
+      31
+    ],
+    "additional information": [
+      5,
+      19,
+      21,
+      32
+    ],
+    "debarred suspended": [
+      6,
+      11
+    ],
+    "bond issued": [
+      6,
+      7,
+      10
+    ],
+    "revoked canceled": [
+      6,
+      11
+    ],
+    "original contract": [
+      6,
+      12,
+      15,
+      18,
+      29
+    ],
+    "principal meets": [
+      6,
+      16
+    ],
+    "bonding line": [
+      6,
+      16,
+      19
+    ],
+    "guaranteed bond issued": [
+      6,
+      7
+    ],
+    "voluntarily excluded": [
+      6,
+      11
+    ],
+    "declared ineligible": [
+      6,
+      11
+    ],
+    "material misrepresentation": [
+      6,
+      7,
+      11,
+      12
+    ],
+    "officers directors": [
+      6,
+      11
+    ],
+    "unbonded contracts": [
+      6,
+      19
+    ],
+    "contract bonded": [
+      6,
+      19
+    ],
+    "another surety": [
+      6,
+      19
+    ],
+    "submitted after": [
+      7,
+      21
+    ],
+    "imminent breach payments": [
+      7,
+      10,
+      31
+    ],
+    "breach payments": [
+      7,
+      10,
+      31
+    ],
+    "guarantee application": [
+      7,
+      12,
+      16
+    ],
+    "legal action": [
+      7,
+      21,
+      27,
+      32
+    ],
+    "claim reserve": [
+      7,
+      21,
+      27,
+      32
+    ],
+    "status reports": [
+      8,
+      13,
+      14,
+      21,
+      27
+    ],
+    "bonds guaranteed": [
+      8,
+      23
+    ],
+    "reports from obligees": [
+      8,
+      27
+    ],
+    "eligibility requirements": [
+      8,
+      16
+    ],
+    "generally accepted": [
+      8,
+      9,
+      12
+    ],
+    "filed against": [
+      9,
+      16
+    ],
+    "surety provided": [
+      9,
+      24
+    ],
+    "actually paid": [
+      9,
+      13
+    ],
+    "section including": [
+      9,
+      21
+    ],
+    "surety must take": [
+      10,
+      21,
+      32
+    ],
+    "loss including": [
+      10,
+      14
+    ],
+    "within days": [
+      10,
+      15,
+      21,
+      22,
+      32
+    ],
+    "surety must pursue": [
+      10,
+      20
+    ],
+    "indemnity agreements": [
+      10,
+      21
+    ],
+    "payments made": [
+      10,
+      20,
+      31
+    ],
+    "loss within": [
+      10,
+      32
+    ],
+    "loss within days": [
+      10,
+      32
+    ],
+    "possible sources": [
+      10,
+      20
+    ],
+    "principal unless": [
+      10,
+      18
+    ],
+    "defaulted principal": [
+      10,
+      22
+    ],
+    "claims submitted": [
+      11,
+      21
+    ],
+    "deny liability": [
+      11,
+      12,
+      27,
+      33
+    ],
+    "material breach": [
+      11,
+      12
+    ],
+    "written notice": [
+      11,
+      19
+    ],
+    "regulatory violations": [
+      11,
+      12
+    ],
+    "promptly notify": [
+      11,
+      19
+    ],
+    "effective date": [
+      11,
+      19
+    ],
+    "surety must promptly": [
+      11,
+      18,
+      19
+    ],
+    "surety must maintain": [
+      12,
+      14,
+      27
+    ],
+    "valid reason": [
+      12,
+      19
+    ],
+    "additional fees": [
+      12,
+      29
+    ],
+    "terms conditions": [
+      12,
+      19
+    ],
+    "conditioned upon payment": [
+      12,
+      18
+    ],
+    "section work": [
+      12,
+      26
+    ],
+    "agreement addendum": [
+      12,
+      26
+    ],
+    "legally bound": [
+      12,
+      26
+    ],
+    "liability under applicable": [
+      12,
+      26
+    ],
+    "bond been executed": [
+      12,
+      26
+    ],
+    "bond amount whichever": [
+      12,
+      18
+    ],
+    "principal takes": [
+      12,
+      26
+    ],
+    "underwriting standards": [
+      12,
+      16
+    ],
+    "action related": [
+      12,
+      26
+    ],
+    "bond amount": [
+      12,
+      18,
+      25,
+      27,
+      29
+    ],
+    "reason exists": [
+      12,
+      19
+    ],
+    "contemporaneous record": [
+      12,
+      27
+    ],
+    "total contract": [
+      12,
+      23
+    ],
+    "amount whichever": [
+      12,
+      18
+    ],
+    "valid reason exists": [
+      12,
+      19
+    ],
+    "loss incurred": [
+      12,
+      13,
+      17,
+      21,
+      33
+    ],
+    "guarantee agreement addendum": [
+      12,
+      26
+    ],
+    "guaranteed portion": [
+      13,
+      31
+    ],
+    "unresolved audit findings": [
+      14,
+      27
+    ],
+    "audit findings": [
+      14,
+      27
+    ],
+    "recovery plus": [
+      14,
+      27
+    ],
+    "payments were made": [
+      14,
+      20
+    ],
+    "bond plus": [
+      14,
+      27
+    ],
+    "documentation required": [
+      14,
+      19
+    ],
+    "additional time": [
+      14,
+      27
+    ],
+    "unresolved audit": [
+      14,
+      27
+    ],
+    "particular bond": [
+      14,
+      27
+    ],
+    "additional years": [
+      14,
+      27
+    ],
+    "collateral held": [
+      14,
+      21
+    ],
+    "mitigate losses": [
+      14,
+      21,
+      32
+    ],
+    "attempt salvage": [
+      14,
+      27
+    ],
+    "dollar amount": [
+      15,
+      19
+    ],
+    "surety must submit": [
+      15,
+      16,
+      19,
+      21,
+      26,
+      32
+    ],
+    "guarantee fees": [
+      16,
+      18,
+      19
+    ],
+    "surety bonding line": [
+      16,
+      19
+    ],
+    "application type": [
+      16,
+      18
+    ],
+    "surety bonding": [
+      16,
+      19
+    ],
+    "total amount": [
+      17,
+      18
+    ],
+    "amount increases": [
+      17,
+      18,
+      29
+    ],
+    "respectively aggregate": [
+      18,
+      29
+    ],
+    "bond premium": [
+      18,
+      23
+    ],
+    "surety acquires knowledge": [
+      18,
+      21
+    ],
+    "will refund": [
+      18,
+      29
+    ],
+    "nearest dollar": [
+      18,
+      28
+    ],
+    "proportionate amount": [
+      18,
+      29
+    ],
+    "acquires knowledge": [
+      18,
+      21
+    ],
+    "surety must remit": [
+      18,
+      28
+    ],
+    "surety acquires": [
+      18,
+      21
+    ],
+    "premium share": [
+      18,
+      28,
+      29
+    ],
+    "register from time": [
+      18,
+      28
+    ],
+    "rebated respectively": [
+      18,
+      29
+    ],
+    "bond amount increases": [
+      18,
+      29
+    ],
+    "certain percentage": [
+      18,
+      28
+    ],
+    "within calendar": [
+      18,
+      27
+    ],
+    "ordinary course": [
+      18,
+      29
+    ],
+    "calendar days": [
+      18,
+      27
+    ],
+    "within calendar days": [
+      18,
+      27
+    ],
+    "insurance department": [
+      18,
+      23
+    ],
+    "made until": [
+      18,
+      29
+    ],
+    "surety must notify": [
+      18,
+      21,
+      25,
+      27
+    ],
+    "rebated respectively aggregate": [
+      18,
+      29
+    ],
+    "business days": [
+      19,
+      25
+    ],
+    "adverse information": [
+      19,
+      21
+    ],
+    "information concerning": [
+      19,
+      21
+    ],
+    "business days after": [
+      19,
+      25
+    ],
+    "adverse information concerning": [
+      19,
+      21
+    ],
+    "recordkeeping requirement": [
+      20,
+      31
+    ],
+    "keep records": [
+      20,
+      31
+    ],
+    "avoid imminent breach": [
+      20,
+      31
+    ],
+    "approval requirement": [
+      20,
+      31
+    ],
+    "cannot exceed": [
+      20,
+      31
+    ],
+    "prior approval requirement": [
+      20,
+      31
+    ],
+    "greater payment": [
+      20,
+      31
+    ],
+    "duplicate payment": [
+      20,
+      31
+    ],
+    "administrator finds": [
+      20,
+      31
+    ],
+    "surety must certify": [
+      20,
+      22
+    ],
+    "contract covered": [
+      20,
+      31
+    ],
+    "surety must keep": [
+      20,
+      31
+    ],
+    "avoid imminent": [
+      20,
+      31
+    ],
+    "event will": [
+      20,
+      31
+    ],
+    "will reimburse": [
+      20,
+      31
+    ],
+    "requisite information": [
+      21,
+      32
+    ],
+    "market value": [
+      21,
+      32
+    ],
+    "claim should": [
+      21,
+      32
+    ],
+    "defaulted bond": [
+      21,
+      32
+    ],
+    "events requiring notification": [
+      21,
+      27
+    ],
+    "surety within": [
+      21,
+      32
+    ],
+    "later date": [
+      21,
+      32
+    ],
+    "surety must handle": [
+      21,
+      32
+    ],
+    "fair market": [
+      21,
+      32
+    ],
+    "necessary steps": [
+      21,
+      32
+    ],
+    "requiring notification": [
+      21,
+      27
+    ],
+    "surety within days": [
+      21,
+      32
+    ],
+    "information requested": [
+      21,
+      32
+    ],
+    "offset provisions": [
+      21,
+      32
+    ],
+    "specified amounts": [
+      21,
+      32
+    ],
+    "claim does": [
+      21,
+      32
+    ],
+    "additional information requested": [
+      21,
+      32
+    ],
+    "surety must repay": [
+      21,
+      32
+    ],
+    "requisite information claims": [
+      21,
+      32
+    ],
+    "suits arising": [
+      21,
+      32
+    ],
+    "additional information submitted": [
+      21,
+      32
+    ],
+    "events requiring": [
+      21,
+      27
+    ],
+    "compromise settle": [
+      21,
+      32
+    ],
+    "surety otherwise": [
+      21,
+      32
+    ],
+    "take charge": [
+      21,
+      32
+    ],
+    "fair market value": [
+      21,
+      32
+    ],
+    "information submitted": [
+      21,
+      32
+    ],
+    "information claims": [
+      21,
+      32
+    ],
+    "credit report": [
+      22
+    ],
+    "guarantee attaches": [
+      23,
+      25
+    ],
+    "bonds approved": [
+      23,
+      25
+    ],
+    "monthly bordereau": [
+      27,
+      29
+    ]
+  },
+  "origin_pdf": "13cfr115.txt",
+  "extraction": {
+    "extractor": "text file (already extracted)",
+    "pages": 1,
+    "no_text_layer": [],
+    "raised": [],
+    "recovered": [],
+    "lost": [],
+    "complete": true
+  },
+  "pages": 1,
+  "sections": [
+    {
+      "citation": "\u00a7 115.1",
+      "kind": "section_sign",
+      "page": 1,
+      "text": "\u00a7 115.1 Overview of regulations. The regulations in this part cover the SBA's Surety Bond Guarantee Programs under Part B of Title IV of the Small Business Investment Act of 1958, as amended. Subpart A of this part contains regulations common to both the program requiring prior SBA approval of each bond guarantee (the Prior Approval Program) and the program not requiring prior approval (the PSB Program). Subpart B of this part contains the regulations applicable only to the Prior Approval Program. Subpart C of this part contains the regulations applicable only to the PSB Program.",
+      "integrity": {
+        "state": "complete",
+        "basis": "Full retrieved body of 586 characters stored; under the 60,000 cap, so nothing was cut.",
+        "stamped_at": "2026-10-16T09:05:36",
+        "stored_chars": 586,
+        "source_chars": 586,
+        "cap_applied": 60000
+      },
+      "authority_class": "regulation",
+      "claim_layer": "doctrinal",
+      "claim_layer_meaning": "States or describes the rule. Cite for what the law IS."
+    },
+    {
+      "citation": "\u00a7 115.2",
+      "kind": "section_sign",
+      "page": 1,
+      "text": "\u00a7 115.2 Savings clause. Transactions affected by this part 115 are governed by the regulations in effect at the time they occur.",
+      "integrity": {
+        "state": "complete",
+        "basis": "Full retrieved body of 128 characters stored; under the 60,000 cap, so nothing was cut.",
+        "stamped_at": "2026-10-16T09:05:36",
+        "stored_chars": 128,
+        "source_chars": 128,
+        "cap_applied": 60000
+      },
+      "authority_class": "regulation",
+      "claim_layer": "doctrinal",
+      "claim_layer_meaning": "States or describes the rule. Cite for what the law IS."
+    },
+    {
+      "citation": "\u00a7 115.3",
+      "kind": "section_sign",
+      "page": 1,
+      "text": "\u00a7 115.3 Severability. Any provision of this part held to be invalid or unenforceable as applied to any person, entity, or circumstance shall be construed so as to continue to give the maximum effect to such provision as permitted by law, including as applied to persons or entities not similarly situated or to dissimilar circumstances, unless such holding is that the provision of this part is invalid and unenforceable in all circumstances, in which event the provision shall be severable from the remainder of this part and shall not affect the remainder thereof. [89 FR 34101, Apr. 30, 2024] Subpart A\u2014Provisions for All Surety Bond Guarantees",
+      "integrity": {
+        "state": "complete",
+        "basis": "Full retrieved body of 647 characters stored; under the 60,000 cap, so nothing was cut.",
+        "stamped_at": "2026-10-16T09:05:36",
+        "stored_chars": 647,
+        "source_chars": 647,
+        "cap_applied": 60000
+      },
+      "authority_class": "regulation",
+      "claim_layer": "doctrinal",
+      "claim_layer_meaning": "States or describes the rule. Cite for what the law IS."
+    },
+    {
+      "citation": "\u00a7 115.10",
+      "kind": "section_sign",
+      "page": 1,
+      "text": "\u00a7 115.10 Definitions. Affiliate is defined in \u00a7 121.301(f) of this chapter. Ancillary Bond means a bond incidental and essential to the performance of a Contract for which there is a guaranteed Final Bond. Applicable Statutory Limit means the maximum amount, set forth below, of any Contract or Order for which SBA is authorized to guarantee, or commit to guarantee, a Bid Bond, Payment Bond, Performance Bond, or Ancillary Bond: (1) $9 million (as adjusted for inflation in accordance with 41 U.S.C. 1908). (2) $14 million if a contracting officer of a Federal agency certifies, in accordance with section 115.12(e)(3), that such guarantee is necessary. (3) If SBA is guaranteeing the bond in connection with a procurement related to a major disaster pursuant to section 12079 of Public Law 110-246, see section 115.12(e)(4). Bid Bond means a bond conditioned upon the bidder on a Contract entering into the Contract, and furnishing the required Payment and Performance Bonds. The term does not include a forfeiture bond unless it is issued for a jurisdiction where statute or settled decisional law requires forfeiture bonds for public works. Contract means a written obligation of the Principal, including an Order, requiring the furnishing of services, supplies, labor, materials, machinery, equipment or construction. A Contract: (1) Must not prohibit a Surety from performing the Contract upon default of the Principal; (2) Does not include a permit, subdivision contract, lease, land contract, evidence of debt, financial guarantee ( e.g., a contract requiring any payment by the Principal to the Obligee, except for contracts in connection with bid and performance bonds for the sale of timber and/or other forest products, such as biomass, that require the Principal to pay the Obligee), warranty of performance or efficiency, warranty of fidelity, or release of lien (other than for claims under a guaranteed bond); and (3) May include a maintenance agreement under the following circumstances: (i) The maintenance agreement is ancillary to a Contract for which SBA is guaranteeing a bond, is performed by the same Principal, is for a period of 2 years or less, and only covers defective workmanship or materials that are not covered by a manufacturer's warranty. With SBA's prior written approval, the agreement may cover a period longer than 2 years, or cover something other than defective workmanship or materials, if a longer period or something other than defective workmanship or materials is customarily required in the relevant trade or industry; or (ii) The maintenance agreement is stand-alone and is entered into in connection with a Contract for which a bond was not required and only covers defective workmanship or materials that are not covered by a manufacturer's warranty. The agreement must cover a period of 3 years or less that begins immediately after the Contract is complete and must be executed prior to the completion of the Contract. It must also be entered into with the same Principal that completed the Contract. With SBA's prior written approval, the agreement may cover a period longer than 3 years if a longer period is customarily required in the relevant trade or industry. D/SG means SBA's Director, Office of Surety Guarantees. Execution means signing by a representative or agent of the Surety with the authority and power to bind the Surety. Final Bond means a Performance Bond and/or a Payment Bond. Head of Agency means in the case of a cabinet department, the Secretary; and in the case of an independent commission, board, or agency, the Chair or Administrator; or any person to whom the Secretary, Chair, or Administrator has directly delegated the authority to request SBA to guarantee bonds on Contracts or Orders in excess of $5,000,000. Imminent Breach means a threat to the successful completion of a bonded Contract which, unless remedied by the Surety, makes a default under the bond appear to be inevitable. Investment Act means the Small Business Investment Act of 1958 (15 U.S.C. 661 et seq. ), as amended. Loss has the meaning set forth in \u00a7 115.16. Obligee means: (1)(i) In the case of a Bid Bond, the Person requesting bids for the performance of a Contract; or (ii) In the case of a Final Bond, the Person who has contracted with a Principal for the completion of the Contract and to whom the primary obligation of the Surety runs in the event of a breach by the Principal. (2) In either case, no Person (other than a Federal department or agency) may be named co-Obligee or Obligee on a bond or on a rider to the bond unless that Person is bound by the Contract to the Principal (or to the Surety, if the Surety has arranged completion of the Contract) to the same extent as the original Obligee. In no event may the addition of one or more co-Obligees increase the aggregate liability of the Surety under the bond. Order means a task order for services or delivery order for supplies issued under an indefinite delivery Contract (definite quantity, indefinite quantity, or requirements). OSG means SBA's Office of Surety Guarantees. Payment Bond means a bond which is conditioned upon the payment by the Principal of money to persons who have a right of action against such bond, including those who have furnished labor, materials, equipment and supplies for use in the performance of the Contract. A Payment Bond can not require the Surety to pay an amount which exceeds the claimant's actual loss or damage. Performance Bond means a bond conditioned upon the completion by the Principal of a Contract in accordance with its terms. Person means a natural person or a legal entity. Premium means the amount charged by a Surety to issue bonds. The Premium is determined by applying an approved rate (see \u00a7\u00a7 115.32(a) and 115.60(a)(2)) to the bond or contract amount. The Premium does not include surcharges for extra services, whether or not considered part of the \u201cpremium\u201d under local law. Principal means, in the case of a Bid Bond, the Person bidding for the award of a Contract. In the case of Final Bonds and Ancillary Bonds, Principal means the Person primarily liable to complete the Contract, or to make Contract-related payments to other persons, and is the Person whose performance or payment is bonded by the Surety. A Principal may be a prime contractor or a subcontractor. Prior Approval Agreement means the Surety Bond Guarantee Agreement (SBA Form 990) entered into between a Prior Approval Surety and SBA under which SBA agrees to guarantee a specific bond. Prior Approval Surety means a Surety which must obtain SBA's prior approval on each guarantee and which has entered into one or more Prior Approval Agreements with SBA. PSB Agreement means the Preferred Surety Bond Guarantee Agreement entered into between a PSB Surety and SBA. PSB Surety means a Surety that has been admitted to the Preferred Surety Bond (PSB) Program. Service-Disabled Veteran means a veteran with a disability that is service-connected, as defined in Section 101(16) of Title 38, United States Code. Small Business Owned and Controlled by Service-Disabled Veterans means: (1) A Small Concern of which not less than 51 percent is owned by one or more Service-Disabled Veterans; or a publicly-owned Small concern of which not less than 51 percent of the stock is owned by one or more Service-Disabled Veterans; and (2) The management and daily business operations of which are controlled by one or more Service-Disabled Veterans, or in the case of a Service-Disabled Veteran with permanent and severe disability, the spouse or permanent caregiver of such Veteran. Small Business Owned and Controlled by Veterans means: (1) A Small Concern of which not less than 51 percent is owned by one or more Veterans; or a publicly-owned Small Concern of which not less than 51 percent of the stock is owned by one or more Veterans; and (2) The management and daily business operations of which are controlled by one or more Veterans. Surety means a company which: (1)(i) Under the terms of a Bid Bond, agrees to pay a sum of money to the Obligee if the Principal breaches the conditions of the bond; (ii) Under the terms of a Performance Bond, agrees to pay a sum of money or to incur the cost of fulfilling the terms of a Contract if the Principal breaches the conditions of the Contract; and (iii) Under the terms of a Payment or an Ancillary Bond, agrees to make payment to all who have a right of action against such bond, including those who have furnished labor, materials, equipment and supplies in the performance of the Contract. (2) The term Surety includes an agent, independent agent, underwriter, or any other company or individual empowered to act on behalf of the Surety. Veteran has the meaning given the term in Section 101(2) of Title 38, United States Code. [61 FR 3271, Jan. 31, 1996, as amended at 61 FR 7985, Mar. 1, 1996; 72 FR 34599, June 25, 2007; 72 FR 50038, Aug. 30, 2007; 74 FR 36109, July 22, 2009; 76 FR 2572, Jan. 14, 2011; 76 FR 9963, Feb. 23, 2011; 77 FR 41665, July 16, 2012; 79 FR 2086, Jan. 13, 2014; 81 FR 41428, June 27, 2016; 87 FR 48083, Aug. 8, 2022; 88 FR 24473, Apr. 21, 2023; 89 FR 11712, Feb. 15, 2024]",
+      "integrity": {
+        "state": "complete",
+        "basis": "Full retrieved body of 9,201 characters stored; under the 60,000 cap, so nothing was cut.",
+        "stamped_at": "2026-10-16T09:05:36",
+        "stored_chars": 9201,
+        "source_chars": 9201,
+        "cap_applied": 60000
+      },
+      "authority_class": "regulation",
+      "claim_layer": "doctrinal",
+      "claim_layer_meaning": "States or describes the rule. Cite for what the law IS."
+    },
+    {
+      "citation": "\u00a7 115.11",
+      "kind": "section_sign",
+      "page": 1,
+      "text": "\u00a7 115.11 Applying to participate in the Surety Bond Guarantee Program. Sureties interested in participating as Prior Approval Sureties or PSB Sureties should apply in writing to the D/SG at 409 3rd Street, SW., Washington, DC 20416. OSG will determine the eligibility of the applicant considering its standards and procedures for underwriting, administration, claims and recovery. Each applicant must be a corporation listed by the U.S. Treasury as eligible to issue bonds in connection with Federal procurement contracts. At a minimum, each applicant must have salaried staff that is employed directly (not an agent or other individual or entity under contract with the applicant) to oversee its underwriting function and perform all claims and recovery functions other than specialized services the costs of which may be reimbursable under 13 CFR 115.16(e)(1). Final settlement authority for claims and recovery must be vested only in the applicant's salaried claims staff. The applicant must continue to comply with SBA's standards and procedures for underwriting, administration, claims, recovery, and staffing requirements while participating in SBA's Surety Bond Guarantee Programs. [61 FR 3271, Jan. 31, 1996, as amended at 81 FR 23565, Apr. 22, 2016]",
+      "integrity": {
+        "state": "complete",
+        "basis": "Full retrieved body of 1,258 characters stored; under the 60,000 cap, so nothing was cut.",
+        "stamped_at": "2026-10-16T09:05:36",
+        "stored_chars": 1258,
+        "source_chars": 1258,
+        "cap_applied": 60000
+      },
+      "authority_class": "regulation",
+      "claim_layer": "doctrinal",
+      "claim_layer_meaning": "States or describes the rule. Cite for what the law IS."
+    },
+    {
+      "citation": "\u00a7 115.12",
+      "kind": "section_sign",
+      "page": 1,
+      "text": "\u00a7 115.12 General program policies and provisions. (a) Description of Surety Bond Guarantee Programs. SBA guarantees Sureties participating in the Surety Bond Guarantee Programs against a portion of their Losses incurred and paid as a result of a Principal's breach of the terms of a Bid Bond, Final Bond or Ancillary Bond, on any eligible Contract. In the Prior Approval Program, the Surety must obtain SBA's approval before a guaranteed bond can be issued. In the PSB Program, selected Sureties may issue, monitor, and service SBA guaranteed bonds without further SBA approval. (b) Eligibility of bonds. Bid Bonds and Final Bonds are eligible for an SBA guarantee if they are executed in connection with an eligible Contract, as defined in \u00a7 115.10, Definitions. Commercial and Fidelity bonds are not eligible for SBA guarantees. Ancillary Bonds may also be eligible for SBA's guarantee. A performance bond must not prohibit a Surety from performing the Contract upon default of the Principal. (c) Expiration of Bid Bond Guarantee. A Bid Bond guarantee expires 120 days after Execution of the Bid Bond, unless the Surety notifies SBA in writing before the 120th day that a later expiration date is required. The notification must include the new expiration date. (d) Guarantee agreement. The terms and conditions of SBA's bond guarantee agreements, including the guarantee percentage, may vary from Surety to Surety, depending on past experience with SBA. If the guarantee percentage is not fixed by the Investment Act, it is determined by OSG after considering, among other things, the rating or ranking assigned to the Surety by recognized authority, and the Surety's Loss rate, average Contract amount, average bond penalty per guaranteed bond, and ratio of Bid Bonds to Final Bonds, all in comparison with other Sureties participating in the same SBA Surety Bond Guarantee Program (Prior Approval or PSB) to a comparable degree. Any guarantee agreement under this part is made exclusively for the benefit of SBA and the Surety, and does not confer any rights (such as a right of action against SBA) or benefits on any other party. (e) Amount of Contract \u2014(1) Determination of Amount of Contract. For a fixed price Contract, the amount of the Contract is the price excluding any options. For a requirements Contract, the amount of the Contract is the price of the total estimated quantity to be ordered under the Contract. For an indefinite quantity Contract, the amount of the Contract is the price of the specified minimum quantity to be ordered under the Contract and, for each Order issued under such Contract, the price of each such Order. The amount of the Contract or Order to be bonded must not exceed the Applicable Statutory Limit as of the date: (i) SBA approves a Prior Approval Surety's request for a Bid Bond guarantee; (ii) A Preferred Surety Executes a Bid Bond; or (iii) The date Final Bonds (and any Ancillary Bonds) unrelated to an SBA-guaranteed Bid Bond are Executed by a Preferred Surety or by a Prior Approval Surety following SBA's approval of its request for a guarantee of Final Bonds. (2) Aggregation of Contract and Order amounts. (i) The amounts of two or more formally separate Contracts for a single construction project are aggregated to determine the Contract amount unless the Contracts are to be performed in phases and the prior bond is released before the beginning of each succeeding phase. A bond may be considered released even if the warranty period it is covering has not yet expired. For purposes of this paragraph, a \u201csingle construction project\u201d means one represented by two or more Contracts of one Principal or its Affiliates with one Obligee or its Affiliates for performance at the same location, regardless of job title or nature of the work to be performed. (ii) The amounts of two or more Contracts or Orders for supplies and services awarded to the same Principal or its Affiliates are aggregated to determine the Contract or Order amount if SBA determines, after discussion with the contracting official responsible for the award of the contract, that award of a single Contract or Order could reasonably have satisfied the supply or service requirement at the time of issuance. (3) Federal Contracts or Orders in excess of $9,000,000 ( as adjusted for inflation in accordance with section 1908 of title 41, United States Code ). SBA is authorized to guarantee bonds on Federal Contracts or Orders greater than $9,000,000 (as adjusted for inflation in accordance with 41 U.S.C. 1908), but not exceeding $14 million, upon a signed certification of a Federal contracting officer that the SBA guarantee is necessary. The certification must be either express mailed to SBA, Office of Surety Guarantees, 409 Third Street SW, Washington, DC 20416 or sent by email to suretybonds@sba.gov, and include the following additional information: (i) Name, address and telephone number of the small business; (ii) Offer or Contract number and brief description of the contract; and (iii) Estimated Contract value and date of anticipated award determination. (4) Alternative authority to guarantee bonds for Contracts and Orders related to a major disaster area. Subject to the availability of funds appropriated in advance specifically for the purpose of guaranteeing bonds for any Contract or Order related to a major disaster, SBA may, as an alternative to the authority otherwise set forth in this Part, guarantee bonds on any Contract or Order under the following terms and conditions: (i) The Contract or Order does not exceed $5,000,000 at the time of bond execution, and: (A) For products or services procured under a Federal Contract or Order, the products will be manufactured or the services will be performed in the major disaster area identified in the Federal Emergency Management Agency (FEMA) Web site at http://www.fema.gov, or the products will be manufactured or the services will be performed outside the major disaster area and the products or services will directly assist in the recovery efforts in the major disaster area; or (B) For products or services procured under any other Contract or Order, the products will be manufactured or the services will be performed in the major disaster area identified in the FEMA Web site at http://www.fema.gov; (ii) At the request of the Head of the Agency involved in reconstruction efforts in response to a major disaster, SBA may guarantee bonds on Federal Contracts or Orders in excess of $5,000,000, but not more than $10,000,000; (iii) A guarantee may be issued under this paragraph (e)(4) for any Contract or Order for which an offer is submitted or an award is made within 12 months from the date an area is designated a major disaster area in the Federal Register. SBA may, at its discretion, extend this time period for any particular disaster, and will publish a notice of the extension in the Federal Register. (f) Transfers or sales by Surety. Sureties must not sell or otherwise transfer their files or accounts, whether before or after a default by the Principal has occurred, without the prior written approval of SBA. A violation of this provision is grounds for termination from participation in the program. This provision does not apply to the sale of an entire business division, subsidiary or operation of the Surety. [61 FR 3271, Jan. 31, 1996, as amended at 66 FR 30804, June 8, 2001; 74 FR 36109, July 22, 2009; 76 FR 2572, Jan. 14, 2011; 79 FR 2086, Jan. 13, 2014; 87 FR 48083, Aug. 8, 2022; 89 FR 11712, Feb. 15, 2024]",
+      "integrity": {
+        "state": "complete",
+        "basis": "Full retrieved body of 7,550 characters stored; under the 60,000 cap, so nothing was cut.",
+        "stamped_at": "2026-10-16T09:05:36",
+        "stored_chars": 7550,
+        "source_chars": 7550,
+        "cap_applied": 60000
+      },
+      "authority_class": "regulation",
+      "claim_layer": "doctrinal",
+      "claim_layer_meaning": "States or describes the rule. Cite for what the law IS."
+    },
+    {
+      "citation": "\u00a7 115.13",
+      "kind": "section_sign",
+      "page": 1,
+      "text": "\u00a7 115.13 Eligibility of Principal. (a) General eligibility. In order to be eligible for a bond guaranteed by SBA, the Principal must comply with the following requirements: (1) Size. Together with its Affiliates, it must qualify as a small business under part 121 of this title. (2) Character. It must possess good character and reputation. A Principal meets this standard if each owner of 20% or more of its equity, and each of its officers, directors, or general partners, possesses good character and reputation. A Person's good character and reputation is presumed absent when: (i) The Person is currently incarcerated, serving a sentence of imprisonment imposed upon adjudication of guilty, or under indictment for a felony; or (ii) A regulatory authority has revoked, canceled, or suspended a license of the Person which is necessary to perform the Contract; or (iii) The Person has obtained a bond guarantee by fraud or material misrepresentation (as described in \u00a7 115.19(b)), or has failed to keep the Surety informed of unbonded contracts or of a contract bonded by another Surety, as required by a bonding line commitment under \u00a7 115.33. (3) Need for bond. It must certify that a bond is expressly required by the bid solicitation or the original Contract in order to bid on the Contract or to serve as a prime contractor or subcontractor. (4) Availability of bond. It must certify that a bond is not obtainable on reasonable terms and conditions without SBA's guarantee. (5) Partial subcontract. It must certify the percentage of work under the Contract to be subcontracted. SBA will not guarantee bonds for Principals who are primarily brokers. In addition, the Principal must retain full responsibility for the oversight and management of the Contract, including any work performed by any subcontractor, and may not subcontract the full scope of the statement of work. (6) Debarment. It must certify that the Principal is not presently debarred, suspended, proposed for debarment, declared ineligible, or voluntarily excluded from transactions with any Federal department or agency, under governmentwide debarment and suspension rules. (7) No loss of eligibility. Neither the Principal nor any of its Affiliates is ineligible for an SBA-guaranteed bond under \u00a7 115.14. (b) Conflict of interest. A Principal is not eligible for an SBA-guaranteed bond issued by a particular Surety if that Surety, or an Affiliate of that Surety, or a close relative or member of the household of that Surety or Affiliate owns, directly or indirectly, 10% or more of the Principal. This prohibition also applies to ownership interests in any of the Principal's Affiliates. [61 FR 3271, Jan. 31, 1996, as amended at 79 FR 2087, Jan. 13, 2014; 81 FR 23565, Apr. 22, 2016; 89 FR 34101, Apr. 30, 2024]",
+      "integrity": {
+        "state": "complete",
+        "basis": "Full retrieved body of 2,792 characters stored; under the 60,000 cap, so nothing was cut.",
+        "stamped_at": "2026-10-16T09:05:36",
+        "stored_chars": 2792,
+        "source_chars": 2792,
+        "cap_applied": 60000
+      },
+      "authority_class": "regulation",
+      "claim_layer": "doctrinal",
+      "claim_layer_meaning": "States or describes the rule. Cite for what the law IS."
+    },
+    {
+      "citation": "\u00a7 115.14",
+      "kind": "section_sign",
+      "page": 1,
+      "text": "\u00a7 115.14 Loss of Principal's eligibility for future assistance and reinstatement of Principal. (a) Ineligibility. A Principal and its Affiliates lose eligibility for further SBA bond guarantees if any of the following occurs under an SBA-guaranteed bond issued on behalf of the Principal: (1) Legal action under the guaranteed bond has been initiated. (2) The Obligee has declared the Principal to be in default under the Contract. (3) The Surety has established a claim reserve for the bond of at least $10,000. (4) The Principal, or any of its Affiliates, has defaulted on an SBA-guaranteed bond resulting in a Loss that has not been fully reimbursed to SBA, or SBA has not been fully reimbursed for any Imminent Breach payments. (5) The guarantee fee has not been paid by the Principal. (6) The Principal committed fraud or material misrepresentation in obtaining the guaranteed bond. (b) Reinstatement of Principal's eligibility. At any time after a Principal becomes ineligible for further bond guarantees under paragraph (a) of this section: (1) A Prior Approval Surety may recommend that such Principal's eligibility be reinstated, and OSG may agree to reinstate the Principal if: (i) The Surety has settled its claim with the Principal, or any of its Affiliates, for an amount that results in no Loss to SBA or in no amount owed for Imminent Breach payments, or OSG finds good cause for reinstating the Principal notwithstanding the Loss to SBA or amount owed for Imminent Breach payments; or (ii) OSG and the Surety determine that further bond guarantees are appropriate after the Principal was deemed ineligible for further SBA bond guarantees under paragraph (a)(1), (2), (3), (5) or (6) of this section. (2) A PSB Surety may: (i) Recommend that such Principal's eligibility be reinstated, and OSG may agree to reinstate the Principal, if the Surety has settled its claim with the Principal, or any of its Affiliates, for an amount that results in no Loss to SBA or in no amount owed for Imminent Breach payments, or OSG finds good cause for reinstating the Principal notwithstanding the Loss to SBA or amount owed for Imminent Breach payments; or (ii) Reinstate a Principal's eligibility upon the Surety's determination that further bond guarantees are appropriate after the Principal was deemed ineligible for further SBA bond guarantees under paragraph (a)(1), (2), (3), (5) or (6) of this section. (c) Underwriting after reinstatement. A guarantee application submitted after reinstatement of the Principal's eligibility is subject to a very stringent underwriting review. [61 FR 3271, Jan. 31, 1996, as amended at 81 FR 23565, Apr. 22, 2016; 87 FR 48084, Aug. 8, 2022]",
+      "integrity": {
+        "state": "complete",
+        "basis": "Full retrieved body of 2,684 characters stored; under the 60,000 cap, so nothing was cut.",
+        "stamped_at": "2026-10-16T09:05:36",
+        "stored_chars": 2684,
+        "source_chars": 2684,
+        "cap_applied": 60000
+      },
+      "authority_class": "regulation",
+      "claim_layer": "doctrinal",
+      "claim_layer_meaning": "States or describes the rule. Cite for what the law IS."
+    },
+    {
+      "citation": "\u00a7 115.15",
+      "kind": "section_sign",
+      "page": 1,
+      "text": "\u00a7 115.15 Underwriting and servicing standards. (a) Underwriting. (1) Sureties must evaluate the credit, capacity, and character of a Principal using standards generally accepted by the surety industry and in accordance with SBA's Standard Operating Procedures on underwriting and the Surety's principles and practices on unguaranteed bonds. The Principal must satisfy the eligibility requirements set forth in \u00a7 115.13. The Surety must reasonably expect that the Principal will successfully perform the Contract to be bonded. (2) The terms and conditions of the bond and the Contract must be reasonable in light of the risks involved and the extent of the Surety's participation. The bond must satisfy the eligibility requirements set forth in \u00a7 115.12(b). The Surety must be satisfied as to the reasonableness of cost and the feasibility of successful completion of the Contract. (b) Servicing. The Surety must ensure that the Principal remains viable and eligible for SBA's Surety Bond Guarantee Program, must monitor the Principal's progress on bonded Contracts guaranteed by SBA, and must request job status reports from Obligees of Final Bonds guaranteed by SBA. Documentation of the job status requests must be maintained by the Surety.",
+      "integrity": {
+        "state": "complete",
+        "basis": "Full retrieved body of 1,242 characters stored; under the 60,000 cap, so nothing was cut.",
+        "stamped_at": "2026-10-16T09:05:36",
+        "stored_chars": 1242,
+        "source_chars": 1242,
+        "cap_applied": 60000
+      },
+      "authority_class": "regulation",
+      "claim_layer": "doctrinal",
+      "claim_layer_meaning": "States or describes the rule. Cite for what the law IS."
+    },
+    {
+      "citation": "\u00a7 115.16",
+      "kind": "section_sign",
+      "page": 1,
+      "text": "\u00a7 115.16 Determination of Surety's Loss. Loss is determined as follows: (a) Loss under a Bid Bond is the lesser of the penal sum or the amount which is the difference between the bonded bid and the next higher responsive bid. In either case, the Loss is reduced by any amounts the Surety recovers by reason of the Principal's defenses against the Obligee's demand for performance by the Principal and any sums the Surety recovers from indemnitors and other salvage. (b) Loss under a Payment Bond is, at the Surety's option, the sum necessary to pay all just and timely claims against the Principal for the value of labor, materials, equipment and supplies furnished for use in the performance of the bonded Contract and other covered debts, or the penal sum of the Payment Bond. In either case, the Loss includes interest (if any), but Loss is reduced by any amounts recovered (through offset or otherwise) by reason of the Principal's claims against laborers, materialmen, subcontractors, suppliers, or other rightful claimants, and by any amounts recovered from indemnitors and other salvage. (c) Loss under a Performance Bond is, at the Surety's option, the sum necessary to meet the cost of fulfilling the terms of a bonded Contract or the penal sum of the bond. In either case, the Loss includes interest (if any), but Loss is reduced by any amounts recovered (through offset or otherwise) by reason of the Principal's defenses or causes of action against the Obligee, and by any amounts recovered from indemnitors and other salvage. (d) Loss under an Ancillary Bond is the amount covered by such bond which is attributable to the Contract for which guaranteed Final Bonds were Executed. (e) Loss includes the following expenses if they are itemized, documented and attributable solely to the Loss under the guaranteed bond: (1) Amounts actually paid by the Surety for specialized services that are provided under contract by an outside consultant, which is not an Affiliate of the Surety, provided that such services are beyond the capability of the Surety's salaried claims staff, and amounts actually paid by the Surety for travel expenses of the Surety's claims staff. The cost of the consultant's services and the travel expenses of the Surety's claims staff must be reasonable and necessary and must specifically concern the investigation, adjustment, negotiation, compromise, settlement of, or resistance to a claim for Loss resulting from the breach of the terms of the bonded Contract. The cost allocation method must be reasonable and must comply with generally accepted accounting principles; and (2) Amounts actually paid by the Surety for court costs and reasonable attorney's fees incurred to mitigate any Loss under paragraphs (a) through (e)(1) of this section including suits to obtain sums due from Obligees, indemnitors, Principals and others. (f) Loss does not include the following expenses: (1) Any unallocated expenses, all direct and indirect costs incurred by the Surety's salaried claims staff (except for reasonable and necessary travel expenses of such staff), or any clear mark-up on expenses or any overhead of the Surety, its attorney, or any other consultant hired by the Surety or the attorney; (2) Expenses paid for any suits, cross-claims, or counterclaims filed against the United States of America or any of its agencies, officers, or employees unless the Surety has received, prior to filing such suit or claim, written concurrence from SBA that the suit may be filed; (3) Attorney's fees and court costs incurred by the Surety in a suit by or against SBA or its Administrator; (4) Fees, costs, or other payments, including tort damages, arising from a successful tort suit or claim by a Principal or any other Person against the Surety; and (5) Any costs that arise from the Principal's failure to secure and maintain insurance coverage required by the Contract or Order, or any costs that result from any claims or judgments that exceed the amount of any insurance coverage required by the Contract or Order, as well as any costs that arise as a result of any agreement by the Principal in the Contract or Order to indemnify the Obligee or any other Persons. [61 FR 3271, Jan. 31, 1996, as amended at 76 FR 2572, Jan. 14, 2011; 81 FR 23566, Apr. 22, 2016]",
+      "integrity": {
+        "state": "complete",
+        "basis": "Full retrieved body of 4,300 characters stored; under the 60,000 cap, so nothing was cut.",
+        "stamped_at": "2026-10-16T09:05:36",
+        "stored_chars": 4300,
+        "source_chars": 4300,
+        "cap_applied": 60000
+      },
+      "authority_class": "regulation",
+      "claim_layer": "doctrinal",
+      "claim_layer_meaning": "States or describes the rule. Cite for what the law IS."
+    },
+    {
+      "citation": "\u00a7 115.17",
+      "kind": "section_sign",
+      "page": 1,
+      "text": "\u00a7 115.17 Minimization of Surety's Loss. (a) Indemnity agreements and collateral \u2014(1) Requirements. The Surety must take all reasonable action to minimize risk of Loss including, but not limited to, obtaining from each Principal a written indemnity agreement which covers actual Losses under the Contract and Imminent Breach payments under \u00a7 115.34(a) or \u00a7 115.69. The indemnity agreement must be secured by such collateral as the Surety or SBA finds appropriate. Indemnity agreements from other Persons, secured or unsecured, may also be required by the Surety or SBA. (2) Prohibitions. No indemnity agreement may be obtained from the Surety, its agent or any other representative of the Surety. The Surety must not separately collateralize the portion of its bond which is not guaranteed by SBA. (b) Salvage and recovery \u2014(1) General. The Surety must pursue all possible sources of salvage and recovery. Salvage and recovery includes all payments made in settlement of the Surety's claim, even though the Surety has incurred other losses as a result of that Principal which are not reimbursable by SBA. (2) SBA's share. SBA is entitled to its guaranteed percentage of all salvage and recovery from a defaulted Principal, its guarantors and indemnitors, and any other party, received by the Surety in connection with the guaranteed bond or any other bond issued by the Surety on behalf of the Principal unless such recovery is unquestionably identifiable as related solely to the non-guaranteed bond. The Surety must reimburse or credit SBA (in the same proportion as SBA's share of Loss) within 45 days of receipt of any recovery by the Surety. (3) Multiple Sureties. In any dispute between two or more Sureties concerning recovery under SBA guaranteed bonds, the dispute must first be brought to the attention of OSG for an attempt at mediation and settlement. [61 FR 3271, Jan. 31, 1996, as amended at 79 FR 2087, Jan. 13, 2014]",
+      "integrity": {
+        "state": "complete",
+        "basis": "Full retrieved body of 1,931 characters stored; under the 60,000 cap, so nothing was cut.",
+        "stamped_at": "2026-10-16T09:05:36",
+        "stored_chars": 1931,
+        "source_chars": 1931,
+        "cap_applied": 60000
+      },
+      "authority_class": "regulation",
+      "claim_layer": "doctrinal",
+      "claim_layer_meaning": "States or describes the rule. Cite for what the law IS."
+    },
+    {
+      "citation": "\u00a7 115.18",
+      "kind": "section_sign",
+      "page": 1,
+      "text": "\u00a7 115.18 Refusal to issue further guarantees; suspension and termination of PSB status. (a) Improper surety bond guarantee practices \u2014(1) Imprudent practices. SBA may refuse to issue further guarantees to a Prior Approval Surety or may suspend the preferred status of a PSB Surety, by written notice stating all reasons for such decision and the effective date. Reasons for such a decision include, but are not limited to, a determination that the Surety (in its underwriting, its efforts to minimize Loss, its claims or recovery practices, or its documentation related to SBA guaranteed bonds) has failed to adhere to prudent standards or practices, including any standards or practices required by SBA, as compared to those of other Sureties participating in the same SBA Surety Bond Guarantee Program to a comparable degree. (2) Regulatory violations, fraud. Acts of wrongdoing such as fraud, material misrepresentation, breach of the Prior Approval or PSB Agreement, the Surety's failure to continue to comply with the requirements set forth in \u00a7 115.11, or regulatory violations (as defined in \u00a7 115.19(d) and (h)) also constitute sufficient grounds for refusal to issue further guarantees, or in the case of a PSB Surety, termination of preferred status. (3) Audit; records. The failure of a Surety to consent to SBA's audit or to maintain and produce records constitutes grounds for SBA to refuse to issue further guarantees for a Prior Approval Surety, to suspend a PSB Surety from participation, and to refuse to honor claims submitted by a Prior Approval or PSB Surety until the Surety consents to the audit. (4) Excessive Losses. If a Surety experiences excessive Losses on SBA guaranteed bonds relative to those of other Sureties participating in the same SBA Surety Bond Guarantee Program to a comparable degree, SBA may also require the renegotiation of the guarantee percentage and/or SBA's charge to the Surety for bonds executed thereafter. (b) Lack of business integrity. A Surety's participation in the Surety Bond Guarantee Programs may be denied, suspended, or terminated upon the occurrence of any event in paragraphs (b) (1) through (5) of this section involving any of the following Persons: The Surety or any of its officers, directors, partners, or other individuals holding at least 20% of the Surety's voting securities, and any agents, underwriters, or any individual empowered to act on behalf of any of the preceding Persons. (1) If a State or other authority has revoked, canceled, or suspended the license required of such Person to engage in the surety business, the right of such Person to participate in the SBA Surety Bond Guarantee Program may be denied, terminated, or suspended, as applicable, in that jurisdiction or in other jurisdictions. Ineligibility or suspension from the Surety Bond Guarantee Programs is for at least the duration of the license suspension. (2) If such Person has been indicted or otherwise formally charged with a misdemeanor or felony bearing on such Person's fitness to participate in the Surety Bond Guarantee Programs, the participation of such Person may be suspended pending disposition of the charge. Upon conviction, participation may be denied or terminated. (3) If a final civil judgment is entered holding that such Person has committed a breach of trust or violation of a law or regulation protecting the integrity of business transactions or relationships, participation may be denied or terminated. (4) If such Person has made a material misrepresentation or willfully false statement in the presentation of oral or written information to SBA in connection with an application for a surety bond guarantee or the presentation of a claim, or committed a material breach of the Prior Approval or PSB Agreement or a material violation of the regulations (all as described in \u00a7 115.19), participation may be denied or terminated. (5) If such Person is debarred, suspended, voluntarily excluded from, or declared ineligible for participation in Federal programs, participation may be denied or terminated. (c) Notification requirement. The Prior Approval or PSB Surety must promptly notify SBA of the occurrence of any event in paragraphs (b) (1) through (5) of this section, or if any of the Persons described in paragraph (b) of this section does not, or ceases to, qualify as a Surety. SBA may require submission of a Statement of Personal History (SBA Form 912) from any of these Persons. (d) SBA proceedings. Decisions to suspend, terminate, deny participation in, or deny reinstatement in the Surety Bond Guarantee program are made by the D/SG. A Surety may file a petition for review of suspensions and terminations with the SBA Office of Hearings and Appeals (OHA) under part 134 of this chapter. SBA's Administrator may, pending a decision pursuant to part 134 of this chapter, suspend the participation of any Surety for any of the causes listed in paragraphs (b) (1) through (5) of this section. (e) Effect on guarantee. A guarantee issued by SBA before a suspension or termination under this section remains in effect, subject to SBA's right to deny liability under the guarantee. [61 FR 3271, Jan. 31, 1996, as amended at 81 FR 23566, Apr. 22, 2016]",
+      "integrity": {
+        "state": "complete",
+        "basis": "Full retrieved body of 5,236 characters stored; under the 60,000 cap, so nothing was cut.",
+        "stamped_at": "2026-10-16T09:05:36",
+        "stored_chars": 5236,
+        "source_chars": 5236,
+        "cap_applied": 60000
+      },
+      "authority_class": "regulation",
+      "claim_layer": "doctrinal",
+      "claim_layer_meaning": "States or describes the rule. Cite for what the law IS."
+    },
+    {
+      "citation": "\u00a7 115.19",
+      "kind": "section_sign",
+      "page": 1,
+      "text": "\u00a7 115.19 Denial of liability. In addition to equitable and legal defenses and remedies under contract law, the Act, and the regulations in this Part, SBA is relieved of liability in whole or in part within its discretion if any of the circumstances in paragraphs (a) through (h) of this section exist, except that SBA shall not deny liability on Prior Approval bonds based solely upon material information that was provided to SBA as part of the Surety's guarantee application. (a) Excess Contract or bond amount. The total Contract or Order amount at the time of Execution of the bond exceeds the Applicable Statutory Limit (see \u00a7 115.10) or the bond amount at any time exceeds the total Contract or Order amount. (b) Misrepresentation or fraud. The Surety obtained the Prior Approval or PSB Agreement, or applied for reimbursement for losses, by fraud or material misrepresentation. Material misrepresentation includes (but is not limited to) both the making of an untrue statement of material fact and the omission of a statement of material fact necessary to make a statement not misleading in light of the circumstances in which it was made. Material misrepresentation also includes the adoption by the Surety of a material misstatement made by others which the Surety knew or under generally accepted underwriting standards should have known to be false or misleading. The Surety's failure to disclose its ownership (or the ownership by any owner of at least 20% of the Surety's equity) of an interest in a Principal or an Obligee is considered the omission of a statement of material fact. (c) Material breach. The Surety has committed a material breach of one or more terms or conditions of its Prior Approval or PSB Agreement. A material breach is considered to have occurred if: (1) Such breach (or such breaches in the aggregate) causes an increase in the Contract amount or in the bond amount of at least 25% or $500,000 of the original contract or bond amount, whichever is less; or (2) One of the conditions under Part B of Title IV of the Investment Act is not met. (d) Substantial regulatory violation. The Surety has committed a \u201csubstantial violation\u201d of SBA regulations. For purposes of this paragraph, a \u201csubstantial violation\u201d is a violation which causes an increase in the bond amount of at least 25% or $500,000 of the original contract or bond amount, whichever is less in the aggregate, or is contrary to the purposes of the Surety Bond Guarantee Programs. (e) Alteration. Without obtaining prior written approval from SBA (which may be conditioned upon payment of additional fees), the Surety agrees to or acquiesces in any material alteration in the terms, conditions, or provisions of the bond, including but not limited to the following acts: (1) Naming as an Obligee or co-Obligee any Person that does not qualify as an Obligee under \u00a7 115.10; or (2) In the case of a Prior Approval Surety, acquiescing in any alteration to the bond which would increase the bond amount by at least 25% or $500,000 of the original contract or bond amount, whichever is less. (f) Timeliness. (1) Either: (i) The bond was Executed prior to the date of SBA's guarantee; or (ii) The bond was Executed (or approved, if the Surety is legally bound by such approval) after the work under the Contract had begun, unless SBA executes a \u201cSurety Bond Guarantee Agreement Addendum\u201d (SBA Form 991) after receiving all of the following from the Surety: (A) Satisfactory evidence, including a certified copy of the Contract (or a sworn affidavit from the Principal), showing that the bond requirement was contained in the original Contract, or other documentation satisfactory to SBA, showing why a bond was not previously obtained and is now being required; (B) Certification by the Principal that all taxes and labor costs are current, and listing all suppliers and subcontractors, indicating that they are all paid to date, and attaching a waiver of lien from each; or an explanation satisfactory to SBA why such documentation cannot be produced; and (C) Certification by the Obligee that all payments due under the Contract to date have been made and that the job has been satisfactorily completed to date. (2)(i) For purposes of paragraph (f)(1)(ii) of this section, work under a Contract is considered to have begun when a Principal takes any action related to the contract or bond that would have exposed its Surety to liability under applicable law had a bond been Executed (or approved, if the Surety is legally bound by such approval) at the time. (ii) For purposes of this paragraph (f), the Surety must maintain a contemporaneous record of the Execution and approval of each bond. (g) Delinquent fees. The Surety has not remitted to SBA the Principal's payment for the full amount of the guarantee fee within the time period required under \u00a7 115.30(d) for Prior Approval Sureties or \u00a7 115.66 for PSB Sureties, or has not made timely payment of the Surety's fee within the time period required by \u00a7 115.32(c). SBA may reinstate the guarantee upon showing that the contract is not in default and that a valid reason exists why a timely remittance or payment was not made. (h) Other regulatory violations. The occurrence of any of the following: (1) The Principal on the bonded Contract is not a small business; (2) The bond was not required under the bid solicitation or the original Contract; (3) The bond was not eligible for guarantee by SBA because the bonded contract was not a Contract as defined in \u00a7 115.10; (4) The loss occurred under a bond that was not guaranteed by SBA; (5) The loss incurred by the Surety was not a Loss as determined under \u00a7 115.16; or (6) The Surety's loss under a Performance Bond did not result from the Principal's breach or Imminent Breach of the Contract. [61 FR 3271, Jan. 31, 1996, as amended at 66 FR 30804, June 8, 2001; 72 FR 34599, July 25, 2007; 74 FR 36110, July 22, 2009; 79 FR 2087, Jan. 13, 2014; 82 FR 39501, Aug. 21, 2017; 87 FR 48084, Aug. 8, 2022]",
+      "integrity": {
+        "state": "complete",
+        "basis": "Full retrieved body of 6,007 characters stored; under the 60,000 cap, so nothing was cut.",
+        "stamped_at": "2026-10-16T09:05:36",
+        "stored_chars": 6007,
+        "source_chars": 6007,
+        "cap_applied": 60000
+      },
+      "authority_class": "regulation",
+      "claim_layer": "doctrinal",
+      "claim_layer_meaning": "States or describes the rule. Cite for what the law IS."
+    },
+    {
+      "citation": "\u00a7 115.20",
+      "kind": "section_sign",
+      "page": 1,
+      "text": "\u00a7 115.20 Insolvency of Surety. (a) Successor in interest. If a Surety becomes insolvent, all rights or benefits conferred on the Surety under a valid and binding Prior Approval or PSB Agreement will accrue only to the trustee or receiver of the Surety. SBA will not be liable to the trustee or receiver of the insolvent Surety except for the guaranteed portion of any Loss incurred and actually paid by such Surety or its trustee or receiver under the guaranteed bonds. (b) Filing requirement. The trustee or receiver must submit to SBA quarterly status reports accounting for all funds received and all settlements being considered.",
+      "integrity": {
+        "state": "complete",
+        "basis": "Full retrieved body of 633 characters stored; under the 60,000 cap, so nothing was cut.",
+        "stamped_at": "2026-10-16T09:05:36",
+        "stored_chars": 633,
+        "source_chars": 633,
+        "cap_applied": 60000
+      },
+      "authority_class": "regulation",
+      "claim_layer": "doctrinal",
+      "claim_layer_meaning": "States or describes the rule. Cite for what the law IS."
+    },
+    {
+      "citation": "\u00a7 115.21",
+      "kind": "section_sign",
+      "page": 1,
+      "text": "\u00a7 115.21 Audits and investigations. (a) Audits \u2014(1) Scope of audit. SBA may audit in the office of a Prior Approval or PSB Surety, the Surety's attorneys or consultants, or the Principal or its subcontractors, all documents, files, books, records, tapes, disks and other material relevant to SBA's guarantee, commitments to guarantee a surety bond, or agreements to indemnify the Prior Approval or PSB Surety. See \u00a7 115.18(a)(3) for consequences of failure to comply with this section. (2) Frequency of PSB audits. Each PSB Surety is subject to an audit at least once every 3 years by examiners selected and approved by SBA. (b) Records. The Surety must maintain the records listed in this paragraph (b) for the term of each bond, plus any additional time required to settle any claims of the Surety for reimbursement from SBA and to attempt salvage or other recovery, plus an additional 3 years. If there are any unresolved audit findings in relation to a particular bond, the Surety must maintain the related records until the findings are resolved. The records to be maintained include the following: (1) A copy of the bond; (2) A copy of the bonded Contract; (3) All documentation submitted by the Principal in applying for the bond; (4) All information gathered by the Surety in reviewing the Principal's application; (5) All documentation of any of the events set forth in \u00a7 115.35(a) or \u00a7 115.65(c)(2); (6) All records of any transaction for which the Surety makes payment under or in connection with the bond, including but not limited to claims, bills (including lawyers' and consultants' bills), judgments, settlement agreements and court or arbitration decisions, consultants' reports, Contracts and receipts; (7) All documentation relating to efforts to mitigate Losses, including documentation required by \u00a7 115.34(a) or \u00a7 115.69 concerning Imminent Breach; (8) All records of any accounts into which fees and funds obtained in mitigation of Losses were paid and from which payments were made under the bond, and any other trust accounts, and any reconciliations of such accounts; (9) Job status reports received from Obligees and documentation of each unanswered request for a job status report; and (10) All documentation relating to any collateral held by or available to the Surety. (c) Purpose of audit. SBA's audit will determine, but not be limited to: (1) The adequacy and sufficiency of the Surety's underwriting and credit analysis, its documentation of claims and claims settlement procedures and activities, and its recovery procedures and practices; (2) The Surety's minimization of Loss, including the exercise of bond options upon Contract default; and (3) The Surety's loss ratio in comparison with other Sureties participating in the same SBA Surety Bond Guarantee Program to a comparable degree. (d) Investigations. SBA may conduct investigations to inquire into the possible violation by any Person of the Small Business Act or the Investment Act, or of any rule or regulation under those Acts, or of any order issued under those Acts, or of any Federal law relating to programs and operations of SBA. [61 FR 3271, Jan. 31, 1996, as amended at 72 FR 34599, June 25, 2007]",
+      "integrity": {
+        "state": "complete",
+        "basis": "Full retrieved body of 3,203 characters stored; under the 60,000 cap, so nothing was cut.",
+        "stamped_at": "2026-10-16T09:05:36",
+        "stored_chars": 3203,
+        "source_chars": 3203,
+        "cap_applied": 60000
+      },
+      "authority_class": "regulation",
+      "claim_layer": "doctrinal",
+      "claim_layer_meaning": "States or describes the rule. Cite for what the law IS."
+    },
+    {
+      "citation": "\u00a7 115.22",
+      "kind": "section_sign",
+      "page": 1,
+      "text": "\u00a7 115.22 Quarterly Contract Completion Report. The Surety must submit a Quarterly Contract Completion Report within 45 days after the close of each fiscal year quarter ending December 31, March 31, June 30, and September 30, that identifies each contract successfully completed during the quarter. The report shall include: (a) The SBA Surety Bond Guarantee Number, (b) Name of the Principal, (c) The original Contract Dollar Amount, (d) The revised Contract Dollar Amount (if applicable), (e) The date of Contract completion, and (f) A summary specifying the fee amounts paid to SBA by the Surety and Principal, the fee amounts due to SBA as a result of any increases in the Contract amount, and the fee amounts to be refunded to the Principal or rebated to the Surety as a result of any decreases in the Contract amount. [82 FR 39501, Aug. 21, 2017] Subpart B\u2014Guarantees Subject to Prior Approval",
+      "integrity": {
+        "state": "complete",
+        "basis": "Full retrieved body of 898 characters stored; under the 60,000 cap, so nothing was cut.",
+        "stamped_at": "2026-10-16T09:05:36",
+        "stored_chars": 898,
+        "source_chars": 898,
+        "cap_applied": 60000
+      },
+      "authority_class": "regulation",
+      "claim_layer": "doctrinal",
+      "claim_layer_meaning": "States or describes the rule. Cite for what the law IS."
+    },
+    {
+      "citation": "\u00a7 115.30",
+      "kind": "section_sign",
+      "page": 1,
+      "text": "\u00a7 115.30 Submission of Surety's guarantee application. (a) Legal effect of application. By submitting an application to SBA for a bond guarantee, the Prior Approval Surety certifies that the Principal meets the eligibility requirements set forth in \u00a7 115.13 and that the underwriting standards set forth in \u00a7 115.15 have been met. (b) SBA's determination. SBA's approval or decline of a guarantee application is made in writing by an authorized SBA officer. The officer may provide telephone notice before the Prior Approval Surety receives SBA's guarantee approval form if the officer has already signed the form. In the event of a conflict between the telephone notice and the written form, the written form controls. (c) Reconsideration-appeal of SBA determination. A Prior Approval Surety may request reconsideration of a decline from the SBA officer who made the decision. If the decision on reconsideration is negative, the Surety may appeal to an individual designated by the D/SG. If the decision is again adverse, the Surety may appeal to the D/SG, who will make the final decision. (d) Prior Approval Agreement. To apply for a bond guarantee, a Prior Approval Surety must submit a Surety Bond Guarantee Agreement (SBA Form 990) and select one of the following application types: (1) Regular. A Prior Approval Surety may complete and submit a Surety Bond Guarantee Agreement (SBA Form 990) indicating a Regular application type to SBA for each Bid Bond or Final Bond. This Form must be approved by SBA prior to the Surety's Execution of the bond. The guarantee fees owed in connection with Final Bonds must be paid in accordance with \u00a7 115.32. (2) Quick Bond Agreement \u2014(i) General procedures. Except as provided in paragraph (d)(2)(ii) of this section, a Prior Approval Surety may complete and submit a SBA Form 990 indicating a Quick Bond Agreement application type for each Bid Bond or Final Bond. This form must be approved by SBA prior to the Surety's Execution of the bond. The Quick Bond application type is used only for contract amounts that do not exceed $500,000 at the time of application. The guarantee fees owed in connection with Final Bonds must be paid in accordance with \u00a7 115.32. (ii) Exclusions. The Quick Bond application type may not be used under the following circumstances: (A) The Principal has previously defaulted on any contract or has had any claims or complaints filed against it with any court or administrative agency; (B) Work on the Contract commenced before a bond was Executed; (C) The time for completion of the Contract exceeds 12 months; (D) The Contract includes a provision for liquidated damages that exceed $2,500 per day; (E) The Contract involves asbestos abatement, hazardous waste removal, or timber sales; or (F) The bond would be issued under a surety bonding line approved under \u00a7 115.33. [61 FR 3271, Jan. 31, 1996, as amended at 77 FR 41665, July 16, 2012; 79 FR 2087, Jan. 13, 2014; 82 FR 39501, Aug. 21, 2017; 87 FR 48084, Aug. 8, 2022; 88 FR 24473, Apr. 21, 2023]",
+      "integrity": {
+        "state": "complete",
+        "basis": "Full retrieved body of 3,028 characters stored; under the 60,000 cap, so nothing was cut.",
+        "stamped_at": "2026-10-16T09:05:36",
+        "stored_chars": 3028,
+        "source_chars": 3028,
+        "cap_applied": 60000
+      },
+      "authority_class": "regulation",
+      "claim_layer": "doctrinal",
+      "claim_layer_meaning": "States or describes the rule. Cite for what the law IS."
+    },
+    {
+      "citation": "\u00a7 115.31",
+      "kind": "section_sign",
+      "page": 1,
+      "text": "\u00a7 115.31 Guarantee percentage. (a) Ninety percent. SBA reimburses a Prior Approval Surety for 90% of the Loss incurred and paid if: (1) The total amount of the Contract at the time of Execution of the bond is $100,000 or less; or (2) The bond was issued on behalf of a small business owned and controlled by socially and economically disadvantaged individuals, on behalf of a certified HUBZone small business concern, or on behalf of a small business owned and controlled by veterans or a small business owned and controlled by Service-disabled veterans. (b) Eighty percent. SBA reimburses a Prior Approval Surety in an amount not to exceed 80% of the Loss incurred and paid on bonds for Contracts in excess of $100,000 which are executed on behalf of non-disadvantaged concerns. (c) Contract increase to over $100,000. If the Contract amount increases to more than $100,000 after Execution of the bond, the guarantee percentage decreases by one percentage point for each $5,000 of increase or part thereof, but it does not decrease below 80%. This provision applies only to guarantees which qualify under paragraph (a)(1) of this section. (d) Contract or Order increases exceed Applicable Statutory Limit. If the Contract or Order amount is increased above the Applicable Statutory Limit after Execution of the bond, SBA's share of the Loss is limited to that percentage of the increased Contract or Order amount that the Applicable Statutory Limit represents multiplied by the guarantee percentage approved by SBA. For example, if a contract amount increases to $6,800,000, SBA's share of the loss under an 80% guarantee is limited to 76.5% [6,500,000/6,800,000 = 95.6% x 80% = 76.5%]. (e) Contract or Order decrease to $100,000 or less. If the Contract or Order amount decreases to $100,000, or less, after Execution of the bond, SBA's guarantee percentage increases to 90% if the Surety provides SBA with evidence supporting the decrease and any other information or documents requested. [61 FR 3271, Jan. 31, 1996, as amended at 64 FR 18324, Apr. 14, 1999; 66 FR 30804, June 8, 2001; 72 FR 34599, June 25, 2007; 74 FR 36110, July 22, 2009; 79 FR 2087, Jan. 13, 2014; 84 FR 65239, Nov. 26, 2019]",
+      "integrity": {
+        "state": "complete",
+        "basis": "Full retrieved body of 2,199 characters stored; under the 60,000 cap, so nothing was cut.",
+        "stamped_at": "2026-10-16T09:05:36",
+        "stored_chars": 2199,
+        "source_chars": 2199,
+        "cap_applied": 60000
+      },
+      "authority_class": "regulation",
+      "claim_layer": "doctrinal",
+      "claim_layer_meaning": "States or describes the rule. Cite for what the law IS."
+    },
+    {
+      "citation": "\u00a7 115.32",
+      "kind": "section_sign",
+      "page": 1,
+      "text": "\u00a7 115.32 Fees and Premiums. (a) Surety's Premium. A Prior Approval Surety must not charge a Principal an amount greater than that authorized by the appropriate insurance department. The Surety must not require the Principal to purchase casualty or other insurance or any other services from the Surety or any Affiliate or agent of the Surety. The Surety must not charge non-Premium fees to a Principal unless the Surety performs other services for the Principal, the additional fee is permitted by State law, and the Principal agrees to the fee. (b) SBA charge to Principal. SBA does not charge Principals application or Bid Bond guarantee fees. If SBA guarantees a Final Bond, the Principal must pay a guarantee fee equal to a certain percentage of the Contract amount. The percentage is determined by SBA and is published in Notices in the Federal Register from time to time. The Principal's fee is rounded to the nearest dollar and is to be remitted to SBA with the form submitted under \u00a7 115.30(d). See paragraph (d) of this section for additional requirements when the Contract amount changes. (c) SBA charge to Surety. SBA does not charge Sureties application or Bid Bond guarantee fees. Subject to \u00a7 115.18(a)(4), the Surety must pay SBA a guarantee fee on each guaranteed bond (other than a Bid Bond) within 60 calendar days after SBA's approval of the Prior Approval Agreement. The fee is a certain percentage of the bond premium determined by SBA and published in Notices in the Federal Register from time to time. The fee is rounded to the nearest dollar. SBA does not receive any portion of a Surety's non-premium charges. See paragraph (d) of this section for additional requirements when the Contract or bond amount changes. (d) Contract or bond increases/decreases \u2014(1) Notification and approval. The Prior Approval Surety must notify SBA of any increases or decreases in the Contract or bond amount that aggregate 25% or $500,000 of the original contract or bond amount, whichever is less, as soon as the Surety acquires knowledge of the change. Whenever the original bond amount increases as a result of a single change order of at least 25% or $500,000 of the original contract or bond amount, whichever is less, the prior written approval of such increase by SBA is required on a supplemental Prior Approval Agreement and is conditioned upon payment by the Surety of the increase in the Principal's guarantee fee as set forth in paragraph (d)(2) of this section. In notifying SBA of any increase or decrease in the Contract or bond amount, the Prior Approval Surety must use SBA Form 990 and select the application type that it used in applying for the original bond guarantee. (2) Increases; fees. The payment for the increase in the Principal's guarantee fee, which is computed on the increase in the Contract amount, is due upon notification of the increase in the Contract or bond amount under this paragraph (d). If the increase in the Principal's fee is less than $250, no payment is due until the total amount of increases in the Principal's fee equals or exceeds $250. The Surety's payment of the increase in the Surety's guarantee fee, computed on the increase in the bond Premium, must be submitted to SBA within 60 calendar days of SBA's approval of the Prior Approval Agreement, unless the amount of such increased guarantee fee is less than $250. When the total amount of increase in the guarantee fee equals or exceeds $250, the Surety must remit the fee within 60 calendar days. (3) Decreases; refunds. Whenever SBA is notified of a decrease in the Contract or bond amount, SBA will refund to the Principal a proportionate amount of the Principal's guarantee fee and rebate to the Surety a proportionate amount of SBA's Premium share in the ordinary course of business. If the amount to be refunded or rebated is less than $250, such refund or rebate will not be made until the amounts to be refunded or rebated, respectively, aggregate at least $250. Upon receipt of the refund, the Surety must promptly pay a proportionate amount of its Premium to the Principal. [61 FR 3271, Jan. 31, 1996, as amended at 72 FR 34599, June 25, 2007; 77 FR 41665, July 16, 2012; 79 FR 2087, Jan. 13, 2014; 82 FR 39502, Aug. 21, 2017; 87 FR 48084, Aug. 8, 2022; 88 FR 24473, Apr. 21, 2023]",
+      "integrity": {
+        "state": "complete",
+        "basis": "Full retrieved body of 4,306 characters stored; under the 60,000 cap, so nothing was cut.",
+        "stamped_at": "2026-10-16T09:05:36",
+        "stored_chars": 4306,
+        "source_chars": 4306,
+        "cap_applied": 60000
+      },
+      "authority_class": "regulation",
+      "claim_layer": "doctrinal",
+      "claim_layer_meaning": "States or describes the rule. Cite for what the law IS."
+    },
+    {
+      "citation": "\u00a7 115.33",
+      "kind": "section_sign",
+      "page": 1,
+      "text": "\u00a7 115.33 Surety bonding line. A surety bonding line is a written commitment by SBA to a Prior Approval Surety which provides for the Surety's Execution of multiple bonds for a specified small business strictly within pre-approved terms, conditions and limitations. In applying for a bonding line, the Surety must provide SBA with information on the applicant as requested. In addition to the other limitations and provisions set forth in this part 115, the following conditions apply to each surety bonding line: (a) Underwriting. A bonding line may be issued by SBA for a Principal only if the underwriting evaluation is satisfactory. The Prior Approval Surety must require the Principal to keep it informed of all its contracts, whether bonded by the same or another surety or unbonded, during the term of the bonding line. (b) Bonding line conditions. The bonding line contains limitations on the following: (1) The term of the bonding line, not to exceed 1 year subject to renewal in writing; (2) The total dollar amount of the Principal's bonded and unbonded work on hand at any time, including outstanding bids, during the term of the bonding line; (3) The number of such bonded and unbonded contracts outstanding at any time during the term of the bonding line; (4) The maximum dollar amount of any single guaranteed bonded Contract; (5) The timing of Execution of bonds under the bonding line\u2014bonds must be dated and Executed before the work on the underlying Contract has begun, or the Surety must submit to SBA the documentation required under \u00a7 115.19(f)(1)(ii); and (6) Any other limitation related to type, specialty of work, geographical area, or credit. (c) Excess bonding. If, after a bonding line is issued, the Principal desires a bond and the Surety desires a guarantee exceeding a limitation of the bonding line, the Surety must submit an application to SBA under regular procedures. (d) Submission of forms to SBA \u2014(1) Bid Bonds. Within 15 business days after the Execution of any Bid Bonds under a bonding line, the Surety must submit a \u201cSurety Bond Guarantee Agreement (Form 990)\u201d to SBA for approval. If the Surety fails to submit the form within this time period, SBA's guarantee of the bond will be void from its inception unless SBA determines otherwise upon a showing that a valid reason exists why the timely submission was not made. (2) Final Bonds. Within 15 business days after the Execution of any Final Bonds under a bonding line, the Surety must submit a Surety Bond Guarantee Agreement (SBA Form 990) to SBA for approval. If the surety fails to submit this form within the time period or the guarantee fees are not paid in accordance with \u00a7 115.32, SBA's guarantee of the bond will be void from its inception unless SBA determines otherwise upon a showing that the Contract is not in default and a valid reason exists why the timely submission was not made. (3) Additional information. The Surety must submit any other data SBA requests. (e) Cancellation of bonding line \u2014(1) Optional cancellation. Either SBA or the Surety may cancel a bonding line at any time, with or without cause, upon written notice to the other party. Upon the receipt of any adverse information concerning the Principal, the Surety must promptly notify SBA, and SBA may cancel the bonding line. (2) Mandatory cancellation. Upon the occurrence of a default by the Principal, whether under a contract bonded by the same or another surety or an unbonded contract, the Surety must immediately cancel the bonding line. (3) Effect of cancellation. Cancellation of a bonding line by SBA is effective upon receipt of written notice by the Surety. Bonds issued before the effective date of cancellation remain guaranteed by SBA. Upon cancellation by SBA or the Surety, the Surety must promptly notify the Principal in writing. [61 FR 3271, Jan. 31, 1996, as amended at 77 FR 41665, July 16, 2012; 87 FR 48084, Aug. 8, 2022]",
+      "integrity": {
+        "state": "complete",
+        "basis": "Full retrieved body of 3,925 characters stored; under the 60,000 cap, so nothing was cut.",
+        "stamped_at": "2026-10-16T09:05:36",
+        "stored_chars": 3925,
+        "source_chars": 3925,
+        "cap_applied": 60000
+      },
+      "authority_class": "regulation",
+      "claim_layer": "doctrinal",
+      "claim_layer_meaning": "States or describes the rule. Cite for what the law IS."
+    },
+    {
+      "citation": "\u00a7 115.34",
+      "kind": "section_sign",
+      "page": 1,
+      "text": "\u00a7 115.34 Minimization of Surety's Loss. (a) Imminent Breach \u2014(1) Prior approval requirement. SBA will reimburse its guaranteed share of payments made by a Surety to avoid or attempt to avoid an Imminent Breach of the terms of a Contract covered by an SBA guaranteed bond only if the payments were made with the prior approval of OSG. OSG's prior approval will be given only if the Surety demonstrates to SBA's satisfaction that a breach is imminent and that there is no other recourse to prevent such breach. (2) Amount of reimbursement. The aggregate of the payments by SBA to avoid Imminent Breach cannot exceed 10% of the Contract amount, unless the Administrator finds that a greater payment (not to exceed the guaranteed share of the bond penalty) is necessary and reasonable. In no event will SBA make any duplicate payment pursuant to this or any other provision of this part 115. (3) Recordkeeping requirement. The Surety must keep records of payments made to avoid Imminent Breach. (b) Salvage and recovery. A Prior Approval Surety must pursue all possible sources of salvage and recovery until SBA concurs with the Surety's recommendation for a discontinuance or for a settlement. The Surety must certify that continued pursuit of salvage and recovery would be neither economically feasible nor a viable strategy in maximizing recovery. See also \u00a7 115.17(b).",
+      "integrity": {
+        "state": "complete",
+        "basis": "Full retrieved body of 1,368 characters stored; under the 60,000 cap, so nothing was cut.",
+        "stamped_at": "2026-10-16T09:05:36",
+        "stored_chars": 1368,
+        "source_chars": 1368,
+        "cap_applied": 60000
+      },
+      "authority_class": "regulation",
+      "claim_layer": "doctrinal",
+      "claim_layer_meaning": "States or describes the rule. Cite for what the law IS."
+    },
+    {
+      "citation": "\u00a7 115.35",
+      "kind": "section_sign",
+      "page": 1,
+      "text": "\u00a7 115.35 Claims for reimbursement of Losses. (a) Notification requirements \u2014(1) Events requiring notification. A Prior Approval Surety must notify OSG of the occurrence of any of the following: (i) Legal action under the bond has been initiated. (ii) The Obligee has declared the Principal to be in default under the Contract. (iii) The Surety has established a claim reserve for the bond. (iv) The Surety has received any adverse information concerning the Principal's financial condition or possible inability to complete the project or to pay laborers or suppliers. (2) Timing of notification. Notification must be made in writing at the earlier of the time the Surety applies for a guarantee on behalf of an affected Principal, or within 30 days of the date the Surety acquires knowledge, or should have acquired knowledge, of any of the listed events. (b) Surety action. The Surety must take all necessary steps to mitigate Losses resulting from any of the events in paragraph (a) of this section, including the disposal at fair market value of any collateral held by or available to the Surety. Unless SBA notifies the Surety otherwise, the Surety must take charge of all claims or suits arising from a defaulted bond, and compromise, settle and defend such suits. The Surety must handle and process all claims under the bond and all settlements and recoveries as it does on non-guaranteed bonds. (c) Claim reimbursement requests. (1) Claims for reimbursement for Losses which the Surety has paid must be submitted (together with a copy of the bond, the bonded Contract, and any indemnity agreements) with the initial claim to OSG on a \u201cDefault Report, Claim for Reimbursement and Report of Recoveries\u201d (SBA Form 994H), within 90 days from the time of each disbursement. Claims submitted after 90 days must be accompanied by substantiation satisfactory to SBA. The date of the claim for reimbursement is the date of receipt of the claim by SBA, or such later date as additional information requested by SBA is received. (2) The Surety must also submit evidence of the disposal of all collateral at fair market value. (3) SBA may request additional information prior to reimbursing the Surety for its Loss. (4) Subject to the offset provisions of part 140, SBA pays its share of the Loss incurred and paid by the Surety within 45 days of receipt of the requisite information. (5) Claims for reimbursement and any additional information submitted are subject to review and audit by SBA, including but not limited to the Surety's compliance with SBA's regulations and forms. (d) Status updates. The Surety must submit semiannual status reports on each claim 6 months after the initial default notice, and then every 6 months. The Surety must notify SBA immediately of any substantial changes in the status of the claim or the amounts of Loss reserves. (e) Reservation of SBA rights. The payment by SBA of a Surety's claim does not waive or invalidate any of the terms of the Prior Approval Agreement, the regulations set forth in this part 115, or any defense SBA may have against the Surety. Within 30 days of receipt of notification that a claim or any portion of a claim should not have been paid by SBA, the Surety must repay the specified amounts to SBA. [61 FR 3271, Jan. 31, 1996, as amended at 79 FR 2087, Jan. 13, 2014]",
+      "integrity": {
+        "state": "complete",
+        "basis": "Full retrieved body of 3,331 characters stored; under the 60,000 cap, so nothing was cut.",
+        "stamped_at": "2026-10-16T09:05:36",
+        "stored_chars": 3331,
+        "source_chars": 3331,
+        "cap_applied": 60000
+      },
+      "authority_class": "regulation",
+      "claim_layer": "doctrinal",
+      "claim_layer_meaning": "States or describes the rule. Cite for what the law IS."
+    },
+    {
+      "citation": "\u00a7 115.36",
+      "kind": "section_sign",
+      "page": 1,
+      "text": "\u00a7 115.36 Indemnity settlements. (a) An indemnity settlement occurs when a defaulted Principal and its Surety agree upon an amount, less than the actual loss under the bond, which will satisfy the Principal's indebtedness to the Surety. Sureties must not agree to any indemnity settlement proposal or enter into any such agreement without SBA's concurrence. (b) Any settlement proposal submitted for SBA's consideration must include current financial information, including financial statements, tax returns, and credit reports, together with the Surety's written recommendations. It should also indicate whether the Principal is interested in further bonding. (c) The Surety must pay SBA its pro rata share of the settlement amount within 45 days of receipt. Prior to closing the file on a Principal, the Surety must certify that SBA has received its pro rata share of all indemnity recovery. [61 FR 3271, Jan. 31, 1996, as amended at 79 FR 2087, Jan. 13, 2014; 81 FR 23566, Apr. 22, 2016] Subpart C\u2014Preferred Surety Bond (PSB) Guarantees",
+      "integrity": {
+        "state": "complete",
+        "basis": "Full retrieved body of 1,038 characters stored; under the 60,000 cap, so nothing was cut.",
+        "stamped_at": "2026-10-16T09:05:36",
+        "stored_chars": 1038,
+        "source_chars": 1038,
+        "cap_applied": 60000
+      },
+      "authority_class": "regulation",
+      "claim_layer": "doctrinal",
+      "claim_layer_meaning": "States or describes the rule. Cite for what the law IS."
+    },
+    {
+      "citation": "\u00a7 115.60",
+      "kind": "section_sign",
+      "page": 1,
+      "text": "\u00a7 115.60 Selection and admission of PSB Sureties. (a) Selection of PSB Sureties. SBA's selection of PSB Sureties will be guided by, but not limited to, these factors: (1) An underwriting limitation of at least $6,500,000 on the U.S. Treasury Department list of acceptable sureties; (2) An agreement that the Surety will neither charge a bond premium in excess of that authorized by the appropriate State insurance department, nor impose any non-premium fee unless such fee is permitted by applicable State law and approved by SBA. (3) Premium income from contract bonds guaranteed by any government agency (Federal, State or local) of no more than one- quarter of the total contract bond premium income of the Surety; (4) The vesting of underwriting authority for SBA guaranteed bonds only in employees of the Surety; (5) The rating or ranking designations assigned to the Surety by recognized authority. (b) Admission of PSB Sureties. A Surety admitted to the PSB program must execute a PSB Agreement before approving SBA guaranteed bonds. No SBA guarantee attaches to bonds approved before the D/SG or designee has countersigned the Agreement. For a period of nine months following admission to the PSB program, the Surety must obtain SBA's prior written approval before executing a bond greater than $2 million so that SBA may evaluate the Surety's performance in its underwriting and claims and recovery functions. At the end of this nine month period, SBA may in its discretion extend this period to allow SBA to further evaluate the Surety's performance. [61 FR 3271, Jan. 31, 1996, as amended at 66 FR 30804, June 8, 2001; 72 FR 34600, June 25, 2007; 81 FR 23566, Apr. 22, 2016; 82 FR 39502, Aug. 21, 2017]",
+      "integrity": {
+        "state": "complete",
+        "basis": "Full retrieved body of 1,713 characters stored; under the 60,000 cap, so nothing was cut.",
+        "stamped_at": "2026-10-16T09:05:36",
+        "stored_chars": 1713,
+        "source_chars": 1713,
+        "cap_applied": 60000
+      },
+      "authority_class": "regulation",
+      "claim_layer": "doctrinal",
+      "claim_layer_meaning": "States or describes the rule. Cite for what the law IS."
+    },
+    {
+      "citation": "\u00a7 115.62",
+      "kind": "section_sign",
+      "page": 1,
+      "text": "\u00a7 115.62 Prohibition on participation in Prior Approval program. A PSB Surety is not eligible to submit applications under subpart B of this part. This prohibition does not extend to an Affiliate, as defined in 13 CFR \u00a7 121.103, of a PSB Surety that is not itself a PSB Surety provided that the relationship between the PSB Surety and the Affiliate has been fully disclosed to SBA and that such Affiliate has been approved by SBA to participate as a Prior Approval Surety pursuant to \u00a7 115.11. [72 FR 34600, June 25, 2007]",
+      "integrity": {
+        "state": "complete",
+        "basis": "Full retrieved body of 522 characters stored; under the 60,000 cap, so nothing was cut.",
+        "stamped_at": "2026-10-16T09:05:36",
+        "stored_chars": 522,
+        "source_chars": 522,
+        "cap_applied": 60000
+      },
+      "authority_class": "regulation",
+      "claim_layer": "doctrinal",
+      "claim_layer_meaning": "States or describes the rule. Cite for what the law IS."
+    },
+    {
+      "citation": "\u00a7 115.63",
+      "kind": "section_sign",
+      "page": 1,
+      "text": "\u00a7 115.63 Allotment of guarantee authority. (a) General. SBA allots to each PSB Surety a periodic maximum guarantee authority. No SBA guarantee attaches to bonds approved by a PSB Surety if the bonds exceed the allotted authority for the period in which the bonds are approved. No reliance on future authority is permitted. An allotment can be increased only by prior written permission of SBA. (b) Execution of Bid Bonds. When the PSB Surety Executes a Bid Bond, SBA debits the Surety's allotment for an amount equal to the guarantee percentage of the estimated penal sum of the Final Bond SBA would guarantee if the Contract were awarded. If the Contract is then awarded for an amount other than the bid amount, or if the bid is withdrawn or the Bid Bond guarantee has expired (see \u00a7 115.12(c)), SBA debits or credits the Surety's allotment accordingly. (c) Execution of Final Bonds. If the PSB Surety Executes a guaranteed Final Bond, but not the related Bid Bond, SBA debits the Surety's allotment for an amount equal to the guarantee percentage of the penal sum of the Final Bond. SBA will debit the allotment for increases, and credit the allotment for decreases, in the bond amount. (d) Release and non-issuance of Final Bonds. The release of Final Bonds upon completion of the Contract does not restore the corresponding allotment. If, however, a PSB Surety approves a Final Bond but never issues the bond, SBA will credit the Surety's allotment for an amount equal to the guarantee percentage of the penal sum of the bond. In that event, the Surety must notify SBA as soon as possible, but in no event later than 5 business days after the non-issuance has been determined. Until the Surety has so notified SBA, it cannot rely on such credit.",
+      "integrity": {
+        "state": "complete",
+        "basis": "Full retrieved body of 1,749 characters stored; under the 60,000 cap, so nothing was cut.",
+        "stamped_at": "2026-10-16T09:05:36",
+        "stored_chars": 1749,
+        "source_chars": 1749,
+        "cap_applied": 60000
+      },
+      "authority_class": "regulation",
+      "claim_layer": "doctrinal",
+      "claim_layer_meaning": "States or describes the rule. Cite for what the law IS."
+    },
+    {
+      "citation": "\u00a7 115.64",
+      "kind": "section_sign",
+      "page": 1,
+      "text": "\u00a7 115.64 Timeliness requirement. There must be no Execution or approval of a bond by a PSB Surety after commencement of work under a Contract unless the Surety obtains written approval from the D/SG. To apply for such approval, the Surety must submit a completed \u201cSurety Bond Guarantee Agreement Addendum\u201d (SBA Form 991), together with the evidence and certifications described in \u00a7 115.19(f)(1)(ii). For purposes of this section, work has commenced under a Contract when a Principal takes any action related to the contract or bond that would have exposed its Surety to liability under applicable law had a bond been Executed (or approved, if the Surety is legally bound by such approval) at the time. [61 FR 3271, Jan. 31, 1996, as amended at 87 FR 48084, Aug. 8, 2022]",
+      "integrity": {
+        "state": "complete",
+        "basis": "Full retrieved body of 771 characters stored; under the 60,000 cap, so nothing was cut.",
+        "stamped_at": "2026-10-16T09:05:36",
+        "stored_chars": 771,
+        "source_chars": 771,
+        "cap_applied": 60000
+      },
+      "authority_class": "regulation",
+      "claim_layer": "doctrinal",
+      "claim_layer_meaning": "States or describes the rule. Cite for what the law IS."
+    },
+    {
+      "citation": "\u00a7 115.65",
+      "kind": "section_sign",
+      "page": 1,
+      "text": "\u00a7 115.65 General PSB procedures. (a) Retention of information. A PSB Surety must comply with all applicable SBA regulations and obtain from its applicants all the information and certifications required by SBA. The PSB Surety must document compliance with SBA regulations and retain such certifications in its files, including a contemporaneous record of the date of approval and Execution of each bond. See also \u00a7 115.19(f). The certifications and other information must be made available for inspection by SBA or its agents and must be available for submission to SBA in connection with the Surety's claims for reimbursement. The PSB Surety must retain the certifications and other information for the term of the bond, plus such additional time as may be required to settle any claims of the Surety for reimbursement from SBA and to attempt salvage or other recovery, plus an additional 3 years. If there are any unresolved audit findings in relation to a particular bond, the Surety must maintain the related certifications and other information until the findings are resolved. (b) Usual staff and procedures. The approval, Execution and administration by a PSB Surety of SBA guaranteed bonds must be handled in the same manner and with the same staff as the Surety's activity outside the PSB program. The Surety must request job status reports from Obligees in accordance with its own procedures. (c) Notification to SBA \u2014(1) Approvals. A PSB Surety must notify SBA by electronic transmission or monthly bordereau, as agreed between the Surety and SBA, of all approved Bid and Final Bonds, and of the Surety's approval of increases and decreases in the Contract or bond amount. The notice must contain the information specified from time to time in agreements between the Surety and SBA. SBA may deny liability with respect to Final Bonds for which SBA has not received timely notice. (2) Other events requiring notification. The PSB Surety must notify SBA within 30 calendar days of the name and address of any Principal against whom legal action on the bond has been instituted; whenever an Obligee has declared a default; whenever the Surety has established or added to a claim reserve; of the recovery of any amounts on the guaranteed bond; and of any decision by the Surety to bond any such Principal again.",
+      "integrity": {
+        "state": "complete",
+        "basis": "Full retrieved body of 2,318 characters stored; under the 60,000 cap, so nothing was cut.",
+        "stamped_at": "2026-10-16T09:05:36",
+        "stored_chars": 2318,
+        "source_chars": 2318,
+        "cap_applied": 60000
+      },
+      "authority_class": "regulation",
+      "claim_layer": "doctrinal",
+      "claim_layer_meaning": "States or describes the rule. Cite for what the law IS."
+    },
+    {
+      "citation": "\u00a7 115.66",
+      "kind": "section_sign",
+      "page": 1,
+      "text": "\u00a7 115.66 Fees. The PSB Surety must pay SBA a certain percentage of the Premium it charges on Final Bonds. The PSB Surety must also remit to SBA the Principal's payment for its guarantee fee, equal to a certain percentage of the Contract amount. The fee percentages are determined by SBA and are published in Notices in the Federal Register from time to time. Each fee is rounded to the nearest dollar. The Surety must remit SBA's Premium share and the Principal's guarantee fee with the bordereau listing the related Final Bond, as required in the PSB Agreement.",
+      "integrity": {
+        "state": "complete",
+        "basis": "Full retrieved body of 562 characters stored; under the 60,000 cap, so nothing was cut.",
+        "stamped_at": "2026-10-16T09:05:36",
+        "stored_chars": 562,
+        "source_chars": 562,
+        "cap_applied": 60000
+      },
+      "authority_class": "regulation",
+      "claim_layer": "doctrinal",
+      "claim_layer_meaning": "States or describes the rule. Cite for what the law IS."
+    },
+    {
+      "citation": "\u00a7 115.67",
+      "kind": "section_sign",
+      "page": 1,
+      "text": "\u00a7 115.67 Changes in Contract or bond amount. (a) Increases. The PSB Surety must process Contract or bond amount increases within its allotment in the same manner as initial guaranteed bond issuances (see \u00a7 115.65(c)(1)). The Surety must present checks for additional fees due from the Principal and the Surety on any increases aggregating 25% of the original Contract or bond amount or $500,000, whichever is less, and attach such payments to the respective monthly bordereau. If the additional Principal's fee or Surety's fee is less than $250, such fee is not due until all unpaid increases in such fee aggregate at least $250. (b) Decreases. If the Contract or bond amount is decreased, SBA will refund to the Principal a proportionate amount of the guarantee fee, and adjust SBA's Premium share accordingly in the ordinary course of business. No refund or adjustment will be made until the amounts to be refunded or rebated, respectively, aggregate at least $250. [61 FR 3271, Jan. 31, 1996, as amended at 79 FR 2087, Jan. 13, 2014; 82 FR 39502, Aug. 21, 2017; 87 FR 48084, Aug. 8, 2022]",
+      "integrity": {
+        "state": "complete",
+        "basis": "Full retrieved body of 1,091 characters stored; under the 60,000 cap, so nothing was cut.",
+        "stamped_at": "2026-10-16T09:05:36",
+        "stored_chars": 1091,
+        "source_chars": 1091,
+        "cap_applied": 60000
+      },
+      "authority_class": "regulation",
+      "claim_layer": "doctrinal",
+      "claim_layer_meaning": "States or describes the rule. Cite for what the law IS."
+    },
+    {
+      "citation": "\u00a7 115.68",
+      "kind": "section_sign",
+      "page": 1,
+      "text": "\u00a7 115.68 Guarantee percentage. SBA reimburses a PSB Surety in the same percentages and under the same terms as set forth in \u00a7 115.31. [82 FR 39502, Aug. 21, 2017]",
+      "integrity": {
+        "state": "complete",
+        "basis": "Full retrieved body of 162 characters stored; under the 60,000 cap, so nothing was cut.",
+        "stamped_at": "2026-10-16T09:05:36",
+        "stored_chars": 162,
+        "source_chars": 162,
+        "cap_applied": 60000
+      },
+      "authority_class": "regulation",
+      "claim_layer": "doctrinal",
+      "claim_layer_meaning": "States or describes the rule. Cite for what the law IS."
+    },
+    {
+      "citation": "\u00a7 115.69",
+      "kind": "section_sign",
+      "page": 1,
+      "text": "\u00a7 115.69 Imminent Breach. (a) No prior approval requirement. SBA will reimburse a PSB Surety for the guaranteed portion of payments the Surety makes to avoid or attempt to avoid an Imminent Breach of the terms of a Contract covered by an SBA guaranteed bond. The aggregate of the payments by SBA under this section cannot exceed 10% of the Contract amount, unless the Administrator finds that a greater payment (not to exceed the guaranteed portion of the bond penalty) is necessary and reasonable. The PSB Surety does not need to obtain prior SBA approval to make Imminent Breach payments, except that the PSB Surety may request SBA to approve payments that exceed 10% of the Contract amount prior to the Surety making the payment. In no event will SBA make any duplicate payment under any provision of these regulations in this part. (b) Recordkeeping requirement. The PSB Surety must keep records of payments made to avoid Imminent Breach. [79 FR 2087, Jan. 13, 2014]",
+      "integrity": {
+        "state": "complete",
+        "basis": "Full retrieved body of 970 characters stored; under the 60,000 cap, so nothing was cut.",
+        "stamped_at": "2026-10-16T09:05:36",
+        "stored_chars": 970,
+        "source_chars": 970,
+        "cap_applied": 60000
+      },
+      "authority_class": "regulation",
+      "claim_layer": "doctrinal",
+      "claim_layer_meaning": "States or describes the rule. Cite for what the law IS."
+    },
+    {
+      "citation": "\u00a7 115.70",
+      "kind": "section_sign",
+      "page": 1,
+      "text": "\u00a7 115.70 Claims for reimbursement of Losses. (a) How claims are submitted. A PSB Surety must submit claims for reimbursement on a form approved by SBA no later than 90 days from the date the Surety paid the amount. Loss is determined as of the date of receipt by SBA of the claim for reimbursement, or as of such later date as additional information requested by SBA is received. Subject to the offset provisions of part 140, SBA pays its share of Loss within 45 days of receipt of the requisite information. Claims for reimbursement and any additional information submitted are subject to review and audit by SBA. (b) Surety responsibilities. The PSB Surety must take all necessary steps to mitigate Losses when legal action against a bond has been instituted, when the Obligee has declared a default, and when the Surety has established a claim reserve. The Surety may dispose of collateral at fair market value only. Unless SBA notifies the Surety otherwise, the Surety must take charge of all claims or suits arising from a defaulted bond, and compromise, settle or defend the suits. The Surety must handle and process all claims under the bond and all settlements and recoveries in the same manner as it does on non-guaranteed bonds. (c) Reservation of SBA's rights. The payment by SBA of a PSB Surety's claim does not waive or invalidate any of the terms of the PSB Agreement, the regulations in this part 115, or any defense SBA may have against the Surety. Within 30 days of receipt of notification that a claim or any portion of a claim should not have been paid by SBA, the Surety must repay the specified amounts to SBA. [61 FR 3271, Jan. 31, 1996, as amended at 79 FR 2087, Jan. 13, 2014]",
+      "integrity": {
+        "state": "complete",
+        "basis": "Full retrieved body of 1,700 characters stored; under the 60,000 cap, so nothing was cut.",
+        "stamped_at": "2026-10-16T09:05:36",
+        "stored_chars": 1700,
+        "source_chars": 1700,
+        "cap_applied": 60000
+      },
+      "authority_class": "regulation",
+      "claim_layer": "doctrinal",
+      "claim_layer_meaning": "States or describes the rule. Cite for what the law IS."
+    },
+    {
+      "citation": "\u00a7 115.71",
+      "kind": "section_sign",
+      "page": 1,
+      "text": "\u00a7 115.71 Denial of liability. In addition to the grounds set forth in \u00a7 115.19, SBA may deny liability to a PSB Surety if: (a) The PSB Surety's guaranteed bond was in an amount which, together with all other guaranteed bonds, exceeded the allotment for the period during which the bond was approved, and no prior SBA approval had been obtained; (b) The PSB Surety's loss was incurred under a bond which was not listed on the bordereau for the period when it was approved; or (c) The loss incurred by the PSB Surety is not attributable to the particular Contract for which an SBA guaranteed bond was approved.",
+      "integrity": {
+        "state": "complete",
+        "basis": "Full retrieved body of 608 characters stored; under the 60,000 cap, so nothing was cut.",
+        "stamped_at": "2026-10-16T09:05:36",
+        "stored_chars": 608,
+        "source_chars": 608,
+        "cap_applied": 60000
+      },
+      "authority_class": "regulation",
+      "claim_layer": "doctrinal",
+      "claim_layer_meaning": "States or describes the rule. Cite for what the law IS."
+    }
+  ],
+  "claim_layer_basis": "Set from the class, not from the text: a statute or regulation states the rule rather than describing or arguing it, which the citation in the title establishes definitionally."
+}

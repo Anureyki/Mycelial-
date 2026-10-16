@@ -68,6 +68,13 @@ SECTION_PATTERNS = [
     # contents listing and left every section body unattached: 4 sections out
     # of ~50, which looked like a successful ingest.
     (re.compile(r'^\s*(\d{3,4}[A-Za-z]?)\.\s+[A-Z]'), "code_section"),
+    # THE FAR AND ITS SUPPLEMENTS head a section with its bare number and no
+    # section sign - "28.103-1 General.", "528.103-2 Bonds for other than
+    # construction." - so FAR Parts 28 and 4 (2026-10-16) segmented into zero
+    # sections and could not be looked up. Part.section, an optional -n
+    # subsection, then whitespace and a capital: a cross-reference mid-line or
+    # "52.228-16," in a list does not start a line this way.
+    (re.compile(r'^\s*(\d{1,3}\.\d{1,4}(?:-\d+)?)\s+[A-Z][a-z]'), "far_section"),
 ]
 # MAX_SECTION was 4000 and silently TRUNCATED. 12 U.S.C. 1813 is a long
 # definitions section; it stored the first 4,000 characters, reported "1
