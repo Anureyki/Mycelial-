@@ -5319,6 +5319,31 @@ class GrowAgent(AgentBase):
             return {"error": "Needs plant_id. A pH response belongs to one reservoir."}
         d = str(direction or "").lower().replace(" ", "_")
         d = "down" if "down" in d else ("up" if "up" in d else None)
+        # AN ADDITION WITH NO MEASURED RESPONSE (2026-10-16, GSC2: 0.25 ml pH Up
+        # by accident, then 0.5 ml pH Down to correct, no reading between or
+        # after). It is kept - what went into the reservoir is a fact - but it
+        # teaches no response and never becomes the working one.
+        if ph_from is None or ph_to is None:
+            if d is None:
+                return {"error": "An unmeasured addition needs its direction (up or down)."}
+            try:
+                ml = float(ml)
+            except (TypeError, ValueError):
+                return {"error": "Needs ml as a number."}
+            rec = self._jload(f"grow_system_{plant_id}", {})
+            if not rec:
+                return {"error": f"No system record for {plant_id}."}
+            entry = {"measured_at": str(at or datetime.now().isoformat(timespec="seconds")),
+                     "product": product or f"General Hydroponics pH {d.title()}", "ml": ml,
+                     "ph_from": self._parse_numeric(ph_from), "ph_to": self._parse_numeric(ph_to),
+                     "unmeasured": True,
+                     "basis": "addition recorded without a before-and-after pair - not a response",
+                     **({"note": str(note)[:300]} if note else {})}
+            hist = list(rec.get(f"ph_{d}_response_history") or [])
+            hist.append(entry)
+            self.amend_grow_system(plant_id, **{f"ph_{d}_response_history": hist[-20:]})
+            return {"recorded": True, "plant_id": plant_id, "direction": d, "response": None,
+                    "unmeasured": True, "entry": entry}
         try:
             ml, p0, p1 = float(ml), float(ph_from), float(ph_to)
         except (TypeError, ValueError):

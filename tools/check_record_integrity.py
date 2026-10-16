@@ -182,6 +182,15 @@ def main():
     r = g.record_refill("p10", to_liters=20, added_liters=2, water="di", at="2026-10-03T10:00:00")
     ck("DI is 0 ppm", r.get("water_basis") == "DI water taken as 0 ppm", str(r.get("water_basis")))
 
+    print("an unmeasured pH addition is kept but never becomes the response")
+    store = {"grow_system_p13": json.dumps({"plant_id": "p13", "reservoir_liters": 18.0,
+                                            "ph_down_response": {"ml": 0.75, "delta_ph": -1.01}})}
+    g = grow(store)
+    r = g.record_ph_adjustment("p13", "down", 0.5)
+    rec = json.loads(store["grow_system_p13"])
+    ck("recorded as unmeasured", r.get("unmeasured") and rec["ph_down_response_history"][-1]["unmeasured"])
+    ck("the working response is unchanged", rec["ph_down_response"]["ml"] == 0.75)
+
     print("a recorded sighting outranks the age")
     germ = (datetime.now() - timedelta(days=69)).date().isoformat()
     store = {"current_stage": "flower", "germination_date": germ,
