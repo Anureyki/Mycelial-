@@ -203,7 +203,7 @@ class LegalAgent(AgentBase):
                 "claim_open", "claim_cite", "claim_answer", "claim_set_right",
                 "claim_evidence", "claim_observe", "claim_reproducibility",
                 "claim_corroborate", "claim_get", "claim_list", "claim_ontology",
-                "add_deadline", "deadlines", "record_deadline_event", "check_deadline_register", "classify_solicitation", "bond_requirements", "check_bond_terms", "modification_gate", "validate_entity_ids", "record_sam_registration", "sam_offer_check", "screen_sam_offer", "watch_docket", "watched_dockets",
+                "add_deadline", "deadlines", "record_deadline_event", "check_deadline_register", "classify_solicitation", "bond_requirements", "check_bond_terms", "modification_gate", "validate_entity_ids", "record_sam_registration", "sam_offer_check", "screen_sam_offer", "scan_gsa_directives", "gsa_directives", "map_gsa_directive", "watch_docket", "watched_dockets",
                 "record_settlement_offer", "settlement_offers",
                 "open_action", "complete_action", "amend_action", "actions",
                 "add_venue", "venues", "running_clocks", "complaint_path",
@@ -669,6 +669,77 @@ class LegalAgent(AgentBase):
         return {"checked_at": now.isoformat(timespec="seconds"), "entries": len(rows),
                 "flagged": flags, "register": rows}
 
+    GSA_DIRECTIVES_CONFIG = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(
+        os.path.abspath(__file__)))), "config", "gsa_directives.json")
+
+    def _gsa_cfg(self):
+        try:
+            with open(self.GSA_DIRECTIVES_CONFIG) as fh:
+                c = json.load(fh)
+        except Exception:
+            c = {}
+        c["mode"] = "live" if c.get("mode") == "live" else "dry_run"
+        return c
+
+    def _gsa_directives_task(self, task, a):
+        """GSA Directives Library monitor (core/gsa_directives.py)."""
+        import core.gsa_directives as G
+        cfg = self._gsa_cfg()
+        reg = json.loads(self._unwrap_value(self.retrieve_own_memory("gsa_directives")) or "{}")
+        if task == "map_gsa_directive":
+            num, basis = str(a.get("number") or "").strip(), str(a.get("basis") or "").strip()
+            cons = a.get("constrains") or []
+            if num not in reg:
+                return {"error": f"{num!r} is not on the register - scan first"}
+            if not (cons and basis):
+                return {"error": ("A mapping needs `constrains` ([{agent, behavior}]) and `basis` - the "
+                                  "directive's own words that impose it. A title is not a basis.")}
+            reg[num]["constrains"] = cons
+            reg[num]["mapping_basis"] = basis[:1500]
+            reg[num]["mapped_at"] = datetime.now().isoformat(timespec="seconds")
+            self.store_own_memory("gsa_directives", json.dumps(reg), pin=True)
+            return {"mapped": num, "constrains": cons}
+        if task == "scan_gsa_directives":
+            res = G.scan()
+            if not res["directives"]:
+                return {"error": "no directives read", "errors": res["errors"], "mode": cfg["mode"]}
+            seen, new, changed = set(), [], []
+            for d in res["directives"]:
+                n = d["number"]
+                seen.add(n)
+                old = reg.get(n)
+                if not old:
+                    new.append(n)
+                elif (old.get("outdated"), old.get("title")) != (d["outdated"], d["title"]):
+                    changed.append({"number": n, "was": old.get("outdated"), "now": d["outdated"]})
+                keep = {k: old[k] for k in ("constrains", "mapping_basis", "mapped_at") if old and k in old}
+                reg[n] = dict(d, **keep, last_seen=res["scanned_at"], listed=True)
+            gone = [n for n, d in reg.items() if d.get("listed") and n not in seen]
+            for n in gone:
+                reg[n]["listed"] = False
+                reg[n]["delisted_at"] = res["scanned_at"]
+            self.store_own_memory("gsa_directives", json.dumps(reg), pin=True)
+            self.store_own_memory("gsa_directives_last_scan", json.dumps(
+                {k: res[k] for k in ("scanned_at", "by_series", "errors")}))
+            fl = G.flags([d for d in reg.values() if d.get("listed")], horizon=cfg.get("horizon", "2028-12-31"))
+            self.log(f"gsa directives scan ({cfg['mode']}): {len(res['directives'])} read, "
+                     f"{len(new)} new, {len(changed)} changed, {len(gone)} delisted")
+            return {"mode": cfg["mode"], "read": len(res["directives"]), "by_series": res["by_series"],
+                    "errors": res["errors"], "new": new, "changed": changed, "delisted": gone,
+                    "flags": {k: (len(v) if isinstance(v, list) else v) for k, v in fl.items()},
+                    "notified": False if cfg["mode"] == "dry_run" else "via reminders"}
+        live = [d for d in reg.values() if d.get("listed")]
+        fl = G.flags(live, horizon=cfg.get("horizon", "2028-12-31"))
+        unmapped = sorted(d["number"] for d in live if not d.get("constrains"))
+        return {"mode": cfg["mode"], "listed": len(live), "flags": fl,
+                "mapped": {d["number"]: d["constrains"] for d in live if d.get("constrains")},
+                "unmapped_count": len(unmapped),
+                "unmapped_note": ("A directive is mapped to the agent behaviours it constrains only "
+                                  "after it is read; map_gsa_directive takes the directive's own words "
+                                  "as the basis."),
+                "last_scan": json.loads(self._unwrap_value(self.retrieve_own_memory(
+                    "gsa_directives_last_scan")) or "{}")}
+
     def deadlines(self, case_id=None):
         """The register, soonest first. Passed deadlines stay - a limitation
         period that ran is a fact about the matter, not a row to tidy away."""
@@ -943,6 +1014,26 @@ class LegalAgent(AgentBase):
                          + (" If it is done, tell Legal and attach the proof; it is still "
                             "open on the record." if left < 0 else ""))})
         basis.append(f"{len(acts)} open action(s) of yours due within 7 days or past due")
+        if self._gsa_cfg()["mode"] == "live":
+            try:
+                regd = json.loads(self._unwrap_value(self.retrieve_own_memory("gsa_directives")) or "{}")
+            except Exception:
+                regd = {}
+            for d in regd.values():
+                o = d.get("outdated")
+                if not (d.get("listed") and o):
+                    continue
+                left = (datetime.fromisoformat(o) - now).days
+                if -1 <= left <= 90:
+                    items.append({"key": f"gsa_{d['number']}:{'d90' if left > 30 else 'd30' if left > 0 else 'out'}",
+                                  "urgency": "soon",
+                                  "subject": f"GSA directive {d['number']} reaches its outdated date {o}",
+                                  "body": f"{d['number']} - {d['title']} - outdated {o}. "
+                                          + (f"Constrains: {d['constrains']}." if d.get("constrains") else
+                                             "Not yet mapped to any agent behaviour.")})
+            basis.append("GSA directives monitor live: outdated dates within 90 days")
+        else:
+            basis.append("GSA directives monitor in dry_run - no directive reminders")
         offers = [o for o in self._settlements() if o.get("status") == "open" and o.get("respond_by")]
         for o in offers:
             try:
@@ -5351,6 +5442,8 @@ class LegalAgent(AgentBase):
             self.store_own_memory("sam_registrations", json.dumps(regs), pin=True)
             return {"recorded": rec, "ids": ids, "renewal_deadline": dl.get("due"),
                     "deadline_error": dl.get("error")}
+        if task in ("scan_gsa_directives", "gsa_directives", "map_gsa_directive"):
+            return self._gsa_directives_task(task, args if isinstance(args, dict) else {})
         if task == "record_deadline_event":
             return self.record_deadline_event(**(args if isinstance(args, dict) else {}))
         if task == "check_deadline_register":

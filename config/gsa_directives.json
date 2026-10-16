@@ -1,0 +1,6 @@
+{
+  "mode": "dry_run",
+  "mode_note": "dry_run: the scheduled scan reads the GSA Directives Library and updates Legal's register, and notifies nobody. live: directives newly inside the horizon, or within 90 days of their outdated date, become Legal reminders. Switched by the principal, never by code.",
+  "horizon": "2028-12-31",
+  "schedule": "weekly, Monday 06:00 (crontab)"
+}
