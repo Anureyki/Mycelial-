@@ -2941,7 +2941,7 @@ class GrowAgent(AgentBase):
         return out
 
     def record_refill(self, plant_id=None, to_liters=None, added_liters=None,
-                      topup_ppm=None, note="", at=None, water=None):
+                      topup_ppm=None, note="", at=None, water=None, from_liters=None):
         """Record that water went in. -> receipt, and what the next reading should read.
 
         WHAT IT REFUSES. No plant, no record: the same rule readings run on,
@@ -3014,6 +3014,12 @@ class GrowAgent(AgentBase):
         cap = self._parse_numeric(rec.get("reservoir_capacity_liters"))
         to_v = self._parse_numeric(to_liters)
         add_v = self._parse_numeric(added_liters)
+        # A stated START is as good as a stated amount (2026-10-17: GSC1's
+        # unreported top-up was given as "to 18 L" with a start estimated at
+        # 16 - and with no added_liters the start fell back to the old record).
+        _fv = self._parse_numeric(from_liters)
+        if add_v is None and _fv is not None and to_v is not None:
+            add_v = round(to_v - _fv, 2)
         if to_v is None and add_v is None:
             return {"recorded": False, "reason": "no volume given",
                     "ask": "Say what it was filled TO, or how much was added."}
@@ -6341,6 +6347,17 @@ class GrowAgent(AgentBase):
                         continue
                     if t0 and (datetime.fromisoformat(ts[:19]) - t0).total_seconds() > self.BLEND_MAX_GAP_H * 3600:
                         break
+                    # NOT A READING OF THE DOSE YET (2026-10-17): GSC2's 733, taken at
+                    # the pour, was refused by reconcile_dose as unsettled - and then
+                    # taken here as the dose's result, dragging the veg strength from
+                    # 280.2 to 199.7. Settling counts from the pour when recorded.
+                    _pour = str(e.get("poured_at") or e["at"])[:19]
+                    try:
+                        if (datetime.fromisoformat(ts[:19]) - datetime.fromisoformat(_pour)
+                                ).total_seconds() < self.DOSE_SETTLE_HOURS * 3600:
+                            continue
+                    except Exception:
+                        pass
                     p1 = self._parse_numeric(r.get("ppm")); src = f"first ppm reading after dose ({ts[:16]})"
                     break
             if not (ml and v0 and v1 and p0 is not None and p1):
@@ -16018,7 +16035,8 @@ class GrowAgent(AgentBase):
             return {"result": self.record_refill(
                 a.get("plant_id"), to_liters=a.get("to_liters"),
                 added_liters=a.get("added_liters"), topup_ppm=a.get("topup_ppm"),
-                note=a.get("note", ""), at=a.get("at"), water=a.get("water"))}
+                note=a.get("note", ""), at=a.get("at"), water=a.get("water"),
+                from_liters=a.get("from_liters"))}
 
         elif task == "ingest_environment_export":
             a = args if isinstance(args, dict) else {}

@@ -180,6 +180,9 @@ def main():
        (r.get("prediction") or {}).get("ppm_after_refill") == 753.0, str(r.get("prediction")))
     ck("and the refill says which water it was", r.get("water") == "dehumidifier")
     r = g.record_refill("p10", to_liters=20, added_liters=2, water="di", at="2026-10-03T10:00:00")
+    r2 = g.record_refill("p10", to_liters=18, from_liters=16, at="2026-10-04T10:00:00")
+    ck("a stated start works like a stated amount", r2.get("from_liters") == 16.0 and r2.get("added_liters") == 2.0,
+       f"{r2.get('from_liters')} -> {r2.get('to_liters')}")
     ck("DI is 0 ppm", r.get("water_basis") == "DI water taken as 0 ppm", str(r.get("water_basis")))
 
     print("an unmeasured pH addition is kept but never becomes the response")
@@ -277,6 +280,17 @@ def main():
        str(r.get("classification")))
     ck("and the late reading is never stored as the dose's result",
        "measured_ppm_after" not in ev and ev.get("late_reading_ppm") == 493)
+
+    print("calibration never learns from an unmixed reading")
+    store = {"volume_events_p14": json.dumps([{
+        "at": "2026-10-16T10:00:00", "poured_at": "2026-10-16T10:05:00", "kind": "dose",
+        "volume_liters": 18.2, "final_liters": 18.2, "ppm_before": 493.0, "add_now_ml": {"A": 22.75},
+        "blend": "stage_ratio:veg", "reconciled": True, "reconciled_result": "no_settled_reading"}])}
+    g = grow(store)
+    g._get_readings_for_plant = lambda pid: [{"timestamp": "2026-10-16T10:06:00", "ppm": 733,
+                                              "volume_liters": 18.2}]
+    c = g.calibrate_blend("p14", "stage_ratio:veg", write=False)
+    ck("a reading one minute after the pour is not the dose's result", not c.get("n"), str(c)[:120])
 
     print("a carried-forward level is not a measurement")
     g = grow({})
