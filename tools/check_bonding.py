@@ -77,6 +77,12 @@ def main():
     ck("a reserved post-award bond right is flagged as unsupported, not as a violation",
        f and f[0]["finding"] == "unsupported")
 
+    print("bond forms come from the FAR's own table")
+    fm = {f["form"] for f in B.forms(res)["forms"]}
+    ck("28.106-1 lists all 15, incl. SF 1414/1415/1416/1418 and OF 91",
+       len(fm) == 15 and {"SF 1414", "SF 1415", "SF 1416", "SF 1418", "OF 91", "SF 24", "SF 28"} <= fm,
+       str(sorted(fm)))
+
     print("consent of surety (FAR 28.106-5)")
     g = B.modification_gate(1_000_000, 1_060_000)
     ck("a $60,000 increase with no scope change needs SF 1414", g["consent_required"])

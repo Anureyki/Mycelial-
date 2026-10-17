@@ -70,6 +70,7 @@
     "bond_requirements",
     "check_bond_terms",
     "modification_gate",
+    "bond_forms",
     "validate_entity_ids",
     "record_sam_registration",
     "sam_offer_check",

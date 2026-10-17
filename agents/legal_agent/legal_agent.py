@@ -203,7 +203,7 @@ class LegalAgent(AgentBase):
                 "claim_open", "claim_cite", "claim_answer", "claim_set_right",
                 "claim_evidence", "claim_observe", "claim_reproducibility",
                 "claim_corroborate", "claim_get", "claim_list", "claim_ontology",
-                "add_deadline", "deadlines", "record_deadline_event", "check_deadline_register", "classify_solicitation", "bond_requirements", "check_bond_terms", "modification_gate", "validate_entity_ids", "record_sam_registration", "sam_offer_check", "screen_sam_offer", "scan_gsa_directives", "gsa_directives", "map_gsa_directive", "watch_docket", "watched_dockets",
+                "add_deadline", "deadlines", "record_deadline_event", "check_deadline_register", "classify_solicitation", "bond_requirements", "check_bond_terms", "modification_gate", "bond_forms", "validate_entity_ids", "record_sam_registration", "sam_offer_check", "screen_sam_offer", "scan_gsa_directives", "gsa_directives", "map_gsa_directive", "watch_docket", "watched_dockets",
                 "record_settlement_offer", "settlement_offers",
                 "open_action", "complete_action", "amend_action", "actions",
                 "add_venue", "venues", "running_clocks", "complaint_path",
@@ -5375,6 +5375,9 @@ class LegalAgent(AgentBase):
             return self.actions(a.get("case_id"), bool(a.get("include_closed")))
         if task == "add_deadline":
             return self.add_deadline(**(args if isinstance(args, dict) else {}))
+        if task == "bond_forms":
+            import core.bonding as _bond
+            return _bond.forms(self._resolve_authority)
         if task in ("classify_solicitation", "bond_requirements", "check_bond_terms",
                     "modification_gate"):
             # Bonding and surety (core/bonding.py). Every threshold is read from

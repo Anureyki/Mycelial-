@@ -217,3 +217,28 @@ def modification_gate(original_price, new_price=None, scope_expands=False, novat
                      if triggers else "no consent-of-surety trigger"),
             "why_it_matters": "without consent a surety can argue the change released it, "
                               "leaving the contract unsecured"}
+
+
+def forms(resolver):
+    """The bond and bond-related forms, read from FAR 28.106-1 - never a typed
+    list. A list someone remembers drops the non-construction forms (SF 1416,
+    SF 1418), the consent forms (SF 1414, SF 1415) and OF 91; the table in
+    the regulation does not."""
+    d = resolver("48 CFR 28.106-1") or {}
+    text = re.sub(r"\s+", " ", d.get("text") or "")
+    text = text.split("[", 1)[0]          # drop the Federal Register history
+    rows = []
+    # Each lettered entry whole: "(d) SF 25-B, Continuation Sheet (for SF's 24, 25, and 25-A)."
+    # carries no "(see ...)" and a pattern requiring one silently dropped it.
+    for part in re.split(r"\(([a-z])\)\s+(?=(?:SF|OF)\s)", text)[2::2]:
+        m = re.match(r"((?:SF|OF)\s+[\w-]+),\s+(.+?)\.?\s*$", part.strip())
+        if not m:
+            continue
+        body = m.group(2).strip().rstrip(".")
+        i = body.find("(see ")
+        # "(see 28.102-1 and 28.106-3(b))" nests parentheses - split at "(see",
+        # drop only the closing one that belongs to it.
+        title, see = (body[:i].strip(), body[i + 5:][:-1].strip()) if i >= 0 else (body, None)
+        rows.append({"form": m.group(1), "title": title, "see": see})
+    return {"forms": rows, "count": len(rows),
+            "basis": "FAR 28.106-1" if rows else "FAR 28.106-1 not readable - no list given"}
