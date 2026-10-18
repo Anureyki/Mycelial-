@@ -16526,7 +16526,13 @@ class GrowAgent(AgentBase):
                 "stage_at_event": stage,
                 "species": species,
                 "strain": strain,
-                "detail": args.get("detail", ""),
+                # `note` used to vanish here: only `detail` was read, so a caller
+                # saying note= lost "fan leaves only, for light" (2026-10-18).
+                # Which leaves, why, and how much are fields, not prose.
+                "detail": args.get("detail") or args.get("note") or "",
+                "leaves": args.get("leaves"),
+                "purpose": args.get("purpose"),
+                "amount": args.get("amount"),
                 "concerns": concerns,
                 "guidance": guidance,
             }
