@@ -922,7 +922,7 @@ class GrowAgent(AgentBase):
                 "set_grow_system", "get_grow_system", "amend_grow_system",
                 "field_history", "assess_root_zone", "void_reservoir_eval",
                 "which_plant", "record_refill",
-                "reconcile_ec_temperature", "intake_reading", "when_to_top_up", "project_topup", "plan_feed_for_target", "reconcile_dose", "ingest_environment_export", "predict_flowering", "calibrate_blend", "record_ripeness", "assess_ripeness", "maintenance_due", "notify_maintenance", "record_lesson", "list_lessons", "ppm_per_ml", "round_to_instrument", "assess_ph", "record_ph_adjustment", "reopen_dose", "record_dose_poured", "quantities",
+                "reconcile_ec_temperature", "intake_reading", "when_to_top_up", "project_topup", "plan_feed_for_target", "reconcile_dose", "ingest_environment_export", "predict_flowering", "calibrate_blend", "record_ripeness", "assess_ripeness", "maintenance_due", "notify_maintenance", "record_lesson", "list_lessons", "ppm_per_ml", "round_to_instrument", "assess_ph", "record_ph_adjustment", "reopen_dose", "record_dose_poured", "simulate_water_alert", "quantities",
                 "get_nutrient_history",
                 "set_inventory", "get_inventory",
                 "check_in", "analyze_consumption", "adjust_to_target_ppm",
@@ -13788,6 +13788,70 @@ class GrowAgent(AgentBase):
             out["precision"] = "one interval starts at a change-out timed only to the day"
         return out
 
+    def _water_alert_message(self, label, pr):
+        """The alert's words - ONE place, used by the live alert and by the
+        simulation, so a simulation that lands proves the real message lands."""
+        subject = (f"DANGER - {label}: reservoir at or below {pr['danger_liters']:g} L"
+                   if pr["status"] == "danger" else
+                   f"{label}: reservoir will be at {pr['low_water_liters']:g} L "
+                   + ("now" if pr["status"] != "ok" else f"in about {pr['hours_to_crossing']:.0f} h"))
+        return subject, f"{label}: {pr['message']}"
+
+    def _send_water_alert(self, label, pr, prefix=""):
+        subject, body = self._water_alert_message(label, pr)
+        r = self.send_a2a("anansi", "notify", {
+            "subject": prefix + subject, "body": (prefix + body) if prefix else body,
+            "from_agent": "grow_agent", "register": "low_stakes", "channels": ["email", "dashboard"]})
+        return r.get("result", r) if isinstance(r, dict) else r
+
+    def simulate_water_alert(self, plant_id=None, scenario="low", hours=None):
+        """Fire the water alert's REAL message through the REAL delivery path,
+        from a synthetic projection - to prove the text lands before a real
+        event has to (principal 2026-10-18: "the real event ... becomes the
+        live validation instead of the only test").
+
+        Touches no plant record and no reading: the projection is built here,
+        not from the store. It does not mark the real alert as sent (its
+        once-a-day key is not written), it is labelled SIMULATION in subject
+        and body, and it is logged to the alert log as simulation=True. It
+        sends regardless of the alert's mode, because sending is the thing
+        being tested."""
+        if not plant_id:
+            return {"error": "simulate_water_alert needs plant_id"}
+        cfg = self._alerts_cfg()
+        low = float(cfg.get("low_water_liters") or 12)
+        danger = float(cfg.get("danger_liters") or 10)
+        label = self._jload(f"grow_system_{plant_id}", {}).get("instance_label") or plant_id
+        if scenario == "danger":
+            pr = {"status": "danger", "danger_liters": danger, "low_water_liters": low,
+                  "message": f"DANGER: projected at {danger - 0.5:.1f} L now - at or below the "
+                             f"{danger:g} L danger level. Refill now."}
+        elif scenario == "low":
+            h = float(hours if hours is not None else 18)
+            pr = {"status": "ok", "low_water_liters": low, "hours_to_crossing": h,
+                  "danger_liters": danger,
+                  "message": f"Projected {low + 1.0:.1f} L now - crosses {low:g} L in about {h:.0f} h."}
+        else:
+            return {"error": "scenario must be low or danger"}
+        tag = "[SIMULATION - nothing is wrong] "
+        subject, body = self._water_alert_message(label, pr)
+        res = self._send_water_alert(label, pr, prefix=tag)
+        entry = {"at": datetime.now().isoformat(timespec="seconds"), "plant_id": plant_id,
+                 "trigger": "simulate_water_alert", "simulation": True, "scenario": scenario,
+                 "mode": cfg["mode"], "subject": tag + subject, "delivery": res}
+        try:
+            os.makedirs(os.path.dirname(self.ALERT_LOG), mode=0o700, exist_ok=True)
+            fd = os.open(self.ALERT_LOG, os.O_WRONLY | os.O_CREAT | os.O_APPEND, 0o600)
+            with os.fdopen(fd, "a") as fh:
+                fh.write(json.dumps(entry) + "\n")
+        except Exception as exc:
+            self.log(f"simulate_water_alert: could not log: {exc}")
+        sent = isinstance(res, dict) and res.get("sent_any")
+        return {"simulated": True, "scenario": scenario, "subject": tag + subject,
+                "body": tag + body, "sent_any": bool(sent), "delivery": res,
+                "records_touched": False,
+                "verify": "the principal confirms the email arrived with this subject"}
+
     def _water_alert(self, plant_id, trigger):
         """Re-project after a logged event; alert when the crossing is close."""
         cfg = self._alerts_cfg()
@@ -13808,15 +13872,7 @@ class GrowAgent(AgentBase):
             log = self._jload("water_alerts_sent", {})
             key = f"{plant_id}:{pr.get('status')}:{day}"
             if key not in log:
-                r = self.send_a2a("anansi", "notify", {
-                    "subject": (f"DANGER - {label}: reservoir at or below {pr['danger_liters']:g} L"
-                                if pr["status"] == "danger" else
-                                f"{label}: reservoir will be at {pr['low_water_liters']:g} L "
-                                + ("now" if pr["status"] != "ok" else
-                                   f"in about {pr['hours_to_crossing']:.0f} h")),
-                    "body": f"{label}: {pr['message']}", "from_agent": "grow_agent",
-                    "register": "low_stakes", "channels": ["email", "dashboard"]})
-                res = r.get("result", r) if isinstance(r, dict) else r
+                res = self._send_water_alert(label, pr)
                 entry["delivery"] = res
                 if isinstance(res, dict) and res.get("sent_any"):
                     log[key] = entry["at"]
@@ -14564,6 +14620,11 @@ class GrowAgent(AgentBase):
                                                reason=a.get("reason", ""),
                                                ratio_matches_measured_mix=a.get("ratio_matches_measured_mix"),
                                                poured_at=a.get("poured_at"))}
+
+        elif task == "simulate_water_alert":
+            a = args if isinstance(args, dict) else {}
+            return {"result": self.simulate_water_alert(a.get("plant_id"), a.get("scenario", "low"),
+                                                        a.get("hours"))}
 
         elif task == "record_ph_adjustment":
             a = args if isinstance(args, dict) else {}
