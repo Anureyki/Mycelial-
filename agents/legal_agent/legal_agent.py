@@ -2829,6 +2829,16 @@ class LegalAgent(AgentBase):
             "reaches_merits": False, "weight": "low",
             "establishes": "NOTHING about the merits. Standing, jurisdiction or timeliness "
                            "ended it before the question was reached"},
+        # A plaintiff's notice of voluntary dismissal WITH PREJUDICE (FRCP
+        # 41(a)(1)(A)(i)) - Romero v. Federal Carrier Compliance Registration,
+        # S.D. Cal. 3:2026-cv-01515, 2026-07-02. Not a settlement (the docket
+        # does not show one) and not procedural (the claims can never be refiled).
+        "voluntary_dismissal_with_prejudice": {
+            "reaches_merits": False, "weight": "low",
+            "establishes": "The plaintiff ended the case and is barred from refiling the "
+                           "same claims. NO court finding on the merits. Often follows a "
+                           "private settlement - which the docket does not show, so it is "
+                           "not recorded as one"},
         "settlement": {
             "reaches_merits": False, "weight": "low",
             "establishes": "NOTHING about the law. The parties agreed; no court held "
