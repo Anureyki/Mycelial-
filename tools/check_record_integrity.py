@@ -210,6 +210,27 @@ def main():
        sent[0]["subject"].startswith("[SIMULATION") and sent[0]["subject"].endswith(real_subject))
     ck("no plant record and no sent-today key were written", store == before, str(set(store) - set(before)))
 
+    print("ripeness reminders: due with no reading, dated after one, silent in veg")
+    from datetime import date as _d
+    g = grow({})
+    g._active_plants = lambda: ["pf", "pv"]
+    g._stage_for_plant = lambda pid: "flower" if pid == "pf" else "veg"
+    obs = {"pf": []}
+    g._ripeness_obs = lambda pid: obs.get(pid, [])
+    g.assess_ripeness = lambda pid: {"projection": {"days_to_window_estimate": None}}
+    r = g._ripeness_reminders(today=_d(2026, 10, 18))
+    ck("a flowering plant with no reading is due now", [i["key"].split(":")[2] for i in r["items"]] == ["first"],
+       str([i["key"] for i in r["items"]]))
+    obs["pf"] = [{"observed_by": "principal", "at": "2026-10-18T09:00:00", "pistils_brown_pct": 10}]
+    r = g._ripeness_reminders(today=_d(2026, 10, 19))
+    ck("after a reading the next check is announced, dated a week on",
+       r["items"] and r["items"][0]["key"] == "ripeness:pf:next:2026-10-25", str([i["key"] for i in r["items"]]))
+    r = g._ripeness_reminders(today=_d(2026, 10, 26))
+    ck("on and after that date it is due", r["items"][0]["urgency"] == "due")
+    obs["pf"] = [{"observed_by": "claude_from_photo", "at": "2026-10-18T09:00:00", "pistils_brown_pct": 10}]
+    ck("a model's read does not count as the grower's reading",
+       g._ripeness_reminders(today=_d(2026, 10, 19))["items"][0]["key"].split(":")[2] == "first")
+
     print("a recorded sighting outranks the age")
     germ = (datetime.now() - timedelta(days=69)).date().isoformat()
     store = {"current_stage": "flower", "germination_date": germ,

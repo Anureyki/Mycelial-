@@ -6687,6 +6687,8 @@ class GrowAgent(AgentBase):
                 "body": f"{label}: {it['text']}"})
         h = self._harvest_reminders()
         items.extend(h)
+        _rip = self._ripeness_reminders()
+        items.extend(_rip["items"])
         for _pid in self._active_plants():
             # Only plants with a reservoir - a potted aloe has no water to project.
             _st = str(self._jload(f"grow_system_{_pid}", {}).get("system_type") or "").lower()
@@ -6723,6 +6725,64 @@ class GrowAgent(AgentBase):
         basis.append(f"post-harvest: {len(self._jload('harvest_index', []))} plant(s) with a "
                      f"chop on record, {len(h)} reminder(s) - stems daily while drying, "
                      f"jars am and pm while curing, once when burping ends")
+        basis.extend(_rip["basis"])
+        return {"items": items, "basis": basis}
+
+    RIPENESS_RECHECK_DAYS = 7
+
+    def _ripeness_reminders(self, today=None):
+        """When Grow needs the grower's eyes on ripeness (principal 2026-10-18:
+        "an alert for when grow needs trichome and pistil browning readings, or
+        a projected date when to check").
+
+        Only plants in flower, and only the grower's own observations count
+        (assess_ripeness ignores model reads). No reading with pistil or
+        trichome figures yet: due now, daily. After one: the next check is
+        RIPENESS_RECHECK_DAYS later - announced once, then due daily from that
+        day until a reading arrives."""
+        today = today or datetime.now().date()
+        items, basis = [], []
+        for pid in self._active_plants():
+            try:
+                stage = str(self._stage_for_plant(pid) or "")
+            except Exception:
+                stage = ""
+            if "flower" not in stage:
+                continue
+            label = {"current_plant": "GSC1", "gsc_auto_2": "GSC2"}.get(pid, pid)
+            obs = [o for o in self._ripeness_obs(pid) if o.get("observed_by") == "principal"
+                   and any(o.get(k) is not None for k in ("pistils_brown_pct", "trichomes_clear_pct",
+                                                          "trichomes_cloudy_pct", "trichomes_amber_pct"))]
+            how = ("Record: % of pistils turned brown/orange, and with a loupe the rough share of "
+                   "trichome heads clear, cloudy and amber (and whether new white pistils are "
+                   "still forming). Two readings a day or more apart let Grow project the harvest "
+                   "window - and the girdling window with it.")
+            if not obs:
+                items.append({"key": f"ripeness:{pid}:first:{today}", "urgency": "due",
+                              "subject": f"{label}: first ripeness reading needed",
+                              "body": f"{label} is in flower and Grow has no pistil or trichome reading "
+                                      f"from you yet, so it cannot date the harvest. {how}"})
+                basis.append(f"{label}: ripeness - no reading yet, due now")
+                continue
+            last = max(datetime.fromisoformat(str(o["at"])[:10]).date() for o in obs)
+            nxt = last + timedelta(days=self.RIPENESS_RECHECK_DAYS)
+            proj = ""
+            try:
+                p = (self.assess_ripeness(pid) or {}).get("projection") or {}
+                if p.get("days_to_window_estimate") is not None:
+                    proj = f" Grow projects the harvest window in about {p['days_to_window_estimate']} days."
+            except Exception:
+                pass
+            if today >= nxt:
+                items.append({"key": f"ripeness:{pid}:due:{today}", "urgency": "due",
+                              "subject": f"{label}: ripeness check due (last {last:%m/%d})",
+                              "body": f"{label}: last pistil/trichome reading {last:%m/%d}.{proj} {how}"})
+            else:
+                items.append({"key": f"ripeness:{pid}:next:{nxt}", "urgency": "soon",
+                              "subject": f"{label}: next ripeness check {nxt:%a %m/%d}",
+                              "body": f"{label}: reading recorded {last:%m/%d}; next check {nxt:%m/%d}."
+                                      f"{proj} {how}"})
+            basis.append(f"{label}: ripeness - last reading {last}, next check {nxt}")
         return {"items": items, "basis": basis}
 
     def notify_maintenance(self, plant_id=None, force=False):
