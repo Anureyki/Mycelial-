@@ -13,6 +13,7 @@
     "drift_alerts",
     "routing_map",
     "notify",
+    "publish_media",
     "receive_mail",
     "ingest_upload",
     "grow_roster",

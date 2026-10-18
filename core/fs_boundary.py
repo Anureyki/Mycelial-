@@ -57,6 +57,10 @@ BOUNDARIES = {
                        "The principal's working documents. The accounting "
                        "statements, instruments and trust_estate directories "
                        "are where real financial documents will land."),
+    "media": (0o700, 0o600,
+              "Anansi's Jellyfin media library (2026-10-18): generated images, "
+              "reports, video. Read by Jellyfin running as the owner, so nothing "
+              "needs group or world access."),
     "datasets": (0o700, 0o600,
                  "Training pairs and the security record store. Personal "
                  "under the data-sensitivity policy."),

@@ -46,7 +46,7 @@ class Anansi(AgentBase):
                           # fault, and four of these were added today without
                           # declaring them, reproducing it inside the same week
                           # it was documented.
-                          "notify", "receive_mail", "ingest_upload", "grow_roster",
+                          "notify", "publish_media", "receive_mail", "ingest_upload", "grow_roster",
                           "grow_snapshot", "recent_changes", "phase_status",
                           "system_graph", "actions", "deadlines", "reminders",
                           "inbound_mail", "route_held_mail", "held_mail_digest",
@@ -147,6 +147,42 @@ class Anansi(AgentBase):
         (0.34, 0.61, ("email", "dashboard"), "worth an email"),
         (0.61, 1.01, ("dashboard",),         "it can wait for him to look"),
     )
+
+    def _jellyfin_refresh(self):
+        """Ask Jellyfin to rescan its libraries with the scoped API key.
+        -> (ok, detail). Not configured is a failure with its reason."""
+        import urllib.request as _u
+        url, key = os.getenv("JELLYFIN_URL"), os.getenv("JELLYFIN_API_KEY")
+        if not (url and key):
+            return False, "Jellyfin URL or API key not in this process's environment"
+        try:
+            r = _u.urlopen(_u.Request(url.rstrip("/") + "/Library/Refresh", data=b"",
+                                      headers={"X-Emby-Token": key}, method="POST"), timeout=20)
+            return r.status in (200, 204), f"HTTP {r.status}"
+        except Exception as exc:
+            return False, f"{type(exc).__name__}: {exc}"
+
+    def publish_media(self, args):
+        """Publish an approved artifact into the Jellyfin media library
+        (core/media_publish.py: authorised sources only, verified file type,
+        size bounds, identifier-free metadata, copied 0600, then a rescan)."""
+        import core.media_publish as _mp
+        a = args if isinstance(args, dict) else {}
+        src = a.get("source") or ""
+        if src and not os.path.isabs(src):
+            src = os.path.join(_mp.ROOT, src)
+        res = _mp.publish(src, a.get("kind"), a.get("title"), a.get("description", ""),
+                          produced_by=a.get("produced_by"),
+                          refresh=None if a.get("no_refresh") else self._jellyfin_refresh)
+        try:
+            self.log_to_audit("publish_media", json.dumps({k: res.get(k) for k in
+                              ("published", "why", "path", "library_refresh")}),
+                              level="info" if res.get("published") else "warning",
+                              event_type="MEDIA_PUBLISH",
+                              metadata={"kind": a.get("kind"), "source": a.get("source")})
+        except Exception as exc:
+            res["audit_error"] = str(exc)
+        return res
 
     def notify(self, args):
         """Deliver something a domain agent needs the principal to know.
@@ -917,6 +953,8 @@ class Anansi(AgentBase):
         if task == "ingest_upload":
             return self.ingest_upload(args if isinstance(args, dict) else {})
 
+        if task == "publish_media":
+            return self.publish_media(args if isinstance(args, dict) else {})
         if task == "notify":
             return self.notify(args if isinstance(args, dict) else {})
 

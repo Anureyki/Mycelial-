@@ -15,6 +15,7 @@
     "ingest_upload",
     "narrate_contradiction",
     "notify",
+    "publish_media",
     "phase_status",
     "process_request",
     "receive_mail",

@@ -190,6 +190,22 @@
       "write": [],
       "execute": [],
       "why": "Base URL of the 1099cloud sandbox the key above belongs to. Not secret, listed so Accounting can see it (unlisted keys are visible to nobody)."
+    },
+    "credential:JELLYFIN_API_KEY": {
+      "kind": "credential",
+      "owner": "anansi",
+      "read": [],
+      "write": [],
+      "execute": [],
+      "why": "Jellyfin API key 'Mycelial-Anansi' (2026-10-18). Anansi publishes generated media and asks Jellyfin to rescan its libraries; nothing else. The Jellyfin admin and tv passwords are deliberately NOT listed - unlisted keys are visible to no agent; they are the principal's."
+    },
+    "credential:JELLYFIN_URL": {
+      "kind": "credential",
+      "owner": "anansi",
+      "read": [],
+      "write": [],
+      "execute": [],
+      "why": "Jellyfin's loopback URL (http://127.0.0.1:8096). Not secret; listed so Anansi can see it."
     }
   }
 }

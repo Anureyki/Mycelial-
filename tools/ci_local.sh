@@ -117,6 +117,7 @@ step "check_memory_store"           "$PY" tools/check_memory_store.py
 step "check_bonding"                "$PY" tools/check_bonding.py
 step "check_sam"                    "$PY" tools/check_sam.py
 step "check_gsa_directives"         "$PY" tools/check_gsa_directives.py
+step "check_media_publish"          "$PY" tools/check_media_publish.py
 step "check_dispute_letters"        "$PY" tools/check_dispute_letters.py
 step "check_fcra_furnisher"         "$PY" tools/check_fcra_furnisher.py
 step "check_tcpa_lane"              "$PY" tools/check_tcpa_lane.py

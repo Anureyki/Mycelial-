@@ -87,3 +87,6 @@ private/
 # being committed is the gitignore-covering-one-subdirectory fault again.
 # Future analyzer output runs over the financial registries.
 reports/
+
+# Anansi media library (Jellyfin reads it read-only) - generated artifacts, never in git
+media/

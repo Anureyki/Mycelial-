@@ -80,6 +80,7 @@ is authoritative and this table must track it.
 | Tool Service | 8015 | MCP gateway |
 | Provenance | 8016 | Artifact lineage and origin classification |
 | Federated Learning | 8017 | Flower server lifecycle + FedAvg (gRPC on 9092) |
+| Jellyfin (Docker) | 8096 loopback, **8920 TLS on the LAN** | Anansi's media library - `docs/visual-interface.md` |
 
 ## MCP Integration
 MCP servers are configured in `config/mcp.d/`. Currently active:
