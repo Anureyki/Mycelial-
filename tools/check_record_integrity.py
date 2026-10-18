@@ -209,6 +209,12 @@ def main():
     ck("the subject is the real alert's subject, tagged SIMULATION",
        sent[0]["subject"].startswith("[SIMULATION") and sent[0]["subject"].endswith(real_subject))
     ck("no plant record and no sent-today key were written", store == before, str(set(store) - set(before)))
+    g.project_water = lambda pid: {"projected_now": 18.0}
+    sent.clear()
+    g.simulate_water_alert("p15", "low", hours=18)
+    ck("the simulation states the plant's real level before the hypothetical",
+       "actually at about 18.0 L" in sent[0]["body"]
+       and sent[0]["body"].index("actually") < sent[0]["body"].index("Projected"), sent[0]["body"][:120])
 
     print("ripeness reminders: due with no reading, dated after one, silent in veg")
     from datetime import date as _d

@@ -13857,10 +13857,10 @@ class GrowAgent(AgentBase):
                    + ("now" if pr["status"] != "ok" else f"in about {pr['hours_to_crossing']:.0f} h"))
         return subject, f"{label}: {pr['message']}"
 
-    def _send_water_alert(self, label, pr, prefix=""):
+    def _send_water_alert(self, label, pr, prefix="", lead=""):
         subject, body = self._water_alert_message(label, pr)
         r = self.send_a2a("anansi", "notify", {
-            "subject": prefix + subject, "body": (prefix + body) if prefix else body,
+            "subject": prefix + subject, "body": prefix + lead + body,
             "from_agent": "grow_agent", "register": "low_stakes", "channels": ["email", "dashboard"]})
         return r.get("result", r) if isinstance(r, dict) else r
 
@@ -13893,9 +13893,24 @@ class GrowAgent(AgentBase):
                   "message": f"Projected {low + 1.0:.1f} L now - crosses {low:g} L in about {h:.0f} h."}
         else:
             return {"error": "scenario must be low or danger"}
-        tag = "[SIMULATION - nothing is wrong] "
+        # STATE THE REAL LEVEL FIRST (principal 2026-10-18: the simulation said
+        # "GSC-1: Projected 13.0 L now" while GSC1 sat at 18 L - a made-up level
+        # about a real plant, tagged or not). The real projection is read here
+        # (read-only) and leads the message; the alert's own words follow,
+        # marked as what it would say at the hypothetical level.
+        try:
+            real = self.project_water(plant_id) or {}
+        except Exception:
+            real = {}
+        now_l = real.get("projected_now")
+        hypo = danger - 0.5 if scenario == "danger" else low + 1.0
+        actual = (f"{label} is actually at about {now_l:.1f} L (Grow's projection) - nothing is wrong."
+                  if isinstance(now_l, (int, float)) else
+                  f"{label}'s real level is not projected right now - nothing here describes it.")
+        tag = "[SIMULATION] "
+        lead = f"{actual} This shows the alert as it would read at a hypothetical {hypo:.1f} L:\n\n"
         subject, body = self._water_alert_message(label, pr)
-        res = self._send_water_alert(label, pr, prefix=tag)
+        res = self._send_water_alert(label, pr, prefix=tag, lead=lead)
         entry = {"at": datetime.now().isoformat(timespec="seconds"), "plant_id": plant_id,
                  "trigger": "simulate_water_alert", "simulation": True, "scenario": scenario,
                  "mode": cfg["mode"], "subject": tag + subject, "delivery": res}
@@ -13908,7 +13923,8 @@ class GrowAgent(AgentBase):
             self.log(f"simulate_water_alert: could not log: {exc}")
         sent = isinstance(res, dict) and res.get("sent_any")
         return {"simulated": True, "scenario": scenario, "subject": tag + subject,
-                "body": tag + body, "sent_any": bool(sent), "delivery": res,
+                "body": tag + lead + body, "actual_level": now_l, "sent_any": bool(sent),
+                "delivery": res,
                 "records_touched": False,
                 "verify": "the principal confirms the email arrived with this subject"}
 
