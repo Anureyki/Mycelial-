@@ -15,6 +15,7 @@
     "reopen_dose",
     "record_dose_poured",
     "defer_full_change",
+    "start_drink_down",
     "simulate_water_alert",
     "assess_plant",
     "assess_root_zone",

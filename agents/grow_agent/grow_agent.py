@@ -922,7 +922,7 @@ class GrowAgent(AgentBase):
                 "set_grow_system", "get_grow_system", "amend_grow_system",
                 "field_history", "assess_root_zone", "void_reservoir_eval",
                 "which_plant", "record_refill",
-                "reconcile_ec_temperature", "intake_reading", "when_to_top_up", "project_topup", "plan_feed_for_target", "reconcile_dose", "ingest_environment_export", "predict_flowering", "calibrate_blend", "record_ripeness", "assess_ripeness", "maintenance_due", "notify_maintenance", "record_lesson", "list_lessons", "ppm_per_ml", "round_to_instrument", "assess_ph", "record_ph_adjustment", "reopen_dose", "record_dose_poured", "defer_full_change", "simulate_water_alert", "quantities",
+                "reconcile_ec_temperature", "intake_reading", "when_to_top_up", "project_topup", "plan_feed_for_target", "reconcile_dose", "ingest_environment_export", "predict_flowering", "calibrate_blend", "record_ripeness", "assess_ripeness", "maintenance_due", "notify_maintenance", "record_lesson", "list_lessons", "ppm_per_ml", "round_to_instrument", "assess_ph", "record_ph_adjustment", "reopen_dose", "record_dose_poured", "defer_full_change", "start_drink_down", "simulate_water_alert", "quantities",
                 "get_nutrient_history",
                 "set_inventory", "get_inventory",
                 "check_in", "analyze_consumption", "adjust_to_target_ppm",
@@ -6631,7 +6631,14 @@ class GrowAgent(AgentBase):
                 age = None
             _rec = self._jload(f"grow_system_{pid}", {})
             _defer = str(_rec.get("change_deferred_until") or "")[:10]
-            if age is None:
+            _dd = _rec.get("drink_down") or {}
+            if _dd.get("active"):
+                # DRINK-DOWN (principal 2026-10-19): "we just did a top-up, so now we're
+                # gonna have to wait. I don't like wasting nutrients." The change-out is
+                # due when the plant has drunk the reservoir to the target level - not
+                # on the calendar - and nothing is topped up meanwhile.
+                st, txt = self._drink_down_status(pid, _dd)
+            elif age is None:
                 st, txt = "unknown", "No full reservoir change on record - log the next one with set_current_nutrients."
             elif _defer and now.date().isoformat() <= _defer:
                 # DEFERRED BY THE GROWER (2026-10-19): a reservoir fed the day before
@@ -13065,6 +13072,11 @@ class GrowAgent(AgentBase):
         pp = self._parse_numeric(ppm)
         if pp is None:
             return None
+        # Drink-down first: no feed while a reservoir is being run down to its change-out.
+        if (self._jload(f"grow_system_{plant_id}", {}).get("drink_down") or {}).get("active"):
+            return {"recorded": False, "add_ml": {}, "at_liters": volume_liters,
+                    "change_out_conflict": {"full_change": "drink_down",
+                                            "hold": "Drinking down for the change-out - no feed."}}
         ev = self._volume_events(plant_id)
         if any(e.get("kind") == "dose" and not e.get("reconciled") for e in ev):
             return None
@@ -13896,17 +13908,21 @@ class GrowAgent(AgentBase):
             out["precision"] = "one interval starts at a change-out timed only to the day"
         return out
 
-    def _water_alert_message(self, label, pr):
+    def _water_alert_message(self, label, pr, drink_down=False):
         """The alert's words - ONE place, used by the live alert and by the
         simulation, so a simulation that lands proves the real message lands."""
+        if drink_down and pr["status"] != "danger":
+            return (f"{label}: drunk down - time for the full change-out",
+                    f"{label}: {pr['message']} The drink-down is done: change the reservoir "
+                    f"rather than topping it up.")
         subject = (f"DANGER - {label}: reservoir at or below {pr['danger_liters']:g} L"
                    if pr["status"] == "danger" else
                    f"{label}: reservoir will be at {pr['low_water_liters']:g} L "
                    + ("now" if pr["status"] != "ok" else f"in about {pr['hours_to_crossing']:.0f} h"))
         return subject, f"{label}: {pr['message']}"
 
-    def _send_water_alert(self, label, pr, prefix="", lead=""):
-        subject, body = self._water_alert_message(label, pr)
+    def _send_water_alert(self, label, pr, prefix="", lead="", drink_down=False):
+        subject, body = self._water_alert_message(label, pr, drink_down=drink_down)
         r = self.send_a2a("anansi", "notify", {
             "subject": prefix + subject, "body": prefix + lead + body,
             "from_agent": "grow_agent", "register": "low_stakes", "channels": ["email", "dashboard"]})
@@ -13996,7 +14012,8 @@ class GrowAgent(AgentBase):
             log = self._jload("water_alerts_sent", {})
             key = f"{plant_id}:{pr.get('status')}:{day}"
             if key not in log:
-                res = self._send_water_alert(label, pr)
+                _dda = bool((self._jload(f"grow_system_{plant_id}", {}).get("drink_down") or {}).get("active"))
+                res = self._send_water_alert(label, pr, drink_down=_dda)
                 entry["delivery"] = res
                 if isinstance(res, dict) and res.get("sent_any"):
                     log[key] = entry["at"]
@@ -14009,6 +14026,12 @@ class GrowAgent(AgentBase):
         except Exception as exc:
             self.log(f"_water_alert: could not log: {exc}")
         return entry
+
+    def _end_drink_down(self, plant_id):
+        dd = self._jload(f"grow_system_{plant_id}", {}).get("drink_down") or {}
+        if dd.get("active"):
+            self.amend_grow_system(plant_id, drink_down=dict(dd, active=False,
+                                   ended=datetime.now().isoformat(timespec="seconds")))
 
     def record_full_change(self, plant_id=None, at=None, liters=None, emptied=True,
                            nutrients=None, stage=None, note=""):
@@ -14048,7 +14071,58 @@ class GrowAgent(AgentBase):
         else:
             out["recipe_note"] = ("No amounts recorded for this mix. The change-out is on the "
                                   "record; add the recipe with set_current_nutrients when known.")
+        self._end_drink_down(plant_id)
         return out
+
+    def _drink_down_status(self, plant_id, dd):
+        """-> (status, text) for a reservoir being drunk down to its change-out."""
+        target = float(dd.get("target_liters") or 12)
+        try:
+            pr = self.project_water(plant_id) or {}
+        except Exception:
+            pr = {}
+        now_l, rate = pr.get("projected_now"), pr.get("rate_l_per_day")
+        conc = ""
+        rds = [r for r in (self._get_readings_for_plant(plant_id) or [])
+               if not r.get("voided") and self._parse_numeric(r.get("ppm"))]
+        try:
+            band = (self.handle_task("check_stage", {"stage": self._stage_for_plant(plant_id)},
+                                     "drink_down").get("result") or {}).get("ppm")
+        except Exception:
+            band = None
+        if rds and band and self._parse_numeric(rds[-1]["ppm"]) > float(band[1]):
+            conc = (f" Latest ppm {rds[-1]['ppm']:g} is ABOVE the {band[1]:g} band top - the "
+                    f"solution is concentrating faster than it is being used; a little plain water "
+                    f"or an earlier change-out is warranted.")
+        if not isinstance(now_l, (int, float)):
+            return "drink_down", (f"Drinking down to {target:g} L for the change-out - no top-ups. "
+                                  f"Level not projected yet; log the level with the next reading.{conc}")
+        if now_l <= target:
+            return "due", (f"Drunk down to about {now_l:.1f} L (target {target:g} L): do the full "
+                           f"change-out now - the nutrients have been used.{conc}")
+        days = (now_l - target) / rate if rate else None
+        when = (datetime.now() + timedelta(days=days)).strftime("%a %m/%d") if days else "unknown"
+        st = "prepare" if days is not None and days <= 3 else "drink_down"
+        return st, (f"Drinking down for the change-out: about {now_l:.1f} L now, {target:g} L in about "
+                    f"{days:.1f} days ({when}) at {rate:.2f} L/day. No top-ups meanwhile."
+                    + (f" Set aside about {self._jload(f'grow_system_{plant_id}', {}).get('reservoir_capacity_liters') or '?'} L "
+                       f"of water for the change." if st == "prepare" else "") + conc)
+
+    def start_drink_down(self, plant_id=None, target_liters=None, reason=""):
+        """Hold a reservoir until the plant drinks it to `target_liters`, then change
+        it out. No water or feed is suggested meanwhile. Ends at the next full change."""
+        if not (plant_id and str(reason).strip()):
+            return {"error": "Needs plant_id and a reason."}
+        cfg = self._alerts_cfg()
+        tgt = float(target_liters or cfg.get("low_water_liters") or 12)
+        danger = float(cfg.get("danger_liters") or 10)
+        if tgt <= danger:
+            return {"error": f"target {tgt:g} L is at or below the {danger:g} L danger level - pick a higher one"}
+        dd = {"active": True, "target_liters": tgt, "reason": str(reason)[:300],
+              "started": datetime.now().isoformat(timespec="seconds")}
+        self.amend_grow_system(plant_id, drink_down=dd)
+        st, txt = self._drink_down_status(plant_id, dd)
+        return {"started": True, "plant_id": plant_id, "status": st, "text": txt}
 
     def defer_full_change(self, plant_id=None, until=None, reason=""):
         """The grower moves a full change-out to a later date, with the reason.
@@ -14746,6 +14820,10 @@ class GrowAgent(AgentBase):
 
         elif task == "quantities":
             return {"result": self.quantities((args or {}).get("text") or "")}
+
+        elif task == "start_drink_down":
+            a = args if isinstance(args, dict) else {}
+            return {"result": self.start_drink_down(a.get("plant_id"), a.get("target_liters"), a.get("reason", ""))}
 
         elif task == "defer_full_change":
             a = args if isinstance(args, dict) else {}

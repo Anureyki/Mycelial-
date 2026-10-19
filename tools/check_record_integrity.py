@@ -269,6 +269,36 @@ def main():
     ck("a deferred change-out is 'deferred' with its reason, not overdue",
        m and m[0]["status"] == "deferred" and "just fed" in m[0]["text"], str(m[:1]))
 
+    print("drink-down: no top-ups, change-out at the target level, concentration watched")
+    store = {"grow_system_p17": json.dumps({"plant_id": "p17", "system_type": "dwc",
+                                            "reservoir_capacity_liters": 20.0, "reservoir_liters": 19.0})}
+    g = grow(store)
+    g._alerts_cfg = lambda: {"low_water_liters": 12, "danger_liters": 10}
+    g._active_plants = lambda: ["p17"]
+    g._last_full_change = lambda pid: {"timestamp": "2026-10-04T10:00:00"}
+    g._stage_for_plant = lambda pid: "flower"
+    g.handle_task = lambda task, args, src=None: {"result": {"ppm": [800, 1200]}}
+    level = {"v": 19.0}
+    g.project_water = lambda pid: {"projected_now": level["v"], "rate_l_per_day": 1.4}
+    g._get_readings_for_plant = lambda pid: [{"timestamp": "2026-10-19T08:00:00", "ppm": 918}]
+    ck("a target at or below the danger level is refused",
+       "error" in g.start_drink_down("p17", 10, "test"))
+    r = g.start_drink_down("p17", 12, "just fed - use the nutrients before the change-out")
+    m = [i for i in g.maintenance_due("p17")["items"] if i["kind"] == "full_change"]
+    ck("15-day-old reservoir in drink-down is not 'due' - it is drinking down, dated",
+       m and m[0]["status"] == "drink_down" and "12 L in about 5.0 days" in m[0]["text"], str(m[:1])[:160])
+    ck("no feed is suggested during the drink-down",
+       (g.feed_suggestion("p17", ppm=700, volume_liters=19) or {}).get("add_ml") == {})
+    level["v"] = 11.8
+    m = [i for i in g.maintenance_due("p17")["items"] if i["kind"] == "full_change"]
+    ck("at the target level the change-out is due", m and m[0]["status"] == "due", str(m[:1])[:120])
+    g._get_readings_for_plant = lambda pid: [{"timestamp": "2026-10-21T08:00:00", "ppm": 1290}]
+    st, txt = g._drink_down_status("p17", {"target_liters": 12})
+    ck("concentration above the band top is called out", "ABOVE the 1200" in txt)
+    subj, _ = g._water_alert_message("GSC1", {"status": "at_or_below_low_water", "message": "x",
+                                              "low_water_liters": 12}, drink_down=True)
+    ck("the water alert says change-out, not refill, during a drink-down", "change-out" in subj, subj)
+
     print("a recorded sighting outranks the age")
     germ = (datetime.now() - timedelta(days=69)).date().isoformat()
     store = {"current_stage": "flower", "germination_date": germ,
