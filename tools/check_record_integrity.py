@@ -237,6 +237,38 @@ def main():
     ck("a model's read does not count as the grower's reading",
        g._ripeness_reminders(today=_d(2026, 10, 19))["items"][0]["key"].split(":")[2] == "first")
 
+    print("feeds and change-outs: no full feed into a change-out, and water prep ahead of it")
+    from datetime import datetime as _dt, timedelta as _td
+    lc = (_dt.now() - _td(days=13)).isoformat(timespec="seconds")
+    store = {"grow_system_p16": json.dumps({"plant_id": "p16", "system_type": "dwc",
+                                            "reservoir_capacity_liters": 20.0, "reservoir_liters": 20.0}),
+             "volume_events_p16": json.dumps([{"at": "2026-10-10T10:00:00", "kind": "dose", "add_now_ml": {"A": 4},
+                                               "reconciled": True, "reconciled_result": "matches_prediction",
+                                               "ppm_predicted_at_final": 900.0}])}
+    g = grow(store)
+    g._active_plants = lambda: ["p16"]
+    g._last_full_change = lambda pid: {"timestamp": lc}
+    g._get_readings_for_plant = lambda pid: []
+    g._stage_for_plant = lambda pid: "flower"
+    g.handle_task = lambda task, args, src=None: {"result": {"ppm": [800, 1200]}}
+    calls = []
+    g.plan_feed_for_target = lambda pid, **k: calls.append(k) or {"add_now_ml": {"A": 1.0}, "target_ppm_after_rounding": k["target_ppm"]}
+    sug = g.feed_suggestion("p16", ppm=850, volume_liters=20)
+    ck("in band with a change-out a day away: no top-up, and it says why",
+       sug and not sug["add_ml"] and "change_out_conflict" in sug and not calls, str(sug)[:120])
+    sug = g.feed_suggestion("p16", ppm=700, volume_liters=20)
+    ck("below band with a change-out due: dosed only to the band floor",
+       sug and calls and calls[-1]["target_ppm"] == 800 and "change_out_conflict" in sug, str(calls[-1:]))
+    lc = (_dt.now() - _td(days=10)).isoformat(timespec="seconds")
+    m = [i for i in g.maintenance_due("p16")["due"] if i["kind"] == "full_change"]
+    ck("four days out the reminder says prepare, with litres", m and m[0]["status"] == "prepare"
+       and "20.0 L" in m[0]["text"], str(m[:1]))
+    g.defer_full_change("p16", (_dt.now() + _td(days=4)).date().isoformat(), "just fed; water not ready")
+    lc = (_dt.now() - _td(days=15)).isoformat(timespec="seconds")
+    m = [i for i in g.maintenance_due("p16")["items"] if i["kind"] == "full_change"]
+    ck("a deferred change-out is 'deferred' with its reason, not overdue",
+       m and m[0]["status"] == "deferred" and "just fed" in m[0]["text"], str(m[:1]))
+
     print("a recorded sighting outranks the age")
     germ = (datetime.now() - timedelta(days=69)).date().isoformat()
     store = {"current_stage": "flower", "germination_date": germ,

@@ -14,6 +14,7 @@
     "record_ph_adjustment",
     "reopen_dose",
     "record_dose_poured",
+    "defer_full_change",
     "simulate_water_alert",
     "assess_plant",
     "assess_root_zone",

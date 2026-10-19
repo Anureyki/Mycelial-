@@ -922,7 +922,7 @@ class GrowAgent(AgentBase):
                 "set_grow_system", "get_grow_system", "amend_grow_system",
                 "field_history", "assess_root_zone", "void_reservoir_eval",
                 "which_plant", "record_refill",
-                "reconcile_ec_temperature", "intake_reading", "when_to_top_up", "project_topup", "plan_feed_for_target", "reconcile_dose", "ingest_environment_export", "predict_flowering", "calibrate_blend", "record_ripeness", "assess_ripeness", "maintenance_due", "notify_maintenance", "record_lesson", "list_lessons", "ppm_per_ml", "round_to_instrument", "assess_ph", "record_ph_adjustment", "reopen_dose", "record_dose_poured", "simulate_water_alert", "quantities",
+                "reconcile_ec_temperature", "intake_reading", "when_to_top_up", "project_topup", "plan_feed_for_target", "reconcile_dose", "ingest_environment_export", "predict_flowering", "calibrate_blend", "record_ripeness", "assess_ripeness", "maintenance_due", "notify_maintenance", "record_lesson", "list_lessons", "ppm_per_ml", "round_to_instrument", "assess_ph", "record_ph_adjustment", "reopen_dose", "record_dose_poured", "defer_full_change", "simulate_water_alert", "quantities",
                 "get_nutrient_history",
                 "set_inventory", "get_inventory",
                 "check_in", "analyze_consumption", "adjust_to_target_ppm",
@@ -6572,6 +6572,7 @@ class GrowAgent(AgentBase):
     # for a full DWC bucket - AUTHORED reference from common hydro practice,
     # adopted by the principal's request, not measured on this grow.
     CHANGE_DAYS_SMALL, CHANGE_DAYS_LARGE, SMALL_RES_L = 7, 14, 6
+    CHANGE_PREP_DAYS = 5
     READING_STALE_DAYS = 3
 
     def _active_plants(self):
@@ -6628,15 +6629,32 @@ class GrowAgent(AgentBase):
                     age = None
             else:
                 age = None
+            _rec = self._jload(f"grow_system_{pid}", {})
+            _defer = str(_rec.get("change_deferred_until") or "")[:10]
             if age is None:
                 st, txt = "unknown", "No full reservoir change on record - log the next one with set_current_nutrients."
+            elif _defer and now.date().isoformat() <= _defer:
+                # DEFERRED BY THE GROWER (2026-10-19): a reservoir fed the day before
+                # a calendar change is better kept than poured out - his call, kept
+                # with his reason, and the reminder returns when the date passes.
+                st = "deferred"
+                txt = (f"Full change deferred to {_defer} by the grower "
+                       f"({_rec.get('change_deferred_reason') or 'no reason recorded'}). "
+                       f"Reservoir {age:.0f} day(s) old.")
             else:
                 left = interval - age
-                st = ("ok" if left > 2 else "due_soon" if left > 0 else
-                      "due" if left > -3 else "overdue")
+                # PREPARE, THEN DUE (2026-10-19): two days' notice left no water
+                # saved for a change-out. Five days out, say how much to set aside.
+                st = ("ok" if left > self.CHANGE_PREP_DAYS else "prepare" if left > 2 else
+                      "due_soon" if left > 0 else "due" if left > -3 else "overdue")
                 txt = (f"Reservoir is {age:.0f} day(s) old (last full change "
                        f"{str(lc['timestamp'])[:10]}); full change every ~{interval} days "
                        f"for a {cap or '?'} L reservoir.")
+                if st == "prepare":
+                    txt = (f"Full change in about {left:.0f} day(s). Set aside about "
+                           f"{cap or '?'} L of DI or dehumidifier water, and hold off on full "
+                           f"top-up feeds - nutrient added now is poured out at the change. "
+                           + txt)
             items.append({"plant_id": pid, "kind": "full_change", "status": st, "text": txt,
                           "age_days": round(age, 1) if age is not None else None,
                           "interval_days": interval})
@@ -6665,7 +6683,7 @@ class GrowAgent(AgentBase):
             except Exception as ex:
                 self.log(f"maintenance_due: top-up check failed for {pid}: {ex}")
         return {"items": items,
-                "due": [i for i in items if i["status"] in ("due", "overdue", "due_soon")],
+                "due": [i for i in items if i["status"] in ("due", "overdue", "due_soon", "prepare")],
                 "basis": (f"full change every {self.CHANGE_DAYS_SMALL} days for reservoirs "
                           f"<= {self.SMALL_RES_L} L, {self.CHANGE_DAYS_LARGE} days above - authored "
                           f"reference adopted at the principal's request; reading stale after "
@@ -13065,6 +13083,35 @@ class GrowAgent(AgentBase):
         vol = self._parse_numeric(volume_liters) or self._parse_numeric(rec.get("reservoir_liters"))
         if not vol:
             return None
+        # A CHANGE-OUT IS COMING: DON'T SIZE A FULL FEED INTO IT (2026-10-19 - full
+        # top-ups were suggested the day before a due change-out, nutrient that the
+        # change would pour away). With a change due within 3 days, the suggestion
+        # says so and the dose drops to the band FLOOR - enough to hold, no more.
+        conflict = None
+        try:
+            fc = next((i for i in (self.maintenance_due(plant_id) or {}).get("due", [])
+                       if i.get("kind") == "full_change"
+                       and i.get("status") in ("due_soon", "due", "overdue")), None)
+        except Exception:
+            fc = None
+        if fc:
+            band = None
+            try:
+                band = (self.handle_task("check_stage", {"stage": self._stage_for_plant(plant_id)},
+                                         "feed_suggestion").get("result") or {}).get("ppm")
+            except Exception:
+                band = None
+            floor = float(band[0]) if band else None
+            conflict = {"full_change": fc["status"], "text": fc["text"],
+                        "prefer": ("Do the full change-out instead if you have water ready - a "
+                                   "top-up now is mostly poured away at the change.")}
+            if floor and pp >= floor:
+                return {"recorded": False, "target_ppm": tgt, "add_ml": {},
+                        "change_out_conflict": dict(conflict, hold="In band - no top-up needed "
+                                                    "before the change-out."),
+                        "at_liters": vol}
+            if floor:
+                tgt, basis = floor, "the band floor - a full change-out is due"
         plan = self.plan_feed_for_target(plant_id, target_ppm=tgt, current_ppm=pp,
                                          dose_into_liters=vol, final_liters=vol,
                                          stage_ratio=dict(last["add_now_ml"]), persist=False)
@@ -13077,6 +13124,7 @@ class GrowAgent(AgentBase):
                 "target_basis": basis, "at_liters": vol, "band": plan.get("stage_band"),
                 "strength": (plan.get("ppm_per_ml") or {}).get("ppm_l_per_ml"),
                 "recorded": False,
+                **({"change_out_conflict": conflict} if conflict else {}),
                 "to_use": "say so and it is planned with plan_feed_for_target, so the next "
                           "reading is checked against it"}
 
@@ -14002,6 +14050,22 @@ class GrowAgent(AgentBase):
                                   "record; add the recipe with set_current_nutrients when known.")
         return out
 
+    def defer_full_change(self, plant_id=None, until=None, reason=""):
+        """The grower moves a full change-out to a later date, with the reason.
+        maintenance_due then reports `deferred` instead of due/overdue until
+        that date passes - and says it was deferred, by whom, and why."""
+        if not (plant_id and until and str(reason).strip()):
+            return {"error": "Needs plant_id, until (YYYY-MM-DD) and a reason."}
+        try:
+            d = datetime.fromisoformat(str(until)[:10]).date()
+        except Exception:
+            return {"error": "until must be a date, YYYY-MM-DD"}
+        r = self.amend_grow_system(plant_id, change_deferred_until=d.isoformat(),
+                                   change_deferred_reason=str(reason)[:300],
+                                   change_deferred_at=datetime.now().isoformat(timespec="seconds"))
+        return {"deferred": True, "plant_id": plant_id, "until": d.isoformat(),
+                "changed": sorted((r.get("changed") or {}).keys()) if isinstance(r, dict) else None}
+
     def record_dose_poured(self, plant_id=None, at=None, poured_at=None, note="",
                            amounts=None):
         """Say when a planned dose was actually poured, and what actually went in.
@@ -14682,6 +14746,10 @@ class GrowAgent(AgentBase):
 
         elif task == "quantities":
             return {"result": self.quantities((args or {}).get("text") or "")}
+
+        elif task == "defer_full_change":
+            a = args if isinstance(args, dict) else {}
+            return {"result": self.defer_full_change(a.get("plant_id"), a.get("until"), a.get("reason", ""))}
 
         elif task == "record_dose_poured":
             a = args if isinstance(args, dict) else {}

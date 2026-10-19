@@ -87,6 +87,7 @@
     "record_ph_adjustment",
     "reopen_dose",
     "record_dose_poured",
+    "defer_full_change",
     "simulate_water_alert",
     "quantities",
     "get_nutrient_history",
