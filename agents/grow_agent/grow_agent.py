@@ -6856,9 +6856,14 @@ class GrowAgent(AgentBase):
             if "flower" not in stage:
                 continue
             label = {"current_plant": "GSC1", "gsc_auto_2": "GSC2"}.get(pid, pid)
+            # A CHECK IS A CHECK (principal 2026-10-20: "it's too early to tell"). His
+            # look that finds new pistils still forming and nothing to measure yet is a
+            # ripeness check: it dates the next one a week on instead of a daily nag for
+            # numbers he has just said cannot be given.
             obs = [o for o in self._ripeness_obs(pid) if o.get("observed_by") == "principal"
-                   and any(o.get(k) is not None for k in ("pistils_brown_pct", "trichomes_clear_pct",
-                                                          "trichomes_cloudy_pct", "trichomes_amber_pct"))]
+                   and (any(o.get(k) is not None for k in ("pistils_brown_pct", "trichomes_clear_pct",
+                                                           "trichomes_cloudy_pct", "trichomes_amber_pct"))
+                        or o.get("new_pistils_forming") is True)]
             how = ("Record: % of pistils turned brown/orange, and with a loupe the rough share of "
                    "trichome heads clear, cloudy and amber (and whether new white pistils are "
                    "still forming). Two readings a day or more apart let Grow project the harvest "
