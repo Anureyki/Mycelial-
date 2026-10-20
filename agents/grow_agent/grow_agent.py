@@ -922,7 +922,7 @@ class GrowAgent(AgentBase):
                 "set_grow_system", "get_grow_system", "amend_grow_system",
                 "field_history", "assess_root_zone", "void_reservoir_eval",
                 "which_plant", "record_refill",
-                "reconcile_ec_temperature", "intake_reading", "when_to_top_up", "project_topup", "plan_feed_for_target", "reconcile_dose", "ingest_environment_export", "predict_flowering", "calibrate_blend", "record_ripeness", "assess_ripeness", "maintenance_due", "notify_maintenance", "record_lesson", "list_lessons", "ppm_per_ml", "round_to_instrument", "assess_ph", "record_ph_adjustment", "reopen_dose", "record_dose_poured", "defer_full_change", "start_drink_down", "simulate_water_alert", "quantities",
+                "reconcile_ec_temperature", "intake_reading", "when_to_top_up", "project_topup", "plan_feed_for_target", "reconcile_dose", "ingest_environment_export", "predict_flowering", "calibrate_blend", "record_ripeness", "assess_ripeness", "maintenance_due", "notify_maintenance", "record_lesson", "list_lessons", "ppm_per_ml", "round_to_instrument", "assess_ph", "record_ph_adjustment", "reopen_dose", "record_dose_poured", "defer_full_change", "start_drink_down", "read_flower_photo", "simulate_water_alert", "quantities",
                 "get_nutrient_history",
                 "set_inventory", "get_inventory",
                 "check_in", "analyze_consumption", "adjust_to_target_ppm",
@@ -3854,6 +3854,68 @@ class GrowAgent(AgentBase):
         ("dry soil", "Does the soil look dry?"),
         ("mushy soft base", "Is the base of the plant soft, mushy or dark?"),
     )
+
+    FLOWER_PROBES = (
+        # Flat sentences, no apostrophes - moondream returns empty or degenerate
+        # output otherwise (see CARE_PROBES). Yes/no only: a small model's
+        # "about 30 percent" is a number nobody measured.
+        ("pistils_mostly_orange", "Are most of the pistils orange or brown. Answer yes or no."),
+        ("new_pistils_forming", "Are there fresh white pistils at the tip of the bud. Answer yes or no."),
+        ("mold_or_gray_fuzz", "Is there gray fuzz or mold on the bud. Answer yes or no."),
+        ("seed_pods_or_bananas", "Are there seed pods or banana shapes on the bud. Answer yes or no."),
+    )
+
+    def read_flower_photo(self, plant_id=None, photo_path=None):
+        """Run a flower photo through the local vision model (moondream, via the
+        inference service) and record what it saw - as the MODEL's read.
+
+        Principal 2026-10-20: "Where is the moondream model for images?" Photos
+        sent in chat were filed and described by Claude, never shown to the
+        model Grow owns. This is the path that shows them.
+
+        Recorded with observed_by="moondream" so assess_ripeness does not count
+        it (only the grower's own figures date a harvest); never converted to a
+        percentage. A mould or seed-pod YES is surfaced as something to look at
+        - a small model's yes is a reason to check, not a diagnosis."""
+        if not (plant_id and photo_path):
+            return {"error": "Needs plant_id and photo_path."}
+        if not os.path.isfile(photo_path):
+            return {"error": f"no photo at {photo_path}"}
+        if not VISION_AVAILABLE:
+            return {"error": "vision pipeline not available on this host"}
+        prefix = self._vision_prompt_for(plant_id).split("Describe")[0].strip()
+        answers, flags = {}, {}
+        try:
+            desc = self._call_inference_vision("Describe the flower. Are the pistils white or orange.",
+                                               photo_path, timeout=120) or ""
+        except Exception as exc:
+            desc = ""
+            answers["describe_error"] = str(exc)
+        for key, q in self.FLOWER_PROBES:
+            try:
+                a = (self._call_inference_vision(f"{prefix} {q}", photo_path, timeout=90) or "").strip()
+            except Exception as exc:
+                a = f"error: {exc}"
+            answers[key] = a[:160]
+            low = a.lower()
+            flags[key] = True if (low.startswith("yes") or " yes" in low[:40]) else (
+                False if low.startswith("no") else None)
+        rec = self.record_ripeness(
+            plant_id, new_pistils_forming=flags.get("new_pistils_forming"),
+            observed_by="moondream", photo_ref=os.path.relpath(photo_path, os.path.dirname(
+                os.path.dirname(os.path.dirname(os.path.abspath(__file__))))),
+            note=(f"moondream read (not the grower's): {desc[:200]} | "
+                  + "; ".join(f"{k}: {v}" for k, v in answers.items())))
+        look = [k for k in ("mold_or_gray_fuzz", "seed_pods_or_bananas") if flags.get(k)]
+        return {"plant_id": plant_id, "photo": os.path.basename(photo_path), "model": "moondream",
+                "description": desc, "answers": answers, "flags": flags,
+                "check_by_eye": [{"mold_or_gray_fuzz": "the model saw possible mold - look closely "
+                                  "inside the bud; a small model often mistakes trichomes for fuzz",
+                                  "seed_pods_or_bananas": "the model saw possible seed pods - check the "
+                                  "nodes by eye"}[k] for k in look],
+                "recorded": bool(rec.get("recorded")),
+                "counted_for_ripeness": False,
+                "why_not_counted": "a model's read of a photo; only the grower's own figures date the harvest"}
 
     def _probe_photo(self, photo_path, plant_id="current_plant"):
         """Ask the vision model directly about the states that decide severity.
@@ -14846,6 +14908,10 @@ class GrowAgent(AgentBase):
 
         elif task == "quantities":
             return {"result": self.quantities((args or {}).get("text") or "")}
+
+        elif task == "read_flower_photo":
+            a = args if isinstance(args, dict) else {}
+            return {"result": self.read_flower_photo(a.get("plant_id"), a.get("photo_path"))}
 
         elif task == "start_drink_down":
             a = args if isinstance(args, dict) else {}

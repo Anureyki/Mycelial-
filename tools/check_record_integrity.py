@@ -299,6 +299,25 @@ def main():
                                               "low_water_liters": 12}, drink_down=True)
     ck("the water alert says change-out, not refill, during a drink-down", "change-out" in subj, subj)
 
+    print("a flower photo goes to the vision model, and its read is never the grower's")
+    import tempfile as _tf
+    store = {}
+    g = grow(store)
+    import agents.grow_agent.grow_agent as _gm
+    _gm.VISION_AVAILABLE = True
+    g._vision_prompt_for = lambda pid: "This is a cannabis plant. Describe it."
+    answers = {"orange": "No.", "fresh white": "Yes.", "mold": "Yes, there is gray fuzz.", "seed": "No."}
+    g._call_inference_vision = lambda q, p, timeout=90: next((v for k, v in answers.items() if k in q.lower()),
+                                                             "The pistils are white.")
+    g._vocab = lambda pid: {"ripeness": {"method": "trichome_shares"}}
+    photo = _tf.NamedTemporaryFile(suffix=".jpg", delete=False).name
+    r = g.read_flower_photo("p18", photo)
+    ck("the read is recorded as the model's", r.get("recorded")
+       and json.loads(store["ripeness_p18"])[-1]["observed_by"] == "moondream")
+    ck("a mould yes becomes 'check by eye', not a diagnosis",
+       len(r.get("check_by_eye") or []) == 1 and "look closely" in r["check_by_eye"][0])
+    ck("it is never counted for ripeness", r.get("counted_for_ripeness") is False)
+
     print("a recorded sighting outranks the age")
     germ = (datetime.now() - timedelta(days=69)).date().isoformat()
     store = {"current_stage": "flower", "germination_date": germ,

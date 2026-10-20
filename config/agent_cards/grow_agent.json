@@ -89,6 +89,7 @@
     "record_dose_poured",
     "defer_full_change",
     "start_drink_down",
+    "read_flower_photo",
     "simulate_water_alert",
     "quantities",
     "get_nutrient_history",
