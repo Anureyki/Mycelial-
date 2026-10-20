@@ -6782,11 +6782,37 @@ class GrowAgent(AgentBase):
                    "trichome heads clear, cloudy and amber (and whether new white pistils are "
                    "still forming). Two readings a day or more apart let Grow project the harvest "
                    "window - and the girdling window with it.")
+            # SAY WHAT IS ON FILE (principal 2026-10-20: "I've posted pictures ...
+            # where are they?"). "No reading" read as if his photos had vanished.
+            # They were filed, and the model's reads of them were recorded - and
+            # deliberately not counted, since a photo-guess must not date a harvest.
+            allobs = self._ripeness_obs(pid)
+            model = [o for o in allobs if o.get("observed_by") != "principal"
+                     and o.get("pistils_brown_pct") is not None]
+            _pdir = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(
+                os.path.abspath(__file__)))), "knowledge_base", "grow_agent", "photos")
+            try:
+                photos = sorted(f for f in os.listdir(_pdir)
+                                if f.startswith(f"{label.lower()}_")
+                                and any(w in f for w in ("flower", "bud", "trichome")))
+            except Exception:
+                photos = []
+            on_file = ""
+            if photos or model:
+                on_file = (f" On file: {len(photos)} flower/bud photo(s)"
+                           + (f" (latest {photos[-1]})" if photos else "")
+                           + (f"; model reads of them put pistils at about "
+                              f"{', '.join(f'{o['pistils_brown_pct']:g}%' for o in model[-2:])} browned "
+                              f"- recorded, not counted, because a photo-guess must not date the harvest"
+                              if model else "")
+                           + ". Trichome clear/cloudy/amber cannot be read from phone photos - it "
+                             "needs a loupe or a macro shot.")
             if not obs:
                 items.append({"key": f"ripeness:{pid}:first:{today}", "urgency": "due",
-                              "subject": f"{label}: first ripeness reading needed",
-                              "body": f"{label} is in flower and Grow has no pistil or trichome reading "
-                                      f"from you yet, so it cannot date the harvest. {how}"})
+                              "subject": f"{label}: ripeness numbers needed from you",
+                              "body": f"{label} is in flower and Grow has no pistil or trichome figures "
+                                      f"from YOU yet, so it cannot date the harvest.{on_file} {how} If a "
+                                      f"model read above looks right to you, saying so counts as your reading."})
                 basis.append(f"{label}: ripeness - no reading yet, due now")
                 continue
             last = max(datetime.fromisoformat(str(o["at"])[:10]).date() for o in obs)
