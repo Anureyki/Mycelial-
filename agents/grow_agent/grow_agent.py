@@ -3855,15 +3855,22 @@ class GrowAgent(AgentBase):
         ("mushy soft base", "Is the base of the plant soft, mushy or dark?"),
     )
 
+    # DESCRIBE, DO NOT ASK YES/NO (measured 2026-10-20 on a clean GSC1 bud):
+    # moondream returned EMPTY for "... Answer yes or no.", and AGREED with
+    # leading questions - "Is there mold on the bud?" -> "Yes, there is mold";
+    # "Are there seeds on the plant?" -> "Yes" (the grower confirmed none) -
+    # while "Describe the bud. Is there any mold." -> "There is no visible mold
+    # ... in good condition." So every probe is the describe form, and a cue
+    # counts as SEEN only when the description affirms it without a negation.
     FLOWER_PROBES = (
-        # Flat sentences, no apostrophes - moondream returns empty or degenerate
-        # output otherwise (see CARE_PROBES). Yes/no only: a small model's
-        # "about 30 percent" is a number nobody measured.
-        ("pistils_mostly_orange", "Are most of the pistils orange or brown. Answer yes or no."),
-        ("new_pistils_forming", "Are there fresh white pistils at the tip of the bud. Answer yes or no."),
-        ("mold_or_gray_fuzz", "Is there gray fuzz or mold on the bud. Answer yes or no."),
-        ("seed_pods_or_bananas", "Are there seed pods or banana shapes on the bud. Answer yes or no."),
+        ("pistils_mostly_orange", "Describe the bud. Are the pistils white or orange.", ("orange", "brown", "amber")),
+        ("new_pistils_forming", "Describe the bud tip. Are there fresh white hairs.", ("white",)),
+        ("mold_or_gray_fuzz", "Describe the bud. Is there any mold.", ("mold", "fuzz", "rot")),
+        ("seed_pods_or_bananas", "Describe the bud. Are there any seeds.", ("seed", "pod", "banana")),
     )
+    MOONDREAM_CAVEAT = ("moondream agrees with leading yes/no questions (it said 'yes, mold' and "
+                        "'yes, seeds' on a clean bud) - only describe-form answers are used, and a "
+                        "'seen' is a reason to look, never a finding")
 
     def read_flower_photo(self, plant_id=None, photo_path=None):
         """Run a flower photo through the local vision model (moondream, via the
@@ -3891,16 +3898,27 @@ class GrowAgent(AgentBase):
         except Exception as exc:
             desc = ""
             answers["describe_error"] = str(exc)
-        for key, q in self.FLOWER_PROBES:
+        neg = re.compile(r"\b(no|not|none|without|free of)\b")
+        for key, q, cues in self.FLOWER_PROBES:
             try:
-                a = (self._call_inference_vision(f"{prefix} {q}", photo_path, timeout=90) or "").strip()
+                a = (self._call_inference_vision(q, photo_path, timeout=120) or "").strip()
             except Exception as exc:
                 a = f"error: {exc}"
-            answers[key] = a[:160]
+            answers[key] = a[:200]
             low = a.lower()
-            flags[key] = True if (low.startswith("yes") or " yes" in low[:40]) else (
-                False if low.startswith("no") else None)
-        rec = self.record_ripeness(
+            hit = any(c in low for c in cues)
+            if not low or low.startswith("error"):
+                flags[key] = None                       # no answer is not an answer
+            elif key == "pistils_mostly_orange":
+                # "white" without orange/brown is the clear 'no'
+                flags[key] = True if (hit and not re.search(r"\bwhite\b", low)) else (
+                    False if "white" in low else None)
+            else:
+                flags[key] = (False if (neg.search(low) and (hit or key != "new_pistils_forming"))
+                              else True if hit else None)
+        rec = {"recorded": False}
+        if flags.get("new_pistils_forming") is not None or flags.get("pistils_mostly_orange") is not None:
+            rec = self.record_ripeness(
             plant_id, new_pistils_forming=flags.get("new_pistils_forming"),
             observed_by="moondream", photo_ref=os.path.relpath(photo_path, os.path.dirname(
                 os.path.dirname(os.path.dirname(os.path.abspath(__file__))))),
@@ -3914,6 +3932,7 @@ class GrowAgent(AgentBase):
                                   "seed_pods_or_bananas": "the model saw possible seed pods - check the "
                                   "nodes by eye"}[k] for k in look],
                 "recorded": bool(rec.get("recorded")),
+                "model_caveat": self.MOONDREAM_CAVEAT,
                 "counted_for_ripeness": False,
                 "why_not_counted": "a model's read of a photo; only the grower's own figures date the harvest"}
 

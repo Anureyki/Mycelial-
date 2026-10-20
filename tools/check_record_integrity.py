@@ -306,7 +306,9 @@ def main():
     import agents.grow_agent.grow_agent as _gm
     _gm.VISION_AVAILABLE = True
     g._vision_prompt_for = lambda pid: "This is a cannabis plant. Describe it."
-    answers = {"orange": "No.", "fresh white": "Yes.", "mold": "Yes, there is gray fuzz.", "seed": "No."}
+    answers = {"white or orange": "The pistils are white.", "fresh white": "There are fresh white hairs at the tip.",
+               "any mold": "There is gray fuzzy mold on one side of the bud.",
+               "any seeds": "There are no seeds visible."}
     g._call_inference_vision = lambda q, p, timeout=90: next((v for k, v in answers.items() if k in q.lower()),
                                                              "The pistils are white.")
     g._vocab = lambda pid: {"ripeness": {"method": "trichome_shares"}}
