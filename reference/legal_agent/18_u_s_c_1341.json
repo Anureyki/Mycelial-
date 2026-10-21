@@ -1,0 +1,45 @@
+{
+  "title": "18 U.S.C. \u00a7 1341",
+  "source": "United States Code title 18 section 1341, retrieved from Cornell LII (law.cornell.edu). The statutory text is a U.S. government work and is public domain; Cornell's annotations are excluded.",
+  "authority_class": "federal_statute",
+  "authority_class_basis": "Title of the work is a U.S. Code section citation, which fixes the class",
+  "claim_layer": "doctrinal",
+  "claim_layer_meaning": "States or describes the rule. Cite for what the law IS.",
+  "authorities_cited": [],
+  "term_index": {
+    "financial institution": [
+      0
+    ]
+  },
+  "origin_pdf": "usc18_1341.txt",
+  "extraction": {
+    "extractor": "text file (already extracted)",
+    "pages": 1,
+    "no_text_layer": [],
+    "raised": [],
+    "recovered": [],
+    "lost": [],
+    "complete": true
+  },
+  "pages": 1,
+  "sections": [
+    {
+      "citation": "\u00a7 1341.",
+      "kind": "section_sign",
+      "page": 1,
+      "text": "\u00a7 1341. Frauds and swindles. Whoever, having devised or intending to devise any scheme or artifice to defraud , or for obtaining money or property by means of false or fraudulent pretenses, representations, or promises, or to sell, dispose of, loan, exchange, alter, give away, distribute, supply, or furnish or procure for unlawful use any counterfeit or spurious coin, obligation, security, or other article, or anything represented to be or intimated or held out to be such counterfeit or spurious article, for the purpose of executing such scheme or artifice or attempting so to do, places in any post office or authorized depository for mail matter, any matter or thing whatever to be sent or delivered by the Postal Service, or deposits or causes to be deposited any matter or thing whatever to be sent or delivered by any private or commercial interstate carrier, or takes or receives therefrom, any such matter or thing, or knowingly causes to be delivered by mail or such carrier according to the direction thereon, or at the place at which it is directed to be delivered by the person to whom it is addressed, any such matter or thing, shall be fined under this title or imprisoned not more than 20 years, or both. If the violation occurs in relation to, or involving any benefit authorized, transported, transmitted, transferred, disbursed, or paid in connection with, a presidentially declared major disaster or emergency (as those terms are defined in section 102 of the Robert T. Stafford Disaster Relief and Emergency Assistance Act ( 42 U.S.C. 5122 )), or affects a financial institution, such person shall be fined not more than $1,000,000 or imprisoned not more than 30 years, or both. (June 25, 1948, ch. 645, 62 Stat. 763 ; May 24, 1949, ch. 139, \u00a7 34, 63 Stat. 94 ; Pub. L. 91\u2013375 , \u00a7 (6)(j)(11), Aug. 12, 1970 , 84 Stat. 778 ; Pub. L. 101\u201373, title IX, \u00a7 961(i) , Aug. 9, 1989 , 103 Stat. 500 ; Pub. L. 101\u2013647, title XXV, \u00a7 2504(h) , Nov. 29, 1990 , 104 Stat. 4861 ; Pub. L. 103\u2013322, title XXV, \u00a7 250006 , title XXXIII, \u00a7 330016(1)(H), Sept. 13, 1994 , 108 Stat. 2087 , 2147; Pub. L. 107\u2013204, title IX, \u00a7 903(a) , July 30, 2002 , 116 Stat. 805 ; Pub. L. 110\u2013179, \u00a7 4 , Jan. 7, 2008 , 121 Stat. 2557 .)",
+      "integrity": {
+        "state": "complete",
+        "basis": "Full retrieved body of 2,224 characters stored; under the 60,000 cap, so nothing was cut.",
+        "stamped_at": "2026-10-21T09:40:00",
+        "stored_chars": 2224,
+        "source_chars": 2224,
+        "cap_applied": 60000
+      },
+      "authority_class": "federal_statute",
+      "claim_layer": "doctrinal",
+      "claim_layer_meaning": "States or describes the rule. Cite for what the law IS."
+    }
+  ],
+  "claim_layer_basis": "Set from the class, not from the text: a statute or regulation states the rule rather than describing or arguing it, which the citation in the title establishes definitionally."
+}

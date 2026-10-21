@@ -329,6 +329,19 @@ def main():
     ck("a real 8.9% disagreement at strength is still refused",
        (r.get("cleaned") or {}).get("cross_check", {}).get("agrees") is False)
 
+    print("a title-qualified CFR lookup never answers from another title")
+    from agents.legal_agent.legal_agent import LegalAgent as _LA
+    lg2 = _LA.__new__(_LA)
+    lg2.agent_id = "legal_agent"
+    lg2._refdocs = None
+    lg2.log = lambda *a, **k: None
+    lg2.SHARED_CORPORA = getattr(_LA, "SHARED_CORPORA", ())
+    hits = lg2.lookup_reference("39 CFR 111")
+    ck("'39 CFR 111' does not return a 12 CFR section",
+       not any(str(h.get("title", "")).startswith("12 CFR") for h in hits), str([h.get("title") for h in hits][:2]))
+    ck("an exact section in the right title still resolves",
+       any(str(h.get("title", "")).startswith("39 CFR") for h in lg2.lookup_reference("39 CFR 111.1")))
+
     print("a recorded sighting outranks the age")
     germ = (datetime.now() - timedelta(days=69)).date().isoformat()
     store = {"current_stage": "flower", "germination_date": germ,

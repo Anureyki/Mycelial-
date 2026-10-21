@@ -2480,6 +2480,23 @@ class AgentBase:
         entries = self._lookup_reference_raw(term)
         if not entries:
             return entries
+        # A TITLE-QUALIFIED QUERY ANSWERS ONLY FROM THAT TITLE (2026-10-21):
+        # "39 CFR 111" found no exact section and fell through to a section
+        # numbered 111 in 12 CFR Part 1002 (Regulation B) - a postal question
+        # answered from consumer-credit law. When the query names a CFR title,
+        # a hit from a work in another title is dropped; none left is "not found".
+        _m = re.match(r"\s*(\d+)\s*(?:CFR|C\.F\.R\.)\b", str(term or ""), re.I)
+        if _m:
+            _t = _m.group(1)
+            def _same_title(e):
+                if not isinstance(e, dict):
+                    return True
+                ttl = str(e.get("title") or e.get("work") or "")
+                m2 = re.match(r"\s*(\d+)\s*(?:CFR|C\.F\.R\.)", ttl, re.I)
+                return (m2 is None) or m2.group(1) == _t
+            entries = [e for e in entries if _same_title(e)]
+            if not entries:
+                return entries
         from core import source_integrity
         out = []
         for e in entries:
