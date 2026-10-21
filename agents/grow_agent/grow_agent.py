@@ -13241,10 +13241,14 @@ class GrowAgent(AgentBase):
             return None
         last = poured[-1]
         rec = self._jload(f"grow_system_{plant_id}", {})
-        tgt = (self._parse_numeric(last.get("ppm_predicted_at_final"))
-               or self._parse_numeric(rec.get("target_ppm")))
-        basis = ("the level your last poured feed aimed at" if last.get("ppm_predicted_at_final")
-                 else "the record's target_ppm")
+        # THE GROWER'S STANDING TARGET FIRST (2026-10-21): GSC1's last dose was
+        # step 1 of a fresh mix, aimed at 672 - so 838 read as "above target" while
+        # his standing target (set 10/12) is 900. A target he set outranks what a
+        # partial dose happened to aim at; the last dose's aim is the fallback.
+        tgt = (self._parse_numeric(rec.get("target_ppm"))
+               or self._parse_numeric(last.get("ppm_predicted_at_final")))
+        basis = ("your standing target" if rec.get("target_ppm")
+                 else "the level your last poured feed aimed at")
         if not tgt or pp >= tgt * 0.97:
             return None
         vol = self._parse_numeric(volume_liters) or self._parse_numeric(rec.get("reservoir_liters"))
