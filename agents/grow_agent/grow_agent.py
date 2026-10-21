@@ -5797,18 +5797,40 @@ class GrowAgent(AgentBase):
         if stage_ratio:
             _stg, _ = self._plant_state("current_stage", plant_id)
             _blend = f"stage_ratio:{_stg or 'unknown'}"
+            # A FRESH MIX IS ITS OWN BLEND (2026-10-21): GSC1's change-out mix from
+            # 28 ppm water delivered ~224 ppm-L/ml against 173.8 learned from
+            # top-ups into existing solution. Mixing the two in one median sizes
+            # both wrong, so a dose into near-plain water learns separately.
+            if now_p is not None and now_p < 100:
+                _blend += ":fresh"
             # USE WHAT THIS BLEND HAS TAUGHT. Five bloom top-ups landed 5-8% short
             # on the same 258 from a veg mix in another vessel, and every miss was
             # reconciled and then thrown away. A blend with enough confirmed doses
             # is dosed from its own measured strength.
             _cal = self._blend_coefficient(plant_id, _blend)
+            # A FRESH MIX WITH ANY MEASUREMENT BEATS A TOP-UP FIGURE (2026-10-21):
+            # until three fresh mixes agree, the top-up strength is the fallback -
+            # and it is known to be ~25% low for a fresh mix. One measured fresh
+            # result is used PROVISIONALLY, and says so.
+            if not _cal and _blend.endswith(":fresh"):
+                try:
+                    _pv = self.calibrate_blend(plant_id, _blend, write=False) or {}
+                except Exception:
+                    _pv = {}
+                if _pv.get("n") and _pv.get("ppm_l_per_ml"):
+                    _cal = {"ppm_l_per_ml": _pv["ppm_l_per_ml"], "n": _pv["n"],
+                            "basis": f"PROVISIONAL - {_pv['n']} measured fresh mix(es) on this plant; "
+                                     f"used over the top-up strength, which runs ~25% low for a fresh mix. "
+                                     f"Mix in two steps and read before finishing."}
             if _cal:
                 conc = dict(conc, ppm_l_per_ml=_cal["ppm_l_per_ml"],
                             origin_plant=plant_id, basis=_cal["basis"],
                             learned_from_n=_cal["n"], blend=_blend)
                 out["ratio_caveat"] = (f"Strength learned for {_blend} from {_cal['n']} "
                                        f"confirmed doses on this plant ({_cal['ppm_l_per_ml']} "
-                                       f"ppm-L/ml).")
+                                       f"ppm-L/ml)."
+                                       + (" PROVISIONAL - fewer than 3 agree; mix in two steps and "
+                                          "read before finishing." if (_cal.get("n") or 0) < 3 else ""))
 
         if only_products:
             _want = [only_products] if isinstance(only_products, str) else list(only_products)
@@ -6938,7 +6960,8 @@ class GrowAgent(AgentBase):
     DOSE_SETTLE_HOURS = 2.0
 
     def reconcile_dose(self, plant_id="current_plant", ppm_after=None, volume_liters=None,
-                       ppm_predicted=None, meter_tolerance_pct=3.0, note=""):
+                       ppm_predicted=None, meter_tolerance_pct=3.0, note="",
+                       reading_at=None, settled_basis=None):
         """reconcile_topup's counterpart for the other half of the reservoir's
         arithmetic - a dose adds dissolved mass rather than diluting it, which
         is exactly the case reconcile_topup refuses outright rather than
@@ -6955,7 +6978,7 @@ class GrowAgent(AgentBase):
         missing; the arithmetic below is the same conservation of mass
         every other reconciliation here runs on."""
         pa = self._parse_numeric(ppm_after)
-        _reading_at = None
+        _reading_at = str(reading_at)[:19] if reading_at else None
         if pa is None:
             # The reading is usually already logged - use the latest one taken
             # after the pending dose, rather than asking for it twice.
@@ -7063,6 +7086,13 @@ class GrowAgent(AgentBase):
         unsettled = (event is not None and abs(delta_pct or 0) > tol
                      and (out.get("hours_since_dose") is not None
                           and out["hours_since_dose"] < self.DOSE_SETTLE_HOURS))
+        # SETTLED BY EVIDENCE, NOT BY THE CLOCK (2026-10-21): two readings 2% apart
+        # and a refill prediction made from the second, matched at the new volume,
+        # say the mix had settled inside the 2 h window. The caller must state that
+        # evidence; it is recorded on the dose, never assumed.
+        if unsettled and settled_basis:
+            unsettled = False
+            out["settled_basis"] = str(settled_basis)[:400]
         # TOO LATE TO SAY WHAT THE DOSE DID (2026-10-16): GSC2's first reading
         # after its 10/12 feed came four days later, after the plant had fed.
         # Scored as the dose's result it would teach the blend a strength that
@@ -7070,7 +7100,8 @@ class GrowAgent(AgentBase):
         # calibrate_blend's own fallback uses - the dose is closed as
         # no_settled_reading, the reading is not stored as its result, and
         # calibration never sees it. The reading still counts for uptake.
-        stale = (event is not None and not unsettled and out.get("hours_since_dose") is not None
+        stale = (event is not None and not unsettled and not settled_basis
+                 and out.get("hours_since_dose") is not None
                  and out["hours_since_dose"] > self.BLEND_MAX_GAP_H)
 
         if stale:
