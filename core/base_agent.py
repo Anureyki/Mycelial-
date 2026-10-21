@@ -826,6 +826,16 @@ class AgentBase:
             return {"refused": True, "why": str(exc), "lane": F.LANE}
 
 
+    def user_constraint(self, key):
+        """A standing constraint the principal stated, from Anansi's shared
+        user_context namespace (Hermes). -> value, or None if unset/unreachable."""
+        try:
+            r = self.send_a2a("hermes", "retrieve_memory", ["user_context", f"constraint:{key}"])
+            raw = self._unwrap_value(r)
+            return (json.loads(raw) or {}).get("value") if raw else None
+        except Exception:
+            return None
+
     def draft_dispute_letter(self, args=None):
         """An FCRA dispute, an FDCPA validation demand, the combined notice,
         or the short portal version - the principal's own prose, every
@@ -833,14 +843,25 @@ class AgentBase:
         open. Drafts only; nothing here sends. See core/dispute_letters.py."""
         from core.dispute_letters import draft, Refused
         a = args if isinstance(args, dict) else {}
+        facts = dict(a.get("facts") or {})
+        # THE PRINCIPAL'S LEGAL MAIL ADDRESS (2026-10-21) is a standing constraint
+        # in Anansi's shared user_context. A letter needing a mailing address
+        # uses it when none was given - read from that one record, never copied.
+        addr_from = None
+        if not str(facts.get("mailing_address") or "").strip():
+            c = self.user_constraint("legal_mail_address")
+            if c:
+                facts["mailing_address"], addr_from = c, "user_context constraint legal_mail_address"
         try:
-            out = draft(a.get("kind"), a.get("facts") or {}, self._resolve_authority)
+            out = draft(a.get("kind"), facts, self._resolve_authority)
         except Refused as exc:
             return {"drafted": False, "refused": True, "why": str(exc), "sends": False}
         except ValueError as exc:
             return {"drafted": False, "refused": True, "why": str(exc), "sends": False}
         out["drafted"] = True
         out["drafted_by"] = self.agent_id
+        if addr_from:
+            out["mailing_address_from"] = addr_from
         self.log(f"draft_dispute_letter {out['kind']}: {len(out['paragraphs_shipped'])} paragraphs, "
                  f"{len(out['refused'])} refused, sha {out['sha256'][:12]}")
         return out
