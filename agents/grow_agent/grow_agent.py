@@ -7055,7 +7055,12 @@ class GrowAgent(AgentBase):
         # after dosing. A shortfall that soon is the dose still circulating, not
         # uptake and not the strength - so it is neither scored nor fed to
         # calibration, and the dose stays open for the settled reading.
-        unsettled = (event is not None and (delta or 0) > 0 and abs(delta_pct or 0) > tol
+        # EITHER DIRECTION (2026-10-21): GSC1's fresh mix read 1334 against ~1020
+        # predicted, right after pouring. A reading that high that soon can be a
+        # concentrated pocket as easily as a stronger mix, and scoring it would
+        # teach calibration the wrong strength - so a big miss either way inside
+        # the settle window waits for the mixed reading.
+        unsettled = (event is not None and abs(delta_pct or 0) > tol
                      and (out.get("hours_since_dose") is not None
                           and out["hours_since_dose"] < self.DOSE_SETTLE_HOURS))
         # TOO LATE TO SAY WHAT THE DOSE DID (2026-10-16): GSC2's first reading
@@ -7076,8 +7081,10 @@ class GrowAgent(AgentBase):
                              f"Closed without scoring; not used for calibration.")
             out["action"] = "Next feed: read 2 h or more after the pour, and within the day."
         elif unsettled:
-            out["classification"] = "below_prediction_not_settled"
-            out["reason"] = (f"Measured {pa:g} ppm is {delta:g} ppm ({delta_pct:g}%) below the "
+            out["classification"] = ("below_prediction_not_settled" if delta > 0
+                                     else "above_prediction_not_settled")
+            out["reason"] = (f"Measured {pa:g} ppm is {abs(delta):g} ppm ({abs(delta_pct):g}%) "
+                             f"{'below' if delta > 0 else 'above'} the "
                              f"{pred:g} ppm forecast, {out['hours_since_dose']:g} h after dosing - "
                              f"too soon to read as uptake or as the strength being off. The dose "
                              f"stays open and is not used for calibration.")
@@ -13027,10 +13034,12 @@ class GrowAgent(AgentBase):
                 ec_us = ec_v
                 notes_out.append(f"EC {ec_v:.0f} read as uS/cm")
             else:
-                problems.append(
-                    f"EC {ec_v} sits between the mS range (<= {self.EC_MS_MAX}) and "
-                    f"the uS range (>= {self.EC_US_MIN}) and cannot be assigned a "
-                    f"unit. State it as mS or uS.")
+                # BETWEEN THE RANGES IS FRESH WATER (2026-10-21: 31 was refused).
+                # No nutrient solution reaches double-digit mS, so a value above
+                # EC_MS_MAX can only be uS - here, near-pure water before nutrients.
+                ec_us = ec_v
+                notes_out.append(f"EC {ec_v:g} read as uS/cm - too high to be mS for a nutrient "
+                                 f"solution, so this is near-pure water")
             if ec_us is not None:
                 cleaned["ec_us"] = round(ec_us, 1)
                 cleaned["ec"] = round(ec_us / 1000.0, 4)
@@ -13074,7 +13083,10 @@ class GrowAgent(AgentBase):
                 cross = {"tds_scale": scale, "ppm_expected_from_ec": round(expected, 1),
                          "ppm_reported": ppm_v, "delta": round(delta, 1),
                          "delta_pct": round(pct, 2) if pct is not None else None}
-                if pct is not None and pct > 5.0:
+                # An ABSOLUTE floor as well as a percentage (2026-10-21): fresh water at
+                # 28 ppm / 31 uS was refused - 12 ppm apart, a big share of a tiny number
+                # and well inside any meter's resolution near zero.
+                if pct is not None and pct > 5.0 and abs(delta) > 15:
                     cross["agrees"] = False
                     problems.append(
                         f"ppm {ppm_v} and EC {cleaned['ec_us']:.0f} uS disagree by "

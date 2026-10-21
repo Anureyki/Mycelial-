@@ -320,6 +320,15 @@ def main():
        len(r.get("check_by_eye") or []) == 1 and "look closely" in r["check_by_eye"][0])
     ck("it is never counted for ripeness", r.get("counted_for_ripeness") is False)
 
+    print("near-zero water is not refused for ppm/EC disagreement")
+    g = grow({})
+    r = g.intake_reading("p19", ppm=28, ec=31, volume_liters=13, tds_scale=0.5, persist=False)
+    ck("28 ppm / 31 uS fresh water is accepted", r.get("accepted") is not False
+       and (r.get("cleaned") or {}).get("cross_check", {}).get("agrees") is not False, str(r)[:140])
+    r = g.intake_reading("p19", ppm=786, ec=1444, volume_liters=19, tds_scale=0.5, persist=False)
+    ck("a real 8.9% disagreement at strength is still refused",
+       (r.get("cleaned") or {}).get("cross_check", {}).get("agrees") is False)
+
     print("a recorded sighting outranks the age")
     germ = (datetime.now() - timedelta(days=69)).date().isoformat()
     store = {"current_stage": "flower", "germination_date": germ,
