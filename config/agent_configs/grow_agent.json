@@ -68,6 +68,7 @@
     "reconcile_ec_temperature",
     "record_knowledge",
     "record_refill",
+    "record_level",
     "remove_plant",
     "review_training_candidate",
     "roster",

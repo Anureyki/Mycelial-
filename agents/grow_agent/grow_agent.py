@@ -921,7 +921,7 @@ class GrowAgent(AgentBase):
                 "log_training_event", "recommend_feed", "plan_system_transition",
                 "set_grow_system", "get_grow_system", "amend_grow_system",
                 "field_history", "assess_root_zone", "void_reservoir_eval",
-                "which_plant", "record_refill",
+                "which_plant", "record_refill", "record_level",
                 "reconcile_ec_temperature", "intake_reading", "when_to_top_up", "project_topup", "plan_feed_for_target", "reconcile_dose", "ingest_environment_export", "predict_flowering", "calibrate_blend", "record_ripeness", "assess_ripeness", "maintenance_due", "notify_maintenance", "record_lesson", "list_lessons", "ppm_per_ml", "round_to_instrument", "assess_ph", "record_ph_adjustment", "reopen_dose", "record_dose_poured", "defer_full_change", "start_drink_down", "read_flower_photo", "simulate_water_alert", "quantities",
                 "get_nutrient_history",
                 "set_inventory", "get_inventory",
@@ -3127,6 +3127,49 @@ class GrowAgent(AgentBase):
         self.log(f"refill on {pid}: {before} -> {round(to_v,1)} L")
         out["water_alert"] = self._water_alert(pid, "record_refill")
         return out
+
+    def record_level(self, plant_id=None, liters=None, at=None, note=""):
+        """A measured water level with no chemistry - a volume event, not a reading.
+
+        2026-10-21: "Gsc2 is 12L rn" went to intake_reading, log_reading
+        refused it (a volume-only ROW would hide the last real ppm/pH behind a
+        blank), and the level - exactly at the low-water mark - was recorded
+        nowhere and alerted nothing. The refusal was right about rows and
+        wrong about the fact: a level the grower read off the bucket is an
+        observation, and the water projection is the thing that needs it."""
+        pid = plant_id
+        if not pid:
+            return {"recorded": False, "reason": "no plant named",
+                    "ask": "A level needs its vessel. Nothing was recorded."}
+        v = self._parse_numeric(liters)
+        lo, hi, _u = self.READING_BOUNDS["volume_liters"]
+        if v is None or not (lo <= v <= hi):
+            return {"recorded": False, "reason": f"liters {liters!r} is not a plausible level"}
+        rec = self._system_record(pid)
+        cap = self._parse_numeric(rec.get("reservoir_capacity_liters"))
+        if cap is not None and v > cap + 0.01:
+            return {"recorded": False, "reason": "over capacity",
+                    "why": f"{v} L exceeds this vessel's recorded capacity of {cap} L"}
+        now = str(at)[:26] if at else datetime.now().isoformat()
+        ev = self._volume_events(pid)
+        ev.append({"at": now, "kind": "level", "liters": v, "measured": True,
+                   "source": "level_stated", "note": str(note)[:300],
+                   **({"recorded_at": datetime.now().isoformat()} if at else {})})
+        ev.sort(key=lambda e: str(e.get("at") or ""))
+        self.store_own_memory(f"volume_events_{pid}", json.dumps(ev[-200:]))
+        if not any(e.get("at") == now and e.get("kind") == "level" for e in self._volume_events(pid)):
+            return {"recorded": False, "reason": "write did not land - the level is not on record"}
+        sysrec = dict(rec)
+        sysrec.update(reservoir_liters=round(v, 1), volume_source="level_stated",
+                      volume_measured_on=now)
+        key = (f"grow_system_{pid}"
+               if self._unwrap_value(self.retrieve_own_memory(f"grow_system_{pid}"))
+               else "grow_system")
+        self.store_own_memory(key, json.dumps(sysrec))
+        return {"recorded": True, "plant_id": pid, "liters": v, "at": now,
+                "not_a_reading": ("Recorded as a volume event. No ppm, EC or pH was "
+                                  "observed, so the last reading stays the latest chemistry."),
+                "water_alert": self._water_alert(pid, "record_level")}
 
     def refill_from_text(self, prompt, plant_id=None):
         """Read a refill out of plain language and record it, or say what is missing."""
@@ -13157,6 +13200,17 @@ class GrowAgent(AgentBase):
                                          "make sense of must not become evidence.")
             return out
 
+        # A LEVEL ALONE IS A VOLUME EVENT (2026-10-21, "Gsc2 is 12L rn"): log_reading
+        # rightly refuses a volume-only row, and the level was lost with it.
+        if cleaned.get("volume_liters") and not (set(cleaned) - {"volume_liters"}):
+            lv = self.record_level(plant_id, cleaned["volume_liters"],
+                                   at=extra.get("taken_at") or extra.get("timestamp"), note=note)
+            out.update(stored=bool(lv.get("recorded")), stored_as="volume_event",
+                       level=lv, water_alert=lv.get("water_alert"))
+            if not lv.get("recorded"):
+                out["store_error"] = lv.get("reason")
+            return out
+
         payload = {"plant_id": plant_id}
         # Only fields log_reading actually reads. ec_us and cross_check are
         # derived for the caller; sending them tripped log_reading's own
@@ -13957,6 +14011,9 @@ class GrowAgent(AgentBase):
             elif e.get("kind") == "full_change":
                 pts.append({"at": at, "liters": self._parse_numeric(e.get("liters")),
                             "kind": "full_change", "date_only": len(str(e.get("at"))) <= 10})
+            elif e.get("kind") == "level":
+                pts.append({"at": at, "liters": self._parse_numeric(e.get("liters")),
+                            "kind": "level"})
         return sorted([p for p in pts if p["liters"]], key=lambda p: p["at"])
 
     def record_gaps(self, plant_id="current_plant", since_days=21):
@@ -14067,9 +14124,17 @@ class GrowAgent(AgentBase):
             out["precision"] = "one interval starts at a change-out timed only to the day"
         return out
 
-    def _water_alert_message(self, label, pr, drink_down=False):
+    def _water_alert_message(self, label, pr, drink_down=False, change_due=None):
         """The alert's words - ONE place, used by the live alert and by the
-        simulation, so a simulation that lands proves the real message lands."""
+        simulation, so a simulation that lands proves the real message lands.
+
+        change_due (2026-10-21): GSC2 hit 12 L with its change-out due, and the
+        alert said "Top up" - the top-up-during-a-due-change-out annoyance the
+        grower had already named. When the change-out is due the alert says so."""
+        if change_due and pr["status"] != "danger":
+            return (f"{label}: low water - and the full change-out is due",
+                    f"{label}: {pr['message'].replace(' Top up.', '')} {change_due} "
+                    f"Change the reservoir rather than topping it up.")
         if drink_down and pr["status"] != "danger":
             return (f"{label}: drunk down - time for the full change-out",
                     f"{label}: {pr['message']} The drink-down is done: change the reservoir "
@@ -14078,10 +14143,12 @@ class GrowAgent(AgentBase):
                    if pr["status"] == "danger" else
                    f"{label}: reservoir will be at {pr['low_water_liters']:g} L "
                    + ("now" if pr["status"] != "ok" else f"in about {pr['hours_to_crossing']:.0f} h"))
-        return subject, f"{label}: {pr['message']}"
+        return subject, f"{label}: {pr['message']}" + (
+            f" {change_due} Top up only to hold until it is changed." if change_due else "")
 
-    def _send_water_alert(self, label, pr, prefix="", lead="", drink_down=False):
-        subject, body = self._water_alert_message(label, pr, drink_down=drink_down)
+    def _send_water_alert(self, label, pr, prefix="", lead="", drink_down=False, change_due=None):
+        subject, body = self._water_alert_message(label, pr, drink_down=drink_down,
+                                                  change_due=change_due)
         r = self.send_a2a("anansi", "notify", {
             "subject": prefix + subject, "body": prefix + lead + body,
             "from_agent": "grow_agent", "register": "low_stakes", "channels": ["email", "dashboard"]})
@@ -14172,7 +14239,15 @@ class GrowAgent(AgentBase):
             key = f"{plant_id}:{pr.get('status')}:{day}"
             if key not in log:
                 _dda = bool((self._jload(f"grow_system_{plant_id}", {}).get("drink_down") or {}).get("active"))
-                res = self._send_water_alert(label, pr, drink_down=_dda)
+                _cd = None
+                try:
+                    _fc = [i for i in (self.maintenance_due(plant_id).get("items") or [])
+                           if i.get("kind") == "full_change" and i.get("status") in ("due", "overdue")]
+                    _cd = (f"Its full change-out is {_fc[0]['status']}: {_fc[0].get('text')}"
+                           if _fc else None)
+                except Exception as exc:
+                    self.log(f"_water_alert: change-out state unknown for {plant_id}: {exc}")
+                res = self._send_water_alert(label, pr, drink_down=_dda, change_due=_cd)
                 entry["delivery"] = res
                 if isinstance(res, dict) and res.get("sent_any"):
                     log[key] = entry["at"]
@@ -16476,6 +16551,10 @@ class GrowAgent(AgentBase):
             return {"result": {"active": self.active_plants(),
                                "archived": self.archived_plants()}}
 
+        elif task == "record_level":
+            a = args if isinstance(args, dict) else {}
+            return {"result": self.record_level(a.get("plant_id"), a.get("liters"),
+                                                at=a.get("at"), note=a.get("note", ""))}
         elif task == "record_refill":
             a = args if isinstance(args, dict) else {}
             return {"result": self.record_refill(
