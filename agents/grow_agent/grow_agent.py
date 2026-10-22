@@ -459,9 +459,6 @@ LIGHTING_QUESTIONS = {
 
 # A reservoir change is overdue faster than most schedules assume once the plant
 # is large - this grow lost two weeks to exactly that.
-RESERVOIR_CHANGE_INTERVAL_DAYS = {
-    "germination": 14, "seedling": 10, "early_veg": 7, "veg": 7, "flower": 7,
-}
 
 # The plant lives in a system, and the system changes what the readings mean.
 # Everything above this reasons about a generic reservoir; without a system
@@ -921,7 +918,7 @@ class GrowAgent(AgentBase):
                 "log_training_event", "recommend_feed", "plan_system_transition",
                 "set_grow_system", "get_grow_system", "amend_grow_system",
                 "field_history", "assess_root_zone", "void_reservoir_eval",
-                "which_plant", "record_refill", "record_level",
+                "which_plant", "record_refill", "record_level", "change_out_review",
                 "reconcile_ec_temperature", "intake_reading", "when_to_top_up", "project_topup", "plan_feed_for_target", "reconcile_dose", "ingest_environment_export", "predict_flowering", "calibrate_blend", "record_ripeness", "assess_ripeness", "maintenance_due", "notify_maintenance", "record_lesson", "list_lessons", "ppm_per_ml", "round_to_instrument", "assess_ph", "record_ph_adjustment", "reopen_dose", "record_dose_poured", "defer_full_change", "start_drink_down", "read_flower_photo", "simulate_water_alert", "quantities",
                 "get_nutrient_history",
                 "set_inventory", "get_inventory",
@@ -6748,6 +6745,178 @@ class GrowAgent(AgentBase):
                     "nutrients": None}
         return last
 
+    def _full_change_times(self, plant_id):
+        """Every full change-out on record for this plant, oldest first, one per
+        event. Three places record one (a fresh recipe, a full_change volume event,
+        last_full_change_at); the same change can sit in two of them hours apart
+        (UTC vs local stamps before 2026-10-04), so changes within a day merge."""
+        ts = []
+        for rec in self._get_nutrient_history(plant_id):
+            txt = str(rec.get("source_note") or rec.get("note") or "").lower()
+            if rec.get("timestamp") and (rec.get("fresh_mix") or rec.get("after_reservoir_change") or any(
+                    k in txt for k in ("fresh", "full change", "reservoir change", "complete reservoir"))):
+                ts.append(str(rec["timestamp"])[:19])
+        ts += [str(e.get("at"))[:19] for e in self._volume_events(plant_id)
+               if e.get("kind") == "full_change" and e.get("at")]
+        stated = self._jload(f"grow_system_{plant_id}", {}).get("last_full_change_at")
+        if stated:
+            ts.append(str(stated)[:19])
+        out = []
+        for t in sorted(ts):
+            try:
+                d = datetime.fromisoformat(t if len(t) > 10 else t + "T12:00:00")
+            except Exception:
+                continue
+            if out and (d - out[-1]).total_seconds() < 86400:
+                continue
+            out.append(d)
+        return out
+
+    def _change_interval(self, plant_id, cap):
+        """How long a reservoir may run before a full change - from THIS GROW.
+
+        Principal 2026-10-21: "It's not really 14 days. It's whatever's the
+        longest period of time it went without a changeout." The interval is the
+        longest COMPLETED cycle on record across the grow's reservoirs (a run
+        length is a lesson about the room's practice, so it crosses plants and
+        names its origin). An open cycle cannot set it - the bar would always sit
+        at the current age and 'due' could never arrive. The authored 7/14-day
+        reference is used only before any cycle has completed."""
+        best = None
+        for pid in self._active_plants():
+            ch = self._full_change_times(pid)
+            for a, b in zip(ch, ch[1:]):
+                days = (b - a).total_seconds() / 86400
+                if best is None or days > best[0]:
+                    best = (days, pid, a, b)
+        if best:
+            label = self._jload(f"grow_system_{best[1]}", {}).get("instance_label") or best[1]
+            return round(best[0]), (f"the longest this grow has run a reservoir: {label}, "
+                                    f"{best[2]:%Y-%m-%d} to {best[3]:%Y-%m-%d}, {best[0]:.0f} days")
+        days = self.CHANGE_DAYS_SMALL if (cap and cap <= self.SMALL_RES_L) else self.CHANGE_DAYS_LARGE
+        return days, f"authored reference ({days} days) - no completed cycle on record yet"
+
+    def change_out_review(self, plant_id=None):
+        """What a reservoir looked like as it aged - per cycle, by age band.
+
+        Principal 2026-10-21: "if it can go a long period of time without a good
+        water changeout, I want to know what that looks like versus what a
+        regular ratio of a water changeout is. Is 7 to 10 days really makes a
+        difference?" A change-out exists because a plant can drink water and
+        leave salts behind, unevenly; a TDS meter cannot see which ions, but mass
+        balance can see whether salt leaves WITH the water. So for every interval
+        with no nutrient added: the concentration the plant drank at, over what
+        was in the bucket. Near 1, it drinks the solution as mixed. Well below 1,
+        salt stays behind and the reservoir concentrates. Above 1, it eats faster
+        than it drinks. pH drift per day rides alongside (no dose, no pH
+        adjustment in the window). Numbers, no verdict: the grower decides what
+        a cycle cost from these and the plant."""
+        if not plant_id:
+            return {"error": "change_out_review needs plant_id"}
+        changes = self._full_change_times(plant_id)
+        if not changes:
+            return {"plant_id": plant_id, "status": "no_change_out_on_record"}
+        rds = sorted([r for r in (self._get_readings_for_plant(plant_id) or []) if not r.get("voided")],
+                     key=lambda r: str(r.get("timestamp") or ""))
+        evs = sorted(self._volume_events(plant_id), key=lambda e: str(e.get("at") or ""))
+        rec = self._jload(f"grow_system_{plant_id}", {})
+        adj = sorted(str(h.get("measured_at"))[:19] for d in ("up", "down")
+                     for h in (rec.get(f"ph_{d}_response_history") or []))
+        bands = ((0, 7, "days 0-7"), (7, 10, "days 7-10"), (10, 14, "days 10-14"), (14, 999, "day 14+"))
+
+        def _t(x):
+            return datetime.fromisoformat(str(x)[:19])
+
+        cycles = []
+        for i, start in enumerate(changes):
+            end = changes[i + 1] if i + 1 < len(changes) else None
+            inside = [r for r in rds if _t(r["timestamp"]) > start and (end is None or _t(r["timestamp"]) < end)]
+            rows = {b[2]: {"uptake_ratio": [], "ph_drift_per_day": []} for b in bands}
+
+            def _band(t0):
+                age = (t0 - start).total_seconds() / 86400
+                return next(b[2] for b in bands if b[0] <= age < b[1])
+
+            def _clean(t0, t1, p0=None):
+                """No nutrient added inside the window, and the window does not start
+                on an unmixed reading - unless that reading is the one the dose was
+                reconciled against (a confirmed, settled result)."""
+                if (t1 - t0).total_seconds() < 6 * 3600:
+                    return None
+                between = [e for e in evs if t0 < _t(e.get("at")) <= t1]
+                if any(e.get("kind") in ("dose", "full_change") and e.get("reconciled_result") != "not_poured"
+                       for e in between):
+                    return None
+                for e in evs:
+                    if e.get("kind") == "dose" and 0 <= (t0 - _t(e.get("at"))).total_seconds() \
+                            < self.DOSE_SETTLE_HOURS * 3600:
+                        if not (e.get("reconciled") and p0 is not None
+                                and self._parse_numeric(e.get("measured_ppm_after")) == p0):
+                            return None
+                return between
+
+            # ppm and pH often arrive as separate entries minutes apart, so each
+            # series pairs only the readings that carry it.
+            wp = [r for r in inside if self._parse_numeric(r.get("ppm")) and self._measured_volume(r)]
+            for r0, r1 in zip(wp, wp[1:]):
+                t0, t1 = _t(r0["timestamp"]), _t(r1["timestamp"])
+                p0, p1 = self._parse_numeric(r0["ppm"]), self._parse_numeric(r1["ppm"])
+                between = _clean(t0, t1, p0)
+                if between is None:
+                    continue
+                v0, v1 = self._measured_volume(r0), self._measured_volume(r1)
+                refills = [e for e in between if e.get("kind") == "refill"]
+                added_l = sum(float(e.get("delta") or 0) for e in refills)
+                added_m = sum(float(e.get("topup_ppm") or 0) * float(e.get("delta") or 0) for e in refills)
+                drank = v0 + added_l - v1
+                if drank > 0.3:
+                    conc = (p0 * v0 + added_m - p1 * v1) / drank
+                    if conc < 0:
+                        # salt ROSE with nothing added: not uptake - the volume, the
+                        # top-up water or the meter is off. Counted, never averaged.
+                        rows[_band(t0)].setdefault("mass_rose_unexplained", []).append(
+                            f"{t0:%m-%d %H:%M}->{t1:%m-%d %H:%M}")
+                    else:
+                        rows[_band(t0)]["uptake_ratio"].append(round(conc / ((p0 + p1) / 2), 2))
+            wh = [r for r in inside if self._parse_numeric(r.get("ph"))]
+            for r0, r1 in zip(wh, wh[1:]):
+                t0, t1 = _t(r0["timestamp"]), _t(r1["timestamp"])
+                if _clean(t0, t1) is None or any(t0.isoformat() < x <= t1.isoformat() for x in adj):
+                    continue
+                days = (t1 - t0).total_seconds() / 86400
+                rows[_band(t0)]["ph_drift_per_day"].append(round(
+                    (self._parse_numeric(r1["ph"]) - self._parse_numeric(r0["ph"])) / days, 3))
+
+            def _sum(xs):
+                if not xs:
+                    return None
+                xs = sorted(xs)
+                return {"n": len(xs), "median": xs[len(xs) // 2], "range": [xs[0], xs[-1]]}
+            ppms = [(round((_t(r["timestamp"]) - start).total_seconds() / 86400, 1),
+                     self._parse_numeric(r.get("ppm"))) for r in inside if self._parse_numeric(r.get("ppm"))]
+            cycles.append({
+                "from": start.strftime("%Y-%m-%d"), "to": end.strftime("%Y-%m-%d") if end else None,
+                "open": end is None,
+                "days": round(((end or datetime.now()) - start).total_seconds() / 86400, 1),
+                "readings": len(inside),
+                "ppm_first_last": [ppms[0], ppms[-1]] if ppms else None,
+                "top_ups_with_nutrient": sum(1 for e in evs if e.get("kind") == "dose" and
+                                             e.get("reconciled_result") != "not_poured" and
+                                             start < _t(e.get("at")) and (end is None or _t(e.get("at")) < end)),
+                "by_age": {k: {m: (_sum(v[m]) if m != "mass_rose_unexplained" else v[m]) for m in v}
+                           for k, v in rows.items() if any(v.values())}})
+        interval, basis = self._change_interval(plant_id, None)
+        return {"plant_id": plant_id, "cycles": cycles,
+                "interval_days": interval, "interval_basis": basis,
+                "how_to_read": ("uptake_ratio: the concentration the plant drank at over what was in "
+                                "the bucket, in windows with no nutrient added. ~1 = drinking the "
+                                "solution as mixed; well below 1 = salt left behind, the reservoir "
+                                "concentrating - what a change-out clears; above 1 = eating faster "
+                                "than drinking. A band with n of 1 or 2 is a hint, not a pattern."),
+                "not_measured": ("which ions are left behind - a TDS meter reads the total, so an "
+                                 "imbalance inside a steady total is invisible here; the plant's "
+                                 "leaves are the other half of the evidence")}
+
     def maintenance_due(self, plant_id=None):
         plants = [plant_id] if plant_id else self._active_plants()
         now = datetime.now()
@@ -6766,7 +6935,7 @@ class GrowAgent(AgentBase):
                 "dwc", "lwc", "top_fed_dwc", "rdwc", "nft", "ebb_flow", "hydro", "kratky")
             if not hydro:
                 continue
-            interval = self.CHANGE_DAYS_SMALL if (cap and cap <= self.SMALL_RES_L) else self.CHANGE_DAYS_LARGE
+            interval, interval_basis = self._change_interval(pid, cap)
             lc = self._last_full_change(pid)
             if lc:
                 try:
@@ -6801,8 +6970,8 @@ class GrowAgent(AgentBase):
                 st = ("ok" if left > self.CHANGE_PREP_DAYS else "prepare" if left > 2 else
                       "due_soon" if left > 0 else "due" if left > -3 else "overdue")
                 txt = (f"Reservoir is {age:.0f} day(s) old (last full change "
-                       f"{str(lc['timestamp'])[:10]}); full change every ~{interval} days "
-                       f"for a {cap or '?'} L reservoir.")
+                       f"{str(lc['timestamp'])[:10]}); full change every ~{interval} days - "
+                       f"{interval_basis}.")
                 if st == "prepare":
                     txt = (f"Full change in about {left:.0f} day(s). Set aside about "
                            f"{cap or '?'} L of DI or dehumidifier water, and hold off on full "
@@ -6837,10 +7006,10 @@ class GrowAgent(AgentBase):
                 self.log(f"maintenance_due: top-up check failed for {pid}: {ex}")
         return {"items": items,
                 "due": [i for i in items if i["status"] in ("due", "overdue", "due_soon", "prepare")],
-                "basis": (f"full change every {self.CHANGE_DAYS_SMALL} days for reservoirs "
-                          f"<= {self.SMALL_RES_L} L, {self.CHANGE_DAYS_LARGE} days above - authored "
-                          f"reference adopted at the principal's request; reading stale after "
-                          f"{self.READING_STALE_DAYS} days")}
+                "basis": (f"full change at the longest completed cycle this grow has run "
+                          f"(principal 2026-10-21); authored {self.CHANGE_DAYS_SMALL}/"
+                          f"{self.CHANGE_DAYS_LARGE}-day reference only before one exists; "
+                          f"reading stale after {self.READING_STALE_DAYS} days")}
 
     def reminders_due(self):
         """maintenance_due, in the shape every agent's reminders share. Keyed by
@@ -16551,6 +16720,9 @@ class GrowAgent(AgentBase):
             return {"result": {"active": self.active_plants(),
                                "archived": self.archived_plants()}}
 
+        elif task == "change_out_review":
+            a = args if isinstance(args, dict) else {}
+            return {"result": self.change_out_review(a.get("plant_id"))}
         elif task == "record_level":
             a = args if isinstance(args, dict) else {}
             return {"result": self.record_level(a.get("plant_id"), a.get("liters"),
@@ -17703,12 +17875,18 @@ class GrowAgent(AgentBase):
                              f"{stage} wants one every {schedule['interval_days']}")
 
             triggers = []
-            change_interval = RESERVOIR_CHANGE_INTERVAL_DAYS.get(stage, 7)
-            if days_since is not None and days_since >= change_interval:
-                triggers.append(
-                    f"Reservoir change likely due - {days_since} day(s) since the last logged "
-                    f"reading and {stage} wants a change about every {change_interval}."
-                )
+            # ONE CHANGE-OUT CLOCK (2026-10-21). This kept its own 7-day table and
+            # timed it from the last READING, so it disagreed with maintenance_due's
+            # interval and its age both. It now asks maintenance_due.
+            try:
+                _fc = [i for i in (self.maintenance_due(plant_id).get("items") or [])
+                       if i.get("plant_id") == plant_id and i.get("kind") == "full_change"
+                       and i.get("status") in ("due_soon", "due", "overdue")]
+                if _fc:
+                    triggers.append(f"Reservoir change {_fc[0]['status'].replace('_', ' ')} - "
+                                    f"{_fc[0]['text']}")
+            except Exception as exc:
+                self.log(f"check_in: change-out state unknown for {plant_id}: {exc}")
             if system and system.get("system_type") in ("dwc", "top_fed_dwc"):
                 triggers.append("Water temperature matters here - roots sit in solution.")
             if system and WATER_SOURCES.get((system.get("water_source") or "").lower(), {}).get("unbuffered"):

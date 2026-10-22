@@ -69,6 +69,7 @@
     "record_knowledge",
     "record_refill",
     "record_level",
+    "change_out_review",
     "remove_plant",
     "review_training_candidate",
     "roster",
