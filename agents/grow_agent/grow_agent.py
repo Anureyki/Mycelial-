@@ -5687,7 +5687,7 @@ class GrowAgent(AgentBase):
     def plan_feed_for_target(self, plant_id="current_plant", target_ppm=None,
                              dose_into_liters=None, final_liters=None,
                              current_ppm=None, note="", only_products=None, stage_ratio=None,
-                             persist=True):
+                             persist=True, ratio_stage=None):
         """Dose NOW into less water, to land in band AFTER a top-up you know is coming.
 
         only_products restricts the dose to the named bottles, in this plant's
@@ -5836,6 +5836,11 @@ class GrowAgent(AgentBase):
         _blend = None
         if stage_ratio:
             _stg, _ = self._plant_state("current_stage", plant_id)
+            # THE RATIO'S STAGE, WHEN IT DIFFERS (2026-10-22): GSC2, still veg on record,
+            # took a bloom-heavy make-up ahead of the flip. Tagged by the plant's stage it
+            # would have been learned as GSC2's veg strength.
+            if ratio_stage:
+                _stg = str(ratio_stage).strip().lower()
             _blend = f"stage_ratio:{_stg or 'unknown'}"
             # A FRESH MIX IS ITS OWN BLEND (2026-10-21): GSC1's change-out mix from
             # 28 ppm water delivered ~224 ppm-L/ml against 173.8 learned from
@@ -15297,7 +15302,7 @@ class GrowAgent(AgentBase):
                 a.get("plant_id", "current_plant"), a.get("target_ppm"),
                 a.get("dose_into_liters"), a.get("final_liters"),
                 a.get("current_ppm"), a.get("note", ""), a.get("only_products"),
-                a.get("stage_ratio"))}
+                a.get("stage_ratio"), ratio_stage=a.get("ratio_stage"))}
 
         elif task == "project_topup":
             a = args or {}
