@@ -14544,7 +14544,7 @@ class GrowAgent(AgentBase):
                 "changed": sorted((r.get("changed") or {}).keys()) if isinstance(r, dict) else None}
 
     def record_dose_poured(self, plant_id=None, at=None, poured_at=None, note="",
-                           amounts=None):
+                           amounts=None, uncertain=None):
         """Say when a planned dose was actually poured, and what actually went in.
 
         The plan's own time is when Grow wrote it; mixing time is counted from
@@ -14560,7 +14560,18 @@ class GrowAgent(AgentBase):
                     and str(e.get("at", "")).startswith(str(at))), None)
         if not hit:
             return {"error": f"No dose at {at} for {plant_id}."}
-        hit["poured_at"] = str(poured_at or datetime.now().isoformat(timespec="seconds"))[:26]
+        if uncertain:
+            # 2026-10-22: "Gro n micro are the only ones I stumbled on" - poured, but
+            # not counted. calibrate_blend already skips a dose_uncertain dose; nothing
+            # could set it on a pour. The dose still counts in the water's mass for
+            # follow-up plans - it is only kept out of learning a strength.
+            _u = [uncertain] if isinstance(uncertain, str) else list(uncertain)
+            unknown = sorted(set(_u) - set(hit.get("planned_ml") or hit.get("add_now_ml") or {}))
+            if unknown:
+                return {"error": f"{unknown} were not in this dose. Nothing changed."}
+            hit["dose_uncertain"] = sorted(set(hit.get("dose_uncertain") or []) | set(_u))
+        if poured_at or not hit.get("poured_at"):
+            hit["poured_at"] = str(poured_at or datetime.now().isoformat(timespec="seconds"))[:26]
         if note:
             hit["poured_note"] = str(note)[:300]
         if isinstance(amounts, dict) and amounts:
@@ -14585,6 +14596,9 @@ class GrowAgent(AgentBase):
                 hit["ppm_predicted_at_final"] = round(mass / vf, 0)
         self.store_own_memory(f"volume_events_{plant_id}", json.dumps(ev[-200:]))
         return {"recorded": True, "poured_at": hit["poured_at"], "plan_at": hit.get("at"),
+                **({"dose_uncertain": hit["dose_uncertain"],
+                    "calibration": "excluded - the amounts in the water are not known"}
+                   if hit.get("dose_uncertain") else {}),
                 "add_now_ml": hit.get("add_now_ml"), "planned_ml": hit.get("planned_ml"),
                 "ppm_predicted": hit.get("ppm_predicted"),
                 "ppm_predicted_planned": hit.get("ppm_predicted_planned")}
@@ -15241,7 +15255,8 @@ class GrowAgent(AgentBase):
             return {"result": self.record_dose_poured(a.get("plant_id"), at=a.get("at"),
                                                       poured_at=a.get("poured_at"),
                                                       note=a.get("note", ""),
-                                                      amounts=a.get("amounts"))}
+                                                      amounts=a.get("amounts"),
+                                                      uncertain=a.get("uncertain"))}
 
         elif task == "reopen_dose":
             a = args if isinstance(args, dict) else {}
