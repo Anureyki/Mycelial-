@@ -17102,6 +17102,14 @@ class GrowAgent(AgentBase):
 
             is_auto = "auto" in str(strain).lower()
             concerns, guidance = [], []
+            # SEVERITY FROM WHAT WAS SAID (2026-10-25): "light stripping fan leaves"
+            # was recorded as heavy because the TYPE defoliation is heavy by default.
+            # A stated amount of light/moderate/heavy is the record; the type's
+            # default is used only when nothing was said, and says so.
+            _amt = str(args.get("amount") or "").strip().lower()
+            severity = _amt if _amt in ("light", "moderate", "heavy") else profile["severity"]
+            severity_basis = "stated" if _amt in ("light", "moderate", "heavy") else \
+                f"default for {event_type} - amount not stated"
 
             if profile["removes_capacity"]:
                 guidance.append(
@@ -17119,7 +17127,7 @@ class GrowAgent(AgentBase):
                     "days spent regrowing leaf are days not spent building bud sites. The window "
                     "to feed nitrogen and recover is short."
                 )
-            if profile["severity"] == "heavy":
+            if severity == "heavy":
                 concerns.append("Heavy removal - watch for stalled growth over the next few days.")
 
             guidance.append(
@@ -17145,7 +17153,8 @@ class GrowAgent(AgentBase):
                 "backfilled": bool(_occurred),
                 "plant_id": plant_id,
                 "event_type": event_type,
-                "severity": profile["severity"],
+                "severity": severity,
+                "severity_basis": severity_basis,
                 "removed_capacity": profile["removes_capacity"],
                 "stage_at_event": stage,
                 "species": species,
