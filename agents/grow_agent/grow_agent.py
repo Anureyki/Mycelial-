@@ -918,7 +918,7 @@ class GrowAgent(AgentBase):
                 "log_training_event", "recommend_feed", "plan_system_transition",
                 "set_grow_system", "get_grow_system", "amend_grow_system",
                 "field_history", "assess_root_zone", "void_reservoir_eval",
-                "which_plant", "record_refill", "record_level", "change_out_review", "recipe_elements",
+                "which_plant", "record_refill", "record_level", "change_out_review", "recipe_elements", "resolve_lesson_rule",
                 "reconcile_ec_temperature", "intake_reading", "when_to_top_up", "project_topup", "plan_feed_for_target", "reconcile_dose", "ingest_environment_export", "predict_flowering", "calibrate_blend", "record_ripeness", "assess_ripeness", "maintenance_due", "notify_maintenance", "record_lesson", "list_lessons", "ppm_per_ml", "round_to_instrument", "assess_ph", "record_ph_adjustment", "reopen_dose", "record_dose_poured", "defer_full_change", "start_drink_down", "read_flower_photo", "simulate_water_alert", "quantities",
                 "get_nutrient_history",
                 "set_inventory", "get_inventory",
@@ -1458,6 +1458,27 @@ class GrowAgent(AgentBase):
         self.store_own_memory("lessons_index", json.dumps(idx))
         return {"recorded": True, "lesson": lesson}
 
+    def resolve_lesson_rule(self, lesson_id=None, rule_contains=None, resolution="", evidence=""):
+        """Mark one rule of a lesson resolved, keeping its text.
+
+        2026-10-25: a 10/1 lesson still said "Settle GSC1's germination date",
+        and it sent Claude back to a question the grower had closed the same day
+        from his calendar (7/28, germination_date_confirmed). A lesson is
+        history and is not rewritten; the resolution rides with the rule."""
+        if not (lesson_id and rule_contains and str(resolution).strip()):
+            return {"error": "Needs lesson_id, rule_contains (text in the rule) and resolution."}
+        l_ = json.loads(self._unwrap_value(self.retrieve_own_memory(lesson_id)) or "{}")
+        hits = [r for r in (l_.get("rules") or []) if str(rule_contains).lower() in str(r).lower()]
+        if len(hits) != 1:
+            return {"error": f"rule_contains matched {len(hits)} rules - it must match exactly one.",
+                    "rules": l_.get("rules")}
+        res = list(l_.get("resolutions") or [])
+        res.append({"rule": hits[0], "resolution": str(resolution)[:400],
+                    "evidence": str(evidence)[:300], "at": datetime.now().isoformat(timespec="seconds")})
+        l_["resolutions"] = res
+        self.store_own_memory(lesson_id, json.dumps(l_), pin=True)
+        return {"resolved": True, "lesson_id": lesson_id, "rule": hits[0]}
+
     def _list_lessons(self, topic=None, plant_id=None):
         out = []
         for lid in json.loads(self._unwrap_value(self.retrieve_own_memory("lessons_index")) or "[]"):
@@ -1466,6 +1487,10 @@ class GrowAgent(AgentBase):
                 continue
             if plant_id and l_.get("applies_to") and plant_id not in l_["applies_to"]:
                 continue
+            _res = {r_.get("rule"): r_ for r_ in (l_.get("resolutions") or [])}
+            if _res:
+                l_["rules"] = [f"{r} [RESOLVED {_res[r]['at'][:10]}: {_res[r]['resolution']}]"
+                               if r in _res else r for r in (l_.get("rules") or [])]
             out.append(l_)
         return out
 
@@ -15421,6 +15446,10 @@ class GrowAgent(AgentBase):
             return {"result": self.record_lesson(**{k: a.get(k) for k in (
                 "name", "text", "origin_plant", "applies_to", "topic", "rules", "recorded_by")
                 if a.get(k) is not None})}
+        elif task == "resolve_lesson_rule":
+            a = args if isinstance(args, dict) else {}
+            return {"result": self.resolve_lesson_rule(a.get("lesson_id"), a.get("rule_contains"),
+                                                       a.get("resolution", ""), a.get("evidence", ""))}
         elif task == "list_lessons":
             a = args if isinstance(args, dict) else {}
             return {"result": self._list_lessons(a.get("topic"), a.get("plant_id"))}

@@ -71,6 +71,7 @@
     "record_level",
     "change_out_review",
     "recipe_elements",
+    "resolve_lesson_rule",
     "remove_plant",
     "review_training_candidate",
     "roster",

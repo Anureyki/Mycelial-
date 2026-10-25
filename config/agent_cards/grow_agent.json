@@ -69,6 +69,7 @@
     "record_level",
     "change_out_review",
     "recipe_elements",
+    "resolve_lesson_rule",
     "reconcile_ec_temperature",
     "intake_reading",
     "when_to_top_up",
