@@ -2192,7 +2192,9 @@ class AgentBase:
                     "skipped": skipped, "basis": basis}
         # ONE message per agent per run. Six overdue actions arriving as six
         # emails is how a reminder channel gets filtered to a folder nobody reads.
-        urgent = any(it.get("urgency") in ("due", "overdue") for it in fresh)
+        # "cleared" goes where the alert went: an alarm emailed and closed only on a
+        # dashboard is still open in the inbox (2026-10-24).
+        urgent = any(it.get("urgency") in ("due", "overdue", "cleared") for it in fresh)
         if len(fresh) == 1:
             subject, body = fresh[0].get("subject"), fresh[0].get("body") or fresh[0].get("subject")
         else:

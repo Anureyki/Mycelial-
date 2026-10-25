@@ -7016,6 +7016,49 @@ class GrowAgent(AgentBase):
                           f"{self.CHANGE_DAYS_LARGE}-day reference only before one exists; "
                           f"reading stale after {self.READING_STALE_DAYS} days")}
 
+    def _cleared_reminders(self, m, days=7):
+        """An alert that was emailed gets one "cleared" message when it resolves.
+
+        2026-10-24: a morning brief built from the principal's inbox told him
+        GSC2's change-out was still overdue and 'likely down around 8 L' - two
+        days after the change-out. Grow had emailed due/low-water alerts and,
+        when the change was done, sent nothing; an inbox only ever saw the alarm.
+        An alert with no closure stays open for every reader of it."""
+        label = {"current_plant": "GSC1", "gsc_auto_2": "GSC2"}
+        now_st = {(i["plant_id"], i["kind"]): i for i in m.get("items") or []}
+        cutoff = (datetime.now() - timedelta(days=days)).strftime("%Y-%m-%d")
+        last_due = {}
+        for k in self._jload("reminders_notified", {}):
+            parts = k.split(":")
+            if len(parts) == 4 and parts[2] in ("due", "overdue") and parts[3] >= cutoff \
+                    and parts[1] in ("full_change", "reading", "top_up"):
+                last_due[(parts[0], parts[1])] = max(parts[3], last_due.get((parts[0], parts[1]), ""))
+        out = []
+        for (pid, kind), day in sorted(last_due.items()):
+            cur = now_st.get((pid, kind))
+            if cur and cur.get("status") == "ok":
+                lb = label.get(pid, pid)
+                out.append({"key": f"{pid}:{kind}:cleared:{day}", "urgency": "cleared",
+                            "subject": f"{lb}: {kind.replace('_', ' ')} done - cleared",
+                            "body": f"{lb}: the '{kind.replace('_', ' ')} due' alert from {day} is "
+                                    f"cleared. Now: {cur.get('text')}"})
+        low = float(self._alerts_cfg().get("low_water_liters") or 12)
+        last_w = {}
+        for k in self._jload("water_alerts_sent", {}):
+            parts = k.split(":")
+            if len(parts) == 3 and parts[2] >= cutoff:
+                last_w[parts[0]] = max(parts[2], last_w.get(parts[0], ""))
+        for pid, day in sorted(last_w.items()):
+            pts = [p_ for p_ in self._volume_points(pid) if p_["at"][:10] > day or
+                   (p_["at"][:10] == day and p_["kind"] in ("after_refill", "full_change"))]
+            if pts and pts[-1]["liters"] > low:
+                lb = label.get(pid, pid)
+                out.append({"key": f"{pid}:water:cleared:{day}", "urgency": "cleared",
+                            "subject": f"{lb}: water level back up - cleared",
+                            "body": f"{lb}: the low-water alert from {day} is cleared - "
+                                    f"{pts[-1]['liters']:g} L measured {pts[-1]['at'][:16].rstrip('~')}."})
+        return out
+
     def reminders_due(self):
         """maintenance_due, in the shape every agent's reminders share. Keyed by
         day, so a due change is repeated daily until it is done - that it went
@@ -7030,6 +7073,7 @@ class GrowAgent(AgentBase):
                 "urgency": it["status"] if it["status"] in ("due", "overdue") else "soon",
                 "subject": f"{label}: {it['kind'].replace('_', ' ')} {it['status'].replace('_', ' ')}",
                 "body": f"{label}: {it['text']}"})
+        items.extend(self._cleared_reminders(m))
         h = self._harvest_reminders()
         items.extend(h)
         _rip = self._ripeness_reminders()
