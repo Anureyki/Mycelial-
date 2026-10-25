@@ -68,6 +68,7 @@
     "record_refill",
     "record_level",
     "change_out_review",
+    "recipe_elements",
     "reconcile_ec_temperature",
     "intake_reading",
     "when_to_top_up",

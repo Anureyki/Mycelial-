@@ -918,7 +918,7 @@ class GrowAgent(AgentBase):
                 "log_training_event", "recommend_feed", "plan_system_transition",
                 "set_grow_system", "get_grow_system", "amend_grow_system",
                 "field_history", "assess_root_zone", "void_reservoir_eval",
-                "which_plant", "record_refill", "record_level", "change_out_review",
+                "which_plant", "record_refill", "record_level", "change_out_review", "recipe_elements",
                 "reconcile_ec_temperature", "intake_reading", "when_to_top_up", "project_topup", "plan_feed_for_target", "reconcile_dose", "ingest_environment_export", "predict_flowering", "calibrate_blend", "record_ripeness", "assess_ripeness", "maintenance_due", "notify_maintenance", "record_lesson", "list_lessons", "ppm_per_ml", "round_to_instrument", "assess_ph", "record_ph_adjustment", "reopen_dose", "record_dose_poured", "defer_full_change", "start_drink_down", "read_flower_photo", "simulate_water_alert", "quantities",
                 "get_nutrient_history",
                 "set_inventory", "get_inventory",
@@ -1049,6 +1049,56 @@ class GrowAgent(AgentBase):
         ctx["evidence_kind"] = kind or ("correction" if (ctx["corrects"] or ctx["supersedes"]) else "event")
         ctx["source"] = args.get("source", "user")
         return {k: v for k, v in ctx.items() if v not in (None, [], "")}
+
+    # inventory item for each bottle name used in a recipe
+    RECIPE_ITEM = {"Cal-Mag": "cal_mag_plus", "FloraMicro": "flora_micro",
+                   "FloraGro": "flora_gro", "FloraBloom": "flora_bloom"}
+    # oxide label figures to elemental: P2O5 -> P, K2O -> K
+    OXIDE = {"P2O5": ("P", 0.4364), "K2O": ("K", 0.8301)}
+
+    def recipe_elements(self, amounts=None, liters=None, plant_id=None):
+        """What a recipe delivers, element by element, in ppm (mg/L).
+
+        2026-10-25, principal with the three Flora labels in hand: "Micro/Gro
+        might be too much, it holds the most N at 5%." Grow sized every dose by
+        total ppm and knew the bottles only by name - it could not say how much
+        nitrogen a recipe carried. ml x density x label % / litres: the label
+        is REFERENCE for what is in the bottle, and the meter, not this, says
+        what is in the water. A bottle with no density or analysis on record is
+        named as missing rather than left out silently."""
+        if not (isinstance(amounts, dict) and amounts and self._parse_numeric(liters)):
+            return {"error": "recipe_elements needs amounts {bottle: ml} and liters"}
+        L = float(self._parse_numeric(liters))
+        tot, per, missing = {}, {}, []
+        for name, ml in amounts.items():
+            ml = self._parse_numeric(ml) or 0.0
+            iid = self.RECIPE_ITEM.get(name, str(name).lower().replace(" ", "_").replace("-", "_"))
+            item = self._jload(f"inventory_{iid}", {})
+            an, dens = item.get("analysis") or {}, self._parse_numeric(item.get("density_g_per_ml"))
+            if not an or not dens:
+                missing.append({"bottle": name, "lacks": [k for k, v in (("analysis", an), ("density", dens)) if not v]})
+                continue
+            row = {}
+            for key, pct in an.items():
+                v = self._parse_numeric(str(pct).split("%")[0])
+                if v is None:
+                    continue
+                el, f = self.OXIDE.get(key, (key, 1.0))
+                ppm = ml * dens * v / 100 * 1000 / L * f
+                row[el] = round(ppm, 1)
+                tot[el] = round(tot.get(el, 0) + ppm, 1)
+            per[name] = row
+        n, k = tot.get("N"), tot.get("K")
+        out = {"liters": L, "amounts": amounts, "elements_ppm": tot, "by_bottle": per,
+               "N_to_K": round(n / k, 2) if n and k else None,
+               "N_share_by_bottle": ({b: round(r.get("N", 0) / n * 100, 1) for b, r in per.items()}
+                                     if n else None),
+               "basis": "label guaranteed analysis (reference) x density from net weight; "
+                        "P and K converted from P2O5/K2O"}
+        if missing:
+            out["missing"] = missing
+            out["incomplete"] = "totals leave out the bottles listed in missing"
+        return out
 
     def _load_inventory_index(self):
         raw = self._unwrap_value(self.retrieve_own_memory("inventory_index"))
@@ -16784,6 +16834,9 @@ class GrowAgent(AgentBase):
             return {"result": {"active": self.active_plants(),
                                "archived": self.archived_plants()}}
 
+        elif task == "recipe_elements":
+            a = args if isinstance(args, dict) else {}
+            return {"result": self.recipe_elements(a.get("amounts"), a.get("liters"), a.get("plant_id"))}
         elif task == "change_out_review":
             a = args if isinstance(args, dict) else {}
             return {"result": self.change_out_review(a.get("plant_id"))}
@@ -17508,6 +17561,10 @@ class GrowAgent(AgentBase):
                 "analysis": args.get("analysis", {}),
                 "label_guidance": args.get("label_guidance", {}),
                 "label_basis": args.get("label_basis"),
+                # g/mL, from the label's net weight over its volume - what turns
+                # ml poured into mg of each element (2026-10-25).
+                "density_g_per_ml": args.get("density_g_per_ml"),
+                "density_basis": args.get("density_basis"),
                 "on_hand": args.get("on_hand", True),
                 "notes": args.get("notes", ""),
                 "updated": datetime.now().isoformat(),

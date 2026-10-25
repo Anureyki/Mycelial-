@@ -70,6 +70,7 @@
     "record_refill",
     "record_level",
     "change_out_review",
+    "recipe_elements",
     "remove_plant",
     "review_training_candidate",
     "roster",
