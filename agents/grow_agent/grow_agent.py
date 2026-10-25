@@ -5856,6 +5856,15 @@ class GrowAgent(AgentBase):
         # nothing in the output would have said so.
         ratio = conc.get("ratio") or {}
         ratio_from = conc.get("origin_plant")
+        # THE GROWER'S CHOSEN RATIO (2026-10-25: "Trim micro 25% only", to ease
+        # nitrogen in late flower). Kept on the plant's record and used whenever
+        # the caller passes none - ahead of the last recipe poured, which is what
+        # went in, not what he decided goes in next.
+        _chosen = (self._jload(f"grow_system_{plant_id}", {}) or {}).get("topup_ratio") or {}
+        if not stage_ratio and isinstance(_chosen.get("ratio"), dict):
+            stage_ratio = _chosen["ratio"]
+            ratio_stage = ratio_stage or _chosen.get("stage")
+            out["ratio_chosen_by_grower"] = {k: _chosen.get(k) for k in ("set", "why", "ratio")}
         try:
             _own = self._unwrap_value(self.retrieve_own_memory(self._nutrient_keys(plant_id)[0]))
             if _own:
