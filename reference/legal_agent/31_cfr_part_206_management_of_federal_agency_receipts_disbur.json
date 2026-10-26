@@ -1,0 +1,543 @@
+{
+  "title": "31 CFR Part 206 - Management Of Federal Agency Receipts, Disbursements, And Operation Of The Cash Management Improvements Fund",
+  "source": "Electronic CFR, title 31 part 206, as of 2026-08-01, retrieved from ecfr.gov. Federal regulation - public domain.",
+  "authority_class": "regulation",
+  "authority_class_basis": "Title of the work is a CFR part citation, which fixes the class",
+  "claim_layer": "doctrinal",
+  "claim_layer_meaning": "States or describes the rule. Cite for what the law IS.",
+  "authorities_cited": [],
+  "term_index": {
+    "will require": [
+      0,
+      3
+    ],
+    "contracts that impact": [
+      0,
+      3
+    ],
+    "agency will require": [
+      0,
+      3
+    ],
+    "impact agency": [
+      0,
+      3
+    ],
+    "management improvement": [
+      0,
+      7
+    ],
+    "valley authority": [
+      0,
+      1
+    ],
+    "branch except": [
+      0,
+      1
+    ],
+    "agency collection": [
+      0,
+      3
+    ],
+    "cash management": [
+      0,
+      1,
+      2,
+      3,
+      5,
+      6,
+      7,
+      8,
+      9
+    ],
+    "cash management improvement": [
+      0,
+      7
+    ],
+    "government departments": [
+      0,
+      1
+    ],
+    "contractual agreements": [
+      0,
+      3
+    ],
+    "existing contracts": [
+      0,
+      3
+    ],
+    "tennessee valley": [
+      0,
+      1
+    ],
+    "effective cash": [
+      0,
+      2
+    ],
+    "effective cash management": [
+      0,
+      2
+    ],
+    "impact agency collection": [
+      0,
+      3
+    ],
+    "executive branch": [
+      0,
+      1
+    ],
+    "fiscal service": [
+      0,
+      1
+    ],
+    "executive branch except": [
+      0,
+      1
+    ],
+    "agency will": [
+      0,
+      3,
+      4,
+      5,
+      7,
+      8
+    ],
+    "deficit reduction": [
+      0,
+      8,
+      9
+    ],
+    "payment mechanisms": [
+      0,
+      3
+    ],
+    "tennessee valley authority": [
+      0,
+      1
+    ],
+    "agencies will": [
+      1,
+      3,
+      9
+    ],
+    "same-day deposit": [
+      1,
+      4
+    ],
+    "agency cash management": [
+      1,
+      5,
+      6,
+      7
+    ],
+    "federal government": [
+      1,
+      3
+    ],
+    "cash flows": [
+      1,
+      3,
+      5,
+      6
+    ],
+    "cutoff time": [
+      1,
+      4
+    ],
+    "funds transfer": [
+      1,
+      3
+    ],
+    "management improvements fund": [
+      1,
+      8,
+      9
+    ],
+    "financial institution": [
+      1
+    ],
+    "payments will": [
+      1,
+      2,
+      3
+    ],
+    "management improvements": [
+      1,
+      8,
+      9
+    ],
+    "cash management improvements": [
+      1,
+      8,
+      9
+    ],
+    "improvements fund": [
+      1,
+      8,
+      9
+    ],
+    "payment recipients": [
+      1,
+      3
+    ],
+    "benefit payments": [
+      1,
+      3
+    ],
+    "agency cash": [
+      1,
+      5,
+      6,
+      7
+    ],
+    "collection mechanism": [
+      1,
+      3
+    ],
+    "enrollment forms": [
+      1,
+      3
+    ],
+    "management collection": [
+      2,
+      8,
+      9
+    ],
+    "cash management collection": [
+      2,
+      8,
+      9
+    ],
+    "cash flow": [
+      2,
+      5
+    ],
+    "management reviews": [
+      3,
+      5
+    ],
+    "transfer mechanism": [
+      3,
+      6
+    ],
+    "cash management reviews": [
+      3,
+      5
+    ],
+    "will provide": [
+      3,
+      5
+    ],
+    "service will": [
+      3,
+      5,
+      6,
+      8,
+      9
+    ],
+    "specific cash": [
+      3,
+      5
+    ],
+    "mitigating circumstances": [
+      5,
+      6
+    ],
+    "management official": [
+      6,
+      7,
+      9
+    ],
+    "will include": [
+      6,
+      7
+    ],
+    "cash management official": [
+      6,
+      7,
+      9
+    ],
+    "charge will": [
+      6,
+      7,
+      8
+    ],
+    "deficiency will": [
+      6,
+      7
+    ],
+    "within days": [
+      7,
+      8
+    ],
+    "agency assignment": [
+      7,
+      9
+    ],
+    "commissioner will": [
+      7,
+      8
+    ],
+    "assistant commissioner": [
+      7,
+      8,
+      9
+    ],
+    "will consist": [
+      7,
+      9
+    ],
+    "assistant commissioner federal": [
+      7,
+      8,
+      9
+    ],
+    "effective date": [
+      7,
+      8
+    ],
+    "members will": [
+      7,
+      9
+    ],
+    "commissioner federal": [
+      7,
+      8,
+      9
+    ],
+    "permanent members": [
+      7,
+      9
+    ],
+    "temporary member": [
+      7,
+      9
+    ],
+    "commissioner federal finance": [
+      7,
+      8,
+      9
+    ],
+    "permanent members will": [
+      7,
+      9
+    ],
+    "federal finance": [
+      7,
+      8,
+      9
+    ],
+    "member will": [
+      7,
+      9
+    ],
+    "will notify": [
+      7,
+      8
+    ],
+    "three members": [
+      7,
+      9
+    ],
+    "noncompliance will": [
+      8,
+      9
+    ],
+    "collection noncompliance": [
+      8,
+      9
+    ],
+    "collection noncompliance will": [
+      8,
+      9
+    ],
+    "management collection noncompliance": [
+      8,
+      9
+    ]
+  },
+  "origin_pdf": "31cfr206.txt",
+  "extraction": {
+    "extractor": "text file (already extracted)",
+    "pages": 1,
+    "no_text_layer": [],
+    "raised": [],
+    "recovered": [],
+    "lost": [],
+    "complete": true
+  },
+  "pages": 1,
+  "sections": [
+    {
+      "citation": "\u00a7 206.1",
+      "kind": "section_sign",
+      "page": 1,
+      "text": "\u00a7 206.1 Scope and application. (a) This subpart applies to all Government departments and agencies in the executive branch (except the Tennessee Valley Authority) and all monies collected and disbursed by these departments and agencies. This subpart does not apply to interagency transfers of funds, except that agencies are to use the Treasury's On-Line Payment and Collection (OPAC) system for interagency payments between executive agencies, when cost-effective. (b) Policies and guidelines are prescribed for promoting efficient, effective cash management through improved billing, collection, deposit, and payment of funds. These objectives seek to improve funds availability and the efficiency and effectiveness with which funds are transferred. (c) Authority to implement this regulation has been delegated within the Department of the Treasury (hereinafter, \u201cTreasury\u201d) to the Commissioner (hereinafter, \u201cthe Commissioner\u201d) of the Bureau of the Fiscal Service (hereinafter, \u201cthe Service).\u201d The Service maintains the final authority as granted under the Deficit Reduction Act of 1984 to specify use of a particular method or mechanism of collection and deposit and to recover costs that result from noncompliance. Authority is also granted to the Service, under the Cash Management Improvement Act of 1990, as amended by the Cash Management Improvement Act Amendments of 1992, to provide for the timely disbursement of funds. An agency will require the collection or disbursement of funds by the agency via EFT as a provision of new contractual agreements or renewal of existing contracts that impact agency collection or payment mechanisms.",
+      "integrity": {
+        "state": "complete",
+        "basis": "Full retrieved body of 1,648 characters stored; under the 60,000 cap, so nothing was cut.",
+        "stamped_at": "2026-10-26T08:22:31",
+        "stored_chars": 1648,
+        "source_chars": 1648,
+        "cap_applied": 60000
+      },
+      "authority_class": "regulation",
+      "claim_layer": "doctrinal",
+      "claim_layer_meaning": "States or describes the rule. Cite for what the law IS."
+    },
+    {
+      "citation": "\u00a7 206.2",
+      "kind": "section_sign",
+      "page": 1,
+      "text": "\u00a7 206.2 Definitions. For the purpose of this part, the following definitions apply: Agency means any department, instrumentality, office, commission, board, service, Government corporation, or other establishment in the executive branch, except the Tennessee Valley Authority. Billing means any of a variety of means by which the Government places a demand for payment against an entity that is indebted to the Government. The term encompasses invoices, notices, initial demand letters, and other forms of notification. Cash management means practices and techniques designed to accelerate and control collections, ensure prompt deposit of receipts, improve control over disbursement methods, and eliminate idle cash balances. \u201cCash Management Review Process\u201d means periodic examinations of collection and disbursement cash flows to ensure that the most effective mechanisms are used to process the funds. Collection means the transfer of monies from a source outside the Federal Government to an agency or to a financial institution acting as an agent of the Government. Collection mechanism means any one of a number of tools or systems by which monies are transferred to the Government from a source outside the Government. Cutoff time means a time predesignated by a financial institution beyond which transactions presented or actions requested will be considered the next banking day's business. Day means a calendar day unless otherwise specified. Deposit means as a noun, money that is being or has been presented for credit to the Treasury. Deposits can be made by an agency or directly by the remitter. All such transfers are effected through a Federal Reserve Bank or other financial institution. As a verb, deposit means the act of presenting monies for credit to the Treasury by an official of an agency. Depositary means a bank or other financial institution that has been authorized by the Treasury to receive monies for credit to the Treasury. Disburse means the initiation of an Electronic Funds Transfer (EFT) transaction or other methods of drawing funds from accounts maintained by the Government. Electronic funds transfer (EFT) means any transfer of funds, other than a transaction originated by cash, check or similar paper instrument, that is initiated through an electronic terminal, telephone, computer, or magnetic tape, for the purpose of ordering, instructing, or authorizing a financial institution to debit or credit an account. The term includes, but is not limited to, Fed Wire transfers, Automated Clearing House (ACH) transfers, transfers made at automatic teller machines (ATM) and Point-of-Sale (POS) terminals (to include use of the Government small purchase card), and other means of credit card transactions. Fund means the Cash Management Improvements Fund. Monies (or \u201creceipts\u201d) means EFT transactions, currency, negotiable instruments, and/or demand deposits owed to or collected by an agency. Next-day deposit means a deposit made before the cutoff time on the day following the day on which the funds were received by an agency. For example, if an agency receives funds for deposit at 3 p.m. on Monday and transmits the deposits to the depositary by 2 p.m. on Tuesday (the depositary's next cutoff time), then next-day deposit requirements are met. Payment means a sum of money transferred to a recipient in satisfaction of an obligation. A payment includes any Federal Government benefit or nonbenefit payment. (1) A benefit payment is a disbursement for a Federal Government entitlement program or annuity. Benefit payments may be one-time or recurring payments including, but not limited to, payments for Social Security, Supplemental Security Income, Black Lung, Civil Service Retirement, Railroad Retirement Board Retirement/Annuity, Department of Veterans Affairs Compensation/Pension, Central Intelligence Agency Annuity, Military Retirement Annuity, Coast Guard Retirement, and Worker's Compensation. (2) A nonbenefit payment is a Federal Government disbursement other than a benefit payment. Nonbenefit payments may be one-time or recurring payments including, but not limited to, payments for vendors, Internal Revenue Service tax refunds, Federal salaries and allotments therefrom, grants, travel disbursements and reimbursements, loans, principal and/or interest related to U.S. savings bonds, notes, and other savings-type securities, and payments of service fees to organizations qualified to issue and/or redeem savings bonds. Point-of-sale (POS) terminal means an automated credit card or debit card transaction device. Presumed EFT means that agencies will presume that new payment recipients will elect EFT as the means of payment delivery. Enrollment forms for use in establishing routine payments will be designed with this approach in mind, to obtain the required written consent of the recipient. Recipient means a person, corporation, or other public or private entity receiving benefit or nonbenefit payments from the Government. Same-day deposit means a deposit made before the cutoff time on the day on which the funds were received by an agency. For example, if an agency receives funds for deposit at 10 a.m. on Monday and transmits the deposits by 2 p.m. on Monday (the depositary's cutoff time), then a same-day deposit has been achieved. Service means the Bureau of the Fiscal Service, Department of the Treasury. Treasury Financial Manual (TFM) means the manual issued by the Service containing procedures to be observed by all Government departments and agencies in relation to central accounting, financial reporting, and other Governmentwide fiscal responsibilities of the Department of the Treasury. Volume I, Chapter 6-8000 (I TFM 6-8000) contains agency cash management procedures to be followed pertaining to these regulations. Copies of the TFM are available free to Government agencies. Others who are interested in ordering a copy may call (202) 208-1819 or write the Directives Management Branch, Bureau of the Fiscal Service, Department of the Treasury, Liberty Center (UCP-741), Washington, DC 20227 for further information.",
+      "integrity": {
+        "state": "complete",
+        "basis": "Full retrieved body of 6,115 characters stored; under the 60,000 cap, so nothing was cut.",
+        "stamped_at": "2026-10-26T08:22:31",
+        "stored_chars": 6115,
+        "source_chars": 6115,
+        "cap_applied": 60000
+      },
+      "authority_class": "regulation",
+      "claim_layer": "doctrinal",
+      "claim_layer_meaning": "States or describes the rule. Cite for what the law IS."
+    },
+    {
+      "citation": "\u00a7 206.3",
+      "kind": "section_sign",
+      "page": 1,
+      "text": "\u00a7 206.3 Billing policy and procedures. The billing process is considered an integral part of an effective cash management collection program. In those situations where bills are required and the failure to bill would affect the cash flow, bills will be prepared and transmitted within 5 business days after goods have been shipped or released, services have been rendered, or payment is otherwise due. An agency may prepare and transmit bills later than the 5-day timeframe if it can demonstrate that it is cost-effective to do so. In addition, the bill must include the terms and dates of payments, and late payment provisions, if applicable. Terms and dates of payments will be consistent with industry practices. I TFM 6-8000 describes detailed billing policies, procedures, and industry standards for agencies.",
+      "integrity": {
+        "state": "complete",
+        "basis": "Full retrieved body of 814 characters stored; under the 60,000 cap, so nothing was cut.",
+        "stamped_at": "2026-10-26T08:22:31",
+        "stored_chars": 814,
+        "source_chars": 814,
+        "cap_applied": 60000
+      },
+      "authority_class": "regulation",
+      "claim_layer": "doctrinal",
+      "claim_layer_meaning": "States or describes the rule. Cite for what the law IS."
+    },
+    {
+      "citation": "\u00a7 206.4",
+      "kind": "section_sign",
+      "page": 1,
+      "text": "\u00a7 206.4 Collection and payment mechanisms. (a) All funds are to be collected and disbursed by EFT when cost-effective, practicable, and consistent with current statutory authority. (b) Collections and payments will be made by EFT when cost- effective, practicable, and consistent with current statutory authority. When consistent with these criteria, specific cash flows will utilize EFT as follows: (1) Fees/fines. EFT will be adopted as the presumed method of collecting fees and fines, especially when these collection cash flows are recurring or of large dollar amounts. (2) Tax collections. EFT will be adopted as the primary method for collecting taxes. EFT mechanisms may include ACH credit or debit cards. (3) Salary payment. Presumed EFT will be adopted as the method for paying employees, and entrance enrollment forms for establishing regular payments will be designed to use this approach. (4) Vendor and miscellaneous payments. Each department and agency will exercise its authority under the Federal Acquisition Regulation to require that all contractors are paid by EFT, unless a determination is made that it is not in the best interest of the Federal Government to do so. EFT will be adopted as the standard method of payment for all Federal program payments originated by agencies or their agents. (5) Benefit payments. EFT will be presented to new beneficiaries as the presumed method for receiving benefits. EFT payment methods, such as Electronic Benefit Transfer, will be adopted and implemented to make EFT accessible to all benefit recipients. (c)(1) Selection of the best collection and payment mechanism is a joint responsibility of an agency and the Service. An agency has responsibility for conducting cash management reviews; gathering volume and dollar data relative to the operation of the systems; and funding any implementation and operational costs above those normally funded by Treasury. The Service is the required approval authority when an agency desires to convert from one collection mechanism to another. The Service's written approval is required prior to an agency entering into new contractual agreements or renewing existing contracts for agency collections or payments systems. Agencies will follow guidelines for the cost-effective usage of collection and payment mechanisms, published in the TFM, Volume I, Part 6-8000, in their selection and recommendation to the Service of an appropriate funds transfer mechanism. The agency will provide the Service with a recommended mechanism for any new or modified cash flows. The Service will review the recommendations, approve a mechanism, and assist with implementation. (2) If an agency proposes a collection or payment mechanism other than EFT, it may be required to provide a cost-benefit analysis to justify its use. Cost/benefit analyses must include, at a minimum, known or estimated agency personnel costs, costs of procurement, recurring operational costs, equipment and system implementation and maintenance costs, costs to payment recipients, and costs to remitters. Agencies should consult with Treasury to determine the need to include interest costs associated with float in their computations of benefits and costs. (d) An agency will require the collection of funds by the agency to be made via EFT and the disbursement of funds by the agency to be made via EFT as a provision of new contractual agreements or renewal of existing contracts that impact agency collection or payment mechanisms, when cost-effective, practicable, and consistent with current statutory authority.",
+      "integrity": {
+        "state": "complete",
+        "basis": "Full retrieved body of 3,584 characters stored; under the 60,000 cap, so nothing was cut.",
+        "stamped_at": "2026-10-26T08:22:31",
+        "stored_chars": 3584,
+        "source_chars": 3584,
+        "cap_applied": 60000
+      },
+      "authority_class": "regulation",
+      "claim_layer": "doctrinal",
+      "claim_layer_meaning": "States or describes the rule. Cite for what the law IS."
+    },
+    {
+      "citation": "\u00a7 206.5",
+      "kind": "section_sign",
+      "page": 1,
+      "text": "\u00a7 206.5 Collection and deposit procedure exceptions. (a) The following collection and deposit timeframe requirements are to be followed in exception cases where EFT mechanisms are not utilized: (1) An agency will achieve same-day deposit of monies. Where same day deposit is not cost-effective or is impracticable, next day deposit of monies must be achieved except in those cases covered by I TFM 6-8000. (2) Deposits will be made at a time of the day prior to the depositary's specified cutoff time, but as late as possible in order to maximize daily deposit amounts. (3) When cost-beneficial to the Government, an agency may make multiple deposits. (b) Any additional exceptions to the above policies are listed in I TFM 6-8000.",
+      "integrity": {
+        "state": "complete",
+        "basis": "Full retrieved body of 731 characters stored; under the 60,000 cap, so nothing was cut.",
+        "stamped_at": "2026-10-26T08:22:31",
+        "stored_chars": 731,
+        "source_chars": 731,
+        "cap_applied": 60000
+      },
+      "authority_class": "regulation",
+      "claim_layer": "doctrinal",
+      "claim_layer_meaning": "States or describes the rule. Cite for what the law IS."
+    },
+    {
+      "citation": "\u00a7 206.6",
+      "kind": "section_sign",
+      "page": 1,
+      "text": "\u00a7 206.6 Cash management planning and review. (a) An agency shall periodically perform cash management reviews to identify areas needing improvement. (b) As part of its cash management review process, an agency is expected to document cash flows in order to provide an overview of its cash management activities and to identify areas that will yield savings after cash management initiatives are implemented. The Service will evaluate an agency's EFT policy and application, to include mitigating circumstances that may prevent the use of EFT, as part of the cash management reviews. (c) An agency's cash management reviews will provide the basis for identification of improvements and preparation of cash flow reports for submission to the Service as prescribed by I TFM 6-8000. That Chapter provides requirements for an agency in performing periodic cash management reviews, identifying improvements, and preparing cash flow reports. In addition, the Chapter describes the timing and content of periodic reports that must be submitted by an agency to the Service on progress made in implementing cash management initiatives and associated savings. (d) The Service will periodically review an agency's cash management program to ensure that adequate progress is being made to improve overall cash management at an agency. As part of its oversight authority, the Service may visit an agency and review all or specific cash management activities of an agency. An agency will be notified in advance of the Service's review and will be required to provide the Service with documentation of the agency cash management review within the timeframes required by I TFM 6-8000.",
+      "integrity": {
+        "state": "complete",
+        "basis": "Full retrieved body of 1,667 characters stored; under the 60,000 cap, so nothing was cut.",
+        "stamped_at": "2026-10-26T08:22:31",
+        "stored_chars": 1667,
+        "source_chars": 1667,
+        "cap_applied": 60000
+      },
+      "authority_class": "regulation",
+      "claim_layer": "doctrinal",
+      "claim_layer_meaning": "States or describes the rule. Cite for what the law IS."
+    },
+    {
+      "citation": "\u00a7 206.7",
+      "kind": "section_sign",
+      "page": 1,
+      "text": "\u00a7 206.7 Compliance. (a) The Service will monitor agency cash management performance. Part of the monitoring process will include establishing implementation end dates for conversion to, or expansion of, EFT mechanisms, as well as the identification of mitigating circumstances that may prevent the use of EFT. (b) In cases where an agency fails to meet a scheduled date within its control, or where an agency converts to a less cost-effective transfer mechanism without prior, written Service approval as determined in accordance with \u00a7 206.4(c), the Service will send a formal Notice of Deficiency to an agency's designated cash management official. A separate Notice will be sent for each initiative. (1) Collections cash flows. For collections cash flows, the Notice of Deficiency will include the nature of the deficiency, the amount of the proposed charge, the method of calculation, the right to file an appeal, and the date the charge will be imposed in the absence of an appeal. The amount of the charge will be equal to the cost of such noncompliance to the Treasury's General Fund. (2) Payments cash flows. [Reserved]",
+      "integrity": {
+        "state": "complete",
+        "basis": "Full retrieved body of 1,127 characters stored; under the 60,000 cap, so nothing was cut.",
+        "stamped_at": "2026-10-26T08:22:31",
+        "stored_chars": 1127,
+        "source_chars": 1127,
+        "cap_applied": 60000
+      },
+      "authority_class": "regulation",
+      "claim_layer": "doctrinal",
+      "claim_layer_meaning": "States or describes the rule. Cite for what the law IS."
+    },
+    {
+      "citation": "\u00a7 206.8",
+      "kind": "section_sign",
+      "page": 1,
+      "text": "\u00a7 206.8 Appeals. (a) An agency that chooses to file an appeal must submit the appeal in writing to the Commissioner within 45 days of the date of the Notice of Deficiency. In the event of an appeal, the charge imposed under Notice of Deficiency will be deferred pending the results of the appeal. If an appeal is not submitted ( i.e. , received by the Commissioner) within 45 days, the amount indicated in the Notice of Deficiency will be charged per \u00a7 206.9(a). (b) The appeal will contain the elements and follow the submission procedures specified in I TFM 6-8000. The appeal will include the background leading to the Notice of Deficiency, the basis of the appeal, and the action requested by an agency. An agency should state its disagreements with the Notice of Deficiency which may include cost-benefit factors, the amount of the charge, and other items. (c) An agency must state what action it requests in its appeal. An agency may request that the Notice of Deficiency be completely overturned for cost-benefit or other considerations. Alternatively, an agency may request a reduced charge, deferral of the charge, an alternative solution to cash management improvement, or a combination of these actions. (d) Appeals Board. The Commissioner will refer the appeal to an Appeals Board. The Appeals Board will consist of three members\u2014two permanent members and one temporary member. The permanent members will be the Deputy Chief Financial Officer, Department of the Treasury, and the Assistant Commissioner, Federal Finance, of the Service. The temporary board member will be a cash management official from an agency other than the agency appealing the Notice of Deficiency. The Board will be convened on an as-needed basis. The order of agency assignment to the Board will be published by Treasury in Volume I, Chapter 6-8000 of the TFM. The Deputy Chief Financial Officer, Department of the Treasury, the Assistant Commissioner, Federal Finance, and the designated agency cash management official may delegate their responsibility to a staff subordinate having sufficient experience in cash management matters. The Assistant Commissioner's designee may be from any area other than that which issued the Notice of Deficiency. (e) Appeal review process. The Appeals Board will review the Notice of Deficiency, any additional information submitted by the Service, and the written appeal from an agency. Based on this review, the Board may decide additional investigation is required. The Board may request an agency and/or the Service to meet with the Board as part of the review process. (f) Appeal finding. A written majority decision will be rendered by the Appeals Board within 30 days of receipt of the appeal. The Board may extend this period for an additional period, not to exceed 30 days, if required. The Appeals Board will notify the Commissioner and the agency of the decision. The decision of the Board whether to uphold the Notice of Deficiency, to overturn the Notice of Deficiency, or to mandate some other action will be stated in the finding. Other action mandated may include a reduced charge, a deferral of the charge, an alternate solution to cash management improvement, or a combination of these actions. The basis of the decision, the amount of the charge, and the effective date of the charge will be stated in the finding. The effective date of the charge may be retroactive to the date indicated in the Notice of Deficiency. (g) Any terms related to charge deferral shall be stated; the Service and an agency will be required to submit evidence of compliance to such terms at a future specified date. At this future time, the Appeals Board will review the evidence of compliance. Based on this evidence, the Board will decide whether to impose a charge.",
+      "integrity": {
+        "state": "complete",
+        "basis": "Full retrieved body of 3,788 characters stored; under the 60,000 cap, so nothing was cut.",
+        "stamped_at": "2026-10-26T08:22:31",
+        "stored_chars": 3788,
+        "source_chars": 3788,
+        "cap_applied": 60000
+      },
+      "authority_class": "regulation",
+      "claim_layer": "doctrinal",
+      "claim_layer_meaning": "States or describes the rule. Cite for what the law IS."
+    },
+    {
+      "citation": "\u00a7 206.9",
+      "kind": "section_sign",
+      "page": 1,
+      "text": "\u00a7 206.9 Charges. (a) Within 30 days of the effective date of the charge or the appeals decision, an agency must submit appropriate accounting information to the Service's Assistant Commissioner, Federal Finance. The charge will be calculated following procedures outlined in I TFM 6-8000, and will be assessed for each month that noncompliance continues. (b) Collection noncompliance. In the case of cash management collection noncompliance, an agency will absorb the charge from amounts appropriated or otherwise made available to carry out the program to which the collections relate. Charges collected from an executive agency in the case of cash management collection noncompliance will be deposited in the Cash Management Improvements Fund as outlined in \u00a7 206.10. (c) Payment noncompliance. [Reserved] (d) If an agency does not voluntarily pay the charge assessed under \u00a7 206.9(a), the Service will debit the appropriate account automatically. By failing to pay voluntarily the charges as required by the Deficit Reduction Act of 1984, an agency will be deemed to authorize the automatic debit to its account. (e) The Commissioner will formally terminate the charge when the Commissioner has determined that an agency has complied. In addition, on an annual basis, the Commissioner will review an agency's performance and calculation of the charge, and will notify an agency in writing of any changes to the amount being charged.",
+      "integrity": {
+        "state": "complete",
+        "basis": "Full retrieved body of 1,435 characters stored; under the 60,000 cap, so nothing was cut.",
+        "stamped_at": "2026-10-26T08:22:31",
+        "stored_chars": 1435,
+        "source_chars": 1435,
+        "cap_applied": 60000
+      },
+      "authority_class": "regulation",
+      "claim_layer": "doctrinal",
+      "claim_layer_meaning": "States or describes the rule. Cite for what the law IS."
+    },
+    {
+      "citation": "\u00a7 206.10",
+      "kind": "section_sign",
+      "page": 1,
+      "text": "\u00a7 206.10 Operation of and payments from the Cash Management Improvements Fund. (a) The Cash Management Improvements Fund (Fund) will be operated as a revolving fund by the Service. Charges assessed under \u00a7 206.9(a) for cash management collection noncompliance will be deposited into the Fund according to the Deficit Reduction Act of 1984. The Service will also disburse any payments from the Fund based on projects selected by a project selection and approval committee. (b) Committee composition. The committee will consist of three members\u2014two permanent members and one temporary member. The permanent members will be the Commissioner and the Assistant Commissioner, Federal Finance, of the Service. The temporary committee member will be a cash management official from an agency other than an agency being considered for funds. The order of agency assignment to the Committee will be published in a TFM Bulletin, when funds are first deposited to the Fund. Decisions of the project selection and approval committee cannot be appealed. Agencies will be notified of any available amounts in the Fund and requirements to apply for such monies through a TFM bulletin. (c) As provided by 31 U.S.C. 3720, sums in the Fund will be available without fiscal year limitation for the payment of expenses incurred in developing improved methods of collection and deposit and the expenses incurred in carrying out collections and deposits using such methods, including the costs of personal services and the costs of the lease or purchase of equipment and operating facilities. (d) In addition to all reports required by law and regulation, for each fiscal year during which there is a balance in Fund, the Service will prepare and publish, by the 60th day following the close of the fiscal year, a full report on payments, receipts, disbursements, balances of the Fund, and full disclosure on projects financed by the Fund.",
+      "integrity": {
+        "state": "complete",
+        "basis": "Full retrieved body of 1,916 characters stored; under the 60,000 cap, so nothing was cut.",
+        "stamped_at": "2026-10-26T08:22:31",
+        "stored_chars": 1916,
+        "source_chars": 1916,
+        "cap_applied": 60000
+      },
+      "authority_class": "regulation",
+      "claim_layer": "doctrinal",
+      "claim_layer_meaning": "States or describes the rule. Cite for what the law IS."
+    }
+  ],
+  "claim_layer_basis": "Set from the class, not from the text: a statute or regulation states the rule rather than describing or arguing it, which the citation in the title establishes definitionally."
+}

@@ -456,7 +456,10 @@ def split_by_heading(pages, pattern):
             parts.append(body[cur:stop].strip()); cur = stop
         for k, part in enumerate(parts, 1):
             sec = {"citation": cit if len(parts) == 1 else f"{cit} (part {k})",
-                   "kind": "heading", "page": page_of(m.start()), "text": part}
+                   "kind": "heading", "page": page_of(m.start()), "text": part,
+                   # the statute-citation fix reached split_treatise only; a
+                   # heading-split work citing 31 CFR 206.4 recorded nothing
+                   "authorities": sorted(statute_cites(part))}
             source_integrity.stamp(
                 sec, "complete",
                 f"Heading-delimited section of {len(body):,} characters stored"

@@ -1,0 +1,1224 @@
+{
+"title": "VA M24-5 Chapter 03 - Direct Deposit and Electronic Funds Transfer",
+"source": "U.S. Department of Veterans Affairs, M24-5 Chapter 03, KnowVA article 554400000197441 (last modified 2026-09-02), fetched 2026-10-26 via KnowVA's public article service. U.S. Government work, public domain. Table of contents omitted at ingest (it repeats the section headings); body complete. VA's procedure for DD/EFT payments, incl. Part 03 fiduciary payees and powers of attorney; implements 31 CFR 206.4 and Treasury's Green Book.",
+"authority_class": "agency_instruction",
+"authority_class_basis": "--authority-class agency_instruction",
+"claim_layer": "doctrinal",
+"claim_layer_meaning": "States or describes the rule. Cite for what the law IS.",
+"authorities_cited": [
+"31 CFR 206",
+"31 CFR 206.4",
+"38 CFR 1",
+"38 CFR 1.911a",
+"38 CFR 1.912a"
+],
+"term_index": {
+"green book": [
+1,
+14,
+19
+],
+"disbursement": [
+1
+],
+"federal government": [
+1,
+19
+],
+"funds transfer": [
+1,
+2
+],
+"direct deposit": [
+1,
+2,
+7,
+8,
+10,
+12,
+15,
+16,
+17,
+19,
+22,
+23,
+24,
+27
+],
+"united states": [
+1,
+12
+],
+"enrollment": [
+2,
+7,
+10,
+23,
+27
+],
+"public contact": [
+2,
+8
+],
+"deposit sign-up": [
+2,
+12,
+17,
+23
+],
+"beneficiary": [
+2,
+5,
+10,
+17,
+20,
+23,
+24,
+27
+],
+"financial institutions": [
+2,
+8,
+19,
+20,
+21
+],
+"regional office": [
+2,
+15,
+26,
+27
+],
+"public contact team": [
+2,
+8
+],
+"international direct deposit": [
+2,
+8,
+22,
+23,
+24
+],
+"payments will": [
+2,
+16,
+20
+],
+"only acceptable": [
+2,
+23
+],
+"acceptable form": [
+2,
+23
+],
+"only acceptable form": [
+2,
+23
+],
+"call center": [
+2,
+8,
+19,
+27
+],
+"national call center": [
+2,
+8,
+27
+],
+"national call": [
+2,
+8,
+27
+],
+"contact team": [
+2,
+8
+],
+"financial institution": [
+2,
+5,
+7,
+8,
+11,
+12,
+14,
+15,
+18,
+19,
+20,
+21,
+24
+],
+"in-person visit": [
+2,
+8
+],
+"sign-up form": [
+2,
+12,
+17,
+23
+],
+"deposit sign-up form": [
+2,
+12,
+17,
+23
+],
+"direct deposit sign-up": [
+2,
+12,
+17,
+23
+],
+"international direct": [
+2,
+8,
+22,
+23,
+24
+],
+"cadd screen": [
+3,
+4,
+5,
+23
+],
+"home address will": [
+3,
+15
+],
+"share online user": [
+3,
+6
+],
+"online user": [
+3,
+6
+],
+"share online": [
+3,
+6
+],
+"change suspension": [
+3,
+8
+],
+"establishment change": [
+3,
+11
+],
+"termination": [
+3,
+8,
+27
+],
+"home address": [
+3,
+14,
+15
+],
+"direct authorization": [
+3,
+8
+],
+"fiduciary payees": [
+3,
+10
+],
+"address will": [
+3,
+8,
+15
+],
+"part below": [
+3,
+8
+],
+"master record": [
+3,
+5,
+6,
+7,
+8,
+11,
+14,
+15,
+17
+],
+"finance activity": [
+3,
+8,
+10,
+11,
+14,
+15,
+16,
+19,
+21,
+24,
+27
+],
+"will automatically": [
+3,
+7,
+8
+],
+"payee code": [
+4,
+23
+],
+"processes list": [
+4,
+23
+],
+"ready screen provide": [
+4,
+23
+],
+"code select": [
+4,
+23
+],
+"benefit type": [
+4,
+23
+],
+"screen provide": [
+4,
+23
+],
+"number benefit type": [
+4,
+23
+],
+"select change": [
+4,
+23
+],
+"ready screen": [
+4,
+5,
+23
+],
+"file number benefit": [
+4,
+23
+],
+"submit button": [
+4,
+23
+],
+"payee code select": [
+4,
+23
+],
+"screen will": [
+4,
+23
+],
+"number benefit": [
+4,
+23
+],
+"file number": [
+4,
+17,
+23
+],
+"transaction code": [
+5,
+15
+],
+"bank account number": [
+5,
+26
+],
+"digit type": [
+5,
+6
+],
+"bank account": [
+5,
+24,
+26,
+27
+],
+"digit type acct": [
+5,
+6
+],
+"numbers letters": [
+5,
+24
+],
+"routing number": [
+5,
+19,
+24,
+26
+],
+"type acct": [
+5,
+6
+],
+"check digit": [
+5,
+6,
+24
+],
+"account number": [
+5,
+23,
+24,
+26
+],
+"check digit type": [
+5,
+6
+],
+"will remain": [
+7,
+8
+],
+"status will": [
+7,
+8
+],
+"payment will": [
+7,
+8,
+14,
+15,
+24
+],
+"letter will": [
+7,
+27
+],
+"will result": [
+7,
+19
+],
+"passed since": [
+7,
+16
+],
+"master record will": [
+7,
+11
+],
+"system will": [
+7,
+23
+],
+"record will": [
+7,
+11,
+27
+],
+"accounts receivable": [
+7,
+15,
+17
+],
+"irregular payment": [
+7,
+8
+],
+"hitc will": [
+7,
+20
+],
+"section change": [
+7,
+8
+],
+"payment date": [
+7,
+16
+],
+"automatically canceled": [
+7,
+8
+],
+"chapter section": [
+7,
+10,
+11,
+12,
+16
+],
+"institution upon receipt": [
+8,
+20
+],
+"general information": [
+8,
+21
+],
+"should contact": [
+8,
+19,
+26
+],
+"payee will": [
+8,
+16,
+17
+],
+"will prepare": [
+8,
+15
+],
+"institution will": [
+8,
+15
+],
+"deposit authorization": [
+8,
+15
+],
+"form report": [
+8,
+16,
+21
+],
+"financial institution will": [
+8,
+15
+],
+"returned payment": [
+8,
+14,
+16
+],
+"fiduciary payee": [
+10,
+17
+],
+"finance will": [
+10,
+15
+],
+"retroactive payment": [
+11,
+14,
+15
+],
+"action will": [
+11,
+24
+],
+"reclamation": [
+11
+],
+"finance activity will": [
+11,
+15,
+19,
+27
+],
+"debt management": [
+11,
+26
+],
+"debt management center": [
+11,
+26
+],
+"will process": [
+11,
+15,
+27
+],
+"finance center": [
+11,
+26
+],
+"will determine": [
+11,
+15
+],
+"message code": [
+11,
+15
+],
+"financial institute": [
+11,
+16
+],
+"activity will": [
+11,
+15,
+19,
+27
+],
+"management center": [
+11,
+26
+],
+"account holder": [
+11,
+20
+],
+"form will": [
+12,
+23
+],
+"mailing address": [
+12,
+23
+],
+"legal representative": [
+12,
+24
+],
+"book chapter": [
+14,
+19
+],
+"returns": [
+14
+],
+"green book chapter": [
+14,
+19
+],
+"automatically reissued": [
+14,
+15
+],
+"activity will process": [
+15,
+27
+],
+"following steps": [
+15,
+17,
+27
+],
+"veterans service": [
+15,
+16
+],
+"will provide": [
+15,
+19
+],
+"following procedures": [
+16,
+26
+],
+"deposit payment": [
+16,
+19
+],
+"additional information": [
+16,
+23
+],
+"direct deposit payment": [
+16,
+19
+],
+"will complete": [
+16,
+26
+],
+"non-receipt": [
+16,
+21,
+26
+],
+"will usually": [
+17,
+20
+],
+"payee number": [
+17,
+23
+],
+"benefit payments": [
+17,
+26
+],
+"transaction history": [
+19,
+27
+],
+"depositor account": [
+19,
+24
+],
+"institutions will": [
+19,
+21
+],
+"payment information": [
+19,
+23
+],
+"notification of change": [
+19
+],
+"contact treasury": [
+19,
+21
+],
+"financial institutions will": [
+19,
+21
+],
+"finance office": [
+23,
+26
+],
+"check mark": [
+23,
+27
+],
+"incident team will": [
+26,
+27
+],
+"non-receipt claim": [
+26
+],
+"team will": [
+26,
+27
+],
+"incident team": [
+26,
+27
+]
+},
+"origin_pdf": "m24_body.txt",
+"extraction": {
+"extractor": "text file (already extracted)",
+"pages": 1,
+"no_text_layer": [],
+"raised": [],
+"recovered": [],
+"lost": [],
+"complete": true
+},
+"pages": 1,
+"sections": [
+{
+"citation": "M24-5 Ch. 3 \u00a7 Part 01",
+"kind": "heading",
+"page": 1,
+"text": "Part 01 Introduction",
+"authorities": [],
+"integrity": {
+"state": "complete",
+"basis": "Heading-delimited section of 20 characters stored; nothing was cut.",
+"stamped_at": "2026-10-26T08:23:40",
+"stored_chars": 20,
+"source_chars": 20,
+"cap_applied": 60000
+},
+"authority_class": "agency_instruction",
+"claim_layer": "doctrinal",
+"claim_layer_meaning": "States or describes the rule. Cite for what the law IS."
+},
+{
+"citation": "M24-5 Ch. 3 \u00a7 1.01",
+"kind": "heading",
+"page": 1,
+"text": "Section 1.01 Background In accordance with 31 C.F.R. \u00a7 206.4 , VA will, when cost-effective, practicable and consistent with current statutory authority, use EFT as the primary disbursement mechanism. (See V A Financial Policy, Volume VIII, Chapter 03 - Disbursements , Section 0305 for details.) The United States Department of the Treasury (Treasury) issues \u201c A Guide to Federal Government ACH Payments ,\u201d which is commonly referred to as the \"Green Book.\" This Green Book contains information about the Direct Deposit/Electronic Funds Transfer (DD/EFT) program in general and Chapter 2 pertains specifically to ACH Payment Processing.",
+"authorities": [
+"31 CFR 206",
+"31 CFR 206.4"
+],
+"integrity": {
+"state": "complete",
+"basis": "Heading-delimited section of 637 characters stored; nothing was cut.",
+"stamped_at": "2026-10-26T08:23:40",
+"stored_chars": 637,
+"source_chars": 637,
+"cap_applied": 60000
+},
+"authority_class": "agency_instruction",
+"claim_layer": "doctrinal",
+"claim_layer_meaning": "States or describes the rule. Cite for what the law IS."
+},
+{
+"citation": "M24-5 Ch. 3 \u00a7 1.02",
+"kind": "heading",
+"page": 1,
+"text": "Section 1.02 Direct Deposit / Electronic Funds Transfer Enrollment As of October 13, 2020, VBA discontinued the use of VA Form 24-0296, Direct Deposit Enrollment, and VA Form 24-0296a, International Direct Deposit Enrollment. Veterans and beneficiaries will establish their direct deposit or update their electronic funds transfer information online, by telephone to the National Call Center, or in-person visit to the Public Contact Team. SF 1199A, Direct Deposit Sign-Up Form is the only acceptable form of enrollment for International direct deposit and should be mailed to the regional office in Muskogee. This form is available at all financial institutions. The form must be completed and signed by both the payee and the financial institution with which payments will be deposited. Enrollment can also be initiated by accessing VA\u2019s eBenefits self-service portal or contacting 1-800-827-1000. Part 02 DD/EFT Establishments, Changes or Cancellations",
+"authorities": [],
+"integrity": {
+"state": "complete",
+"basis": "Heading-delimited section of 955 characters stored; nothing was cut.",
+"stamped_at": "2026-10-26T08:23:40",
+"stored_chars": 955,
+"source_chars": 955,
+"cap_applied": 60000
+},
+"authority_class": "agency_instruction",
+"claim_layer": "doctrinal",
+"claim_layer_meaning": "States or describes the rule. Cite for what the law IS."
+},
+{
+"citation": "M24-5 Ch. 3 \u00a7 2.01",
+"kind": "heading",
+"page": 1,
+"text": "Section 2.01 General Procedures All DD/EFT processing will be accomplished by entering the data directly onto the Change of Address (CADD)-601 Screen in SHARE, which will automatically update the C&P master record. Changes of home address will be processed simultaneously with the DD/EFT establishment, change or cancellation. (See SHARE Online User\u2019s Guide . ) DD/EFT processing can be accomplished by any station, regardless of jurisdiction. (Except for fiduciary payees, Part 03 below, and international DD Part 08 below) Refer to 2.06 Change, Suspension, or Termination of Direct Authorization for additional details. It is essential that Finance activity personnel be thoroughly familiar with the restrictions placed upon the usage of the CADD as contained in the SHARE Online User\u2019s Guide .",
+"authorities": [],
+"integrity": {
+"state": "complete",
+"basis": "Heading-delimited section of 796 characters stored; nothing was cut.",
+"stamped_at": "2026-10-26T08:23:40",
+"stored_chars": 796,
+"source_chars": 796,
+"cap_applied": 60000
+},
+"authority_class": "agency_instruction",
+"claim_layer": "doctrinal",
+"claim_layer_meaning": "States or describes the rule. Cite for what the law IS."
+},
+{
+"citation": "M24-5 Ch. 3 \u00a7 2.02",
+"kind": "heading",
+"page": 1,
+"text": "Section 2.02 DD/EFT Inquiry Select Change of Address from the Available Processes List on the Ready Screen. Provide the File number, Benefit Type and Payee Code. Select the Submit button. The CADD-601 screen will be displayed.",
+"authorities": [],
+"integrity": {
+"state": "complete",
+"basis": "Heading-delimited section of 226 characters stored; nothing was cut.",
+"stamped_at": "2026-10-26T08:23:40",
+"stored_chars": 226,
+"source_chars": 226,
+"cap_applied": 60000
+},
+"authority_class": "agency_instruction",
+"claim_layer": "doctrinal",
+"claim_layer_meaning": "States or describes the rule. Cite for what the law IS."
+},
+{
+"citation": "M24-5 Ch. 3 \u00a7 2.03",
+"kind": "heading",
+"page": 1,
+"text": "Section 2.03 DD/EFT Entry Requirements and Data Description To input DD/EFT data, it is necessary to activate a READY screen. See paragraph 6.05b above for required entries. After obtaining the CADD-601 screen, the following entries must be made: FILED TITLE ENTRY DESCRIPTION DD/EFT; CHG \"X\" DD/EFT Establishment or change CANCEL \"X\" DD/EFT Cancellation ROUTING 8 Numeric; no entry if canceling DD/EFT Financial Instittion Routing Number CHECK DIGIT 1 Numeric; no entry if canceling DD/EFT Financial Institution; check digit TYPE ACCT \"C\" or \"S\"; no entry if canceling DD/EFT Beneficiary Checking or Savings Account ACCT NO 17 numbers, letters and hyphens maximum; no entry if canceling DD/EFT Beneficiary Bank; Account Number LAST ACITIVITY System Generated Transaction code and date of the last activity of the master record",
+"authorities": [],
+"integrity": {
+"state": "complete",
+"basis": "Heading-delimited section of 827 characters stored; nothing was cut.",
+"stamped_at": "2026-10-26T08:23:40",
+"stored_chars": 827,
+"source_chars": 827,
+"cap_applied": 60000
+},
+"authority_class": "agency_instruction",
+"claim_layer": "doctrinal",
+"claim_layer_meaning": "States or describes the rule. Cite for what the law IS."
+},
+{
+"citation": "M24-5 Ch. 3 \u00a7 2.04",
+"kind": "heading",
+"page": 1,
+"text": "Section 2.04 Reject Messages Refer to the SHARE Online User\u2019s Guide for error messages. In addition, reject messages will appear in the following instances: When an \"X\" is placed in both the DD/EFT CHG and CANCEL fields. When an \"X\" is placed in the DD/EFT CANCEL field, and the ROUTING, CHECK DIGIT, TYPE ACCT, and ACCT NO fields are also input. When an \"X\" is placed in the DD/EFT CANCEL field, but the ROUTING, CHECK DIGIT, TYPE ACCT, and ACCT NO are not displayed from the master record.",
+"authorities": [],
+"integrity": {
+"state": "complete",
+"basis": "Heading-delimited section of 491 characters stored; nothing was cut.",
+"stamped_at": "2026-10-26T08:23:40",
+"stored_chars": 491,
+"source_chars": 491,
+"cap_applied": 60000
+},
+"authority_class": "agency_instruction",
+"claim_layer": "doctrinal",
+"claim_layer_meaning": "States or describes the rule. Cite for what the law IS."
+},
+{
+"citation": "M24-5 Ch. 3 \u00a7 2.05",
+"kind": "heading",
+"page": 1,
+"text": "Section 2.05 Computer Processing of DD/EFT Data All DD/EFT data passing the edit criteria will be processed directly into the master records. Once processed, a computer-generated letter will be sent to the payee, acknowledging his/her election of DD/EFT. However, this letter will only be sent on initial DD/EFT enrollments. Hines Information Technology Center (HITC) will transmit DD/EFT data to Treasury on regular cycles. Regional offices should input DD/EFT data upon receipt. Total processing of that data to affect an initial DD/EFT payment should be, in most cases, by the next payment date. This is true even if updating of the terminal digit has been passed, since the system will automatically generate a holdcheck action for the regular payment and authorize an irregular payment to the financial institution. However, if the last date for processing a holdcheck action at HITC has been passed when processing the DD/EFT data, the payment will be sent to the address in the master record. For example, using the May 2014 C&P Schedule of Operations , any DD/EFT data processed by May 6 (Cycle 3, column 2A) will result in the next payment being issued to the financial institution as a regular payment. (See M27-1, Part I, Chapter 3, Section 12, Change of Address and Direct Deposit Request Procedures ) Any DD/EFT data entered for a type D (Accounts Receivable or trust fund) or E (Terminated) master record will be rejected. In the same respect, upon terminating the payment status of a master record, any existing DD/EFT status will be automatically canceled. However, the status will remain active until final disposition of the record is determined, i.e., the last payment will be directed via DD/EFT.",
+"authorities": [],
+"integrity": {
+"state": "complete",
+"basis": "Heading-delimited section of 1,716 characters stored; nothing was cut.",
+"stamped_at": "2026-10-26T08:23:40",
+"stored_chars": 1716,
+"source_chars": 1716,
+"cap_applied": 60000
+},
+"authority_class": "agency_instruction",
+"claim_layer": "doctrinal",
+"claim_layer_meaning": "States or describes the rule. Cite for what the law IS."
+},
+{
+"citation": "M24-5 Ch. 3 \u00a7 2.06",
+"kind": "heading",
+"page": 1,
+"text": "Section 2.06 Change, Suspension or Termination of Direct Authorization All update requests will be made online, by telephone to the National Call Center, or by in-person visit to the Public Contact Team, when available. For international direct deposit, an SF 1199A properly executed by a payee and the financial institution constitutes a permanent authorization which will remain in effect indefinitely. However, if the payee decides to change financial institutions, he/she may do so by executing a new SF 1199A. The new SF 1199A must also be completed by the new financial institution. Upon receipt in the Finance activity, it will be processed in the same manner as any other SF 1199A as outlined in Part 08 below. There is no need to cancel the deposit authorization with the old financial institution. The SF 1199A authorizing deposits to the new financial institution will automatically cancel the previous authorization. A deposit authorization will also be automatically canceled when a notice of death is processed, a master record is terminated, or a payment is returned by a financial institution. If a case is in active DD/EFT status, any retroactive or irregular payment authorized for the payee will also be directed to the financial institution. When the master record goes into a \"No Pay\" status because of suspension, total withholding, etc., the DD/EFT status will be inactivated but retained in the record. Upon resuming the award, any payment will again be directed via DD/EFT. A deposit authorization may be terminated at the request of the payee. The payee should make the request online, by telephone to the National Call Center, or by in-person visit to the Public Contact Team. However, if an oral request is received via telephone contact, the VA employee receiving the request will prepare and sign VA Form 27-0820, Report of General Information , documenting the oral request. Payees may request termination of their deposit authorization on a VA Form 20-572 , Request for Change of Address/Cancellation of Direct Deposit. Any VA Forms 20-572 received in the mail room that request cancellation of Direct Deposit or both a change of residence address and cancellation of Direct Deposit will be forwarded to the Finance activity for processing. Those forms submitted solely for change of residence address will be processed in accordance with M23-1, Part I, Chapters 1 and 11 . Any returned payment (see Part 04 below) will automatically revoke the deposit authorization and may stop further payments to a payee\u2019s account. The payee should contact VA to resume payments.",
+"authorities": [],
+"integrity": {
+"state": "complete",
+"basis": "Heading-delimited section of 2,598 characters stored; nothing was cut.",
+"stamped_at": "2026-10-26T08:23:40",
+"stored_chars": 2598,
+"source_chars": 2598,
+"cap_applied": 60000
+},
+"authority_class": "agency_instruction",
+"claim_layer": "doctrinal",
+"claim_layer_meaning": "States or describes the rule. Cite for what the law IS."
+},
+{
+"citation": "M24-5 Ch. 3 \u00a7 Part 03",
+"kind": "heading",
+"page": 1,
+"text": "Part 03 Fiduciary or Power of Attorney",
+"authorities": [],
+"integrity": {
+"state": "complete",
+"basis": "Heading-delimited section of 38 characters stored; nothing was cut.",
+"stamped_at": "2026-10-26T08:23:40",
+"stored_chars": 38,
+"source_chars": 38,
+"cap_applied": 60000
+},
+"authority_class": "agency_instruction",
+"claim_layer": "doctrinal",
+"claim_layer_meaning": "States or describes the rule. Cite for what the law IS."
+},
+{
+"citation": "M24-5 Ch. 3 \u00a7 3.01",
+"kind": "heading",
+"page": 1,
+"text": "Section 3.01 Fiduciary Payees Any enrollment request submitted on behalf of a payee with an assigned fiduciary must be forwarded to the Fiduciary Hub assigned to the beneficiary for their review. Once the request is approved by the Fiduciary Hub, it will be returned to the Fiduciary Hub Finance activity. In order to process the request, it is required that the Finance employee be authorized the Change of Fiduciary (CFID) on the Available Processing List in SHARE. For a listing of Fiduciary Hubs and and Jurisdiction, refer to FPM, Part I, Chapter 1, Section A - Fiduciary Hub Structure, I.1.A.2.a. Hub Jurisidictions and Contact Information . NOTE: For fiduciary cases, Finance will be restricted to only entering data in the DD/EFT fields. Finance is not authorized to change the name or address of a fiduciary payee. A photocopy or electronic copy of all documents processed for fiduciary payees should be included in the Principal Guardianship File. Therefore, when a fiduciary is discontinued, or a successor appointed, the Fiduciary Hub will be aware of any existing DD/EFT account. When a fiduciary is discontinued or a beneficiary is rated incompetent, the Fiduciary Hub must determine if there was an existing DD/EFT account. If so, it is imperative that the Fiduciary Hub ensures that the DD/EFT account is canceled. For additional guidance on fiduciary related issue, see M21-1, Part II, Subpart iii Chapter 3, Section B.1.c. Receiving Notice of a Change of Contact Information or Direct Deposit.",
+"authorities": [],
+"integrity": {
+"state": "complete",
+"basis": "Heading-delimited section of 1,511 characters stored; nothing was cut.",
+"stamped_at": "2026-10-26T08:23:40",
+"stored_chars": 1511,
+"source_chars": 1511,
+"cap_applied": 60000
+},
+"authority_class": "agency_instruction",
+"claim_layer": "doctrinal",
+"claim_layer_meaning": "States or describes the rule. Cite for what the law IS."
+},
+{
+"citation": "M24-5 Ch. 3 \u00a7 3.02",
+"kind": "heading",
+"page": 1,
+"text": "Section 3.02 Death of Payee or Establishment/Change of Fiduciary When it is determined, based on the HITC schedule of operations, that processing a First Notice of Death (FNOD) or establishment/change of fiduciary will not prevent the release of a DD/EFT payment, immediate action will be taken to intercept the payment (see M21-1, Part XI, Subpart i, Chapter 1, Section B - System Information for Veteran Notice of Death (NOD) and Month of Death (MOD) Processing ). Further, upon receipt a message code that an overpayment has been created by a payee's death, if requesting return of any benefit payment is appropriate, Finance activity will refer it to the Debt Management Center (DMC). DMC will issue a letter to the \"Representative of the Estate of (payee)\" at the decedent's last address. If a refund has not been received after processing the FNOD, DMC will process a non-entitlement claim using a reclamation transaction in eMPWR. This signals Treasury\u2019s Philadelphia Regional Financial Center to generate and send the FMS-133, Notice of Reclamation, to the financial institution. The financial institute has 30 days to return any remaining funds. If no funds remain, the financial institute may limit its liability by providing the name and address of the joint account holder. The financial institute may limit their liability to only funds issued 45 days from the date of death. Treasury\u2019s Philadelphia Regional Financial Center will attempt to recover the full amount of the sum shown on the non-entitlement claim. They will send the FMS-133, Notice of Reclamation, indicating the status of their collection efforts to the VBA Finance Center (VBAFC), Recertification Division, which will take one of the following actions: If a partial collection has been made, VBAFC will apply the credit via A21 transaction (Schedule of Returned Payments) in the Enterprise Management of Payments, Workload, and Reporting VA (eMPWR -VA) system . The receivable in the master record may be reduced by DMC with an 08A transaction, and the FMS-133 will be placed in a diary for 30 to 60 days to pursue further collection If the FMS-133 shows a collection in full the receivable in the master record will be cleared by DMC. VBAFC\u2019s Recertification Division will determine the amount to debit the financial institute\u2019s Federal Reserve account and forward the completed FMS-133 back to Treasury to take debit action. VBAFC will then apply any funds recovered by this debit action. Any payment issued after the death of a payee including a retroactive payment is reclaimable. The amount of the retroactive payment is not included in the FMS-133, but an E stop will be processed for it.",
+"authorities": [],
+"integrity": {
+"state": "complete",
+"basis": "Heading-delimited section of 2,675 characters stored; nothing was cut.",
+"stamped_at": "2026-10-26T08:23:40",
+"stored_chars": 2675,
+"source_chars": 2675,
+"cap_applied": 60000
+},
+"authority_class": "agency_instruction",
+"claim_layer": "doctrinal",
+"claim_layer_meaning": "States or describes the rule. Cite for what the law IS."
+},
+{
+"citation": "M24-5 Ch. 3 \u00a7 3.03",
+"kind": "heading",
+"page": 1,
+"text": "Section 3.03 FMS FORM-233, Special Power of Attorney by Individual for the Collection of Checks Drawn on The U.S. Treasur y FMS Form-233, Special Power of Attorney by Individual for the Collection of Checks Drawn on the United States Treasury, should not be accepted as authorization for deposit of payments to a financial institution. A direct deposit sign-up form must be completed and forwarded to the station, along with copies of the pertinent legal documents. The legal representative must sign the direct deposit sign-up form. Since the payee\u2019s home mailing address, as shown on the direct deposit sign-up form in existing power of attorney cases, will now have to be entered for the first time into SHARE, the direct deposit sign-up form will be used to prepare a change of address. For more information, see M21-1, Part I, Subpart i Chapter 2, Section C - System Updates for Power of Attorney (POA) Appointments .",
+"authorities": [],
+"integrity": {
+"state": "complete",
+"basis": "Heading-delimited section of 922 characters stored; nothing was cut.",
+"stamped_at": "2026-10-26T08:23:40",
+"stored_chars": 922,
+"source_chars": 922,
+"cap_applied": 60000
+},
+"authority_class": "agency_instruction",
+"claim_layer": "doctrinal",
+"claim_layer_meaning": "States or describes the rule. Cite for what the law IS."
+},
+{
+"citation": "M24-5 Ch. 3 \u00a7 Part 04",
+"kind": "heading",
+"page": 1,
+"text": "Part 04 Returned or Refunded DD/EFT Payments and Returned Checks",
+"authorities": [],
+"integrity": {
+"state": "complete",
+"basis": "Heading-delimited section of 64 characters stored; nothing was cut.",
+"stamped_at": "2026-10-26T08:23:40",
+"stored_chars": 64,
+"source_chars": 64,
+"cap_applied": 60000
+},
+"authority_class": "agency_instruction",
+"claim_layer": "doctrinal",
+"claim_layer_meaning": "States or describes the rule. Cite for what the law IS."
+},
+{
+"citation": "M24-5 Ch. 3 \u00a7 4.01",
+"kind": "heading",
+"page": 1,
+"text": "Section 4.01 Returned Payment Generally improper DD/EFT payments or payments amount larger than the financial institution\u2019s EFT limit (such as a large retroactive payment) will be returned by the financial institution to Treasury. If the reason for return is code \"1\" undeliverable and a recent CADD has been done, the payment will be automatically reissued as a check and mailed to the payee's home address recorded in the master record. All other returned DD/EFT payments (code 2 through 6) will either be applied to the receivables or put into proceeds. Finance activity can use a 75B transaction to apply the money from proceeds to a receivable. (For details see Treasury\u2019s Green Book, Chapter 4, Returns , and M24-2 Chapter 08 Returned Payment And Proceeds )",
+"authorities": [],
+"integrity": {
+"state": "complete",
+"basis": "Heading-delimited section of 763 characters stored; nothing was cut.",
+"stamped_at": "2026-10-26T08:23:40",
+"stored_chars": 763,
+"source_chars": 763,
+"cap_applied": 60000
+},
+"authority_class": "agency_instruction",
+"claim_layer": "doctrinal",
+"claim_layer_meaning": "States or describes the rule. Cite for what the law IS."
+},
+{
+"citation": "M24-5 Ch. 3 \u00a7 4.02",
+"kind": "heading",
+"page": 1,
+"text": "Section 4.02 Refund Check Upon receipt of a refund check from a financial institution, the Finance activity will process a DD/EFT cancellation and document this action in the e-folder by stating \"Direct Deposit Authorization Canceled Payment refunded to VA by financial institution.\" The Finance activity will then take action to resolve any discrepancy in the individual account. If it is determined that the amount received from the financial institution rightfully belongs to the payee, the following steps will be taken: An 06B one-time payment transaction will be processed for the amount received from the financial institution. This will pay the amount due the payee and establish a 30B receivable in the master record. The check from the financial institution will be deposited and a 08 or 08A transaction, as applicable, will be processed to liquidate the 30B receivable established in accordance with step 1 above. The foregoing actions must be coordinated to ensure that the 06B and 08 or 08A transactions are processed in the same batch. The 06B will process first to make payment and establish the receivable. The 08 or 08A will follow and liquidate the receivable. This will insure that normal benefits will not be withheld erroneously to apply to the accounts receivable. CAUTION: Prior to processing a one-time payment (transaction code 06B) in accordance with the foregoing, all available records should be screened to ensure that a special payment has not been made to cover the same amount. If it is determined that the payee is not entitled to the payment, award action should be taken to terminate or adjust the account. The 08 or 08A transaction should not be processed until award action has been taken to establish the receivable in the account. These actions must be closely coordinated between the Finance activity and Veterans Service Center to ensure that the award action is processed before the 08 or 08A transaction. If a check (not a DD/EFT payment) is returned as undeliverable and the master record has been updated with DD/EFT data, the payment will be automatically reissued as a retroactive payment to the financial institution. A message code 626 \"PAID DDEFT-VERIFY HOME ADDRESS\" will be generated and routed to the regional office\u2019s Awards mailbox on a daily basis. Upon receipt of this information Finance will determine if a new address was recently entered and, if not, attempt to obtain a valid address. (To change the C&P \u201ccheck payment\u201d address, see Change of Address in Share) There will be rare instances when DD/EFT payment will be refunded to the regional office. This should only occur when Direct Deposit check has been posted to a payee\u2019s account by the financial institution prior to discovering that the check should have been returned. In this case, the financial institution will prepare their own check, in the proper amount, payable to the VA and forward it to the regional office for credit to the account of the applicable payee. The financial institution will provide identifying information and an explanation as to why funds are being returned.",
+"authorities": [],
+"integrity": {
+"state": "complete",
+"basis": "Heading-delimited section of 3,107 characters stored; nothing was cut.",
+"stamped_at": "2026-10-26T08:23:40",
+"stored_chars": 3107,
+"source_chars": 3107,
+"cap_applied": 60000
+},
+"authority_class": "agency_instruction",
+"claim_layer": "doctrinal",
+"claim_layer_meaning": "States or describes the rule. Cite for what the law IS."
+},
+{
+"citation": "M24-5 Ch. 3 \u00a7 Part 05",
+"kind": "heading",
+"page": 1,
+"text": "Part 05 Claims for Non-Receipt of DD/EFT Payments Claims for non-receipt of DD/EFT payments will be processed in the same manner as claims for non-receipt of individual checks. If notification of non-receipt of a direct deposit payment is made via a telephone call, a Veterans Service Representative will complete VA Form 27-0820, Report of Non-Receipt of Payment . If notification of non-receipt of a direct deposit payment is made via a personal walk-in, the payee will complete VA Form 21-4138, Statement In Support Of Claim . ( See M27-1, Part I, Chapter 3, Section 13. Non-Receipt of Payment Procedures .) If a claim for non-receipt of payment is related to a suspected fraud or identify theft case, see Part 09, Appendix A for additional information. The following procedures will be followed regardless of which division is responsible for processing the claim. (Also, see M24-2 Chapter 09 Claim for Non-Receipt of Payment .) Verify the payment was issued by viewing the payment history screen. Verify the payee is entitled to the payment. Verify the payment has not been returned by: View the Payment History screen Returned Payment Data Section or the proceeds report, and View the Treasury Check Information System (TCIS) activity screen to determine current activity on the payment, and If the payment has not been returned, verify 3 mail delivery days have passed since the payment date. If the non-receipt was based on a phone call: Document the non-receipt on a VA Form 27-0820. If the direct deposit non-receipt was a result of incorrect DD/EFT processing, refer to Finance Activity to resolve. If not applicable, continue with step 3. below. Call the financial institute to verify the payee\u2019s funds were not deposited. If they were not, process a eMPWR-VA tracer transaction. Maintain a copy of the VA Form 27-0820 and the eMPWR-VA tracer transaction print for follow up. If the non-receipt was based on a letter or VA Form 21-4138: Determine if the direct deposit non-receipt was a result of incorrect DD/EFT processing. If so, refer to Finance activity to resolve. If not, follow step in c.3. above. Maintain a copy of the letter or VA Form 21-4138 and the eMPWR-VA tracer transaction print for follow-up.",
+"authorities": [],
+"integrity": {
+"state": "complete",
+"basis": "Heading-delimited section of 2,223 characters stored; nothing was cut.",
+"stamped_at": "2026-10-26T08:23:40",
+"stored_chars": 2223,
+"source_chars": 2223,
+"cap_applied": 60000
+},
+"authority_class": "agency_instruction",
+"claim_layer": "doctrinal",
+"claim_layer_meaning": "States or describes the rule. Cite for what the law IS."
+},
+{
+"citation": "M24-5 Ch. 3 \u00a7 Part 06",
+"kind": "heading",
+"page": 1,
+"text": "Part 06 Improper DD/EFT as a Result of Administrative Error If a payment is credited via DD/EFT to the account of an improper beneficiary or fiduciary payee as a result of an administrative error, the following steps should be taken: Determine what type of an error caused the improper payment; i.e., a confused file number or incorrect payee number. Access the TCIS to confirm that the payments which were made were in fact erroneous. Pay the proper beneficiary or fiduciary payee, who has not been paid, with an 06A transaction. It is important that no receivable be established in the master record of this payee. Contact the overpaid payee and request immediate repayment. Since this payee will usually be in a benefit status, furnish the payee with notification concerning the debt and notice of rights and remedies as provided in 38 CFR 1.911a(c) and (d) . Reestablish proper delivery of benefit payments to the beneficiary or fiduciary payee whose payment went to the improper payee. Establish an accounts receivable in the account of the overpaid payee using transaction type 04E; however, do not process a deduction amount on the payee for 45 days to give the overpaid payee an opportunity to refund the overpayment. If a remittance is received within the 45-day period, credit the overpaid payee's account using a 08 transaction. If no remittance is received and all rights afforded a debtor under 38 CFR 1.912a(c) have been exhausted, enter a deduction amount into the master record using transaction type 18, Benefit-Repayment Deduction. Discretion should be used when the error is a confused payee number and both payees live at the same address. If the problem originated as a result of an improperly processed direct deposit sign-up form, make the necessary corrections to the form and process it again.",
+"authorities": [
+"38 CFR 1",
+"38 CFR 1.911a",
+"38 CFR 1.912a"
+],
+"integrity": {
+"state": "complete",
+"basis": "Heading-delimited section of 1,818 characters stored; nothing was cut.",
+"stamped_at": "2026-10-26T08:23:40",
+"stored_chars": 1818,
+"source_chars": 1818,
+"cap_applied": 60000
+},
+"authority_class": "agency_instruction",
+"claim_layer": "doctrinal",
+"claim_layer_meaning": "States or describes the rule. Cite for what the law IS."
+},
+{
+"citation": "M24-5 Ch. 3 \u00a7 Part 07",
+"kind": "heading",
+"page": 1,
+"text": "Part 07 Financial Institution",
+"authorities": [],
+"integrity": {
+"state": "complete",
+"basis": "Heading-delimited section of 29 characters stored; nothing was cut.",
+"stamped_at": "2026-10-26T08:23:40",
+"stored_chars": 29,
+"source_chars": 29,
+"cap_applied": 60000
+},
+"authority_class": "agency_instruction",
+"claim_layer": "doctrinal",
+"claim_layer_meaning": "States or describes the rule. Cite for what the law IS."
+},
+{
+"citation": "M24-5 Ch. 3 \u00a7 7.01",
+"kind": "heading",
+"page": 1,
+"text": "Section 7.01. Mass Changes On occasion it will be necessary for a financial institution to change its depositor account numbers or routing number. This will result from mergers, ADP changes, etc. The financial institution sends a Notification of Change (NOC) to HITC for processing, which should take no more than two payment cycles. (See Treasury\u2019s Green Book, Chapter 6, Federal Government Notification of Change ) Our disbursing system is only able to process NOC change codes C01 through C07. The NOC may appear in the eMPWR-VA Transaction History as \"DD/EFT NOC OR Xref (22E)\" batch update from the financial institution. Notice of Change code 22E indicates the direct deposit payment information on file in the system no longer matches that of the financial institution. The participant should contact their financial institution to confirm correct EFT banking information, then provide to VBA so our payment information can be updated to reflect the correct EFT account information. If financial institutions are not using NOCs: Stations will accept changes up to 100 accounts. Financial institutions will provide stations photocopies of the corrected SF 1199A or paper listings of the changes to be made. The Finance activity will treat these changes as any other DD/EFT change and process them as stated in Part XX. For changes to 100 or more accounts, the financial institutions will be directed to contact Treasury\u2019s Payment Management Call Center at 855-868-0151 for assistance to create automated changes through NOCs.",
+"authorities": [],
+"integrity": {
+"state": "complete",
+"basis": "Heading-delimited section of 1,531 characters stored; nothing was cut.",
+"stamped_at": "2026-10-26T08:23:40",
+"stored_chars": 1531,
+"source_chars": 1531,
+"cap_applied": 60000
+},
+"authority_class": "agency_instruction",
+"claim_layer": "doctrinal",
+"claim_layer_meaning": "States or describes the rule. Cite for what the law IS."
+},
+{
+"citation": "M24-5 Ch. 3 \u00a7 7.02",
+"kind": "heading",
+"page": 1,
+"text": "Section 7.02 Closure of Financial Institutions Treasury normally advises HITC of any financial institution closure. In addition, they provide a listing of VA beneficiaries having DD/EFT accounts at the particular institution. Upon receipt of this listing the HITC will update the records to cancel the affected DD/EFT account(s). Generally, when a financial institution has closed or is being closed it is placed under the control of the Federal Deposit Insurance Corporation (FDIC) or other similar institution. The FDIC will usually continue to accept DD/EFT payments for 30 to 60 days before starting to return payments. The accepted payments will be issued by check to the particular DD/EFT account holder. The time limit for acceptance of DD/EFT payments by the FDIC varies for each closure. Therefore, every attempt should be made to cancel the DD/EFT account as soon as possible after Central Office notification in order to avoid the return of a payment.",
+"authorities": [],
+"integrity": {
+"state": "complete",
+"basis": "Heading-delimited section of 962 characters stored; nothing was cut.",
+"stamped_at": "2026-10-26T08:23:40",
+"stored_chars": 962,
+"source_chars": 962,
+"cap_applied": 60000
+},
+"authority_class": "agency_instruction",
+"claim_layer": "doctrinal",
+"claim_layer_meaning": "States or describes the rule. Cite for what the law IS."
+},
+{
+"citation": "M24-5 Ch. 3 \u00a7 7.03",
+"kind": "heading",
+"page": 1,
+"text": "Section 7.03 Inquiries from Financial Institutions All incoming calls from financial institutions which do not concern simple non-receipt questions will be noted on a VA Form 27-0820, Report of General Information and emailed to the Finance activity where the Finance Officer or designee will immediately research the payment. If the nature of the inquiry is too technical or not within the operational responsibility of the Finance activity, financial institutions will be requested to contact Treasury\u2019s Financial Institution Helpline at 1-800-605-9876.",
+"authorities": [],
+"integrity": {
+"state": "complete",
+"basis": "Heading-delimited section of 555 characters stored; nothing was cut.",
+"stamped_at": "2026-10-26T08:23:40",
+"stored_chars": 555,
+"source_chars": 555,
+"cap_applied": 60000
+},
+"authority_class": "agency_instruction",
+"claim_layer": "doctrinal",
+"claim_layer_meaning": "States or describes the rule. Cite for what the law IS."
+},
+{
+"citation": "M24-5 Ch. 3 \u00a7 Part 08",
+"kind": "heading",
+"page": 1,
+"text": "Part 08 International Direct Deposit",
+"authorities": [],
+"integrity": {
+"state": "complete",
+"basis": "Heading-delimited section of 36 characters stored; nothing was cut.",
+"stamped_at": "2026-10-26T08:23:40",
+"stored_chars": 36,
+"source_chars": 36,
+"cap_applied": 60000
+},
+"authority_class": "agency_instruction",
+"claim_layer": "doctrinal",
+"claim_layer_meaning": "States or describes the rule. Cite for what the law IS."
+},
+{
+"citation": "M24-5 Ch. 3 \u00a7 8.01",
+"kind": "heading",
+"page": 1,
+"text": "Section 8.01 International Direct Deposit Process Veterans or beneficiaries living abroad go to the U.S. embassy to request International Direct Deposit (IDD). Usually, a Social Security or State Department employee at the embassy will help them complete the SF 1199A, Direct Deposit Sign-Up Form. The completed form is mailed, faxed or scanned and e-mailed to the finance office stated on the SF 1199A, Direct Deposit Sign-Up Form. The Veteran/beneficiary is required to submit a SF 1199A, Direct Deposit Sign-Up Form IDD enrollment form, and this is the only acceptable form of enrollment for IDD. The Veteran /beneficiary receiving benefits from a bank in Europe must provide the Society for Worldwide Interbank Financial Telecommunication (SWIFT) code with the enrollment form. The Veteran /beneficiary receiving benefits from a bank in Mexico must provide an 18-digit Clave Bancaria Estandarizada (CLABE) code with the enrollment form. The Veteran /beneficiary receiving benefits from a bank in China must provide the Veteran\u2019s phone number; bank\u2019s name, account number, address, phone number, and country bank information as well as a beneficiary identification which is the individual identification number when the recipient is enrolled in ITS. The form will be: Mailed to: The U.S. Department of Veterans Affairs 125 South Main Street Muskogee, OK 74401-7025 U.S.A. Fax to 918-781-7577, or E-mail to VAVBAMUS/RO/SSD/FINANCE . Once the enroller at the finance office receives the completed IDD enrollment form, the enroller will identify the enrollment information that needs to be changed. The enroller performs a Corporate Inquiry in SHARE to verify the payment information, payee and the Veteran/beneficiary\u2019s address. Verify if the Veteran/beneficiary is being paid under the claims number or Social Security Number (SSN). If the record is a VETSNET record, the Veteran/beneficiary\u2019s SSN (plus payee number) must be used as the Individual ID number. The enroller enters the Veteran/beneficiary\u2019s information into Treasury\u2019s International Treasury Services (ITS) system, ITS.gov. The ITS system will then generate a deposit account number. The approver verifies the information in the ITS system. The enroller updates the payment information, the mailing address and/or the STUB name that the veteran/beneficiary is being enrolled under. The enroller updates SHARE CADD-601 Screen immediately upon receiving the approval of the enrollment. (See Part 02 above for additional information.) Select Change of Address from the Available Processes list on the Ready Screen. Provide the File number, Benefit Type and Payee Code. Select the Submit button. The 601 Change of Address Screen will be displayed. Enter payment information and other changes, e.g. International address, STUB name, etc. Under the heading DD/EFT, enter a check mark in the box labeled Change. Select the Update button. All processed SF 1199A will be scanned in the beneficiary's claims folder in the Veterans Benefits Management System (VBMS). Reasons the payment could be rejected: The STUB name does not match the enrollment name. A bad address which could result from the account number being input incorrectly in the ITS system or SHARE or the payment type is incorrect. Suspended accounts which could result from bad address issues, SWIFT or CLABE code not entered in the ITS system or the accounts do not match in SHARE and the ITS system.",
+"authorities": [],
+"integrity": {
+"state": "complete",
+"basis": "Heading-delimited section of 3,424 characters stored; nothing was cut.",
+"stamped_at": "2026-10-26T08:23:40",
+"stored_chars": 3424,
+"source_chars": 3424,
+"cap_applied": 60000
+},
+"authority_class": "agency_instruction",
+"claim_layer": "doctrinal",
+"claim_layer_meaning": "States or describes the rule. Cite for what the law IS."
+},
+{
+"citation": "M24-5 Ch. 3 \u00a7 8.02",
+"kind": "heading",
+"page": 1,
+"text": "Section 8.02 Review of SF 1199A All international direct deposit, SF 1199A received at the Muskogee RO will be initially reviewed by the Finance activity. The review of SF 1199A should include the following: Ensure that the payee\u2019s name is the same as appears on the bank account in which the payment will be disbursed to. The payee\u2019s name is the person authorized to receive the payment. (See section 1, box A and B of the SF 1199A.) Ensure that the VA claim number entered is the beneficiary's actual claim number. (See section 1, box C of the SF 1199A.) Ensure that a depositor account type, checking or savings, was marked. (See section 1, box D of the SF 1199A.) Ensure that a depositor account number was entered, i.e., a maximum of 17 numbers, letters and hyphens. (See section 1, box E of the SF 1199A.) Ensure that only one Type of Payment is checked. (See section 1, box F of the SF 1199A.) Ensure that an eight-digit routing number and a one-digit check digit were entered on section 3 of the SF 1199A. Ensure that all appropriate signatures were entered, e.g., payee or beneficiary, legal representative, financial institution official. (See sections 1 & 3 of the SF 1199A.) Determine if the address shown on the SF 1199A is a change of address. (See section 1, box A of the SF 1199A) Determination can be made by checking SHARE and eMPWR-VA for verification. In those instances when items on the SF 1199A are missing, or when the data given is incomplete or incorrect, an examination will be made to determine whether corrected data can be safely entered. In all other instances in which substantive items (e.g., signatures, mailing addresses, routing numbers) are missing or incorrect, the SF 1199A will be returned to the financial institution under a VA cover letter. No further action will be taken by the Finance activity until a completed or corrected SF 1199A is received from the financial institution.",
+"authorities": [],
+"integrity": {
+"state": "complete",
+"basis": "Heading-delimited section of 1,923 characters stored; nothing was cut.",
+"stamped_at": "2026-10-26T08:23:40",
+"stored_chars": 1923,
+"source_chars": 1923,
+"cap_applied": 60000
+},
+"authority_class": "agency_instruction",
+"claim_layer": "doctrinal",
+"claim_layer_meaning": "States or describes the rule. Cite for what the law IS."
+},
+{
+"citation": "M24-5 Ch. 3 \u00a7 Part 09",
+"kind": "heading",
+"page": 1,
+"text": "Part 09 Appendices",
+"authorities": [],
+"integrity": {
+"state": "complete",
+"basis": "Heading-delimited section of 18 characters stored; nothing was cut.",
+"stamped_at": "2026-10-26T08:23:40",
+"stored_chars": 18,
+"source_chars": 18,
+"cap_applied": 60000
+},
+"authority_class": "agency_instruction",
+"claim_layer": "doctrinal",
+"claim_layer_meaning": "States or describes the rule. Cite for what the law IS."
+},
+{
+"citation": "M24-5 Ch. 3 \u00a7 Appendix A",
+"kind": "heading",
+"page": 1,
+"text": "Appendix A: Non-Receipt Claims - Suspected Incidents / Identity Theft Case Benefits Protection & Remediation (BDP&R) Division is strategically aligned under Veterans Benefit Administration (VBA). The BDP&R Incident Team investigates, reissues payments due to fraud, and contacts the Veteran (when appropriate). The BDP&R Incident Team will make the determination on incidents that have been deemed a hardship. The BDP&R Incident Team currently has the ability to request a same day payment and can process payments in three business days. The law does not allow VA to make duplicate benefit payments; therefore, it is essential that we obtain adequate justification for reissuing a payment. In cases where the Veteran or Claimant states that they have been impacted by a potential incident (previously referred to as Fraud), the following procedures apply. The procedures must be completed expeditiously by the Regional Office (RO) Support Service Division or VBA Finance Center prior to sending to the BDP&R Incident team: Identify the missing payment(s). Advise the Veteran to contact their local police department to file a report of attempted identity theft and instruct the Veteran to mail a copy of the report back to your finance office. If the Veteran cannot obtain a police report, the Veteran should contact the VA Office of the Inspector General, through the RO, or have the police department provide a written statement that a police report will not be issued for this case. Upon receipt, upload the police reports and/or written statements into the Veteran\u2019s eFolder in VBMS. Complete the \"entitled\" tracer action for non-receipt (with or without a Police report). A tracer request must be completed for each missing payment. Send a report (to include tracer and police report (if received)) to the BDP&R Incident Team which will complete the payment action a. ( VAVBAWAS/CO/FRAUDINCIDENTTEAM ) FRAUDINCIDENTTEAM.VBACO@VA.GOV Include the following information for each suspected incident case: Veteran's Name, SSN, and Fi le Number Date and amount of missing payment (Note: The Office of Inspector General must have this information) Correct bank account number Correct routing number Potentially Fraudulent bank account number (if known) Potentially Fraudulent routing number (if known) Tracer Police report (if received) Finance may not process 07D transactions to write off any other debt that is under the jurisdiction of the Debt Management Center (DMC). The 07D write-off is to be used only for the suspected incident cases when the payee provides a police report or other documentation as described above.",
+"authorities": [],
+"integrity": {
+"state": "complete",
+"basis": "Heading-delimited section of 2,625 characters stored; nothing was cut.",
+"stamped_at": "2026-10-26T08:23:40",
+"stored_chars": 2625,
+"source_chars": 2625,
+"cap_applied": 60000
+},
+"authority_class": "agency_instruction",
+"claim_layer": "doctrinal",
+"claim_layer_meaning": "States or describes the rule. Cite for what the law IS."
+},
+{
+"citation": "M24-5 Ch. 3 \u00a7 Appendix B",
+"kind": "heading",
+"page": 1,
+"text": "Appendix B: Fraudulent Automatic EFT Enrollments An Automatic EFT Enrollment occurs when a beneficiary goes to a bank and requests their VA benefits be sent directly to their bank account. The bank processes the request and sends it to VA through Treasury. With the increase usage of pre-paid debit cards, VA has seen a substantial increase in the number of fraudulent Automatic EFT Enrollments received. A beneficiary may request to block any update of his/her direct deposit information by calling the VBA National Call Center, logging in through eBenefits, or requesting a change in person at a regional office. To block an Automatic EFT Enrollment from updating a beneficiary record, upon request by a beneficiary, Finance activity will process an 02X transaction in eMPWR-VA to set the Auto ENR Block indicator. Station 341 Salt Lake City\u2019s VBA Incident Team will set the All CADD Block indicator. Select Process Transactions Tab. Under Deductions/Miscellaneous, select \u201cBlock Auto ENR (02X)\u201d transaction. On the transaction 02X screen, check the box next to \u201cBlock Auto ENR Indicator\u201d or \u201cBlock All CADD Indicator\u201d (this option is available to Station 341 Salt Lake City only) and select \u201cUpdate\u201d. Authorize the transaction (note, the check box will be disabled during Authorization.) Once the Block Auto ENR or Block All CADD Indicator has been set, the Beneficiary record will display \u201c(BLOCK AUTO ENR IND SET or BLOCK CADD)\u201d next to the Beneficiary Name in eMPWR-VA. The \u201cAll Transactions\u201d tab will display an 02X transaction. To unset the indicator, process another 02X transaction, uncheck the \u201cBlock Auto ENR Indicator\u201d or \u201cBlock All CADD\u201d box, update and authorize the transaction. Select \u201cView Transaction History\u201d tab to view the transaction. If the \u201cBlock Auto ENR Indicator\u201d or \u201cBlock All CADD\u201d check box is populated with a check mark, the transaction set the indicator. If the \u201cBlock Auto ENR Indicator\u201d or \u201cBlock All CADD check box is empty, the transaction unset the indicator. Each time the \u201cBlock Auto ENR Indicator\u201d or \u201cBlock All CADD\u201d is set or unset, a letter will be generated and mailed to the beneficiary advising of the change. Each time an Automatic EFT Enrollment is rejected due to the indicator being set, a letter will be generated and mailed to the beneficiary advising a request was received to update direct deposit information but it was not processed. All letters will be loaded to the VBMS e-folder. Note: To flag a debt in Share / VBMS as a fraud case to alert DMC, VSR needs to perform the following steps: On a death case : If the Veteran is deceased, remove the Veteran\u2019s date of death in Share. This process requires generation of a CPL award which is blocked if a date of death is present. Establish a CPL claim in Share. In VBMS-A, go to Basic Eligibility and change the \u201cDeath of Beneficiary\u201d decision to \u201cFraud\u201d. In VBMS-A, go to the Fraud tab and add a termination decision with the same date of death. Generate the award and have it authorized. Re-enter the Veteran\u2019s date of death in Share via BIRLS Update. On a non-death case: Establish a CPL claim in Share. In VBMS-A, go to Basic Eligibility and change the decision to \u201cFraud\u201d. In VBMS-A, go to the Fraud tab and add the award date . Generate the award and have it authorized.",
+"authorities": [],
+"integrity": {
+"state": "complete",
+"basis": "Heading-delimited section of 3,283 characters stored; nothing was cut.",
+"stamped_at": "2026-10-26T08:23:40",
+"stored_chars": 3283,
+"source_chars": 3283,
+"cap_applied": 60000
+},
+"authority_class": "agency_instruction",
+"claim_layer": "doctrinal",
+"claim_layer_meaning": "States or describes the rule. Cite for what the law IS."
+}
+]
+}
