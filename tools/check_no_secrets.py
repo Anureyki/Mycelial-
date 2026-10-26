@@ -111,6 +111,10 @@ ALLOWED = {
     "tools/check_retrieval.py": "a zero-filled citation placeholder",
     "reference/accounting_agent/internal_revenue_manual_part_5.json":
         "the IRS's own published example SSN inside the Internal Revenue Manual",
+    "reference/trust_agent/green_book_a_guide_to_federal_government_ach_payments_treasu.json":
+        "Treasury's published Green Book: its sample claim number (VA example), "
+        "the claim-number structure table, a sample ACH record for payee DOE*JOHN, "
+        "and the published EFTPS routing number - read 2026-10-26, no real person's data",
     "tools/check_ingest.py":
         "synthetic fixtures proving the write guard reaches the ingestion "
         "path - a documented example SSN and a documented test card in an "

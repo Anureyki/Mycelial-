@@ -1,0 +1,57 @@
+{
+"title": "Federal Disbursement Services (FDS) - Bureau of the Fiscal Service web page",
+"source": "U.S. Treasury, Bureau of the Fiscal Service; https://www.fiscal.treasury.gov/fds/ (page last updated 2026-04-08), fetched 2026-10-26. Public domain. Describes the service (payments incl. veterans pay/pension/education, Treasury Offset Program, foreign payments); states no rule.",
+"authority_class": "agency_guidance",
+"authority_class_basis": "--authority-class agency_guidance",
+"claim_layer": "unknown",
+"claim_layer_meaning": "Not declared at ingest. Treat any citation from here as unclassified: it may be rationale rather than rule.",
+"authorities_cited": [],
+"term_index": {
+"treasury offset program": [
+0
+],
+"accounting": [
+0
+],
+"disbursement": [
+0
+],
+"federal payments": [
+0
+],
+"offset": [
+0
+]
+},
+"origin_pdf": "fds.txt",
+"extraction": {
+"extractor": "text file (already extracted)",
+"pages": 1,
+"no_text_layer": [],
+"raised": [],
+"recovered": [],
+"lost": [],
+"complete": true
+},
+"pages": 1,
+"sections": [
+{
+"citation": "part 1",
+"kind": "treatise",
+"page": null,
+"authorities": [],
+"text": "Federal Disbursement Services (FDS) | Bureau of the Fiscal Service Skip to main content The .gov means it\u2019s official. Federal government websites often end in .gov or .mil. Before sharing sensitive information, make sure you\u2019re on a federal government site. The site is secure. The https:// ensures that you are connecting to the official website and that any information you provide is encrypted and transmitted securely. Federal Disbursement Services (FDS) The Federal Disbursement Services (FDS) pays out money, helps collect money, handles foreign transactions, and supports Fiscal Service programs. Payment Services The Federal Disbursement Services provides payment services for more than 250+ federal agencies. Your federal income tax refunds; Social Security benefits; Supplemental Security income; Railroad Retirement Board benefits; veteran's pay, pension, and education benefits all come from the Federal Disbursement Services. Payments to federal workers, vendors, and grantees also come from the Federal Disbursement Services. In fiscal year 2025, the Federal Disbursement Services issued more than 1.32 billion payments, (97.0% as electronic payments), totaling more than $6.01 trillion. Collecting money The Federal Disbursement Services also helps the Treasury Offset Program (TOP) collect delinquent debts that taxpayers owe to the federal government or to a state government. The Federal Disbursement Services matches the eligible payments against the TOP database for offset. Foreign Payment Support The Federal Disbursement Services process all payments in foreign currency for federal agencies. In fiscal year 2025, FDS processed more than $33 billion in foreign currency payments through the International Treasury Services . Supporting Fiscal Service programs In addition to paying out and collecting money, we support the Bureau of the Fiscal Service and its customers by providing Customer support for the Automated Standard Application for Payments System ( ASAP ) Project management for the Payment Application Manager ( PAM ) Customer support for the Secure Payment System ( SPS ) Customer support for International Treasury Services Training and education on financial management and accounting programs We also Develop and test financial management products and services Serve as financial advisors to federal, state, and local governments; the financial community; and the Federal Reserve to make sure that they are using programs from the Bureau of the Fiscal Service effectively and efficiently Subscribe to email news and updates Join the mailing list Selecting this button generates an e-mail message with everything filled injust send the message. You will receive a confirmation message from the list in 15 minutesreply to the message. If this doesn\u2019t work, use our alternate method of signing up for mailing lists . Contact the Federal Disbursement Services For questions about federal payments Questions about payments 1-855-868-0151 payments@fiscal.treasury.gov Federal Disbursement Services P.O. Box 12599-0599 Kansas City, MO 64116-0599 Last Updated: April 8, 2026 Programs Payment Systems and Services Automated Standard Application for Payments (ASAP) Federal Disbursement Services (FDS) About Contact Us International Treasury Services Payment Automation Manager (PAM) Secure Payment System (SPS) Invoice Processing Platform Payments of Claims Post-Payment Systems Payments Guidance Related Links Fiscal Service Training Events by Fiscal Service Payment Integrity and Resolution Services (PIRS) Contact Us Federal Disbursement Services (FDS) payments@fiscal.treasury.gov 855-868-0151 Subscribe to FDS",
+"integrity": {
+"state": "complete",
+"basis": "Full retrieved body of 3,645 characters stored; under the 60,000 cap, so nothing was cut.",
+"stamped_at": "2026-10-26T07:49:31",
+"stored_chars": 3645,
+"source_chars": 3645,
+"cap_applied": 60000
+},
+"authority_class": "agency_guidance",
+"claim_layer": "unknown",
+"claim_layer_meaning": "Not declared at ingest. Treat any citation from here as unclassified: it may be rationale rather than rule."
+}
+]
+}

@@ -1,0 +1,776 @@
+{
+  "title": "31 CFR Part 210 - Federal Government Participation In The Automated Clearing House",
+  "source": "Electronic CFR, title 31 part 210, as of 2026-08-01, retrieved from ecfr.gov. Federal regulation - public domain.",
+  "authority_class": "regulation",
+  "authority_class_basis": "Title of the work is a CFR part citation, which fixes the class",
+  "claim_layer": "doctrinal",
+  "claim_layer_meaning": "States or describes the rule. Cite for what the law IS.",
+  "authorities_cited": [],
+  "term_index": {
+    "data originated": [
+      0,
+      1
+    ],
+    "united states": [
+      0,
+      1,
+      2
+    ],
+    "benefit payments": [
+      0,
+      1,
+      3,
+      5,
+      7,
+      9,
+      10
+    ],
+    "payments received": [
+      0,
+      1,
+      9,
+      10
+    ],
+    "automated clearing": [
+      0,
+      1
+    ],
+    "entry data": [
+      0,
+      1
+    ],
+    "federal government": [
+      0,
+      1,
+      3,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10
+    ],
+    "clearing house": [
+      0,
+      1
+    ],
+    "entry data originated": [
+      0,
+      1
+    ],
+    "agency through": [
+      0,
+      7
+    ],
+    "automated clearing house": [
+      0,
+      1
+    ],
+    "debit entries": [
+      0,
+      5
+    ],
+    "more payments made": [
+      1,
+      9
+    ],
+    "fiscal service": [
+      1,
+      2
+    ],
+    "payment made": [
+      1,
+      9
+    ],
+    "payments made": [
+      1,
+      9,
+      10
+    ],
+    "followed commercially reasonable": [
+      1,
+      9
+    ],
+    "banks with respect": [
+      1,
+      2
+    ],
+    "whatever means": [
+      1,
+      9
+    ],
+    "rules guidelines": [
+      1,
+      2
+    ],
+    "deposit insurance": [
+      1,
+      4
+    ],
+    "green book": [
+      1,
+      2,
+      12
+    ],
+    "fiscal service department": [
+      1,
+      2
+    ],
+    "subsequently initiates": [
+      1,
+      9
+    ],
+    "government entry": [
+      1,
+      2
+    ],
+    "benefit payment": [
+      1,
+      8
+    ],
+    "reasonable business": [
+      1,
+      9
+    ],
+    "federal payment": [
+      1,
+      4
+    ],
+    "reserve bank": [
+      1,
+      6,
+      7,
+      8,
+      9,
+      10,
+      13
+    ],
+    "legal incapacity": [
+      1,
+      3,
+      5,
+      9,
+      10
+    ],
+    "commercially reasonable": [
+      1,
+      9
+    ],
+    "third party": [
+      1,
+      7
+    ],
+    "followed commercially": [
+      1,
+      9
+    ],
+    "commercially reasonable business": [
+      1,
+      9
+    ],
+    "federal reserve banks": [
+      1,
+      2,
+      6
+    ],
+    "financial manual": [
+      1,
+      2
+    ],
+    "treasury financial": [
+      1,
+      2
+    ],
+    "operating rules": [
+      1,
+      2
+    ],
+    "stops certifying": [
+      1,
+      9
+    ],
+    "financial institutions": [
+      1,
+      6,
+      7
+    ],
+    "representative payee": [
+      1,
+      9
+    ],
+    "initiate payments": [
+      1,
+      9
+    ],
+    "knowledge when used": [
+      1,
+      9
+    ],
+    "federal deposit": [
+      1,
+      4
+    ],
+    "agency does": [
+      1,
+      9
+    ],
+    "agency received information": [
+      1,
+      9
+    ],
+    "authorized payment": [
+      1,
+      4
+    ],
+    "certifying recurring": [
+      1,
+      9
+    ],
+    "reserve banks": [
+      1,
+      2,
+      6
+    ],
+    "credit entry": [
+      1,
+      3,
+      4,
+      7
+    ],
+    "financial institution": [
+      1,
+      4,
+      6,
+      7
+    ],
+    "federal reserve": [
+      1,
+      2,
+      6,
+      7,
+      8,
+      9,
+      10,
+      13
+    ],
+    "debit entry": [
+      1,
+      3,
+      5,
+      7
+    ],
+    "more payments": [
+      1,
+      9
+    ],
+    "agency received": [
+      1,
+      9
+    ],
+    "government entries": [
+      1,
+      2,
+      5
+    ],
+    "reasonable opportunity": [
+      1,
+      9,
+      10
+    ],
+    "reasonable business practices": [
+      1,
+      9
+    ],
+    "service department": [
+      1,
+      2
+    ],
+    "beneficiary means": [
+      1,
+      9
+    ],
+    "received information": [
+      1,
+      9
+    ],
+    "treasury financial manual": [
+      1,
+      2
+    ],
+    "benefit payments received": [
+      1,
+      9,
+      10
+    ],
+    "credit union": [
+      1,
+      4
+    ],
+    "constructive knowledge": [
+      1,
+      9,
+      10
+    ],
+    "certifying recurring payments": [
+      1,
+      9
+    ],
+    "outstanding total": [
+      1,
+      9,
+      10,
+      11
+    ],
+    "business practices": [
+      1,
+      9
+    ],
+    "funds transfer": [
+      1,
+      7
+    ],
+    "federal deposit insurance": [
+      1,
+      4
+    ],
+    "stops certifying recurring": [
+      1,
+      9
+    ],
+    "authorized payment agent": [
+      1,
+      4
+    ],
+    "operating rules guidelines": [
+      1,
+      2
+    ],
+    "payment agent": [
+      1,
+      4
+    ],
+    "recurring payments": [
+      1,
+      9
+    ],
+    "federal payments": [
+      1,
+      4
+    ],
+    "federal reserve bank": [
+      1,
+      6,
+      7,
+      8,
+      9,
+      10,
+      13
+    ],
+    "calendar days": [
+      3,
+      9
+    ],
+    "written authorization": [
+      3,
+      5
+    ],
+    "deposit account": [
+      3,
+      4
+    ],
+    "erroneous entry": [
+      3,
+      5
+    ],
+    "entry subject": [
+      3,
+      7
+    ],
+    "fiscal agent": [
+      4,
+      6
+    ],
+    "constitute full acquittance": [
+      5,
+      7
+    ],
+    "underlying payment": [
+      5,
+      7,
+      13
+    ],
+    "agency will": [
+      5,
+      10
+    ],
+    "constitute full": [
+      5,
+      7
+    ],
+    "final crediting": [
+      5,
+      7
+    ],
+    "otherwise provided": [
+      5,
+      7
+    ],
+    "full acquittance": [
+      5,
+      7
+    ],
+    "loss resulting": [
+      5,
+      6,
+      10
+    ],
+    "notice required": [
+      5,
+      12
+    ],
+    "reason code": [
+      7,
+      9
+    ],
+    "return reason code": [
+      7,
+      9
+    ],
+    "rdfi becomes aware": [
+      7,
+      9
+    ],
+    "becomes aware": [
+      7,
+      9
+    ],
+    "rdfi becomes": [
+      7,
+      9
+    ],
+    "return reason": [
+      7,
+      9
+    ],
+    "account utilized": [
+      8,
+      9,
+      10,
+      13
+    ],
+    "agency that certified": [
+      8,
+      13
+    ],
+    "rdfi learns": [
+      9,
+      13
+    ],
+    "government will": [
+      9,
+      10
+    ],
+    "rdfi receives": [
+      9,
+      10
+    ],
+    "appropriate federal": [
+      9,
+      10,
+      13
+    ],
+    "beneficiary regardless": [
+      9,
+      10
+    ],
+    "timely manner": [
+      9,
+      13
+    ],
+    "federal government will": [
+      9,
+      10
+    ],
+    "rdfi does": [
+      9,
+      10
+    ],
+    "appropriate federal reserve": [
+      9,
+      10,
+      13
+    ],
+    "days after": [
+      9,
+      10
+    ],
+    "known address": [
+      10,
+      12
+    ],
+    "last known": [
+      10,
+      12
+    ],
+    "last known address": [
+      10,
+      12
+    ],
+    "rdfi responds": [
+      10,
+      13
+    ]
+  },
+  "origin_pdf": "31cfr210.txt",
+  "extraction": {
+    "extractor": "text file (already extracted)",
+    "pages": 1,
+    "no_text_layer": [],
+    "raised": [],
+    "recovered": [],
+    "lost": [],
+    "complete": true
+  },
+  "pages": 1,
+  "sections": [
+    {
+      "citation": "\u00a7 210.1",
+      "kind": "section_sign",
+      "page": 1,
+      "text": "\u00a7 210.1 Scope; relation to other regulations. This part governs all entries and entry data originated or received by an agency through the Automated Clearing House (ACH) network, except as provided in paragraphs (a) and (b) of this section. This part also governs reclamations of benefit payments. (a) Federal tax payments received by the Federal Government through the ACH system that are governed by part 203 of this title shall not be subject to any provision of this part that is inconsistent with part 203. (b) ACH credit or debit entries for the purchase of, or payment of principal and interest on, United States securities that are governed by part 370 of this title shall not be subject to any provision of this part that is inconsistent with part 370.",
+      "integrity": {
+        "state": "complete",
+        "basis": "Full retrieved body of 761 characters stored; under the 60,000 cap, so nothing was cut.",
+        "stamped_at": "2026-10-26T07:46:59",
+        "stored_chars": 761,
+        "source_chars": 761,
+        "cap_applied": 60000
+      },
+      "authority_class": "regulation",
+      "claim_layer": "doctrinal",
+      "claim_layer_meaning": "States or describes the rule. Cite for what the law IS."
+    },
+    {
+      "citation": "\u00a7 210.2",
+      "kind": "section_sign",
+      "page": 1,
+      "text": "\u00a7 210.2 Definitions. For purposes of this part, the following definitions apply. Any term that is not defined in this part shall have the meaning set forth in the ACH Rules. (a) ACH Rules means the 2021 Operating Rules & Guidelines, including Supplement #1-2021, (both incorporated by reference, see \u00a7 210.3(b)) published by Nacha, a national association of regional member clearing house associations, ACH Operators, and participating financial institutions located in the United States. (b) Actual or constructive knowledge, when used in reference to an RDFI's or agency's knowledge of the death or incapacity of a recipient or death of a beneficiary, means that the RDFI or agency received information, by whatever means, of the death or incapacity and has had a reasonable opportunity to act on such information or that the RDFI or agency would have learned of the death or incapacity if it had followed commercially reasonable business practices. For purposes of subpart B of this part, an agency is presumed to have constructive knowledge of death or incapacity at the time it stops certifying recurring payments to a recipient if the agency: (1) Does not re-initiate payments to the recipient; and (2) Subsequently initiates a reclamation for one or more payments made to the recipient. (c) Agency means any department, agency, or instrumentality of the United States Government, or a corporation owned or controlled by the Government of the United States. The term agency does not include a Federal Reserve Bank. (d) Applicable ACH Rules means the ACH Rules, except: (1) Subsections 1.2.2, 1.2.3, 1.2.4, 1.2.5 and 1.2.6; Appendix Seven; Appendix Eight; and Appendix Nine (governing the enforcement of the ACH Rules and claims for compensation); (2) Section 1.14 (governing the Participating DFI Contact registry); (3) Section 2.10 and section 3.6 (governing the reclamation of benefit payments); (4) The requirement in Appendix Three that the Effective Entry Date of a credit entry be no more than two Banking Days following the date of processing by the Originating ACH Operator (see definition of \u201cEffective Entry Date\u201d in Appendix Three); (5) Section 2.2 (setting forth ODFI obligations to enter into agreements with, and perform risk management relating to, Originators and Third-Party Senders) and section 1.6 (Security Requirements); (6) Section 2.17.2.2-2.17.2.6 (requiring reduction of high rates of entries returned as unauthorized); (7) The requirements of Section 2.5.8 (International ACH Transactions) shall not apply to entries representing the payment of a Federal tax obligation by a taxpayer; and (8) Until March 19, 2022, the requirement of section 2.5.17.4(a) that the Originator utilize a fraudulent transaction detection system that validates an account to be debited for the first use of such account number and for any subsequent change(s) to the account number. (e) Authorized payment agent means any individual or entity that is appointed or otherwise selected as a representative payee or fiduciary, under regulations of the Social Security Administration, the Department of Veterans Affairs, the Railroad Retirement Board, or other agency making Federal payments, to act on behalf of an individual entitled to a Federal payment. (f) Automated Clearing House or ACH means a funds transfer system governed by the ACH Rules which provides for the interbank clearing of electronic entries for participating financial institutions. (g) Beneficiary means a natural person other than a recipient who is entitled to receive the benefit of all or part of a benefit payment. (h) Benefit payment is a payment for a Federal entitlement program or for an annuity, including, but not limited to, payments for Social Security, Supplemental Security Income, Black Lung, Civil Service Retirement, Railroad Retirement annuity and Railroad Unemployment and Sickness benefits, Department of Veterans Affairs Compensation and Pension, and Worker's Compensation. (i) Federal payment means any payment made by an agency. The term includes, but is not limited to: (1) Federal wage, salary, and retirement payments; (2) Vendor and expense reimbursement payments; (3) Benefit payments; and (4) Miscellaneous payments including, but not limited to, interagency payments; grants; loans; fees; principal, interest, and other payments related to United States marketable and nonmarketable securities; overpayment reimbursements; and payments under Federal insurance or guarantee programs for loans. (j)(1) Financial institution means: (i) Any insured bank as defined in section 3 of the Federal Deposit Insurance Act (12 U.S.C. 1813) or any bank which is eligible to apply to become an insured bank under section 5 of such Act (12 U.S.C. 1815); (ii) Any mutual savings bank as defined in section 3 of the Federal Deposit Insurance Act (12 U.S.C. 1813) or any bank which is eligible to apply to become an insured bank under section 5 of such Act (12 U.S.C. 1815); (iii) Any savings bank as defined in section 3 of the Federal Deposit Insurance Act (12 U.S.C. 1813) or any bank which is eligible to apply to become an insured bank under section 5 of such Act (12 U.S.C. 1815); (iv) Any insured credit union as defined in section 101 of the Federal Credit Union Act (12 U.S.C. 1752) or any credit union which is eligible to apply to become an insured credit union pursuant to section 201 of such Act (12 U.S.C. 1781); (v) Any savings association as defined in section 3 of the Federal Deposit Insurance Act (12 U.S.C. 1813) which is an insured depository institution as defined in such Act (12 U.S.C. 1811 et seq. ) or is eligible to apply to become an insured depository institution under the Federal Deposit Insurance Act (12 U.S.C. 1811 et seq. ); and (vi) Any agency or branch of a foreign bank as defined in section 1(b) of the International Banking Act, as amended (12 U.S.C. 3101). (2) In this part, a financial institution may be referred to as an Originating Depository Financial Institution (ODFI) if it transmits entries to its ACH Operator for transmittal to a Receiving Depository Financial Institution (RDFI), or it may be referred to as an RDFI if it receives entries from its ACH Operator for debit or credit to the accounts of its customers. (k) Government entry means an ACH credit or debit entry or entry data originated or received by an agency. (l) Green Book means the manual issued by the Service which provides financial institutions with procedures and guidelines for processing Government entries. (m) Notice of reclamation means notice sent by electronic, paper, or other means by the Federal Government to an RDFI which identifies the benefit payments that should have been returned by the RDFI because of the death or legal incapacity of a recipient or death of a beneficiary. (n) Outstanding total means the sum of all benefit payments received by an RDFI from an agency after the death or legal incapacity of a recipient or the death of a beneficiary, minus any amount returned to, or recovered by, the Federal Government. (o) Recipient means a natural person, corporation, or other public or private entity that is authorized to receive a Federal payment from an agency. (p) Service means the Bureau of the Fiscal Service, Department of the Treasury. (q) Treasury means the United States Department of the Treasury. (r) Treasury Financial Manual means the manual issued by the Service containing procedures to be observed by all agencies and Federal Reserve Banks with respect to central accounting, financial reporting, and other Federal Government-wide fiscal responsibilities of the Treasury. [64 FR 17478, Apr. 9, 1999, as amended at 65 FR 18869, Apr. 7, 2000; 66 FR 10580, Feb. 16, 2001; 67 FR 17902, Apr. 11, 2002; 68 FR 33829, June 5, 2003; 70 FR 67366, Nov. 7, 2005; 73 FR 52584, Sept. 10, 2008; 76 FR 59030, Sept. 23, 2011; 79 FR 42980, July 24, 2014; 82 FR 42608, Sept. 11, 2017; 85 FR 15720, Mar. 19, 2020; 87 FR 46, Jan. 3, 2022]",
+      "integrity": {
+        "state": "complete",
+        "basis": "Full retrieved body of 7,974 characters stored; under the 60,000 cap, so nothing was cut.",
+        "stamped_at": "2026-10-26T07:46:59",
+        "stored_chars": 7974,
+        "source_chars": 7974,
+        "cap_applied": 60000
+      },
+      "authority_class": "regulation",
+      "claim_layer": "doctrinal",
+      "claim_layer_meaning": "States or describes the rule. Cite for what the law IS."
+    },
+    {
+      "citation": "\u00a7 210.3",
+      "kind": "section_sign",
+      "page": 1,
+      "text": "\u00a7 210.3 Governing law. (a) Federal law. The rights and obligations of the United States and the Federal Reserve Banks with respect to all Government entries, and the rights of any person or recipient against the United States and the Federal Reserve Banks in connection with any Government entry, are governed by this part, which has the force and effect of Federal law. (b) Incorporation by reference. Certain material is incorporated by reference into this part with the approval of the Director of the Federal Register under 5 U.S.C. 552(a) and 1 CFR part 51. To enforce any edition other than that specified in this section, the Bureau of the Fiscal Service must publish a document in the Federal Register and the material must be available to the public. All approved material is available for inspection at the Bureau of the Fiscal Service, 401 14th Street SW, Room 400A, Washington, DC 20227, ph. (202) 874-6680 and from the sources listed below. It is also available for inspection at the National Archives and Records Administration (NARA). For information on the availability of this material at NARA, email fr.inspection@nara.gov or go to www.archives.gov/federal-register/cfr/ibr-locations.html. (1) Nacha, 2550 Wasser Terrace, Suite 400, Herndon, Virginia 20171, tel. 703-561-1100, info@nacha.org. (i) 2021 Nacha Operating Rules & Guidelines: The Guide to the Rules Governing the ACH Network, copyright 2021; into \u00a7 210.2. (ii) Supplement #1-2021, Notice of Amendment to the 2021 Nacha Operating Rules, dated April 8, 2021; into \u00a7 210.2. (2) [Reserved] (c) Application of this part. Any person or entity that originates or receives a Government entry agrees to be bound by this part and to comply with all instructions and procedures issued by the Service under this part, including the Treasury Financial Manual and the Green Book. The Treasury Financial Manual is available for downloading at the Service's web site at http://www.fiscal.treasury.gov/ or by calling (202) 874-9940 or writing the Directives Management Branch, Bureau of the Fiscal Service, Department of the Treasury, 3700 East West Highway, Room 500C, Hyattsville, MD 20782. The Green Book is available for downloading at the Service's web site at http://www.fiscal.treasury.gov/fmsnews.html or by calling (202) 874-6540 or writing the Product Promotion Division, Bureau of the Fiscal Service, Department of the Treasury, 401 14th Street, SW., Room 309, Washington, DC 20227. [64 FR 17478, Apr. 9, 1999, as amended at 65 FR 18869, Apr. 7, 2000; 66 FR 10580, Feb. 16, 2001; 67 FR 17903, Apr. 11, 2002; 68 FR 33830, June 5, 2003; 69 FR 18803, Apr. 9, 2004; 70 FR 67367, Nov. 7, 2005; 73 FR 52584, Sept. 10, 2008; 76 FR 59030, Sept. 23, 2011; 79 FR 42980, July 24, 2014; 82 FR 42608, Sept. 11, 2017; 85 FR 15721, Mar. 19, 2020; 87 FR 46, Jan. 3, 2022] Subpart A\u2014General",
+      "integrity": {
+        "state": "complete",
+        "basis": "Full retrieved body of 2,847 characters stored; under the 60,000 cap, so nothing was cut.",
+        "stamped_at": "2026-10-26T07:46:59",
+        "stored_chars": 2847,
+        "source_chars": 2847,
+        "cap_applied": 60000
+      },
+      "authority_class": "regulation",
+      "claim_layer": "doctrinal",
+      "claim_layer_meaning": "States or describes the rule. Cite for what the law IS."
+    },
+    {
+      "citation": "\u00a7 210.4",
+      "kind": "section_sign",
+      "page": 1,
+      "text": "\u00a7 210.4 Authorizations and revocations of authorizations. (a) Requirements for authorization. Each debit and credit entry subject to this part shall be authorized in accordance with the applicable ACH Rules and the following additional requirements: (1) The agency or the RDFI that accepts the recipient's authorization shall verify the identity of the recipient and, in the case of a written authorization requiring the recipient's signature, the validity of the recipient's signature. (2) Unless authorized in writing, or similarly authenticated, by an agency, no person or entity shall initiate or transmit a debit entry to that agency, other than a reversal of a credit entry previously sent to the agency. (b) Terms of authorizations. By executing an authorization for an agency to initiate entries, a recipient agrees: (1) To the provisions of this part; (2) To provide accurate information; (3) To verify the recipient's identity to the satisfaction of the RDFI or agency, whichever has accepted the authorization; (4) That any new authorization inconsistent with a previous authorization shall supersede the previous authorization; and (5) That the Federal Government may reverse any duplicate or erroneous entry or file as provided in \u00a7 210.6(f) of this part. (c) Termination and revocation of authorizations. An authorization shall remain valid until it is terminated or revoked by: (1) With respect to a recipient of benefit payments, a change in the recipient's ownership of the deposit account as reflected in the deposit account records, including the removal of the name of the recipient, the addition of a power of attorney, or any action which alters the interest of the recipient; (2) The death or legal incapacity of a recipient of benefit payments or the death of a beneficiary; (3) The closing of the recipient's account at the RDFI by the recipient or by the RDFI. With respect to a recipient of benefit payments, if an RDFI closes an account to which benefit payments currently are being sent, it shall provide 30 calendar days written notice to the recipient prior to closing the account, except in cases of fraud; or (4) The RDFI's insolvency, closure by any state or Federal regulatory authority or by corporate action, or the appointment of a receiver, conservator, or liquidator for the RDFI. In any such event, the authorization shall remain valid if a successor is named. The Federal Government may temporarily transfer authorizations to a consenting RDFI. The transfer is valid until either a new authorization is executed by the recipient, or 120 calendar days have elapsed since the insolvency, closure, or appointment, whichever occurs first.",
+      "integrity": {
+        "state": "complete",
+        "basis": "Full retrieved body of 2,676 characters stored; under the 60,000 cap, so nothing was cut.",
+        "stamped_at": "2026-10-26T07:46:59",
+        "stored_chars": 2676,
+        "source_chars": 2676,
+        "cap_applied": 60000
+      },
+      "authority_class": "regulation",
+      "claim_layer": "doctrinal",
+      "claim_layer_meaning": "States or describes the rule. Cite for what the law IS."
+    },
+    {
+      "citation": "\u00a7 210.5",
+      "kind": "section_sign",
+      "page": 1,
+      "text": "\u00a7 210.5 Account requirements for Federal payments. (a) Notwithstanding ACH Rules 2.1.2, 4.1.3, and Appendix Two, section 2.2 (listing general ledger and loan accounts as permissible transaction codes), an ACH credit entry representing a Federal payment other than a vendor payment shall be deposited into a deposit account at a financial institution. For all payments other than vendor payments, the account at the financial institution shall be in the name of the recipient, except as provided in paragraph (b) of this section. (b)(1) Where an authorized payment agent has been selected, the Federal payment shall be deposited into an account titled in accordance with the regulations governing the authorized payment agent. (2) Where a Federal payment is to be deposited into an investment account established through a securities broker or dealer registered with the Securities and Exchange Commission under the Securities Exchange Act of 1934, or an investment account established through an investment company registered under the Investment Company Act of 1940 or its transfer agent, such payment may be deposited into an account designated by such broker or dealer, investment company, or transfer agent. (3) Where an agency is issuing part or all of an employee's travel reimbursement payment to the official travel card issuing bank, as authorized or required by Office of Management and Budget guidance or the Federal Travel Regulation, the ACH credit entry representing the payment may be deposited to the account of the travel card issuing bank for credit to the employee's travel card account at the bank. (4) Where a Federal payment is to be disbursed through a debit card, stored value card, prepaid card or similar payment card program established by the Service, the Federal payment may be deposited to an account at a financial institution designated by the Service as a financial or fiscal agent. The account title, access terms and other account provisions may be specified by the Service. (5)(i) Where a Federal payment is to be deposited to a prepaid account that meets the following requirements: (A) The account is held at an insured financial institution; (B) The account is set up to meet the requirements for pass-through deposit or share insurance such that the funds accessible through the card are insured for the benefit of the recipient by the Federal Deposit Insurance Corporation or the National Credit Union Share Insurance Fund in accordance with applicable law (12 CFR part 330 or 12 CFR part 745); (C) The account is not attached to a line of credit or loan agreement under which repayment from the account is triggered upon delivery of the Federal payments; and (D) The issuer of the account complies with all of the requirements, and provides the holder of the account with all of the consumer protections, that apply to a prepaid account under the rules implementing the Electronic Fund Transfer Act and the Truth in Lending Act. (ii) No person or entity may issue a prepaid account that receives Federal payments in violation of this paragraph (b)(5), and no financial institution may maintain a prepaid account that receives Federal payments if the issuer violates this paragraph (b)(5). (iii) For the purposes of this paragraph (b)(5), the term\u2014 (A) \u201cPrepaid account\u201d means a prepaid account as defined for purposes of regulations implementing the Electronic Fund Transfer Act, as amended; and (B) \u201cIssuer\u201d means a person or entity that issues a prepaid account. (6) Where a Federal payment is disbursed to a resident of a nursing facility, as defined in 42 U.S.C. 1396r, the payment may be deposited into a resident trust or patient fund account established by the nursing facility pursuant to requirements under Federal law relating to the protection of such funds. (7) Where a Federal payment is disbursed to a member of a religious order who has taken a vow of poverty, the payment may be deposited to an account established by the religious order. As used in this paragraph, the phrase \u201cmember of a religious order who has taken a vow of poverty\u201d is defined as it would be by the Internal Revenue Service for Federal tax purposes. (8) The Secretary of the Treasury may waive the requirements of paragraph (a) of this section in any case or class of cases. [64 FR 17478, Apr. 9, 1999, as amended at 65 FR 18869, Apr. 7, 2000; 73 FR 52584, Sept. 10, 2008; 75 FR 80339, Dec. 22, 2010; 76 FR 59031, Sept. 23, 2011; 82 FR 42609, Sept. 11, 2017]",
+      "integrity": {
+        "state": "complete",
+        "basis": "Full retrieved body of 4,488 characters stored; under the 60,000 cap, so nothing was cut.",
+        "stamped_at": "2026-10-26T07:46:59",
+        "stored_chars": 4488,
+        "source_chars": 4488,
+        "cap_applied": 60000
+      },
+      "authority_class": "regulation",
+      "claim_layer": "doctrinal",
+      "claim_layer_meaning": "States or describes the rule. Cite for what the law IS."
+    },
+    {
+      "citation": "\u00a7 210.6",
+      "kind": "section_sign",
+      "page": 1,
+      "text": "\u00a7 210.6 Agencies. Notwithstanding any provision of the ACH Rules, including Subsections 2.4.5, 2.8.4, 4.3.5, 2.9.2, 3.2.2, and 3.13.3, agencies shall be subject to the obligations and liabilities set forth in this section in connection with Government entries. (a) Receiving entries. An agency may receive ACH debit or credit entries only with the prior written authorization of the Service. (b) Liability to a recipient. An agency will be liable to the recipient for any loss sustained by the recipient as a result of the agency's failure to originate a credit or debit entry in accordance with this part. The agency's liability shall be limited to the amount of the entry(ies). (c) Liability to an originator. An agency will be liable to an Originator or an ODFI for any loss sustained by the originator or ODFI as a result of the agency's failure to credit an ACH entry to the agency's account in accordance with this part. The agency's liability shall be limited to the amount of the entry(ies). (d) Liability to an RDFI or ACH association. Except as otherwise provided in this part, an agency will be liable to an RDFI for losses sustained in processing duplicate or erroneous credit and debit entries originated by the agency. An agency's liability shall be limited to the amount of the entry(ies), and shall be reduced by the amount of the loss resulting from the failure of the RDFI to exercise due diligence and follow standard commercial practices in processing the entry(ies). This section does not apply to credits received by an RDFI after the death or legal incapacity of a recipient of benefit payments or the death of a beneficiary as governed by subpart B of this part. An agency shall not be liable to any ACH association. (e) Acquittance of the agency. The final crediting of the amount of an entry to a recipient's account shall constitute full acquittance of the Federal Government. (f) Reversals. An agency may reverse any duplicate or erroneous entry, and the Federal Government may reverse any duplicate or erroneous file. In initiating a reversal, an agency shall certify to the Service that the reversal complies with applicable law related to the recovery of the underlying payment. An agency that reverses an entry shall indemnify the RDFI as provided in the applicable ACH Rules, but the agency's liability shall be limited to the amount of the entry. If the Federal Government reverses a file, the Federal Government shall indemnify the RDFI as provided in the applicable ACH Rules, but the extent of such liability shall be limited to the amount of the entries comprising the duplicate or erroneous file. Reversals under this section shall comply with the time limitations set forth in the applicable ACH Rules. (g) Point-of-purchase debit entries. An agency may originate a Point-of-Purchase (POP) entry using a check drawn on a consumer or business account and presented at a point-of-purchase. The requirements of the applicable ACH Rules, incorporated by reference, see \u00a7 210.3(b), shall be met for such an entry if the Receiver presents the check at a location where the agency has posted the notice required by the ACH Rules and has provided the Receiver with a copy of the notice. (h) Return Fee Entry. An agency that has authority to collect returned item service fees may do so by originating a Return Fee Entry if the agency provides notice to the Receiver in accordance with the ACH Rules. [82 FR 42609, Sept. 11, 2017, as amended at 85 FR 15721, Mar. 19, 2020; 87 FR 47, Jan. 3, 2022]",
+      "integrity": {
+        "state": "complete",
+        "basis": "Full retrieved body of 3,527 characters stored; under the 60,000 cap, so nothing was cut.",
+        "stamped_at": "2026-10-26T07:46:59",
+        "stored_chars": 3527,
+        "source_chars": 3527,
+        "cap_applied": 60000
+      },
+      "authority_class": "regulation",
+      "claim_layer": "doctrinal",
+      "claim_layer_meaning": "States or describes the rule. Cite for what the law IS."
+    },
+    {
+      "citation": "\u00a7 210.7",
+      "kind": "section_sign",
+      "page": 1,
+      "text": "\u00a7 210.7 Federal Reserve Banks. (a) Fiscal Agents. Each Federal Reserve Bank serves as Fiscal Agent of the Treasury in carrying out its duties as the Federal Government's ACH Operator under this part. As Fiscal Agent, each Federal Reserve Bank shall be responsible only to the Treasury and not to any other party for any loss resulting from the Federal Reserve Bank's action, notwithstanding Section 11.5 and Article 8 of the ACH Rules. Each Federal Reserve Bank may issue operating circulars not inconsistent with this part which shall be binding on financial institutions. (b) Routing numbers. All routing numbers issued by a Federal Reserve Bank to an agency require the prior approval of the Service.",
+      "integrity": {
+        "state": "complete",
+        "basis": "Full retrieved body of 703 characters stored; under the 60,000 cap, so nothing was cut.",
+        "stamped_at": "2026-10-26T07:46:59",
+        "stored_chars": 703,
+        "source_chars": 703,
+        "cap_applied": 60000
+      },
+      "authority_class": "regulation",
+      "claim_layer": "doctrinal",
+      "claim_layer_meaning": "States or describes the rule. Cite for what the law IS."
+    },
+    {
+      "citation": "\u00a7 210.8",
+      "kind": "section_sign",
+      "page": 1,
+      "text": "\u00a7 210.8 Financial institutions. (a) Status as a Treasury depositary. The origination or receipt of an entry subject to this part does not render a financial institution a Treasury depositary. A financial institution shall not advertise itself as a Treasury depositary on such basis. (b) Liability. Notwithstanding ACH Rules Subsections 2.4.5, 2.8.4, 4.3.5, 2.9.2, 3.2.2, and 3.13.3, if the Federal Government sustains a loss as a result of a financial institution's failure to handle an entry in accordance with this part, the financial institution shall be liable to the Federal Government for the loss, up to the amount of the entry, except as otherwise provided in this section. A financial institution shall not be liable to any third party for any loss or damage resulting directly or indirectly from an agency's error or omission in originating an entry. Nothing in this section shall affect any obligation or liability of a financial institution under Regulation E, 12 CFR part 1005, or the Electronic Funds Transfer Act, 12 U.S.C. 1693 et seq. (c) Acquittance of the financial institution. The final crediting of the correct amount of an entry received and processed by the Federal Reserve Bank and posted to the TGA shall constitute full acquittance of the ODFI and the originator for the amount of the entry. Full acquittance shall not occur if the entries do not balance, are incomplete, are incorrect, or are incapable of being processed. In the case of funds collected by an agency through origination of a debit entry, full acquittance shall not occur until the underlying payment becomes final. (d) Notice of misdirected payment. If an RDFI becomes aware that an agency has originated an ACH credit entry to an account that is not owned by the payee whose name appears in the ACH payment information, the RDFI shall promptly notify the agency. An RDFI that originates a Notification of Change (NOC) entry with the correct account and/or Routing and Transit Number information, or returns the original ACH credit entry to the agency with an appropriate return reason code, shall be deemed to have satisfied this requirement. [64 FR 17487, Apr. 9, 1999, as amended at 69 FR 13189, Mar. 19, 2004; 70 FR 67367, Nov. 7, 2005; 79 FR 42981, July 24, 2014; 79 FR 73841, Dec. 12, 2014; 82 FR 42609, Sept. 11, 2017] Subpart B\u2014Reclamation of Benefit Payments",
+      "integrity": {
+        "state": "complete",
+        "basis": "Full retrieved body of 2,362 characters stored; under the 60,000 cap, so nothing was cut.",
+        "stamped_at": "2026-10-26T07:46:59",
+        "stored_chars": 2362,
+        "source_chars": 2362,
+        "cap_applied": 60000
+      },
+      "authority_class": "regulation",
+      "claim_layer": "doctrinal",
+      "claim_layer_meaning": "States or describes the rule. Cite for what the law IS."
+    },
+    {
+      "citation": "\u00a7 210.9",
+      "kind": "section_sign",
+      "page": 1,
+      "text": "\u00a7 210.9 Parties to the reclamation. (a) Agreement of RDFI. An RDFI's acceptance of a benefit payment pursuant to this part shall constitute its agreement to this subpart. By accepting a benefit payment subject to this part, the RDFI authorizes the debiting of the Federal Reserve Bank account utilized by the RDFI in accordance with the provisions of \u00a7 210.10(e). (b) The Federal Government. In processing reclamations pursuant to this subpart, the Service shall act pursuant to the direction of the agency that certified the benefit payment(s) being reclaimed.",
+      "integrity": {
+        "state": "complete",
+        "basis": "Full retrieved body of 561 characters stored; under the 60,000 cap, so nothing was cut.",
+        "stamped_at": "2026-10-26T07:46:59",
+        "stored_chars": 561,
+        "source_chars": 561,
+        "cap_applied": 60000
+      },
+      "authority_class": "regulation",
+      "claim_layer": "doctrinal",
+      "claim_layer_meaning": "States or describes the rule. Cite for what the law IS."
+    },
+    {
+      "citation": "\u00a7 210.10",
+      "kind": "section_sign",
+      "page": 1,
+      "text": "\u00a7 210.10 RDFI liability. (a) Full liability. An RDFI shall be liable to the Federal Government for the total amount of all benefit payments received after the death or legal incapacity of a recipient or the death of a beneficiary unless the RDFI has the right to limit its liability under \u00a7 210.11 of this part. An RDFI shall return any benefit payments received after the RDFI becomes aware of the death or legal incapacity of a recipient or the death of a beneficiary, regardless of the manner in which the RDFI discovers such information. If the RDFI learns of the death or legal incapacity of a recipient or death of a beneficiary from a source other than notice from the agency issuing payments to the recipient, the RDFI shall immediately notify the agency of the death or incapacity. The proper use of the R15 or R14 return reason code shall be deemed to constitute such notice. (b) Actual or Constructive Knowledge of Death. Actual or constructive knowledge, when used in reference to an RDFI's or agency's knowledge of the death or incapacity of a recipient or death of a beneficiary, means that the RDFI or agency received information, by whatever means, of the death or incapacity and has had a reasonable opportunity to act on such information or that the RDFI or agency would have learned of the death or incapacity if it had followed commercially reasonable business practices. For purposes of this subpart, an agency is presumed to have constructive knowledge of death or incapacity at the time it stops certifying recurring payments to a recipient if the agency: (1) Does not re-initiate payments to the recipient; and (2) Subsequently initiates a reclamation for one or more payments made to the recipient. (c) Exception to liability rule. An RDFI shall not be liable for post-death benefit payments sent to a recipient acting as a representative payee or fiduciary on behalf of a beneficiary, if the beneficiary was deceased at the time the authorization was executed and the RDFI did not have actual or constructive knowledge of the death of the beneficiary. (d) Time limits. An agency that initiates a request for a reclamation must do so within 120 calendar days after the date that the agency first has actual or constructive knowledge of the death or legal incapacity of a recipient or the death of a beneficiary. An agency may not reclaim any post-death or post-incapacity payment made more than six years prior to the date of the notice of reclamation; provided, however, that if the account balance at the time the RDFI receives the notice of reclamation exceeds the total amount of post-death or post-incapacity payments made by the agency during such six-year period, this limitation shall not apply and the RDFI shall be liable for the total amount of all post-death or post-incapacity payments made, up to the amount in the account at the time the RDFI receives the notice of reclamation and has had a reasonable opportunity to act on the notice (not to exceed one business day). (e) Debit of RDFI's account. If an RDFI does not return the full amount of the outstanding total or any other amount for which the RDFI is liable under this subpart in a timely manner, the Federal Government will collect the amount outstanding by instructing the appropriate Federal Reserve Bank to debit the account utilized by the RDFI. The Federal Reserve Bank will provide advice of the debit to the RDFI. [64 FR 17487, Apr. 9, 1999, as amended at 69 FR 13189, Mar. 19, 2004; 85 FR 15721, Mar. 19, 2020]",
+      "integrity": {
+        "state": "complete",
+        "basis": "Full retrieved body of 3,517 characters stored; under the 60,000 cap, so nothing was cut.",
+        "stamped_at": "2026-10-26T07:46:59",
+        "stored_chars": 3517,
+        "source_chars": 3517,
+        "cap_applied": 60000
+      },
+      "authority_class": "regulation",
+      "claim_layer": "doctrinal",
+      "claim_layer_meaning": "States or describes the rule. Cite for what the law IS."
+    },
+    {
+      "citation": "\u00a7 210.11",
+      "kind": "section_sign",
+      "page": 1,
+      "text": "\u00a7 210.11 Limited liability. (a) Right to limit its liability. If an RDFI does not have actual or constructive knowledge of the death or legal incapacity of a recipient or the death of a beneficiary at the time it receives one or more benefit payments on behalf of the recipient, the RDFI's liability to the agency for those payments shall be limited to: (1) An amount equal to: (i) The amount in the account at the time the RDFI receives the notice of reclamation and has had a reasonable opportunity (not to exceed one business day) to act on the notice, plus any additional benefit payments made to the account by the agency before the RDFI responds in full to the notice of reclamation, or (ii) The outstanding total, whichever is less; plus (2) If the agency is unable to collect the entire outstanding total, an additional amount equal to: (i) The benefit payments received by the RDFI from the agency within 45 days after the death or legal incapacity of the recipient or death of the beneficiary, or (ii) The balance of the outstanding total, whichever is less. (b) Qualification for limited liability. In order to limit its liability as provided in this section, an RDFI shall: (1) Certify that at the time the benefit payments were credited to or withdrawn from the account, the RDFI had no actual or constructive knowledge of the death or legal incapacity of the recipient or death of the beneficiary; (2) Certify the date the RDFI first had actual or constructive knowledge of the death or legal incapacity of the recipient or death of the beneficiary, regardless of how and where such information was obtained; (3)(i) Provide the name, last known address and phone number, as shown on the RDFI's records, of the following person(s): (A) The recipient and any co-owner(s) of the recipient's account; (B) All other person(s) authorized to withdraw funds from the recipient's account; and (C) All person(s) who withdrew funds from the recipient's account after the death or legal incapacity of the recipient or death of the beneficiary. (ii) If persons are not identified for any of these subcategories, the RDFI must certify that no such information is available and why no such information is available; and (4) Fully and accurately complete all certifications on the notice of reclamation and comply with the requirements of this part. (c) Payment of limited liability amount. If the RDFI qualifies for limited liability under this subpart, it shall immediately return to the Federal Government the amount specified in \u00a7 210.11(a)(1). The agency will then attempt to collect the amount of the outstanding total not returned by the RDFI. If the agency is unable to collect that amount, the Federal Government will instruct the appropriate Federal Reserve Bank to debit the account utilized by the RDFI at that Federal Reserve Bank for the amount specified in \u00a7 210.11(a)(2). (d) Violation of subpart B. An RDFI that fails to comply with any provision of this subpart in a timely and accurate manner, including but not limited to the certification requirements at \u00a7 210.11(b) and the notice requirements at \u00a7 210.13, shall be liable to the Federal Government for any loss resulting from its act or omission. Any such liability shall be in addition to the amount(s) for which the RDFI is liable under \u00a7 210.10 or \u00a7 210.11, as applicable. [64 FR 17487, Apr. 9, 1999, as amended at 69 FR 13189, Mar. 19, 2004; 76 FR 59031, Sept. 23, 2011]",
+      "integrity": {
+        "state": "complete",
+        "basis": "Full retrieved body of 3,445 characters stored; under the 60,000 cap, so nothing was cut.",
+        "stamped_at": "2026-10-26T07:46:59",
+        "stored_chars": 3445,
+        "source_chars": 3445,
+        "cap_applied": 60000
+      },
+      "authority_class": "regulation",
+      "claim_layer": "doctrinal",
+      "claim_layer_meaning": "States or describes the rule. Cite for what the law IS."
+    },
+    {
+      "citation": "\u00a7 210.12",
+      "kind": "section_sign",
+      "page": 1,
+      "text": "\u00a7 210.12 RDFI's rights of recovery. (a) Matters between the RDFI and its customer. This subpart does not authorize or direct an RDFI to debit or otherwise affect the account of a recipient. Nothing in this subpart shall be construed to affect the right an RDFI has under state law or the RDFI's contract with a recipient to recover any amount from the recipient's account. (b) Liability unaffected. The liability of the RDFI under this subpart is not affected by actions taken by the RDFI to recover any portion of the outstanding total from any party.",
+      "integrity": {
+        "state": "complete",
+        "basis": "Full retrieved body of 552 characters stored; under the 60,000 cap, so nothing was cut.",
+        "stamped_at": "2026-10-26T07:46:59",
+        "stored_chars": 552,
+        "source_chars": 552,
+        "cap_applied": 60000
+      },
+      "authority_class": "regulation",
+      "claim_layer": "doctrinal",
+      "claim_layer_meaning": "States or describes the rule. Cite for what the law IS."
+    },
+    {
+      "citation": "\u00a7 210.13",
+      "kind": "section_sign",
+      "page": 1,
+      "text": "\u00a7 210.13 Notice to account owners. Provision of notice by RDFI. Upon receipt by an RDFI of a notice of reclamation, the RDFI immediately shall mail to the last known address of the account owner(s) or otherwise provide to the account owner(s) a copy of any notice required by the Service to be provided to account owners as specified in the Green Book. Proof that this notice was sent may be required by the Service.",
+      "integrity": {
+        "state": "complete",
+        "basis": "Full retrieved body of 416 characters stored; under the 60,000 cap, so nothing was cut.",
+        "stamped_at": "2026-10-26T07:46:59",
+        "stored_chars": 416,
+        "source_chars": 416,
+        "cap_applied": 60000
+      },
+      "authority_class": "regulation",
+      "claim_layer": "doctrinal",
+      "claim_layer_meaning": "States or describes the rule. Cite for what the law IS."
+    },
+    {
+      "citation": "\u00a7 210.14",
+      "kind": "section_sign",
+      "page": 1,
+      "text": "\u00a7 210.14 Erroneous death information. (a) Notification of error to the agency. If, after the RDFI responds fully to the notice of reclamation, the RDFI learns that the recipient or beneficiary is not dead or legally incapacitated or that the date of death is incorrect, the RDFI shall inform the agency that certified the underlying payment(s) and directed the Service to reclaim the funds in dispute. (b) Resolution of dispute. The agency that certified the underlying payment(s) and directed the Service to reclaim the funds will attempt to resolve the dispute with the RDFI in a timely manner. If the agency determines that the reclamation was improper, in whole or in part, the agency shall notify the RDFI and shall return the amount of the improperly reclaimed funds to the RDFI. Upon certification by the agency of an improper reclamation, the Service may instruct the appropriate Federal Reserve Bank to credit the account utilized by the RDFI at the Federal Reserve Bank in the amount of the improperly reclaimed funds. [64 FR 17487, Apr. 9, 1999, as amended at 69 FR 13189, Mar. 19, 2004]",
+      "integrity": {
+        "state": "complete",
+        "basis": "Full retrieved body of 1,098 characters stored; under the 60,000 cap, so nothing was cut.",
+        "stamped_at": "2026-10-26T07:46:59",
+        "stored_chars": 1098,
+        "source_chars": 1098,
+        "cap_applied": 60000
+      },
+      "authority_class": "regulation",
+      "claim_layer": "doctrinal",
+      "claim_layer_meaning": "States or describes the rule. Cite for what the law IS."
+    }
+  ],
+  "claim_layer_basis": "Set from the class, not from the text: a statute or regulation states the rule rather than describing or arguing it, which the citation in the title establishes definitionally."
+}

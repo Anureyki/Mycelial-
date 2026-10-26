@@ -201,6 +201,25 @@ def split_sections(pages):
 
 CASE_RX = re.compile(r'\b([A-Z][A-Za-z&.\' ]{2,34}?)\s+v\.\s+([A-Z][A-Za-z&.\' ]{2,34}?)[,.\s]')
 
+# STATUTES AND REGULATIONS ARE AUTHORITIES TOO (2026-10-26). Page-keyed works
+# indexed only "X v. Y", so Treasury's Green Book - which cites 31 CFR part 210
+# on page after page - recorded no authorities at all and could not be reached
+# by the regulation it explains. A section cite is also indexed under its part,
+# so asking for "31 CFR 210" finds the passage that cites 210.8.
+CFR_RX = re.compile(r'\b(\d{1,2})\s*(?:CFR|C\.F\.R\.)\s*(?:[Pp]art\s*|§+\s*)?(\d+)(?:\.(\d+[a-z]?))?')
+USC_RX = re.compile(r'\b(\d{1,2})\s*U\.?\s?S\.?\s?C\.?\s*(?:§+\s*)?(\d+[a-z]?)')
+
+
+def statute_cites(text):
+    out = set()
+    for t, part, sec in CFR_RX.findall(text or ""):
+        out.add(f"{t} CFR {part}")
+        if sec:
+            out.add(f"{t} CFR {part}.{sec}")
+    for t, sec in USC_RX.findall(text or ""):
+        out.add(f"{t} U.S.C. {sec}")
+    return out
+
 
 STOP_EDGE = {"the","a","an","of","in","to","and","or","is","are","was","were","be","been",
              "that","this","these","those","it","its","as","by","for","with","on","at",
@@ -272,7 +291,10 @@ def index_terms(sections, min_freq=None, max_terms=2500, seed=()):
 
     freq, per_section = Counter(), []
     for s_ in sections:
-        words = re.findall(r"[a-z]+", (s_.get("text") or "").lower())
+        # A hyphenated word is ONE word (2026-10-26): "non-receipt claim" was mined
+        # as "receipt claim", so the term the Green Book is about could never be
+        # looked up by the name it is printed under.
+        words = re.findall(r"[a-z]+(?:-[a-z]+)*", (s_.get("text") or "").lower())
         grams = set()
         # SINGLE WORDS COME FROM THE SEED, NOT FROM COUNTING.
         #
@@ -550,7 +572,8 @@ def split_treatise(pages):
         flat = dehyphenate(re.sub(r'\s+', ' ', body).strip())
         if len(flat) < MIN_SECTION:
             continue
-        cases = sorted({f"{a.strip()} v. {b.strip()}" for a, b in CASE_RX.findall(body)})
+        cases = sorted({f"{a.strip()} v. {b.strip()}" for a, b in CASE_RX.findall(body)}
+                       | statute_cites(body))
         sections.append({
             "citation": ((f"p. {page_no}" if page_no else f"part {len(sections) + 1}")
                          + (f" (part {part_no})" if part_no else "")),
