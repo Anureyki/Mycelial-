@@ -203,7 +203,7 @@ class LegalAgent(AgentBase):
                 "claim_open", "claim_cite", "claim_answer", "claim_set_right",
                 "claim_evidence", "claim_observe", "claim_reproducibility",
                 "claim_corroborate", "claim_get", "claim_list", "claim_ontology",
-                "add_deadline", "deadlines", "record_deadline_event", "check_deadline_register", "classify_solicitation", "bond_requirements", "check_bond_terms", "modification_gate", "bond_forms", "validate_entity_ids", "record_sam_registration", "sam_offer_check", "screen_sam_offer", "scan_gsa_directives", "gsa_directives", "map_gsa_directive", "watch_docket", "watched_dockets",
+                "add_deadline", "ssa_demand_doctrine", "ssa_demand_cycle", "ssa_demand_authorize", "ssa_demand_draft", "ssa_demand_sent", "ssa_demand_response", "ssa_demand_status", "ssa_demand_report", "deadlines", "record_deadline_event", "check_deadline_register", "classify_solicitation", "bond_requirements", "check_bond_terms", "modification_gate", "bond_forms", "validate_entity_ids", "record_sam_registration", "sam_offer_check", "screen_sam_offer", "scan_gsa_directives", "gsa_directives", "map_gsa_directive", "watch_docket", "watched_dockets",
                 "record_settlement_offer", "settlement_offers",
                 "open_action", "complete_action", "amend_action", "actions",
                 "add_venue", "venues", "running_clocks", "complaint_path",
@@ -962,6 +962,48 @@ class LegalAgent(AgentBase):
                              "docket is not visible here - record its filings and response "
                              "deadlines with add_deadline instead.")}
 
+    def ssa_demand(self, task, a):
+        """ssa_form_demand - the principal's pre-suit SSN consent demand. Drafts
+        and records only; nothing is ever sent from here (doctrine rule 7).
+        See core/ssa_form_demand.py and config/ssa_form_demand.json."""
+        import core.ssa_form_demand as sfd
+        try:
+            if task == "ssa_demand_doctrine":
+                c = sfd._cfg()
+                return {k: c[k] for k in ("capability", "purpose", "build_requirements", "doctrine",
+                                          "citations", "held_out", "five_year_window",
+                                          "state_overlay", "ssa_89")}
+            if task == "ssa_demand_cycle":
+                return sfd.new_cycle(a.get("label", ""))
+            if task == "ssa_demand_authorize":
+                return sfd.authorize_cycle(a.get("cycle_id"), a.get("authorization_ref"),
+                                           a.get("authorized_on"))
+            if task == "ssa_demand_draft":
+                req = dict(a.get("requester") or {})
+                if not req.get("mailing_address"):
+                    req["mailing_address"] = self.user_constraint("legal_mail_address")
+                if not req.get("name"):
+                    req["name"] = self.user_constraint("legal_name")
+                return sfd.draft(a.get("cycle_id"), a.get("recipient"), req,
+                                 resolver=self.lookup_reference, today=a.get("today"))
+            if task == "ssa_demand_sent":
+                return sfd.record_sent(a.get("demand_id"), a.get("sent_on"), a.get("method"))
+            if task == "ssa_demand_response":
+                return sfd.record_response(a.get("demand_id"), a.get("received_on"),
+                                           a.get("content", ""), a.get("form_produced"),
+                                           refused=a.get("refused", False),
+                                           stated_purpose=a.get("stated_purpose"),
+                                           actual_use=a.get("actual_use"),
+                                           purpose_matches_use=a.get("purpose_matches_use"))
+            if task == "ssa_demand_status":
+                return sfd.status(a.get("today"))
+            if task == "ssa_demand_report":
+                r = sfd.cycle_report(a.get("cycle_id"), a.get("today"))
+                return {"path": r["path"], "demands": r["demands"]}
+        except sfd.Refused as exc:
+            return {"refused": True, "reason": str(exc)}
+        return {"error": f"unknown ssa_demand task {task}"}
+
     def reminders_due(self):
         items, basis, now = [], [], datetime.now()
         dls = (self.check_deadline_register().get("register") or [])
@@ -1052,6 +1094,24 @@ class LegalAgent(AgentBase):
                          f"({o['release_scope_basis']}). Confidential: {o['confidential']} "
                          f"({o['confidentiality_basis']}). {o['stance']}.")})
         basis.append(f"{len(offers)} open settlement offer(s) with a response date")
+        # ssa_form_demand escalations (requirement Three): refused, ignored past 30
+        # days, or a produced form whose stated purpose does not match its use.
+        try:
+            import core.ssa_form_demand as _sfd
+            esc = _sfd.status().get("escalated") or []
+            for e in esc:
+                items.append({"key": f"ssa_demand:{e['id']}:{','.join(e['escalation'])}",
+                              "urgency": "due",
+                              "subject": f"SSA form demand escalated: {e['recipient']}",
+                              "body": (f"{e['recipient']} ({e['id']}): {', '.join(e['escalation'])}. "
+                                       + ("A draft FCRA 1681s complaint outline is ready "
+                                          "(ssa_demand_status) - nothing has been filed. "
+                                          if e.get("complaint_outline") else "")
+                                       + "Under the doctrine this is evidence for a willful theory, "
+                                         "not proof of a standalone violation.")})
+            basis.append(f"ssa_form_demand: {len(esc)} escalated demand(s)")
+        except Exception as exc:
+            basis.append(f"ssa_form_demand: escalations could not be read ({exc})")
         watched = self._watched()
         for did, w in watched.items():
             docs, err = self._docket_newest(did)
@@ -5385,6 +5445,8 @@ class LegalAgent(AgentBase):
             return self.actions(a.get("case_id"), bool(a.get("include_closed")))
         if task == "add_deadline":
             return self.add_deadline(**(args if isinstance(args, dict) else {}))
+        if task.startswith("ssa_demand_"):
+            return self.ssa_demand(task, args if isinstance(args, dict) else {})
         if task == "bond_forms":
             import core.bonding as _bond
             return _bond.forms(self._resolve_authority)

@@ -176,6 +176,8 @@ jobs:
         run: python tools/check_sam.py
       - name: Directive dates from the source, mappings from the text (check_gsa_directives)
         run: python tools/check_gsa_directives.py
+      - name: SSN consent demand doctrine enforced (check_ssa_form_demand)
+        run: python tools/check_ssa_form_demand.py
       - name: Only approved artifacts reach the media library (check_media_publish)
         run: python tools/check_media_publish.py
 

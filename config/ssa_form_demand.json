@@ -1,0 +1,71 @@
+{
+  "capability": "ssa_form_demand",
+  "shelf": "legal_agent",
+  "recorded": "2026-10-26",
+  "source": "Principal's instructions, pasted verbatim 2026-10-26 ('Claude instructions' and 'Legal instructions'). The text below is his; the citation map, held_out and state_overlay are Legal's reading of the shelved authority.",
+  "purpose": "Pre-suit instrument that demands any private entity or agency produce the SSA-89 consent form or equivalent documentation for every SSN collection event tied to the user's identity. Not a lawsuit — a documented request that converts their silence or refusal into evidence.",
+  "build_requirements": [
+    "One — a demand template that names the requester, states the SSA-89 requirement under the Consent Based SSN Verification program, cites fifteen U.S.C. sixteen eighty-one-b for FCRA permissible purpose, and fifteen U.S.C. sixteen eighty-one-s-two for the eCBSV five-year retention obligation where applicable.",
+    "Two — a tracking ledger that logs every demand sent: date, recipient, method, response received, response content, and whether the form was produced.",
+    "Three — an escalation flag that triggers when a recipient either refuses, ignores past thirty days, or produces a form whose stated purpose doesn't match their actual use.",
+    "Four — integration with the existing identity-theft affidavit workflow so any demand that returns a mismatch auto-generates a draft FCRA sixteen eighty-one-s complaint outline.",
+    "Five — state-by-state privacy law overlay: California, Texas, and Virginia have their own SSN protection statutes that may impose independent duties the federal form doesn't reach. Map those per recipient.",
+    "Six — output format should be a single markdown file per demand cycle with a summary table at top: recipient, form demanded, produced yes or no, mismatch flag, escalation status."
+  ],
+  "doctrine": [
+    {"rule": 1, "text": "Never cite SSA-521 as leverage — that form is for SSA's own verification requests, not third-party consent. The correct instrument is SSA-89 for private requesters and eCBSV consent retention for financial institutions."},
+    {"rule": 2, "text": "The demand is a pre-suit instrument, not a cause of action. Its value is evidentiary — it creates a paper trail that either confirms compliance or documents willful avoidance."},
+    {"rule": 3, "text": "When a recipient cannot produce the form, Legal's analysis should treat that absence as supporting a willful FCRA or Privacy Act theory, not as proof of a standalone violation."},
+    {"rule": 4, "text": "Cross-reference every demand result against the continuing-violation theory on HUD-VASH annual renewals and the DoDI one thousand point thirty lifetime-restriction argument — the SSA form gap and the identifier-use gap are separate walls that can be pressed together in one filing."},
+    {"rule": 5, "text": "Flag any recipient that is a federal agency operating under a routine-use exception — those have a different defense posture and need separate treatment."},
+    {"rule": 6, "text": "Before any demand is sent to a financial institution, confirm whether eCBSV applies and whether the five-year retention window is still open."},
+    {"rule": 7, "text": "This doctrine does not authorize contacting third parties on the user's behalf without explicit written authorization per demand cycle."}
+  ],
+  "citations": {
+    "fcra_permissible_purpose": {"cite": "15 U.S.C. 1681b", "lookup": "15 U.S.C. 1681b", "use": "FCRA permissible purpose (requirement One, as instructed)"},
+    "ecbsv_consent": {"cite": "42 U.S.C. 405b(f)(1)", "lookup": "42 U.S.C. 405b",
+                      "quote": "a permitted entity may submit a request to the database or similar resource described in subsection (c) only— (A) pursuant to the written, including electronic, consent received by a permitted entity from the individual who is the subject of the request; and (B) in connection with a credit transaction or any circumstance described in section 1681b of title 15"},
+    "ecbsv_retention": {"cite": "42 U.S.C. 405b(e)(4)", "lookup": "42 U.S.C. 405b",
+                        "quote": "The entity will retain sufficient records to demonstrate its compliance with its certification and this section for a period of not less than 2 years.",
+                        "statutory_years": 2},
+    "privacy_act_routine_use": {"cite": "5 U.S.C. 552a(b)(3)", "lookup": "5 U.S.C. 552a", "use": "routine-use disclosure by a federal agency (doctrine rule 5)"},
+    "fcra_administrative_enforcement": {"cite": "15 U.S.C. 1681s", "lookup": "15 U.S.C. 1681s", "use": "the complaint outline's subject (requirement Four)"},
+    "fcra_willful": {"cite": "15 U.S.C. 1681n", "lookup": "15 U.S.C. 1681n", "use": "the willful theory doctrine rule 3 names"},
+    "fcra_limitations": {"cite": "15 U.S.C. 1681p", "lookup": "15 U.S.C. 1681p", "use": "the clock a regulator complaint does not stop"}
+  },
+  "held_out": [
+    {"cite": "15 U.S.C. 1681s-2",
+     "instructed_for": "the eCBSV five-year retention obligation (requirement One)",
+     "finding": "Opened 2026-10-26: the shelved text (21,991 characters) contains no reference to eCBSV, consent, or record retention - it is the furnisher-duties section. eCBSV's retention clause is 42 U.S.C. 405b(e)(4), 'not less than 2 years', and no five-year period appears anywhere in 405b. A five-year figure may come from SSA's eCBSV user agreement, which is not on the shelf.",
+     "status": "held for the principal - keep or drop; not placed in any demand until he says"}
+  ],
+  "five_year_window": {
+    "instructed": 5,
+    "basis": "doctrine rule 6 and requirement One; no shelved text states five years",
+    "reported_beside": "the statutory minimum in 42 U.S.C. 405b(e)(4), 2 years"
+  },
+  "ssa_89": {
+    "name": "SSA-89, Authorization for the Social Security Administration to Release Social Security Number (SSN) Verification",
+    "program": "Consent Based SSN Verification (CBSV)",
+    "shelf": null,
+    "standing": "unknown - SSA program document, not yet on the shelf; the template names it as the instruction states and Legal has not opened its text"
+  },
+  "never_cite": ["SSA-521"],
+  "state_overlay": {
+    "TX": [
+      {"cite": "Tex. Bus. & Com. Code § 501.001", "lookup": "§ 501.001", "title_has": "Tex. Bus. & Com. Code Chapter 501"},
+      {"cite": "Tex. Bus. & Com. Code § 501.052", "lookup": "§ 501.052", "title_has": "Tex. Bus. & Com. Code Chapter 501",
+       "demand_item": "the privacy policy under which you required disclosure of my Social Security number"},
+      {"cite": "Tex. Bus. & Com. Code ch. 521", "lookup": "§ 521.051", "title_has": "Chapter 521"}
+    ],
+    "VA": [
+      {"cite": "Va. Code Ann. § 59.1-443.2", "lookup": "§ 59.1-443.2", "title_has": "59.1-443.2"}
+    ],
+    "CA": [
+      {"cite": "Cal. Civ. Code § 1798.85", "lookup": null,
+       "status": "not on shelf - not asserted. leginfo.legislature.ca.gov answers scripted requests with a JavaScript challenge; save the section from a browser to shelve it."}
+    ]
+  },
+  "recipient_types": ["private_entity", "financial_institution", "consumer_reporting_agency", "federal_agency", "state_agency"],
+  "ignore_days": 30
+}
