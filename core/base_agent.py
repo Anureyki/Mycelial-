@@ -2501,15 +2501,16 @@ class AgentBase:
         is not complete: 15,683 sections had no integrity record at all when
         this was written, and each reads as unverified rather than as fine."""
         entries = self._lookup_reference_raw(term)
-        if not entries:
-            entries = self._cited_by_full_citation(term)
-        if not entries:
-            return entries
         # A TITLE-QUALIFIED QUERY ANSWERS ONLY FROM THAT TITLE (2026-10-21):
         # "39 CFR 111" found no exact section and fell through to a section
         # numbered 111 in 12 CFR Part 1002 (Regulation B) - a postal question
         # answered from consumer-credit law. When the query names a CFR title,
         # a hit from a work in another title is dropped; none left is "not found".
+        # AND FROM NO NON-CFR WORK (2026-10-26): "38 CFR 13" was stripped to "13"
+        # and answered with Federal Rule of Civil Procedure 13 - a work with no
+        # CFR title passed the filter. Every shelved CFR work is titled "NN CFR";
+        # a passage elsewhere that CITES the title is reached through
+        # _cited_by_full_citation below, not by a bare number.
         _m = re.match(r"\s*(\d+)\s*(?:CFR|C\.F\.R\.)\b", str(term or ""), re.I)
         if _m:
             _t = _m.group(1)
@@ -2518,10 +2519,12 @@ class AgentBase:
                     return True
                 ttl = str(e.get("title") or e.get("work") or "")
                 m2 = re.match(r"\s*(\d+)\s*(?:CFR|C\.F\.R\.)", ttl, re.I)
-                return (m2 is None) or m2.group(1) == _t
-            entries = [e for e in entries if _same_title(e)]
-            if not entries:
-                return entries
+                return bool(m2) and m2.group(1) == _t
+            entries = [e for e in (entries or []) if _same_title(e)]
+        if not entries:
+            entries = self._cited_by_full_citation(term)
+        if not entries:
+            return entries
         from core import source_integrity
         out = []
         for e in entries:
@@ -2758,11 +2761,35 @@ class AgentBase:
         if not re.match(r"^\d+ (cfr|u\.s\.c\.) \d", k):
             return []
         try:
-            hits = (self._load_reference_docs().get("by_authority") or {}).get(k) or []
+            idx = self._load_reference_docs()
+            hits = (idx.get("by_authority") or {}).get(k) or []
         except Exception as exc:
             self.log(f"_cited_by_full_citation: index unavailable: {exc}")
             return []
-        return list(hits) if isinstance(hits, list) else [hits]
+        hits = list(hits) if isinstance(hits, list) else [hits]
+        if hits:
+            return hits
+        # A WHOLE PART ON THE SHELF ANSWERS ITS PART-LEVEL CITATION (2026-10-26):
+        # Legal holds 31 CFR Part 210 as "§ 210.1" .. "§ 210.x", so "31 CFR 210"
+        # matched no section and was answered from a stale cache entry while the
+        # part sat on the shelf. The part's own sections, in order, are the answer.
+        pm = re.match(r"^(\d+) cfr (\d+)$", k)
+        if not pm:
+            return []
+        t, part = pm.groups()
+        want = re.compile(rf"^\s*{t}\s*CFR\s*Part\s*{part}\b", re.I)
+        out, seen = [], set()
+        for cite, v in (idx.get("by_citation_all") or {}).items():
+            if not str(cite).startswith(f"§ {part}."):
+                continue
+            for e in (v if isinstance(v, list) else [v]):
+                if isinstance(e, dict) and want.match(str(e.get("title") or "")) and cite not in seen:
+                    seen.add(cite)
+                    out.append(e)
+        def _num(e):
+            m = re.search(r"\.(\d+)", str(e.get("citation") or ""))
+            return int(m.group(1)) if m else 0
+        return sorted(out, key=_num)
 
     def _lookup_reference_raw(self, term):
         """Match a citation or case name. Integrity is added by the caller."""
