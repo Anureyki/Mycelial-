@@ -943,6 +943,16 @@ class TrustAgent(AgentBase):
             if passages:
                 return {"term": term, "source": "reference/trust_agent corpus",
                         "results": passages, "disclaimer": DISCLAIMER}
+            # BORROW BEFORE THE WEB (2026-10-26): "38 U.S.C. 5502" sat on Legal's
+            # shelf and Trust answered it from a public web search, against the
+            # rule that a sibling's verified corpus beats an unverified search
+            # every time. Legal holds the statutes and the CFR, Accounting the
+            # tax code; only a corpus answer comes back, and it says whose.
+            for peer in ("legal_agent", "accounting_agent"):
+                borrowed = self.ask_peer_corpus(peer, term)
+                if borrowed:
+                    return {"term": term, "source": f"reference/{peer} corpus (borrowed)",
+                            "held_by": peer, "results": borrowed, "disclaimer": DISCLAIMER}
             hits = self.query_cache(term, top_k=3)
             if hits:
                 return {"term": term, "source": "cache", "results": hits, "disclaimer": DISCLAIMER}

@@ -7,19 +7,25 @@
 "claim_layer_meaning": "Not declared at ingest. Treat any citation from here as unclassified: it may be rationale rather than rule.",
 "authorities_cited": [],
 "term_index": {
+"federal payments": [
+0
+],
+"payment services": [
+0
+],
 "treasury offset program": [
 0
 ],
 "accounting": [
 0
 ],
-"disbursement": [
-0
-],
-"federal payments": [
+"federal disbursement services": [
 0
 ],
 "offset": [
+0
+],
+"disbursement": [
 0
 ]
 },
@@ -44,7 +50,7 @@
 "integrity": {
 "state": "complete",
 "basis": "Full retrieved body of 3,645 characters stored; under the 60,000 cap, so nothing was cut.",
-"stamped_at": "2026-10-26T07:49:31",
+"stamped_at": "2026-10-26T08:02:26",
 "stored_chars": 3645,
 "source_chars": 3645,
 "cap_applied": 60000
