@@ -6666,7 +6666,7 @@ class GrowAgent(AgentBase):
     def record_ripeness(self, plant_id=None, pistils_brown_pct=None, trichomes_clear_pct=None,
                         trichomes_cloudy_pct=None, trichomes_amber_pct=None,
                         new_pistils_forming=None, observed_by="principal", photo_ref=None,
-                        note=""):
+                        note="", too_early=None, next_check=None):
         if not plant_id:
             return {"error": "record_ripeness needs plant_id - a ripeness reading is never "
                              "defaulted onto a plant"}
@@ -6694,13 +6694,25 @@ class GrowAgent(AgentBase):
                                  "trichomes_amber_pct")]
         if all(t is not None for t in tri) and abs(sum(tri) - 100) > 10:
             return {"error": f"trichome clear+cloudy+amber should total about 100, got {sum(tri):g}"}
-        if all(v is None for v in vals.values()) and new_pistils_forming is None:
-            return {"error": "nothing observed - give pistil and/or trichome percentages, or "
-                             "new_pistils_forming"}
+        # TOO EARLY IS AN OBSERVATION (principal 2026-10-26): at flower day 30 the
+        # resin heads are still developing, and any percentage would be noise. The
+        # check is dated with that finding, so the first real reading has a baseline,
+        # and next_check carries the date he chose instead of a week on.
+        _nc = None
+        if next_check:
+            try:
+                _nc = datetime.fromisoformat(str(next_check)[:10]).date().isoformat()
+            except Exception:
+                return {"error": "next_check must be a date, YYYY-MM-DD"}
+        if all(v is None for v in vals.values()) and new_pistils_forming is None and not too_early:
+            return {"error": "nothing observed - give pistil and/or trichome percentages, "
+                             "new_pistils_forming, or too_early"}
         ob = {"at": datetime.now().isoformat(timespec="seconds"), **vals,
               "new_pistils_forming": new_pistils_forming,
               "observed_by": observed_by or "principal", "photo_ref": photo_ref,
-              "note": str(note)[:400]}
+              "note": str(note)[:400],
+              **({"too_early_for_percentage": True} if too_early else {}),
+              **({"next_check": _nc} if _nc else {})}
         obs = self._ripeness_obs(plant_id)
         obs.append(ob)
         self.store_own_memory(f"ripeness_{plant_id}", json.dumps(obs[-100:]))
@@ -7230,7 +7242,8 @@ class GrowAgent(AgentBase):
             obs = [o for o in self._ripeness_obs(pid) if o.get("observed_by") == "principal"
                    and (any(o.get(k) is not None for k in ("pistils_brown_pct", "trichomes_clear_pct",
                                                            "trichomes_cloudy_pct", "trichomes_amber_pct"))
-                        or o.get("new_pistils_forming") is True)]
+                        or o.get("new_pistils_forming") is True
+                        or o.get("too_early_for_percentage"))]
             how = ("Record: % of pistils turned brown/orange, and with a loupe the rough share of "
                    "trichome heads clear, cloudy and amber (and whether new white pistils are "
                    "still forming). Two readings a day or more apart let Grow project the harvest "
@@ -7270,6 +7283,10 @@ class GrowAgent(AgentBase):
                 continue
             last = max(datetime.fromisoformat(str(o["at"])[:10]).date() for o in obs)
             nxt = last + timedelta(days=self.RIPENESS_RECHECK_DAYS)
+            # a check that named its own next date keeps it (2026-10-26)
+            _latest = max(obs, key=lambda o: str(o.get("at")))
+            if _latest.get("next_check"):
+                nxt = datetime.fromisoformat(_latest["next_check"]).date()
             proj = ""
             try:
                 p = (self.assess_ripeness(pid) or {}).get("projection") or {}
@@ -15463,7 +15480,8 @@ class GrowAgent(AgentBase):
             a = args if isinstance(args, dict) else {}
             return {"result": self.record_ripeness(**{k: a.get(k) for k in (
                 "plant_id", "pistils_brown_pct", "trichomes_clear_pct", "trichomes_cloudy_pct",
-                "trichomes_amber_pct", "new_pistils_forming", "observed_by", "photo_ref", "note")
+                "trichomes_amber_pct", "new_pistils_forming", "observed_by", "photo_ref", "note",
+                "too_early", "next_check")
                 if a.get(k) is not None})}
         elif task == "assess_ripeness":
             a = args if isinstance(args, dict) else {}
