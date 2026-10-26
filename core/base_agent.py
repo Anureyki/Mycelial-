@@ -2502,6 +2502,8 @@ class AgentBase:
         this was written, and each reads as unverified rather than as fine."""
         entries = self._lookup_reference_raw(term)
         if not entries:
+            entries = self._cited_by_full_citation(term)
+        if not entries:
             return entries
         # A TITLE-QUALIFIED QUERY ANSWERS ONLY FROM THAT TITLE (2026-10-21):
         # "39 CFR 111" found no exact section and fell through to a section
@@ -2738,6 +2740,29 @@ class AgentBase:
                         "absence_state": "verified_clear", "implemented": True,
                         "corpus_consulted": [info]}
         return None
+
+    def _cited_by_full_citation(self, term):
+        """Passages that CITE a statute or regulation, found by its full citation.
+
+        2026-10-26: Treasury's Green Book cites 31 CFR part 210 on page after
+        page and by_authority held "31 cfr 210" - but _lookup_reference_raw
+        strips the title to match section keys ("§ 210.8"), so "31 CFR 210"
+        became a bare "210" and the guide could never be reached by the
+        regulation it explains. Tried only when nothing else matched, so a
+        shelved section still answers first."""
+        k = re.sub(r"\s+", " ", str(term or "").lower().strip().rstrip("."))
+        k = re.sub(r"c\.\s?f\.\s?r\.?", "cfr", k)
+        k = re.sub(r"\bu\.?\s?s\.?\s?c\.?(?=\s|$)", "u.s.c.", k)
+        k = re.sub(r"\b(cfr|u\.s\.c\.)\s*(?:part\s*|§+\s*)", r"\1 ", k)
+        k = re.sub(r"\s+", " ", k).strip()
+        if not re.match(r"^\d+ (cfr|u\.s\.c\.) \d", k):
+            return []
+        try:
+            hits = (self._load_reference_docs().get("by_authority") or {}).get(k) or []
+        except Exception as exc:
+            self.log(f"_cited_by_full_citation: index unavailable: {exc}")
+            return []
+        return list(hits) if isinstance(hits, list) else [hits]
 
     def _lookup_reference_raw(self, term):
         """Match a citation or case name. Integrity is added by the caller."""
