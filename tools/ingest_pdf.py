@@ -506,7 +506,21 @@ def split_treatise(pages):
     # structure, use it.
     if len([c for c in chunks if c[1].strip()]) < 2 and len(pages) > 1:
         # str, not int: page_no flows into `(page_no or "").isdigit()` below.
-        chunks = [(str(i + 1), pg) for i, pg in enumerate(pages) if pg.strip()]
+        # A CHAPTERED MANUAL PRINTS ITS OWN PAGE LABEL (2026-10-26): DoD FMR
+        # Volume 5 is cited "p. 2-17" (chapter 2, page 17), and keyed by PDF
+        # page count it could not be reached that way. Where a page carries a
+        # chapter-page label on a line of its own, that label is the key; a
+        # label seen twice falls back to the PDF page so no key collides.
+        _lab = re.compile(r'\s*((?:\d{1,2}|[A-Z]{1,4})-\d{1,3})\s*')
+        chunks, _seen = [], set()
+        for i, pg in enumerate(pages):
+            if not pg.strip():
+                continue
+            labs = [m.group(1) for l in pg.splitlines()[:12] + pg.splitlines()[-6:]
+                    for m in [_lab.fullmatch(l)] if m]
+            key = labs[0] if labs and labs[0] not in _seen else str(i + 1)
+            _seen.add(key)
+            chunks.append((key, pg))
 
     # SHORT CHUNKS ARE MERGED, NEVER DISCARDED.
     #

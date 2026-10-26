@@ -111,6 +111,10 @@ ALLOWED = {
     "tools/check_retrieval.py": "a zero-filled citation placeholder",
     "reference/accounting_agent/internal_revenue_manual_part_5.json":
         "the IRS's own published example SSN inside the Internal Revenue Manual",
+    "reference/trust_agent/dod_7000_14_r_financial_management_regulation_volume_5_disbu.json":
+        "DoD FMR Volume 5 Table 9-1, a published DATA EXAMPLE of disbursement voucher "
+        "blocks: 'DSSN' is a Disbursing Station Symbol Number (a 4-digit office code), "
+        "matched for the SSN inside it; dates printed 20XX - read 2026-10-26",
     "reference/trust_agent/green_book_a_guide_to_federal_government_ach_payments_treasu.json":
         "Treasury's published Green Book: its sample claim number (VA example), "
         "the claim-number structure table, a sample ACH record for payee DOE*JOHN, "
