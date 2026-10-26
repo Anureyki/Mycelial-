@@ -1,0 +1,41 @@
+{
+  "title": "31 U.S.C. \u00a7 3528",
+  "source": "United States Code title 31 section 3528, retrieved from Cornell LII (law.cornell.edu). The statutory text is a U.S. government work and is public domain; Cornell's annotations are excluded.",
+  "authority_class": "federal_statute",
+  "authority_class_basis": "Title of the work is a U.S. Code section citation, which fixes the class",
+  "claim_layer": "doctrinal",
+  "claim_layer_meaning": "States or describes the rule. Cite for what the law IS.",
+  "authorities_cited": [],
+  "term_index": {},
+  "origin_pdf": "usc31_3528.txt",
+  "extraction": {
+    "extractor": "text file (already extracted)",
+    "pages": 1,
+    "no_text_layer": [],
+    "raised": [],
+    "recovered": [],
+    "lost": [],
+    "complete": true
+  },
+  "pages": 1,
+  "sections": [
+    {
+      "citation": "\u00a7 3528.",
+      "kind": "section_sign",
+      "page": 1,
+      "text": "\u00a7 3528. Responsibilities and relief from liability of certifying officials. (a) A certifying official certifying a voucher is responsible for\u2014 (1) information stated in the certificate, voucher, and supporting records; (2) the computation of a certified voucher under this section and section 3325 of this title ; (3) the legality of a proposed payment under the appropriation or fund involved; (4) repaying a payment\u2014 (A) illegal, improper, or incorrect because of an inaccurate or misleading certificate; (B) prohibited by law; or (C) that does not represent a legal obligation under the appropriation or fund involved; and (5) verifying transportation rates, freight classifications, and other information provided on a Government bill of lading or transportation request, unless the Administrator of General Services has determined that verification by a prepayment audit conducted pursuant to section 3726(a) of this title for a particular mode or modes of transportation, or for an agency or subagency, will not adequately protect the interests of the Government. (b) (1) The Comptroller General may relieve a certifying official from liability when the Comptroller General decides that\u2014 (A) the certification was based on official records and the official did not know, and by reasonable diligence and inquiry could not have discovered, the correct information; or (B) (i) the obligation was incurred in good faith; (ii) no law specifically prohibited the payment; and (iii) the United States Government received value for payment. (2) The Comptroller General may deny relief when the Comptroller General decides the head of the agency did not carry out diligently collection action under procedures prescribed by the Comptroller General. (c) The Comptroller General shall relieve a certifying official from liability for an overpayment\u2014 (1) to a common carrier under section 3726 of this title when the Comptroller General decides the overpayment occurred only because the administrative audit before payment did not verify transportation rates, freight classifications, or land-grant deductions and the Administrator of General Services has determined that verification by a prepayment audit conducted pursuant to section 3726(a) of this title for a particular mode or modes of transportation, or for an agency or subagency, will not adequately protect the interests of the Government; or (2) provided under a Government bill of lading or transportation request when the overpayment was the result of using improper transportation rates or classifications or the failure to deduct the proper amount under a land-grant law or agreement and the Administrator of General Services has determined that verification by a prepayment audit conducted pursuant to section 3726(a) of this title for a particular mode or modes of transportation, or for an agency or subagency, will not adequately protect the interests of the Government.",
+      "integrity": {
+        "state": "complete",
+        "basis": "Full retrieved body of 2,934 characters stored; under the 60,000 cap, so nothing was cut.",
+        "stamped_at": "2026-10-26T09:20:11",
+        "stored_chars": 2934,
+        "source_chars": 2934,
+        "cap_applied": 60000
+      },
+      "authority_class": "federal_statute",
+      "claim_layer": "doctrinal",
+      "claim_layer_meaning": "States or describes the rule. Cite for what the law IS."
+    }
+  ],
+  "claim_layer_basis": "Set from the class, not from the text: a statute or regulation states the rule rather than describing or arguing it, which the citation in the title establishes definitionally."
+}

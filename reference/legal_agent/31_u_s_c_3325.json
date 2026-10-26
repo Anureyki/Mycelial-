@@ -1,0 +1,41 @@
+{
+  "title": "31 U.S.C. \u00a7 3325",
+  "source": "United States Code title 31 section 3325, retrieved from Cornell LII (law.cornell.edu). The statutory text is a U.S. government work and is public domain; Cornell's annotations are excluded.",
+  "authority_class": "federal_statute",
+  "authority_class_basis": "Title of the work is a U.S. Code section citation, which fixes the class",
+  "claim_layer": "doctrinal",
+  "claim_layer_meaning": "States or describes the rule. Cite for what the law IS.",
+  "authorities_cited": [],
+  "term_index": {},
+  "origin_pdf": "usc31_3325.txt",
+  "extraction": {
+    "extractor": "text file (already extracted)",
+    "pages": 1,
+    "no_text_layer": [],
+    "raised": [],
+    "recovered": [],
+    "lost": [],
+    "complete": true
+  },
+  "pages": 1,
+  "sections": [
+    {
+      "citation": "\u00a7 3325.",
+      "kind": "section_sign",
+      "page": 1,
+      "text": "\u00a7 3325. Vouchers. (a) A disbursing official in the executive branch of the United States Government shall\u2014 (1) disburse money only as provided by a voucher certified by\u2014 (A) the head of the executive agency concerned; or (B) an officer or employee of the executive agency having written authorization from the head of the agency to certify vouchers; (2) examine a voucher if necessary to decide if it is\u2014 (A) in proper form; (B) certified and approved; and (C) computed correctly on the facts certified; and (3) except for the correctness of computations on a voucher or pursuant to payment intercepts or offsets pursuant to section 3716 or 3720A of this title,, [1] be held accountable for carrying out clauses (1) and (2) of this subsection. (b) In addition to officers and employees referred to in subsection (a)(1)(B) of this section as having authorization to certify vouchers, members of the armed forces may certify vouchers when authorized, in writing, by the Secretary of Defense or, in the case of the Coast Guard when it is not operating as a service in the Navy, by the Secretary of Homeland Security . (c) On request, the Secretary of the Treasury may provide to the appropriate officer or employee of the United States Government a list of persons receiving periodic payments from the Government. When certified and in proper form, the list may be used as a voucher on which the Secretary may disburse money. (d) The head of an executive agency or an officer or employee of an executive agency referred to in subsection (a)(1)(B), as applicable, shall include with each certified voucher submitted to a disbursing official pursuant to this section the taxpayer identifying number of each person to whom payment may be made under the voucher.",
+      "integrity": {
+        "state": "complete",
+        "basis": "Full retrieved body of 1,755 characters stored; under the 60,000 cap, so nothing was cut.",
+        "stamped_at": "2026-10-26T09:20:11",
+        "stored_chars": 1755,
+        "source_chars": 1755,
+        "cap_applied": 60000
+      },
+      "authority_class": "federal_statute",
+      "claim_layer": "doctrinal",
+      "claim_layer_meaning": "States or describes the rule. Cite for what the law IS."
+    }
+  ],
+  "claim_layer_basis": "Set from the class, not from the text: a statute or regulation states the rule rather than describing or arguing it, which the citation in the title establishes definitionally."
+}
