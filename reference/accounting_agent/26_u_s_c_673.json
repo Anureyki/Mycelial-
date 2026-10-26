@@ -1,0 +1,41 @@
+{
+  "title": "26 U.S.C. \u00a7 673",
+  "source": "United States Code title 26 section 673, retrieved from Cornell LII (law.cornell.edu). The statutory text is a U.S. government work and is public domain; Cornell's annotations are excluded.",
+  "authority_class": "federal_statute",
+  "authority_class_basis": "Title of the work is a U.S. Code section citation, which fixes the class",
+  "claim_layer": "doctrinal",
+  "claim_layer_meaning": "States or describes the rule. Cite for what the law IS.",
+  "authorities_cited": [],
+  "term_index": {},
+  "origin_pdf": "usc26_673.txt",
+  "extraction": {
+    "extractor": "text file (already extracted)",
+    "pages": 1,
+    "no_text_layer": [],
+    "raised": [],
+    "recovered": [],
+    "lost": [],
+    "complete": true
+  },
+  "pages": 1,
+  "sections": [
+    {
+      "citation": "\u00a7 673.",
+      "kind": "section_sign",
+      "page": 1,
+      "text": "\u00a7 673. Reversionary interests. (a) General rule The grantor shall be treated as the owner of any portion of a trust in which he has a reversionary interest in either the corpus or the income therefrom, if, as of the inception of that portion of the trust, the value of such interest exceeds 5 percent of the value of such portion. (b) Reversionary interest taking effect at death of minor lineal descendant beneficiary In the case of any beneficiary who\u2014 (1) is a lineal descendant of the grantor, and (2) holds all of the present interests in any portion of a trust, the grantor shall not be treated under subsection (a) as the owner of such portion solely by reason of a reversionary interest in such portion which takes effect upon the death of such beneficiary before such beneficiary attains age 21. (c) Special rule for determining value of reversionary interest For purposes of subsection (a), the value of the grantor\u2019s reversionary interest shall be determined by assuming the maximum exercise of discretion in favor of the grantor. (d) Postponement of date specified for reacquisition Any postponement of the date specified for the reacquisition of possession or enjoyment of the reversionary interest shall be treated as a new transfer in trust commencing with the date on which the postponement is effective and terminating with the date prescribed by the postponement. However, income for any period shall not be included in the income of the grantor by reason of the preceding sentence if such income would not be so includible in the absence of such postponement. (Aug. 16, 1954, ch. 736, 68A Stat. 227 ; Pub. L. 91\u2013172, title II, \u00a7 201(c) , Dec. 30, 1969 , 83 Stat. 560 ; Pub. L. 99\u2013514, title XIV, \u00a7 1402(a) , Oct. 22, 1986 , 100 Stat. 2711 ; Pub. L. 100\u2013647, title I, \u00a7 1014(b) , Nov. 10, 1988 , 102 Stat. 3559 .)",
+      "integrity": {
+        "state": "complete",
+        "basis": "Full retrieved body of 1,831 characters stored; under the 60,000 cap, so nothing was cut.",
+        "stamped_at": "2026-10-26T07:15:01",
+        "stored_chars": 1831,
+        "source_chars": 1831,
+        "cap_applied": 60000
+      },
+      "authority_class": "federal_statute",
+      "claim_layer": "doctrinal",
+      "claim_layer_meaning": "States or describes the rule. Cite for what the law IS."
+    }
+  ],
+  "claim_layer_basis": "Set from the class, not from the text: a statute or regulation states the rule rather than describing or arguing it, which the citation in the title establishes definitionally."
+}

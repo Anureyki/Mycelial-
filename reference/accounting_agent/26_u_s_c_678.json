@@ -1,0 +1,45 @@
+{
+  "title": "26 U.S.C. \u00a7 678",
+  "source": "United States Code title 26 section 678, retrieved from Cornell LII (law.cornell.edu). The statutory text is a U.S. government work and is public domain; Cornell's annotations are excluded.",
+  "authority_class": "federal_statute",
+  "authority_class_basis": "Title of the work is a U.S. Code section citation, which fixes the class",
+  "claim_layer": "doctrinal",
+  "claim_layer_meaning": "States or describes the rule. Cite for what the law IS.",
+  "authorities_cited": [],
+  "term_index": {
+    "control": [
+      0
+    ]
+  },
+  "origin_pdf": "usc26_678.txt",
+  "extraction": {
+    "extractor": "text file (already extracted)",
+    "pages": 1,
+    "no_text_layer": [],
+    "raised": [],
+    "recovered": [],
+    "lost": [],
+    "complete": true
+  },
+  "pages": 1,
+  "sections": [
+    {
+      "citation": "\u00a7 678.",
+      "kind": "section_sign",
+      "page": 1,
+      "text": "\u00a7 678. Person other than grantor treated as substantial owner. (a) General rule A person other than the grantor shall be treated as the owner of any portion of a trust with respect to which: (1) such person has a power exercisable solely by himself to vest the corpus or the income therefrom in himself, or (2) such person has previously partially released or otherwise modified such a power and after the release or modification retains such control as would, within the principles of sections 671 to 677, inclusive, subject a grantor of a trust to treatment as the owner thereof. (b) Exception where grantor is taxable Subsection (a) shall not apply with respect to a power over income, as originally granted or thereafter modified, if the grantor of the trust or a transferor (to whom section 679 applies) is otherwise treated as the owner under the provisions of this subpart other than this section. (c) Obligations of support Subsection (a) shall not apply to a power which enables such person, in the capacity of trustee or cotrustee, merely to apply the income of the trust to the support or maintenance of a person whom the holder of the power is obligated to support or maintain except to the extent that such income is so applied. In cases where the amounts so applied or distributed are paid out of corpus or out of other than income of the taxable year, such amounts shall be considered to be an amount paid or credited within the meaning of paragraph (2) of section 661(a) and shall be taxed to the holder of the power under section 662. (d) Effect of renunciation or disclaimer Subsection (a) shall not apply with respect to a power which has been renounced or disclaimed within a reasonable time after the holder of the power first became aware of its existence. (e) Cross reference For provision under which beneficiary of trust is treated as owner of the portion of the trust which consists of stock in an S corporation, see section 1361(d). (Aug. 16, 1954, ch. 736, 68A Stat. 231 ; Pub. L. 94\u2013455, title X, \u00a7 1013(b) , Oct. 4, 1976 , 90 Stat. 1615 ; Pub. L. 97\u2013448, title I, \u00a7 102(i)(2) , Jan. 12, 1983 , 96 Stat. 2373 ; Pub. L. 106\u2013554, \u00a7 1(a)(7) [title III, \u00a7 319(8)(A)] , Dec. 21, 2000 , 114 Stat. 2763 , 2763A\u2013646.)",
+      "integrity": {
+        "state": "complete",
+        "basis": "Full retrieved body of 2,238 characters stored; under the 60,000 cap, so nothing was cut.",
+        "stamped_at": "2026-10-26T07:15:03",
+        "stored_chars": 2238,
+        "source_chars": 2238,
+        "cap_applied": 60000
+      },
+      "authority_class": "federal_statute",
+      "claim_layer": "doctrinal",
+      "claim_layer_meaning": "States or describes the rule. Cite for what the law IS."
+    }
+  ],
+  "claim_layer_basis": "Set from the class, not from the text: a statute or regulation states the rule rather than describing or arguing it, which the citation in the title establishes definitionally."
+}

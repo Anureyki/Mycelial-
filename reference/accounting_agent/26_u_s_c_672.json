@@ -1,0 +1,45 @@
+{
+  "title": "26 U.S.C. \u00a7 672",
+  "source": "United States Code title 26 section 672, retrieved from Cornell LII (law.cornell.edu). The statutory text is a U.S. government work and is public domain; Cornell's annotations are excluded.",
+  "authority_class": "federal_statute",
+  "authority_class_basis": "Title of the work is a U.S. Code section citation, which fixes the class",
+  "claim_layer": "doctrinal",
+  "claim_layer_meaning": "States or describes the rule. Cite for what the law IS.",
+  "authorities_cited": [],
+  "term_index": {
+    "control": [
+      0
+    ]
+  },
+  "origin_pdf": "usc26_672.txt",
+  "extraction": {
+    "extractor": "text file (already extracted)",
+    "pages": 1,
+    "no_text_layer": [],
+    "raised": [],
+    "recovered": [],
+    "lost": [],
+    "complete": true
+  },
+  "pages": 1,
+  "sections": [
+    {
+      "citation": "\u00a7 672.",
+      "kind": "section_sign",
+      "page": 1,
+      "text": "\u00a7 672. Definitions and rules. (a) Adverse party For purposes of this subpart, the term \u201c adverse party \u201d means any person having a substantial beneficial interest in the trust which would be adversely affected by the exercise or nonexercise of the power which he possesses respecting the trust. A person having a general power of appointment over the trust property shall be deemed to have a beneficial interest in the trust. (b) Nonadverse party For purposes of this subpart, the term \u201c nonadverse party \u201d means any person who is not an adverse party. (c) Related or subordinate party For purposes of this subpart, the term \u201c related or subordinate party \u201d means any nonadverse party who is\u2014 (1) the grantor\u2019s spouse if living with the grantor; (2) any one of the following: The grantor\u2019s father, mother, issue, brother or sister; an employee of the grantor; a corporation or any employee of a corporation in which the stock holdings of the grantor and the trust are significant from the viewpoint of voting control; a subordinate employee of a corporation in which the grantor is an executive. For purposes of subsection (f) and sections 674 and 675, a related or subordinate party shall be presumed to be subservient to the grantor in respect of the exercise or nonexercise of the powers conferred on him unless such party is shown not to be subservient by a preponderance of the evidence. (d) Rule where power is subject to condition precedent A person shall be considered to have a power described in this subpart even though the exercise of the power is subject to a precedent giving of notice or takes effect only on the expiration of a certain period after the exercise of the power. (e) Grantor treated as holding any power or interest of grantor\u2019s spouse (1) In general For purposes of this subpart, a grantor shall be treated as holding any power or interest held by\u2014 (A) any individual who was the spouse of the grantor at the time of the creation of such power or interest, or (B) any individual who became the spouse of the grantor after the creation of such power or interest, but only with respect to periods after such individual became the spouse of the grantor. (2) Marital status For purposes of paragraph (1)(A), an individual legally separated from his spouse under a decree of divorce or of separate maintenance shall not be considered as married. (f) Subpart not to result in foreign ownership (1) In general Notwithstanding any other provision of this subpart, this subpart shall apply only to the extent such application results in an amount (if any) being currently taken into account (directly or through 1 or more entities) under this chapter in computing the income of a citizen or resident of the United States or a domestic corporation. (2) Exceptions (A) Certain revocable and irrevocable trusts Paragraph (1) shall not apply to any portion of a trust if\u2014 (i) the power to revest absolutely in the grantor title to the trust property to which such portion is attributable is exercisable solely by the grantor without the approval or consent of any other person or with the consent of a related or subordinate party who is subservient to the grantor, or (ii) the only amounts distributable from such portion (whether income or corpus) during the lifetime of the grantor are amounts distributable to the grantor or the spouse of the grantor. (B) Compensatory trusts Except as provided in regulations, paragraph (1) shall not apply to any portion of a trust distributions from which are taxable as compensation for services rendered. (3) Special rules Except as otherwise provided in regulations prescribed by the Secretary\u2014 (A) a controlled foreign corporation (as defined in section 957 ) shall be treated as a domestic corporation for purposes of paragraph (1), and (B) paragraph (1) shall not apply for purposes of applying section 1297. (4) Recharacterization of purported gifts In the case of any transfer directly or indirectly from a partnership or foreign corporation which the transferee treats as a gift or bequest, the Secretary may recharacterize such transfer in such circumstances as the Secretary determines to be appropriate to prevent the avoidance of the purposes of this subsection. (5) Special rule where grantor is foreign person If\u2014 (A) but for this subsection, a foreign person would be treated as the owner of any portion of a trust, and (B) such trust has a beneficiary who is a United States person, such beneficiary shall be treated as the grantor of such portion to the extent such beneficiary has made (directly or indirectly) transfers of property (other than in a sale for full and adequate consideration) to such foreign person. For purposes of the preceding sentence, any gift shall not be taken into account to the extent such gift would be excluded from taxable gifts under section 2503(b). (6) Regulations The Secretary shall prescribe such regulations as may be necessary or appropriate to carry out the purposes of this subsection, including regulations providing that paragraph (1) shall not apply in appropriate cases. (Aug. 16, 1954, ch. 736, 68A Stat. 226 ; Pub. L. 99\u2013514, title XIV, \u00a7 1401(a) , Oct. 22, 1986 , 100 Stat. 2711 ; Pub. L. 100\u2013647, title I, \u00a7 1014(a)(1) , Nov. 10, 1988 , 102 Stat. 3559 ; Pub. L. 101\u2013508, title XI, \u00a7 11343(a) , Nov. 5, 1990 , 104 Stat. 1388\u2013472 ; Pub. L. 104\u2013188, title I, \u00a7 1904(a) , Aug. 20, 1996 , 110 Stat. 1910 ; Pub. L. 105\u2013206, title VI, \u00a7 6011(c)(1) , July 22, 1998 , 112 Stat. 818 .)",
+      "integrity": {
+        "state": "complete",
+        "basis": "Full retrieved body of 5,498 characters stored; under the 60,000 cap, so nothing was cut.",
+        "stamped_at": "2026-10-26T07:15:01",
+        "stored_chars": 5498,
+        "source_chars": 5498,
+        "cap_applied": 60000
+      },
+      "authority_class": "federal_statute",
+      "claim_layer": "doctrinal",
+      "claim_layer_meaning": "States or describes the rule. Cite for what the law IS."
+    }
+  ],
+  "claim_layer_basis": "Set from the class, not from the text: a statute or regulation states the rule rather than describing or arguing it, which the citation in the title establishes definitionally."
+}

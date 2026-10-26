@@ -1,0 +1,849 @@
+{
+  "title": "38 CFR Part 70 - Veterans Transportation Programs",
+  "source": "Electronic CFR, title 38 part 70, as of 2026-08-01, retrieved from ecfr.gov. Federal regulation - public domain.",
+  "authority_class": "regulation",
+  "authority_class_basis": "Title of the work is a CFR part citation, which fixes the class",
+  "claim_layer": "doctrinal",
+  "claim_layer_meaning": "States or describes the rule. Cite for what the law IS.",
+  "authorities_cited": [],
+  "term_index": {
+    "veterans health administration": [
+      0,
+      1
+    ],
+    "health administration": [
+      0,
+      1
+    ],
+    "veterans health": [
+      0,
+      1
+    ],
+    "service connected": [
+      0,
+      4
+    ],
+    "travel expenses": [
+      0,
+      7
+    ],
+    "delayed until": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10,
+      11,
+      12,
+      13,
+      14,
+      15,
+      16,
+      17
+    ],
+    "united states": [
+      0,
+      1,
+      7
+    ],
+    "further delayed until": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10,
+      11,
+      12,
+      13,
+      14,
+      15,
+      16,
+      17
+    ],
+    "further delayed": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10,
+      11,
+      12,
+      13,
+      14,
+      15,
+      16,
+      17
+    ],
+    "obtain care": [
+      0,
+      3
+    ],
+    "owned vehicle": [
+      1,
+      7
+    ],
+    "amendments were delayed": [
+      1,
+      7
+    ],
+    "medical condition": [
+      1,
+      7
+    ],
+    "definitions link": [
+      1,
+      14
+    ],
+    "another person": [
+      1,
+      14,
+      15
+    ],
+    "authorized health": [
+      1,
+      4,
+      7,
+      16
+    ],
+    "special mode": [
+      1,
+      3,
+      5,
+      7,
+      8,
+      9
+    ],
+    "irregular discharge": [
+      1,
+      7
+    ],
+    "authorized health care": [
+      1,
+      4,
+      7,
+      16
+    ],
+    "health care": [
+      1,
+      4,
+      7,
+      8,
+      13,
+      15,
+      16
+    ],
+    "veterans affairs": [
+      1,
+      2,
+      15
+    ],
+    "privately owned": [
+      1,
+      7
+    ],
+    "privately owned vehicle": [
+      1,
+      7
+    ],
+    "nursing home": [
+      1,
+      7
+    ],
+    "emergency treatment": [
+      1,
+      3,
+      5,
+      9
+    ],
+    "individual traveling": [
+      1,
+      14
+    ],
+    "health care facility": [
+      1,
+      4,
+      7,
+      8
+    ],
+    "eligible beneficiary": [
+      1,
+      7
+    ],
+    "beneficiary travel": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10,
+      11,
+      12,
+      15
+    ],
+    "care facility": [
+      1,
+      4,
+      7,
+      8
+    ],
+    "determine whether": [
+      2,
+      7
+    ],
+    "beneficiary travel after": [
+      3,
+      5
+    ],
+    "beneficiary travel payments": [
+      3,
+      4
+    ],
+    "travel after": [
+      3,
+      5
+    ],
+    "medically required": [
+      3,
+      14
+    ],
+    "prior payment": [
+      3,
+      9
+    ],
+    "travel payments": [
+      3,
+      4
+    ],
+    "travel that includes": [
+      3,
+      5,
+      8
+    ],
+    "actually provided": [
+      3,
+      9
+    ],
+    "return trip": [
+      3,
+      7
+    ],
+    "health services": [
+      4,
+      15,
+      17
+    ],
+    "receiving care": [
+      4,
+      7
+    ],
+    "pension examination": [
+      4,
+      7,
+      8,
+      15
+    ],
+    "examination treatment": [
+      4,
+      9,
+      14,
+      15,
+      17
+    ],
+    "travel that does": [
+      4,
+      5
+    ],
+    "scheduled compensation": [
+      4,
+      8
+    ],
+    "counseling training": [
+      4,
+      15,
+      17
+    ],
+    "legal guardian": [
+      4,
+      15
+    ],
+    "medical services": [
+      4,
+      15
+    ],
+    "mental health services": [
+      4,
+      15,
+      17
+    ],
+    "travel will": [
+      4,
+      7
+    ],
+    "mental health": [
+      4,
+      15,
+      17
+    ],
+    "eligible persons": [
+      4,
+      14,
+      15,
+      16,
+      17
+    ],
+    "control number": [
+      5,
+      8,
+      17
+    ],
+    "section under control": [
+      5,
+      8,
+      17
+    ],
+    "information collection": [
+      5,
+      8,
+      17
+    ],
+    "travel benefits": [
+      5,
+      15
+    ],
+    "number authority": [
+      5,
+      8,
+      17
+    ],
+    "control number authority": [
+      5,
+      8,
+      17
+    ],
+    "being provided": [
+      6,
+      7,
+      15
+    ],
+    "medical facility": [
+      6,
+      7,
+      13,
+      15
+    ],
+    "pubs beneficiarytravel": [
+      7,
+      8
+    ],
+    "healtheligibility library pubs": [
+      7,
+      8
+    ],
+    "financially favorable": [
+      7,
+      16
+    ],
+    "veterans service organizations": [
+      7,
+      17
+    ],
+    "payment will": [
+      7,
+      9
+    ],
+    "beneficiary travel office": [
+      7,
+      8
+    ],
+    "veterans service": [
+      7,
+      17
+    ],
+    "return travel": [
+      7,
+      9
+    ],
+    "beneficiary receiving": [
+      7,
+      16
+    ],
+    "library pubs beneficiarytravel": [
+      7,
+      8
+    ],
+    "travel payment": [
+      7,
+      9
+    ],
+    "library pubs": [
+      7,
+      8
+    ],
+    "service organizations": [
+      7,
+      17
+    ],
+    "healtheligibility library": [
+      7,
+      8
+    ],
+    "beneficiarytravel beneficiarytravel": [
+      7,
+      8
+    ],
+    "federal register current": [
+      7,
+      8
+    ],
+    "travel office": [
+      7,
+      8
+    ],
+    "register current": [
+      7,
+      8
+    ],
+    "mileage rates": [
+      7,
+      8
+    ],
+    "pubs beneficiarytravel beneficiarytravel": [
+      7,
+      8
+    ],
+    "federal register": [
+      7,
+      8
+    ],
+    "includes travel": [
+      8,
+      16
+    ],
+    "made before": [
+      9,
+      14
+    ],
+    "will provide": [
+      10,
+      17
+    ],
+    "veterans transportation": [
+      13,
+      14
+    ],
+    "transportation service": [
+      13,
+      14
+    ],
+    "veterans transportation service": [
+      13,
+      14
+    ],
+    "authorized facility": [
+      13,
+      14,
+      15,
+      16,
+      17
+    ],
+    "eligible person": [
+      14,
+      17
+    ],
+    "unscheduled visit": [
+      14,
+      15,
+      17
+    ],
+    "scheduled visit": [
+      14,
+      15
+    ],
+    "persons receiving": [
+      15,
+      17
+    ],
+    "transportation services": [
+      15,
+      17
+    ],
+    "facility director": [
+      15,
+      17
+    ],
+    "persons eligible": [
+      15,
+      17
+    ],
+    "family caregivers": [
+      15,
+      17
+    ],
+    "persons receiving counseling": [
+      15,
+      17
+    ],
+    "enrolled veterans": [
+      15,
+      17
+    ],
+    "services including": [
+      15,
+      17
+    ],
+    "receiving counseling training": [
+      15,
+      17
+    ],
+    "receiving counseling": [
+      15,
+      17
+    ],
+    "provide transportation": [
+      16,
+      17
+    ]
+  },
+  "origin_pdf": "38cfr70.txt",
+  "extraction": {
+    "extractor": "text file (already extracted)",
+    "pages": 1,
+    "no_text_layer": [],
+    "raised": [],
+    "recovered": [],
+    "lost": [],
+    "complete": true
+  },
+  "pages": 1,
+  "sections": [
+    {
+      "citation": "\u00a7 70.1",
+      "kind": "section_sign",
+      "page": 1,
+      "text": "\u00a7 70.1 Purpose and scope. Link to an amendment published at 88 FR 10037, Feb. 16, 2023. This amendment was delayed until Feb. 16, 2025, at 88 FR 90120, Dec. 29, 2023. This amendment was further delayed until Feb. 16, 2029, at 89 FR 88888, Nov. 12, 2024. (a) This part provides a mechanism under 38 U.S.C. 111 for the Veterans Health Administration (VHA) to make payments for travel expenses incurred in the United States to help veterans and other persons obtain care or services from VHA. (b) This part does not cover payment for emergency transportation of veterans for non-service-connected conditions in non-VA facilities when the payment for transportation is covered by \u00a7\u00a7 17.1000 through 17.1008 of this chapter, as authorized by 38 U.S.C. 1725. (Authority: 38 U.S.C. 101, 111, 501, 1701, 1714, 1720, 1728, 1782, 1783, E.O. 11302)",
+      "integrity": {
+        "state": "complete",
+        "basis": "Full retrieved body of 837 characters stored; under the 60,000 cap, so nothing was cut.",
+        "stamped_at": "2026-10-26T07:15:00",
+        "stored_chars": 837,
+        "source_chars": 837,
+        "cap_applied": 60000
+      },
+      "authority_class": "regulation",
+      "claim_layer": "doctrinal",
+      "claim_layer_meaning": "States or describes the rule. Cite for what the law IS."
+    },
+    {
+      "citation": "\u00a7 70.2",
+      "kind": "section_sign",
+      "page": 1,
+      "text": "\u00a7 70.2 Definitions. Link to an amendment published at 88 FR 10036, Feb. 16, 2023. Link to an amendment published at 88 FR 10037, Feb. 16, 2023. These amendments were delayed until Feb. 16, 2025, at 88 FR 90120, Dec. 29, 2023. This amendment was further delayed until Feb. 16, 2029, at 89 FR 88888, Nov. 12, 2024. For purposes of this part: Attendant means an individual traveling with a beneficiary who is eligible for beneficiary travel and requires the aid and/or physical assistance of another person. Beneficiary means a person determined eligible for VHA benefits. Claimant means a veteran who received services (or his/her guardian) or the hospital, clinic, or community resource that provided the services, or the person other than the veteran who paid for the services. Clinician means a Physician, Physician Assistant (PA), Nurse Practitioner (NP), Psychologist, or other independent licensed practitioner. Emergency treatment means treatment for a condition of such a nature that a prudent layperson would have reasonably expected that delay in seeking immediate medical attention would have been hazardous to life or health (this standard would be met if there were an emergency medical condition manifesting itself by acute symptoms of sufficient severity (including severe pain) that a prudent layperson who possesses an average knowledge of health and medicine could reasonably expect the absence of immediate medical attention to result in placing the health of the individual in serious jeopardy, serious impairment to bodily functions, or serious dysfunction of any bodily organ or part). Irregular discharge means the release of a competent patient from a VA or VA-authorized hospital, nursing home, or domiciliary care due to: refusal, neglect or obstruction of examination or treatment; leaving without the approval of the treating health care clinician; or disorderly conduct and discharge is the appropriate disciplinary action. Special mode of transportation means an ambulance, ambulette, air ambulance, wheelchair van, or other mode of transportation specially designed to transport disabled persons (this would not include a mode of transportation not specifically designed to transport disabled persons, such as a bus, subway, taxi, train, or airplane). A modified, privately-owned vehicle, with special adaptive equipment and/or capable of transporting disabled persons is not a special mode of transportation for the purposes of this part. United States means each of the several States, Territories, and possessions of the United States, the District of Columbia, and the Commonwealth of Puerto Rico. VA means the Department of Veterans Affairs. VA-authorized health care facility means a non-VA health care facility where VA has approved care for an eligible beneficiary at VA expense. VA facility means VA Medical Center (VAMC), VA Outpatient Clinic (OPC), or VA Community Based Outpatient Clinic (CBOC). VHA means the Veterans Health Administration, a principal unit within VA. (Authority: 38 U.S.C. 101, 111, 501, 1701, 1714, 1720, 1728, 1782, 1783, E.O. 11302)",
+      "integrity": {
+        "state": "complete",
+        "basis": "Full retrieved body of 3,095 characters stored; under the 60,000 cap, so nothing was cut.",
+        "stamped_at": "2026-10-26T07:15:00",
+        "stored_chars": 3095,
+        "source_chars": 3095,
+        "cap_applied": 60000
+      },
+      "authority_class": "regulation",
+      "claim_layer": "doctrinal",
+      "claim_layer_meaning": "States or describes the rule. Cite for what the law IS."
+    },
+    {
+      "citation": "\u00a7 70.3",
+      "kind": "section_sign",
+      "page": 1,
+      "text": "\u00a7 70.3 Determination of Secretary. Link to an amendment published at 88 FR 10037, Feb. 16, 2023. This amendment was delayed until Feb. 16, 2025, at 88 FR 90120, Dec. 29, 2023. This amendment was further delayed until Feb. 16, 2029, at 89 FR 88888, Nov. 12, 2024. For each fiscal year, the Secretary of Veterans Affairs will determine whether funds are available for paying expenses of VHA beneficiary travel under 38 U.S.C. 111. If the Secretary determines that funds are available for such purpose, VA will make payment for expenses of such travel in accordance with the provisions of this part. (Authority: 38 U.S.C. 101, 111, 501, 1701, 1714, 1720, 1728, 1782, 1783, E.O. 11302)",
+      "integrity": {
+        "state": "complete",
+        "basis": "Full retrieved body of 681 characters stored; under the 60,000 cap, so nothing was cut.",
+        "stamped_at": "2026-10-26T07:15:00",
+        "stored_chars": 681,
+        "source_chars": 681,
+        "cap_applied": 60000
+      },
+      "authority_class": "regulation",
+      "claim_layer": "doctrinal",
+      "claim_layer_meaning": "States or describes the rule. Cite for what the law IS."
+    },
+    {
+      "citation": "\u00a7 70.4",
+      "kind": "section_sign",
+      "page": 1,
+      "text": "\u00a7 70.4 Criteria for approval. Link to an amendment published at 88 FR 10037, Feb. 16, 2023. This amendment was delayed until Feb. 16, 2025, at 88 FR 90120, Dec. 29, 2023. This amendment was further delayed until Feb. 16, 2029, at 89 FR 88888, Nov. 12, 2024. (a) VA will approve payment for beneficiary travel under this part if: (1) The travel was made to obtain care or services for a person who is eligible for beneficiary travel payments under \u00a7 70.10, (2) The travel was in connection with care or services for which such person was eligible under the laws administered by VA, (3) Application was made in accordance with \u00a7 70.20, (4) All of the requirements of this part for payment are met, and (5) Any failure to obtain the care or services was due to actions by officials of VA or persons acting on behalf of VA. (b) When a claimant requests payment for beneficiary travel after the provision of care or services and the travel did not include a special mode of transportation, VA will approve round-trip payment under this part only if the travel was: (1) In connection with care or services that were scheduled with VHA prior to arrival at the VHA-designated facility, or (2) For emergency treatment. (c) When a claimant requests payment for beneficiary travel for care or services that were not scheduled with VHA prior to arrival at the facility and were not emergency treatment and the travel did not include a special mode of transportation, VA will not approve round-trip payment under this part but will approve payment for the return trip if VHA actually provided care or services. (d) Except as provided in \u00a7 70.32 concerning reimbursement or prior payment, when payment for beneficiary travel is requested for travel that includes a special mode of transportation, VA will approve payment under this part if: (1) The travel is medically required, (2) The beneficiary is unable to defray the cost of such transportation, and (3) VHA approved the travel prior to travel in the special mode of transportation or the travel was undertaken in connection with a medical emergency. (Authority: 38 U.S.C. 101, 111, 501, 1701, 1714, 1720, 1728, 1782, 1783, E.O. 11302)",
+      "integrity": {
+        "state": "complete",
+        "basis": "Full retrieved body of 2,177 characters stored; under the 60,000 cap, so nothing was cut.",
+        "stamped_at": "2026-10-26T07:15:00",
+        "stored_chars": 2177,
+        "source_chars": 2177,
+        "cap_applied": 60000
+      },
+      "authority_class": "regulation",
+      "claim_layer": "doctrinal",
+      "claim_layer_meaning": "States or describes the rule. Cite for what the law IS."
+    },
+    {
+      "citation": "\u00a7 70.10",
+      "kind": "section_sign",
+      "page": 1,
+      "text": "\u00a7 70.10 Eligible persons. Link to an amendment published at 88 FR 10037, Feb. 16, 2023. This amendment was delayed until Feb. 16, 2025, at 88 FR 90120, Dec. 29, 2023. This amendment was further delayed until Feb. 16, 2029, at 89 FR 88888, Nov. 12, 2024. (a) The following listed persons are eligible for beneficiary travel payments under this part: (1) A veteran who travels to or from a VA facility or VA-authorized health care facility in connection with treatment or care for a service-connected disability (regardless of percent of disability). (2) A veteran with a service-connected disability rated at 30 percent or more who travels to or from a VA facility or VA-authorized health care facility for examination, treatment, or care for any condition. (3) A veteran who travels to a VA facility or VA-authorized health care facility for a scheduled compensation and pension examination. (4) A veteran receiving pension under 38 U.S.C. 1521, who travels to or from a VA facility or VA-authorized health care facility for examination, treatment, or care. (5) A veteran whose annual income (as determined under 38 U.S.C. 1503) does not exceed the maximum annual rate of pension that the veteran would receive under 38 U.S.C. 1521 (as adjusted under 38 U.S.C. 5312) if the veteran was eligible for pension and travels to or from a VA facility or VA-authorized health care facility for examination, treatment, or care. (6) A veteran who travels to or from a VA facility or VA-authorized health care facility for examination, treatment, or care, and who is unable to defray the expenses of that travel as defined in paragraph (c) of this section. (7) A member of a veteran's immediate family, a veteran's legal guardian, or a person in whose household the veteran certifies an intention to live, if such person is traveling for consultation, professional counseling, training, or mental health services concerning a veteran who is receiving care for a service-connected disability; or a member of a veteran's immediate family, if such person is traveling for bereavement counseling relating to the death of such veteran in the active military, naval, or air service in the line of duty and under circumstances not due to the veteran's own misconduct. (8) An attendant other than a VA employee, who is accompanying and assisting a beneficiary eligible for beneficiary travel payments under this section, when such beneficiary is medically determined to require the presence of the attendant because of a physical or mental condition. (9) Beneficiaries of other Federal agencies, incident to medical services rendered upon requests of those agencies, subject to reimbursement agreement by those agencies. (10) Allied beneficiaries as defined by 38 U.S.C. 109 subject to reimbursement agreement by the government concerned. (b) For purposes of this section, the term \u201cexamination, treatment, or care\u201d means the care or services provided under the Medical Benefits Package in \u00a7 17.38 of this chapter. (c) For purposes of this section, a beneficiary shall be considered unable to defray the expenses of travel if the beneficiary: (1) Has an income for the year (as defined under 38 U.S.C. 1503) immediately preceding the application for beneficiary travel that does not exceed the maximum annual rate of pension that the beneficiary would receive under 38 U.S.C. 1521 (as adjusted under 38 U.S.C. 5312) if the beneficiary were eligible for pension during that year; or (2) Is able to demonstrate that due to circumstances such as loss of employment, or incurrence of a disability, his or her income in the year of travel will not exceed the maximum annual rate of pension that the beneficiary would receive under 38 U.S.C. 1521 (as adjusted under 38 U.S.C. 5312) if the beneficiary were eligible for pension; or (3) Has a service-connected disability rated at least 30 percent; or (4) Is traveling in connection with treatment of a service-connected disability. (Authority: 38 U.S.C. 101, 111, 501, 1701, 1714, 1720, 1728, 1782, 1783, E.O. 11302) [73 FR 36798, June 30, 2008, as amended at 73 FR 50723, Aug. 28, 2008]",
+      "integrity": {
+        "state": "complete",
+        "basis": "Full retrieved body of 4,111 characters stored; under the 60,000 cap, so nothing was cut.",
+        "stamped_at": "2026-10-26T07:15:00",
+        "stored_chars": 4111,
+        "source_chars": 4111,
+        "cap_applied": 60000
+      },
+      "authority_class": "regulation",
+      "claim_layer": "doctrinal",
+      "claim_layer_meaning": "States or describes the rule. Cite for what the law IS."
+    },
+    {
+      "citation": "\u00a7 70.20",
+      "kind": "section_sign",
+      "page": 1,
+      "text": "\u00a7 70.20 Application. Link to an amendment published at 88 FR 10037, Feb. 16, 2023. This amendment was delayed until Feb. 16, 2025, at 88 FR 90120, Dec. 29, 2023. This amendment was further delayed until Feb. 16, 2029, at 89 FR 88888, Nov. 12, 2024. (a) A claimant may apply for beneficiary travel orally or in writing but must provide VA the receipt for each expense other than for mileage. (b) A claimant must apply for payment of beneficiary travel within 30 calendar days after completing beneficiary travel that does not include a special mode of transportation. (c) For beneficiary travel that includes a special mode of transportation, a claimant must apply for payment of beneficiary travel and obtain approval from VA prior to the travel; however, if the travel included a special mode of transportation and the claimant without prior approval applies for payment of the beneficiary travel within 30 calendar days after the travel is completed, the application will be considered timely submitted if the travel was for emergency treatment. (d) Notwithstanding other provisions of this section, for travel that includes meals and/or lodging, a claimant must apply for and receive approval prior to obtaining the meals and/or lodging in order to receive payment in accordance with \u00a7 70.30(a)(3) for the meals and/or lodging. (e) If VA determines that additional information is needed to make a determination concerning an application under this part, VA will notify the claimant in writing of the deficiency and request additional information. If the claimant has not responded to the request within 30 days, VA may decide the claim prior to the expiration of the 1-year submission period required by 38 U.S.C. 5103(b)(1) based on all the information contained in the file, including any information it has obtained on behalf of the claimant. If VA does so, however, and the claimant subsequently provides the information within 1 year of the date of the request, VA must readjudicate the claim. (f) Notwithstanding other provisions of this section, if a person becomes eligible for payment of beneficiary travel after the travel takes place, payment may be made if the person applies for travel benefits within 30 days of the date when the person became eligible for travel benefits. (g) The date of an application for beneficiary travel is the postmark date, if mailed; or the date of submission if hand delivered, provided by electronic means, or provided orally. (The Office of Management and Budget has approved the information collection requirement in this section under control number 2900-0798) (Authority: 38 U.S.C. 101, 111, 501, 1701, 1714, 1720, 1728, 1782, 1783, E.O. 11302) [73 FR 36798, June 30, 2008, as amended at 89 FR 11730, Feb. 15, 2024]",
+      "integrity": {
+        "state": "complete",
+        "basis": "Full retrieved body of 2,765 characters stored; under the 60,000 cap, so nothing was cut.",
+        "stamped_at": "2026-10-26T07:15:00",
+        "stored_chars": 2765,
+        "source_chars": 2765,
+        "cap_applied": 60000
+      },
+      "authority_class": "regulation",
+      "claim_layer": "doctrinal",
+      "claim_layer_meaning": "States or describes the rule. Cite for what the law IS."
+    },
+    {
+      "citation": "\u00a7 70.21",
+      "kind": "section_sign",
+      "page": 1,
+      "text": "\u00a7 70.21 Where to apply. Link to an amendment published at 88 FR 10037, Feb. 16, 2023. This amendment was delayed until Feb. 16, 2025, at 88 FR 90120, Dec. 29, 2023. This amendment was further delayed until Feb. 16, 2029, at 89 FR 88888, Nov. 12, 2024. Claimants for beneficiary travel must submit the information required in \u00a7 70.20 to the Chief of the Business Office or other designee at the VA medical facility responsible for the medical care or services being provided and for which travel is required. (Authority: 38 U.S.C. 101, 111, 501, 1701, 1714, 1720, 1728, 1782, 1783, E.O. 11302)",
+      "integrity": {
+        "state": "complete",
+        "basis": "Full retrieved body of 592 characters stored; under the 60,000 cap, so nothing was cut.",
+        "stamped_at": "2026-10-26T07:15:00",
+        "stored_chars": 592,
+        "source_chars": 592,
+        "cap_applied": 60000
+      },
+      "authority_class": "regulation",
+      "claim_layer": "doctrinal",
+      "claim_layer_meaning": "States or describes the rule. Cite for what the law IS."
+    },
+    {
+      "citation": "\u00a7 70.30",
+      "kind": "section_sign",
+      "page": 1,
+      "text": "\u00a7 70.30 Payment principles. Link to an amendment published at 88 FR 10036, Feb. 16, 2023. Link to an amendment published at 88 FR 10037, Feb. 16, 2023. These amendments were delayed until Feb. 16, 2025, at 88 FR 90120, Dec. 29, 2023. This amendment was further delayed until Feb. 16, 2029, at 89 FR 88888, Nov. 12, 2024. (a) Subject to the other provisions of this section and subject to the deductibles required under \u00a7 70.31, VA will pay the following for beneficiary travel by an eligible beneficiary when travel expenses are actually incurred: (1) The per mile rate established by the Secretary for the period of travel for use of privately owned vehicle or the actual cost for use of the most economical common carrier (bus, train, taxi, airplane, etc.), for travel to and from VA or VA-authorized health care subject to the following: (i) Travel by a privately owned vehicle for a compensation and pension examination that is solely for the convenience of the Government (e.g., repeat a laboratory test, redo a poor quality x-ray) may have a different per mile rate if deemed appropriate by the Secretary. (ii) Per mile payment for use of privately owned vehicle may not exceed the cost of such travel by public transportation (even if it is for the convenience of the government) unless determined to be medically necessary. (iii) Payment for a common carrier may not exceed the amount allowed for a privately owned vehicle unless travel by a privately owned vehicle is not reasonably accessible or travel by a common carrier is determined to be medically necessary. (iv) As required by law, each time the Federal government makes a change in mileage rates payable under 5 U.S.C. 5702 and 5704 for Federal employee travel by privately owned vehicle, but not less frequently than annually, the Secretary shall conduct an investigation of the actual costs of travel, including lodging and subsistence. In conducting the investigation, the Secretary shall consult with the Administrator of the General Services Administration, the Secretary of Transportation, the Comptroller General of the United States, and veterans' service organizations. As part of the investigation, the Secretary shall review and consider various factors including vehicle depreciation, State and Federal vehicle taxes and the costs of gasoline, oil, maintenance, accessories, parts, tires, and insurance. However, to the extent that the Administrator of General Services has, within a reasonable period of time, conducted an investigation of travel costs that included the factors described in this paragraph, the Secretary may consider that investigation in lieu of conducting a separate investigation with respect to the findings of those individual factors. The Secretary is not obligated to accept or rely on any conclusions of the Administrator's investigation. Based on the investigation required by this subsection, VA shall determine whether there is a need to change the mileage rates payable under paragraph (a) of this section. If a determination is made that a change is warranted the new rate(s) will be published in the notices section of the Federal Register. Current rate(s) can be found at http://www.va.gov/healtheligibility/Library/pubs/BeneficiaryTravel/BeneficiaryTravel.pdf or by contacting the Beneficiary Travel office at the closest VA health care facility. (2) The actual cost of ferry fares, bridge tolls, road tolls, and tunnel tolls (supported by receipts for such expenses as required by \u00a7 70.20(a)). (3) The actual cost for meals, lodging, or both, not to exceed 50 percent of the amount allowed for government employees under 5 U.S.C. 5702, when VA determines that an overnight stay is required. Factors VA may consider in making that determination include, but are not limited to the following: (i) The distance the veteran must travel. (ii) The time of day when VA scheduled the veteran's appointment. (iii) The weather conditions or congestion conditions affecting the travel. (iv) The veteran's medical condition and its impact on the ability to travel. (4) The actual cost of a special mode of transportation. (b) Payments under this section are subject to the following: (1) Except as otherwise allowed under this section, payment is limited to travel from the beneficiary's residence to the nearest VA facility where the care or services could be provided and from such VA facility to the beneficiary's residence. (2) Payment may be made for travel from the beneficiary's residence to the nearest non-VA facility where the care or services could be provided and from such facility to the beneficiary's residence if VA determines that it is necessary to obtain the care or services at a non-VA facility. (3) Payment may be made for travel from or to a place where the beneficiary is staying (if the beneficiary is not staying at the beneficiary's residence) but the payment may not exceed the amount that would be payable for travel under paragraph (b)(1) or (b)(2) of this section, as applicable. (4) If the beneficiary's residence changed while receiving care or services, payment for the return trip will be for travel to the new residence, except that payment may not exceed the amount that would be allowed from the facility where the care or services could have been provided that is nearest to the new residence (for example, if during a period of care or services in Baltimore, a beneficiary changed his or her address from Baltimore to Detroit, payment for the return trip would be limited to that allowed for traveling to the new residence from the nearest facility to the new residence in Detroit where the care or services could have been provided). (5) If the beneficiary is in a terminal condition at a VA facility or other facility under VA auspices and travels to a non-VA medical facility for the purpose of being nearer to his or her residence, payment may be made for travel to the medical facility receiving the beneficiary for such purpose. (6) Payment may be made for travel from a non-VA health care facility where the beneficiary is receiving care or services to the nearest VA facility where the appropriate care or services could be provided. (7) Payment will not be made for return travel for a beneficiary receiving an irregular discharge. (8) On a case-by-case basis, payment for travel may be paid for any distance if it is financially favorable to the government (for example, payment for travel could be allowed to a more distant nursing home when admission to that nursing home is a prerequisite to qualify for community assistance that would more than offset the additional travel payment). (c) Payment for travel of an attendant under this section will be calculated on the same basis as for the beneficiary. (d) For shared travel in a privately-owned vehicle, payments are limited to the amount for one beneficiary (for example, if a beneficiary and an attendant travel in the same automobile or if two beneficiaries travel in the same automobile, the amount for mileage will be limited to the amount for one beneficiary). (e) Beneficiary travel will not be paid under the following circumstances: (1) The payment of the travel allowance would be counterproductive to the therapy being provided and such determination is recorded in the patient's medical records, and (2) The chief of the service or a designee reviewed and approved the determination by signature in the patient's medical record. (Authority: 38 U.S.C. 101, 111, 501, 1701, 1714, 1720, 1728, 1782, 1783, E.O. 11302)",
+      "integrity": {
+        "state": "complete",
+        "basis": "Full retrieved body of 7,534 characters stored; under the 60,000 cap, so nothing was cut.",
+        "stamped_at": "2026-10-26T07:15:00",
+        "stored_chars": 7534,
+        "source_chars": 7534,
+        "cap_applied": 60000
+      },
+      "authority_class": "regulation",
+      "claim_layer": "doctrinal",
+      "claim_layer_meaning": "States or describes the rule. Cite for what the law IS."
+    },
+    {
+      "citation": "\u00a7 70.31",
+      "kind": "section_sign",
+      "page": 1,
+      "text": "\u00a7 70.31 Deductibles. Link to an amendment published at 88 FR 10037, Feb. 16, 2023. This amendment was delayed until Feb. 16, 2025, at 88 FR 90120, Dec. 29, 2023. This amendment was further delayed until Feb. 16, 2029, at 89 FR 88888, Nov. 12, 2024. (a) VA shall deduct an amount established by the Secretary for each one-way trip from the amount otherwise payable under this part for such one-way trip, except that: (1) VA shall not deduct any amounts in a calendar month after the completion of six one-way trips for which deductions were made in such calendar month, and (2) Whenever the Secretary adjusts the mileage rates as a result of the investigation described in \u00a7 70.30(a)(1)(iv), the Secretary shall, effective on the date such mileage rate change should occur, adjust proportionally the deductible amount in effect at the time of the adjustment. If a determination is made that a change is warranted, the new deductible(s) will be published in the notice section of the Federal Register. Current deductible(s) can be found at http://www.va.gov/healtheligibility/Library/pubs/BeneficiaryTravel/BeneficiaryTravel.pdf or by contacting the Beneficiary Travel office at the closest VA health care facility. (b) The provisions under this section for making deductions shall not apply to: (1) Travel that includes travel by a special mode of transportation, (2) Travel to a VA facility for a scheduled compensation and pension examination, and (3) Travel by a non-veteran. (c) VA shall waive the deductible under this section when it would cause the beneficiary severe financial hardship. For purposes of this section, severe financial hardship occurs if the beneficiary: (1) Is in receipt of a VA pension; (2) Has income for the year prior to the year in which application is made pursuant to \u00a7 70.20 that does not exceed the household income threshold determined under 38 U.S.C. 1722(a) (the current income thresholds can be found at http://www.va.gov/healtheligibility/Library/pubs/VAIncomeThresholds/VAIncomeThresholds.pdf ); or (3) Has circumstances in the year the application is made pursuant to \u00a7 70.20 that cause his or her projected income not to exceed the household income threshold determined under 38 U.S.C. 1722(a). (d) Waivers granted under this section are valid: (1) Through the end of the calendar year of the application made pursuant to \u00a7 70.20; or (2) Until there is a change in the beneficiary's household income during the calendar year of the application made pursuant to \u00a7 70.20 that results in the beneficiary no longer meeting the terms of paragraph (c) of this section. (e) A beneficiary granted a waiver under this section must promptly inform VA of any household income status change during the waiver period that results in the beneficiary no longer meeting the terms of paragraph (c) of this section. (The Office of Management and Budget has approved the information collection provisions in this section under control number 2900-0091) (Authority: 38 U.S.C. 101, 111, 501, 1701, 1714, 1720, 1728, 1782, 1783, E.O. 11302)",
+      "integrity": {
+        "state": "complete",
+        "basis": "Full retrieved body of 3,059 characters stored; under the 60,000 cap, so nothing was cut.",
+        "stamped_at": "2026-10-26T07:15:00",
+        "stored_chars": 3059,
+        "source_chars": 3059,
+        "cap_applied": 60000
+      },
+      "authority_class": "regulation",
+      "claim_layer": "doctrinal",
+      "claim_layer_meaning": "States or describes the rule. Cite for what the law IS."
+    },
+    {
+      "citation": "\u00a7 70.32",
+      "kind": "section_sign",
+      "page": 1,
+      "text": "\u00a7 70.32 Reimbursement or prior payment. Link to an amendment published at 88 FR 10037, Feb. 16, 2023. This amendment was delayed until Feb. 16, 2025, at 88 FR 90120, Dec. 29, 2023. This amendment was further delayed until Feb. 16, 2029, at 89 FR 88888, Nov. 12, 2024. (a) Payment will be made on a reimbursement basis after the travel has occurred, except that: (1) Upon completion of examination, treatment, or care, payment may be made before the return travel has occurred, and (2) In the case of travel by a person to or from a VA facility by special mode of transportation, VA may provide payment for beneficiary travel to the provider of the transportation before determining eligibility of such person for such payment if VA determines that the travel is for emergency treatment and the beneficiary or other person made a claim that the beneficiary is eligible for payment for the travel. (b) Payment under this part will be made to the beneficiary, except that VA may make a beneficiary travel payment under this part to a person or organization other than the beneficiary upon satisfactory evidence that the person or organization actually provided or paid for the travel. (Authority: 38 U.S.C. 101, 111, 501, 1701, 1714, 1720, 1728, 1782, 1783, E.O. 11302)",
+      "integrity": {
+        "state": "complete",
+        "basis": "Full retrieved body of 1,266 characters stored; under the 60,000 cap, so nothing was cut.",
+        "stamped_at": "2026-10-26T07:15:00",
+        "stored_chars": 1266,
+        "source_chars": 1266,
+        "cap_applied": 60000
+      },
+      "authority_class": "regulation",
+      "claim_layer": "doctrinal",
+      "claim_layer_meaning": "States or describes the rule. Cite for what the law IS."
+    },
+    {
+      "citation": "\u00a7 70.40",
+      "kind": "section_sign",
+      "page": 1,
+      "text": "\u00a7 70.40 Administrative procedures. Link to an amendment published at 88 FR 10037, Feb. 16, 2023. This amendment was delayed until Feb. 16, 2025, at 88 FR 90120, Dec. 29, 2023. This amendment was further delayed until Feb. 16, 2029, at 89 FR 88888, Nov. 12, 2024. (a) This section applies only to legacy claims. (b) Upon denial of an initial claim for beneficiary travel, VA will provide the claimant written notice of the decision and advise the claimant of reconsideration and appeal rights. A claimant who disagrees with the initial decision denying the claim for beneficiary travel, in whole or in part, may obtain reconsideration under \u00a7 17.133 of this chapter and may file an appeal to the Board of Veterans' Appeals under parts 19 and 20 of this chapter. An appeal may be made directly to the Board of Veterans' Appeals without requesting reconsideration. (Authority: 38 U.S.C. 101, 111, 501, 1701, 1714, 1720, 1728, 1782, 1783, E.O. 11302) [73 FR 36798, June 30, 2008, as amended at 87 FR 43748, July 22, 2022]",
+      "integrity": {
+        "state": "complete",
+        "basis": "Full retrieved body of 1,017 characters stored; under the 60,000 cap, so nothing was cut.",
+        "stamped_at": "2026-10-26T07:15:00",
+        "stored_chars": 1017,
+        "source_chars": 1017,
+        "cap_applied": 60000
+      },
+      "authority_class": "regulation",
+      "claim_layer": "doctrinal",
+      "claim_layer_meaning": "States or describes the rule. Cite for what the law IS."
+    },
+    {
+      "citation": "\u00a7 70.41",
+      "kind": "section_sign",
+      "page": 1,
+      "text": "\u00a7 70.41 Recovery of payments. Link to an amendment published at 88 FR 10037, Feb. 16, 2023. This amendment was delayed until Feb. 16, 2025, at 88 FR 90120, Dec. 29, 2023. This amendment was further delayed until Feb. 16, 2029, at 89 FR 88888, Nov. 12, 2024. Payments for beneficiary travel made to persons ineligible for such payment are subject to recapture under applicable law, including the provisions of \u00a7\u00a7 1.900 through 1.953 of this chapter. (Authority: 38 U.S.C. 101, 111, 501, 1701, 1714, 1720, 1728, 1782, 1783, E.O. 11302)",
+      "integrity": {
+        "state": "complete",
+        "basis": "Full retrieved body of 533 characters stored; under the 60,000 cap, so nothing was cut.",
+        "stamped_at": "2026-10-26T07:15:00",
+        "stored_chars": 533,
+        "source_chars": 533,
+        "cap_applied": 60000
+      },
+      "authority_class": "regulation",
+      "claim_layer": "doctrinal",
+      "claim_layer_meaning": "States or describes the rule. Cite for what the law IS."
+    },
+    {
+      "citation": "\u00a7 70.42",
+      "kind": "section_sign",
+      "page": 1,
+      "text": "\u00a7 70.42 False statements. Link to an amendment published at 88 FR 10037, Feb. 16, 2023. This amendment was delayed until Feb. 16, 2025, at 88 FR 90120, Dec. 29, 2023. This amendment was further delayed until Feb. 16, 2029, at 89 FR 88888, Nov. 12, 2024. A person who makes a false statement for the purpose of obtaining payments for beneficiary travel may be prosecuted under applicable laws, including 18 U.S.C. 1001. (Authority: 38 U.S.C. 101, 111, 501, 1701, 1714, 1720, 1728, 1782, 1783, E.O. 11302)",
+      "integrity": {
+        "state": "complete",
+        "basis": "Full retrieved body of 503 characters stored; under the 60,000 cap, so nothing was cut.",
+        "stamped_at": "2026-10-26T07:15:00",
+        "stored_chars": 503,
+        "source_chars": 503,
+        "cap_applied": 60000
+      },
+      "authority_class": "regulation",
+      "claim_layer": "doctrinal",
+      "claim_layer_meaning": "States or describes the rule. Cite for what the law IS."
+    },
+    {
+      "citation": "\u00a7 70.50",
+      "kind": "section_sign",
+      "page": 1,
+      "text": "\u00a7 70.50 Reduced fare requests. Link to an amendment published at 88 FR 10037, Feb. 16, 2023. This amendment was delayed until Feb. 16, 2025, at 88 FR 90120, Dec. 29, 2023. This amendment was further delayed until Feb. 16, 2029, at 89 FR 88888, Nov. 12, 2024. Printed reduced-fare requests for use by eligible beneficiaries and their attendants when traveling at their own expense to or from any VA facility or VA-authorized facility for authorized VA health care are available from any VA medical facility. Beneficiaries may use these request forms to ask transportation providers, such as bus companies, for a reduced fare. Whether to grant a reduced fare is determined by the transportation provider. (Authority: 38 U.S.C. 101, 111, 501, 1701, 1714, 1720, 1728, 1782, 1783, E.O. 11302) Subpart B\u2014Veterans Transportation Service Under 38 U.S.C. 111A Source: 81 FR 10506, Mar. 1, 2016, unless otherwise noted.",
+      "integrity": {
+        "state": "complete",
+        "basis": "Full retrieved body of 909 characters stored; under the 60,000 cap, so nothing was cut.",
+        "stamped_at": "2026-10-26T07:15:00",
+        "stored_chars": 909,
+        "source_chars": 909,
+        "cap_applied": 60000
+      },
+      "authority_class": "regulation",
+      "claim_layer": "doctrinal",
+      "claim_layer_meaning": "States or describes the rule. Cite for what the law IS."
+    },
+    {
+      "citation": "\u00a7 70.70",
+      "kind": "section_sign",
+      "page": 1,
+      "text": "\u00a7 70.70 Purpose and definitions. Link to an amendment published at 88 FR 10037, Feb. 16, 2023. This amendment was delayed until Feb. 16, 2025, at 88 FR 90120, Dec. 29, 2023. This amendment was further delayed until Feb. 16, 2029, at 89 FR 88888, Nov. 12, 2024. (a) Purpose. This subpart implements the Veterans Transportation Service (VTS), through which VA transports eligible persons to or from a VA or VA-authorized facility or other place for the purpose of examination, treatment, or care. (b) Definitions. For purposes of this subpart: Attendant has the meaning set forth in \u00a7 70.2, and also means an individual traveling with a veteran or servicemember who is eligible for travel under VTS and requires the aid and/or assistance of another person. Eligible person means a person described in \u00a7 70.71. Guest means any individual the veteran or servicemember would like to have accompany him or her to an appointment but whose presence is not medically required. Scheduled visit means that a VA beneficiary had an appointment that was made before she or he appeared at a VA, or VA-authorized, facility, or that a VA beneficiary was specifically authorized to appear at such facility on the date of the visit in order to obtain examination, treatment, or care. Examples of scheduled visits include: Regular appointments for examination, treatment, or care; visits to undergo laboratory work; or doctor-recommended visits to clinics with open hours. Unscheduled visit means a visit to a VA, or VA-authorized, facility for purposes of examination, treatment, or care that was not recorded in VA's scheduling system prior to the veteran's visit. For example, an unscheduled visit may be for a simple check of a person's blood pressure, for counseling, or for clinical intervention. (Authority: 38 U.S.C. 111A, 501, 1714)",
+      "integrity": {
+        "state": "complete",
+        "basis": "Full retrieved body of 1,821 characters stored; under the 60,000 cap, so nothing was cut.",
+        "stamped_at": "2026-10-26T07:15:00",
+        "stored_chars": 1821,
+        "source_chars": 1821,
+        "cap_applied": 60000
+      },
+      "authority_class": "regulation",
+      "claim_layer": "doctrinal",
+      "claim_layer_meaning": "States or describes the rule. Cite for what the law IS."
+    },
+    {
+      "citation": "\u00a7 70.71",
+      "kind": "section_sign",
+      "page": 1,
+      "text": "\u00a7 70.71 Eligibility. Link to an amendment published at 88 FR 10037, Feb. 16, 2023. This amendment was delayed until Feb. 16, 2025, at 88 FR 90120, Dec. 29, 2023. This amendment was further delayed until Feb. 16, 2029, at 89 FR 88888, Nov. 12, 2024. Except as provided in paragraph (j) of this section, VA facilities may provide VTS benefits to the following: (a) Persons eligible for beneficiary travel. All persons eligible for beneficiary travel benefits in \u00a7 70.10 are eligible for VTS benefits (however, persons cannot claim benefits under both programs for the same trip or portion of a trip). (b) Enrolled veterans. Regardless of a veteran's eligibility for beneficiary travel, VA may provide VTS to veterans enrolled in VA's health care system who need transportation authorized under \u00a7 70.72 for: (1) A scheduled visit or urgent care; (2) Retrieval of, adjustment of, or training concerning medications and prosthetic appliances, or a service dog (as defined in 38 CFR 17.148); (3) An unscheduled visit; or (4) To participate and attend other events or functions, as clinically determined by VA, for the purposes of examination, treatment, or care. (c) Non-enrolled veterans. VA may provide VTS to veterans not enrolled in VA's health care system who need transportation authorized under \u00a7 70.72 for: (1) A compensation and pension examination; (2) An unscheduled or walk-in visit; (3) To apply for enrollment or health care benefits; or (4) To participate and attend other events or functions, as clinically determined by VA, for the purposes of examination, treatment, or care. (d) Servicemembers. VA may provide VTS to a member of the Armed Forces (including the National Guard or Reserve) traveling to a VA or VA-authorized facility for VA hospital care or medical services, including examination, treatment or care, a compensation and pension examination, or to enroll or otherwise receive benefits for which they are eligible. (e) Prospective Family Caregivers and Family Caregivers. (1) VA may provide VTS to a prospective Family Caregiver who has applied for designation as a Family Caregiver under 38 CFR 71.25(a) when the travel is for purposes of assessment and training under 38 CFR 71.25(c) and (d). (2) VA may provide VTS to a Family Caregiver (who is approved and designated under 38 CFR 71.25) of veteran or servicemember described in paragraphs (b) through (d) of this section to: (i) Accompany or travel independently from a veteran or servicemember for purposes of examination, treatment, or care of the veteran or servicemember; or (ii) Receive benefits under 38 CFR 71.40(b) or (c). For health care benefits provided under 38 CFR 71.40(c)(3), Primary Family Caregivers may travel using VTS for care only if it is provided at a VA facility through the Civilian Health and Medical Program of the Department of Veterans Affairs (CHAMPVA) Inhouse Treatment Initiative (CITI). (f) Attendants. VA may provide VTS to an attendant of a veteran or servicemember described in paragraphs (b) through (d) of this section. (g) Persons receiving counseling, training, or mental health services. VA may provide VTS to persons receiving counseling, training, or mental health services under 38 U.S.C. 1782 and 38 CFR 71.50. (h) CHAMPVA beneficiaries. VA may provide VTS to persons eligible for health care under the Civilian Health and Medical Program of the Department of Veterans Affairs (CHAMPVA) under 38 CFR 17.270 through 17.278, provided that such care is being provided at a VA facility through the CHAMPVA Inhouse Treatment Initiative (CITI). (i) Guests. For each veteran described in paragraph (b) or (c) of this section or member of the Armed Forces described in paragraph (d) of this section, a guest may travel with the veteran or servicemember provided resources are still available after providing services to individuals identified in paragraphs (b) through (h) of this section. (j) Limitations on eligibility. Notwithstanding an individual's eligibility under this section: (1) A person may be ineligible for transportation services if VA determines the person's behavior has jeopardized or could jeopardize the health or safety of other eligible users of VTS or VA staff, or otherwise has interfered or could interfere with the safe transportation of eligible persons to or from a VA facility or other place. (2) Only one person may travel with an eligible veteran or servicemember as a Family Caregiver, attendant, or guest, unless a VA clinician determines that more than one such person is needed or would otherwise be beneficial to the examination, treatment, or care of the eligible veteran or servicemember. Family Caregivers traveling for benefits under paragraph (e)(1) or (e)(2)(ii) of this section are not subject to this limitation. (3) Persons under the age of 18 may accompany another person using VTS with the consent of their parent or legal guardian and the medical facility director or designee. VA transportation of children is not available if State law requires the use of a child restraint, such as a child safety seat or booster seat. In making determinations under this provision, the medical facility director or designee will consider: (i) The special transportation needs of the child, if any; (ii) The ability to transport the child safely using the available resources; (iii) The availability of services at the facility to accommodate the needs of the child; (iv) The appropriateness of transporting the child; and (v) Any other relevant factors. (Authority: 38 U.S.C. 111A, 1714, 1720G, 1781, 1782, 501)",
+      "integrity": {
+        "state": "complete",
+        "basis": "Full retrieved body of 5,564 characters stored; under the 60,000 cap, so nothing was cut.",
+        "stamped_at": "2026-10-26T07:15:00",
+        "stored_chars": 5564,
+        "source_chars": 5564,
+        "cap_applied": 60000
+      },
+      "authority_class": "regulation",
+      "claim_layer": "doctrinal",
+      "claim_layer_meaning": "States or describes the rule. Cite for what the law IS."
+    },
+    {
+      "citation": "\u00a7 70.72",
+      "kind": "section_sign",
+      "page": 1,
+      "text": "\u00a7 70.72 Types of transportation. Link to an amendment published at 88 FR 10037, Feb. 16, 2023. This amendment was delayed until Feb. 16, 2025, at 88 FR 90120, Dec. 29, 2023. This amendment was further delayed until Feb. 16, 2029, at 89 FR 88888, Nov. 12, 2024. The following types of transportation may be provided by VA facilities through VTS: (a) Door-to-door service. VA facilities may use VTS to transport, on a scheduled or unscheduled basis, eligible persons between a VA or VA-authorized facility and their residence or a place where the person is staying. VA facilities may use VTS to transport eligible persons to and from a VA or VA-authorized facility and another location identified by the person when it is financially favorable to the government to do so. (b) Travel to and from designated locations. VA facilities may use VTS to provide transportation between a VA or VA-authorized facility and a designated location in the community on a scheduled basis. (c) Service between VA facilities. VA facilities may use VTS to provide scheduled or unscheduled transportation between VA or VA-authorized health care facilities. This includes travel from one building to another within a single VA campus. (d) Other locations. VA facilities may use VTS to provide scheduled or unscheduled transportation to and/or from a VA or VA-authorized facility or other places when a VA clinician has determined that such transportation of the veteran, servicemember, their attendant(s), or CHAMPVA beneficiary receiving benefits through the CITI program would be needed to promote, preserve, or restore the health of the individual and is in accord with generally accepted standards of medical practice, as defined in 38 CFR 17.38(b). (Authority: 38 U.S.C. 111A, 501, 1718, 7301)",
+      "integrity": {
+        "state": "complete",
+        "basis": "Full retrieved body of 1,775 characters stored; under the 60,000 cap, so nothing was cut.",
+        "stamped_at": "2026-10-26T07:15:00",
+        "stored_chars": 1775,
+        "source_chars": 1775,
+        "cap_applied": 60000
+      },
+      "authority_class": "regulation",
+      "claim_layer": "doctrinal",
+      "claim_layer_meaning": "States or describes the rule. Cite for what the law IS."
+    },
+    {
+      "citation": "\u00a7 70.73",
+      "kind": "section_sign",
+      "page": 1,
+      "text": "\u00a7 70.73 Arranging transportation services. Link to an amendment published at 88 FR 10037, Feb. 16, 2023. This amendment was delayed until Feb. 16, 2025, at 88 FR 90120, Dec. 29, 2023. This amendment was further delayed until Feb. 16, 2029, at 89 FR 88888, Nov. 12, 2024. (a) Requesting VTS. An eligible person may request transportation services by contacting the facility director or designee at the VA facility providing or authorizing the examination, treatment, or care to be delivered. The person must provide the facility director or designee with information necessary to arrange these services, including the name of the person, the basis for eligibility, the name of the veteran or servicemember they are accompanying (if applicable), the time of the appointment (if known), the eligible person's departure location and destination, any special needs that must be accommodated to allow for transportation (e.g., wheelchair, oxygen tank, or service animal as defined in 38 CFR 1.218(a)(11)(viii)), and other relevant information. Transportation services generally will be provided on a first come, first served basis. (b) Travel without a reservation. Eligible persons who have provided the facility director or designee with the information referred to in the previous paragraph may travel without a reservation for the purpose of examination, treatment, or care when, for example: (1) The person is being discharged from inpatient care; (2) The person is traveling for an unscheduled visit, pursuant to a recommendation for such a visit by an attending VA clinician; or (3) The person is being transported to another VA or VA-authorized facility. (c) Determining priority for transportation. When the facility director or designee determines there are insufficient resources to transport all persons requesting transportation services, he or she will assist any person denied VTS in identifying and accessing other transportation options. VTS resources will be allocated using the following criteria, which are to be assessed in the context of the totality of the circumstances, so that no one factor is determinative: (1) The eligible person's basis for eligibility. Enrolled veterans will receive first priority, followed in order by non-enrolled veterans; servicemembers; Family Caregivers; persons receiving counseling, training, or mental health services under 38 U.S.C. 1782 and 38 CFR 71.50; CITI beneficiaries; and guests. Persons eligible under more than one designation will be considered in the highest priority category for which that trip permits. VA will provide transportation to any attendant accompanying a veteran or servicemember who is approved for transportation. (2) First in time request. (3) An eligible person's clinical need. (4) An eligible person's inability to transport him or herself (e.g., visual impairment, immobility, etc.). (5) An eligible person's eligibility for other transportation services or benefits. (6) The availability of other transportation services (e.g., common carriers, veterans' service organizations, etc.). (7) The VA facility's ability to maximize the use of available resources. (The Office of Management and Budget has approved the information collection requirements in this section under control number 2900-0838) (Authority: 38 U.S.C. 111A, 501)",
+      "integrity": {
+        "state": "complete",
+        "basis": "Full retrieved body of 3,316 characters stored; under the 60,000 cap, so nothing was cut.",
+        "stamped_at": "2026-10-26T07:15:00",
+        "stored_chars": 3316,
+        "source_chars": 3316,
+        "cap_applied": 60000
+      },
+      "authority_class": "regulation",
+      "claim_layer": "doctrinal",
+      "claim_layer_meaning": "States or describes the rule. Cite for what the law IS."
+    }
+  ],
+  "claim_layer_basis": "Set from the class, not from the text: a statute or regulation states the rule rather than describing or arguing it, which the citation in the title establishes definitionally."
+}

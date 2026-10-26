@@ -1,0 +1,41 @@
+{
+  "title": "26 U.S.C. \u00a7 677",
+  "source": "United States Code title 26 section 677, retrieved from Cornell LII (law.cornell.edu). The statutory text is a U.S. government work and is public domain; Cornell's annotations are excluded.",
+  "authority_class": "federal_statute",
+  "authority_class_basis": "Title of the work is a U.S. Code section citation, which fixes the class",
+  "claim_layer": "doctrinal",
+  "claim_layer_meaning": "States or describes the rule. Cite for what the law IS.",
+  "authorities_cited": [],
+  "term_index": {},
+  "origin_pdf": "usc26_677.txt",
+  "extraction": {
+    "extractor": "text file (already extracted)",
+    "pages": 1,
+    "no_text_layer": [],
+    "raised": [],
+    "recovered": [],
+    "lost": [],
+    "complete": true
+  },
+  "pages": 1,
+  "sections": [
+    {
+      "citation": "\u00a7 677.",
+      "kind": "section_sign",
+      "page": 1,
+      "text": "\u00a7 677. Income for benefit of grantor. (a) General rule The grantor shall be treated as the owner of any portion of a trust, whether or not he is treated as such owner under section 674, whose income without the approval or consent of any adverse party is, or, in the discretion of the grantor or a nonadverse party , or both, may be\u2014 (1) distributed to the grantor or the grantor\u2019s spouse; (2) held or accumulated for future distribution to the grantor or the grantor\u2019s spouse; or (3) applied to the payment of premiums on policies of insurance on the life of the grantor or the grantor\u2019s spouse (except policies of insurance irrevocably payable for a purpose specified in section 170(c) (relating to definition of charitable contributions)). This subsection shall not apply to a power the exercise of which can only affect the beneficial enjoyment of the income for a period commencing after the occurrence of an event such that the grantor would not be treated as the owner under section 673 if the power were a reversionary interest; but the grantor may be treated as the owner after the occurrence of the event unless the power is relinquished. (b) Obligations of support Income of a trust shall not be considered taxable to the grantor under subsection (a) or any other provision of this chapter merely because such income in the discretion of another person, the trustee, or the grantor acting as trustee or co-trustee, may be applied or distributed for the support or maintenance of a beneficiary (other than the grantor\u2019s spouse) whom the grantor is legally obligated to support or maintain, except to the extent that such income is so applied or distributed. In cases where the amounts so applied or distributed are paid out of corpus or out of other than income for the taxable year, such amounts shall be considered to be an amount paid or credited within the meaning of paragraph (2) of section 661(a) and shall be taxed to the grantor under section 662. (Aug. 16, 1954, ch. 736, 68A Stat. 230 ; Pub. L. 91\u2013172, title III, \u00a7 332(a) , Dec. 30, 1969 , 83 Stat. 599 ; Pub. L. 99\u2013514, title XIV, \u00a7 1402(b)(3) , Oct. 22, 1986 , 100 Stat. 2712 .)",
+      "integrity": {
+        "state": "complete",
+        "basis": "Full retrieved body of 2,152 characters stored; under the 60,000 cap, so nothing was cut.",
+        "stamped_at": "2026-10-26T07:15:03",
+        "stored_chars": 2152,
+        "source_chars": 2152,
+        "cap_applied": 60000
+      },
+      "authority_class": "federal_statute",
+      "claim_layer": "doctrinal",
+      "claim_layer_meaning": "States or describes the rule. Cite for what the law IS."
+    }
+  ],
+  "claim_layer_basis": "Set from the class, not from the text: a statute or regulation states the rule rather than describing or arguing it, which the citation in the title establishes definitionally."
+}

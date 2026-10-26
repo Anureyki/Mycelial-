@@ -1,0 +1,45 @@
+{
+  "title": "26 U.S.C. \u00a7 675",
+  "source": "United States Code title 26 section 675, retrieved from Cornell LII (law.cornell.edu). The statutory text is a U.S. government work and is public domain; Cornell's annotations are excluded.",
+  "authority_class": "federal_statute",
+  "authority_class_basis": "Title of the work is a U.S. Code section citation, which fixes the class",
+  "claim_layer": "doctrinal",
+  "claim_layer_meaning": "States or describes the rule. Cite for what the law IS.",
+  "authorities_cited": [],
+  "term_index": {
+    "control": [
+      0
+    ]
+  },
+  "origin_pdf": "usc26_675.txt",
+  "extraction": {
+    "extractor": "text file (already extracted)",
+    "pages": 1,
+    "no_text_layer": [],
+    "raised": [],
+    "recovered": [],
+    "lost": [],
+    "complete": true
+  },
+  "pages": 1,
+  "sections": [
+    {
+      "citation": "\u00a7 675.",
+      "kind": "section_sign",
+      "page": 1,
+      "text": "\u00a7 675. Administrative powers. The grantor shall be treated as the owner of any portion of a trust in respect of which\u2014 (1) Power to deal for less than adequate and full consideration A power exercisable by the grantor or a nonadverse party , or both, without the approval or consent of any adverse party enables the grantor or any person to purchase, exchange, or otherwise deal with or dispose of the corpus or the income therefrom for less than an adequate consideration in money or money\u2019s worth. (2) Power to borrow without adequate interest or security A power exercisable by the grantor or a nonadverse party , or both, enables the grantor to borrow the corpus or income, directly or indirectly, without adequate interest or without adequate security except where a trustee (other than the grantor) is authorized under a general lending power to make loans to any person without regard to interest or security. (3) Borrowing of the trust funds The grantor has directly or indirectly borrowed the corpus or income and has not completely repaid the loan, including any interest, before the beginning of the taxable year. The preceding sentence shall not apply to a loan which provides for adequate interest and adequate security, if such loan is made by a trustee other than the grantor and other than a related or subordinate trustee subservient to the grantor. For periods during which an individual is the spouse of the grantor (within the meaning of section 672(e)(2) ), any reference in this paragraph to the grantor shall be treated as including a reference to such individual. (4) General powers of administration A power of administration is exercisable in a nonfiduciary capacity by any person without the approval or consent of any person in a fiduciary capacity. For purposes of this paragraph, the term \u201c power of administration \u201d means any one or more of the following powers: (A) a power to vote or direct the voting of stock or other securities of a corporation in which the holdings of the grantor and the trust are significant from the viewpoint of voting control; (B) a power to control the investment of the trust funds either by directing investments or reinvestments, or by vetoing proposed investments or reinvestments, to the extent that the trust funds consist of stocks or securities of corporations in which the holdings of the grantor and the trust are significant from the viewpoint of voting control; or (C) a power to reacquire the trust corpus by substituting other property of an equivalent value. (Aug. 16, 1954, ch. 736, 68A Stat. 229 ; Pub. L. 100\u2013647, title I, \u00a7 1014(a)(2) , Nov. 10, 1988 , 102 Stat. 3559 .)",
+      "integrity": {
+        "state": "complete",
+        "basis": "Full retrieved body of 2,649 characters stored; under the 60,000 cap, so nothing was cut.",
+        "stamped_at": "2026-10-26T07:15:02",
+        "stored_chars": 2649,
+        "source_chars": 2649,
+        "cap_applied": 60000
+      },
+      "authority_class": "federal_statute",
+      "claim_layer": "doctrinal",
+      "claim_layer_meaning": "States or describes the rule. Cite for what the law IS."
+    }
+  ],
+  "claim_layer_basis": "Set from the class, not from the text: a statute or regulation states the rule rather than describing or arguing it, which the citation in the title establishes definitionally."
+}
