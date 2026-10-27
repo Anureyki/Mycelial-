@@ -49,7 +49,16 @@ def _cfg():
 
 def _dir():
     d = os.environ.get("SSA_DEMAND_DIR") or os.path.join(ROOT, "state", "legal", "ssa_form_demand")
-    os.makedirs(d, mode=0o700, exist_ok=True)
+    # makedirs applies `mode` to the LEAF only; a parent it creates gets the
+    # umask default, and state/legal came out group/world-readable (2026-10-27).
+    # Every directory on the way down is created owner-only, one at a time.
+    parts, cur = os.path.normpath(d).split(os.sep), os.sep if os.path.isabs(d) else ""
+    for part in parts:
+        if not part:
+            continue
+        cur = os.path.join(cur, part)
+        if not os.path.isdir(cur):
+            os.mkdir(cur, 0o700)
     return d
 
 
