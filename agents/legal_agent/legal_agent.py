@@ -5745,10 +5745,17 @@ class LegalAgent(AgentBase):
             }
 
         elif task == "search_cases":
-            if not args or not args[0]:
-                return {"error": "Usage: search_cases <query> [type]", "disclaimer": DISCLAIMER}
-            query = args[0]
-            case_type = args[1] if len(args) > 1 and args[1] else "r"
+            # A dict payload raised KeyError(0) and surfaced as {"error": "0"} -
+            # the same shape lookup had. Both forms are accepted: [query, type]
+            # or {query, type}; type "o" searches opinions, "r" (default) dockets.
+            if isinstance(args, dict):
+                query, case_type = args.get("query") or args.get("q"), args.get("type") or "r"
+            else:
+                query = args[0] if args else None
+                case_type = args[1] if args and len(args) > 1 and args[1] else "r"
+            if not query:
+                return {"error": "Usage: search_cases <query> [type], or {query, type}",
+                        "disclaimer": DISCLAIMER}
             tool_result = self.call_tool("courtlistener", "search", {"q": query, "type": case_type})
             return self._unwrap_tool_result(tool_result, disclaimer=True)
 
