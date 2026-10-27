@@ -43,6 +43,7 @@ NOT_AN_EFFECT = {"log", "_log", "log_event", "audit"}
 WRITE_SELF = {"store_own_memory", "amend_grow_system", "record_provenance_event",
               "pin_memory", "delete_own_memory"}
 EXTERNAL_MODULES = {"smtplib"}
+PROJECT = ("core.", "tools.")
 ACTUATE_HINTS = {"set_state", "set_device_state", "actuate", "publish_command"}
 
 
@@ -57,8 +58,15 @@ def _const(node):
 class _Direct(ast.NodeVisitor):
     """Direct effects and self-calls inside one function body."""
 
-    def __init__(self):
+    def __init__(self, aliases=None, fromnames=None, module=None, local_defs=()):
         self.effect, self.calls, self.why, self.tasks = "computes", set(), [], set()
+        # PROJECT MODULES ARE PART OF THE PATH (2026-10-27): Legal's ssa_demand_*
+        # verbs write their ledger from core/ssa_form_demand.py; stopping at the
+        # agent's own methods would have labelled them compute-only.
+        self.mods = set()
+        self.alias = dict(aliases or {})          # name -> "core.x"
+        self.fromnames = dict(fromnames or {})    # name -> ("core.x", "f")
+        self.module, self.local_defs = module, set(local_defs)
 
     def _hit(self, cls, why):
         if RANK[cls] > RANK[self.effect]:
@@ -68,6 +76,15 @@ class _Direct(ast.NodeVisitor):
     def visit_Call(self, n):
         f = n.func
         name = f.attr if isinstance(f, ast.Attribute) else (f.id if isinstance(f, ast.Name) else None)
+        if isinstance(f, ast.Attribute) and isinstance(f.value, ast.Name) and f.value.id in self.alias:
+            self.mods.add((self.alias[f.value.id], f.attr))
+        if (isinstance(f, ast.Attribute) and isinstance(f.value, ast.Attribute)
+                and isinstance(f.value.value, ast.Name) and f.value.value.id == "core"):
+            self.mods.add((f"core.{f.value.attr}", f.attr))
+        if isinstance(f, ast.Name) and f.id in self.fromnames:
+            self.mods.add(self.fromnames[f.id])
+        if isinstance(f, ast.Name) and self.module and f.id in self.local_defs:
+            self.mods.add((self.module, f.id))
         on_self = isinstance(f, ast.Attribute) and isinstance(f.value, ast.Name) and f.value.id == "self"
         if on_self and name in NOT_AN_EFFECT:
             return
@@ -111,10 +128,59 @@ class _Direct(ast.NodeVisitor):
         for a in n.names:
             if a.name in EXTERNAL_MODULES:
                 self._hit("external", f"import {a.name}")
+            if a.name.startswith(PROJECT) and a.asname:
+                self.alias[a.asname] = a.name
+
+    def visit_ImportFrom(self, n):
+        mod = n.module or ""
+        for a in n.names:
+            if mod in ("core", "tools"):
+                self.alias[a.asname or a.name] = f"{mod}.{a.name}"
+            elif mod.startswith(PROJECT):
+                self.fromnames[a.asname or a.name] = (mod, a.name)
 
     def visit_FunctionDef(self, n):
         # nested functions run as part of the body that defines them
         self.generic_visit(n)
+
+
+_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+# the project's own modules; tools/ is in it because Legal's acquire_opinion
+# shelves an opinion through tools/ingest_law.shelve (2026-10-27)
+_MOD_CACHE = {}
+
+
+def _module(modname):
+    """-> (top-level defs, aliases, fromnames) for a project core module."""
+    if modname in _MOD_CACHE:
+        return _MOD_CACHE[modname]
+    path = os.path.join(_ROOT, *modname.split(".")) + ".py"
+    if not modname.startswith(PROJECT) or not os.path.exists(path):
+        _MOD_CACHE[modname] = ({}, {}, {})
+        return _MOD_CACHE[modname]
+    tree = ast.parse(open(path, encoding="utf-8").read())
+    v = _Direct()
+    for node in tree.body:
+        if isinstance(node, (ast.Import, ast.ImportFrom)):
+            v.visit(node)
+    defs = {n.name: n for n in tree.body if isinstance(n, (ast.FunctionDef, ast.AsyncFunctionDef))}
+    for node in tree.body:
+        if isinstance(node, ast.ClassDef):
+            for m in node.body:
+                if isinstance(m, (ast.FunctionDef, ast.AsyncFunctionDef)):
+                    defs.setdefault(f"{node.name}.{m.name}", m)
+                    defs.setdefault(m.name, m)
+    _MOD_CACHE[modname] = (defs, v.alias, v.fromnames)
+    return _MOD_CACHE[modname]
+
+
+def _module_imports(path):
+    tree = ast.parse(open(path, encoding="utf-8").read())
+    v = _Direct()
+    for node in tree.body:
+        if isinstance(node, (ast.Import, ast.ImportFrom)):
+            v.visit(node)
+    return v.alias, v.fromnames
 
 
 def _methods(path, class_name):
@@ -157,19 +223,53 @@ def detect(agent_path, class_name, base_path=None, dispatchers=("handle_task",))
     base_path = base_path or os.path.join(os.path.dirname(os.path.abspath(__file__)), "base_agent.py")
     methods = dict(_methods(base_path, "AgentBase"))
     methods.update(_methods(agent_path, class_name))
+    a_alias, a_from = _module_imports(agent_path)
     direct = {}
     for name, fn in methods.items():
-        v = _Direct()
+        v = _Direct(a_alias, a_from)
         for stmt in fn.body:
             v.visit(stmt)
         direct[name] = v
 
-    branches = {}
+    mod_memo = {}
+
+    def of_mod(modname, fname, seen):
+        key = (modname, fname)
+        if key in mod_memo:
+            return mod_memo[key]
+        if key in seen:
+            return "computes", []
+        defs, al, fr = _module(modname)
+        fn = defs.get(fname)
+        if fn is None:
+            mod_memo[key] = ("computes", [])
+            return mod_memo[key]
+        v = _Direct(al, fr, module=modname, local_defs=defs.keys())
+        for stmt in fn.body:
+            v.visit(stmt)
+        eff, why = v.effect, [f"{modname}.{fname}: {w}" for w in v.why]
+        for m2 in v.mods:
+            e2, w2 = of_mod(m2[0], m2[1], seen | {key})
+            if RANK[e2] > RANK[eff]:
+                eff = e2
+            if RANK[e2] > 0:
+                why += w2[:1]
+        mod_memo[key] = (eff, why)
+        return eff, why
+
+    branches, bctx = {}, {}
     for d in dispatchers:
         for src in (_methods(base_path, "AgentBase").get(d), _methods(agent_path, class_name).get(d)):
             if src is not None:
+                # a branch sees the imports its dispatcher made above it
+                imp = _Direct(a_alias, a_from)
+                for node in ast.walk(src):
+                    if isinstance(node, (ast.Import, ast.ImportFrom)):
+                        imp.visit(node)
                 for k, body in _branches(src).items():
                     branches.setdefault(k, []).extend(body)
+                    al, fr = bctx.get(k, ({}, {}))
+                    bctx[k] = ({**al, **imp.alias}, {**fr, **imp.fromnames})
 
     memo = {}
 
@@ -192,6 +292,11 @@ def detect(agent_path, class_name, base_path=None, dispatchers=("handle_task",))
             e2, w2 = of_verb(t, seen)
             eff = _max(eff, e2)
             why += w2[:2]
+        for m2 in d.mods:
+            e2, w2 = of_mod(m2[0], m2[1], set())
+            if RANK[e2] > RANK["computes"]:
+                eff = _max(eff, e2)
+                why += w2[:1]
         memo[name] = (eff, why)
         return eff, why
 
@@ -208,7 +313,8 @@ def detect(agent_path, class_name, base_path=None, dispatchers=("handle_task",))
             r = of_method(verb, seen) if verb in direct else ("computes", [])
             vmemo[verb] = r
             return r
-        v = _Direct()
+        al, fr = bctx.get(verb, (a_alias, a_from))
+        v = _Direct(al, fr)
         for stmt in body:
             v.visit(stmt)
         # `getattr(self, task)(...)` dispatches to the method NAMED BY THE VERB;
@@ -231,6 +337,11 @@ def detect(agent_path, class_name, base_path=None, dispatchers=("handle_task",))
                 e2, w2 = of_verb(t, seen | {f"verb:{verb}"})
                 eff = _max(eff, e2)
                 why += w2[:2]
+        for m2 in v.mods:
+            e2, w2 = of_mod(m2[0], m2[1], set())
+            if RANK[e2] > RANK["computes"]:
+                eff = _max(eff, e2)
+                why += w2[:1]
         vmemo[verb] = (eff, why)
         return eff, why
 

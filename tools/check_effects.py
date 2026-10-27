@@ -27,7 +27,11 @@ os.environ["MYCELIAL_EVENT_ORIGIN"] = "test"
 from core.effects import CLASSES, detect  # noqa: E402
 
 # agent_id -> (source, class) for agents whose cards carry an effects map
-AGENTS = {"grow_agent": ("agents/grow_agent/grow_agent.py", "GrowAgent")}
+AGENTS = {"grow_agent": ("agents/grow_agent/grow_agent.py", "GrowAgent", ("handle_task",)),
+          # ssa_demand branches on the verb inside one method; reading it as a
+          # dispatcher labels each ssa_demand_* verb by its own branch
+          "legal_agent": ("agents/legal_agent/legal_agent.py", "LegalAgent",
+                          ("handle_task", "ssa_demand"))}
 
 
 def card_path(aid):
@@ -35,8 +39,8 @@ def card_path(aid):
 
 
 def detected(aid):
-    src, cls = AGENTS[aid]
-    _, of_verb = detect(os.path.join(ROOT, src), cls)
+    src, cls, disp = AGENTS[aid]
+    _, of_verb = detect(os.path.join(ROOT, src), cls, dispatchers=disp)
     return of_verb
 
 
