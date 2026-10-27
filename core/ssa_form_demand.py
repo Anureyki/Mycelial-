@@ -287,6 +287,47 @@ def draft(cycle_id, recipient, requester, resolver=None, today=None):
     return entry
 
 
+def record_principal_sent(recipient, sent_on, method, document_ref, items=None, label=""):
+    """A demand the PRINCIPAL wrote and sent himself (2026-10-27: his DHRA Privacy
+    Act / FOIA request, item 4 of which asks for the SSA-89 or consent record).
+
+    Logged so the ledger tracks it like any other - response, escalation at the
+    configured silence window, the cycle report - with his own document as the
+    text. Rule 7 governs agents contacting third parties on his behalf; a demand
+    he sent himself is not that, and the cycle's authorization says so plainly
+    rather than inventing a written authorization nobody gave."""
+    cfg = _cfg()
+    r = dict(recipient or {})
+    if r.get("type") not in cfg["recipient_types"]:
+        raise Refused(f"recipient type must be one of {cfg['recipient_types']}")
+    if not str(r.get("name") or "").strip():
+        raise Refused("recipient name is required")
+    if not str(document_ref or "").strip():
+        raise Refused("document_ref must name the principal's own sent document")
+    if not str(method or "").strip():
+        raise Refused("method is required")
+    sent = _iso(sent_on, "sent_on")
+    led = load()
+    cid = f"cycle_principal_{sent.replace('-', '')}"
+    cyc = led["cycles"].setdefault(cid, {"id": cid, "label": label or "sent by the principal",
+                                         "opened": sent, "authorization": None})
+    cyc["authorization"] = {"ref": "not applicable - sent by the principal himself, not by an agent",
+                            "on": sent}
+    did = f"{cid}:{len([d for d in led['demands'].values() if d['cycle'] == cid]) + 1}"
+    flags = ["federal_routine_use_track"] if r.get("type") == "federal_agency" else []
+    led["demands"][did] = {
+        "id": did, "cycle": cid, "drafted_on": None, "status": "sent", "sent_by": "principal",
+        "recipient": {k: r.get(k) for k in ("name", "type", "state", "address")},
+        "collection_events": [], "flags": flags, "ecbsv": None, "overlay": [],
+        "unopened_citations": [], "held_out": [],
+        "form_demanded": "; ".join(items or []) or "as stated in the principal's document",
+        "sent": {"on": sent, "method": str(method)[:120], "under_authorization": cyc["authorization"]["ref"]},
+        "response": None,
+        "text": f"(the principal's own document, not drafted here: {document_ref})"}
+    _save(led)
+    return led["demands"][did]
+
+
 # -------------------------------------------------------- what came back
 
 def record_sent(demand_id, sent_on, method):

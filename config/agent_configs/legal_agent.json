@@ -11,6 +11,7 @@
     "ssa_demand_authorize",
     "ssa_demand_draft",
     "ssa_demand_sent",
+    "ssa_demand_log_principal_sent",
     "ssa_demand_response",
     "ssa_demand_status",
     "ssa_demand_report",

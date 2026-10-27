@@ -203,7 +203,7 @@ class LegalAgent(AgentBase):
                 "claim_open", "claim_cite", "claim_answer", "claim_set_right",
                 "claim_evidence", "claim_observe", "claim_reproducibility",
                 "claim_corroborate", "claim_get", "claim_list", "claim_ontology",
-                "add_deadline", "ssa_demand_doctrine", "ssa_demand_cycle", "ssa_demand_authorize", "ssa_demand_draft", "ssa_demand_sent", "ssa_demand_response", "ssa_demand_status", "ssa_demand_report", "deadlines", "record_deadline_event", "check_deadline_register", "classify_solicitation", "bond_requirements", "check_bond_terms", "modification_gate", "bond_forms", "validate_entity_ids", "record_sam_registration", "sam_offer_check", "screen_sam_offer", "scan_gsa_directives", "gsa_directives", "map_gsa_directive", "watch_docket", "watched_dockets",
+                "add_deadline", "ssa_demand_doctrine", "ssa_demand_cycle", "ssa_demand_authorize", "ssa_demand_draft", "ssa_demand_sent", "ssa_demand_log_principal_sent", "ssa_demand_response", "ssa_demand_status", "ssa_demand_report", "deadlines", "record_deadline_event", "check_deadline_register", "classify_solicitation", "bond_requirements", "check_bond_terms", "modification_gate", "bond_forms", "validate_entity_ids", "record_sam_registration", "sam_offer_check", "screen_sam_offer", "scan_gsa_directives", "gsa_directives", "map_gsa_directive", "watch_docket", "watched_dockets",
                 "record_settlement_offer", "settlement_offers",
                 "open_action", "complete_action", "amend_action", "actions",
                 "add_venue", "venues", "running_clocks", "complaint_path",
@@ -986,6 +986,9 @@ class LegalAgent(AgentBase):
                     req["name"] = self.user_constraint("legal_name")
                 return sfd.draft(a.get("cycle_id"), a.get("recipient"), req,
                                  resolver=self.lookup_reference, today=a.get("today"))
+            if task == "ssa_demand_log_principal_sent":
+                return sfd.record_principal_sent(a.get("recipient"), a.get("sent_on"), a.get("method"),
+                                                 a.get("document_ref"), a.get("items"), a.get("label", ""))
             if task == "ssa_demand_sent":
                 return sfd.record_sent(a.get("demand_id"), a.get("sent_on"), a.get("method"))
             if task == "ssa_demand_response":

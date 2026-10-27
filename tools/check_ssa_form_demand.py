@@ -129,6 +129,17 @@ check("a response to an unsent demand is refused",
               sfd.draft(cyc, {"name": "Z", "type": "private_entity", "collection_events": EV},
                         REQ, stub)["id"], "2026-10-25", "x", form_produced=False))
 
+ps = sfd.record_principal_sent({"name": "Example Office", "type": "federal_agency"}, "2026-09-01",
+                               "email", "filings/example.pdf", ["accounting of disclosures"])
+check("a demand the principal sent himself is logged as sent, routine-use track, his document as text",
+      ps["status"] == "sent" and ps["sent_by"] == "principal"
+      and "federal_routine_use_track" in ps["flags"] and "filings/example.pdf" in ps["text"])
+st2 = {r["id"]: r for r in sfd.status(today="2026-10-26")["demands"]}
+check("...and escalates on silence past the window like any other",
+      any(e.startswith("ignored_") for e in st2[ps["id"]]["escalation"]))
+check("...and refuses without naming his document",
+      refused(sfd.record_principal_sent, {"name": "X", "type": "federal_agency"}, "2026-09-01", "email", ""))
+
 rep = sfd.cycle_report(cyc, today="2026-10-26")
 md = rep["markdown"]
 check("requirement Six: one markdown file per cycle with the summary table at the top",
