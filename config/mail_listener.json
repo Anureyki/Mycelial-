@@ -14,10 +14,11 @@
     "auth_rule": "2026-10-29, the principal chose option 2 after a Mars Hydro app update began sending every export with no SPF result: DKIM and DMARC must both pass; SPF must pass or be ABSENT. An SPF result that is present and not 'pass' still refuses. Supersedes 'SPF, DKIM and DMARC all pass' in the note above for the export only - principal_channel is unchanged."
   },
   "principal_channel": {
-    "mode": "dry_run",
+    "mode": "live",
     "address_from_env": "NOTIFY_TO",
     "max_per_hour": 20,
-    "note": "The principal's own mail (2026-10-09 - Base44, logged into his Gmail, reads Anansi's mail and replies through it). Treated like a typed message ONLY from the NOTIFY_TO address with SPF, DKIM and DMARC all pass. dry_run: log the reply text and where it WOULD route - nothing is recorded (routing only; the write path is never called). live: route through process_request and email back what was recorded, subject tagged [MycOS ack]; a reply to an ack is never acknowledged (loop guard). Switched by the principal."
+    "note": "The principal's own mail (2026-10-09 - Base44, logged into his Gmail, reads Anansi's mail and replies through it). Treated like a typed message ONLY from the NOTIFY_TO address with SPF, DKIM and DMARC all pass. dry_run: log the reply text and where it WOULD route - nothing is recorded (routing only; the write path is never called). live: route through process_request and email back what was recorded, subject tagged [MycOS ack]; a reply to an ack is never acknowledged (loop guard). Switched by the principal.",
+    "switched_live": "2026-10-29 by the principal ('Go live it's a good start') after the dry-run test (his Gmail recognized, all three checks passing, 'GSC1 pH 6.1' routed to Grow, nothing recorded) and a preview of the charted reply email."
   },
   "switched_live": "2026-10-13 by the principal ('Make the listener live'), after the dry run's held-mail digest showed no open vocabulary gaps. principal_channel stays dry_run - a separate switch."
 }
