@@ -5941,16 +5941,26 @@ class GrowAgent(AgentBase):
             # until three fresh mixes agree, the top-up strength is the fallback -
             # and it is known to be ~25% low for a fresh mix. One measured fresh
             # result is used PROVISIONALLY, and says so.
-            if not _cal and _blend.endswith(":fresh"):
+            # ANY BLEND WITH ITS OWN MEASUREMENT BEATS A FIGURE FROM ANOTHER BLEND
+            # (2026-10-28). The fresh-mix rule below was right and too narrow: GSC2's
+            # flower-ratio doses kept being sized from 280.2, measured once on its
+            # VEG mix on 10/4, and came in 26%, 17% and 15% under. A provisional
+            # figure from this plant's own confirmed doses of THIS blend is used
+            # until three agree, and says so.
+            if not _cal:
                 try:
                     _pv = self.calibrate_blend(plant_id, _blend, write=False) or {}
                 except Exception:
                     _pv = {}
                 if _pv.get("n") and _pv.get("ppm_l_per_ml"):
                     _cal = {"ppm_l_per_ml": _pv["ppm_l_per_ml"], "n": _pv["n"],
-                            "basis": f"PROVISIONAL - {_pv['n']} measured fresh mix(es) on this plant; "
-                                     f"used over the top-up strength, which runs ~25% low for a fresh mix. "
-                                     f"Mix in two steps and read before finishing."}
+                            "basis": (f"PROVISIONAL - {_pv['n']} measured fresh mix(es) on this plant; "
+                                      f"used over the top-up strength, which runs ~25% low for a fresh mix. "
+                                      f"Mix in two steps and read before finishing."
+                                      if _blend.endswith(":fresh") else
+                                      f"PROVISIONAL - {_pv['n']} confirmed dose(s) of {_blend} on this "
+                                      f"plant; used over a figure measured on a different blend. "
+                                      f"Mix in two steps and read before finishing.")}
             if _cal:
                 conc = dict(conc, ppm_l_per_ml=_cal["ppm_l_per_ml"],
                             origin_plant=plant_id, basis=_cal["basis"],
