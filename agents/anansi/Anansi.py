@@ -762,8 +762,16 @@ class Anansi(AgentBase):
         if self.MARSHYDRO_SENDER not in sender.lower():
             return None
         auth = (full or {}).get("authentication_results") or {}
-        if not all(str(auth.get(k)).lower() == "pass" for k in ("spf", "dkim", "dmarc")):
-            return {"fetched": False, "why": f"authentication not all pass: {auth}"}
+        # DKIM AND DMARC MUST PASS; SPF MUST PASS OR BE ABSENT (principal 2026-10-29,
+        # option 2). After a Mars Hydro app update every export arrives with no SPF
+        # result at all, and two in a row were held under all-three-pass. DMARC
+        # passing already proves the sender's domain (here through DKIM's signature);
+        # a MISSING SPF result is an absence, not a failure. An SPF result that is
+        # present and not "pass" still refuses.
+        if not all(str(auth.get(k)).lower() == "pass" for k in ("dkim", "dmarc")):
+            return {"fetched": False, "why": f"DKIM and DMARC must both pass: {auth}"}
+        if "spf" in auth and str(auth.get("spf")).lower() != "pass":
+            return {"fetched": False, "why": f"SPF present and not pass: {auth}"}
         links = sorted(set(self.MARSHYDRO_URL.findall(str(full.get("html") or "") + " "
                                                        + str(full.get("text") or ""))))
         if len(links) != 1:
