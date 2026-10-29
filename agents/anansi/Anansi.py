@@ -612,6 +612,20 @@ class Anansi(AgentBase):
                 if fx is not None:
                     self._inbound_log({"event": "auto_fetch", "message_id": mid, **fx})
                     ref["auto_fetch"] = fx
+                    # A REFUSED FETCH IS SAID OUT LOUD (2026-10-29). The 10/29 tent export
+                    # arrived with no SPF result, the fetch was correctly refused under
+                    # the principal's all-three-pass rule - and he heard nothing; he
+                    # believed the export had reached Grow.
+                    if not fx.get("fetched"):
+                        try:
+                            self.notify({"subject": "Tent export not fetched",
+                                         "body": (f"Mars Hydro export '{ref.get('subject')}' arrived but was "
+                                                  f"not fetched: {fx.get('why')}. Nothing reached Grow. "
+                                                  f"Re-send the export, or send the CSV here directly."),
+                                         "from_agent": "anansi", "register": "low_stakes",
+                                         "channels": ["email", "dashboard"]})
+                        except Exception as exc:
+                            self.log(f"auto_fetch refusal notice failed: {exc}")
             agent, why = self._route_mail(ref, routable)
             rec = {"message_id": mid, "from": ref["from"], "subject": ref["subject"],
                    "route": agent, "why": why, "stored_at": ref.get("stored_at")}
