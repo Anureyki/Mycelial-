@@ -2976,6 +2976,41 @@ class GrowAgent(AgentBase):
             except Exception:
                 last24 = None
         timestamps = [_col(r, "Timestamp", "timestamp") for r in rows if _col(r, "Timestamp", "timestamp")]
+        # LIGHT, PER DAY (2026-10-29: "so GSC1 can see when I kept the light on longer,
+        # so I can track changes in its feeding"). The export carried ppfd and this
+        # read only temperature and humidity. Lit = ppfd above zero; hours lit and
+        # the daily light integral come from the export's own sampling interval. An
+        # export with no ppfd values says so instead of reporting zero light.
+        light_by_day = None
+        _pts = []
+        for r in rows:
+            ts_, pf_ = _col(r, "Timestamp", "timestamp"), self._parse_numeric(_col(r, "ppfd"))
+            if ts_ and pf_ is not None:
+                try:
+                    _pts.append((datetime.fromisoformat(str(ts_)[:19].replace(" ", "T")), pf_))
+                except ValueError:
+                    pass
+        if _pts:
+            _pts.sort()
+            gaps = sorted((b_[0] - a_[0]).total_seconds() for a_, b_ in zip(_pts, _pts[1:])
+                          if (b_[0] - a_[0]).total_seconds() > 0)
+            step = gaps[len(gaps) // 2] if gaps else 1800.0
+            per_day = int(round(86400 / step)) if step else None
+            days = {}
+            for t_, pf_ in _pts:
+                days.setdefault(t_.date().isoformat(), []).append(pf_)
+            light_by_day = []
+            for d_, vals in sorted(days.items()):
+                lit = [v for v in vals if v > 0]
+                light_by_day.append({
+                    "date": d_, "samples": len(vals),
+                    "partial": bool(per_day and len(vals) < per_day * 0.9),
+                    "hours_lit": round(len(lit) * step / 3600, 2),
+                    "ppfd_avg_while_lit": round(sum(lit) / len(lit), 1) if lit else 0.0,
+                    "dli_mol_m2": round(sum(vals) * step / 1e6, 2)})
+        light = ({"by_day": light_by_day, "sample_step_minutes": round(step / 60, 1),
+                  "basis": "lit = ppfd above zero; DLI = sum(ppfd x sample interval) / 1e6"}
+                 if light_by_day else {"by_day": None, "why": "no ppfd values in this export"})
         device = next((_col(r, "deviceSerialnum", "device") for r in rows
                       if _col(r, "deviceSerialnum", "device")), None)
 
@@ -2999,7 +3034,7 @@ class GrowAgent(AgentBase):
                  "time_start": timestamps[0] if timestamps else None,
                  "time_end": timestamps[-1] if timestamps else None,
                  "temp_c": temp_c, "humidity_pct": humidity, "vpd_kpa": vpd,
-                 "vpd_time_in_band": vpd_in_band, "last_24h": last24,
+                 "vpd_time_in_band": vpd_in_band, "last_24h": last24, "light": light,
                  "since": str(since) if since else None,
                  "source_file": stored_path or csv_path,
                  "source_copied": bool(stored_path), "note": str(note)[:300]}

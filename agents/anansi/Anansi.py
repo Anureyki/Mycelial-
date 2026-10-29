@@ -755,6 +755,46 @@ class Anansi(AgentBase):
     FETCH_DIR = "state/inbox/fetched"
     FETCH_MAX_BYTES = 25 * 1024 * 1024
 
+    @staticmethod
+    def _thp_workbook_to_csv(rs):
+        """The 2026-10 workbook layout -> the THP CSV layout Grow's tent import reads.
+
+        The workbook opens with label/value rows (Device Name, Device ID, Start
+        Time, End Time) and then a table headed `Time, Inside Temp, Inside Humid,
+        Inside VPD, Inside CO2, Inside PPFD, ...` at 30-minute steps. This is a
+        change of FORMAT, not of meaning: each value is carried across as
+        measured (Inside Temp is degrees C), the device id comes from the
+        workbook's own label row, and nothing is interpreted. A table this cannot
+        find returns no header, and the caller refuses it."""
+        import csv as _csv
+        import io as _io
+        meta = {str(r[0]).strip().lower(): (r[1] if len(r) > 1 else "") for r in rs[:10] if r}
+        hi = next((i for i, r in enumerate(rs) if r and str(r[0]).strip().lower() == "time"
+                   and any("temp" in str(c).lower() for c in r)), None)
+        if hi is None:
+            return ""
+        cols = [str(c).strip().lower() for c in rs[hi]]
+
+        def at(row, name):
+            return row[cols.index(name)] if name in cols and cols.index(name) < len(row) else ""
+
+        buf = _io.StringIO()
+        w = _csv.writer(buf)
+        w.writerow(["deviceSerialnum", "temperature(°C)", "humidity", "temperature(°F)",
+                    "Timestamp", "ppfd", "vpd_reported"])
+        dev = meta.get("device id") or meta.get("device name") or ""
+        for row in rs[hi + 1:]:
+            ts, t = at(row, "time"), at(row, "inside temp")
+            if not ts:
+                continue
+            try:
+                tf = f"{float(t) * 9 / 5 + 32:.2f}" if t != "" else ""
+            except ValueError:
+                tf = ""
+            w.writerow([dev, t, at(row, "inside humid"), tf, ts, at(row, "inside ppfd"),
+                        at(row, "inside vpd")])
+        return buf.getvalue()
+
     def _marshydro_export(self, full, mid):
         """-> None when the message is not a Mars Hydro export at all; otherwise a
         record of what was checked and what happened. Every refusal says why."""
@@ -786,13 +826,28 @@ class Anansi(AgentBase):
             return {"fetched": False, "why": f"download failed: {type(exc).__name__}: {exc}"}
         if len(blob) > self.FETCH_MAX_BYTES:
             return {"fetched": False, "why": "larger than the 25 MB cap"}
-        head = blob[:400].decode("utf-8-sig", errors="replace").splitlines()[0].lower() if blob else ""
-        if "text/csv" not in ctype.lower() or not all(c in head for c in
-                                                       ("deviceserialnum", "temperature", "humidity", "timestamp")):
-            return {"fetched": False, "why": f"not a THP CSV (type {ctype!r}, header {head[:80]!r})"}
+        # THE EXPORT IS NOW A WORKBOOK (2026-10-29): after a Mars Hydro app update the
+        # same link serves an .xlsx instead of a CSV. It is read with the standard
+        # library (core/xlsx_rows) and held to the SAME column check as a CSV - a
+        # workbook that is not a THP table is refused exactly as a CSV would be.
+        is_xlsx = "spreadsheetml" in ctype.lower() and blob[:2] == b"PK"
+        if is_xlsx:
+            try:
+                from core.xlsx_rows import rows as _xrows
+                text = self._thp_workbook_to_csv(_xrows(blob))
+            except Exception as exc:
+                return {"fetched": False, "why": f"workbook unreadable: {type(exc).__name__}: {exc}"}
+        elif "text/csv" in ctype.lower():
+            text = blob.decode("utf-8-sig", errors="replace")
+        else:
+            return {"fetched": False, "why": f"neither a CSV nor an Excel workbook (type {ctype!r})"}
+        head = text.splitlines()[0].lower() if text else ""
+        if not all(c in head for c in ("deviceserialnum", "temperature", "humidity", "timestamp")):
+            return {"fetched": False, "why": f"not a THP table ({'xlsx' if is_xlsx else 'csv'}, "
+                                             f"header {head[:160]!r})"}
         digest = hashlib.sha256(blob).hexdigest()[:16]
         path = os.path.join(self.FETCH_DIR, f"marshydro_thp_{digest}.csv")
-        self._private_write(path, blob.decode("utf-8-sig", errors="replace"))
+        self._private_write(path, text)
         res = self.send_a2a("grow_agent", "ingest_tent_export",
                             {"csv_path": os.path.abspath(path),
                              "note": f"Mars Hydro THP export, auto-fetched by Anansi from message {mid[:40]}"},
