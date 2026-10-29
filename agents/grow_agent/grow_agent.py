@@ -918,7 +918,7 @@ class GrowAgent(AgentBase):
                 "log_training_event", "recommend_feed", "plan_system_transition",
                 "set_grow_system", "get_grow_system", "amend_grow_system",
                 "field_history", "assess_root_zone", "void_reservoir_eval",
-                "which_plant", "record_refill", "record_level", "change_out_review", "recipe_elements", "resolve_lesson_rule",
+                "which_plant", "record_refill", "record_level", "change_out_review", "recipe_elements", "resolve_lesson_rule", "project_nutrients",
                 "reconcile_ec_temperature", "intake_reading", "when_to_top_up", "project_topup", "plan_feed_for_target", "reconcile_dose", "ingest_environment_export", "predict_flowering", "calibrate_blend", "record_ripeness", "assess_ripeness", "maintenance_due", "notify_maintenance", "record_lesson", "list_lessons", "ppm_per_ml", "round_to_instrument", "assess_ph", "record_ph_adjustment", "reopen_dose", "record_dose_poured", "defer_full_change", "start_drink_down", "read_flower_photo", "simulate_water_alert", "quantities",
                 "get_nutrient_history",
                 "set_inventory", "get_inventory",
@@ -7227,6 +7227,10 @@ class GrowAgent(AgentBase):
                     _w = self._water_alert(_pid, "scheduled_backstop")
                 except Exception:
                     _w = None
+                try:
+                    self._nutrient_alert(_pid, "scheduled_backstop")
+                except Exception as _exc:
+                    self.log(f"nutrient alert backstop failed for {_pid}: {_exc}")
             # GIRDLING HAS ITS OWN SWITCH, OFF BY DEFAULT: the principal ordered it
             # after the water alert proves itself live, so flipping water live
             # must not turn girdling on with it.
@@ -13613,6 +13617,11 @@ class GrowAgent(AgentBase):
                     out["water_alert"] = self._water_alert(plant_id, "intake_reading")
                 except Exception as exc:
                     out["water_alert_error"] = f"{type(exc).__name__}: {exc}"
+            if cleaned.get("ppm"):
+                try:
+                    out["nutrient_alert"] = self._nutrient_alert(plant_id, "intake_reading")
+                except Exception as exc:
+                    out["nutrient_alert_error"] = f"{type(exc).__name__}: {exc}"
             # Every reading closes whatever prediction was open before it.
             try:
                 chk = self.prediction_check(plant_id, limit=1)
@@ -14487,6 +14496,164 @@ class GrowAgent(AgentBase):
         if any(x["date_only"] for x in recent):
             out["precision"] = "one interval starts at a change-out timed only to the day"
         return out
+
+    NUTRIENT_WINDOW_DAYS = 14
+
+    def project_nutrients(self, plant_id="current_plant", floor_ppm=None):
+        """Where the reservoir's nutrient is NOW and when it crosses the stage floor.
+
+        2026-10-29: GSC2 went 777 -> 174 ppm in five days and nobody saw it until
+        a reading; Grow held every number it needed. Water already had a
+        projection; nutrient did not. The plant's own uptake rate (ppm-litres a
+        day) comes from its most recent CLEAN window - two settled readings with
+        measured volumes, at least 6 h apart, nothing but plain water added
+        between - and runs forward from the latest reading. Volume is held at the
+        projected level from here, which errs early: falling water concentrates
+        what is left. Nothing measured, nothing projected - each refusal says why."""
+        now = datetime.now()
+
+        def _t(x):
+            return datetime.fromisoformat(str(x)[:19].replace(" ", "T"))
+        rds = sorted([r for r in (self._get_readings_for_plant(plant_id) or [])
+                      if not r.get("voided") and self._parse_numeric(r.get("ppm"))],
+                     key=lambda r: str(r.get("timestamp")))
+        if not rds:
+            return {"plant_id": plant_id, "status": "refused", "reason": "no ppm reading on record"}
+        evs = self._volume_events(plant_id)
+        adds = [e for e in evs if e.get("kind") == "full_change" or (
+                e.get("kind") == "dose" and e.get("reconciled_result") != "not_poured"
+                and (e.get("poured_at") or e.get("reconciled")))]
+
+        def _add_time(e):
+            return _t(e.get("poured_at") or e.get("at"))
+
+        def _settled(r):
+            tr = _t(r["timestamp"])
+            for e in adds:
+                if e.get("kind") != "dose":
+                    continue
+                dt = (tr - _add_time(e)).total_seconds()
+                if 0 <= dt < self.DOSE_SETTLE_HOURS * 3600 and \
+                        self._parse_numeric(e.get("measured_ppm_after")) != self._parse_numeric(r.get("ppm")):
+                    return False
+            return True
+        cutoff = now - timedelta(days=self.NUTRIENT_WINDOW_DAYS)
+        win = [r for r in rds if self._measured_volume(r) and _settled(r) and _t(r["timestamp"]) >= cutoff]
+        rate, basis = None, None
+        for r0, r1 in reversed(list(zip(win, win[1:]))):
+            t0, t1 = _t(r0["timestamp"]), _t(r1["timestamp"])
+            days = (t1 - t0).total_seconds() / 86400
+            if days < 0.25 or any(t0 < _add_time(e) <= t1 for e in adds):
+                continue
+            refills = [e for e in evs if e.get("kind") == "refill" and t0 < _t(e.get("at")) <= t1]
+            added = sum(float(e.get("topup_ppm") or 0) * float(e.get("delta") or 0) for e in refills)
+            m0 = self._parse_numeric(r0["ppm"]) * self._measured_volume(r0)
+            m1 = self._parse_numeric(r1["ppm"]) * self._measured_volume(r1)
+            r_ = (m0 + added - m1) / days
+            if r_ <= 0:
+                continue  # salt rose with nothing added - not uptake; a volume or meter miss
+            rate = r_
+            basis = {"from": str(r0["timestamp"])[:16], "to": str(r1["timestamp"])[:16],
+                     "days": round(days, 2), "ppm": [self._parse_numeric(r0["ppm"]),
+                                                     self._parse_numeric(r1["ppm"])]}
+            break
+        if rate is None:
+            return {"plant_id": plant_id, "status": "refused",
+                    "reason": (f"no clean window in the last {self.NUTRIENT_WINDOW_DAYS} days - two "
+                               f"settled readings with measured volumes, 6 h or more apart, nothing "
+                               f"added but plain water between")}
+        last = rds[-1]
+        tl = _t(last["timestamp"])
+        if any(_add_time(e) > tl for e in adds):
+            return {"plant_id": plant_id, "status": "refused",
+                    "reason": "nutrient was added after the latest reading - read ppm to restart the projection"}
+        v_last = self._measured_volume(last) or self._parse_numeric(
+            self._system_record(plant_id).get("reservoir_liters"))
+        if not v_last:
+            return {"plant_id": plant_id, "status": "refused", "reason": "no volume for the latest reading"}
+        try:
+            v_now = float(self.project_water(plant_id).get("projected_now") or v_last)
+        except Exception:
+            v_now = v_last
+        elapsed = max(0.0, (now - tl).total_seconds() / 86400)
+        mass_now = self._parse_numeric(last["ppm"]) * v_last - rate * elapsed
+        ppm_now = max(0.0, mass_now / v_now)
+        if floor_ppm is None:
+            stage = str(self._stage_for_plant(plant_id) or "").lower()
+            band = (STAGE_TARGETS.get(stage) or {}).get("ppm")
+            if not band:
+                return {"plant_id": plant_id, "status": "refused",
+                        "reason": f"no ppm band for stage {stage!r}"}
+            floor = float(band[0])
+        else:
+            stage, floor = "as given", float(floor_ppm)
+        out = {"plant_id": plant_id, "stage": stage, "floor_ppm": floor,
+               "uptake_ppm_l_per_day": round(rate), "rate_window": basis,
+               "rate_age_days": round((now - _t(basis["to"])).total_seconds() / 86400, 1),
+               "last_reading": {"at": str(last["timestamp"])[:16],
+                                "ppm": self._parse_numeric(last["ppm"]), "liters": v_last},
+               "liters_now": round(v_now, 1), "projected_ppm_now": round(ppm_now),
+               "basis": "mass balance; volume held at the projected level from here (errs early)"}
+        # A RATE IS A FACT ABOUT WHEN IT WAS MEASURED (2026-10-29): GSC2's projection
+        # first ran on its 10/17-18 rate, 761 a day, while it was eating ~2,600 a day
+        # in its pre-flower stretch. The age travels with the answer.
+        if out["rate_age_days"] > 7:
+            out["rate_stale"] = (f"the uptake rate is {out['rate_age_days']:.0f} days old; a plant changing "
+                                 f"stage eats differently - read ppm twice, 6 h or more apart, for a "
+                                 f"current rate")
+        if ppm_now <= floor:
+            out.update(status="below_floor", hours_to_floor=0,
+                       message=(f"Projected at about {ppm_now:.0f} ppm now - below the {stage} floor of "
+                                f"{floor:.0f}. Read ppm; Grow sizes the feed from the reading."))
+        else:
+            hrs = (mass_now - floor * v_now) / rate * 24
+            out.update(status="ok", hours_to_floor=round(hrs, 1),
+                       floor_at=(now + timedelta(hours=hrs)).isoformat(timespec="minutes"),
+                       message=(f"Projected about {ppm_now:.0f} ppm now, using about {rate:,.0f} ppm-L a "
+                                f"day - reaches the {stage} floor of {floor:.0f} in about {hrs:.0f} h."
+                                + (" (rate measured over a week ago - may be early or late)"
+                                   if out.get("rate_stale") else "")))
+        return out
+
+    def _nutrient_alert(self, plant_id, trigger):
+        """The nutrient floor, watched like the water: logged every run; sent only
+        when the principal switches nutrient_floor_mode to live (starts dry_run)."""
+        cfg = self._alerts_cfg()
+        mode = str(cfg.get("nutrient_floor_mode") or "dry_run")
+        try:
+            pr = self.project_nutrients(plant_id)
+        except Exception as exc:
+            self.log(f"_nutrient_alert: projection failed for {plant_id}: {exc}")
+            return None
+        within = float(cfg.get("alert_within_hours") or 24)
+        fire = pr.get("status") == "below_floor" or (
+            pr.get("status") == "ok" and pr.get("hours_to_floor", 1e9) <= within)
+        entry = {"at": datetime.now().isoformat(timespec="seconds"), "plant_id": plant_id,
+                 "kind": "nutrient_floor", "trigger": trigger, "mode": mode, "fire": fire,
+                 "status": pr.get("status"), "message": pr.get("message") or pr.get("reason")}
+        if fire and mode == "live":
+            label = self._jload(f"grow_system_{plant_id}", {}).get("instance_label") or plant_id
+            day = datetime.now().strftime("%Y-%m-%d")
+            log = self._jload("nutrient_alerts_sent", {})
+            key = f"{plant_id}:{pr.get('status')}:{day}"
+            if key not in log:
+                r = self.send_a2a("anansi", "notify", {
+                    "subject": f"{label}: nutrient running low", "body": f"{label}: {pr.get('message')}",
+                    "from_agent": "grow_agent", "register": "low_stakes",
+                    "channels": ["email", "dashboard"]})
+                res = r.get("result", r) if isinstance(r, dict) else r
+                entry["delivery"] = res
+                if isinstance(res, dict) and res.get("sent_any"):
+                    log[key] = entry["at"]
+                    self.store_own_memory("nutrient_alerts_sent", json.dumps(log))
+        try:
+            os.makedirs(os.path.dirname(self.ALERT_LOG), mode=0o700, exist_ok=True)
+            fd = os.open(self.ALERT_LOG, os.O_WRONLY | os.O_CREAT | os.O_APPEND, 0o600)
+            with os.fdopen(fd, "a") as fh:
+                fh.write(json.dumps(entry) + "\n")
+        except Exception as exc:
+            self.log(f"_nutrient_alert: could not log: {exc}")
+        return entry
 
     def _water_alert_message(self, label, pr, drink_down=False, change_due=None):
         """The alert's words - ONE place, used by the live alert and by the
@@ -16935,6 +17102,9 @@ class GrowAgent(AgentBase):
             return {"result": {"active": self.active_plants(),
                                "archived": self.archived_plants()}}
 
+        elif task == "project_nutrients":
+            a = args if isinstance(args, dict) else {}
+            return {"result": self.project_nutrients(a.get("plant_id", "current_plant"), a.get("floor_ppm"))}
         elif task == "recipe_elements":
             a = args if isinstance(args, dict) else {}
             return {"result": self.recipe_elements(a.get("amounts"), a.get("liters"), a.get("plant_id"))}
