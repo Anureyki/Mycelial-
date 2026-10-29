@@ -25,6 +25,7 @@
     "deadlines",
     "reminders",
     "inbound_mail",
+    "ack_preview",
     "route_held_mail",
     "held_mail_digest",
     "training_candidates",

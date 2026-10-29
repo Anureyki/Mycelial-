@@ -918,7 +918,7 @@ class GrowAgent(AgentBase):
                 "log_training_event", "recommend_feed", "plan_system_transition",
                 "set_grow_system", "get_grow_system", "amend_grow_system",
                 "field_history", "assess_root_zone", "void_reservoir_eval",
-                "which_plant", "record_refill", "record_level", "change_out_review", "recipe_elements", "resolve_lesson_rule", "project_nutrients",
+                "which_plant", "record_refill", "record_level", "change_out_review", "recipe_elements", "resolve_lesson_rule", "project_nutrients", "status_card",
                 "reconcile_ec_temperature", "intake_reading", "when_to_top_up", "project_topup", "plan_feed_for_target", "reconcile_dose", "ingest_environment_export", "predict_flowering", "calibrate_blend", "record_ripeness", "assess_ripeness", "maintenance_due", "notify_maintenance", "record_lesson", "list_lessons", "ppm_per_ml", "round_to_instrument", "assess_ph", "record_ph_adjustment", "reopen_dose", "record_dose_poured", "defer_full_change", "start_drink_down", "read_flower_photo", "simulate_water_alert", "quantities",
                 "get_nutrient_history",
                 "set_inventory", "get_inventory",
@@ -14615,6 +14615,64 @@ class GrowAgent(AgentBase):
                                    if out.get("rate_stale") else "")))
         return out
 
+    def status_card(self, plant_id="current_plant", days=21):
+        """One plant, as Grow sees it right now - the facts a reply email shows.
+
+        2026-10-29, the principal: Anansi's reply should say it received and
+        routed, what was recorded, and the recommendation - "if Anansi can create a
+        charted report". Anansi presents; it does not reason about plants. So the
+        facts, the projections, any feed suggestion and the series to chart all
+        come from here, each with its own basis, and nothing is written."""
+        rec = self._jload(f"grow_system_{plant_id}", {})
+        if not rec:
+            return {"plant_id": plant_id, "error": "no system record"}
+        rds = sorted([r for r in (self._get_readings_for_plant(plant_id) or []) if not r.get("voided")],
+                     key=lambda r: str(r.get("timestamp")))
+        cut = (datetime.now() - timedelta(days=int(days))).isoformat()
+        series = [{"at": str(r["timestamp"])[:16], "ppm": self._parse_numeric(r.get("ppm")),
+                   "ph": self._parse_numeric(r.get("ph"))}
+                  for r in rds if str(r.get("timestamp")) >= cut
+                  and (r.get("ppm") not in (None, "") or r.get("ph") not in (None, ""))]
+
+        def _last(key):
+            hit = next((r for r in reversed(rds) if r.get(key) not in (None, "")), None)
+            return ({"value": self._parse_numeric(hit[key]), "at": str(hit["timestamp"])[:16]}
+                    if hit else None)
+        stage = str(self._stage_for_plant(plant_id) or "").lower()
+        band = (STAGE_TARGETS.get(stage) or {}).get("ppm")
+        target = self._parse_numeric(rec.get("target_ppm"))
+        out = {"plant_id": plant_id, "label": rec.get("instance_label") or plant_id, "stage": stage,
+               "band_ppm": list(band) if band else None, "target_ppm": target,
+               "ph_band": list((STAGE_TARGETS.get(stage) or {}).get("ph") or (5.8, 6.2)),
+               "latest": {"ppm": _last("ppm"), "ec": _last("ec"), "ph": _last("ph")},
+               "series": series}
+        try:
+            out["day"] = (self.predict_flowering(plant_id) or {}).get("day")
+        except Exception:
+            out["day"] = None
+        for k, fn in (("nutrient", self.project_nutrients), ("water", self.project_water)):
+            try:
+                pr = fn(plant_id)
+                out[k] = {"status": pr.get("status"), "message": pr.get("message") or pr.get("reason")}
+            except Exception as exc:
+                out[k] = {"status": "error", "message": f"{type(exc).__name__}: {exc}"}
+        # A FEED SUGGESTION only from a settled reading below the standing target,
+        # sized by the same planner every dose uses - shown, never recorded.
+        lp = out["latest"]["ppm"]
+        if target and lp and lp["value"] < target * 0.95:
+            try:
+                lv = self._measured_volume(next(r for r in reversed(rds) if r.get("ppm") not in (None, "")))
+                v = lv or self._parse_numeric(rec.get("reservoir_liters"))
+                plan = self.plan_feed_for_target(plant_id, target_ppm=target, current_ppm=lp["value"],
+                                                 dose_into_liters=v, final_liters=v, persist=False)
+                if plan.get("add_now_ml"):
+                    out["suggestion"] = {"to_ppm": target, "from_ppm": lp["value"], "liters": v,
+                                         "add_ml": plan["add_now_ml"],
+                                         "strength": (plan.get("ppm_per_ml") or {}).get("ppm_l_per_ml")}
+            except Exception as exc:
+                out["suggestion_error"] = f"{type(exc).__name__}: {exc}"
+        return out
+
     def _nutrient_alert(self, plant_id, trigger):
         """The nutrient floor, watched like the water: logged every run; sent only
         when the principal switches nutrient_floor_mode to live (starts dry_run)."""
@@ -17102,6 +17160,9 @@ class GrowAgent(AgentBase):
             return {"result": {"active": self.active_plants(),
                                "archived": self.archived_plants()}}
 
+        elif task == "status_card":
+            a = args if isinstance(args, dict) else {}
+            return {"result": self.status_card(a.get("plant_id", "current_plant"), a.get("days", 21))}
         elif task == "project_nutrients":
             a = args if isinstance(args, dict) else {}
             return {"result": self.project_nutrients(a.get("plant_id", "current_plant"), a.get("floor_ppm"))}

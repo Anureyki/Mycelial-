@@ -49,7 +49,7 @@ class Anansi(AgentBase):
                           "notify", "publish_media", "receive_mail", "ingest_upload", "grow_roster",
                           "grow_snapshot", "recent_changes", "phase_status",
                           "system_graph", "actions", "deadlines", "reminders",
-                          "inbound_mail", "route_held_mail", "held_mail_digest",
+                          "inbound_mail", "ack_preview", "route_held_mail", "held_mail_digest",
                           "training_candidates", "training_quest_status",
                           "advance_campaign", "review_candidate", "voice"],
             role="interface"
@@ -257,10 +257,11 @@ class Anansi(AgentBase):
             "held_here": False,
             "note": ("Anansi keeps no copy of this. The domain that raised it is "
                      "still the only place it is remembered."),
-            **self._deliver(channels, subject, text, sender),
+            **self._deliver(channels, subject, text, sender,
+                            html=a.get("html"), attachments=a.get("attachments")),
         }
 
-    def _deliver(self, channels, subject, text, sender):
+    def _deliver(self, channels, subject, text, sender, html=None, attachments=None):
         """Actually put it in front of him, and say honestly if it could not.
 
         `email` needs a credential this machine does not have yet. A delivery
@@ -289,9 +290,15 @@ class Anansi(AgentBase):
                     req = urllib.request.Request(
                         "https://api.agentmail.to/v0/inboxes/"
                         + urllib.parse.quote(inbox, safe="") + "/messages/send",
+                        # HTML and inline images (2026-10-29: the principal's charted reply).
+                        # The plain text always goes too - it is what a client without
+                        # HTML shows, and AgentMail generates none from the HTML.
                         data=json.dumps({"to": os.environ["NOTIFY_TO"],
                                          "subject": self._tagged_subject(subject, sender),
-                                         "text": text}).encode(),
+                                         "text": text,
+                                         **({"html": html} if html else {}),
+                                         **({"attachments": attachments} if attachments else {})
+                                         }).encode(),
                         headers={"Authorization": "Bearer " + os.environ["AGENTMAIL_API_KEY"],
                                  "Content-Type": "application/json"}, method="POST")
                     with urllib.request.urlopen(req, timeout=30) as resp:
@@ -741,13 +748,62 @@ class Anansi(AgentBase):
         rec["decision"] = "routed as a typed message"
         rec["result"] = json.dumps(inner, default=str)[:1500]
         if "[mycos ack]" not in subject.lower():
-            body = ("This is what MycOS did with your reply:\n\n"
-                    + (json.dumps(inner, indent=1, default=str)[:3000]) +
-                    "\n\nIf anything is wrong, reply with the correction.")
-            rec["ack"] = self.notify({"subject": f"[MycOS ack] {subject[:150]}", "body": body,
-                                      "from_agent": "anansi", "register": "low_stakes",
-                                      "channels": ["email"]})
+            rec["ack"] = self._send_ack(text, subject, routed_to=(tag.group(1) if tag else
+                                        ", ".join(would or []) or "no department"),
+                                        recorded=self._receipt_text(inner), preview=False)
         return rec
+
+    @staticmethod
+    def _receipt_text(inner):
+        """The department's own words for what it did, never a JSON dump."""
+        if isinstance(inner, str):
+            return inner[:2000]
+        if isinstance(inner, dict):
+            for k in ("response", "answer", "text", "message", "receipt", "summary"):
+                v = inner.get(k)
+                if isinstance(v, str) and v.strip():
+                    return v[:2000]
+        return json.dumps(inner, default=str)[:1500]
+
+    def _send_ack(self, prompt, subject, routed_to, recorded, preview):
+        """Received, routed, recorded, and Grow's status card per plant named -
+        presented by core/ack_email; every fact comes from the department.
+        `prompt` is the principal's OWN words, without the replied-to subject, so
+        the plant is resolved from what he wrote and not from an older email."""
+        from core.ack_email import render
+        cards = []
+        if "grow" in str(routed_to):
+            try:
+                wp = self.send_a2a("grow_agent", "which_plant", {"text": prompt}, timeout=60)
+                while isinstance(wp, dict) and "result" in wp and isinstance(wp["result"], dict):
+                    wp = wp["result"]
+                pid = (wp or {}).get("plant_id")
+                if pid:
+                    sc = self.send_a2a("grow_agent", "status_card", {"plant_id": pid}, timeout=180)
+                    while isinstance(sc, dict) and "result" in sc and isinstance(sc["result"], dict):
+                        sc = sc["result"]
+                    if isinstance(sc, dict) and sc.get("label"):
+                        cards.append(sc)
+            except Exception as exc:
+                self.log(f"_send_ack: status card unavailable: {exc}")
+        r = render(datetime.now().strftime("%Y-%m-%d %H:%M"), routed_to, recorded, cards, preview=preview)
+        tag = "[MycOS preview]" if preview else "[MycOS ack]"
+        return self.notify({"subject": f"{tag} {subject[:150]}", "body": r["text"], "verbatim": True,
+                            "html": r["html"], "attachments": r["attachments"],
+                            "from_agent": "anansi", "register": "low_stakes", "channels": ["email"]})
+
+    def ack_preview(self, args):
+        """Send the reply email for a typed message WITHOUT recording anything - so
+        the principal can judge the format before the channel goes live."""
+        a = args if isinstance(args, dict) else {}
+        prompt = str(a.get("text") or "").strip()
+        if not prompt:
+            return {"error": "ack_preview needs text, e.g. 'GSC1 pH 6.1'"}
+        would = self.router.domains_for(prompt, fallback=False)
+        routed = ", ".join(would or []) or "no department"
+        return self._send_ack(prompt, a.get("subject") or prompt, routed,
+                              recorded=f"Would record: {prompt} (preview - nothing written)",
+                              preview=True)
 
     MARSHYDRO_SENDER = "marshydro-noreply@notice00.marshydro.eu"
     MARSHYDRO_URL = re.compile(r"https://mars-pro\.api\.lgledsolutions\.com/api/common/download/"
@@ -1022,6 +1078,8 @@ class Anansi(AgentBase):
             return self.receive_mail(args if isinstance(args, dict) else {})
         if task == "inbound_mail":
             return self.inbound_mail(args)
+        if task == "ack_preview":
+            return self.ack_preview(args)
         if task == "route_held_mail":
             return self.route_held_mail(args)
         if task == "held_mail_digest":
