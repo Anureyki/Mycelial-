@@ -918,7 +918,7 @@ class GrowAgent(AgentBase):
                 "log_training_event", "recommend_feed", "plan_system_transition",
                 "set_grow_system", "get_grow_system", "amend_grow_system",
                 "field_history", "assess_root_zone", "void_reservoir_eval",
-                "which_plant", "record_refill", "record_level", "change_out_review", "recipe_elements", "resolve_lesson_rule", "project_nutrients", "status_card",
+                "which_plant", "record_refill", "record_level", "change_out_review", "recipe_elements", "resolve_lesson_rule", "project_nutrients", "status_card", "journal",
                 "reconcile_ec_temperature", "intake_reading", "when_to_top_up", "project_topup", "plan_feed_for_target", "reconcile_dose", "ingest_environment_export", "predict_flowering", "calibrate_blend", "record_ripeness", "assess_ripeness", "maintenance_due", "notify_maintenance", "record_lesson", "list_lessons", "ppm_per_ml", "round_to_instrument", "assess_ph", "record_ph_adjustment", "reopen_dose", "record_dose_poured", "defer_full_change", "start_drink_down", "read_flower_photo", "simulate_water_alert", "quantities",
                 "get_nutrient_history",
                 "set_inventory", "get_inventory",
@@ -14615,6 +14615,143 @@ class GrowAgent(AgentBase):
                                    if out.get("rate_stale") else "")))
         return out
 
+    def journal(self, plant_id="current_plant", days=30):
+        """One plant's grow, day by day - every store Grow holds, in one order.
+
+        2026-10-30, the principal: "my records of when I give certain parameters
+        like pH, ppm, EC, or even water level are scattered... when I change the
+        pH, that's scattered too." They were: readings, doses, refills, levels,
+        pH adjustments, stage and root checks, training, lessons, ripeness and
+        the tent's light each lived in its own store, and the existing timeline
+        showed only readings and notes. This reads all of them and writes
+        nothing. A thing not measured is shown as not taken, never filled in."""
+        from collections import defaultdict
+        rec = self._jload(f"grow_system_{plant_id}", {})
+        if not rec:
+            return {"plant_id": plant_id, "error": "no system record"}
+        label = rec.get("instance_label") or plant_id
+        cut = (datetime.now() - timedelta(days=int(days))).isoformat()[:19]
+        ent = []
+
+        def add(at, kind, text):
+            at = str(at or "")[:19].replace(" ", "T")
+            if at and at >= cut:
+                ent.append({"at": at, "kind": kind, "text": text})
+
+        def f(v, nd=0):
+            v = self._parse_numeric(v)
+            return None if v is None else (f"{v:.{nd}f}" if nd else f"{v:g}")
+        for r in self._get_readings_for_plant(plant_id) or []:
+            if r.get("voided"):
+                continue
+            bits = []
+            if f(r.get("ppm")):
+                bits.append(f"{f(r.get('ppm'))} ppm")
+            if r.get("ec") not in (None, ""):
+                ec = self._parse_numeric(r["ec"])
+                bits.append(f"EC {ec * 1000:.0f}" if ec is not None and ec < 20 else f"EC {r['ec']}")
+            if f(r.get("ph"), 2):
+                bits.append(f"pH {f(r.get('ph'), 2)}")
+            if f(r.get("temp"), 1):
+                bits.append(f"{f(r.get('temp'), 1)} C water")
+            vol = self._measured_volume(r)
+            if not bits and not vol:
+                continue
+            add(r.get("timestamp"), "reading", "Read " + " / ".join(bits or ["level only"])
+                + (f" at {vol:g} L" if vol else ""))
+        for e in self._volume_events(plant_id):
+            k = e.get("kind")
+            if k == "dose":
+                amt = e.get("add_now_ml") or {}
+                ml = " · ".join(f"{b} {v:g}" for b, v in amt.items())
+                res = e.get("reconciled_result")
+                if res == "not_poured":
+                    add(e.get("at"), "dose", f"Feed planned, not poured ({ml} ml)")
+                    continue
+                when = e.get("poured_at") or e.get("at")
+                tail = []
+                if e.get("dose_uncertain"):
+                    tail.append(f"{', '.join(e['dose_uncertain'])} amounts uncertain")
+                pred = self._parse_numeric(e.get("ppm_predicted_at_final") or e.get("ppm_predicted"))
+                if pred:
+                    tail.append(f"aimed at {pred:.0f}")
+                if res:
+                    tail.append(res.replace("_", " "))
+                add(when, "dose", f"Fed {ml} ml" + (f" into {f(e.get('volume_liters'))} L" if e.get("volume_liters") else "")
+                    + (f" ({'; '.join(tail)})" if tail else ""))
+            elif k == "refill":
+                w = e.get("water")
+                add(e.get("at"), "refill", f"Refilled {f(e.get('from_liters')) or '?'} -> {f(e.get('liters'))} L"
+                    + (f", {w} water" if w else ", water not named"))
+            elif k == "full_change":
+                add(e.get("at"), "change", f"Full reservoir change to {f(e.get('liters')) or '?'} L")
+            elif k == "level":
+                add(e.get("at"), "level", f"Level {f(e.get('liters'))} L")
+        for d in ("up", "down"):
+            for h in rec.get(f"ph_{d}_response_history") or []:
+                frm = h.get("ph_from")
+                add(h.get("measured_at"), "ph_adjust",
+                    f"pH {d.title()} {f(h.get('ml'))} ml: "
+                    + (f"{f(frm, 2)} -> " if frm is not None else "pH before: not taken -> ")
+                    + f"{f(h.get('ph_to'), 2)}")
+        for key, kind in (("last_stage_check", "stage"), ("last_root_check", "roots")):
+            c = rec.get(key) or {}
+            if c.get("at"):
+                txt = c.get("looks") or c.get("roots") or ""
+                add(str(c["at"]) + "T12:00:00", kind, f"{'Stage' if kind == 'stage' else 'Root'} check: {txt}")
+        try:
+            idx = json.loads(self._unwrap_value(self.retrieve_own_memory("training_event_index")) or "[]")
+            for k in idx:
+                t = json.loads(self._unwrap_value(self.retrieve_own_memory(k)) or "{}")
+                if t.get("plant_id") == plant_id and not t.get("voided"):
+                    add(t.get("timestamp"), "training", f"{str(t.get('event_type')).replace('_', ' ').title()}"
+                        + (f" ({t.get('severity')})" if t.get("severity") else ""))
+        except Exception as exc:
+            self.log(f"journal: training events unreadable: {exc}")
+        for o in self._ripeness_obs(plant_id):
+            if o.get("observed_by") == "principal":
+                bits = [f"{k.replace('_pct', '').replace('_', ' ')} {o[k]:g}%"
+                        for k in ("pistils_brown_pct", "trichomes_clear_pct", "trichomes_cloudy_pct",
+                                  "trichomes_amber_pct") if o.get(k) is not None]
+                if o.get("too_early_for_percentage"):
+                    bits.append("too early for percentage")
+                add(o.get("at"), "ripeness", "Ripeness check: " + (", ".join(bits) or "observed"))
+        for l in self._list_lessons(plant_id=plant_id):
+            add(l.get("at"), "lesson", f"Lesson: {l.get('name')}")
+        pref = {"current_plant": "gsc1_", "gsc_auto_2": "gsc2_"}.get(plant_id, f"{plant_id}_")
+        pdir = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))),
+                            "state", "grow", "photos")
+        try:
+            for fn in sorted(os.listdir(pdir)):
+                m = re.match(re.escape(pref) + r"(\d{4}-\d{2}-\d{2})_(.+)\.\w+$", fn)
+                if m:
+                    add(m.group(1) + "T12:00:00", "photo", f"Photo: {m.group(2).replace('_', ' ')}")
+        except Exception:
+            pass
+        light = {}
+        for ev in self._environment_events(plant_id) or []:
+            for d in ((ev.get("light") or {}).get("by_day") or []):
+                light[d["date"]] = d
+        germ = None
+        try:
+            germ = datetime.fromisoformat(str(self._plant_state("germination_date", plant_id)[0])[:10])
+        except Exception:
+            pass
+        by_day = defaultdict(list)
+        for e in sorted(ent, key=lambda x: x["at"]):
+            by_day[e["at"][:10]].append({"time": e["at"][11:16], "kind": e["kind"], "text": e["text"]})
+        out_days = []
+        for d in sorted(set(by_day) | {k for k in light if k >= cut[:10]}):
+            lt = light.get(d)
+            out_days.append({"date": d,
+                             "plant_day": ((datetime.fromisoformat(d) - germ).days if germ else None),
+                             "light": ({"hours_lit": lt["hours_lit"], "dli": lt["dli_mol_m2"],
+                                        "partial": lt.get("partial")} if lt else None),
+                             "entries": by_day.get(d, [])})
+        return {"plant_id": plant_id, "label": label, "days": int(days),
+                "stage": str(self._stage_for_plant(plant_id) or ""), "journal": out_days,
+                "basis": "every Grow store, merged by time; nothing written; unmeasured values shown as not taken"}
+
     def status_card(self, plant_id="current_plant", days=21):
         """One plant, as Grow sees it right now - the facts a reply email shows.
 
@@ -17160,6 +17297,9 @@ class GrowAgent(AgentBase):
             return {"result": {"active": self.active_plants(),
                                "archived": self.archived_plants()}}
 
+        elif task == "journal":
+            a = args if isinstance(args, dict) else {}
+            return {"result": self.journal(a.get("plant_id", "current_plant"), a.get("days", 30))}
         elif task == "status_card":
             a = args if isinstance(args, dict) else {}
             return {"result": self.status_card(a.get("plant_id", "current_plant"), a.get("days", 21))}
