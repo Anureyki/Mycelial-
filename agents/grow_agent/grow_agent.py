@@ -18322,7 +18322,27 @@ class GrowAgent(AgentBase):
             # is the point: the grower should not be asked to re-state a reservoir
             # volume they set themselves two days ago.
             missing, stale, carried = [], [], {}
+            # WHAT THE GROWER DOES NOT NEED TO TYPE (2026-10-30): "I mostly center my
+            # readings around PPM, EC, and pH. Since the temperature of the water is
+            # always consistent..." Water temperature with a normal range on the
+            # record, and humidity a recent tent export already measured every 30
+            # minutes, are known - never asked for again.
+            _normal_t = (system or {}).get("reservoir_temp_normal_c")
+            try:
+                _env = (self._environment_events(plant_id) or [])[-1:]
+                _env_end = str((_env[0] if _env else {}).get("time_end") or "")[:19]
+                _env_age = ((now - datetime.fromisoformat(_env_end.replace(" ", "T"))).days
+                            if _env_end else None)
+            except Exception:
+                _env_age = None
             for p in schedule["params"]:
+                if p == "temp" and _normal_t:
+                    carried[p] = {"value": f"{_normal_t[0]}-{_normal_t[1]} C (normal range on record)",
+                                  "days_old": None}
+                    continue
+                if p == "humidity" and _env_age is not None and _env_age <= 3:
+                    carried[p] = {"value": "from the tent export", "days_old": _env_age}
+                    continue
                 last_val, last_age = self._last_known_param(p, readings)
                 if last_val is None:
                     missing.append(p)
