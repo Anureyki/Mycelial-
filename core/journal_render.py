@@ -173,3 +173,50 @@ footer {{ margin-top: 36px; color: var(--muted); font-size: .8rem; }}
 <footer>Built by Grow from its own records; nothing on this page was estimated. A value not measured shows as not taken.</footer>
 </div>
 """
+
+
+def render_email(plants, days=7):
+    """The weekly journal email: email-safe inline styles, the last `days` days
+    per plant, and each plant's chart as an inline PNG (core/ack_email). ->
+    {"text", "html", "attachments"}."""
+    import base64
+    from core.ack_email import _chart_png
+    text, parts, atts = [], [], []
+    for i, (j, card) in enumerate(plants):
+        card = card or {}
+        lt = card.get("latest") or {}
+        head = (f"{j['label']} - {card.get('stage') or ''}" + (f", day {card['day']}" if card.get("day") else ""))
+        text += [f"== {head} ==", f"Nutrient: {(card.get('nutrient') or {}).get('message') or '-'}",
+                 f"Water: {(card.get('water') or {}).get('message') or '-'}"]
+        parts.append(f"<h2 style='margin:20px 0 4px;font-size:18px;color:#1d2620'>{_e(head)}</h2>"
+                     f"<p style='margin:0 0 4px;color:#444'><b>Nutrient</b> {_e((card.get('nutrient') or {}).get('message') or '-')}</p>"
+                     f"<p style='margin:0 0 8px;color:#444'><b>Water</b> {_e((card.get('water') or {}).get('message') or '-')}</p>")
+        png = _chart_png(card)
+        if png:
+            cid = f"journal{i}"
+            atts.append({"filename": f"{j['plant_id']}_journal.png", "content_type": "image/png",
+                         "content_disposition": "inline", "content_id": cid,
+                         "content": base64.b64encode(png).decode()})
+            parts.append(f"<img src='cid:{cid}' alt='{_e(j['label'])} chart' style='max-width:100%'>")
+        recent = [d for d in (j.get("journal") or []) if d["entries"] or d.get("light")][-days:]
+        for d in reversed(recent):
+            dt = datetime.fromisoformat(d["date"])
+            ltd = d.get("light")
+            hdr = f"{dt:%a %b %d}" + (f" · day {d['plant_day']}" if d.get("plant_day") is not None else "")
+            light = f"{ltd['hours_lit']:g} h light, DLI {ltd['dli']:g}" if ltd else ""
+            text.append(f"{hdr}" + (f" ({light})" if light else ""))
+            text += [f"  {e['time']} {KIND.get(e['kind'], e['kind'])}: {e['text']}" for e in d["entries"]]
+            parts.append(f"<p style='margin:12px 0 2px'><b>{_e(hdr)}</b>"
+                         + (f" <span style='color:#66726a;font-size:12px'>{_e(light)}</span>" if light else "") + "</p>"
+                         + "<table style='border-collapse:collapse;font-size:13px'>"
+                         + "".join(f"<tr><td style='padding:2px 8px 2px 0;color:#66726a;font-family:monospace'>{_e(e['time'])}</td>"
+                                   f"<td style='padding:2px 8px 2px 0;color:#2f7d4a;font-size:11px;text-transform:uppercase'>{_e(KIND.get(e['kind'], e['kind']))}</td>"
+                                   f"<td style='padding:2px 0'>{_e(e['text'])}</td></tr>" for e in d["entries"])
+                         + "</table>")
+        text.append("")
+    html = ("<div style='font-family:-apple-system,Segoe UI,Roboto,sans-serif;max-width:680px;color:#1d2620'>"
+            "<h1 style='font-size:22px;margin:0'>Grow journal - this week</h1>"
+            "<p style='color:#66726a;margin:4px 0 0'>Every reading, feed, refill, pH change and check Grow holds. "
+            "Nothing here was estimated; a value not measured shows as not taken.</p>"
+            + "".join(parts) + "</div>")
+    return {"text": "\n".join(text), "html": html, "attachments": atts}

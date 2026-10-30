@@ -9,6 +9,7 @@
     "reminders",
     "inbound_mail",
     "ack_preview",
+    "journal_email",
     "route_held_mail",
     "held_mail_digest",
     "grow_roster",

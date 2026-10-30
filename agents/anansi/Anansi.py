@@ -49,7 +49,7 @@ class Anansi(AgentBase):
                           "notify", "publish_media", "receive_mail", "ingest_upload", "grow_roster",
                           "grow_snapshot", "recent_changes", "phase_status",
                           "system_graph", "actions", "deadlines", "reminders",
-                          "inbound_mail", "ack_preview", "route_held_mail", "held_mail_digest",
+                          "inbound_mail", "ack_preview", "journal_email", "route_held_mail", "held_mail_digest",
                           "training_candidates", "training_quest_status",
                           "advance_campaign", "review_candidate", "voice"],
             role="interface"
@@ -792,6 +792,30 @@ class Anansi(AgentBase):
                             "html": r["html"], "attachments": r["attachments"],
                             "from_agent": "anansi", "register": "low_stakes", "channels": ["email"]})
 
+    def journal_email(self, args):
+        """The weekly grow journal by email (principal 2026-10-30: 'Both' - the page
+        and the email). Grow supplies each plant's journal and status card;
+        core/journal_render lays them out. Tier one: it tells the principal."""
+        from core.journal_render import render_email
+        a = args if isinstance(args, dict) else {}
+        days = int(a.get("days") or 7)
+        plants = []
+        for pid in ("current_plant", "gsc_auto_2"):
+            j = self.send_a2a("grow_agent", "journal", {"plant_id": pid, "days": days}, timeout=240)
+            c = self.send_a2a("grow_agent", "status_card", {"plant_id": pid, "days": 21}, timeout=240)
+            while isinstance(j, dict) and "result" in j and isinstance(j["result"], dict):
+                j = j["result"]
+            while isinstance(c, dict) and "result" in c and isinstance(c["result"], dict):
+                c = c["result"]
+            if isinstance(j, dict) and j.get("journal") is not None:
+                plants.append((j, c if isinstance(c, dict) else {}))
+        if not plants:
+            return {"sent": False, "why": "Grow returned no journal"}
+        r = render_email(plants, days=days)
+        return self.notify({"subject": "Grow journal - this week", "body": r["text"], "verbatim": True,
+                            "html": r["html"], "attachments": r["attachments"],
+                            "from_agent": "anansi", "register": "low_stakes", "channels": ["email"]})
+
     def ack_preview(self, args):
         """Send the reply email for a typed message WITHOUT recording anything - so
         the principal can judge the format before the channel goes live."""
@@ -1080,6 +1104,8 @@ class Anansi(AgentBase):
             return self.inbound_mail(args)
         if task == "ack_preview":
             return self.ack_preview(args)
+        if task == "journal_email":
+            return self.journal_email(args)
         if task == "route_held_mail":
             return self.route_held_mail(args)
         if task == "held_mail_digest":
