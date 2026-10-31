@@ -18361,7 +18361,14 @@ class GrowAgent(AgentBase):
                          datetime.fromisoformat(a["timestamp"])).total_seconds() / 3600.0
             except Exception:
                 pass
-            if hours is not None and hours < MIN_CONSUMPTION_WINDOW_HOURS and vb <= va:
+            # The window guard exists because a small change cannot be told from
+            # measurement error - not because time itself matters. 2026-10-31: GSC1
+            # went 15 -> ~12 L (20%) in 13.7h and was refused as "a few percent a
+            # day at most". A change well above the noise floor is readable
+            # whatever the clock says, so the guard only holds small ones.
+            _short_but_large = max(abs(water_used), abs(nutrient_used)) >= 2 * CONSUMPTION_NOISE_FLOOR_PCT
+            if (hours is not None and hours < MIN_CONSUMPTION_WINDOW_HOURS and vb <= va
+                    and not _short_but_large):
                 res = self._make_recommendation(
                     f"Only {hours:.1f}h between these readings.",
                     f"Uptake is a slow signal - a reservoir this size shifts a few percent a day at "
@@ -18417,8 +18424,13 @@ class GrowAgent(AgentBase):
                 )
                 action = "Hold the current strength; top up to volume as needed."
 
+            if hours is not None and hours < MIN_CONSUMPTION_WINDOW_HOURS:
+                observation += (f" Short window ({hours:.1f}h), read because the change is over "
+                                f"{2 * CONSUMPTION_NOISE_FLOOR_PCT:.0f}%.")
             result = self._make_recommendation(observation, f"Verdict: {verdict}.", action,
-                                               "high" if verdict != "balanced" else "medium")
+                                               "high" if verdict != "balanced" and not (
+                                                   hours is not None and hours < MIN_CONSUMPTION_WINDOW_HOURS)
+                                               else "medium")
             result["classification"] = verdict
             result["window"] = {"from": a.get("timestamp"), "to": b.get("timestamp")}
             result["water_used_pct"] = round(water_used, 1)
