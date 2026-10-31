@@ -15854,7 +15854,8 @@ class GrowAgent(AgentBase):
                 a.get("plant_id", "current_plant"), a.get("target_ppm"),
                 a.get("dose_into_liters"), a.get("final_liters"),
                 a.get("current_ppm"), a.get("note", ""), a.get("only_products"),
-                a.get("stage_ratio"), ratio_stage=a.get("ratio_stage"))}
+                a.get("stage_ratio"), ratio_stage=a.get("ratio_stage"),
+                persist=a.get("persist", True) is not False)}
 
         elif task == "project_topup":
             a = args or {}
