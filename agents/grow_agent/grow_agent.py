@@ -18424,7 +18424,7 @@ class GrowAgent(AgentBase):
                 )
                 action = "Hold the current strength; top up to volume as needed."
 
-            if hours is not None and hours < MIN_CONSUMPTION_WINDOW_HOURS:
+            if hours is not None and hours < MIN_CONSUMPTION_WINDOW_HOURS and verdict != "topped_up":
                 observation += (f" Short window ({hours:.1f}h), read because the change is over "
                                 f"{2 * CONSUMPTION_NOISE_FLOOR_PCT:.0f}%.")
             result = self._make_recommendation(observation, f"Verdict: {verdict}.", action,
