@@ -3278,6 +3278,27 @@ class GrowAgent(AgentBase):
                                   "observed, so the last reading stays the latest chemistry."),
                 "water_alert": self._water_alert(pid, "record_level")}
 
+    @staticmethod
+    def _split_reply_context(prompt):
+        """(what the grower said, the context it arrived in).
+
+        Anansi prefixes an email reply with "(reply to: <subject>)" and the body
+        carries the quoted thread below "On ... wrote:". Both are CONTEXT - text
+        this system wrote, not a measurement. 2026-11-01: "Gsc2 is projected 18L
+        now refilled with Di water", replying to "GSC-2: reservoir will be at 12 L
+        in about 18 h", was recorded as a refill to 12 L - the number came from
+        the subject. Numbers are read from what was said; the context may still
+        name the plant."""
+        text = prompt or ""
+        ctx = ""
+        m = re.match(r"\s*\(reply to:(.*?)\)\s*", text, re.S)
+        if m:
+            ctx, text = m.group(1), text[m.end():]
+        q = re.search(r"\n\s*On [^\n]{0,200}(\n[^\n]{0,200})?wrote:", text)
+        if q:
+            ctx, text = ctx + "\n" + text[q.start():], text[:q.start()]
+        return text.strip(), ctx.strip()
+
     def refill_from_text(self, prompt, plant_id=None):
         """Read a refill out of plain language and record it, or say what is missing."""
         text = prompt or ""
@@ -8815,7 +8836,10 @@ class GrowAgent(AgentBase):
         # number and a unit, so the reading parser claims it and log_reading
         # then refuses it as nothing measurable - which is how the grower told
         # this system three times that he had refilled and it recorded nothing.
-        _rf = self.refill_from_text(prompt, plant_id=plant_id)
+        _said, _ctx = self._split_reply_context(prompt)
+        _said_pid = plant_id or self._plant_from_text(_said) or (
+            self._plant_from_text(_ctx) if _ctx else None)
+        _rf = self.refill_from_text(_said, plant_id=_said_pid)
         if _rf.get("recorded"):
             pred = _rf.get("prediction") or {}
             tail = (f" If nothing was taken up it should read about "
@@ -8833,8 +8857,8 @@ class GrowAgent(AgentBase):
             return {"answered_as": "refill_refused", "plant_id": _rf.get("plant_id"),
                     "text": _rf.get("ask") or _rf.get("why"), "facts": _rf}
 
-        if self.parse_reading(prompt):
-            got = self.log_from_text(prompt, plant_id=plant_id)
+        if self.parse_reading(_said):
+            got = self.log_from_text(_said, plant_id=_said_pid)
             if got.get("logged"):
                 r = got.get("reading") or {}
                 vals = ", ".join(f"{k} {v}" for k, v in (("ppm", r.get("ppm")), ("EC", r.get("ec")),
