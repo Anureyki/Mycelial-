@@ -179,8 +179,13 @@ append-only Provenance store for the audit. What it adds is what the baseline
 found missing: a decision fingerprint (same inputs, policy and decisions ->
 same hash), no commit after a failed verification, containment of an executor
 that raises, and `mycos/contracts.py`, which assembles each agent's capability
-contract from its existing declarations and reports fields nobody declares as
-`undeclared`. `tools/check_mycos_core.py` runs the twelve acceptance tests with
+contract from its existing declarations - configs, cards, effects maps, the
+ACL, guards, departments, and the declared constants of Service Manager and
+Boss - and marks every part nothing declares `required_but_missing` with the
+reason. The lifecycle enforces what is declared: an agent with no effects map
+is refused at classification (its escalation conditions are unknown, so it
+fails closed), guard deny rules apply at policy, and a failure carries the
+agent's declared failure policy or its named gap. `tools/check_mycos_core.py` runs the twelve acceptance tests with
 ATI unimportable, in its own CI job with `ati/` deleted. Rollback and
 architecture change control are not built yet and the gate lists them as known
 gaps rather than passing them.

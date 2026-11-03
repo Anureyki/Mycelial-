@@ -34,7 +34,9 @@ import os
 from dataclasses import dataclass, field, asdict
 from datetime import datetime, timezone
 
-from mycos.contracts import contract
+import fnmatch
+
+from mycos.contracts import MISSING, contract
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 HUMAN_SIGNOFF = {"actuates", "external"}     # CLAUDE.md: no agent holds actuation or third-party authority
@@ -93,6 +95,7 @@ def run(req, execute, verify, commit, preflight=None, authorize=None, acl=None, 
     audit(record) -> audit ref; defaults to the Provenance store."""
     from core import acl as core_acl
     steps, out = [], {"agent_id": req.agent_id, "verb": req.verb, "committed": False}
+    c = None
 
     def stop(step, why):
         steps.append({"step": step, "ok": False, "why": why})
@@ -102,6 +105,11 @@ def run(req, execute, verify, commit, preflight=None, authorize=None, acl=None, 
 
     def finish():
         out["steps"] = steps
+        if c is not None:
+            aud = c["audit_requirements"]["parts"].get("routes_recorded_by_boss")
+            out["route_recorded_by_boss"] = aud if isinstance(aud, bool) else MISSING
+            if out.get("outcome") == "failed":
+                out["failure_policy"] = c["failure_handling"]["parts"]
         out["policy_version"] = policy_version()
         out["fingerprint"] = fingerprint(req, [{k: s[k] for k in ("step", "ok")} for s in steps])
         try:
@@ -115,9 +123,16 @@ def run(req, execute, verify, commit, preflight=None, authorize=None, acl=None, 
     if c is None:
         return stop("identity", f"{req.agent_id!r} has no declared contract - unknown agent")
     steps.append({"step": "identity", "ok": True})
-    # classification - the effects class the code was measured to have
-    effects = c["permitted_operations"] if isinstance(c["permitted_operations"], dict) else {}
-    cls = effects.get(req.verb, "unclassified")
+    # classification - the effects class the code was measured to have. With no
+    # effects map, nothing says whether this verb acts on the world, and the
+    # contract's escalation field is required_but_missing: refuse rather than
+    # assume a verb is harmless because nobody classified it.
+    if c["permitted_operations"] == MISSING:
+        return stop("classification", f"{req.agent_id} has no effects map, so its escalation conditions are "
+                                      "required_but_missing - fails closed until the agent is classified")
+    cls = c["permitted_operations"].get(req.verb, "unclassified")
+    if cls == "unclassified":
+        return stop("classification", f"{req.verb!r} is not in {req.agent_id}'s effects map")
     steps.append({"step": "classification", "ok": True, "class": cls})
     # orchestration - recorded, not performed
     steps.append({"step": "orchestration", "ok": True, "routed_by": req.actor})
@@ -130,6 +145,14 @@ def run(req, execute, verify, commit, preflight=None, authorize=None, acl=None, 
     ok, why = core_acl.check(req.agent_id, req.resource, req.action, acl=acl, observe=False)
     if not ok:
         return stop("policy", why)
+    # the contract's validation field: config/guards.json deny rules naming this agent
+    target = str((req.payload or {}).get("target") or (req.payload or {}).get("path") or "")
+    rules = (c["validation_requirements"]["parts"].get("guard_deny_rules")
+             if isinstance(c.get("validation_requirements"), dict) else None)
+    for g in rules if isinstance(rules, list) else []:
+        if fnmatch.fnmatch(req.verb, str(g.get("task") or "*")) and target and \
+                fnmatch.fnmatch(target, str(g.get("target_glob") or "*")):
+            return stop("policy", f"guard: {g.get('reason')}")
     steps.append({"step": "policy", "ok": True})
     # authorization - Boss's policy, plus the standing human-signoff rule
     try:
@@ -138,7 +161,8 @@ def run(req, execute, verify, commit, preflight=None, authorize=None, acl=None, 
         return stop("authorization", f"authorization unavailable ({exc}) - fails closed")
     if not auth.get("allowed"):
         return stop("authorization", auth.get("reason") or "not permitted")
-    if cls in HUMAN_SIGNOFF and not req.human_signoff:
+    esc = c["escalation_conditions"]["parts"].get("principal_signoff_verbs")
+    if (cls in HUMAN_SIGNOFF or (isinstance(esc, list) and req.verb in esc)) and not req.human_signoff:
         return stop("authorization", f"{req.verb} is classed {cls!r}; it needs the principal's sign-off")
     steps.append({"step": "authorization", "ok": True, "conditions": auth.get("conditions") or []})
     # preflight

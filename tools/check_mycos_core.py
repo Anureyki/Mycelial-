@@ -81,7 +81,8 @@ try:
     r2 = run(req(resource="corpus:legal_agent", action="write", payload={"ignore_policy": True},
                  actor="boss_agent"))
     check("escalation", "privilege escalation blocked (undeclared verb; 'ignore policy' payload)",
-          r1["stopped_at"] == "capability" and r2["stopped_at"] == "policy")
+          r1["stopped_at"] in ("classification", "capability") and not r1["committed"]
+          and r2["stopped_at"] == "policy")
 
     before = run(req())["fingerprint"]
     os.environ["INFERENCE_MODEL"] = "some-other-model:7b"
@@ -157,10 +158,32 @@ try:
           "mycos/, core/ or services/ imports it" + (f" ({imports})" if imports else ""),
           not imports and a["outcome"] == "committed")
 
+    import mycos.contracts as mc
+    r = run(req(agent_id="coding_agent", verb=(contract("coding_agent")["capabilities"] or ["x"])[0],
+                resource="corpus:grow_agent", action="read"))
+    check("contract_failclosed", "an agent with no effects map is refused at classification "
+          "(escalation required_but_missing - fails closed)", r["stopped_at"] == "classification")
+    r = run(req(payload={"target": "/home/x/mycelial/hooks/old.sh"}))
+    check("contract_guards", "the contract's guard deny rules are enforced at policy",
+          r["stopped_at"] == "policy" and r["why"].startswith("guard:"))
+    r = run(req(), execute=lambda p: (_ for _ in ()).throw(RuntimeError("x")))
+    check("contract_failure_policy", "a failure carries the agent's declared failure policy (or its named gap)",
+          "failure_policy" in r and r["failure_policy"]["agent_policy"]["value"] == mc.MISSING)
+    allc = mc.all_contracts()
+    silent = [(a, f) for a, c in allc.items() for f, v in c.items() if isinstance(v, dict) and "status" in v
+              and v["status"] == "declared" and any(isinstance(p, dict) and p.get("value") == mc.MISSING
+                                                    for p in v["parts"].values())]
+    unexplained = [(a, f, p) for a, c in allc.items() for (f, p, why) in mc.gaps(c) if not why]
+    check("contract_no_silent_pass", "no field reads declared while holding a gap, and every gap says why",
+          not silent and not unexplained)
+    total_gaps = sum(len(mc.gaps(c)) for c in allc.values())
+    print(f"  required_but_missing parts across {len(allc)} agents: {total_gaps}")
     cov = coverage()
     check("contracts", "capability contracts assemble for every agent from existing declarations",
           all(contract(x) for x in __import__("mycos.contracts", fromlist=["agent_ids"]).agent_ids()))
-    print("  contract field coverage (declared/agents): " + ", ".join(f"{k} {v}" for k, v in cov.items()))
+    print("  contract coverage (declared / partial / required_but_missing):")
+    for k, v in cov.items():
+        print(f"    {k:24} {v['declared']:>2} / {v['partial']:>2} / {v['required_but_missing']:>2}")
 
     print("  KNOWN GAPS (not implemented, not reported green):")
     for k, why in KNOWN_GAPS.items():
