@@ -33,5 +33,28 @@
   "public_key": "",
   "owner": "anureyki",
   "created": "2026-07-31T17:59:12.821540",
-  "updated": "2026-09-10T21:33:03.069297"
+  "updated": "2026-09-10T21:33:03.069297",
+  "effects": {
+    "authenticate": "computes",
+    "authorize": "computes",
+    "audit": "records",
+    "issue_token": "records",
+    "flag_finding": "records",
+    "list_findings": "computes",
+    "resolve_finding": "records",
+    "check_guard": "computes",
+    "reload_guards": "computes",
+    "quarantine": "records",
+    "eliminate": "records",
+    "list_pending_approvals": "computes",
+    "scan_codebase": "records",
+    "drift_scan": "computes",
+    "start_drift_watch": "computes",
+    "drift_status": "computes"
+  },
+  "effects_unprovable": [
+    "scan_codebase"
+  ],
+  "effects_basis": "read from the code by core/effects.py (dispatch path, self-calls, inherited base methods; operational logging excluded); kept equal to the code by tools/check_effects.py",
+  "effects_gated_by": {}
 }

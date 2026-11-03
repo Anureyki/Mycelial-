@@ -34,5 +34,27 @@
   "public_key": "",
   "owner": "anureyki",
   "created": "2026-07-31T17:59:12.890278",
-  "updated": "2026-09-11T03:56:51.984611"
+  "updated": "2026-09-11T03:56:51.984611",
+  "effects": {
+    "pulse": "records",
+    "veto": "records",
+    "assess_ilit": "computes",
+    "trust_scope": "computes",
+    "parse_trust_document": "computes",
+    "assess_instrument": "computes",
+    "model_trust_relationship": "records",
+    "lookup": "computes",
+    "list_relationships": "computes",
+    "get_relationship": "computes",
+    "find_relationships": "computes",
+    "find_relationships_by_project": "computes",
+    "compare_relationships": "computes",
+    "refresh_cache": "records",
+    "query_cache": "computes",
+    "cache_stats": "computes",
+    "cache_manifest": "computes"
+  },
+  "effects_unprovable": [],
+  "effects_basis": "read from the code by core/effects.py (dispatch path, self-calls, inherited base methods; operational logging excluded); kept equal to the code by tools/check_effects.py",
+  "effects_gated_by": {}
 }

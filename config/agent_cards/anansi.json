@@ -49,5 +49,15 @@
   "public_key": "",
   "owner": "anureyki",
   "created": "2026-07-21T17:59:55.506343",
-  "updated": "2026-10-05T09:50:51.327222"
+  "updated": "2026-10-05T09:50:51.327222",
+  "effects_withheld": {
+    "why": "five verbs reach email and the detector classes them external (it cannot prove the recipient is always the principal); an external verb must name its authorization in effects_gated_by and none is declared. The map is withheld rather than written with an invented authorization - the principal decides what gates them.",
+    "external_verbs": [
+      "notify",
+      "receive_mail",
+      "ack_preview",
+      "journal_email",
+      "held_mail_digest"
+    ]
+  }
 }

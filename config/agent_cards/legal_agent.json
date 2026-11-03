@@ -240,5 +240,6 @@
     "record_case_outcome": "records"
   },
   "effects_basis": "read from the code by core/effects.py (dispatch path, self-calls, inherited base methods; operational logging excluded); kept equal to the code by tools/check_effects.py",
-  "effects_gated_by": {}
+  "effects_gated_by": {},
+  "effects_unprovable": []
 }

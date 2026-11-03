@@ -33,5 +33,26 @@
   "public_key": "",
   "owner": "anureyki",
   "created": "2026-09-05T02:41:20.311793",
-  "updated": "2026-09-05T11:31:17.188674"
+  "updated": "2026-09-05T11:31:17.188674",
+  "effects": {
+    "scan_candidates": "computes",
+    "vet_candidate": "records",
+    "vet_batch": "records",
+    "fee_viability": "computes",
+    "concentration": "records",
+    "capability_surface": "computes",
+    "list_rejections": "computes",
+    "rejection_stats": "computes",
+    "score_predictions": "records",
+    "book_opportunity": "computes",
+    "recommend_size": "computes",
+    "risk_check": "computes",
+    "refresh_cache": "records",
+    "query_cache": "computes",
+    "cache_stats": "computes",
+    "cache_manifest": "computes"
+  },
+  "effects_unprovable": [],
+  "effects_basis": "read from the code by core/effects.py (dispatch path, self-calls, inherited base methods; operational logging excluded); kept equal to the code by tools/check_effects.py",
+  "effects_gated_by": {}
 }

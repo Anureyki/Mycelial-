@@ -31,5 +31,33 @@
   "public_key": "",
   "owner": "anureyki",
   "created": "2026-07-22T04:44:53.641258",
-  "updated": "2026-09-10T21:33:06.003957"
+  "updated": "2026-09-10T21:33:06.003957",
+  "effects": {
+    "check_disk": "records",
+    "clean_logs": "records",
+    "check_updates": "records",
+    "apply_updates": "records",
+    "rollback": "computes",
+    "check_errors": "computes",
+    "check_container_updates": "records",
+    "update_container": "records",
+    "sample_telemetry": "records",
+    "get_telemetry_history": "computes",
+    "predict_disk_full": "computes",
+    "scan_unused_docker_resources": "records",
+    "run_cleanup_routine": "records",
+    "analyze_memory_usage": "computes"
+  },
+  "effects_unprovable": [
+    "apply_updates",
+    "check_container_updates",
+    "check_disk",
+    "check_updates",
+    "clean_logs",
+    "run_cleanup_routine",
+    "scan_unused_docker_resources",
+    "update_container"
+  ],
+  "effects_basis": "read from the code by core/effects.py (dispatch path, self-calls, inherited base methods; operational logging excluded); kept equal to the code by tools/check_effects.py",
+  "effects_gated_by": {}
 }

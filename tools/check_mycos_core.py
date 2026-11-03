@@ -159,10 +159,18 @@ try:
           not imports and a["outcome"] == "committed")
 
     import mycos.contracts as mc
-    r = run(req(agent_id="coding_agent", verb=(contract("coding_agent")["capabilities"] or ["x"])[0],
-                resource="corpus:grow_agent", action="read"))
-    check("contract_failclosed", "an agent with no effects map is refused at classification "
-          "(escalation required_but_missing - fails closed)", r["stopped_at"] == "classification")
+    unmapped = [x for x in mc.agent_ids() if contract(x)["permitted_operations"] == mc.MISSING]
+    if unmapped:
+        u = unmapped[0]
+        r = run(req(agent_id=u, verb=(contract(u)["capabilities"] or ["x"])[0],
+                    resource="corpus:grow_agent", action="read"))
+        check("contract_failclosed", f"an agent with no effects map ({u}) is refused at classification "
+              "(escalation required_but_missing - fails closed)", r["stopped_at"] == "classification")
+    mapped = contract("coding_agent")
+    cverb = next(v for v, c in mapped["permitted_operations"].items() if c == "computes")
+    r = run(req(agent_id="coding_agent", verb=cverb, resource="corpus:grow_agent", action="read"))
+    check("contract_mapped_passes", f"a newly mapped agent (coding_agent.{cverb}) passes classification",
+          any(s_["step"] == "classification" and s_["ok"] for s_ in r["steps"]))
     r = run(req(payload={"target": "/home/x/mycelial/hooks/old.sh"}))
     check("contract_guards", "the contract's guard deny rules are enforced at policy",
           r["stopped_at"] == "policy" and r["why"].startswith("guard:"))

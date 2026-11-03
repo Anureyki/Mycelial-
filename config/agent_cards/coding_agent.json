@@ -30,5 +30,31 @@
   "public_key": "",
   "owner": "anureyki",
   "created": "2026-07-21T20:47:28.375380",
-  "updated": "2026-09-10T21:33:05.974428"
+  "updated": "2026-09-10T21:33:05.974428",
+  "effects": {
+    "read_file": "computes",
+    "edit_file": "records",
+    "run_command": "records",
+    "run_code": "records",
+    "crontab": "records",
+    "reason": "records",
+    "reason_and_act": "records",
+    "fix_code": "records",
+    "evaluate": "records",
+    "fetch_repo": "records",
+    "web_search": "computes",
+    "scan_bug_patterns": "computes",
+    "list_bug_patterns": "computes"
+  },
+  "effects_unprovable": [
+    "crontab",
+    "evaluate",
+    "fetch_repo",
+    "fix_code",
+    "reason_and_act",
+    "run_code",
+    "run_command"
+  ],
+  "effects_basis": "read from the code by core/effects.py (dispatch path, self-calls, inherited base methods; operational logging excluded); kept equal to the code by tools/check_effects.py",
+  "effects_gated_by": {}
 }

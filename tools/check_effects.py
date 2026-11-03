@@ -12,7 +12,11 @@ core/effects.CLASSES. This gate fails the build when:
     (hardware sits behind Boss's authorization; a third party behind the
     principal's sign-off - CLAUDE.md).
 
-Cards without an `effects` map are reported, not failed: Grow is first.
+Cards without an `effects` map are reported, not failed. Ten agents carry one
+(2026-11-03); Anansi's is WITHHELD, with the reason on its card, because five
+of its verbs class `external` and nothing declares what authorizes them.
+Verbs that run a subprocess are listed under `effects_unprovable` and kept
+equal to the code like the rest.
 
     python3 tools/check_effects.py              # the gate
     python3 tools/check_effects.py --write grow_agent   # regenerate a card's map
@@ -31,7 +35,18 @@ AGENTS = {"grow_agent": ("agents/grow_agent/grow_agent.py", "GrowAgent", ("handl
           # ssa_demand branches on the verb inside one method; reading it as a
           # dispatcher labels each ssa_demand_* verb by its own branch
           "legal_agent": ("agents/legal_agent/legal_agent.py", "LegalAgent",
-                          ("handle_task", "ssa_demand"))}
+                          ("handle_task", "ssa_demand")),
+          # 2026-11-03: the other nine, so every agent can pass the mycos
+          # lifecycle's classification step on evidence from its own code
+          "accounting_agent": ("agents/accounting_agent/accounting_agent.py", "AccountingAgent", ("handle_task",)),
+          "anansi": ("agents/anansi/Anansi.py", "Anansi", ("handle_task",)),
+          "boss_agent": ("agents/boss_agent/boss_agent.py", "BossAgent", ("handle_task",)),
+          "coding_agent": ("agents/coding_agent/coding_agent.py", "CodingAgent", ("handle_task",)),
+          "hermes": ("agents/hermes/hermes_interface.py", "HermesInterface", ("handle_task",)),
+          "maintenance_agent": ("agents/maintenance_agent/maintenance_agent.py", "MaintenanceAgent", ("handle_task",)),
+          "security_agent": ("agents/security_agent/security_agent.py", "SecurityAgent", ("handle_task",)),
+          "trading_agent": ("agents/trading_agent/trading_agent.py", "TradingAgent", ("handle_task",)),
+          "trust_agent": ("agents/trust_agent/trust_agent.py", "TrustAgent", ("handle_task",))}
 
 
 def card_path(aid):
@@ -49,6 +64,10 @@ def write(aid):
     card = json.load(open(p, encoding="utf-8"))
     of_verb = detected(aid)
     card["effects"] = {v: of_verb(v, set())[0] for v in card["capabilities"]}
+    # verbs whose path runs a subprocess: records is their floor, their real
+    # reach is not provable from the code, and that is said by name
+    card["effects_unprovable"] = sorted(v for v in card["capabilities"]
+                                        if any("(unprovable)" in w for w in of_verb(v, set())[1]))
     card["effects_basis"] = ("read from the code by core/effects.py (dispatch path, self-calls, "
                              "inherited base methods; operational logging excluded); "
                              "kept equal to the code by tools/check_effects.py")
@@ -70,7 +89,9 @@ def gate():
         card = json.load(open(card_path(aid), encoding="utf-8"))
         eff = card.get("effects")
         if eff is None:
-            print(f"  -     {aid}: no effects map yet ({len(card.get('capabilities') or [])} verbs)")
+            wh = (card.get("effects_withheld") or {}).get("why")
+            print(f"  -     {aid}: no effects map ({len(card.get('capabilities') or [])} verbs)"
+                  + (f" - WITHHELD: {wh[:140]}" if wh else " yet"))
             continue
         if aid not in AGENTS:
             fails.append(f"{aid}: has an effects map but no source registered in AGENTS")
@@ -80,6 +101,10 @@ def gate():
         bad = [v for v, c in eff.items() if c not in CLASSES]
         drift = [(v, eff[v], of_verb(v, set())[0]) for v in card["capabilities"]
                  if v in eff and eff[v] in CLASSES and eff[v] != of_verb(v, set())[0]]
+        unprov = sorted(v for v in card["capabilities"]
+                        if any("(unprovable)" in w for w in of_verb(v, set())[1]))
+        if unprov != sorted(card.get("effects_unprovable") or []):
+            fails.append(f"{aid}: effects_unprovable differs from the code: {unprov[:8]}")
         gated = card.get("effects_gated_by") or {}
         ungated = [v for v, c in eff.items() if c in ("actuates", "external") and not gated.get(v)]
         for msg, items in (("verbs with no effect class", missing), ("unknown classes", bad),

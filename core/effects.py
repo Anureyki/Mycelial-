@@ -44,11 +44,56 @@ WRITE_SELF = {"store_own_memory", "amend_grow_system", "record_provenance_event"
               "pin_memory", "delete_own_memory"}
 EXTERNAL_MODULES = {"smtplib"}
 PROJECT = ("core.", "tools.")
-ACTUATE_HINTS = {"set_state", "set_device_state", "actuate", "publish_command"}
+# set_state was here and matched exactly one thing in the codebase: the case
+# manager's set_state, which changes a case RECORD (2026-11-03, Accounting's
+# reconcile came out "actuates"). No device path calls it; the HAL names below do.
+ACTUATE_HINTS = {"set_device_state", "actuate", "publish_command"}
+# HTTP WRITES ARE WRITES (2026-11-03): Hermes stores memory by POSTing to the
+# Memory Service and read as compute-only - under-classing, the one error this
+# module promises not to make. A post/put/patch/delete counts as records unless
+# its URL is a literal ending in a known READ endpoint (inference and search
+# post their questions).
+HTTP_WRITE = {"post", "put", "patch", "delete"}
+READ_PATHS = ("/reason", "/infer", "/inference", "/generate", "/chat", "/embed", "/search",
+              "/query", "/vision", "/caption", "/classify", "/retrieve", "/lookup", "/health",
+              "/complete", "/api/generate", "/api/chat", "/api/embeddings")
+# A SUBPROCESS'S REACH CANNOT BE PROVEN statically - a command can write, or
+# reach the network. It takes records as its floor and is listed by name under
+# the card's effects_unprovable, so the gap is visible rather than guessed.
+SUBPROCESS = {("subprocess", "run"), ("subprocess", "Popen"), ("subprocess", "call"),
+              ("subprocess", "check_call"), ("subprocess", "check_output"), ("os", "system"),
+              ("os", "popen")}
 
 
 def _max(a, b):
     return a if RANK[a] >= RANK[b] else b
+
+
+def _str_consts(path):
+    """Module-level NAME = "string" assignments - so a URL held in a constant
+    (INFERENCE_SERVICE_URL) is read as the literal it is."""
+    try:
+        tree = ast.parse(open(path, encoding="utf-8").read())
+    except (OSError, SyntaxError):
+        return {}
+    return {t.id: n.value.value for n in tree.body if isinstance(n, ast.Assign)
+            and isinstance(n.value, ast.Constant) and isinstance(n.value.value, str)
+            for t in n.targets if isinstance(t, ast.Name)}
+
+
+def _url_literal(node, consts=None):
+    """The literal text of a URL argument - a plain string, a module string
+    constant, or the constant tail of an f-string or of NAME + "/path".
+    None when it is computed."""
+    if isinstance(node, ast.Name) and consts and node.id in consts:
+        return consts[node.id]
+    if isinstance(node, ast.BinOp) and isinstance(node.op, ast.Add):
+        return _url_literal(node.right, consts)
+    if isinstance(node, ast.Constant) and isinstance(node.value, str):
+        return node.value
+    if isinstance(node, ast.JoinedStr) and node.values and isinstance(node.values[-1], ast.Constant):
+        return str(node.values[-1].value)
+    return None
 
 
 def _const(node):
@@ -58,8 +103,14 @@ def _const(node):
 class _Direct(ast.NodeVisitor):
     """Direct effects and self-calls inside one function body."""
 
-    def __init__(self, aliases=None, fromnames=None, module=None, local_defs=()):
+    def __init__(self, aliases=None, fromnames=None, module=None, local_defs=(), http=True):
         self.effect, self.calls, self.why, self.tasks = "computes", set(), [], set()
+        # AgentBase's HTTP is transport (send_a2a, the registry, inference, the
+        # tool gateway): what it carries is judged where it is called - the
+        # send_a2a task rule - and its own writes are named in WRITE_SELF. The
+        # HTTP rule is for the agent's own code, where Hermes's stores live.
+        self.http = http
+        self.consts = {}
         # PROJECT MODULES ARE PART OF THE PATH (2026-10-27): Legal's ssa_demand_*
         # verbs write their ledger from core/ssa_form_demand.py; stopping at the
         # agent's own methods would have labelled them compute-only.
@@ -120,6 +171,14 @@ class _Direct(ast.NodeVisitor):
             self._hit("records", f"shutil.{f.attr}")
         if name in ACTUATE_HINTS:
             self._hit("actuates", name)
+        if (self.http and isinstance(f, ast.Attribute) and f.attr in HTTP_WRITE and isinstance(f.value, ast.Name)
+                and f.value.id in ("requests", "session", "httpx")):
+            url = _url_literal(n.args[0], self.consts) if n.args else None
+            if not (url and url.rstrip("/").endswith(READ_PATHS)):
+                self._hit("records", f"{f.value.id}.{f.attr}({url or '<computed url>'})")
+        if (isinstance(f, ast.Attribute) and isinstance(f.value, ast.Name)
+                and (f.value.id, f.attr) in SUBPROCESS):
+            self._hit("records", f"{f.value.id}.{f.attr} (unprovable)")
         if isinstance(f, ast.Attribute) and f.attr == "sendmail":
             self._hit("external", "sendmail")
         self.generic_visit(n)
@@ -222,11 +281,14 @@ def detect(agent_path, class_name, base_path=None, dispatchers=("handle_task",))
     class where the agent does not override) and through handle_task re-entry."""
     base_path = base_path or os.path.join(os.path.dirname(os.path.abspath(__file__)), "base_agent.py")
     methods = dict(_methods(base_path, "AgentBase"))
-    methods.update(_methods(agent_path, class_name))
+    own = dict(_methods(agent_path, class_name))
+    methods.update(own)
     a_alias, a_from = _module_imports(agent_path)
+    a_consts = _str_consts(agent_path)
     direct = {}
     for name, fn in methods.items():
-        v = _Direct(a_alias, a_from)
+        v = _Direct(a_alias, a_from, http=name in own)
+        v.consts = a_consts
         for stmt in fn.body:
             v.visit(stmt)
         direct[name] = v

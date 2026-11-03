@@ -29,5 +29,22 @@
   "public_key": "",
   "owner": "anureyki",
   "created": "2026-07-21T17:59:55.506345",
-  "updated": "2026-09-05T11:34:49.730142"
+  "updated": "2026-09-05T11:34:49.730142",
+  "effects": {
+    "store_memory": "records",
+    "retrieve_memory": "records",
+    "retrieve_many": "records",
+    "knowledge_search": "records",
+    "update_memory": "records",
+    "forget_memory": "records",
+    "pin_memory": "records",
+    "search_docs": "records",
+    "log_session_summary": "records",
+    "get_progress_summary": "records",
+    "consolidate_audit": "records",
+    "get_audit_digests": "computes"
+  },
+  "effects_unprovable": [],
+  "effects_basis": "read from the code by core/effects.py (dispatch path, self-calls, inherited base methods; operational logging excluded); kept equal to the code by tools/check_effects.py",
+  "effects_gated_by": {}
 }

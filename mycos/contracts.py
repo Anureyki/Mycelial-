@@ -129,7 +129,8 @@ def contract(agent_id, acl=None, src=None):
     guard_rules = [g for g in src["guards"] if fnmatch.fnmatch(agent_id, str(g.get("agent", "")))]
     depts = [name for name, d in src["departments"].items() if isinstance(d, dict) and (
         d.get("head") == agent_id or any(m.get("agent_id") == agent_id for m in d.get("members") or []))]
-    no_fx = "no effects map on this agent's card - run tools/check_effects.py --write once the agent is covered"
+    no_fx = ((card.get("effects_withheld") or {}).get("why")
+             or "no effects map on this agent's card - run tools/check_effects.py --write once the agent is covered")
 
     io = _field({
         "transport": card.get("transport") or _gap("card declares no transport"),
@@ -170,7 +171,10 @@ def contract(agent_id, acl=None, src=None):
     esc = _field({
         "principal_signoff_verbs": esc_verbs,
         "gated_verbs": gated if gated is not None else _gap("card declares no effects_gated_by"),
-    }, ["config/agent_cards effects / effects_gated_by", "CLAUDE.md: no agent holds actuation or third-party authority"])
+        # verbs running a subprocess: records is their floor and their real reach
+        # is not provable from the code - named, so a reviewer sees them
+        "unprovable_verbs": (card.get("effects_unprovable") or "none") if effects is not None else _gap(no_fx),
+    }, ["config/agent_cards effects / effects_gated_by / effects_unprovable", "CLAUDE.md: no agent holds actuation or third-party authority"])
 
     aud = _field({
         "routes_recorded_by_boss": (agent_id in route_log) if src["boss"].get("ROUTE_LOG") is not None
