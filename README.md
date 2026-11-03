@@ -166,6 +166,19 @@ are different states of the world.
 
 ---
 
+## ATI: Astrology Temporal Intelligence
+
+An on-demand scoring layer in `ati/`. Given a logged event (timestamp, type,
+optional place), it resolves the time against the 12-window organ clock and the
+type against the principal's house and organ tables, compares the two
+(`direct` / `adjacent` / `background`), notes natal BaZi pressure, and returns
+a structured recommendation or an explicit refusal naming what is missing. It
+reads fixed natal records and event snapshots from Hermes's shared `ati`
+namespace, writes nothing while scoring, runs no background process and speaks
+to nobody - Anansi assembles and speaks. The house and event-type tables in
+`config/ati/` are the principal's to fill; until they are, ATI refuses rather
+than guess. `tools/check_ati.py` is a build gate.
+
 ## Memory: three stores, deliberately separate
 
 | Store | Size | Holds | Retrieved by |

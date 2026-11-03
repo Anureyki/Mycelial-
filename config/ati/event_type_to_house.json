@@ -1,0 +1,4 @@
+{
+  "_status": "unset - the principal's event types go here, each mapped to its primary house (1-12). Matching is case-insensitive on the exact string. An unmapped event type is refused, never guessed.",
+  "event_types": {}
+}

@@ -1,0 +1,4 @@
+{
+  "_status": "unset - the principal's correspondences go here, one organ (as named in organ_clock_windows.json) per house 1-12. Left empty deliberately: a guessed table would put an assumption inside every score. Until a house is filled, scoring refuses and names it in missing_fields.",
+  "houses": {}
+}
