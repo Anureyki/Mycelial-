@@ -257,6 +257,11 @@ change without editing the agent - and a voice edit that can reach an agent is
 one refactor away from being an authority edit. Editing the config takes effect
 on the next telling with no restart.
 
+**The persona is the principal's, set 2026-11-03 and held verbatim in the config:** Anansi is the only
+voice the user hears; it leads with what matters, then gives the numbers. `voice.py` moves a telling's
+practical point ahead of the raw data that opens it - reordering only, with a leading label carried along
+so the point keeps its subject - and `tools/check_voice.py` proves it, and that nothing but Anansi sends mail.
+
 **Voice cannot touch evidence, and that is enforced rather than intended.**
 Every number, date, unit, currency amount and citation in the payload is
 extracted before the telling and checked after it. If one is lost, altered or

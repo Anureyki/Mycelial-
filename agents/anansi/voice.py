@@ -134,6 +134,7 @@ class Voice:
         parts = [p.strip() for p in re.split(r'(?<=[.!?])\s+', text) if p.strip()]
         if len(parts) < 2:
             return text
+        parts = self.point_first(parts, cfg.get("ordering") or {})
         kind = self.situation(parts[0])
 
         # Deterministic per input, so the same question does not reword itself
@@ -179,6 +180,43 @@ class Voice:
                      f"(lost={lost} gained={gained}) - returning plain text")
             return text
         return told
+
+    @staticmethod
+    def point_first(parts, rules):
+        """The persona's "lead with what matters, then give the numbers".
+
+        If the telling opens with a data-dense sentence and a later sentence
+        is the practical point, that sentence moves to the front. Reordering
+        only: nothing is dropped or reworded, so facts_in() is unchanged and
+        the guarantee in tell() still decides. A point that refers back
+        (It/That/This...) is left where it is - moved, it would point at
+        nothing. Which openings count as a point is policy, in the config."""
+        starts = tuple(rules.get("point_starts") or ())
+        back = tuple(rules.get("anaphoric_starts") or ())
+        density = float(rules.get("data_density") or 0.2)
+        if not starts or len(parts) < 2:
+            return parts
+
+        def dense(p):
+            n = sum(facts_in(p).values())
+            return n and n / max(1, len(p.split())) >= density
+
+        # The first sentence may open with a label - a plant, a matter. It
+        # travels WITH the point, so the point keeps its subject, and it is the
+        # only thing that lets a point leaning on "it" move at all.
+        m = re.match(r"^([^:.!?$]{1,40}:)\s+(?=\S)", parts[0])
+        label = m.group(1) if m else ""
+        head = parts[0][m.end():] if m else parts[0]
+        if not dense(head) or head.startswith(starts):
+            return parts
+        for i, p in enumerate(parts[1:], 1):
+            if not p.startswith(starts) or p.startswith(back):
+                continue
+            if re.search(r"\b(it|its|them|this|that|these|those)\b", p, re.I) and not label:
+                return parts          # the referent would be left behind
+            moved = (f"{label} {p}" if label else p)
+            return [moved, head] + parts[1:i] + parts[i + 1:]
+        return parts
 
     @staticmethod
     def _despecify(told):

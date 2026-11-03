@@ -182,6 +182,8 @@ jobs:
         run: python tools/check_effects.py
       - name: ATI scoring contract - refusal rule, organ clock, on demand only (check_ati)
         run: python tools/check_ati.py
+      - name: Anansi persona - point first, numbers intact, only Anansi speaks (check_voice)
+        run: python tools/check_voice.py
       - name: Only approved artifacts reach the media library (check_media_publish)
         run: python tools/check_media_publish.py
 
