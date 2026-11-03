@@ -7506,6 +7506,37 @@ class GrowAgent(AgentBase):
                 out["hours_counted_from"] = "pour" if event.get("poured_at") else "plan (pour time not recorded)"
             except Exception:
                 pass
+        # FEEDING IS CONSTANT (principal 2026-11-03): "it's gonna have to factor in
+        # that grow fed within 2 hours." A reading h hours after the pour already
+        # has h hours of uptake in it - GSC2 was measured at ~9,000 ppm-L a day,
+        # ~40 ppm in two hours at 19.5 L. The plant's own rate, from a window that
+        # ended before this pour (never one this reading helped measure), comes off
+        # the prediction before the two are compared. No rate, no subtraction -
+        # and the result says which.
+        _h = out.get("hours_since_dose")
+        if event is not None and not fresh and _h and _h > 0 and vol:
+            try:
+                _pn = self.project_nutrients(plant_id) or {}
+                _rate = self._parse_numeric(_pn.get("uptake_ppm_l_per_day"))
+                _wend = str((_pn.get("rate_window") or {}).get("to") or "")
+                _pour = str(event.get("poured_at") or event.get("at") or "")[:16]
+                if _rate and _wend and _wend <= _pour:
+                    _up = round(_rate * _h / 24.0 / vol, 1)
+                    if _up >= 1:
+                        out["ppm_predicted_bare"] = pred
+                        out["expected_uptake_ppm"] = _up
+                        out["uptake_basis"] = (f"{_rate:,.0f} ppm-L/day measured "
+                                               f"{(_pn.get('rate_window') or {}).get('from')} to {_wend}, "
+                                               f"x {_h:g} h, at {vol:g} L")
+                        pred = round(pred - _up, 1)
+                        delta = round(pred - pa, 1)
+                        delta_pct = round(100 * delta / pred, 2) if pred else None
+                        out.update(ppm_predicted=pred, delta_ppm=delta, delta_pct=delta_pct)
+                else:
+                    out["uptake_not_subtracted"] = ("no uptake rate measured before this pour"
+                                                    if not (_rate and _wend) or _wend > _pour else "")
+            except Exception as exc:
+                out["uptake_not_subtracted"] = f"rate unavailable: {exc}"
         # NOT YET MIXED (2026-10-12): GSC2 read 751 against 866 twenty minutes
         # after dosing. A shortfall that soon is the dose still circulating, not
         # uptake and not the strength - so it is neither scored nor fed to
