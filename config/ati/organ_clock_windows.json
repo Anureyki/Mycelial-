@@ -1,19 +1,140 @@
 {
   "_source": "Traditional Chinese medicine horary (organ) clock, with the earthly branch of each two-hour period. Generic reference, not measured on this principal. Windows are LOCAL CLOCK time; true local solar time differs by up to ~1 h and is not applied.",
   "windows": [
-    {"index": 0,  "start": "23:00", "end": "01:00", "organ": "gallbladder",     "element": "wood",  "branch": "zi"},
-    {"index": 1,  "start": "01:00", "end": "03:00", "organ": "liver",           "element": "wood",  "branch": "chou"},
-    {"index": 2,  "start": "03:00", "end": "05:00", "organ": "lung",            "element": "metal", "branch": "yin"},
-    {"index": 3,  "start": "05:00", "end": "07:00", "organ": "large_intestine", "element": "metal", "branch": "mao"},
-    {"index": 4,  "start": "07:00", "end": "09:00", "organ": "stomach",         "element": "earth", "branch": "chen"},
-    {"index": 5,  "start": "09:00", "end": "11:00", "organ": "spleen",          "element": "earth", "branch": "si"},
-    {"index": 6,  "start": "11:00", "end": "13:00", "organ": "heart",           "element": "fire",  "branch": "wu"},
-    {"index": 7,  "start": "13:00", "end": "15:00", "organ": "small_intestine", "element": "fire",  "branch": "wei"},
-    {"index": 8,  "start": "15:00", "end": "17:00", "organ": "bladder",         "element": "water", "branch": "shen"},
-    {"index": 9,  "start": "17:00", "end": "19:00", "organ": "kidney",          "element": "water", "branch": "you"},
-    {"index": 10, "start": "19:00", "end": "21:00", "organ": "pericardium",     "element": "fire",  "branch": "xu"},
-    {"index": 11, "start": "21:00", "end": "23:00", "organ": "triple_burner",   "element": "fire",  "branch": "hai"}
+    {
+      "index": 0,
+      "start": "23:00",
+      "end": "01:00",
+      "organ": "gallbladder",
+      "element": "wood",
+      "branch": "zi",
+      "branch_display": "子 Zi",
+      "organ_display": "Gallbladder"
+    },
+    {
+      "index": 1,
+      "start": "01:00",
+      "end": "03:00",
+      "organ": "liver",
+      "element": "wood",
+      "branch": "chou",
+      "branch_display": "丑 Chou",
+      "organ_display": "Liver"
+    },
+    {
+      "index": 2,
+      "start": "03:00",
+      "end": "05:00",
+      "organ": "lung",
+      "element": "metal",
+      "branch": "yin",
+      "branch_display": "寅 Yin",
+      "organ_display": "Lungs"
+    },
+    {
+      "index": 3,
+      "start": "05:00",
+      "end": "07:00",
+      "organ": "large_intestine",
+      "element": "metal",
+      "branch": "mao",
+      "branch_display": "卯 Mao",
+      "organ_display": "Large Intestine"
+    },
+    {
+      "index": 4,
+      "start": "07:00",
+      "end": "09:00",
+      "organ": "stomach",
+      "element": "earth",
+      "branch": "chen",
+      "branch_display": "辰 Chen",
+      "organ_display": "Stomach"
+    },
+    {
+      "index": 5,
+      "start": "09:00",
+      "end": "11:00",
+      "organ": "spleen",
+      "element": "earth",
+      "branch": "si",
+      "branch_display": "巳 Si",
+      "organ_display": "Spleen"
+    },
+    {
+      "index": 6,
+      "start": "11:00",
+      "end": "13:00",
+      "organ": "heart",
+      "element": "fire",
+      "branch": "wu",
+      "branch_display": "午 Wu",
+      "organ_display": "Heart"
+    },
+    {
+      "index": 7,
+      "start": "13:00",
+      "end": "15:00",
+      "organ": "small_intestine",
+      "element": "fire",
+      "branch": "wei",
+      "branch_display": "未 Wei",
+      "organ_display": "Small Intestine"
+    },
+    {
+      "index": 8,
+      "start": "15:00",
+      "end": "17:00",
+      "organ": "bladder",
+      "element": "water",
+      "branch": "shen",
+      "branch_display": "申 Shen",
+      "organ_display": "Bladder"
+    },
+    {
+      "index": 9,
+      "start": "17:00",
+      "end": "19:00",
+      "organ": "kidney",
+      "element": "water",
+      "branch": "you",
+      "branch_display": "酉 You",
+      "organ_display": "Kidneys"
+    },
+    {
+      "index": 10,
+      "start": "19:00",
+      "end": "21:00",
+      "organ": "pericardium",
+      "element": "fire",
+      "branch": "xu",
+      "branch_display": "戌 Xu",
+      "organ_display": "Pericardium"
+    },
+    {
+      "index": 11,
+      "start": "21:00",
+      "end": "23:00",
+      "organ": "triple_burner",
+      "element": "fire",
+      "branch": "hai",
+      "branch_display": "亥 Hai",
+      "organ_display": "Triple Burner"
+    }
   ],
-  "branch_elements": {"zi": "water", "chou": "earth", "yin": "wood", "mao": "wood", "chen": "earth", "si": "fire",
-                      "wu": "fire", "wei": "earth", "shen": "metal", "you": "metal", "xu": "earth", "hai": "water"}
+  "branch_elements": {
+    "zi": "water",
+    "chou": "earth",
+    "yin": "wood",
+    "mao": "wood",
+    "chen": "earth",
+    "si": "fire",
+    "wu": "fire",
+    "wei": "earth",
+    "shen": "metal",
+    "you": "metal",
+    "xu": "earth",
+    "hai": "water"
+  },
+  "_display_note": "branch_display and organ_display are the forms the Anansi contract returns; the lowercase keys are what the tables match on. Anansi's calendar reads its generic organ clock from THIS file - one table, not a copy."
 }

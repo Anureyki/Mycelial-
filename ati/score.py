@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
 """ATI scoring - one event in, one recommendation or one refusal out.
 
-    from ati import score
-    score(event, natal)                       # records as dicts
-    score_event(store, event_id="...")        # or read them from shared memory
-    score_event(store, entity_id="...", timestamp_utc="...", event_type="...")
+    from ati import score                     # the Anansi <-> ATI contract (phase 2)
+    score(entity_id, timestamp_utc, event_type=None, location=None, store=HermesStore(agent))
+    score_event(store, event_id)              # a stored EventSnapshot (phase 1)
+    score_snapshot(event, natal)              # records already in hand
 
 Steps, in the order of the build spec:
   1. timestamp -> local time -> the active window of the 12-window organ clock
@@ -46,10 +46,12 @@ def tables():
 
 
 def refusal(missing_fields, event_id=None):
-    """The spec's refusal shape. A refusal names what is missing and carries
+    """The contract's refusal shape. A refusal names what is missing and carries
     no recommendation - a partial score would read as a whole one."""
-    return {"refusal": True, "event_id": event_id, "missing_fields": list(missing_fields),
-            "recommendation": None}
+    out = {"refusal": True, "missing_fields": list(missing_fields), "recommendation": None}
+    if event_id:
+        out["event_id"] = event_id
+    return out
 
 
 def _parse_utc(ts):
@@ -114,27 +116,47 @@ def natal_pressure(window, natal, clock):
     if not pillars:
         return None
     if not same_branch and not same_element:
-        return f"No natal pillar shares the {window['branch']} branch or {window['element']} element of this window."
+        return (f"No natal pillar shares this window's {window.get('branch_display') or window['branch']} "
+                f"branch or {window['element']} element.")
     bits = []
     if same_branch:
         bits.append(f"{', '.join(same_branch)} pillar{'s' if len(same_branch) > 1 else ''} "
-                    f"share{'' if len(same_branch) > 1 else 's'} this window's {window['branch']} branch")
+                    f"share{'' if len(same_branch) > 1 else 's'} this window's "
+                    f"{window.get('branch_display') or window['branch']} branch")
     if same_element:
         bits.append(f"{', '.join(same_element)} pillar{'s' if len(same_element) > 1 else ''} "
                     f"share{'' if len(same_element) > 1 else 's'} its {window['element']} element")
     return "; ".join(bits) + "."
 
 
-def score(event, natal, sky=None, cfg=None):
-    """event: an EventSnapshot dict. natal: a FixedNatalRecord dict or None.
-    sky: optional callable(utc_datetime, event_house, natal) -> note or None."""
+def _ordinal(n):
+    n = int(n)
+    return f"{n}{'th' if 10 <= n % 100 <= 20 else {1: 'st', 2: 'nd', 3: 'rd'}.get(n % 10, 'th')}"
+
+
+def _display(clock, organ):
+    return next((w.get("organ_display") or w["organ"] for w in clock["windows"] if w["organ"] == organ), organ)
+
+
+def score_snapshot(event, natal, sky=None, cfg=None, type_optional=False):
+    """Score one EventSnapshot dict against one FixedNatalRecord dict.
+
+    Returns the Anansi contract's shapes (phase 2): success with active_window
+    {range, branch, organ, element}, event_house / event_organ / match_level,
+    natal_pressure_note, sky_note, confidence and provenance as a list - or the
+    refusal {refusal, missing_fields, recommendation: null}.
+
+    type_optional: the Anansi call may pass event_type null to ask only for the
+    window and pressure; then the event fields come back null, not refused. A
+    stored snapshot keeps phase 1's rule - no event type, no score."""
     cfg = cfg or tables()
+    clock = cfg["clock"]
     event = event or {}
     eid = event.get("event_id")
     missing = []
     if not event.get("timestamp_utc"):
         missing.append("timestamp")
-    if not event.get("event_type"):
+    if not event.get("event_type") and not type_optional:
         missing.append("event_type")
     if not natal:
         missing.append("fixed_natal")
@@ -147,69 +169,75 @@ def score(event, natal, sky=None, cfg=None):
         return refusal(["timestamp (unparseable)"], eid)
     tz = _local_tz(event, natal)
     if tz is None:
-        return refusal(["local_timezone (event location.tz, or the natal record's default_tz)"], eid)
+        return refusal(["local_timezone (location.tz, or the natal record's default_tz)"], eid)
     local = utc.astimezone(tz)
-    window = window_for(local, cfg["clock"])
+    window = window_for(local, clock)
 
-    house = cfg["event_type_to_house"].get(str(event["event_type"]).lower())
-    if house is None:
-        missing.append(f"event_type_to_house:{event['event_type']}")
-    organ = cfg["house_to_organ"].get(str(house)) if house is not None else None
-    if house is not None and organ is None:
-        missing.append(f"house_to_organ:{house}")
-    if missing:
-        return refusal(missing, eid)
-    level = match_level(organ, window, cfg["clock"])
-    if level is None:
-        return refusal([f"house_to_organ:{house} names {organ!r}, which is not on the organ clock"], eid)
+    house = organ = level = None
+    etype = event.get("event_type")
+    if etype:
+        house = cfg["event_type_to_house"].get(str(etype).lower())
+        if house is None:
+            missing.append(f"event_type_to_house:{etype}")
+        organ = cfg["house_to_organ"].get(str(house)) if house is not None else None
+        if house is not None and organ is None:
+            missing.append(f"house_to_organ:{house}")
+        if missing:
+            return refusal(missing, eid)
+        level = match_level(organ, window, clock)
+        if level is None:
+            return refusal([f"house_to_organ:{house} names {organ!r}, which is not on the organ clock"], eid)
 
-    pressure = natal_pressure(window, natal, cfg["clock"])
-    sky_note, sky_err = None, None
+    pressure = natal_pressure(window, natal, clock) or \
+        "No natal pillars on record; no pressure applied."
+    sky_note = None
     if sky is not None:
         try:
             sky_note = sky(utc, house, natal)
-        except Exception as exc:
-            sky_err = str(exc)[:200]
-    provenance = {
-        "organ_clock": "config/ati/organ_clock_windows.json (generic reference, local clock time)",
-        "event_type_to_house": "config/ati/event_type_to_house.json",
-        "house_to_organ": "config/ati/house_to_organ.json",
-        "natal_pillars": "present" if (natal.get("bazi_pillars")) else "absent",
-        "sky": ("present" if sky_note else
-                f"feed failed: {sky_err}" if sky is not None and sky_err else
-                "feed returned nothing" if sky is not None else "absent - no ephemeris feed"),
-        "local_time": f"{local.isoformat(timespec='minutes')} ({tz.key})",
-    }
-    layers = ["organ_clock", "house_map"] + (["natal_pillars"] if natal.get("bazi_pillars") else []) \
-        + (["sky"] if sky_note else [])
-    return {
+        except Exception:
+            sky_note = None
+    # Which layers actually contributed, as a count - not a probability. A
+    # number dressed as likelihood would claim a calibration nobody did.
+    provenance = (["natal"] if natal.get("bazi_pillars") else []) + ["clock"] \
+        + (["house_map"] if house is not None else []) + (["sky"] if sky_note else [])
+    out = {
         "refusal": False,
-        "event_id": eid,
-        "active_window": {"organ": window["organ"], "element": window["element"],
-                          "branch": window["branch"], "time_range": f"{window['start']}-{window['end']}"},
-        "event_house": house,
-        "event_organ": organ,
+        "active_window": {"range": f"{window['start']}\u2013{window['end']}",
+                          "branch": window.get("branch_display") or window["branch"],
+                          "organ": window.get("organ_display") or window["organ"],
+                          "element": window["element"].title()},
+        "event_house": _ordinal(house) if house is not None else None,
+        "event_organ": _display(clock, organ) if organ else None,
         "match_level": level,
         "natal_pressure_note": pressure,
         "sky_note": sky_note,
-        # Which layers actually contributed, as a count - not a probability. A
-        # number dressed as likelihood would claim a calibration nobody did.
-        "confidence": f"{len(layers)} of 4 layers present ({', '.join(layers)})",
-        "missing_fields": [] if natal.get("bazi_pillars") else ["bazi_pillars (natal pressure not applied)"],
+        "confidence": f"{len(provenance)} of 4 layers present",
         "provenance": provenance,
     }
+    if eid:
+        out["event_id"] = eid
+    return out
 
 
-def score_event(store, event_id=None, entity_id=None, timestamp_utc=None, event_type=None,
-                location=None, sky=None):
-    """The on-demand trigger: by event_id, or by entity_id + timestamp + type."""
-    if event_id:
-        event = store.get_event(event_id)
-        if not event:
-            return refusal(["event (no snapshot with that event_id)"], event_id)
-    else:
-        event = {"event_id": None, "entity_id": entity_id, "timestamp_utc": timestamp_utc,
-                 "event_type": event_type, "location": location}
+def score(entity_id, timestamp_utc, event_type=None, location=None, store=None, sky=None, cfg=None):
+    """The Anansi <-> ATI contract's single entry point. One call, one response.
+
+    store: where the fixed natal record is read from (ati.store.HermesStore(agent)
+    for the live one). ATI receives only these fields - it never reads chat or
+    calendar state - and writes nothing."""
+    if not entity_id:
+        return refusal(["entity_id", "fixed_natal"])
+    natal = store.get_natal(entity_id) if store is not None else None
+    return score_snapshot({"entity_id": entity_id, "timestamp_utc": timestamp_utc,
+                           "event_type": event_type, "location": location},
+                          natal, sky=sky, cfg=cfg, type_optional=True)
+
+
+def score_event(store, event_id, sky=None):
+    """A stored EventSnapshot by id (phase 1's trigger). Its event type is required."""
+    event = store.get_event(event_id)
+    if not event:
+        return refusal(["event (no snapshot with that event_id)"], event_id)
     if not event.get("entity_id"):
-        return refusal(["entity_id", "fixed_natal"], event.get("event_id"))
-    return score(event, store.get_natal(event["entity_id"]), sky=sky)
+        return refusal(["entity_id", "fixed_natal"], event_id)
+    return score_snapshot(event, store.get_natal(event["entity_id"]), sky=sky)

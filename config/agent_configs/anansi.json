@@ -10,6 +10,7 @@
     "inbound_mail",
     "ack_preview",
     "journal_email",
+    "orientation",
     "route_held_mail",
     "held_mail_digest",
     "grow_roster",

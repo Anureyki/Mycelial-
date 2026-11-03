@@ -49,7 +49,7 @@ class Anansi(AgentBase):
                           "notify", "publish_media", "receive_mail", "ingest_upload", "grow_roster",
                           "grow_snapshot", "recent_changes", "phase_status",
                           "system_graph", "actions", "deadlines", "reminders",
-                          "inbound_mail", "ack_preview", "journal_email", "route_held_mail", "held_mail_digest",
+                          "inbound_mail", "ack_preview", "journal_email", "orientation", "route_held_mail", "held_mail_digest",
                           "training_candidates", "training_quest_status",
                           "advance_campaign", "review_candidate", "voice"],
             role="interface"
@@ -792,6 +792,50 @@ class Anansi(AgentBase):
                             "html": r["html"], "attachments": r["attachments"],
                             "from_agent": "anansi", "register": "low_stakes", "channels": ["email"]})
 
+    def orientation(self, args):
+        """An ATI orientation for one moment (Anansi <-> ATI contract, phase 2).
+
+        On demand only: called when the principal asks about an event or date, or
+        when a calendar or meridian view needs a scored window. One synchronous
+        call to ati.score, one response - no polling, no subscription. ATI returns
+        structure; the sentences are written here, because Anansi is the only
+        agent that talks to the user. Anansi reads the natal record through ATI
+        and never writes it. On a refusal the missing fields are named and the
+        generic organ window - the same clock table ATI uses, not a copy - is
+        still given where a timezone is known."""
+        from ati import score
+        from ati.store import HermesStore
+        from ati.score import tables, window_for, _parse_utc
+        a = args if isinstance(args, dict) else {}
+        loc = a.get("location") if isinstance(a.get("location"), dict) else None
+        res = score(a.get("entity_id"), a.get("timestamp_utc"), a.get("event_type"), loc,
+                    store=HermesStore(self))
+        if not res.get("refusal"):
+            w = res["active_window"]
+            text = f"That falls in the {w['organ']} window ({w['range']}, {w['element']}, {w['branch']})."
+            if res.get("event_organ"):
+                text += (f" The event belongs to the {res['event_house']} house and the "
+                         f"{res['event_organ']} - a {res['match_level']} match with that window.")
+            if res.get("natal_pressure_note"):
+                text += f"\nNatal: {res['natal_pressure_note']}"
+            if res.get("sky_note"):
+                text += f"\nSky: {res['sky_note']}"
+            return {"text": text, "ati": res}
+        text = "Orientation unavailable - missing: " + ", ".join(res.get("missing_fields") or ["unknown"]) + "."
+        generic = None
+        try:
+            tz = (loc or {}).get("tz")
+            if tz and a.get("timestamp_utc"):
+                from zoneinfo import ZoneInfo
+                w = window_for(_parse_utc(a["timestamp_utc"]).astimezone(ZoneInfo(tz)), tables()["clock"])
+                generic = {"range": f"{w['start']}\u2013{w['end']}", "organ": w.get("organ_display") or w["organ"],
+                           "element": w["element"].title(), "branch": w.get("branch_display") or w["branch"]}
+                text += (f" On the generic organ clock that time is the {generic['organ']} window "
+                         f"({generic['range']}, {generic['element']}) - not personalised.")
+        except Exception as exc:
+            self.log(f"orientation: generic window unavailable: {exc}")
+        return {"text": text, "ati": res, "generic_window": generic}
+
     def journal_email(self, args):
         """The weekly grow journal by email (principal 2026-10-30: 'Both' - the page
         and the email). Grow supplies each plant's journal and status card;
@@ -1106,6 +1150,8 @@ class Anansi(AgentBase):
             return self.ack_preview(args)
         if task == "journal_email":
             return self.journal_email(args)
+        if task == "orientation":
+            return self.orientation(args)
         if task == "route_held_mail":
             return self.route_held_mail(args)
         if task == "held_mail_digest":

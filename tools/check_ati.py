@@ -21,7 +21,7 @@ import sys
 os.environ["MYCELIAL_EVENT_ORIGIN"] = "test"
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, ROOT)
-from ati.score import score, score_event, tables  # noqa: E402
+from ati.score import score, score_event, score_snapshot, tables  # noqa: E402
 from ati.store import MemoryStore, Refused  # noqa: E402
 
 fails = []
@@ -40,42 +40,44 @@ natal = {"entity_id": "e1", "birth_datetime_utc": "2000-01-01T00:00:00Z", "birth
          "bazi_pillars": {"year": {"stem": "geng", "branch": "chen"}, "month": {"stem": "x", "branch": "you"},
                           "day": {"stem": "x", "branch": "si"}, "hour": {"stem": "x", "branch": "zi"}}}
 
-r = score({"event_id": "a"}, None, cfg=cfg)
-check("refusal names timestamp, event_type and fixed_natal",
+S = score_snapshot
+r = S({"event_id": "a"}, None, cfg=cfg)
+check("refusal names timestamp, event_type and fixed_natal, recommendation null",
       r["refusal"] and r["recommendation"] is None
       and set(r["missing_fields"]) == {"timestamp", "event_type", "fixed_natal"})
-r = score({"event_id": "b", "timestamp_utc": "2026-11-03T14:00:00Z", "event_type": "unknown"}, natal, cfg=cfg)
+r = S({"event_id": "b", "timestamp_utc": "2026-11-03T14:00:00Z", "event_type": "unknown"}, natal, cfg=cfg)
 check("unmapped event type refused, not guessed",
       r["refusal"] and r["missing_fields"] == ["event_type_to_house:unknown"])
-r = score({"event_id": "c", "timestamp_utc": "2026-11-03T14:00:00Z", "event_type": "test_meal"},
-          natal, cfg=dict(cfg, house_to_organ={}))
+r = S({"event_id": "c", "timestamp_utc": "2026-11-03T14:00:00Z", "event_type": "test_meal"},
+      natal, cfg=dict(cfg, house_to_organ={}))
 check("unmapped house refused", r["refusal"] and r["missing_fields"] == ["house_to_organ:6"])
 # 2026-11-03 14:00Z = 08:00 Chicago (CST) -> stomach window
-r = score({"event_id": "d", "timestamp_utc": "2026-11-03T14:00:00Z", "event_type": "test_meal"}, natal, cfg=cfg)
+r = S({"event_id": "d", "timestamp_utc": "2026-11-03T14:00:00Z", "event_type": "test_meal"}, natal, cfg=cfg)
 check("direct: stomach event in the stomach window",
-      not r["refusal"] and r["active_window"]["organ"] == "stomach" and r["match_level"] == "direct")
-check("natal pressure names the chen-branch year pillar", "year pillar shares" in (r["natal_pressure_note"] or ""))
-# 16:00Z = 10:00 CST -> spleen, adjacent to stomach
-r = score({"event_id": "e", "timestamp_utc": "2026-11-03T16:00:00Z", "event_type": "test_meal"}, natal, cfg=cfg)
+      not r["refusal"] and r["active_window"]["organ"] == "Stomach" and r["match_level"] == "direct")
+check("contract shape: range with en dash, hanzi branch, title element, ordinal house",
+      r["active_window"] == {"range": "07:00\u201309:00", "branch": "\u8fb0 Chen", "organ": "Stomach",
+                             "element": "Earth"} and r["event_house"] == "6th" and r["event_organ"] == "Stomach")
+check("provenance is a list of present layers and confidence counts them",
+      r["provenance"] == ["natal", "clock", "house_map"] and r["confidence"] == "3 of 4 layers present")
+check("natal pressure names the chen-branch year pillar", "year pillar shares" in r["natal_pressure_note"])
+r = S({"event_id": "e", "timestamp_utc": "2026-11-03T16:00:00Z", "event_type": "test_meal"}, natal, cfg=cfg)
 check("adjacent: one window away", r["match_level"] == "adjacent")
-# 05:30Z = 23:30 CST previous day -> gallbladder (wraps midnight); stomach is 4 away
-r = score({"event_id": "f", "timestamp_utc": "2026-11-03T05:30:00Z", "event_type": "test_meal"}, natal, cfg=cfg)
-check("23:00-01:00 window wraps midnight", r["active_window"]["organ"] == "gallbladder")
+r = S({"event_id": "f", "timestamp_utc": "2026-11-03T05:30:00Z", "event_type": "test_meal"}, natal, cfg=cfg)
+check("23:00-01:00 window wraps midnight", r["active_window"]["organ"] == "Gallbladder")
 check("background: far window", r["match_level"] == "background")
-cfg_lv = dict(cfg, house_to_organ={"6": "triple_burner"})
-check("adjacency wraps across index 11 -> 0", score(
+check("adjacency wraps across index 11 -> 0", S(
     {"event_id": "g", "timestamp_utc": "2026-11-03T05:30:00Z", "event_type": "test_meal"},
-    natal, cfg=cfg_lv)["match_level"] == "adjacent")
-r = score({"event_id": "h", "timestamp_utc": "2026-11-03T14:00:00Z", "event_type": "test_meal",
-           "location": {"tz": "Asia/Tokyo"}}, natal, cfg=cfg)
-check("local time from the event's place (Tokyo 23:00 -> gallbladder)", r["active_window"]["organ"] == "gallbladder")
-r = score({"event_id": "i", "timestamp_utc": "2026-11-03T14:00:00Z", "event_type": "test_meal"},
-          dict(natal, default_tz=None), cfg=cfg)
+    natal, cfg=dict(cfg, house_to_organ={"6": "triple_burner"}))["match_level"] == "adjacent")
+r = S({"event_id": "h", "timestamp_utc": "2026-11-03T14:00:00Z", "event_type": "test_meal",
+       "location": {"lat": 35.7, "lon": 139.7, "tz": "Asia/Tokyo"}}, natal, cfg=cfg)
+check("local time from the event's place (Tokyo 23:00 -> gallbladder)", r["active_window"]["organ"] == "Gallbladder")
+r = S({"event_id": "i", "timestamp_utc": "2026-11-03T14:00:00Z", "event_type": "test_meal"},
+      dict(natal, default_tz=None), cfg=cfg)
 check("no timezone anywhere is refused, never assumed",
       r["refusal"] and r["missing_fields"][0].startswith("local_timezone"))
-check("sky absent is said so", "absent" in score(
-    {"event_id": "j", "timestamp_utc": "2026-11-03T14:00:00Z", "event_type": "test_meal"},
-    natal, cfg=cfg)["provenance"]["sky"])
+check("no sky feed: sky_note null, not in provenance", (lambda x: x["sky_note"] is None and "sky" not in x["provenance"])(
+    S({"event_id": "j", "timestamp_utc": "2026-11-03T14:00:00Z", "event_type": "test_meal"}, natal, cfg=cfg)))
 
 st = MemoryStore()
 st.put_natal(natal)
@@ -85,6 +87,20 @@ try:
 except Refused:
     check("natal record is write-once", st.get_natal("e1")["birth_location"] == "x")
 check("score_event refuses an unknown event_id", score_event(st, event_id="nope")["refusal"])
+# The Anansi call shape (phase 2): ati.score(entity_id, timestamp_utc, event_type=None, location=None)
+r = score("e1", "2026-11-03T14:00:00Z", None, None, store=st, cfg=cfg)
+check("contract: event_type null returns window + pressure, event fields null, not a refusal",
+      not r["refusal"] and r["active_window"]["organ"] == "Stomach" and r["event_house"] is None
+      and r["event_organ"] is None and r["match_level"] is None and r["provenance"] == ["natal", "clock"])
+r = score("e1", "2026-11-03T14:00:00Z", "test_meal", {"lat": 41.9, "lon": -87.6, "tz": "America/Chicago"},
+          store=st, cfg=cfg)
+check("contract: typed call scores", r["match_level"] == "direct")
+check("contract: response keys are exactly the contract's", set(r) == {
+    "refusal", "active_window", "event_house", "event_organ", "match_level", "natal_pressure_note",
+    "sky_note", "confidence", "provenance"})
+r = score("nobody", "2026-11-03T14:00:00Z", None, None, store=st, cfg=cfg)
+check("contract: no natal record -> refusal with fixed_natal",
+      set(r) == {"refusal", "missing_fields", "recommendation"} and r["missing_fields"] == ["fixed_natal"])
 
 banned = {"threading", "sched", "asyncio", "multiprocessing"}
 loops = []
