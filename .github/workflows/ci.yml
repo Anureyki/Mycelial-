@@ -263,3 +263,22 @@ jobs:
         # SOURCE was. Retrieval has no natural alarm: a lookup that returns
         # the wrong entry returns an entry, and the answer reads fine.
         run: python tools/check_retrieval.py
+
+  mycos-core:
+    # MYCOS-CORE-001 section 12: Mycos core must start and pass its governance
+    # acceptance tests with the ATI module disabled. A separate job so that
+    # independence is proved in its own environment, not inferred from the
+    # sanity job passing. The ati/ tree is deleted from the checkout before the
+    # gate runs, and the gate also makes `ati` unimportable in-process.
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.14"
+      - name: Install what the gates import
+        run: pip install -r ci-requirements.txt
+      - name: Disable ATI
+        run: rm -rf ati config/ati
+      - name: Mycos core acceptance with ATI disabled (check_mycos_core)
+        run: python tools/check_mycos_core.py

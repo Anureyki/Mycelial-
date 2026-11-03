@@ -166,6 +166,25 @@ are different states of the world.
 
 ---
 
+## MycOS core: the governed execution lifecycle (MYCOS-CORE-001)
+
+`mycos/` is a thin composition layer, not a second governance engine. Its
+`lifecycle.run()` takes one request through identity -> classification ->
+orchestration -> capability -> policy -> authorization -> preflight ->
+execution -> verification -> state commit -> audit, and every step is a piece
+that already existed: the agent's declared contract, the effects map from
+`core/effects.py`, the ACL in `core/acl.py` (fails closed), Boss's
+`authorize_route` (policy only - Anansi is the single router), and the
+append-only Provenance store for the audit. What it adds is what the baseline
+found missing: a decision fingerprint (same inputs, policy and decisions ->
+same hash), no commit after a failed verification, containment of an executor
+that raises, and `mycos/contracts.py`, which assembles each agent's capability
+contract from its existing declarations and reports fields nobody declares as
+`undeclared`. `tools/check_mycos_core.py` runs the twelve acceptance tests with
+ATI unimportable, in its own CI job with `ati/` deleted. Rollback and
+architecture change control are not built yet and the gate lists them as known
+gaps rather than passing them.
+
 ## ATI: Astrology Temporal Intelligence
 
 An on-demand scoring layer in `ati/`. Given a logged event (timestamp, type,

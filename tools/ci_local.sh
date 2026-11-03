@@ -120,6 +120,7 @@ step "check_gsa_directives"         "$PY" tools/check_gsa_directives.py
 step "check_ssa_form_demand"        "$PY" tools/check_ssa_form_demand.py
 step "check_effects"                "$PY" tools/check_effects.py
 step "check_ati"                    "$PY" tools/check_ati.py
+step "check_mycos_core (ATI off)"   "$PY" tools/check_mycos_core.py
 step "check_media_publish"          "$PY" tools/check_media_publish.py
 step "check_dispute_letters"        "$PY" tools/check_dispute_letters.py
 step "check_fcra_furnisher"         "$PY" tools/check_fcra_furnisher.py
