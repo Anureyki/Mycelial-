@@ -12,9 +12,10 @@ core/effects.CLASSES. This gate fails the build when:
     (hardware sits behind Boss's authorization; a third party behind the
     principal's sign-off - CLAUDE.md).
 
-Cards without an `effects` map are reported, not failed. Ten agents carry one
-(2026-11-03); Anansi's is WITHHELD, with the reason on its card, because five
-of its verbs class `external` and nothing declares what authorizes them.
+Cards without an `effects` map are reported, not failed. All eleven core agents
+carry one as of 2026-11-03. Anansi's five `external` verbs (email) are gated by
+the email_authorization the principal declared on its card - recipient fixed to
+NOTIFY_TO, third-party sends refused - which tools/check_voice.py keeps true.
 Verbs that run a subprocess are listed under `effects_unprovable` and kept
 equal to the code like the rest.
 

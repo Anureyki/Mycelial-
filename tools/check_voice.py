@@ -65,5 +65,23 @@ for top in ("agents", "core", "services"):
 check("only Anansi can send to the principal" + (f" (found: {senders})" if senders != ["agents/anansi/Anansi.py"] else ""),
       senders == ["agents/anansi/Anansi.py"])
 
+# The email authorization on Anansi's card (principal, 2026-11-03): recipient
+# fixed to NOTIFY_TO, third-party sends refused. A declaration the code could
+# drift away from is a claim; this keeps it a fact.
+import re  # noqa: E402
+src = open(os.path.join(ROOT, "agents", "anansi", "Anansi.py"), encoding="utf-8").read()
+recips = re.findall(r'(?:"to"\s*:|\["To"\]\s*=)\s*([^,\n}]+)', src)
+check("every Anansi send names NOTIFY_TO as its recipient, and nothing else"
+      + (f" (found: {recips})" if any("NOTIFY_TO" not in r for r in recips) else ""),
+      recips and all('os.environ["NOTIFY_TO"]' in r for r in recips))
+check("one AgentMail send path and one SMTP path, both in _deliver",
+      src.count("/messages/send") == 1 and src.count("smtplib.SMTP(") == 1)
+import json as _json  # noqa: E402
+card = _json.load(open(os.path.join(ROOT, "config", "agent_cards", "anansi.json"), encoding="utf-8"))
+ext = sorted(v for v, k in (card.get("effects") or {}).items() if k == "external")
+check("each external Anansi verb is gated by the email authorization",
+      ext and all("email_authorization" in str((card.get("effects_gated_by") or {}).get(v)) for v in ext)
+      and (card.get("email_authorization") or {}).get("recipient") == "fixed to NOTIFY_TO")
+
 print("check_voice: " + ("ALL OK" if not fails else f"{len(fails)} FAILED: {fails}"))
 sys.exit(1 if fails else 0)

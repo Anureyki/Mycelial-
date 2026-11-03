@@ -159,13 +159,44 @@ try:
           not imports and a["outcome"] == "committed")
 
     import mycos.contracts as mc
-    unmapped = [x for x in mc.agent_ids() if contract(x)["permitted_operations"] == mc.MISSING]
-    if unmapped:
-        u = unmapped[0]
-        r = run(req(agent_id=u, verb=(contract(u)["capabilities"] or ["x"])[0],
-                    resource="corpus:grow_agent", action="read"))
-        check("contract_failclosed", f"an agent with no effects map ({u}) is refused at classification "
-              "(escalation required_but_missing - fails closed)", r["stopped_at"] == "classification")
+    # Every agent is mapped today, so fail-closed is proven on a contract with its
+    # map removed - the state any future agent starts in. Patched on the module,
+    # restored after; nothing on disk changes.
+    _real = lc.contract
+
+    def _unmapped(aid, **k):
+        c_ = _real(aid, **k)
+        return dict(c_, permitted_operations=mc.MISSING) if c_ else c_
+    lc.contract = _unmapped
+    try:
+        r = run(req())
+    finally:
+        lc.contract = _real
+    check("contract_failclosed", "an agent with no effects map is refused at classification "
+          "(escalation required_but_missing - fails closed)", r["stopped_at"] == "classification")
+    acl_n = dict(ACL, **{"corpus:anansi": {"owner": "anansi", "read": [], "write": [], "execute": []}})
+    r = lc.run(lc.Request(agent_id="anansi", verb="notify", resource="corpus:anansi", action="write",
+                          payload={}), OK[0], OK[1], lambda res: "ref", acl=acl_n, audit=audit)
+    auth_ = next((s_ for s_ in r["steps"] if s_["step"] == "authorization"), {})
+    check("standing_authorization", "an external verb with a declared standing authorization passes "
+          "(Anansi.notify - email_authorization) and the authorization is recorded",
+          r.get("committed") and any("email_authorization" in x for x in auth_.get("conditions", [])))
+    _real2 = lc.contract
+
+    def _ungated(aid, **k):
+        c_ = _real2(aid, **k)
+        if c_ and aid == "anansi":
+            esc_ = dict(c_["escalation_conditions"]); esc_["parts"] = dict(esc_["parts"], gated_verbs={})
+            c_ = dict(c_, escalation_conditions=esc_)
+        return c_
+    lc.contract = _ungated
+    try:
+        r = lc.run(lc.Request(agent_id="anansi", verb="notify", resource="corpus:anansi", action="write",
+                              payload={}), OK[0], OK[1], lambda res: "ref", acl=acl_n, audit=audit)
+    finally:
+        lc.contract = _real2
+    check("ungated_external_refused", "the same external verb with no declared authorization is refused "
+          "without the principal's sign-off", r["stopped_at"] == "authorization" and not r["committed"])
     mapped = contract("coding_agent")
     cverb = next(v for v, c in mapped["permitted_operations"].items() if c == "computes")
     r = run(req(agent_id="coding_agent", verb=cverb, resource="corpus:grow_agent", action="read"))

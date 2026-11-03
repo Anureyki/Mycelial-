@@ -161,10 +161,21 @@ def run(req, execute, verify, commit, preflight=None, authorize=None, acl=None, 
         return stop("authorization", f"authorization unavailable ({exc}) - fails closed")
     if not auth.get("allowed"):
         return stop("authorization", auth.get("reason") or "not permitted")
+    # An actuating or external verb passes on the principal's sign-off for this
+    # request, or on a standing authorization the principal declared for that
+    # verb (effects_gated_by on the card - e.g. Anansi's email_authorization,
+    # recipient fixed to NOTIFY_TO). Neither, and it is refused.
     esc = c["escalation_conditions"]["parts"].get("principal_signoff_verbs")
-    if (cls in HUMAN_SIGNOFF or (isinstance(esc, list) and req.verb in esc)) and not req.human_signoff:
-        return stop("authorization", f"{req.verb} is classed {cls!r}; it needs the principal's sign-off")
-    steps.append({"step": "authorization", "ok": True, "conditions": auth.get("conditions") or []})
+    gated = c["escalation_conditions"]["parts"].get("gated_verbs")
+    standing = gated.get(req.verb) if isinstance(gated, dict) else None
+    conditions = list(auth.get("conditions") or [])
+    if cls in HUMAN_SIGNOFF or (isinstance(esc, list) and req.verb in esc):
+        if standing:
+            conditions.append(f"standing authorization: {standing}")
+        elif not req.human_signoff:
+            return stop("authorization", f"{req.verb} is classed {cls!r} and no standing authorization is "
+                                         "declared for it; it needs the principal's sign-off")
+    steps.append({"step": "authorization", "ok": True, "conditions": conditions})
     # preflight
     if preflight is not None:
         pok, pwhy = preflight(req)

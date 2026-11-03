@@ -50,14 +50,55 @@
   "owner": "anureyki",
   "created": "2026-07-21T17:59:55.506343",
   "updated": "2026-10-05T09:50:51.327222",
-  "effects_withheld": {
-    "why": "five verbs reach email and the detector classes them external (it cannot prove the recipient is always the principal); an external verb must name its authorization in effects_gated_by and none is declared. The map is withheld rather than written with an invented authorization - the principal decides what gates them.",
-    "external_verbs": [
-      "notify",
-      "receive_mail",
-      "ack_preview",
-      "journal_email",
-      "held_mail_digest"
-    ]
+  "effects": {
+    "process_request": "computes",
+    "narrate_contradiction": "computes",
+    "voice_policy": "computes",
+    "remember_user_fact": "records",
+    "user_context": "computes",
+    "check_cross_domain": "computes",
+    "refresh_routing": "computes",
+    "drift_alerts": "records",
+    "routing_map": "computes",
+    "notify": "external",
+    "publish_media": "records",
+    "receive_mail": "external",
+    "ingest_upload": "records",
+    "grow_roster": "computes",
+    "grow_snapshot": "records",
+    "recent_changes": "records",
+    "phase_status": "records",
+    "system_graph": "records",
+    "actions": "records",
+    "deadlines": "records",
+    "reminders": "records",
+    "inbound_mail": "computes",
+    "ack_preview": "external",
+    "journal_email": "external",
+    "orientation": "computes",
+    "route_held_mail": "records",
+    "held_mail_digest": "external",
+    "training_candidates": "computes",
+    "training_quest_status": "records",
+    "advance_campaign": "records",
+    "review_candidate": "records",
+    "voice": "computes"
+  },
+  "effects_unprovable": [],
+  "effects_basis": "read from the code by core/effects.py (dispatch path, self-calls, inherited base methods; operational logging excluded); kept equal to the code by tools/check_effects.py",
+  "effects_gated_by": {
+    "ack_preview": "email_authorization: recipient fixed to NOTIFY_TO; third-party sends refused",
+    "held_mail_digest": "email_authorization: recipient fixed to NOTIFY_TO; third-party sends refused",
+    "journal_email": "email_authorization: recipient fixed to NOTIFY_TO; third-party sends refused",
+    "notify": "email_authorization: recipient fixed to NOTIFY_TO; third-party sends refused",
+    "receive_mail": "email_authorization: recipient fixed to NOTIFY_TO; third-party sends refused"
+  },
+  "email_authorization": {
+    "recipient": "fixed to NOTIFY_TO",
+    "third_party_sends": "refused",
+    "scope": "user-facing notifications only",
+    "note": "All outbound email is restricted to the configured user address. No external or third-party recipients are permitted.",
+    "declared_by": "the principal, 2026-11-03",
+    "enforced_by": "tools/check_voice.py - fails the build if any send path in agents/anansi/Anansi.py sets a recipient other than NOTIFY_TO"
   }
 }
