@@ -18,3 +18,12 @@ if [ "$rc" -ne 0 ]; then
   echo "  commit BLOCKED. Nothing was committed." >&2
   exit "$rc"
 fi
+# The personal-data firewall (2026-11-03): birth data, coordinates, pillar
+# charts, identity numbers, and the principal's own values as keyed digests.
+# It fails closed - a scan that cannot run blocks the commit.
+"$PY" "$ROOT/tools/check_personal_data.py" --staged
+rc=$?
+if [ "$rc" -ne 0 ]; then
+  echo "  commit BLOCKED by the personal-data firewall. Nothing was committed." >&2
+  exit "$rc"
+fi

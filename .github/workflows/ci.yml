@@ -186,6 +186,8 @@ jobs:
         run: python tools/check_voice.py
       - name: Organ-clock listener - dry run sends nothing, ATI optional (check_organ_clock)
         run: python tools/check_organ_clock.py
+      - name: Personal-data firewall - patterns from config, fails closed (check_personal_data)
+        run: python tools/check_personal_data.py
       - name: Only approved artifacts reach the media library (check_media_publish)
         run: python tools/check_media_publish.py
 

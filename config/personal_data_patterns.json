@@ -1,0 +1,177 @@
+{
+  "_what": "The personal-data firewall's patterns (tools/check_personal_data.py). The scanner holds no patterns of its own: a new category is a new entry here, with its reason and synthetic fixtures, and no code change. Every fixture below is SYNTHETIC - a fake 1990 date, a neutral city, a made-up pillar chart, an impossible SSN - so the gate proves it detects the real shapes without storing the real values. Real values are checked separately, as keyed hashes kept under state/, never here.",
+  "_principal": "Set 2026-11-03: fail closed; patterns live here; every catch is logged and becomes a test case the gate keeps.",
+  "categories": {
+    "github_fine_grained_token": {
+      "pattern": "\\bgithub_pat_[A-Za-z0-9_]{22,}",
+      "flags": "",
+      "mask": "token",
+      "why": "a GitHub fine-grained personal access token",
+      "seed": "leak 1, 2026-11-03: a github_pat_ token sat in plain text in config/mcp.d/git.json (gitignored, never committed). check_no_secrets matches gh[pousr]_ only and would not have caught this shape.",
+      "fixtures_hit": [
+        "\"GITHUB_TOKEN\": \"github_pat_11AAAAAAA0000000000000_aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\""
+      ],
+      "fixtures_miss": [
+        "GITHUB_TOKEN is read from .env and never written here"
+      ]
+    },
+    "birth_time_with_longitude": {
+      "pattern": "\\b\\d{4}-\\d{2}-\\d{2}[T ]\\d{2}:\\d{2}[^\\n]{0,80}?\\blon(?:gitude)?\\b[\"']?\\s*[=:]\\s*-?\\d{1,3}\\.\\d{2,}",
+      "flags": "i",
+      "mask": "digits",
+      "why": "a clock time with a longitude - the shape of a birth moment and place",
+      "seed": "leak 2, 2026-11-03: a docstring example in ati/bazi.py carried the principal's birth time and longitude; caught before publishing.",
+      "fixtures_hit": [
+        "pillars(\"1990-06-15T14:05\", \"America/Denver\", lon=-104.9903)",
+        "{\"local\": \"1990-06-15 14:05\", \"longitude\": -104.99}"
+      ],
+      "fixtures_miss": [
+        "pillars(local_iso, tz, lon=None)",
+        "the year turns at 315 degrees of solar longitude"
+      ]
+    },
+    "birth_date_keyed": {
+      "pattern": "\\b(?:birth(?:day|date|_?datetime(?:_local|_utc)?)?|born|dob|date[ _]of[ _]birth)\\b[\"']?[^\\n]{0,24}?(?:\\b(?:19|20)\\d{2}-\\d{2}-\\d{2}(?!\\d)|\\b(?:Jan(?:uary)?|Feb(?:ruary)?|Mar(?:ch)?|Apr(?:il)?|May|June?|July?|Aug(?:ust)?|Sep(?:tember)?|Oct(?:ober)?|Nov(?:ember)?|Dec(?:ember)?)\\.? \\d{1,2}, (?:19|20)\\d{2}\\b|\\b\\d{1,2}/\\d{1,2}/(?:19|20)\\d{2}\\b)",
+      "flags": "i",
+      "mask": "digits",
+      "why": "a date tied to a birth",
+      "seed": "synthetic",
+      "fixtures_hit": [
+        "Born June 15, 1990 at 2:05 PM",
+        "\"birth_datetime_local\": \"1990-06-15T14:05\"",
+        "DOB: 06/15/1990"
+      ],
+      "fixtures_miss": [
+        "birth data is read from the natal record at runtime",
+        "born out of necessity in 2024 the gate"
+      ]
+    },
+    "precise_coordinates": {
+      "pattern": "\\b(?:lat(?:itude)?|lon(?:gitude)?|lng)\\b[\"']?\\s*[:=]\\s*-?\\d{1,3}\\.\\d{3,}",
+      "flags": "i",
+      "mask": "digits",
+      "why": "a coordinate precise enough to locate a place (3+ decimals)",
+      "seed": "synthetic",
+      "fixtures_hit": [
+        "\"latitude\": 39.7392",
+        "lon=-104.990"
+      ],
+      "fixtures_miss": [
+        "\"latitude\": null",
+        "lon=lon"
+      ]
+    },
+    "bazi_chart": {
+      "pattern": "[甲乙丙丁戊己庚辛壬癸][子丑寅卯辰巳午未申酉戌亥](?:[\\s,'\"·/|\\-]{0,4}[甲乙丙丁戊己庚辛壬癸][子丑寅卯辰巳午未申酉戌亥]){3}",
+      "flags": "",
+      "mask": "pillars",
+      "why": "a full four-pillar chart - it encodes a birth date and hour",
+      "seed": "synthetic",
+      "fixtures_hit": [
+        "庚午 壬午 丙寅 乙未",
+        "[\"庚午\", \"壬午\", \"丙寅\", \"乙未\"]"
+      ],
+      "fixtures_miss": [
+        "子 Zi",
+        "the 甲戌 year pillar alone"
+      ]
+    },
+    "ssn_shape": {
+      "pattern": "\\b\\d{3}-\\d{2}-\\d{4}\\b",
+      "flags": "",
+      "mask": "digits",
+      "why": "something shaped like a Social Security number",
+      "seed": "synthetic",
+      "fixtures_hit": [
+        "SSN 900-12-3456"
+      ],
+      "fixtures_miss": [
+        "port 9010-9016",
+        "2026-11-03"
+      ]
+    },
+    "va_dod_identity": {
+      "pattern": "\\b(?:EDIPI|DoD\\s*ID|VA\\s*file\\s*(?:no|number)|C-?file|claim\\s*(?:no|number))\\b[^\\n0-9]{0,20}\\d{8,10}\\b",
+      "flags": "i",
+      "mask": "digits",
+      "why": "a VA file / claim number or a DoD ID (EDIPI)",
+      "seed": "synthetic",
+      "fixtures_hit": [
+        "EDIPI: 1000000001",
+        "VA file number 900000000"
+      ],
+      "fixtures_miss": [
+        "the EDIPI demand was sent 10/26",
+        "claim number field"
+      ]
+    },
+    "name_with_place": {
+      "pattern": "\\b[A-Z][a-z]+ (?:[A-Z][a-z]*\\.? )?[A-Z][a-z]+(?: Jr\\.?)?\\b[^\\n]{0,40}?\\b(?:born|lives|resides|residing|birthplace|native of)\\b[^\\n]{0,30}?\\b[A-Z][a-z]+(?: [A-Z][a-z]+)?, (?:[A-Z]{2}|[A-Z][a-z]+)\\b",
+      "flags": "",
+      "mask": "words",
+      "why": "a person's name tied to a place",
+      "seed": "synthetic",
+      "fixtures_hit": [
+        "Jordan Example was born in Springfield, Illinois"
+      ],
+      "fixtures_miss": [
+        "the principal lives with two plants in one tent"
+      ]
+    }
+  },
+  "allowlist": [
+    {
+      "path": "config/personal_data_patterns.json",
+      "why": "the firewall's own synthetic fixtures"
+    },
+    {
+      "path": "tools/check_personal_data.py",
+      "why": "the scanner and its synthetic self-tests"
+    },
+    {
+      "path": "ati/bazi.py",
+      "contains": "pillars(\"2024-02-10T12:00\", \"Asia/Shanghai\", lon=121.47)   # -> 甲辰 丙寅 甲辰 庚午",
+      "why": "neutral docstring example (Lunar New Year 2024, Shanghai) - the replacement for leak 2"
+    },
+    {
+      "path": "tools/check_ati.py",
+      "why": "synthetic reference dates (2000-01-01, 2024-02-03/10) and a synthetic natal fixture proving the BaZi derivation"
+    },
+    {
+      "path_prefix": "reference/",
+      "categories": [
+        "name_with_place",
+        "birth_date_keyed"
+      ],
+      "why": "the public-domain corpus (statutes, regulations, the IRM, Black's 1910): legal prose about birth and residence, not a person's data. Tokens, coordinates, birth times, pillar charts and the derived layer still apply there."
+    },
+    {
+      "source": "tools/check_no_secrets.py ALLOWED",
+      "categories": [
+        "ssn_shape",
+        "va_dod_identity"
+      ],
+      "why": "files check_no_secrets already reviewed for SSN-shaped content, each with its reason - read from there at scan time so the decision lives in one place"
+    }
+  ],
+  "derived": {
+    "_": "The principal's REAL values are never written here. --refresh-derived reads the live natal record from Hermes and keeps only HMAC-SHA256 digests of its date, time, coordinates and pillar chart, under a random local key - both in state/personal_data/, owner-only. A staged file holding any of those values is caught even if it fits no pattern above. CI has no state/, so this layer runs locally and on the pre-commit hook, and CI reports it as skipped.",
+    "entity_id": "principal",
+    "key_file": "state/personal_data/hmac.key",
+    "digest_file": "state/personal_data/derived.json"
+  },
+  "learned_cases": [
+    {
+      "category": "github_fine_grained_token",
+      "shape": "github_pat_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+      "first_seen": "2026-11-03",
+      "seed": "leak 1 - token in config/mcp.d/git.json, never committed"
+    },
+    {
+      "category": "birth_time_with_longitude",
+      "shape": "pillars(\"0000-00-00T00:00\", \"Xxxxxxx/Xxx_Xxxxxxx\", lon=-000.0000)",
+      "first_seen": "2026-11-03",
+      "seed": "leak 2 - birth time and longitude in an ati/bazi.py docstring, caught before publishing"
+    }
+  ]
+}

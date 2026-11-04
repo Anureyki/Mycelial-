@@ -986,6 +986,15 @@ fails quietly.** Absence of a detected problem is not evidence of its absence.
 
 ### The rules
 
+0. **Content is judged as well as commands.** `tools/check_personal_data.py` is the
+   personal-data firewall, on the pre-commit hook and in CI. Its patterns live in
+   `config/personal_data_patterns.json` (a new category is a config entry with
+   synthetic fixtures); it fails closed; every catch is logged under `state/` as a
+   masked shape that becomes a remembered test case. The principal's real values are
+   checked as keyed digests built from the natal record (`--refresh-derived`),
+   never stored. It exists because a docstring carried his birth time and
+   longitude on 2026-11-03 and only a permission block forced the scan that found it.
+
 1. **Never suppress stderr on a command whose success you are about to claim.**
    No `2>/dev/null` in front of an assertion that the thing worked.
 2. **Verify the effect, not the exit code.** A push is confirmed by comparing

@@ -105,6 +105,10 @@ PATTERNS = {
 # allowlist that grows without reasons is a disabled scanner.
 ALLOWED = {
     "tools/check_no_secrets.py": "the scanner's own patterns",
+    "config/personal_data_patterns.json":
+        "the personal-data firewall's SYNTHETIC fixtures - an impossible 900-prefixed SSN and "
+        "a made-up EDIPI - proving its patterns detect the shapes without real values",
+    "tools/check_personal_data.py": "the personal-data firewall's synthetic self-tests",
     "tools/check_asset_registry.py": "documented synthetic test values",
     "core/identifier_scan.py": "the detector's own patterns",
     "core/asset_registry.py": "field-name refusal list",

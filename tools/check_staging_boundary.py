@@ -60,18 +60,28 @@ def build_repo():
     git(d, "config", "user.name", "Boundary Test", check=True)
     os.makedirs(os.path.join(d, "tools"))
     os.makedirs(os.path.join(d, "core"))
-    for f in ("tools/check_no_secrets.py", "core/identifier_scan.py"):
+    # The hook runs BOTH content gates; the fixture carries both, or the
+    # personal-data firewall fails closed here exactly as it should anywhere.
+    for f in ("tools/check_no_secrets.py", "core/identifier_scan.py",
+              "tools/check_personal_data.py", "config/personal_data_patterns.json"):
         os.makedirs(os.path.dirname(os.path.join(d, f)), exist_ok=True)
         shutil.copy(os.path.join(ROOT, f), os.path.join(d, f))
+    # Its local layer: the keyed digests, owner-only, gone with the temp repo.
+    # In CI there are none, and the firewall skips that layer there anyway.
+    for f in ("state/personal_data/derived.json", "state/personal_data/hmac.key"):
+        if os.path.exists(os.path.join(ROOT, f)):
+            os.makedirs(os.path.dirname(os.path.join(d, f)), mode=0o700, exist_ok=True)
+            shutil.copy(os.path.join(ROOT, f), os.path.join(d, f))
+            os.chmod(os.path.join(d, f), 0o600)
     os.makedirs(os.path.join(d, ".githooks"))
     shutil.copy(os.path.join(ROOT, ".githooks", "pre-commit"),
                 os.path.join(d, ".githooks", "pre-commit"))
     os.chmod(os.path.join(d, ".githooks", "pre-commit"), 0o755)
     git(d, "config", "core.hooksPath", ".githooks", check=True)
     with open(os.path.join(d, ".gitignore"), "w") as fh:
-        fh.write("ignored/\n")
+        fh.write("ignored/\nstate/\n")
     open(os.path.join(d, "README.md"), "w").write("# fixture\n")
-    git(d, "add", ".gitignore", "README.md", "tools", "core", ".githooks",
+    git(d, "add", ".gitignore", "README.md", "tools", "core", "config", ".githooks",
         check=True)
     git(d, "-c", "core.hooksPath=", "commit", "-q", "-m", "seed", check=True)
     return d
