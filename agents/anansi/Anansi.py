@@ -813,6 +813,23 @@ class Anansi(AgentBase):
         loc = a.get("location") if isinstance(a.get("location"), dict) else None
         res = score(a.get("entity_id"), a.get("timestamp_utc"), a.get("event_type"), loc,
                     store=HermesStore(self))
+        # THE BRIEFING (principal, 2026-11-03): the moment's I Ching cast travels
+        # with every orientation for Anansi's reasoning, and is SPOKEN only when
+        # asked (speak_hexagram) - less is more. It sits beside ATI's response,
+        # never inside it: that shape is the contract, checked key for key.
+        briefing = {}
+        try:
+            from ati.ichi import cast
+            from zoneinfo import ZoneInfo
+            if a.get("timestamp_utc") and (loc or {}).get("tz"):
+                c = cast(_parse_utc(a["timestamp_utc"]).astimezone(ZoneInfo(loc["tz"])))
+                briefing["hexagram"] = {"primary": f"{c['primary']['number']} {c['primary']['name']}",
+                                        "moving_line": c["moving_line"],
+                                        "changed": f"{c['changed']['number']} {c['changed']['name']}",
+                                        "mutual": f"{c['mutual']['number']} {c['mutual']['name']}",
+                                        "lunar": c["lunar"], "method": c["method"], "flags": c["flags"]}
+        except Exception as exc:
+            briefing["hexagram_unavailable"] = str(exc)[:200]
         if not res.get("refusal"):
             w = res["active_window"]
             text = f"That falls in the {w['organ']} window ({w['range']}, {w['element']}, {w['branch']})."
@@ -823,7 +840,11 @@ class Anansi(AgentBase):
                 text += f"\nNatal: {res['natal_pressure_note']}"
             if res.get("sky_note"):
                 text += f"\nSky: {res['sky_note']}"
-            return {"text": text, "ati": res}
+            h = briefing.get("hexagram")
+            if a.get("speak_hexagram") and h:
+                text += (f"\nThe cast for this moment is {h['primary']}, line {h['moving_line']} moving, "
+                         f"changing to {h['changed']}.")
+            return {"text": text, "ati": res, "briefing": briefing}
         text = "Orientation unavailable - missing: " + ", ".join(res.get("missing_fields") or ["unknown"]) + "."
         generic = None
         try:
@@ -837,7 +858,7 @@ class Anansi(AgentBase):
                          f"({generic['range']}, {generic['element']}) - not personalised.")
         except Exception as exc:
             self.log(f"orientation: generic window unavailable: {exc}")
-        return {"text": text, "ati": res, "generic_window": generic}
+        return {"text": text, "ati": res, "generic_window": generic, "briefing": briefing}
 
     # ------------------------------------------------------------------
     # Organ clock: AgentMail calendar.event.starting over a WebSocket
@@ -950,7 +971,7 @@ class Anansi(AgentBase):
                                        "recommendation": None}}
         ati = o.get("ati") or {}
         entry = {"event_id": eid, "mode": mode, "window": series[sid], "scheduled_at": msg.get("scheduled_at"),
-                 "ati": ati, "would_send": o.get("text")}
+                 "ati": ati, "briefing": o.get("briefing"), "would_send": o.get("text")}
         if mode == "live" and not ati.get("refusal"):
             res = self.notify({"subject": f"{series[sid]} window", "body": o.get("text") or "",
                                "from_agent": "anansi", "register": "low_stakes",

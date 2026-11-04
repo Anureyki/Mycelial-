@@ -1,0 +1,142 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Organ Clock</title>
+<style>
+/* One ring of twelve two-hour windows; the active one in gold, its points around it. */
+:root { --bg:#f6f4ef; --ink:#23201b; --muted:#6f685d; --ring:#d8d2c6; --organ:#ffffff; --gold:#c9971c;
+  --wood:#4f7d4a; --fire:#b4503c; --earth:#a07a3a; --metal:#7c8590; --water:#3d6a8f; }
+@media (prefers-color-scheme: dark) { :root { --bg:#16140f; --ink:#ece6da; --muted:#a39b8c; --ring:#3a352c;
+  --organ:#24211b; --gold:#e3b23c; --wood:#7fb276; --fire:#e07c66; --earth:#cfa461; --metal:#a9b2bc; --water:#74a3c9; } }
+body { margin:0; background:var(--bg); color:var(--ink); font:15px/1.5 system-ui, sans-serif; }
+main { max-width:620px; margin:0 auto; padding:20px 16px 32px; }
+h1 { font-size:1.4rem; margin:0; } p { margin:4px 0 0; color:var(--muted); }
+svg { width:100%; height:auto; display:block; margin-top:12px; }
+.ring { fill:none; stroke:var(--ring); stroke-width:1.5; }
+.organ { fill:var(--organ); stroke:var(--el); stroke-width:3; transition:fill .4s; }
+.organ.active { fill:var(--gold); stroke:var(--gold); }
+.name { font-size:12px; text-anchor:middle; fill:var(--ink); pointer-events:none; }
+.time { font-size:10px; text-anchor:middle; fill:var(--muted); pointer-events:none; }
+.pt { fill:var(--el); stroke:var(--bg); stroke-width:1; cursor:help; }
+.pt:hover, .pt:focus { r:7; outline:none; }
+.hand { stroke:var(--gold); stroke-width:2; stroke-linecap:round; }
+.center { font-size:13px; text-anchor:middle; fill:var(--ink); }
+#tip { position:fixed; pointer-events:none; background:var(--ink); color:var(--bg); padding:4px 8px;
+  border-radius:4px; font-size:12px; opacity:0; transition:opacity .15s; max-width:240px; }
+.legend { display:flex; flex-wrap:wrap; gap:6px 14px; margin-top:8px; font-size:12px; color:var(--muted); }
+.legend i { display:inline-block; width:10px; height:10px; border-radius:50%; margin-right:5px; vertical-align:-1px; }
+</style>
+</head>
+<body>
+<main>
+  <h1>Organ Clock</h1>
+  <p id="now">Reading the local time…</p>
+  <svg id="clock" viewBox="-300 -300 600 600" role="img" aria-label="Twelve organ windows around a ring"></svg>
+  <div class="legend">
+    <span><i style="background:var(--wood)"></i>Wood</span><span><i style="background:var(--fire)"></i>Fire</span>
+    <span><i style="background:var(--earth)"></i>Earth</span><span><i style="background:var(--metal)"></i>Metal</span>
+    <span><i style="background:var(--water)"></i>Water</span><span><i style="background:var(--gold)"></i>Active window</span>
+  </div>
+  <p>Small circles are each meridian's yuan-source (Y), luo-connecting (L) and horary (H) points. Hover one for its name.
+     The clock is generic reference; personal pressure comes from ATI on demand.</p>
+</main>
+<div id="tip" role="tooltip"></div>
+
+<!-- Fallback when opened from disk (browsers refuse to read a sibling file).
+     tools/check_organ_clock.py fails the build if this ever differs from config/ati/organ_clock_windows.json. -->
+<script type="application/json" id="windows-fallback">
+[{"start":"23:00","end":"01:00","organ":"gallbladder","organ_display":"Gallbladder","element":"wood","branch":"zi","branch_display":"子 Zi"},
+{"start":"01:00","end":"03:00","organ":"liver","organ_display":"Liver","element":"wood","branch":"chou","branch_display":"丑 Chou"},
+{"start":"03:00","end":"05:00","organ":"lung","organ_display":"Lungs","element":"metal","branch":"yin","branch_display":"寅 Yin"},
+{"start":"05:00","end":"07:00","organ":"large_intestine","organ_display":"Large Intestine","element":"metal","branch":"mao","branch_display":"卯 Mao"},
+{"start":"07:00","end":"09:00","organ":"stomach","organ_display":"Stomach","element":"earth","branch":"chen","branch_display":"辰 Chen"},
+{"start":"09:00","end":"11:00","organ":"spleen","organ_display":"Spleen","element":"earth","branch":"si","branch_display":"巳 Si"},
+{"start":"11:00","end":"13:00","organ":"heart","organ_display":"Heart","element":"fire","branch":"wu","branch_display":"午 Wu"},
+{"start":"13:00","end":"15:00","organ":"small_intestine","organ_display":"Small Intestine","element":"fire","branch":"wei","branch_display":"未 Wei"},
+{"start":"15:00","end":"17:00","organ":"bladder","organ_display":"Bladder","element":"water","branch":"shen","branch_display":"申 Shen"},
+{"start":"17:00","end":"19:00","organ":"kidney","organ_display":"Kidneys","element":"water","branch":"you","branch_display":"酉 You"},
+{"start":"19:00","end":"21:00","organ":"pericardium","organ_display":"Pericardium","element":"fire","branch":"xu","branch_display":"戌 Xu"},
+{"start":"21:00","end":"23:00","organ":"triple_burner","organ_display":"Triple Burner","element":"fire","branch":"hai","branch_display":"亥 Hai"}]
+</script>
+
+<script>
+// Yuan-source, luo-connecting and horary points per meridian. Horary = the meridian's
+// five-shu point of its own element (yin: well wood, spring fire, stream earth, river metal,
+// sea water; yang: well metal, spring water, stream wood, river fire, sea earth).
+const POINTS = {
+  lung:            [["LU9", "Taiyuan", "Y"], ["LU7", "Lieque", "L"], ["LU8", "Jingqu", "H"]],
+  large_intestine: [["LI4", "Hegu", "Y"], ["LI6", "Pianli", "L"], ["LI1", "Shangyang", "H"]],
+  stomach:         [["ST42", "Chongyang", "Y"], ["ST40", "Fenglong", "L"], ["ST36", "Zusanli", "H"]],
+  spleen:          [["SP3", "Taibai", "Y·H"], ["SP4", "Gongsun", "L"]],
+  heart:           [["HT7", "Shenmen", "Y"], ["HT5", "Tongli", "L"], ["HT8", "Shaofu", "H"]],
+  small_intestine: [["SI4", "Wangu", "Y"], ["SI7", "Zhizheng", "L"], ["SI5", "Yanggu", "H"]],
+  bladder:         [["BL64", "Jinggu", "Y"], ["BL58", "Feiyang", "L"], ["BL66", "Zutonggu", "H"]],
+  kidney:          [["KI3", "Taixi", "Y"], ["KI4", "Dazhong", "L"], ["KI10", "Yingu", "H"]],
+  pericardium:     [["PC7", "Daling", "Y"], ["PC6", "Neiguan", "L"], ["PC8", "Laogong", "H"]],
+  triple_burner:   [["TB4", "Yangchi", "Y"], ["TB5", "Waiguan", "L"], ["TB6", "Zhigou", "H"]],
+  gallbladder:     [["GB40", "Qiuxu", "Y"], ["GB37", "Guangming", "L"], ["GB41", "Zulinqi", "H"]],
+  liver:           [["LR3", "Taichong", "Y"], ["LR5", "Ligou", "L"], ["LR1", "Dadun", "H"]],
+};
+const KIND = {Y: "yuan-source", L: "luo-connecting", H: "horary", "Y·H": "yuan-source and horary"};
+const NS = "http://www.w3.org/2000/svg", R = 205, svg = document.getElementById("clock");
+const tip = document.getElementById("tip");
+
+function el(tag, attrs, parent) {
+  const e = document.createElementNS(NS, tag);
+  for (const [k, v] of Object.entries(attrs)) e.setAttribute(k, v);
+  (parent || svg).appendChild(e);
+  return e;
+}
+const minutes = s => { const [h, m] = s.split(":").map(Number); return h * 60 + m; };
+// angle of a clock minute, midnight at the top, clockwise
+const angle = min => (min / 1440) * 2 * Math.PI - Math.PI / 2;
+
+function draw(windows) {
+  el("circle", {class: "ring", cx: 0, cy: 0, r: R});
+  const hand = el("line", {class: "hand", x1: 0, y1: 0, x2: 0, y2: -R + 46});
+  const centre = el("text", {class: "center", x: 0, y: 6});
+  windows.forEach(w => {
+    const mid = minutes(w.start) + 60, a = angle(mid);
+    const x = R * Math.cos(a), y = R * Math.sin(a);
+    const g = el("g", {style: `--el: var(--${w.element})`});
+    el("circle", {class: "organ", id: `organ-${w.organ}`, cx: x, cy: y, r: 38}, g)
+      .appendChild(document.createElementNS(NS, "title")).textContent = `${w.organ_display} · ${w.start}–${w.end}`;
+    el("text", {class: "name", x, y: y - 2}, g).textContent = w.organ_display.replace("Large ", "L. ").replace("Small ", "S. ");
+    el("text", {class: "time", x, y: y + 13}, g).textContent = `${w.start}–${w.end}`;
+    (POINTS[w.organ] || []).forEach(([code, name, kind], i, all) => {
+      const pa = a + (i - (all.length - 1) / 2) * 0.13, pr = R + 62;
+      const p = el("circle", {class: "pt", cx: pr * Math.cos(pa), cy: pr * Math.sin(pa), r: 5, tabindex: 0,
+                              "aria-label": `${code} ${name}, ${KIND[kind]} point of the ${w.organ_display}`}, g);
+      const show = ev => { tip.textContent = `${code} ${name} · ${KIND[kind]}`; tip.style.opacity = 1;
+        const b = (ev.target.getBoundingClientRect ? ev.target : p).getBoundingClientRect();
+        tip.style.left = `${b.right + 6}px`; tip.style.top = `${b.top - 4}px`; };
+      p.addEventListener("mouseenter", show); p.addEventListener("focus", show);
+      p.addEventListener("mouseleave", () => tip.style.opacity = 0); p.addEventListener("blur", () => tip.style.opacity = 0);
+    });
+  });
+  function tick() {
+    const now = new Date(), m = now.getHours() * 60 + now.getMinutes();
+    const active = windows.find(w => { const s = minutes(w.start), e = minutes(w.end);
+      return s < e ? (m >= s && m < e) : (m >= s || m < e); });
+    document.querySelectorAll(".organ.active").forEach(c => c.classList.remove("active"));
+    if (active) document.getElementById(`organ-${active.organ}`).classList.add("active");
+    const a = angle(m) * 180 / Math.PI + 90;
+    hand.setAttribute("transform", `rotate(${a})`);
+    centre.textContent = active ? `${active.organ_display} · ${active.branch_display}` : "";
+    document.getElementById("now").textContent = `${now.toLocaleTimeString([], {hour: "2-digit", minute: "2-digit"})} local · ` +
+      (active ? `${active.organ_display} window, ${active.start}–${active.end} (${active.element})` : "");
+  }
+  tick();
+  setInterval(tick, 30000);
+}
+
+// The config is the source; the embedded copy is only for a page opened from disk.
+fetch("../config/ati/organ_clock_windows.json")
+  .then(r => r.ok ? r.json() : Promise.reject())
+  .then(cfg => draw(cfg.windows))
+  .catch(() => draw(JSON.parse(document.getElementById("windows-fallback").textContent)));
+</script>
+</body>
+</html>
