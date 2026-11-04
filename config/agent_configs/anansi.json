@@ -13,6 +13,8 @@
     "orientation",
     "organ_clock_event",
     "organ_clock_status",
+    "lighting",
+    "sector_briefing",
     "route_held_mail",
     "held_mail_digest",
     "grow_roster",

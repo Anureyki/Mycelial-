@@ -1,0 +1,17 @@
+{
+  "_source": "the principal, 2026-11-03: the twelve houses as body regions, head to feet, verbatim. A body-region table, NOT house_to_organ (which stays unset until the principal defines it). Used by the house layer to draw and light sectors.",
+  "houses": {
+    "1": "Head and face",
+    "2": "Neck and throat",
+    "3": "Shoulders, arms, hands",
+    "4": "Chest",
+    "5": "Heart and upper abdomen",
+    "6": "Lower abdomen and digestion",
+    "7": "Hips and lower back",
+    "8": "Reproductive and excretory organs",
+    "9": "Thighs",
+    "10": "Knees",
+    "11": "Calves and ankles",
+    "12": "Feet"
+  }
+}

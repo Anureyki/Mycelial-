@@ -49,7 +49,7 @@ class Anansi(AgentBase):
                           "notify", "publish_media", "receive_mail", "ingest_upload", "grow_roster",
                           "grow_snapshot", "recent_changes", "phase_status",
                           "system_graph", "actions", "deadlines", "reminders",
-                          "inbound_mail", "ack_preview", "journal_email", "orientation", "organ_clock_event", "organ_clock_status", "route_held_mail", "held_mail_digest",
+                          "inbound_mail", "ack_preview", "journal_email", "orientation", "organ_clock_event", "organ_clock_status", "lighting", "sector_briefing", "route_held_mail", "held_mail_digest",
                           "training_candidates", "training_quest_status",
                           "advance_campaign", "review_candidate", "voice"],
             role="interface"
@@ -994,6 +994,59 @@ class Anansi(AgentBase):
             last = []
         return {"mode": cfg.get("mode"), "connection": dict(self._clock_state), "recent": last}
 
+    def _lighting_payload(self, args):
+        from ati.lighting import lighting
+        from ati.store import HermesStore
+        from zoneinfo import ZoneInfo
+        a = args if isinstance(args, dict) else {}
+        cfg = self._clock_cfg()
+        tz = a.get("tz") or cfg.get("timezone") or "America/Chicago"
+        try:
+            zone = ZoneInfo(str(tz))
+        except Exception:
+            return None, {"error": f"unknown timezone {tz!r}"}
+        natal = HermesStore(self).get_natal(cfg.get("entity_id") or "principal")
+        return lighting(datetime.now(zone), natal), None
+
+    def lighting(self, args):
+        """What the body interface may light for this moment (principal, 2026-11-03).
+        Computed here on every request from the natal record ATI holds; the page
+        receives display values and lighting instructions, stores none, computes none."""
+        payload, err = self._lighting_payload(args)
+        return err or payload
+
+    def sector_briefing(self, args):
+        """Tap-to-request: the briefing for ONE organ or house, in Anansi's words.
+        A house has no live lighting yet (no ephemeris), and the answer says so."""
+        a = args if isinstance(args, dict) else {}
+        payload, err = self._lighting_payload(a)
+        if err:
+            return err
+        kind, key = a.get("kind"), str(a.get("id") or "")
+        if kind == "house":
+            region = payload["house_regions"].get(key)
+            if not region:
+                return {"error": f"no house {key!r}"}
+            return {"kind": "house", "id": key, "text":
+                    f"House {key} is {region.lower()}. Nothing lights it yet - transit positions arrive "
+                    "once the ephemeris is wired, and until then this sector is reference only."}
+        win = next((w for w in payload["windows"] if w["organ"] == key), None)
+        if kind != "organ" or not win:
+            return {"error": "kind must be 'organ' or 'house' with a known id"}
+        act = payload["active_window"]["organ"] == key
+        hits = [i for i in payload["interactions"] if key in i["organs"]]
+        text = (f"{win['organ_display']} ({win['element']}, {win['start']}–{win['end']}) is "
+                + ("the active window right now." if act else "not the active window."))
+        if hits:
+            text += " Against your chart this hour: " + "; ".join(
+                f"{i['tag']} ({i['current']} pillar on your {i['natal']} pillar)" for i in hits) + "."
+        elif payload["natal_pillars"]:
+            text += " No current pillar acts on its element against your chart this hour."
+        pts = payload["points"]["points"].get(key) or []
+        if pts:
+            text += " Points: " + ", ".join(f"{c} {n}" for c, n, _ in pts) + "."
+        return {"kind": "organ", "id": key, "text": text, "interactions": hits, "active": act}
+
     def journal_email(self, args):
         """The weekly grow journal by email (principal 2026-10-30: 'Both' - the page
         and the email). Grow supplies each plant's journal and status card;
@@ -1314,6 +1367,10 @@ class Anansi(AgentBase):
             return self.organ_clock_event(args)
         if task == "organ_clock_status":
             return self.organ_clock_status(args)
+        if task == "lighting":
+            return self.lighting(args)
+        if task == "sector_briefing":
+            return self.sector_briefing(args)
         if task == "route_held_mail":
             return self.route_held_mail(args)
         if task == "held_mail_digest":

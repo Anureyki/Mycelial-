@@ -126,5 +126,12 @@ check("the page stays a static file under 200 lines with no backend call",
       page.count("\n") < 200 and "fetch(\"../config/ati/organ_clock_windows.json\")" in page
       and "localhost" not in page)
 
+m2 = _re.search(r"const POINTS = \{(.*?)\n\};", page, _re.S)
+page_pts = {k: [list(t) for t in _re.findall(r'\["([^"]+)", "([^"]+)", "([^"]+)"\]', v)]
+            for k, v in _re.findall(r"(\w+):\s*\[(.*?)\],?\n", (m2.group(1) if m2 else "") + "\n")}
+cfg_pts = json.load(open(os.path.join(ROOT, "config", "ati", "meridian_points.json"), encoding="utf-8"))["points"]
+check("ui/organ_clock.html's meridian points equal config/ati/meridian_points.json (the lighting payload's source)",
+      page_pts == cfg_pts and len(cfg_pts) == 12)
+
 print("check_organ_clock: " + ("ALL OK" if not fails else f"{len(fails)} FAILED: {fails}"))
 sys.exit(1 if fails else 0)

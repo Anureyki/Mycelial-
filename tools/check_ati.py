@@ -15,6 +15,7 @@ memory service, and the shipped tables (which are the principal's to fill) are
 not edited.
 """
 import ast
+import re
 import os
 import sys
 
@@ -199,6 +200,34 @@ check("Najia by the standard table: 乾 甲子..壬戌, 坤 乙未..癸酉",
 m = _dt(2026, 11, 3, 19, 21, tzinfo=_ZI("America/Chicago"))
 check("a cast is deterministic and uses the moment's own lunar date and hour", cast(m) == cast(m)
       and cast(m)["lunar"] == {"year": 2026, "month": 9, "day": 25, "leap": False} and cast(m)["hour_branch"] == "戌")
+
+# Lighting (ati/lighting.py): the classical tables, and nothing natal leaks into the page.
+from ati.lighting import GENERATES, CONTROLS, CLASHES, ORGANS, interactions as _inter, lighting as _lighting  # noqa: E402
+check("generation cycle wood>fire>earth>metal>water>wood and control cycle wood>earth>water>fire>metal",
+      GENERATES == {"wood": "fire", "fire": "earth", "earth": "metal", "metal": "water", "water": "wood"}
+      and CONTROLS == {"wood": "earth", "earth": "water", "water": "fire", "fire": "metal", "metal": "wood"})
+check("the six clashes are 子午 丑未 寅申 卯酉 辰戌 巳亥", CLASHES == {frozenset(p) for p in (
+    ("zi", "wu"), ("chou", "wei"), ("yin", "shen"), ("mao", "you"), ("chen", "xu"), ("si", "hai"))})
+check("each element maps to its zang-fu pair", ORGANS["water"] == ["kidney", "bladder"] and ORGANS["metal"] == ["lung", "large_intestine"])
+_be = tables()["clock"]["branch_elements"]
+_cur = {k: {"stem": s_, "branch": b_} for k, (s_, b_) in zip(("year", "month", "day", "hour"),
+        (("bing", "wu"), ("wu", "xu"), ("xin", "si"), ("ji", "hai")))}
+_nat = {"year": {"stem": "jia", "branch": "zi"}}
+_got = {(i["type"], i["current"]) for i in _inter(_cur, _nat, _be)}
+check("interactions: 午 now clashes natal 子; 辛 metal controls natal 甲 wood; 丙 fire generates nothing in wood",
+      ("clash", "year") in _got and ("control", "day") in _got and ("generation", "year") not in _got)
+_L = _lighting(_dt(2026, 11, 3, 19, 40, tzinfo=_ZI("America/Chicago")), None)
+check("no natal record: natal pillars absent and no interactions, houses unlit and saying why",
+      _L["natal_pillars"] is None and _L["interactions"] == [] and _L["houses_lit"] == [] and "ephemeris" in _L["houses_status"])
+import json as _json  # noqa: E402
+_hr = _json.load(open(os.path.join(ROOT, "config", "ati", "house_to_body_region.json"), encoding="utf-8"))["houses"]
+check("house_to_body_region holds the twelve regions verbatim, head to feet; house_to_organ stays unset",
+      _hr["1"] == "Head and face" and _hr["12"] == "Feet" and len(_hr) == 12
+      and _json.load(open(os.path.join(ROOT, "config", "ati", "house_to_organ.json"), encoding="utf-8"))["houses"] == {})
+_page = open(os.path.join(ROOT, "webapp", "body.html"), encoding="utf-8").read()
+check("webapp/body.html holds no pillar, natal or window values - they arrive from the lighting call",
+      not re.search(r"[甲乙丙丁戊己庚辛壬癸][子丑寅卯辰巳午未申酉戌亥]", _page) and "\"lighting\"" in _page
+      and "11:00" not in _page)
 
 banned = {"threading", "sched", "asyncio", "multiprocessing"}
 loops = []

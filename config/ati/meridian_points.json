@@ -1,0 +1,210 @@
+{
+  "_source": "yuan-source (Y), luo-connecting (L) and horary (H) point per meridian; horary derived by rule - the five-shu point of the meridian's own element. Shared by ui/organ_clock.html (kept equal by check_organ_clock) and ATI's lighting payload.",
+  "kinds": {
+    "Y": "yuan-source",
+    "L": "luo-connecting",
+    "H": "horary",
+    "Y·H": "yuan-source and horary"
+  },
+  "points": {
+    "lung": [
+      [
+        "LU9",
+        "Taiyuan",
+        "Y"
+      ],
+      [
+        "LU7",
+        "Lieque",
+        "L"
+      ],
+      [
+        "LU8",
+        "Jingqu",
+        "H"
+      ]
+    ],
+    "large_intestine": [
+      [
+        "LI4",
+        "Hegu",
+        "Y"
+      ],
+      [
+        "LI6",
+        "Pianli",
+        "L"
+      ],
+      [
+        "LI1",
+        "Shangyang",
+        "H"
+      ]
+    ],
+    "stomach": [
+      [
+        "ST42",
+        "Chongyang",
+        "Y"
+      ],
+      [
+        "ST40",
+        "Fenglong",
+        "L"
+      ],
+      [
+        "ST36",
+        "Zusanli",
+        "H"
+      ]
+    ],
+    "spleen": [
+      [
+        "SP3",
+        "Taibai",
+        "Y·H"
+      ],
+      [
+        "SP4",
+        "Gongsun",
+        "L"
+      ]
+    ],
+    "heart": [
+      [
+        "HT7",
+        "Shenmen",
+        "Y"
+      ],
+      [
+        "HT5",
+        "Tongli",
+        "L"
+      ],
+      [
+        "HT8",
+        "Shaofu",
+        "H"
+      ]
+    ],
+    "small_intestine": [
+      [
+        "SI4",
+        "Wangu",
+        "Y"
+      ],
+      [
+        "SI7",
+        "Zhizheng",
+        "L"
+      ],
+      [
+        "SI5",
+        "Yanggu",
+        "H"
+      ]
+    ],
+    "bladder": [
+      [
+        "BL64",
+        "Jinggu",
+        "Y"
+      ],
+      [
+        "BL58",
+        "Feiyang",
+        "L"
+      ],
+      [
+        "BL66",
+        "Zutonggu",
+        "H"
+      ]
+    ],
+    "kidney": [
+      [
+        "KI3",
+        "Taixi",
+        "Y"
+      ],
+      [
+        "KI4",
+        "Dazhong",
+        "L"
+      ],
+      [
+        "KI10",
+        "Yingu",
+        "H"
+      ]
+    ],
+    "pericardium": [
+      [
+        "PC7",
+        "Daling",
+        "Y"
+      ],
+      [
+        "PC6",
+        "Neiguan",
+        "L"
+      ],
+      [
+        "PC8",
+        "Laogong",
+        "H"
+      ]
+    ],
+    "triple_burner": [
+      [
+        "TB4",
+        "Yangchi",
+        "Y"
+      ],
+      [
+        "TB5",
+        "Waiguan",
+        "L"
+      ],
+      [
+        "TB6",
+        "Zhigou",
+        "H"
+      ]
+    ],
+    "gallbladder": [
+      [
+        "GB40",
+        "Qiuxu",
+        "Y"
+      ],
+      [
+        "GB37",
+        "Guangming",
+        "L"
+      ],
+      [
+        "GB41",
+        "Zulinqi",
+        "H"
+      ]
+    ],
+    "liver": [
+      [
+        "LR3",
+        "Taichong",
+        "Y"
+      ],
+      [
+        "LR5",
+        "Ligou",
+        "L"
+      ],
+      [
+        "LR1",
+        "Dadun",
+        "H"
+      ]
+    ]
+  }
+}

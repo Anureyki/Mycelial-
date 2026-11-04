@@ -1,0 +1,187 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Body Interface</title>
+<style>
+/* Clock left, body centre (zoomable), pillar strip right. Live = gold; natal = ghosted.
+   Nothing natal lives in this file: every value arrives from ATI's lighting call. */
+:root { --bg:#07090d; --panel:#0d1117; --line:#232a35; --ink:#e7e2d6; --muted:#7d8592; --ghost:#3b4250;
+  --gold:#e3b23c; --wood:#6fae6a; --fire:#e0705a; --earth:#d9a94e; --metal:#b5bcc6; --water:#5f97d6;
+  color-scheme: dark; }
+* { box-sizing: border-box; }
+body { margin:0; background:var(--bg); color:var(--ink); font:14px/1.45 system-ui, sans-serif; }
+header { padding:14px 16px 8px; text-align:center; letter-spacing:.18em; font-size:12px; color:var(--muted); }
+header b { color:var(--ink); font-weight:600; }
+.toggles { display:flex; flex-wrap:wrap; justify-content:center; gap:6px 18px; padding:0 16px 10px; font-size:12px; }
+.toggles label { display:flex; gap:6px; align-items:center; color:var(--muted); cursor:pointer; }
+.toggles input:disabled + span { opacity:.45; }
+.grid { display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1.1fr) minmax(0,.8fr); gap:14px; padding:0 16px 16px; }
+@media (max-width:900px) { .grid { grid-template-columns:1fr; } }
+.panel { background:var(--panel); border:1px solid var(--line); border-radius:10px; padding:12px; min-width:0; }
+.panel h2 { margin:0 0 8px; font-size:11px; letter-spacing:.16em; color:var(--muted); font-weight:600; }
+svg { width:100%; height:auto; display:block; }
+.ring { fill:none; stroke:var(--line); }
+.organ { fill:var(--panel); stroke:var(--el); stroke-width:2.5; cursor:pointer; }
+.organ.active { fill:var(--gold); stroke:var(--gold); }
+.organ:focus { outline:none; stroke-width:5; }
+.oname { font-size:11px; text-anchor:middle; fill:var(--ink); pointer-events:none; }
+.otime { font-size:9px; text-anchor:middle; fill:var(--muted); pointer-events:none; }
+.tag { font-size:9px; text-anchor:middle; fill:var(--gold); pointer-events:none; }
+.hand { stroke:var(--gold); stroke-width:2; }
+.body-wrap { overflow:hidden; border-radius:8px; touch-action:none; position:relative; }
+.zoom { position:absolute; right:8px; top:8px; display:flex; flex-direction:column; gap:4px; }
+.zoom button { width:30px; height:30px; border-radius:6px; border:1px solid var(--line); background:var(--panel); color:var(--ink); cursor:pointer; }
+.figure { fill:none; stroke:var(--ghost); stroke-width:1.6; }
+.band { opacity:.22; cursor:pointer; transition:opacity .2s; }
+.band:hover, .band:focus { opacity:.4; outline:none; }
+.bandline { stroke:var(--line); stroke-dasharray:3 4; }
+.hlabel { font-size:11px; fill:var(--muted); pointer-events:none; }
+.pill { display:grid; grid-template-columns:3.4rem 1fr 1fr; gap:6px; align-items:baseline; padding:8px 0; border-top:1px solid var(--line); }
+.pill:first-of-type { border-top:0; }
+.pill .k { font-size:11px; letter-spacing:.12em; color:var(--muted); }
+.pill .n { font-size:18px; color:var(--ghost); }
+.pill .c { font-size:22px; color:var(--ink); }
+.pill.hour .c { color:var(--gold); }
+.cols { display:grid; grid-template-columns:3.4rem 1fr 1fr; gap:6px; font-size:10px; color:var(--muted); letter-spacing:.1em; }
+.tags { margin:10px 0 0; padding:0; list-style:none; display:grid; gap:4px; font-size:12px; color:var(--muted); }
+.tags b { color:var(--gold); font-weight:600; }
+#brief { min-height:3em; color:var(--ink); }
+.note { font-size:11px; color:var(--muted); margin:8px 0 0; }
+[hidden] { display:none !important; }
+</style>
+</head>
+<body>
+<header><b>BODY INTERFACE</b> · reference only · ATI lights what it authorizes</header>
+<div class="toggles">
+  <label><input type="checkbox" id="t-clock" checked><span>Organ clock</span></label>
+  <label><input type="checkbox" id="t-houses" checked><span>House sectors</span></label>
+  <label><input type="checkbox" id="t-pillars" checked><span>Pillars</span></label>
+  <label title="Pending: schematic paths not drawn yet"><input type="checkbox" id="t-meridians" disabled><span>Meridians (pending)</span></label>
+</div>
+<div class="grid">
+  <section class="panel" id="p-clock"><h2>ORGAN CLOCK · 2-HOUR WINDOW</h2><svg id="clock" viewBox="-260 -260 520 520" role="img" aria-label="Organ clock"></svg></section>
+  <section class="panel">
+    <h2>HOUSES · HEAD TO FEET</h2>
+    <div class="body-wrap" id="bodywrap">
+      <svg id="body" viewBox="0 0 420 1000" role="img" aria-label="Body with twelve house sectors"><g id="zoomg"></g></svg>
+      <div class="zoom"><button id="zin" aria-label="Zoom in">+</button><button id="zout" aria-label="Zoom out">−</button><button id="zreset" aria-label="Reset zoom">◦</button></div>
+    </div>
+    <p class="note" id="housenote"></p>
+  </section>
+  <section class="panel" id="p-pillars">
+    <h2>BAZI · NATAL (LOCKED) vs NOW</h2>
+    <div class="cols"><span></span><span>NATAL</span><span>NOW</span></div>
+    <div id="pillars"></div>
+    <ul class="tags" id="tags"></ul>
+  </section>
+</div>
+<section class="panel" style="margin:0 16px 16px"><h2>BRIEFING</h2><p id="brief">Tap an organ on the clock or a house on the body.</p></section>
+
+<script>
+const NS = "http://www.w3.org/2000/svg", TZ = Intl.DateTimeFormat().resolvedOptions().timeZone;
+const BANDS = [0, 118, 160, 238, 318, 392, 468, 538, 600, 725, 790, 908, 1000];
+const HUES = ["#8e6cc9","#7a6fd1","#5f86d4","#3f9fa8","#4fae7a","#9db84a","#d6b13c","#e48b3a","#e06a3e","#d24f5f","#c4508f","#a86ab8"];
+const $ = id => document.getElementById(id);
+const unwrap = r => { while (r && typeof r === "object" && "result" in r && typeof r.result === "object") r = r.result; return r; };
+function el(tag, attrs, parent) { const e = document.createElementNS(NS, tag);
+  for (const [k, v] of Object.entries(attrs)) e.setAttribute(k, v); parent.appendChild(e); return e; }
+async function ask(task, args) {
+  const r = await fetch("/execute", {method: "POST", headers: {"Content-Type": "application/json"},
+    body: JSON.stringify({task, args: Object.assign({tz: TZ}, args || {})}), credentials: "same-origin"});
+  if (!r.ok) throw new Error(`${r.status}`); return unwrap(await r.json());
+}
+async function brief(kind, id) {
+  $("brief").textContent = "Asking ATI…";
+  try { const b = await ask("sector_briefing", {kind, id}); $("brief").textContent = b.text || b.error; }
+  catch (e) { $("brief").textContent = `Briefing unavailable (${e.message}).`; }
+}
+
+// Body: a ghosted schematic silhouette with the twelve house bands clipped inside it.
+function drawBody(regions) {
+  const g = $("zoomg"); g.innerHTML = "";
+  const shape = "M210 20 C240 20 258 44 258 76 C258 106 242 122 228 128 L230 150 C268 156 300 168 312 196 L338 420 C342 450 336 470 326 472 C316 474 310 456 306 430 L284 250 L280 470 C282 520 276 560 272 600 L264 790 C262 840 266 900 270 940 C272 966 262 980 244 980 L232 980 C224 980 220 968 220 950 L214 610 L206 610 L200 950 C200 968 196 980 188 980 L176 980 C158 980 148 966 150 940 C154 900 158 840 156 790 L148 600 C144 560 138 520 140 470 L136 250 L114 430 C110 456 104 474 94 472 C84 470 78 450 82 420 L108 196 C120 168 152 156 190 150 L192 128 C178 122 162 106 162 76 C162 44 180 20 210 20 Z";
+  const defs = el("defs", {}, g), cp = el("clipPath", {id: "fig"}, defs); el("path", {d: shape}, cp);
+  const bands = el("g", {"clip-path": "url(#fig)", id: "houses"}, g);
+  for (let i = 0; i < 12; i++) {
+    const r = el("rect", {class: "band", x: 0, y: BANDS[i], width: 420, height: BANDS[i + 1] - BANDS[i], fill: HUES[i],
+      tabindex: 0, "data-house": i + 1, "aria-label": `House ${i + 1}: ${regions[i + 1]}`}, bands);
+    r.addEventListener("click", () => brief("house", String(i + 1)));
+    r.addEventListener("keydown", e => { if (e.key === "Enter") brief("house", String(i + 1)); });
+  }
+  const lines = el("g", {id: "houselines"}, g);
+  for (let i = 1; i < 12; i++) el("line", {class: "bandline", x1: 4, x2: 416, y1: BANDS[i], y2: BANDS[i]}, lines);
+  for (let i = 0; i < 12; i++) el("text", {class: "hlabel", x: 6, y: (BANDS[i] + BANDS[i + 1]) / 2 + 4}, lines).textContent = `${i + 1}`;
+  el("path", {class: "figure", d: shape}, g);
+  $("housenote").textContent = "Houses are unlit: transit positions arrive once the ephemeris is wired.";
+}
+
+// Organ clock: the twelve windows from ATI's payload, the active one gold, interaction tags beside organs.
+const angle = m => (m / 1440) * 2 * Math.PI - Math.PI / 2;
+const mins = s => { const [h, m] = s.split(":").map(Number); return h * 60 + m; };
+function drawClock(L) {
+  const svg = $("clock"); svg.innerHTML = ""; const R = 190;
+  el("circle", {class: "ring", cx: 0, cy: 0, r: R}, svg);
+  const now = new Date(), m = now.getHours() * 60 + now.getMinutes();
+  const tags = {};
+  (L.interactions || []).forEach(i => i.organs.forEach(o => (tags[o] = tags[o] || new Set()).add(i.type)));
+  L.windows.forEach(w => {
+    const a = angle(mins(w.start) + 60), x = R * Math.cos(a), y = R * Math.sin(a);
+    const g = el("g", {style: `--el: var(--${w.element})`}, svg);
+    const c = el("circle", {class: "organ" + (w.organ === L.active_window.organ ? " active" : ""), id: `organ-${w.organ}`,
+      cx: x, cy: y, r: 34, tabindex: 0, "aria-label": `${w.organ_display} ${w.start} to ${w.end}`}, g);
+    c.addEventListener("click", () => brief("organ", w.organ));
+    c.addEventListener("keydown", e => { if (e.key === "Enter") brief("organ", w.organ); });
+    el("text", {class: "oname", x, y: y - 1}, g).textContent = w.organ_display.replace("Large ", "L. ").replace("Small ", "S. ");
+    el("text", {class: "otime", x, y: y + 12}, g).textContent = `${w.start}–${w.end}`;
+    if (tags[w.organ]) el("text", {class: "tag", x: 1.27 * x, y: 1.27 * y + 3}, g).textContent = [...tags[w.organ]].join(" · ");
+  });
+  el("line", {class: "hand", x1: 0, y1: 0, x2: 0, y2: -R + 44, transform: `rotate(${angle(m) * 180 / Math.PI + 90})`}, svg);
+  const t = el("text", {class: "oname", x: 0, y: 4}, svg);
+  t.textContent = `${L.active_window.organ_display} · ${L.active_window.branch_display}`;
+}
+
+// Pillar strip: natal locked and dim, now bright, hour in gold and synced to the clock's branch.
+function drawPillars(L) {
+  const box = $("pillars"); box.innerHTML = "";
+  ["year", "month", "day", "hour"].forEach(k => {
+    const row = document.createElement("div"); row.className = "pill" + (k === "hour" ? " hour" : "");
+    const n = L.natal_pillars ? L.natal_pillars[k].hanzi : "—";
+    row.innerHTML = `<span class="k">${k.toUpperCase()}</span><span class="n" title="natal - locked">${n}</span><span class="c">${L.current_pillars[k].hanzi}</span>`;
+    box.appendChild(row);
+  });
+  const ul = $("tags"); ul.innerHTML = "";
+  if (!L.natal_pillars) { ul.innerHTML = `<li>${L.natal_status}</li>`; return; }
+  if (!L.interactions.length) { ul.innerHTML = "<li>No current pillar acts on your chart this hour.</li>"; return; }
+  L.interactions.forEach(i => { const li = document.createElement("li");
+    li.innerHTML = `<b>${i.tag}</b> · now ${i.current} on natal ${i.natal} → ${i.organs.join(", ").replace(/_/g, " ")}`; ul.appendChild(li); });
+}
+
+// Zoom the body only; the clock and pillar strip stay where they are.
+let z = 1, ox = 0, oy = 0;
+const applyZoom = () => $("zoomg").setAttribute("transform", `translate(${ox} ${oy}) scale(${z})`);
+const zoomBy = f => { z = Math.min(4, Math.max(1, z * f)); if (z === 1) { ox = 0; oy = 0; } applyZoom(); };
+$("zin").onclick = () => zoomBy(1.25); $("zout").onclick = () => zoomBy(0.8); $("zreset").onclick = () => { z = 1; ox = oy = 0; applyZoom(); };
+$("bodywrap").addEventListener("wheel", e => { e.preventDefault(); zoomBy(e.deltaY < 0 ? 1.1 : 0.9); }, {passive: false});
+let drag = null;
+$("body").addEventListener("pointerdown", e => { if (z > 1) drag = {x: e.clientX - ox, y: e.clientY - oy}; });
+addEventListener("pointermove", e => { if (drag) { ox = e.clientX - drag.x; oy = e.clientY - drag.y; applyZoom(); } });
+addEventListener("pointerup", () => drag = null);
+
+// Independent layer toggles.
+[["t-clock", "p-clock"], ["t-pillars", "p-pillars"]].forEach(([t, p]) => $(t).onchange = () => $(p).hidden = !$(t).checked);
+$("t-houses").onchange = () => ["houses", "houselines"].forEach(id => { const n = $(id); if (n) n.style.display = $("t-houses").checked ? "" : "none"; });
+
+async function refresh() {
+  try { const L = await ask("lighting");
+    if (L.error) throw new Error(L.error);
+    drawClock(L); drawPillars(L); if (!$("houses")) drawBody(L.house_regions);
+  } catch (e) {
+    $("brief").textContent = `Lighting unavailable (${e.message}). Open this page from the MycOS webapp, where ATI answers.`;
+  }
+}
+refresh(); setInterval(refresh, 60000);
+</script>
+</body>
+</html>
