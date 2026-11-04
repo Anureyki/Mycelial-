@@ -101,3 +101,7 @@ urllib3==2.7.0
 uvicorn==0.49.0
 waitress==3.0.2
 Werkzeug==3.1.8
+# ATI ephemeris (2026-11-03): Skyfield, MIT; data file NASA/JPL DE421 (public domain) in state/ati/ephem/
+skyfield==1.49
+jplephem==2.24
+sgp4==2.27

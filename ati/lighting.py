@@ -19,8 +19,14 @@ the zang-fu pair: wood liver/gallbladder, fire heart/small intestine, earth
 spleen/stomach, metal lung/large intestine, water kidney/bladder.
 
 Natal pressure is recomputed for every moment - never a permanent overlay
-(principal, 2026-11-03). Houses are NOT lit: there is no ephemeris yet, so
-`houses_lit` is empty and says why rather than guessing.
+(principal, 2026-11-03).
+
+Houses (ati/ephemeris.py, Skyfield over DE421): today's planets placed in the
+principal's NATAL whole-sign houses, and the natal planets as fixed ghosts. Only
+house numbers and body names leave this function - never a degree, a sign or the
+ascendant; natal positions are computed per request and discarded. The natal
+ascendant is recomputed from the birth data each time and must agree with the
+sign on the record, or nothing is lit and the reason is returned.
 """
 import json
 import os
@@ -66,6 +72,33 @@ def interactions(current, natal, branch_elements):
     return out
 
 
+def houses(now_utc, natal_record):
+    """-> (houses_lit, natal_ghosts, status). House numbers and body names only."""
+    from ati.ephemeris import available, longitudes, angles, sign_of, whole_sign_house, BODIES
+    ok, why = available()
+    if not ok:
+        return [], [], f"unlit - ephemeris unavailable ({why})"
+    rec = natal_record or {}
+    loc = rec.get("birth_location") if isinstance(rec.get("birth_location"), dict) else {}
+    if not (rec.get("birth_datetime_utc") and loc.get("lat") is not None and loc.get("lon") is not None):
+        return [], [], "unlit - no natal birth time and place to set the houses"
+    from datetime import datetime as _d
+    birth = _d.fromisoformat(str(rec["birth_datetime_utc"]).replace("Z", "+00:00"))
+    asc = angles(birth, loc["lat"], loc["lon"])["ascendant"]
+    stated = ((rec.get("ascendant") or {}).get("tropical_whole_sign") if isinstance(rec.get("ascendant"), dict) else None)
+    if stated and sign_of(asc) != stated:
+        return [], [], (f"unlit - the ascendant computed from the birth data ({sign_of(asc)}) disagrees with the "
+                        f"record ({stated}); refusing to light houses on a disputed frame")
+    glyph = {n: g for n, _, g in BODIES}
+
+    def grouped(lons):
+        by = {}
+        for body, lon in lons.items():
+            by.setdefault(whole_sign_house(lon, asc), []).append(body)
+        return [{"house": h, "bodies": [{"name": b, "glyph": glyph[b]} for b in bs]} for h, bs in sorted(by.items())]
+    return grouped(longitudes(now_utc)), grouped(longitudes(birth)), "lit - whole-sign houses from the natal ascendant"
+
+
 def lighting(now_local, natal_record=None):
     """now_local: timezone-aware datetime in the viewer's zone. natal_record: from ati.store."""
     t = tables()
@@ -78,6 +111,8 @@ def lighting(now_local, natal_record=None):
     if isinstance(bp, dict):
         natal = {k: {kk: bp[k].get(kk) for kk in ("stem", "branch", "hanzi", "stem_element")}
                  for k in PILLARS if isinstance(bp.get(k), dict)}
+    from datetime import timezone as _tz
+    lit, ghosts, hstatus = houses(now_local.astimezone(_tz.utc), natal_record)
     return {
         "generated_at": now_local.isoformat(timespec="minutes"),
         "windows": [{k: w[k] for k in ("start", "end", "organ", "organ_display", "element", "branch",
@@ -91,7 +126,8 @@ def lighting(now_local, natal_record=None):
         "natal_pillars": natal or None,
         "natal_status": "present" if natal else "absent - no natal pillars on record",
         "interactions": interactions(current, natal, clock["branch_elements"]) if natal else [],
-        "houses_lit": [],
-        "houses_status": "unlit - no ephemeris yet; transit house positions arrive when it is wired",
+        "houses_lit": lit,
+        "natal_ghosts": ghosts,
+        "houses_status": hstatus,
         "basis": "ati/lighting.py; pillars ati/bazi.py; tables config/ati/; computed per request, nothing stored",
     }

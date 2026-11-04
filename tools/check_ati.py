@@ -218,7 +218,8 @@ check("interactions: 午 now clashes natal 子; 辛 metal controls natal 甲 woo
       ("clash", "year") in _got and ("control", "day") in _got and ("generation", "year") not in _got)
 _L = _lighting(_dt(2026, 11, 3, 19, 40, tzinfo=_ZI("America/Chicago")), None)
 check("no natal record: natal pillars absent and no interactions, houses unlit and saying why",
-      _L["natal_pillars"] is None and _L["interactions"] == [] and _L["houses_lit"] == [] and "ephemeris" in _L["houses_status"])
+      _L["natal_pillars"] is None and _L["interactions"] == [] and _L["houses_lit"] == []
+      and _L["houses_status"].startswith("unlit - ") and len(_L["houses_status"]) > 12)
 import json as _json  # noqa: E402
 _hr = _json.load(open(os.path.join(ROOT, "config", "ati", "house_to_body_region.json"), encoding="utf-8"))["houses"]
 check("house_to_body_region holds the twelve regions verbatim, head to feet; house_to_organ stays unset",
@@ -228,6 +229,38 @@ _page = open(os.path.join(ROOT, "webapp", "body.html"), encoding="utf-8").read()
 check("webapp/body.html holds no pillar, natal or window values - they arrive from the lighting call",
       not re.search(r"[甲乙丙丁戊己庚辛壬癸][子丑寅卯辰巳午未申酉戌亥]", _page) and "\"lighting\"" in _page
       and "11:00" not in _page)
+
+# Houses (ati/ephemeris.py + ati/lighting.houses): whole-sign arithmetic everywhere;
+# accuracy wherever the ephemeris is installed, SKIPPED out loud where it is not.
+from ati.ephemeris import whole_sign_house, available as _eph_ok  # noqa: E402
+from ati.lighting import houses as _houses  # noqa: E402
+check("whole-sign houses: same sign as the ascendant is house 1, the sign before it house 12",
+      whole_sign_house(245.0, 250.0) == 1 and whole_sign_house(235.0, 250.0) == 12 and whole_sign_house(5.0, 250.0) == 5)
+_ok, _why = _eph_ok()
+if not _ok:
+    print(f"  SKIP ephemeris accuracy checks - {_why} (they run where Skyfield and DE421 are installed)")
+    _lit, _gh, _st = _houses(_dt(2026, 11, 3, 23, 0, tzinfo=_tz.utc), {"birth_datetime_utc": "x"})
+    check("without the ephemeris nothing is lit, and the status says why", _lit == [] and "unavailable" in _st)
+else:
+    from ati.ephemeris import longitudes, angles, sign_of  # noqa: E402
+    _t = _dt(2024, 2, 4, 8, 27, tzinfo=_tz.utc)
+    check("ephemeris: Skyfield's Sun agrees with the verified Meeus Sun at Li Chun 2024 (within 0.02 deg)",
+          abs(longitudes(_t)["sun"] - sun_longitude(_t)) < 0.02)
+    _n = longitudes(_dt(2024, 2, 9, 22, 59, tzinfo=_tz.utc))
+    check("ephemeris: the Moon sits on the Sun at the verified new moon 2024-02-09 22:59Z (within 0.1 deg)",
+          abs(((_n["moon"] - _n["sun"] + 180) % 360) - 180) < 0.1)
+    _syn = {"birth_datetime_utc": "1990-06-15T20:05:00Z", "birth_location": {"lat": 39.7392, "lon": -104.9903}}
+    _asc = sign_of(angles(_dt(1990, 6, 15, 20, 5, tzinfo=_tz.utc), 39.7392, -104.9903)["ascendant"])
+    _lit, _gh, _st = _houses(_dt(2026, 11, 3, 23, 0, tzinfo=_tz.utc), dict(_syn, ascendant={"tropical_whole_sign": _asc}))
+    _blob = _json.dumps({"lit": _lit, "ghosts": _gh})
+    check("houses: a synthetic chart lights house numbers only - no degrees, no sign names",
+          _lit and _gh and not re.search(r"\d+\.\d", _blob) and not any(x in _blob for x in (
+              "Aries", "Taurus", "Gemini", "Cancer", "Leo", "Virgo", "Libra", "Scorpio", "Sagittarius",
+              "Capricorn", "Aquarius", "Pisces")))
+    _wrong = "Aries" if _asc != "Aries" else "Taurus"
+    _lit, _gh, _st = _houses(_dt(2026, 11, 3, 23, 0, tzinfo=_tz.utc), dict(_syn, ascendant={"tropical_whole_sign": _wrong}))
+    check("houses: a record whose stated ascendant disagrees with the computed one lights nothing",
+          _lit == [] and _gh == [] and "disagrees" in _st)
 
 banned = {"threading", "sched", "asyncio", "multiprocessing"}
 loops = []

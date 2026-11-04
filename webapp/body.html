@@ -38,6 +38,10 @@ svg { width:100%; height:auto; display:block; }
 .band:hover, .band:focus { opacity:.4; outline:none; }
 .bandline { stroke:var(--line); stroke-dasharray:3 4; }
 .hlabel { font-size:11px; fill:var(--muted); pointer-events:none; }
+.band.lit { opacity:.62; filter:drop-shadow(0 0 6px var(--gold)); }
+.glyph { font-size:20px; text-anchor:middle; pointer-events:none; }
+.glyph.now { fill:var(--gold); }
+.glyph.natal { fill:var(--ghost); font-size:16px; }
 .pill { display:grid; grid-template-columns:3.4rem 1fr 1fr; gap:6px; align-items:baseline; padding:8px 0; border-top:1px solid var(--line); }
 .pill:first-of-type { border-top:0; }
 .pill .k { font-size:11px; letter-spacing:.12em; color:var(--muted); }
@@ -114,7 +118,27 @@ function drawBody(regions) {
   for (let i = 1; i < 12; i++) el("line", {class: "bandline", x1: 4, x2: 416, y1: BANDS[i], y2: BANDS[i]}, lines);
   for (let i = 0; i < 12; i++) el("text", {class: "hlabel", x: 6, y: (BANDS[i] + BANDS[i + 1]) / 2 + 4}, lines).textContent = `${i + 1}`;
   el("path", {class: "figure", d: shape}, g);
-  $("housenote").textContent = "Houses are unlit: transit positions arrive once the ephemeris is wired.";
+  el("g", {id: "glyphs"}, g);
+}
+
+// Live house lighting from ATI: today's planets bright in the house they occupy,
+// the natal planets ghosted and fixed. House numbers and names only - no degrees.
+function lightHouses(L) {
+  document.querySelectorAll(".band").forEach(b => b.classList.remove("lit"));
+  const gl = $("glyphs"); if (!gl) return; gl.innerHTML = "";
+  const place = (groups, cls, dy) => (groups || []).forEach(h => {
+    const y = (BANDS[h.house - 1] + BANDS[h.house]) / 2 + dy;
+    h.bodies.forEach((b, i) => {
+      const t = el("text", {class: `glyph ${cls}`, x: 150 + i * 26, y}, gl); t.textContent = b.glyph;
+      el("title", {}, t).textContent = `${b.name} (${cls === "now" ? "now" : "natal"}) - house ${h.house}`;
+    });
+  });
+  place(L.natal_ghosts, "natal", -6);
+  place(L.houses_lit, "now", 14);
+  (L.houses_lit || []).forEach(h => document.querySelector(`.band[data-house="${h.house}"]`)?.classList.add("lit"));
+  $("housenote").textContent = L.houses_lit && L.houses_lit.length
+    ? `Lit: houses ${L.houses_lit.map(h => h.house).join(", ")} - gold glyphs are now, grey glyphs are natal.`
+    : `Houses unlit: ${L.houses_status}.`;
 }
 
 // Organ clock: the twelve windows from ATI's payload, the active one gold, interaction tags beside organs.
@@ -171,12 +195,12 @@ addEventListener("pointerup", () => drag = null);
 
 // Independent layer toggles.
 [["t-clock", "p-clock"], ["t-pillars", "p-pillars"]].forEach(([t, p]) => $(t).onchange = () => $(p).hidden = !$(t).checked);
-$("t-houses").onchange = () => ["houses", "houselines"].forEach(id => { const n = $(id); if (n) n.style.display = $("t-houses").checked ? "" : "none"; });
+$("t-houses").onchange = () => ["houses", "houselines", "glyphs"].forEach(id => { const n = $(id); if (n) n.style.display = $("t-houses").checked ? "" : "none"; });
 
 async function refresh() {
   try { const L = await ask("lighting");
     if (L.error) throw new Error(L.error);
-    drawClock(L); drawPillars(L); if (!$("houses")) drawBody(L.house_regions);
+    drawClock(L); drawPillars(L); if (!$("houses")) drawBody(L.house_regions); lightHouses(L);
   } catch (e) {
     $("brief").textContent = `Lighting unavailable (${e.message}). Open this page from the MycOS webapp, where ATI answers.`;
   }

@@ -1027,9 +1027,18 @@ class Anansi(AgentBase):
             region = payload["house_regions"].get(key)
             if not region:
                 return {"error": f"no house {key!r}"}
-            return {"kind": "house", "id": key, "text":
-                    f"House {key} is {region.lower()}. Nothing lights it yet - transit positions arrive "
-                    "once the ephemeris is wired, and until then this sector is reference only."}
+            lit = next((h for h in payload.get("houses_lit") or [] if str(h["house"]) == key), None)
+            ghost = next((h for h in payload.get("natal_ghosts") or [] if str(h["house"]) == key), None)
+            text = f"House {key} is {region.lower()}."
+            if lit:
+                text += " Moving through it now: " + ", ".join(b["name"].title() for b in lit["bodies"]) + "."
+            elif payload.get("houses_lit"):
+                text += " No planet is moving through it now."
+            else:
+                text += f" Not lit: {payload.get('houses_status')}."
+            if ghost:
+                text += " In your chart it holds " + ", ".join(b["name"].title() for b in ghost["bodies"]) + "."
+            return {"kind": "house", "id": key, "text": text}
         win = next((w for w in payload["windows"] if w["organ"] == key), None)
         if kind != "organ" or not win:
             return {"error": "kind must be 'organ' or 'house' with a known id"}
