@@ -102,6 +102,49 @@ r = score("nobody", "2026-11-03T14:00:00Z", None, None, store=st, cfg=cfg)
 check("contract: no natal record -> refusal with fixed_natal",
       set(r) == {"refusal", "missing_fields", "recommendation"} and r["missing_fields"] == ["fixed_natal"])
 
+# BaZi derivation (ati/bazi.py). Checked against dates whose pillars are known
+# independently, and the Li Chun boundary on both sides of it.
+from ati.bazi import pillars, sun_longitude  # noqa: E402
+from ati.store import with_pillars  # noqa: E402
+from datetime import datetime as _dt, timezone as _tz  # noqa: E402
+
+
+def _hz(p):
+    return [p[k]["hanzi"] for k in ("year", "month", "day", "hour")]
+
+
+check("solar longitude: the Sun is at 315 deg at Li Chun 2024 (2024-02-04 08:27 UTC)",
+      abs(sun_longitude(_dt(2024, 2, 4, 8, 27, tzinfo=_tz.utc)) - 315.0) < 0.05)
+check("2000-01-01: 己卯 year (before Li Chun), 丙子 month, 戊午 day",
+      _hz(pillars("2000-01-01T12:00", "UTC"))[:3] == ["己卯", "丙子", "戊午"])
+check("2024-02-10 (Lunar New Year): 甲辰 甲辰-day, 丙寅 month, 庚午 hour",
+      _hz(pillars("2024-02-10T12:00", "Asia/Shanghai")) == ["甲辰", "丙寅", "甲辰", "庚午"])
+check("the year turns at Li Chun, not 1 January: 2024-02-03 is still 癸卯",
+      _hz(pillars("2024-02-03T12:00", "Asia/Shanghai"))[0] == "癸卯")
+birth = {"entity_id": "x", "birth_datetime_utc": "2024-02-10T04:00:00Z", "birth_location": {"lon": 121.5},
+         "birth_datetime_local": "2024-02-10T12:00", "birth_timezone": "Asia/Shanghai"}
+st2 = MemoryStore()
+st2.put_natal(dict(birth))
+check("a natal record with birth data gets its pillars derived on write - never left for hand entry",
+      st2.get_natal("x")["bazi_pillars"]["day"]["hanzi"] == "甲辰")
+try:
+    st2.put_natal({"entity_id": "y", "birth_datetime_utc": "2024-02-10T04:00:00Z", "birth_location": "x"})
+    check("birth data present but pillars underivable -> the record is refused", False)
+except Refused:
+    check("birth data present but pillars underivable -> the record is refused", st2.get_natal("y") is None)
+st3 = MemoryStore()
+st3.d["natal:z"] = dict(birth, entity_id="z", bazi_pillars=None)
+v2 = st3.amend_natal("z", {k: v for k, v in with_pillars(st3.get_natal("z")).items()
+                           if k in ("bazi_pillars", "bazi_derivation")}, "test")
+check("pillars added as an append-only version: v2 names v1, v1 unchanged",
+      v2["version"] == 2 and v2["supersedes"] == "natal:z" and st3.d["natal:z"]["bazi_pillars"] is None
+      and st3.get_natal("z")["bazi_pillars"])
+try:
+    st3.amend_natal("z", {"birth_location": "elsewhere"}, "test")
+    check("an amendment cannot change a recorded field", False)
+except Refused:
+    check("an amendment cannot change a recorded field", True)
+
 banned = {"threading", "sched", "asyncio", "multiprocessing"}
 loops = []
 for fn in os.listdir(os.path.join(ROOT, "ati")):

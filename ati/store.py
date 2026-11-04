@@ -21,6 +21,39 @@ class Refused(Exception):
     pass
 
 
+ABSENT_MARKERS = ("absent",)
+
+
+def _is_absent(v):
+    return v is None or v == "" or (isinstance(v, str) and v.startswith(ABSENT_MARKERS))
+
+
+def with_pillars(record):
+    """BaZi pillars are DERIVED whenever birth data is on the record - never left
+    for someone to hand-enter (principal, 2026-11-03). Returns the record with
+    `bazi_pillars` filled from ati/bazi.py, or raises Refused when birth data is
+    present and derivation is impossible: a record that could carry its pillars
+    and does not is refused rather than stored."""
+    if not _is_absent(record.get("bazi_pillars")):
+        return record
+    local = record.get("birth_datetime_local")
+    tz = str(record.get("birth_timezone") or "").split(" ")[0]
+    loc = record.get("birth_location") or {}
+    if not (local and tz):
+        raise Refused("birth data is present but birth_datetime_local / birth_timezone are missing - "
+                      "pillars cannot be derived, and a natal record without them is refused")
+    from ati.bazi import pillars
+    try:
+        p = pillars(local, tz, lon=loc.get("lon") if isinstance(loc, dict) else None)
+    except Exception as exc:
+        raise Refused(f"pillar derivation failed: {exc}")
+    out = dict(record)
+    out["bazi_pillars"] = {k: p[k] for k in ("year", "month", "day", "hour")}
+    out["bazi_derivation"] = {"basis": p["basis"], "flags": p["flags"], "method": p["method"]}
+    out.pop("bazi_pillars_status", None)
+    return out
+
+
 def _unwrap(raw, depth=8):
     seen = 0
     while isinstance(raw, dict) and seen < depth:
@@ -50,7 +83,32 @@ class HermesStore:
         self.agent.send_a2a("hermes", "store_memory", [NAMESPACE, key, json.dumps(rec), "true"])
 
     def get_natal(self, entity_id):
-        return self._get(f"natal:{entity_id}")
+        """The latest version. Versions are append-only: v1 at natal:<id>,
+        later ones at natal:<id>@v<n>, listed in natal_versions:<id>."""
+        idx = self._get(f"natal_versions:{entity_id}") or {}
+        latest = (idx.get("versions") or [])[-1:] if isinstance(idx, dict) else []
+        return self._get(latest[0]) if latest else self._get(f"natal:{entity_id}")
+
+    def amend_natal(self, entity_id, additions, reason):
+        """Append a new version that FILLS absent fields and changes nothing that
+        was recorded. The prior version stays readable; the new one names it."""
+        cur = self.get_natal(entity_id)
+        if not cur:
+            raise Refused(f"no natal record for {entity_id!r} to amend")
+        changed = [k for k, v in additions.items() if k in cur and not _is_absent(cur[k]) and cur[k] != v]
+        if changed:
+            raise Refused(f"an amendment may only fill absent fields; these are recorded: {changed}")
+        idx = self._get(f"natal_versions:{entity_id}") or {"versions": [f"natal:{entity_id}"]}
+        n = len(idx["versions"]) + 1
+        key = f"natal:{entity_id}@v{n}"
+        new = dict(cur, **additions)
+        new["version"] = n
+        new["supersedes"] = idx["versions"][-1]
+        new["amendment_reason"] = reason
+        self._put(key, new)
+        idx["versions"].append(key)
+        self._put(f"natal_versions:{entity_id}", idx)
+        return new
 
     def get_event(self, event_id):
         return self._get(f"event:{event_id}")
@@ -62,6 +120,7 @@ class HermesStore:
         if self.get_natal(record["entity_id"]):
             raise Refused(f"a fixed natal record for {record['entity_id']!r} already exists; "
                           "it is written once and never overwritten")
+        record = with_pillars(record)
         self._put(f"natal:{record['entity_id']}", record)
         return record
 
