@@ -262,6 +262,30 @@ else:
     check("houses: a record whose stated ascendant disagrees with the computed one lights nothing",
           _lit == [] and _gh == [] and "disagrees" in _st)
 
+# Layer 2 - SCHEMATIC meridians (webapp/body.html's geometry block): the principal's
+# direction rules and labelling, enforced so a later edit cannot drift from them.
+_bp = open(os.path.join(ROOT, "webapp", "body.html"), encoding="utf-8").read()
+_gm = re.search(r'<script type="application/json" id="geometry">(.*?)</script>', _bp, re.S)
+_G = _json.loads(_gm.group(1)) if _gm else {}
+_M, _F = _G.get("meridians") or {}, _G.get("frame") or {}
+check("twelve schematic pathways, the layer and every path labelled 'schematic reference — not for clinical use'",
+      len(_M) == 12 and _G.get("_label") == "schematic reference — not for clinical use"
+      and "${GEO._label}" in _bp
+      and not re.search(r"follows? classical texts|huangdi|classically accurate|anatomically accurate", _bp, re.I))
+check("posterior channels - Bladder, Small Intestine, Triple Burner - are the ones drawn dashed",
+      {k for k, m in _M.items() if m.get("posterior")} == {"bladder", "small_intestine", "triple_burner"})
+_mid = _F.get("midline_x", 200)
+check("Spleen and Stomach stay off the midline (never within 12 units of it)",
+      all(abs(x - _mid) >= 12 for k in ("spleen", "stomach") for x, _ in _M[k]["path"]))
+_st = _M["stomach"]["points"]
+check("ST36 sits below the knee and above the ankle, and above ST42 on the foot",
+      _F["knee_y"] < _st["ST36"][1] < _F["ankle_y"] and _st["ST36"][1] < _st["ST42"][1])
+_pts = _json.load(open(os.path.join(ROOT, "config", "ati", "meridian_points.json"), encoding="utf-8"))["points"]
+check("every yuan, luo and rule-derived horary point in the config is placed on its own channel",
+      all(c in _M[m]["points"] for m, p in _pts.items() for c, _, _ in p))
+check("the Meridians toggle is enabled now that the paths are drawn",
+      re.search(r'id="t-meridians"[^>]*\bdisabled\b', _bp) is None and 'id="t-meridians"' in _bp)
+
 banned = {"threading", "sched", "asyncio", "multiprocessing"}
 loops = []
 for fn in os.listdir(os.path.join(ROOT, "ati")):

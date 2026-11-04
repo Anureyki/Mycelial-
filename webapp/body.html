@@ -33,12 +33,22 @@ svg { width:100%; height:auto; display:block; }
 .body-wrap { overflow:hidden; border-radius:8px; touch-action:none; position:relative; }
 .zoom { position:absolute; right:8px; top:8px; display:flex; flex-direction:column; gap:4px; }
 .zoom button { width:30px; height:30px; border-radius:6px; border:1px solid var(--line); background:var(--panel); color:var(--ink); cursor:pointer; }
-.figure { fill:none; stroke:var(--ghost); stroke-width:1.6; }
-.band { opacity:.22; cursor:pointer; transition:opacity .2s; }
-.band:hover, .band:focus { opacity:.4; outline:none; }
+.figure { fill:none; stroke:#5a6170; stroke-width:1.4; }
+.band { opacity:.78; cursor:pointer; transition:opacity .2s, filter .2s; }
+.band:hover, .band:focus { opacity:.95; outline:none; }
 .bandline { stroke:var(--line); stroke-dasharray:3 4; }
-.hlabel { font-size:11px; fill:var(--muted); pointer-events:none; }
-.band.lit { opacity:.62; filter:drop-shadow(0 0 6px var(--gold)); }
+.hnum { fill:none; stroke-width:1.6; }
+.hnumt { font-size:17px; text-anchor:middle; pointer-events:none; }
+.htitle { font-size:19px; font-weight:600; letter-spacing:.06em; pointer-events:none; }
+.hregion { font-size:13px; letter-spacing:.08em; pointer-events:none; opacity:.85; }
+.band.lit { opacity:1; filter:drop-shadow(0 0 8px var(--gold)) brightness(1.25); }
+.mer { fill:none; stroke-width:2.2; stroke-linecap:round; stroke-linejoin:round; opacity:.85; }
+.mer.posterior { stroke-dasharray:6 5; opacity:.7; }
+.mer.active { stroke-width:4.5; opacity:1; filter:drop-shadow(0 0 5px var(--gold)); }
+.mer.pressure { stroke-width:3.4; opacity:1; }
+.mpt { stroke:#07090d; stroke-width:1; cursor:help; }
+.mabbr { font-size:12px; font-weight:600; pointer-events:none; }
+.mcap { font-size:13px; fill:var(--muted); letter-spacing:.06em; }
 .glyph { font-size:20px; text-anchor:middle; pointer-events:none; }
 .glyph.now { fill:var(--gold); }
 .glyph.natal { fill:var(--ghost); font-size:16px; }
@@ -62,14 +72,15 @@ svg { width:100%; height:auto; display:block; }
   <label><input type="checkbox" id="t-clock" checked><span>Organ clock</span></label>
   <label><input type="checkbox" id="t-houses" checked><span>House sectors</span></label>
   <label><input type="checkbox" id="t-pillars" checked><span>Pillars</span></label>
-  <label title="Pending: schematic paths not drawn yet"><input type="checkbox" id="t-meridians" disabled><span>Meridians (pending)</span></label>
+  <label title="Schematic reference - not for clinical use"><input type="checkbox" id="t-meridians" checked><span>Meridians (schematic)</span></label>
+  <label><input type="checkbox" id="t-active"><span>Highlight active meridian</span></label>
 </div>
 <div class="grid">
   <section class="panel" id="p-clock"><h2>ORGAN CLOCK · 2-HOUR WINDOW</h2><svg id="clock" viewBox="-260 -260 520 520" role="img" aria-label="Organ clock"></svg></section>
   <section class="panel">
     <h2>HOUSES · HEAD TO FEET</h2>
     <div class="body-wrap" id="bodywrap">
-      <svg id="body" viewBox="0 0 420 1000" role="img" aria-label="Body with twelve house sectors"><g id="zoomg"></g></svg>
+      <svg id="body" viewBox="0 0 800 1120" role="img" aria-label="Body with twelve house sectors and schematic meridians"><g id="zoomg"></g></svg>
       <div class="zoom"><button id="zin" aria-label="Zoom in">+</button><button id="zout" aria-label="Zoom out">−</button><button id="zreset" aria-label="Reset zoom">◦</button></div>
     </div>
     <p class="note" id="housenote"></p>
@@ -83,10 +94,18 @@ svg { width:100%; height:auto; display:block; }
 </div>
 <section class="panel" style="margin:0 16px 16px"><h2>BRIEFING</h2><p id="brief">Tap an organ on the clock or a house on the body.</p></section>
 
+<!-- Generic reference geometry: the figure and SCHEMATIC meridian routes. Nothing personal.
+     tools/check_ati.py holds it to the direction rules (posterior dashed, Spleen/Stomach off the
+     midline, ST36 below the knee) and to config/ati/meridian_points.json. -->
+<script type="application/json" id="geometry">{"_label":"schematic reference — not for clinical use","_note":"Schematic routes on a front-view figure. Courses follow each channel's documented side and direction - Bladder, Small Intestine and Triple Burner run on the back and are dashed; Spleen and Stomach stay off the midline; ST36 sits below the knee - but positions are NOT measured anatomy and claim no classical accuracy. Each channel is bilateral and drawn on one side for clarity. Replace with a licensed coordinate set if one becomes available.","frame":{"width":400,"height":1080,"midline_x":200,"knee_y":850,"ankle_y":985,"band_height":90},"outline":[[200,0],[222,4],[234,20],[238,48],[234,74],[224,92],[216,102],[216,114],[218,150],[240,164],[272,174],[294,188],[306,206],[314,240],[320,300],[326,360],[332,420],[338,480],[344,540],[348,590],[350,610],[358,630],[362,660],[360,690],[354,712],[344,720],[336,712],[332,690],[328,660],[324,630],[322,606],[316,560],[310,500],[304,440],[298,380],[292,320],[286,272],[278,256],[264,276],[260,340],[254,400],[250,450],[254,500],[262,560],[272,620],[278,680],[274,740],[270,800],[266,850],[264,900],[262,950],[258,985],[262,1010],[266,1040],[268,1070],[260,1080],[232,1080],[226,1060],[224,1030],[224,1000],[222,950],[220,880],[218,850],[214,780],[210,700],[206,662],[200,650],[194,662],[190,700],[186,780],[182,850],[180,880],[178,950],[176,1000],[176,1030],[174,1060],[168,1080],[140,1080],[132,1070],[134,1040],[138,1010],[142,985],[138,950],[136,900],[134,850],[130,800],[126,740],[122,680],[128,620],[138,560],[146,500],[150,450],[146,400],[140,340],[136,276],[122,256],[114,272],[108,320],[102,380],[96,440],[90,500],[84,560],[78,606],[76,630],[72,660],[68,690],[64,712],[56,720],[46,712],[40,690],[38,660],[42,630],[50,610],[52,590],[56,540],[62,480],[68,420],[74,360],[80,300],[86,240],[94,206],[106,188],[128,174],[160,164],[182,150],[184,114],[184,102],[176,92],[166,74],[162,48],[166,20],[178,4]],"meridians":{"lung":{"abbr":"LU","posterior":false,"path":[[152,188],[104,206],[92,260],[84,340],[76,420],[68,500],[62,570],[58,600],[44,662]],"points":{"LU7":[62,572],"LU8":[60,588],"LU9":[58,600]},"label_at":4},"heart":{"abbr":"HT","posterior":false,"path":[[126,258],[118,330],[102,410],[94,490],[88,560],[84,602],[78,650],[68,712]],"points":{"HT5":[86,586],"HT7":[84,602],"HT8":[78,650]},"label_at":3},"small_intestine":{"abbr":"SI","posterior":true,"path":[[64,716],[74,624],[80,606],[90,520],[100,420],[120,300],[132,232],[176,150]],"points":{"SI4":[74,624],"SI5":[78,612],"SI7":[92,500]},"label_at":2},"pericardium":{"abbr":"PC","posterior":false,"path":[[254,250],[278,268],[304,300],[316,420],[328,540],[334,600],[340,650],[344,720]],"points":{"PC6":[330,580],"PC7":[334,600],"PC8":[340,650]},"label_at":4},"large_intestine":{"abbr":"LI","posterior":false,"path":[[354,708],[352,632],[346,600],[338,520],[330,420],[322,320],[316,230],[296,180],[232,160],[214,90],[208,70]],"points":{"LI1":[354,700],"LI4":[352,632],"LI6":[342,560]},"label_at":5},"triple_burner":{"abbr":"TB","posterior":true,"path":[[336,716],[338,608],[334,560],[326,440],[318,320],[312,220],[272,170],[250,110],[244,60]],"points":{"TB4":[338,606],"TB5":[336,586],"TB6":[334,570]},"label_at":3},"stomach":{"abbr":"ST","posterior":false,"path":[[186,60],[184,96],[184,150],[170,240],[168,330],[176,420],[178,520],[160,620],[145,700],[150,800],[150,880],[152,940],[156,985],[156,1030],[160,1078]],"points":{"ST36":[150,880],"ST40":[151,930],"ST42":[156,1030]},"label_at":6},"spleen":{"abbr":"SP","posterior":false,"path":[[174,1066],[176,1040],[174,990],[180,930],[184,850],[188,760],[184,680],[166,640],[158,540],[156,440],[150,330],[146,286]],"points":{"SP3":[176,1040],"SP4":[174,1022]},"label_at":8},"kidney":{"abbr":"KI","posterior":false,"path":[[230,1078],[226,995],[222,950],[220,880],[216,845],[212,760],[208,690],[210,620],[210,440],[226,330],[228,250],[226,178]],"points":{"KI3":[226,990],"KI4":[228,1004],"KI10":[216,845]},"label_at":7},"liver":{"abbr":"LR","posterior":false,"path":[[236,1076],[238,1040],[238,1000],[236,940],[236,880],[226,800],[220,720],[222,660],[246,560],[246,480],[234,350]],"points":{"LR1":[236,1074],"LR3":[238,1040],"LR5":[236,930]},"label_at":8},"gallbladder":{"abbr":"GB","posterior":false,"path":[[222,44],[236,30],[238,60],[226,120],[262,172],[256,300],[250,420],[256,520],[268,600],[276,700],[272,800],[266,850],[264,920],[262,985],[262,1030],[258,1076]],"points":{"GB37":[264,930],"GB40":[262,985],"GB41":[262,1030]},"label_at":7},"bladder":{"abbr":"BL","posterior":true,"front_segment":[[192,48],[194,2]],"path":[[192,48],[194,2],[184,120],[178,300],[178,500],[160,700],[158,850],[156,930],[136,990],[132,1040],[136,1076]],"points":{"BL58":[156,930],"BL64":[134,1035],"BL66":[134,1060]},"label_at":4}}}</script>
 <script>
 const NS = "http://www.w3.org/2000/svg", TZ = Intl.DateTimeFormat().resolvedOptions().timeZone;
-const BANDS = [0, 118, 160, 238, 318, 392, 468, 538, 600, 725, 790, 908, 1000];
-const HUES = ["#8e6cc9","#7a6fd1","#5f86d4","#3f9fa8","#4fae7a","#9db84a","#d6b13c","#e48b3a","#e06a3e","#d24f5f","#c4508f","#a86ab8"];
+const GEO = JSON.parse(document.getElementById("geometry").textContent);
+const FX = 380, FY = 20, BH = GEO.frame.band_height;          // the figure's place in the body panel
+const HUES = ["#a98bd9","#8f86de","#6e93dc","#4fa9b4","#55b07c","#9cba4a","#d9b33f","#e8913c","#e66f41","#dc5466","#cf569a","#b77ccf"];
+const ORD = ["1ST","2ND","3RD","4TH","5TH","6TH","7TH","8TH","9TH","10TH","11TH","12TH"];
+const EL = {lung:"metal", large_intestine:"metal", stomach:"earth", spleen:"earth", heart:"fire", small_intestine:"fire",
+            bladder:"water", kidney:"water", pericardium:"fire", triple_burner:"fire", gallbladder:"wood", liver:"wood"};
 const $ = id => document.getElementById(id);
 const unwrap = r => { while (r && typeof r === "object" && "result" in r && typeof r.result === "object") r = r.result; return r; };
 function el(tag, attrs, parent) { const e = document.createElementNS(NS, tag);
@@ -102,23 +121,70 @@ async function brief(kind, id) {
   catch (e) { $("brief").textContent = `Briefing unavailable (${e.message}).`; }
 }
 
-// Body: a ghosted schematic silhouette with the twelve house bands clipped inside it.
+// Catmull-Rom through the points, as cubic Beziers: smooth outlines from a short point list.
+function smooth(pts, closed) {
+  const p = closed ? [pts[pts.length - 1], ...pts, pts[0], pts[1]] : [pts[0], ...pts, pts[pts.length - 1]];
+  let d = `M${p[1][0]} ${p[1][1]}`;
+  for (let i = 1; i < p.length - 2; i++) {
+    const [a, b, c, e] = [p[i - 1], p[i], p[i + 1], p[i + 2]];
+    d += ` C${b[0] + (c[0] - a[0]) / 6} ${b[1] + (c[1] - a[1]) / 6} ${c[0] - (e[0] - b[0]) / 6} ${c[1] - (e[1] - b[1]) / 6} ${c[0]} ${c[1]}`;
+  }
+  return d + (closed ? " Z" : "");
+}
+
+// Body: the reference figure - twelve equal bands head to feet, labels on the left.
 function drawBody(regions) {
   const g = $("zoomg"); g.innerHTML = "";
-  const shape = "M210 20 C240 20 258 44 258 76 C258 106 242 122 228 128 L230 150 C268 156 300 168 312 196 L338 420 C342 450 336 470 326 472 C316 474 310 456 306 430 L284 250 L280 470 C282 520 276 560 272 600 L264 790 C262 840 266 900 270 940 C272 966 262 980 244 980 L232 980 C224 980 220 968 220 950 L214 610 L206 610 L200 950 C200 968 196 980 188 980 L176 980 C158 980 148 966 150 940 C154 900 158 840 156 790 L148 600 C144 560 138 520 140 470 L136 250 L114 430 C110 456 104 474 94 472 C84 470 78 450 82 420 L108 196 C120 168 152 156 190 150 L192 128 C178 122 162 106 162 76 C162 44 180 20 210 20 Z";
+  const shape = smooth(GEO.outline, true);
   const defs = el("defs", {}, g), cp = el("clipPath", {id: "fig"}, defs); el("path", {d: shape}, cp);
-  const bands = el("g", {"clip-path": "url(#fig)", id: "houses"}, g);
+  const labels = el("g", {id: "houselines"}, g);
   for (let i = 0; i < 12; i++) {
-    const r = el("rect", {class: "band", x: 0, y: BANDS[i], width: 420, height: BANDS[i + 1] - BANDS[i], fill: HUES[i],
+    const y = FY + i * BH, cy = y + BH / 2;
+    if (i) el("line", {class: "bandline", x1: 10, x2: 790, y1: y, y2: y}, labels);
+    el("circle", {class: "hnum", cx: 34, cy, r: 20, stroke: HUES[i]}, labels);
+    el("text", {class: "hnumt", x: 34, y: cy + 6, fill: HUES[i]}, labels).textContent = i + 1;
+    el("text", {class: "htitle", x: 70, y: cy - 4, fill: HUES[i]}, labels).textContent = `${ORD[i]} HOUSE`;
+    el("text", {class: "hregion", x: 70, y: cy + 16, fill: HUES[i]}, labels).textContent = (regions[i + 1] || "").toUpperCase();
+  }
+  const fig = el("g", {transform: `translate(${FX} ${FY})`}, g);
+  const bands = el("g", {"clip-path": "url(#fig)", id: "houses"}, fig);
+  for (let i = 0; i < 12; i++) {
+    const r = el("rect", {class: "band", x: 0, y: i * BH, width: GEO.frame.width, height: BH, fill: HUES[i],
       tabindex: 0, "data-house": i + 1, "aria-label": `House ${i + 1}: ${regions[i + 1]}`}, bands);
     r.addEventListener("click", () => brief("house", String(i + 1)));
     r.addEventListener("keydown", e => { if (e.key === "Enter") brief("house", String(i + 1)); });
   }
-  const lines = el("g", {id: "houselines"}, g);
-  for (let i = 1; i < 12; i++) el("line", {class: "bandline", x1: 4, x2: 416, y1: BANDS[i], y2: BANDS[i]}, lines);
-  for (let i = 0; i < 12; i++) el("text", {class: "hlabel", x: 6, y: (BANDS[i] + BANDS[i + 1]) / 2 + 4}, lines).textContent = `${i + 1}`;
-  el("path", {class: "figure", d: shape}, g);
-  el("g", {id: "glyphs"}, g);
+  el("path", {class: "figure", d: shape}, fig);
+  drawMeridians(fig);
+  el("g", {id: "glyphs"}, fig);
+}
+
+// Layer 2: SCHEMATIC meridians. Posterior courses dashed. No claim of classical accuracy.
+function drawMeridians(fig) {
+  const lay = el("g", {id: "meridians", "aria-label": GEO._label}, fig);
+  el("title", {}, lay).textContent = `Meridians - ${GEO._label}`;
+  for (const [organ, m] of Object.entries(GEO.meridians)) {
+    const col = `var(--${EL[organ]})`;
+    const path = el("path", {class: "mer" + (m.posterior ? " posterior" : ""), id: `mer-${organ}`, d: smooth(m.path, false),
+      stroke: col, "data-meridian": organ, "aria-label": `${organ.replace("_", " ")} channel - ${GEO._label}`}, lay);
+    el("title", {}, path).textContent = `${organ.replace("_", " ")}${m.posterior ? " (runs on the back)" : ""} - ${GEO._label}`;
+    const mid = m.path[m.label_at ?? Math.floor(m.path.length / 2)];
+    el("text", {class: "mabbr", x: mid[0] + 6, y: mid[1], fill: col}, lay).textContent = m.abbr;
+    for (const [code, xy] of Object.entries(m.points)) {
+      const c = el("circle", {class: "mpt", cx: xy[0], cy: xy[1], r: 4.5, fill: col, tabindex: 0,
+        "data-point": code, "data-meridian": organ}, lay);
+      el("title", {}, c).textContent = `${code} - ${GEO._label}`;
+      c.addEventListener("click", () => brief("organ", organ));
+    }
+  }
+  el("text", {class: "mcap", x: GEO.frame.width / 2, y: GEO.frame.height + 22, "text-anchor": "middle"}, lay)
+    .textContent = `Meridians: ${GEO._label}`;
+}
+
+function markMeridians(L) {
+  document.querySelectorAll(".mer").forEach(p => p.classList.remove("active", "pressure"));
+  if ($("t-active").checked) $(`mer-${L.active_window.organ}`)?.classList.add("active");
+  (L.interactions || []).forEach(i => i.organs.forEach(o => $(`mer-${o}`)?.classList.add("pressure")));
 }
 
 // Live house lighting from ATI: today's planets bright in the house they occupy,
@@ -127,17 +193,17 @@ function lightHouses(L) {
   document.querySelectorAll(".band").forEach(b => b.classList.remove("lit"));
   const gl = $("glyphs"); if (!gl) return; gl.innerHTML = "";
   const place = (groups, cls, dy) => (groups || []).forEach(h => {
-    const y = (BANDS[h.house - 1] + BANDS[h.house]) / 2 + dy;
+    const y = (h.house - 1) * BH + BH / 2 + dy;
     h.bodies.forEach((b, i) => {
-      const t = el("text", {class: `glyph ${cls}`, x: 150 + i * 26, y}, gl); t.textContent = b.glyph;
+      const t = el("text", {class: `glyph ${cls}`, x: 160 + i * 26, y}, gl); t.textContent = b.glyph;
       el("title", {}, t).textContent = `${b.name} (${cls === "now" ? "now" : "natal"}) - house ${h.house}`;
     });
   });
-  place(L.natal_ghosts, "natal", -6);
-  place(L.houses_lit, "now", 14);
+  place(L.natal_ghosts, "natal", -8);
+  place(L.houses_lit, "now", 20);
   (L.houses_lit || []).forEach(h => document.querySelector(`.band[data-house="${h.house}"]`)?.classList.add("lit"));
   $("housenote").textContent = L.houses_lit && L.houses_lit.length
-    ? `Lit: houses ${L.houses_lit.map(h => h.house).join(", ")} - gold glyphs are now, grey glyphs are natal.`
+    ? `Lit: houses ${L.houses_lit.map(h => h.house).join(", ")} - gold glyphs are now, grey glyphs are natal. Meridians: ${GEO._label}.`
     : `Houses unlit: ${L.houses_status}.`;
 }
 
@@ -197,10 +263,13 @@ addEventListener("pointerup", () => drag = null);
 [["t-clock", "p-clock"], ["t-pillars", "p-pillars"]].forEach(([t, p]) => $(t).onchange = () => $(p).hidden = !$(t).checked);
 $("t-houses").onchange = () => ["houses", "houselines", "glyphs"].forEach(id => { const n = $(id); if (n) n.style.display = $("t-houses").checked ? "" : "none"; });
 
+let LAST = null;
+$("t-meridians").onchange = () => { const m = $("meridians"); if (m) m.style.display = $("t-meridians").checked ? "" : "none"; };
+$("t-active").onchange = () => { if (LAST) markMeridians(LAST); };
 async function refresh() {
   try { const L = await ask("lighting");
     if (L.error) throw new Error(L.error);
-    drawClock(L); drawPillars(L); if (!$("houses")) drawBody(L.house_regions); lightHouses(L);
+    drawClock(L); drawPillars(L); if (!$("houses")) drawBody(L.house_regions); lightHouses(L); markMeridians(L); LAST = L;
   } catch (e) {
     $("brief").textContent = `Lighting unavailable (${e.message}). Open this page from the MycOS webapp, where ATI answers.`;
   }
