@@ -299,6 +299,13 @@ try:
 except (KeyError, ValueError):
     _tips = (0, 0)
 check(f"each hand is open with five separate digits (found {_tips[0]} and {_tips[1]})", _tips == (5, 5))
+_HI = _G.get("houses_image") or {}
+_bd = _HI.get("bands") or []
+check("the house layer is the principal's reference image, its twelve bands measured from its divider lines",
+      os.path.exists(os.path.join(ROOT, "webapp", _HI.get("src", "-"))) and len(_bd) == 13
+      and all(80 < _bd[i + 1] - _bd[i] < 100 for i in range(12)) and 'class: "hit"' in _bp and "mask: \"url(#figmask)\"" in _bp)
+check("the meridian panel is titled 'schematic reference — not for clinical use' and draws no organ for the Triple Burner",
+      "SCHEMATIC REFERENCE — NOT FOR CLINICAL USE" in _bp and "triple_burner" not in _json.dumps(_G.get("organs", {})))
 check("the Meridians toggle is enabled now that the paths are drawn",
       re.search(r'id="t-meridians"[^>]*\bdisabled\b', _bp) is None and 'id="t-meridians"' in _bp)
 

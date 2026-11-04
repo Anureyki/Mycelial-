@@ -42,6 +42,18 @@ svg { width:100%; height:auto; display:block; }
 .htitle { font-size:19px; font-weight:600; letter-spacing:.06em; pointer-events:none; }
 .hregion { font-size:13px; letter-spacing:.08em; pointer-events:none; opacity:.85; }
 .band.lit { opacity:1; filter:drop-shadow(0 0 8px var(--gold)) brightness(1.25); }
+.hit { fill:transparent; cursor:pointer; }
+.hit:focus { outline:none; fill:rgba(227,178,60,.08); }
+.glow { fill:var(--gold); opacity:0; transition:opacity .3s; pointer-events:none; }
+.glow.lit { opacity:.58; }
+.mfig { fill:url(#mgrad); stroke:#2c3442; stroke-width:1.2; filter:url(#mglow); }
+.mdot { stroke:none; }
+.mname { font-size:15px; font-weight:600; }
+.msub { font-size:12px; opacity:.85; }
+.mptl { font-size:11px; }
+.legend rect.box { fill:#0b0e13; stroke:#2c3442; }
+.legend text { font-size:12px; fill:var(--ink); }
+.legend .lt { font-size:12px; letter-spacing:.12em; fill:var(--muted); }
 .mer { fill:none; stroke-width:2.2; stroke-linecap:round; stroke-linejoin:round; opacity:.85; }
 .mer.posterior { stroke-dasharray:6 5; opacity:.7; }
 .mer.active { stroke-width:4.5; opacity:1; filter:drop-shadow(0 0 5px var(--gold)); }
@@ -70,7 +82,7 @@ svg { width:100%; height:auto; display:block; }
 <header><b>BODY INTERFACE</b> · reference only · ATI lights what it authorizes</header>
 <div class="toggles">
   <label><input type="checkbox" id="t-clock" checked><span>Organ clock</span></label>
-  <label><input type="checkbox" id="t-houses" checked><span>House sectors</span></label>
+  <label><input type="checkbox" id="t-houses" checked><span>Houses</span></label>
   <label><input type="checkbox" id="t-pillars" checked><span>Pillars</span></label>
   <label title="Schematic reference - not for clinical use"><input type="checkbox" id="t-meridians" checked><span>Meridians (schematic)</span></label>
   <label><input type="checkbox" id="t-active"><span>Highlight active meridian</span></label>
@@ -80,7 +92,7 @@ svg { width:100%; height:auto; display:block; }
   <section class="panel">
     <h2>HOUSES · HEAD TO FEET</h2>
     <div class="body-wrap" id="bodywrap">
-      <svg id="body" viewBox="0 0 800 1120" role="img" aria-label="Body with twelve house sectors and schematic meridians"><g id="zoomg"></g></svg>
+      <svg id="body" viewBox="0 0 784 1168" role="img" aria-label="Body with the twelve houses, head to feet"><g id="zoomg"></g></svg>
       <div class="zoom"><button id="zin" aria-label="Zoom in">+</button><button id="zout" aria-label="Zoom out">−</button><button id="zreset" aria-label="Reset zoom">◦</button></div>
     </div>
     <p class="note" id="housenote"></p>
@@ -92,12 +104,16 @@ svg { width:100%; height:auto; display:block; }
     <ul class="tags" id="tags"></ul>
   </section>
 </div>
+<section class="panel" id="p-meridians" style="margin:0 16px 16px">
+  <h2>TWELVE PRIMARY MERIDIANS · FRONT VIEW · SCHEMATIC REFERENCE — NOT FOR CLINICAL USE</h2>
+  <svg id="merfig" viewBox="-230 -40 860 1200" role="img" aria-label="Schematic meridians - not for clinical use"></svg>
+</section>
 <section class="panel" style="margin:0 16px 16px"><h2>BRIEFING</h2><p id="brief">Tap an organ on the clock or a house on the body.</p></section>
 
 <!-- Generic reference geometry: the figure and SCHEMATIC meridian routes. Nothing personal.
      tools/check_ati.py holds it to the direction rules (posterior dashed, Spleen/Stomach off the
      midline, ST36 below the knee) and to config/ati/meridian_points.json. -->
-<script type="application/json" id="geometry">{"_label":"schematic reference — not for clinical use","_note":"Schematic routes on a front-view figure. Courses follow each channel's documented side and direction - Bladder, Small Intestine and Triple Burner run on the back and are dashed; Spleen and Stomach stay off the midline; ST36 sits below the knee - but positions are NOT measured anatomy and claim no classical accuracy. Each channel is bilateral and drawn on one side for clarity. Replace with a licensed coordinate set if one becomes available.","frame":{"width":400,"height":1080,"midline_x":200,"knee_y":850,"ankle_y":985,"band_height":90,"hand":{"wrist_outer":[350,610],"wrist_inner":[322,606],"digits":5,"_":"open hands, palms forward: thumb on the outer (radial) side, four fingers slightly separated; the left hand mirrors the right"}},"outline":[[200,0],[222,4],[234,20],[238,48],[234,74],[224,92],[216,102],[216,114],[218,150],[240,164],[272,174],[294,188],[306,206],[314,240],[320,300],[326,360],[332,420],[338,480],[344,540],[348,590],[350,610],[356,622],[364,636],[371,650],[374,661],[372,669],[366,668],[359,657],[358,670],[362,686],[362,714],[358.0,721],[354,714],[354,686],[352.5,681],[351,686],[351,722],[347.0,729],[343,722],[343,686],[341.5,681],[340,686],[340,715],[336.0,722],[332,715],[332,686],[330.5,681],[329,684],[329,704],[325.5,711],[322,704],[322,684],[321,660],[322,606],[316,560],[310,500],[304,440],[298,380],[292,320],[286,272],[278,256],[264,276],[260,340],[254,400],[250,450],[254,500],[262,560],[272,620],[278,680],[274,740],[270,800],[266,850],[264,900],[262,950],[258,985],[262,1010],[266,1040],[268,1070],[260,1080],[232,1080],[226,1060],[224,1030],[224,1000],[222,950],[220,880],[218,850],[214,780],[210,700],[206,662],[200,650],[194,662],[190,700],[186,780],[182,850],[180,880],[178,950],[176,1000],[176,1030],[174,1060],[168,1080],[140,1080],[132,1070],[134,1040],[138,1010],[142,985],[138,950],[136,900],[134,850],[130,800],[126,740],[122,680],[128,620],[138,560],[146,500],[150,450],[146,400],[140,340],[136,276],[122,256],[114,272],[108,320],[102,380],[96,440],[90,500],[84,560],[78,606],[79,660],[78,684],[78,704],[74.5,711],[71,704],[71,684],[69.5,681],[68,686],[68,715],[64.0,722],[60,715],[60,686],[58.5,681],[57,686],[57,722],[53.0,729],[49,722],[49,686],[47.5,681],[46,686],[46,714],[42.0,721],[38,714],[38,686],[42,670],[41,657],[34,668],[28,669],[26,661],[29,650],[36,636],[44,622],[50,610],[52,590],[56,540],[62,480],[68,420],[74,360],[80,300],[86,240],[94,206],[106,188],[128,174],[160,164],[182,150],[184,114],[184,102],[176,92],[166,74],[162,48],[166,20],[178,4]],"meridians":{"lung":{"abbr":"LU","posterior":false,"path":[[152,188],[104,206],[92,260],[84,340],[76,420],[68,500],[62,570],[58,600],[27,664]],"points":{"LU7":[62,572],"LU8":[60,588],"LU9":[58,600]},"label_at":4},"heart":{"abbr":"HT","posterior":false,"path":[[126,258],[118,330],[102,410],[94,490],[88,560],[84,602],[78,650],[74,709]],"points":{"HT5":[86,586],"HT7":[84,602],"HT8":[74,654]},"label_at":3},"small_intestine":{"abbr":"SI","posterior":true,"path":[[74,709],[74,624],[80,606],[90,520],[100,420],[120,300],[132,232],[176,150]],"points":{"SI4":[75,626],"SI5":[77,612],"SI7":[92,500]},"label_at":2},"pericardium":{"abbr":"PC","posterior":false,"path":[[254,250],[278,268],[304,300],[316,420],[328,540],[334,600],[340,650],[347,727]],"points":{"PC6":[330,580],"PC7":[334,600],"PC8":[344,656]},"label_at":4},"large_intestine":{"abbr":"LI","posterior":false,"path":[[358,719],[352,632],[346,600],[338,520],[330,420],[322,320],[316,230],[296,180],[232,160],[214,90],[208,70]],"points":{"LI1":[358,711],"LI4":[360,646],"LI6":[342,560]},"label_at":5},"triple_burner":{"abbr":"TB","posterior":true,"path":[[336,720],[338,608],[334,560],[326,440],[318,320],[312,220],[272,170],[250,110],[244,60]],"points":{"TB4":[338,606],"TB5":[336,586],"TB6":[334,570]},"label_at":3},"stomach":{"abbr":"ST","posterior":false,"path":[[186,60],[184,96],[184,150],[170,240],[168,330],[176,420],[178,520],[160,620],[145,700],[150,800],[150,880],[152,940],[156,985],[156,1030],[160,1078]],"points":{"ST36":[150,880],"ST40":[151,930],"ST42":[156,1030]},"label_at":6},"spleen":{"abbr":"SP","posterior":false,"path":[[174,1066],[176,1040],[174,990],[180,930],[184,850],[188,760],[184,680],[166,640],[158,540],[156,440],[150,330],[146,286]],"points":{"SP3":[176,1040],"SP4":[174,1022]},"label_at":8},"kidney":{"abbr":"KI","posterior":false,"path":[[230,1078],[226,995],[222,950],[220,880],[216,845],[212,760],[208,690],[210,620],[210,440],[226,330],[228,250],[226,178]],"points":{"KI3":[226,990],"KI4":[228,1004],"KI10":[216,845]},"label_at":7},"liver":{"abbr":"LR","posterior":false,"path":[[236,1076],[238,1040],[238,1000],[236,940],[236,880],[226,800],[220,720],[222,660],[246,560],[246,480],[234,350]],"points":{"LR1":[236,1074],"LR3":[238,1040],"LR5":[236,930]},"label_at":8},"gallbladder":{"abbr":"GB","posterior":false,"path":[[222,44],[236,30],[238,60],[226,120],[262,172],[256,300],[250,420],[256,520],[268,600],[276,700],[272,800],[266,850],[264,920],[262,985],[262,1030],[258,1076]],"points":{"GB37":[264,930],"GB40":[262,985],"GB41":[262,1030]},"label_at":7},"bladder":{"abbr":"BL","posterior":true,"front_segment":[[192,48],[194,2]],"path":[[192,48],[194,2],[184,120],[178,300],[178,500],[160,700],[158,850],[156,930],[136,990],[132,1040],[136,1076]],"points":{"BL58":[156,930],"BL64":[134,1035],"BL66":[134,1060]},"label_at":4}}}</script>
+<script type="application/json" id="geometry">{"_label":"schematic reference — not for clinical use","_note":"Schematic routes on a front-view figure. Courses follow each channel's documented side and direction - Bladder, Small Intestine and Triple Burner run on the back and are dashed; Spleen and Stomach stay off the midline; ST36 sits below the knee - but positions are NOT measured anatomy and claim no classical accuracy. Each channel is bilateral and drawn on one side for clarity. Replace with a licensed coordinate set if one becomes available.","frame":{"width":400,"height":1080,"midline_x":200,"knee_y":850,"ankle_y":985,"band_height":90,"hand":{"wrist_outer":[350,610],"wrist_inner":[322,606],"digits":5,"_":"open hands, palms forward: thumb on the outer (radial) side, four fingers slightly separated; the left hand mirrors the right"}},"outline":[[200,0],[222,4],[234,20],[238,48],[234,74],[224,92],[216,102],[216,114],[218,150],[240,164],[272,174],[294,188],[306,206],[314,240],[320,300],[326,360],[332,420],[338,480],[344,540],[348,590],[350,610],[356,622],[364,636],[371,650],[374,661],[372,669],[366,668],[359,657],[358,670],[362,686],[362,714],[358.0,721],[354,714],[354,686],[352.5,681],[351,686],[351,722],[347.0,729],[343,722],[343,686],[341.5,681],[340,686],[340,715],[336.0,722],[332,715],[332,686],[330.5,681],[329,684],[329,704],[325.5,711],[322,704],[322,684],[321,660],[322,606],[316,560],[310,500],[304,440],[298,380],[292,320],[286,272],[278,256],[264,276],[260,340],[254,400],[250,450],[254,500],[262,560],[272,620],[278,680],[274,740],[270,800],[266,850],[264,900],[262,950],[258,985],[262,1010],[266,1040],[268,1070],[260,1080],[232,1080],[226,1060],[224,1030],[224,1000],[222,950],[220,880],[218,850],[214,780],[210,700],[206,662],[200,650],[194,662],[190,700],[186,780],[182,850],[180,880],[178,950],[176,1000],[176,1030],[174,1060],[168,1080],[140,1080],[132,1070],[134,1040],[138,1010],[142,985],[138,950],[136,900],[134,850],[130,800],[126,740],[122,680],[128,620],[138,560],[146,500],[150,450],[146,400],[140,340],[136,276],[122,256],[114,272],[108,320],[102,380],[96,440],[90,500],[84,560],[78,606],[79,660],[78,684],[78,704],[74.5,711],[71,704],[71,684],[69.5,681],[68,686],[68,715],[64.0,722],[60,715],[60,686],[58.5,681],[57,686],[57,722],[53.0,729],[49,722],[49,686],[47.5,681],[46,686],[46,714],[42.0,721],[38,714],[38,686],[42,670],[41,657],[34,668],[28,669],[26,661],[29,650],[36,636],[44,622],[50,610],[52,590],[56,540],[62,480],[68,420],[74,360],[80,300],[86,240],[94,206],[106,188],[128,174],[160,164],[182,150],[184,114],[184,102],[176,92],[166,74],[162,48],[166,20],[178,4]],"meridians":{"lung":{"abbr":"LU","posterior":false,"path":[[152,188],[104,206],[92,260],[84,340],[76,420],[68,500],[62,570],[58,600],[27,664]],"points":{"LU7":[62,572],"LU8":[60,588],"LU9":[58,600]},"label_at":4},"heart":{"abbr":"HT","posterior":false,"path":[[126,258],[118,330],[102,410],[94,490],[88,560],[84,602],[78,650],[74,709]],"points":{"HT5":[86,586],"HT7":[84,602],"HT8":[74,654]},"label_at":3},"small_intestine":{"abbr":"SI","posterior":true,"path":[[74,709],[74,624],[80,606],[90,520],[100,420],[120,300],[132,232],[176,150]],"points":{"SI4":[75,626],"SI5":[77,612],"SI7":[92,500]},"label_at":2},"pericardium":{"abbr":"PC","posterior":false,"path":[[254,250],[278,268],[304,300],[316,420],[328,540],[334,600],[340,650],[347,727]],"points":{"PC6":[330,580],"PC7":[334,600],"PC8":[344,656]},"label_at":4},"large_intestine":{"abbr":"LI","posterior":false,"path":[[358,719],[352,632],[346,600],[338,520],[330,420],[322,320],[316,230],[296,180],[232,160],[214,90],[208,70]],"points":{"LI1":[358,711],"LI4":[360,646],"LI6":[342,560]},"label_at":5},"triple_burner":{"abbr":"TB","posterior":true,"path":[[336,720],[338,608],[334,560],[326,440],[318,320],[312,220],[272,170],[250,110],[244,60]],"points":{"TB4":[338,606],"TB5":[336,586],"TB6":[334,570]},"label_at":3},"stomach":{"abbr":"ST","posterior":false,"path":[[186,60],[184,96],[184,150],[170,240],[168,330],[176,420],[178,520],[160,620],[145,700],[150,800],[150,880],[152,940],[156,985],[156,1030],[160,1078]],"points":{"ST36":[150,880],"ST40":[151,930],"ST42":[156,1030]},"label_at":6},"spleen":{"abbr":"SP","posterior":false,"path":[[174,1066],[176,1040],[174,990],[180,930],[184,850],[188,760],[184,680],[166,640],[158,540],[156,440],[150,330],[146,286]],"points":{"SP3":[176,1040],"SP4":[174,1022]},"label_at":8},"kidney":{"abbr":"KI","posterior":false,"path":[[230,1078],[226,995],[222,950],[220,880],[216,845],[212,760],[208,690],[210,620],[210,440],[226,330],[228,250],[226,178]],"points":{"KI3":[226,990],"KI4":[228,1004],"KI10":[216,845]},"label_at":7},"liver":{"abbr":"LR","posterior":false,"path":[[236,1076],[238,1040],[238,1000],[236,940],[236,880],[226,800],[220,720],[222,660],[246,560],[246,480],[234,350]],"points":{"LR1":[236,1074],"LR3":[238,1040],"LR5":[236,930]},"label_at":8},"gallbladder":{"abbr":"GB","posterior":false,"path":[[222,44],[236,30],[238,60],[226,120],[262,172],[256,300],[250,420],[256,520],[268,600],[276,700],[272,800],[266,850],[264,920],[262,985],[262,1030],[258,1076]],"points":{"GB37":[264,930],"GB40":[262,985],"GB41":[262,1030]},"label_at":7},"bladder":{"abbr":"BL","posterior":true,"front_segment":[[192,48],[194,2]],"path":[[192,48],[194,2],[184,120],[178,300],[178,500],[160,700],[158,850],[156,930],[136,990],[132,1040],[136,1076]],"points":{"BL58":[156,930],"BL64":[134,1035],"BL66":[134,1060]},"label_at":4}},"houses_image":{"src":"img/house_body.jpg","width":784,"height":1168,"bands":[24,116,210,302,394,487,578,670,762,854,946,1036,1128],"figure_center_x":541,"_":"the principal's supplied reference image (2026-11-04); band edges measured from its divider lines; it carries its own house labels"},"channel_names":{"lung":"Lung (Hand Taiyin)","large_intestine":"Large Intestine (Hand Yangming)","stomach":"Stomach (Foot Yangming)","spleen":"Spleen (Foot Taiyin)","heart":"Heart (Hand Shaoyin)","small_intestine":"Small Intestine (Hand Taiyang)","bladder":"Bladder (Foot Taiyang)","kidney":"Kidney (Foot Shaoyin)","pericardium":"Pericardium (Hand Jueyin)","triple_burner":"Triple Burner (Hand Shaoyang)","gallbladder":"Gallbladder (Foot Shaoyang)","liver":"Liver (Foot Jueyin)"},"organs":{"_":"approximate anatomical positions on a front view; kidneys sit at the back (ringed, dimmed); the Triple Burner is functional and has no organ sphere","lung_r":[165,300,"lung",13],"lung_l":[235,300,"lung",13],"heart":[212,334,"heart",12],"liver":[170,412,"liver",13],"gallbladder":[184,434,"gallbladder",7],"stomach":[228,414,"stomach",11],"spleen":[252,404,"spleen",8],"kidney_r":[178,452,"kidney",9],"kidney_l":[222,452,"kidney",9],"small_intestine":[204,492,"small_intestine",12],"large_intestine":[166,500,"large_intestine",10],"bladder":[200,592,"bladder",10],"pericardium":[212,334,"pericardium",18]},"label_side":{"lung":"L","heart":"L","small_intestine":"L","stomach":"L","spleen":"L","bladder":"L","large_intestine":"R","pericardium":"R","triple_burner":"R","kidney":"R","liver":"R","gallbladder":"R"}}</script>
 <script>
 const NS = "http://www.w3.org/2000/svg", TZ = Intl.DateTimeFormat().resolvedOptions().timeZone;
 const GEO = JSON.parse(document.getElementById("geometry").textContent);
@@ -132,53 +148,108 @@ function smooth(pts, closed) {
   return d + (closed ? " Z" : "");
 }
 
-// Body: the reference figure - twelve equal bands head to feet, labels on the left.
+// Houses: the principal's reference image, with tap areas, a figure-masked glow and glyphs on top.
+const HI = GEO.houses_image;
 function drawBody(regions) {
   const g = $("zoomg"); g.innerHTML = "";
-  const shape = smooth(GEO.outline, true);
-  const defs = el("defs", {}, g), cp = el("clipPath", {id: "fig"}, defs); el("path", {d: shape}, cp);
-  const labels = el("g", {id: "houselines"}, g);
+  const defs = el("defs", {}, g), mk = el("mask", {id: "figmask"}, defs);
+  el("image", {href: HI.src, x: 0, y: 0, width: HI.width, height: HI.height}, mk);
+  el("image", {href: HI.src, x: 0, y: 0, width: HI.width, height: HI.height, "aria-hidden": "true"}, g);
+  const hb = el("g", {id: "houses"}, g);
   for (let i = 0; i < 12; i++) {
-    const y = FY + i * BH, cy = y + BH / 2;
-    if (i) el("line", {class: "bandline", x1: 10, x2: 790, y1: y, y2: y}, labels);
-    el("circle", {class: "hnum", cx: 34, cy, r: 20, stroke: HUES[i]}, labels);
-    el("text", {class: "hnumt", x: 34, y: cy + 6, fill: HUES[i]}, labels).textContent = i + 1;
-    el("text", {class: "htitle", x: 70, y: cy - 4, fill: HUES[i]}, labels).textContent = `${ORD[i]} HOUSE`;
-    el("text", {class: "hregion", x: 70, y: cy + 16, fill: HUES[i]}, labels).textContent = (regions[i + 1] || "").toUpperCase();
-  }
-  const fig = el("g", {transform: `translate(${FX} ${FY})`}, g);
-  const bands = el("g", {"clip-path": "url(#fig)", id: "houses"}, fig);
-  for (let i = 0; i < 12; i++) {
-    const r = el("rect", {class: "band", x: 0, y: i * BH, width: GEO.frame.width, height: BH, fill: HUES[i],
-      tabindex: 0, "data-house": i + 1, "aria-label": `House ${i + 1}: ${regions[i + 1]}`}, bands);
+    const y = HI.bands[i], h = HI.bands[i + 1] - y;
+    el("rect", {class: "glow", x: 300, y, width: HI.width - 300, height: h, mask: "url(#figmask)", "data-glow": i + 1}, hb);
+    const r = el("rect", {class: "hit", x: 0, y, width: HI.width, height: h, tabindex: 0, "data-house": i + 1,
+      "aria-label": `House ${i + 1}: ${regions[i + 1]}`}, hb);
     r.addEventListener("click", () => brief("house", String(i + 1)));
     r.addEventListener("keydown", e => { if (e.key === "Enter") brief("house", String(i + 1)); });
   }
-  el("path", {class: "figure", d: shape}, fig);
-  drawMeridians(fig);
-  el("g", {id: "glyphs"}, fig);
+  el("g", {id: "glyphs"}, g);
 }
 
-// Layer 2: SCHEMATIC meridians. Posterior courses dashed. No claim of classical accuracy.
-function drawMeridians(fig) {
-  const lay = el("g", {id: "meridians", "aria-label": GEO._label}, fig);
+// Meridians: a separate figure in the reference's style - dark glowing body, dotted
+// channels, organ spheres, side labels. SCHEMATIC routes; posterior channels dashed.
+function drawMeridians() {
+  const svg = $("merfig"); svg.innerHTML = "";
+  const defs = el("defs", {}, svg);
+  const lg = el("linearGradient", {id: "mgrad", x1: 0, y1: 0, x2: 0, y2: 1}, defs);
+  el("stop", {offset: "0", "stop-color": "#1a1f28"}, lg); el("stop", {offset: "1", "stop-color": "#0d1016"}, lg);
+  const f = el("filter", {id: "mglow", x: "-20%", y: "-20%", width: "140%", height: "140%"}, defs);
+  el("feGaussianBlur", {stdDeviation: 3, result: "b"}, f);
+  const fm = el("feMerge", {}, f); el("feMergeNode", {in: "b"}, fm); el("feMergeNode", {in: "SourceGraphic"}, fm);
+  const og = el("filter", {id: "oglow", x: "-80%", y: "-80%", width: "260%", height: "260%"}, defs);
+  el("feGaussianBlur", {stdDeviation: 4}, og);
+  el("path", {class: "mfig", d: smooth(GEO.outline, true)}, svg);
+  const lay = el("g", {id: "meridians", "aria-label": GEO._label}, svg);
   el("title", {}, lay).textContent = `Meridians - ${GEO._label}`;
+  // organ spheres
+  for (const [key, o] of Object.entries(GEO.organs)) {
+    if (key === "_") continue;
+    const [x, y, organ, r] = o, col = `var(--${EL[organ]})`, back = organ === "kidney";
+    if (organ === "pericardium") { el("circle", {cx: x, cy: y, r, fill: "none", stroke: col, "stroke-width": 1.5, opacity: .7}, lay); continue; }
+    el("circle", {cx: x, cy: y, r: r * 1.7, fill: col, opacity: back ? .12 : .28, filter: "url(#oglow)"}, lay);
+    el("circle", {cx: x, cy: y, r, fill: col, opacity: back ? .45 : .95, stroke: back ? col : "none",
+      "stroke-dasharray": back ? "2 2" : "none"}, lay);
+  }
+  const KSYM = {Y: [5, "none"], L: [3.6, "none"], H: [3.2, "fill"], "Y·H": [5, "fill"]};
+  const kinds = {};
+  Object.entries(window.POINT_KINDS || {}).forEach(([k, v]) => kinds[k] = v);
   for (const [organ, m] of Object.entries(GEO.meridians)) {
     const col = `var(--${EL[organ]})`;
     const path = el("path", {class: "mer" + (m.posterior ? " posterior" : ""), id: `mer-${organ}`, d: smooth(m.path, false),
-      stroke: col, "data-meridian": organ, "aria-label": `${organ.replace("_", " ")} channel - ${GEO._label}`}, lay);
-    el("title", {}, path).textContent = `${organ.replace("_", " ")}${m.posterior ? " (runs on the back)" : ""} - ${GEO._label}`;
-    const mid = m.path[m.label_at ?? Math.floor(m.path.length / 2)];
-    el("text", {class: "mabbr", x: mid[0] + 6, y: mid[1], fill: col}, lay).textContent = m.abbr;
+      stroke: col, "data-meridian": organ, "aria-label": `${GEO.channel_names[organ]} - ${GEO._label}`}, lay);
+    el("title", {}, path).textContent = `${GEO.channel_names[organ]}${m.posterior ? " - runs on the back" : ""} - ${GEO._label}`;
+    m.path.forEach(([x, y]) => el("circle", {class: "mdot", cx: x, cy: y, r: 2.2, fill: col, opacity: m.posterior ? .55 : .9}, lay));
     for (const [code, xy] of Object.entries(m.points)) {
-      const c = el("circle", {class: "mpt", cx: xy[0], cy: xy[1], r: 4.5, fill: col, tabindex: 0,
-        "data-point": code, "data-meridian": organ}, lay);
+      const kind = (kinds[code] || "H"), [r, mode] = KSYM[kind] || [3.2, "fill"];
+      const c = el("circle", {class: "mpt", cx: xy[0], cy: xy[1], r, fill: mode === "fill" ? col : "#07090d",
+        stroke: col, "stroke-width": 1.4, tabindex: 0, "data-point": code, "data-meridian": organ}, lay);
       el("title", {}, c).textContent = `${code} - ${GEO._label}`;
       c.addEventListener("click", () => brief("organ", organ));
     }
   }
-  el("text", {class: "mcap", x: GEO.frame.width / 2, y: GEO.frame.height + 22, "text-anchor": "middle"}, lay)
-    .textContent = `Meridians: ${GEO._label}`;
+  // Side labels: per side, ordered by where each channel is anchored, pushed apart to a minimum
+  // spacing so none collide, with an angled leader line back to the channel.
+  const GAP = 52, labs = {L: [], R: []};
+  for (const [organ, m] of Object.entries(GEO.meridians)) {
+    const at = m.path[m.label_at ?? Math.floor(m.path.length / 2)];
+    labs[GEO.label_side[organ]].push({organ, m, at, y: at[1]});
+  }
+  for (const side of ["L", "R"]) {
+    const list = labs[side].sort((p, q) => p.y - q.y);
+    for (let i = 1; i < list.length; i++) list[i].y = Math.max(list[i].y, list[i - 1].y + GAP);
+    const over = list.length ? list[list.length - 1].y - 1060 : 0;          // keep the column on the page
+    if (over > 0) list.forEach(l => l.y -= over);
+    for (let i = list.length - 2; i >= 0; i--) list[i].y = Math.min(list[i].y, list[i + 1].y - GAP);
+    list.forEach(({organ, m, at, y}) => {
+      const col = `var(--${EL[organ]})`, lx = side === "L" ? -24 : 424, anchor = side === "L" ? "end" : "start";
+      const knee = side === "L" ? -8 : 408;
+      el("polyline", {points: `${at[0]},${at[1]} ${knee},${y} ${lx + (side === "L" ? 6 : -6)},${y}`, fill: "none",
+        stroke: col, "stroke-width": .6, opacity: .55}, lay);
+      const [nm, sub] = GEO.channel_names[organ].split(" (");
+      el("text", {class: "mname", x: lx, y: y - 2, fill: col, "text-anchor": anchor}, lay).textContent = nm;
+      el("text", {class: "msub", x: lx, y: y + 13, fill: col, "text-anchor": anchor}, lay).textContent = `(${sub}${m.posterior ? " · back" : ""}`;
+    });
+  }
+  // legend + note, as in the reference layout
+  const lgd = el("g", {class: "legend", transform: "translate(-220 0)"}, svg);
+  el("rect", {class: "box", x: 0, y: 0, width: 190, height: 170, rx: 6}, lgd);
+  el("text", {class: "lt", x: 12, y: 22}, lgd).textContent = "FIVE ELEMENTS";
+  [["wood", "Wood · Liver, Gallbladder"], ["fire", "Fire · Heart, PC, SI, TB"], ["earth", "Earth · Spleen, Stomach"],
+   ["metal", "Metal · Lung, Large Int."], ["water", "Water · Kidney, Bladder"]].forEach(([e, t], i) => {
+    el("rect", {x: 12, y: 36 + i * 24, width: 12, height: 12, fill: `var(--${e})`}, lgd);
+    el("text", {x: 32, y: 47 + i * 24}, lgd).textContent = t; });
+  const pk = el("g", {class: "legend", transform: "translate(-220 190)"}, svg);
+  el("rect", {class: "box", x: 0, y: 0, width: 190, height: 112, rx: 6}, pk);
+  el("text", {class: "lt", x: 12, y: 22}, pk).textContent = "POINT SYMBOLS";
+  [["Yuan-source", 5, "none"], ["Luo-connecting", 3.6, "none"], ["Horary", 3.2, "var(--ink)"]].forEach(([t, r, fl], i) => {
+    el("circle", {cx: 20, cy: 44 + i * 24, r, fill: fl, stroke: "var(--ink)", "stroke-width": 1.4}, pk);
+    el("text", {x: 34, y: 48 + i * 24}, pk).textContent = t; });
+  const nt = el("g", {class: "legend", transform: "translate(-220 920)"}, svg);
+  el("rect", {class: "box", x: 0, y: 0, width: 190, height: 150, rx: 6}, nt);
+  el("text", {class: "lt", x: 12, y: 22}, nt).textContent = "NOTES";
+  ["Schematic reference —", "not for clinical use.", "Dashed: runs on the back.", "Each channel bilateral,", "drawn on one side.",
+   "Triple Burner: no organ."].forEach((t, i) => el("text", {x: 12, y: 46 + i * 18}, nt).textContent = t);
 }
 
 function markMeridians(L) {
@@ -190,20 +261,20 @@ function markMeridians(L) {
 // Live house lighting from ATI: today's planets bright in the house they occupy,
 // the natal planets ghosted and fixed. House numbers and names only - no degrees.
 function lightHouses(L) {
-  document.querySelectorAll(".band").forEach(b => b.classList.remove("lit"));
+  document.querySelectorAll(".glow").forEach(b => b.classList.remove("lit"));
   const gl = $("glyphs"); if (!gl) return; gl.innerHTML = "";
   const place = (groups, cls, dy) => (groups || []).forEach(h => {
-    const y = (h.house - 1) * BH + BH / 2 + dy;
+    const y = (HI.bands[h.house - 1] + HI.bands[h.house]) / 2 + dy, n = h.bodies.length;
     h.bodies.forEach((b, i) => {
-      const t = el("text", {class: `glyph ${cls}`, x: 160 + i * 26, y}, gl); t.textContent = b.glyph;
+      const t = el("text", {class: `glyph ${cls}`, x: HI.figure_center_x + (i - (n - 1) / 2) * 28, y}, gl); t.textContent = b.glyph;
       el("title", {}, t).textContent = `${b.name} (${cls === "now" ? "now" : "natal"}) - house ${h.house}`;
     });
   });
-  place(L.natal_ghosts, "natal", -8);
-  place(L.houses_lit, "now", 20);
-  (L.houses_lit || []).forEach(h => document.querySelector(`.band[data-house="${h.house}"]`)?.classList.add("lit"));
+  place(L.natal_ghosts, "natal", -12);
+  place(L.houses_lit, "now", 22);
+  (L.houses_lit || []).forEach(h => document.querySelector(`.glow[data-glow="${h.house}"]`)?.classList.add("lit"));
   $("housenote").textContent = L.houses_lit && L.houses_lit.length
-    ? `Lit: houses ${L.houses_lit.map(h => h.house).join(", ")} - gold glyphs are now, grey glyphs are natal. Meridians: ${GEO._label}.`
+    ? `Lit: houses ${L.houses_lit.map(h => h.house).join(", ")} - gold glyphs are now, grey glyphs are natal.`
     : `Houses unlit: ${L.houses_status}.`;
 }
 
@@ -261,15 +332,17 @@ addEventListener("pointerup", () => drag = null);
 
 // Independent layer toggles.
 [["t-clock", "p-clock"], ["t-pillars", "p-pillars"]].forEach(([t, p]) => $(t).onchange = () => $(p).hidden = !$(t).checked);
-$("t-houses").onchange = () => ["houses", "houselines", "glyphs"].forEach(id => { const n = $(id); if (n) n.style.display = $("t-houses").checked ? "" : "none"; });
+$("t-houses").onchange = () => ["houses", "glyphs"].forEach(id => { const n = $(id); if (n) n.style.display = $("t-houses").checked ? "" : "none"; });
 
 let LAST = null;
-$("t-meridians").onchange = () => { const m = $("meridians"); if (m) m.style.display = $("t-meridians").checked ? "" : "none"; };
+$("t-meridians").onchange = () => $("p-meridians").hidden = !$("t-meridians").checked;
 $("t-active").onchange = () => { if (LAST) markMeridians(LAST); };
 async function refresh() {
   try { const L = await ask("lighting");
     if (L.error) throw new Error(L.error);
-    drawClock(L); drawPillars(L); if (!$("houses")) drawBody(L.house_regions); lightHouses(L); markMeridians(L); LAST = L;
+    window.POINT_KINDS = Object.fromEntries(Object.values(L.points.points).flat().map(([c, , k]) => [c, k]));
+    drawClock(L); drawPillars(L); if (!$("houses")) drawBody(L.house_regions); if (!$("meridians")) drawMeridians();
+    lightHouses(L); markMeridians(L); LAST = L;
   } catch (e) {
     $("brief").textContent = `Lighting unavailable (${e.message}). Open this page from the MycOS webapp, where ATI answers.`;
   }
