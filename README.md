@@ -203,6 +203,17 @@ to nobody - Anansi assembles and speaks. The house and event-type tables in
 `config/ati/` are the principal's to fill; until they are, ATI refuses rather
 than guess. `tools/check_ati.py` is a build gate.
 
+**The organ clock on Anansi's calendar.** The twelve windows are daily
+recurring events on Anansi's AgentMail calendar, built from the same table ATI
+reads. Anansi holds one outbound WebSocket to AgentMail subscribed to
+`calendar.event.starting` (outbound because a webhook needs a public URL and
+every agent binds 127.0.0.1). On each window it calls ATI and logs the event,
+ATI's answer and the text it would send to `state/anansi/organ_clock_events.jsonl`.
+`config/organ_clock_listener.json` holds the switch: `"mode": "dry_run"` sends
+nothing; `"live"` delivers through `notify`, only when ATI succeeds; `"off"`
+opens no connection. Only the principal changes it. `organ_clock_status` reports
+the mode, the connection and the last entries; `tools/check_organ_clock.py` gates it.
+
 ## Memory: three stores, deliberately separate
 
 | Store | Size | Holds | Retrieved by |

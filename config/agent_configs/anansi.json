@@ -11,6 +11,8 @@
     "ack_preview",
     "journal_email",
     "orientation",
+    "organ_clock_event",
+    "organ_clock_status",
     "route_held_mail",
     "held_mail_digest",
     "grow_roster",

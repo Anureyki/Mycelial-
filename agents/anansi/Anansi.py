@@ -49,12 +49,15 @@ class Anansi(AgentBase):
                           "notify", "publish_media", "receive_mail", "ingest_upload", "grow_roster",
                           "grow_snapshot", "recent_changes", "phase_status",
                           "system_graph", "actions", "deadlines", "reminders",
-                          "inbound_mail", "ack_preview", "journal_email", "orientation", "route_held_mail", "held_mail_digest",
+                          "inbound_mail", "ack_preview", "journal_email", "orientation", "organ_clock_event", "organ_clock_status", "route_held_mail", "held_mail_digest",
                           "training_candidates", "training_quest_status",
                           "advance_campaign", "review_candidate", "voice"],
             role="interface"
         )
         self.sessions = {}
+        self._clock_seen = set()
+        self._clock_state = {"connected": False, "since": None, "last_error": None}
+        self._start_organ_clock_listener()
         self.log("🕸️ Anansi interface ready (uses Registry Service + fallback)")
 
     def find_orchestrator(self):
@@ -836,6 +839,140 @@ class Anansi(AgentBase):
             self.log(f"orientation: generic window unavailable: {exc}")
         return {"text": text, "ati": res, "generic_window": generic}
 
+    # ------------------------------------------------------------------
+    # Organ clock: AgentMail calendar.event.starting over a WebSocket
+    # ------------------------------------------------------------------
+    CLOCK_CONFIG = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(
+        os.path.abspath(__file__)))), "config", "organ_clock_listener.json")
+
+    def _clock_cfg(self):
+        """Re-read every time, so mode changes take effect on the next event."""
+        try:
+            with open(self.CLOCK_CONFIG, encoding="utf-8") as fh:
+                return json.load(fh)
+        except Exception as exc:
+            return {"mode": "off", "error": f"config unreadable: {exc}"}
+
+    def _clock_log(self, entry):
+        cfg = self._clock_cfg()
+        root = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+        path = os.path.join(root, cfg.get("log") or "state/anansi/organ_clock_events.jsonl")
+        entry = {"logged_at": datetime.now().isoformat(timespec="seconds"), **entry}
+        self._private_write(path, json.dumps(entry, ensure_ascii=False) + "\n", append=True)
+        return entry
+
+    def _start_organ_clock_listener(self):
+        """One outbound WebSocket to AgentMail, subscribed to calendar.event.starting
+        on Anansi's inbox (principal 2026-11-03: the webhook, in dry run first).
+        Outbound because a webhook needs a public URL and every agent here binds
+        127.0.0.1. mode off -> no connection at all."""
+        cfg = self._clock_cfg()
+        if cfg.get("mode") not in ("dry_run", "live"):
+            self.log(f"organ clock listener: off (mode={cfg.get('mode')!r})")
+            return
+        import threading
+        threading.Thread(target=self._organ_clock_thread, name="organ-clock-ws", daemon=True).start()
+
+    def _organ_clock_thread(self):
+        import asyncio
+        try:
+            asyncio.run(self._organ_clock_ws())
+        except Exception as exc:          # contained: the listener never takes Anansi down
+            self._clock_state.update(connected=False, last_error=f"thread ended: {exc}")
+            self.log(f"organ clock listener stopped: {exc}")
+
+    async def _organ_clock_ws(self):
+        import asyncio
+        from websockets.asyncio.client import connect
+        key = os.getenv("AGENTMAIL_API_KEY")
+        delay = 5
+        while True:
+            cfg = self._clock_cfg()
+            if cfg.get("mode") not in ("dry_run", "live"):
+                self._clock_state.update(connected=False, last_error="mode is off")
+                return
+            if not key:
+                self._clock_state.update(connected=False, last_error="AGENTMAIL_API_KEY not set")
+                return
+            try:
+                async with connect("wss://ws.agentmail.to/v0",
+                                   additional_headers={"Authorization": f"Bearer {key}"},
+                                   ping_interval=20, ping_timeout=20) as ws:
+                    await ws.send(json.dumps({"type": "subscribe", "inbox_ids": [cfg["inbox"]],
+                                              "event_types": cfg.get("event_types") or
+                                              ["calendar.event.starting"]}))
+                    async for raw in ws:
+                        try:
+                            msg = json.loads(raw)
+                        except ValueError:
+                            continue
+                        t = msg.get("type")
+                        if t == "subscribed":
+                            delay = 5
+                            self._clock_state.update(connected=True, since=datetime.now().isoformat(
+                                timespec="seconds"), last_error=None)
+                            self.log(f"organ clock listener: subscribed {msg.get('inbox_ids')}")
+                        elif t == "error":
+                            self._clock_state["last_error"] = str(msg)[:300]
+                            self.log(f"organ clock listener: server error {str(msg)[:200]}")
+                        elif t == "event" and msg.get("event_type") == "calendar.event.starting":
+                            await asyncio.to_thread(self.organ_clock_event, msg)
+            except Exception as exc:
+                self._clock_state.update(connected=False, last_error=f"{type(exc).__name__}: {exc}"[:300])
+                self.log(f"organ clock listener: disconnected ({exc}); retry in {delay}s")
+            await asyncio.sleep(delay)
+            delay = min(delay * 2, 300)
+
+    def organ_clock_event(self, msg):
+        """One calendar.event.starting. Logged always; spoken only in live mode,
+        and only when ATI succeeds. Anansi is the only speaker either way."""
+        msg = msg if isinstance(msg, dict) else {}
+        cfg = self._clock_cfg()
+        mode = cfg.get("mode", "off")
+        ev = msg.get("calendar_event") or {}
+        eid = msg.get("event_id") or f"{ev.get('series_id') or ev.get('event_id')}@{msg.get('scheduled_at')}"
+        if eid in self._clock_seen:
+            return {"duplicate": True, "event_id": eid}
+        self._clock_seen.add(eid)
+        series = {v: k for k, v in (cfg.get("organ_clock_series") or {}).items()}
+        sid = ev.get("series_id") or ev.get("event_id")
+        if sid not in series:
+            return self._clock_log({"event_id": eid, "mode": mode, "action": "ignored",
+                                    "why": "not one of the 12 organ-clock series", "title": ev.get("title")})
+        try:
+            o = self.orientation({"entity_id": cfg.get("entity_id"),
+                                  "timestamp_utc": msg.get("scheduled_at") or ev.get("start_at"),
+                                  "event_type": None, "location": {"tz": cfg.get("timezone")}})
+        except Exception as exc:
+            # ATI unavailable is not an error in Anansi: it is logged, and nothing
+            # is narrated - ATI is never a dependency (MYCOS-CORE-001 s.11).
+            o = {"text": None, "ati": {"refusal": True, "missing_fields": [f"ati unavailable: {exc}"[:200]],
+                                       "recommendation": None}}
+        ati = o.get("ati") or {}
+        entry = {"event_id": eid, "mode": mode, "window": series[sid], "scheduled_at": msg.get("scheduled_at"),
+                 "ati": ati, "would_send": o.get("text")}
+        if mode == "live" and not ati.get("refusal"):
+            res = self.notify({"subject": f"{series[sid]} window", "body": o.get("text") or "",
+                               "from_agent": "anansi", "register": "low_stakes",
+                               "channels": cfg.get("live_channels") or ["dashboard"]})
+            entry.update(action="delivered", delivery={k: res.get(k) for k in ("sent", "unsent")})
+        elif mode == "live":
+            entry.update(action="logged only", why="ATI refused - nothing is narrated on a refusal")
+        else:
+            entry.update(action="logged only", why="dry_run - nothing sent")
+        return self._clock_log(entry)
+
+    def organ_clock_status(self, args=None):
+        cfg = self._clock_cfg()
+        root = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+        path = os.path.join(root, cfg.get("log") or "state/anansi/organ_clock_events.jsonl")
+        try:
+            with open(path, encoding="utf-8") as fh:
+                last = [json.loads(x) for x in fh.readlines()[-5:]]
+        except OSError:
+            last = []
+        return {"mode": cfg.get("mode"), "connection": dict(self._clock_state), "recent": last}
+
     def journal_email(self, args):
         """The weekly grow journal by email (principal 2026-10-30: 'Both' - the page
         and the email). Grow supplies each plant's journal and status card;
@@ -1152,6 +1289,10 @@ class Anansi(AgentBase):
             return self.journal_email(args)
         if task == "orientation":
             return self.orientation(args)
+        if task == "organ_clock_event":
+            return self.organ_clock_event(args)
+        if task == "organ_clock_status":
+            return self.organ_clock_status(args)
         if task == "route_held_mail":
             return self.route_held_mail(args)
         if task == "held_mail_digest":

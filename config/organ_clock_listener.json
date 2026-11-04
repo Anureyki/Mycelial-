@@ -1,0 +1,31 @@
+{
+  "mode": "dry_run",
+  "_mode": "off | dry_run | live - switched by the principal, never by code. dry_run: on each window's start Anansi calls ATI and LOGS the event, ATI's answer and the text it would send - nothing reaches the principal. live: the same, and the text is delivered through notify on live_channels - only when ATI succeeds; an ATI refusal is logged, never narrated. off: no connection is opened.",
+  "_switch_live": "set mode to \"live\" (one edit). Takes effect on the next event - the handler re-reads this file every time - with no restart. Turning it off needs a restart of Anansi to close the connection.",
+  "inbox": "mycos-anansi@agentmail.to",
+  "event_types": [
+    "calendar.event.starting"
+  ],
+  "transport": "AgentMail WebSocket, wss://ws.agentmail.to/v0, Authorization: Bearer AGENTMAIL_API_KEY - an OUTBOUND connection, so nothing on this machine is exposed to receive it (a webhook would need a public URL)",
+  "entity_id": "principal",
+  "timezone": "America/Chicago",
+  "live_channels": [
+    "dashboard"
+  ],
+  "organ_clock_series": {
+    "Gallbladder": "1419477f-8931-48c2-8da0-66ca6e5a6d17",
+    "Liver": "6a6f1653-9118-4ee4-9837-ec4c72c2266e",
+    "Lungs": "9f6bacd5-365f-40df-8f2e-9600c181321b",
+    "Large Intestine": "ce6b2435-f28d-4604-8e74-bb2f17bcd8ed",
+    "Stomach": "98f1bc73-a318-48e3-951c-890cb922c576",
+    "Spleen": "c4119adc-0726-48bd-bb49-ebdea5a00adc",
+    "Heart": "86e1dd9f-34bd-4c25-9958-af37c3a73aef",
+    "Small Intestine": "672ee780-942e-4d07-98ea-66f33b70d31f",
+    "Bladder": "269d2d52-85c5-40d4-b53e-cc0275167eb0",
+    "Kidneys": "c94eba59-caa2-484c-8552-886ffd9f05f7",
+    "Pericardium": "05c56028-15af-4043-8706-8f0017ef6900",
+    "Triple Burner": "ad4ad58f-6c30-4d2b-b679-9d1434537b45"
+  },
+  "_series": "The 12 daily series created 2026-11-03 from config/ati/organ_clock_windows.json. An event from any other series is logged as ignored.",
+  "log": "state/anansi/organ_clock_events.jsonl"
+}

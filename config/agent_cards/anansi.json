@@ -28,6 +28,8 @@
     "ack_preview",
     "journal_email",
     "orientation",
+    "organ_clock_event",
+    "organ_clock_status",
     "route_held_mail",
     "held_mail_digest",
     "training_candidates",
@@ -76,6 +78,8 @@
     "ack_preview": "external",
     "journal_email": "external",
     "orientation": "computes",
+    "organ_clock_event": "external",
+    "organ_clock_status": "computes",
     "route_held_mail": "records",
     "held_mail_digest": "external",
     "training_candidates": "computes",
@@ -91,7 +95,8 @@
     "held_mail_digest": "email_authorization: recipient fixed to NOTIFY_TO; third-party sends refused",
     "journal_email": "email_authorization: recipient fixed to NOTIFY_TO; third-party sends refused",
     "notify": "email_authorization: recipient fixed to NOTIFY_TO; third-party sends refused",
-    "receive_mail": "email_authorization: recipient fixed to NOTIFY_TO; third-party sends refused"
+    "receive_mail": "email_authorization: recipient fixed to NOTIFY_TO; third-party sends refused",
+    "organ_clock_event": "email_authorization: recipient fixed to NOTIFY_TO; third-party sends refused"
   },
   "email_authorization": {
     "recipient": "fixed to NOTIFY_TO",
