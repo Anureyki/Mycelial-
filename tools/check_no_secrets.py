@@ -92,8 +92,12 @@ PATTERNS = {
     "private_key": (re.compile(r"-----BEGIN [A-Z ]*PRIVATE KEY-----"),
                     "a private key"),
     "aws_key": (re.compile(r"\bAKIA[0-9A-Z]{16}\b"), "an AWS access key"),
-    "github_token": (re.compile(r"\bgh[pousr]_[A-Za-z0-9]{20,}\b"),
-                     "a GitHub token"),
+    # Fine-grained tokens (github_pat_) are GitHub's default now, and the old
+    # gh[pousr]_ shape did not match them - found 2026-11-03 when one sat in
+    # plain text in config/mcp.d/git.json and only the personal-data firewall's
+    # token category described its shape.
+    "github_token": (re.compile(r"\b(?:gh[pousr]_[A-Za-z0-9]{20,}|github_pat_[A-Za-z0-9_]{22,})"),
+                     "a GitHub token (classic or fine-grained)"),
     "openai_key": (re.compile(r"\bsk-[A-Za-z0-9]{32,}\b"), "an API key"),
     "assigned_secret": (
         re.compile(r"(?i)\b(password|passwd|secret|api_?key|token|"

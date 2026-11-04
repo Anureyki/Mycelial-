@@ -145,6 +145,61 @@ try:
 except Refused:
     check("an amendment cannot change a recorded field", True)
 
+# Lunar calendar (ati/lunar.py): verified against published values before anything
+# builds on it - new moons, every Lunar New Year 2017-2027 and 1995, five leap months.
+from datetime import date as _date, timedelta as _td  # noqa: E402
+from ati.lunar import lunar_date, new_moon, _sui, CST, _k_near  # noqa: E402
+nm_err = []
+for iso in ("2024-02-09T22:59", "2023-01-21T20:53", "2025-01-29T12:36", "2000-01-06T18:14"):
+    t = _dt.fromisoformat(iso).replace(tzinfo=_tz.utc)
+    k = _k_near(t)
+    best = min((new_moon(kk) for kk in (k - 1, k, k + 1)), key=lambda x: abs((x - t).total_seconds()))
+    nm_err.append(abs((best - t).total_seconds()) / 60)
+check(f"new moons within 2 min of published instants (worst {max(nm_err):.1f} min)", max(nm_err) < 2)
+cny_bad = []
+for y, d in {1995: "1995-01-31", 2017: "2017-01-28", 2018: "2018-02-16", 2019: "2019-02-05",
+             2020: "2020-01-25", 2021: "2021-02-12", 2022: "2022-02-01", 2023: "2023-01-22",
+             2024: "2024-02-10", 2025: "2025-01-29", 2026: "2026-02-17", 2027: "2027-02-06"}.items():
+    dd = _date.fromisoformat(d)
+    t = _dt(dd.year, dd.month, dd.day, 12, tzinfo=CST)
+    L, E = lunar_date(t), lunar_date(t - _td(days=1))
+    if (L["year"], L["month"], L["day"], L["leap"]) != (y, 1, 1, False) or (E["year"], E["month"]) != (y - 1, 12):
+        cny_bad.append(y)
+check("every Lunar New Year 2017-2027 and 1995 falls on its published date, the eve in month 12"
+      + (f" (wrong: {cny_bad})" if cny_bad else ""), not cny_bad)
+leap_bad = []
+for y, (mon, start) in {1995: (8, "1995-09-25"), 2017: (6, "2017-07-23"), 2020: (4, "2020-05-23"),
+                        2023: (2, "2023-03-22"), 2025: (6, "2025-07-25")}.items():
+    got = [(m["month"], m["start"].isoformat()) for m in _sui(y) + _sui(y + 1) if m["leap"] and m["start"].year == y]
+    if got != [(mon, start)]:
+        leap_bad.append(y)
+check("leap months 1995/2017/2020/2023/2025 on their published months and dates"
+      + (f" (wrong: {leap_bad})" if leap_bad else ""), not leap_bad)
+
+# I Ching (ati/ichi.py)
+from ati.ichi import HEXAGRAMS, KING_WEN, lines_of, najia, plum_blossom, cast, _BY_NAME  # noqa: E402
+from zoneinfo import ZoneInfo as _ZI  # noqa: E402
+check("64-hexagram table: all 64 trigram pairs, each King Wen number once",
+      len(HEXAGRAMS) == 64 and sorted(n for n, _ in HEXAGRAMS.values()) == list(range(1, 65)))
+kw_bad = []
+for i in range(0, 64, 2):
+    a_ = lines_of(_BY_NAME[KING_WEN[i][2]], _BY_NAME[KING_WEN[i][3]])
+    b_ = lines_of(_BY_NAME[KING_WEN[i + 1][2]], _BY_NAME[KING_WEN[i + 1][3]])
+    if not ((b_ == a_[::-1] and a_ != a_[::-1]) or (a_ == a_[::-1] and b_ == tuple(1 - x for x in a_))):
+        kw_bad.append(KING_WEN[i][0])
+check("King Wen pairing rule holds for all 32 pairs (turned over, or inverted when symmetric)", not kw_bad)
+check("anchors: heaven over thunder is 25 無妄, earth over thunder 24 復, 大壯 34 is thunder over heaven",
+      HEXAGRAMS[(1, 4)] == (25, "無妄") and HEXAGRAMS[(8, 4)] == (24, "復") and HEXAGRAMS[(4, 1)] == (34, "大壯"))
+ex = plum_blossom(5, 12, 17, 9)
+check("the classical worked example (辰 year, month 12, day 17, 申 hour) gives 49 革, line 1 moving, to 咸",
+      (ex["primary"]["number"], ex["moving_line"], ex["changed"]["name"], ex["mutual"]["name"]) == (49, 1, "咸", "姤"))
+check("Najia by the standard table: 乾 甲子..壬戌, 坤 乙未..癸酉",
+      najia(1, 1) == ["甲子", "甲寅", "甲辰", "壬午", "壬申", "壬戌"]
+      and najia(8, 8) == ["乙未", "乙巳", "乙卯", "癸丑", "癸亥", "癸酉"])
+m = _dt(2026, 11, 3, 19, 21, tzinfo=_ZI("America/Chicago"))
+check("a cast is deterministic and uses the moment's own lunar date and hour", cast(m) == cast(m)
+      and cast(m)["lunar"] == {"year": 2026, "month": 9, "day": 25, "leap": False} and cast(m)["hour_branch"] == "戌")
+
 banned = {"threading", "sched", "asyncio", "multiprocessing"}
 loops = []
 for fn in os.listdir(os.path.join(ROOT, "ati")):
