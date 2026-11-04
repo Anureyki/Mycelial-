@@ -283,6 +283,22 @@ check("ST36 sits below the knee and above the ankle, and above ST42 on the foot"
 _pts = _json.load(open(os.path.join(ROOT, "config", "ati", "meridian_points.json"), encoding="utf-8"))["points"]
 check("every yuan, luo and rule-derived horary point in the config is placed on its own channel",
       all(c in _M[m]["points"] for m, p in _pts.items() for c, _, _ in p))
+_out = [tuple(q) for q in _G.get("outline") or []]
+_hd = (_F.get("hand") or {})
+def _digit_tips(seg):
+    """Digit tips are the local extremes along the hand's edge: a point further from the wrist
+    than both neighbours. Five per hand - thumb and four fingers - or the hands have collapsed."""
+    wy = min(p[1] for p in seg)
+    d = [((p[0] - seg[0][0]) ** 2 + (p[1] - wy) ** 2) ** .5 for p in seg]
+    return sum(1 for i in range(1, len(seg) - 1) if d[i] > d[i - 1] and d[i] >= d[i + 1] and d[i] > 30)
+try:
+    _a, _b = _out.index(tuple(_hd["wrist_outer"])), _out.index(tuple(_hd["wrist_inner"]))
+    _right = _out[_a:_b + 1]
+    _left = [(400 - x, y) for x, y in _right]
+    _tips = (_digit_tips(_right), _digit_tips(_left[::-1]))
+except (KeyError, ValueError):
+    _tips = (0, 0)
+check(f"each hand is open with five separate digits (found {_tips[0]} and {_tips[1]})", _tips == (5, 5))
 check("the Meridians toggle is enabled now that the paths are drawn",
       re.search(r'id="t-meridians"[^>]*\bdisabled\b', _bp) is None and 'id="t-meridians"' in _bp)
 
