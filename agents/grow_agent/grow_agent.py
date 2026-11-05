@@ -918,7 +918,7 @@ class GrowAgent(AgentBase):
                 "log_training_event", "recommend_feed", "plan_system_transition",
                 "set_grow_system", "get_grow_system", "amend_grow_system",
                 "field_history", "assess_root_zone", "void_reservoir_eval",
-                "which_plant", "record_refill", "record_level", "change_out_review", "recipe_elements", "resolve_lesson_rule", "project_nutrients", "status_card", "journal",
+                "which_plant", "record_refill", "record_level", "change_out_review", "recipe_elements", "resolve_lesson_rule", "project_nutrients", "status_card", "journal", "light_periods",
                 "reconcile_ec_temperature", "intake_reading", "when_to_top_up", "project_topup", "plan_feed_for_target", "reconcile_dose", "ingest_environment_export", "predict_flowering", "calibrate_blend", "record_ripeness", "assess_ripeness", "maintenance_due", "notify_maintenance", "record_lesson", "list_lessons", "ppm_per_ml", "round_to_instrument", "assess_ph", "record_ph_adjustment", "reopen_dose", "record_dose_poured", "defer_full_change", "start_drink_down", "read_flower_photo", "simulate_water_alert", "quantities",
                 "get_nutrient_history",
                 "set_inventory", "get_inventory",
@@ -14670,6 +14670,39 @@ class GrowAgent(AgentBase):
                                    if out.get("rate_stale") else "")))
         return out
 
+    def light_periods(self, plant_id="current_plant", periods=None):
+        """Light energy per period, from the tent's own PPFD sensor (principal, 2026-11-05:
+        'a light-energy number attached to the growth spurt instead of just hours').
+
+        DLI per day is already integrated at ingest - sum(PPFD x sample interval) / 1e6
+        - so this only aggregates: for each {label, from, to} period, the days measured,
+        mean hours lit, mean DLI, mean PPFD while lit and total mol/m2. Days the export
+        covered only partly are left out and counted, never averaged in, because a
+        half-day of samples reads as a dim day. Nothing is estimated from hours."""
+        light = {}
+        for ev in self._environment_events(plant_id) or []:
+            for d in ((ev.get("light") or {}).get("by_day") or []):
+                light[d["date"]] = d
+        out = []
+        for per in periods or []:
+            lo, hi = str(per.get("from"))[:10], str(per.get("to"))[:10]
+            days = [light[k] for k in sorted(light) if lo <= k <= hi]
+            full = [d for d in days if not d.get("partial")]
+            row = {"label": per.get("label") or f"{lo}..{hi}", "from": lo, "to": hi,
+                   "days_measured": len(full), "partial_days_excluded": len(days) - len(full)}
+            if full:
+                n = len(full)
+                row.update(mean_hours_lit=round(sum(d["hours_lit"] for d in full) / n, 1),
+                           mean_dli_mol_m2=round(sum(d["dli_mol_m2"] for d in full) / n, 1),
+                           min_dli=min(d["dli_mol_m2"] for d in full), max_dli=max(d["dli_mol_m2"] for d in full),
+                           mean_ppfd_while_lit=round(sum(d["ppfd_avg_while_lit"] for d in full) / n, 0),
+                           total_mol_m2=round(sum(d["dli_mol_m2"] for d in full), 1))
+            else:
+                row["why"] = "no full day of light data in this period"
+            out.append(row)
+        return {"plant_id": plant_id, "periods": out,
+                "basis": "the tent's PPFD sensor via the Mars Hydro export; DLI integrated per day at ingest"}
+
     def journal(self, plant_id="current_plant", days=30):
         """One plant's grow, day by day - every store Grow holds, in one order.
 
@@ -17353,6 +17386,9 @@ class GrowAgent(AgentBase):
             return {"result": {"active": self.active_plants(),
                                "archived": self.archived_plants()}}
 
+        elif task == "light_periods":
+            a = args if isinstance(args, dict) else {}
+            return {"result": self.light_periods(a.get("plant_id", "current_plant"), a.get("periods"))}
         elif task == "journal":
             a = args if isinstance(args, dict) else {}
             return {"result": self.journal(a.get("plant_id", "current_plant"), a.get("days", 30))}
