@@ -160,15 +160,95 @@ def call_remote_mcp(server_id, config, method, params=None):
         return {"error": f"{server_id}: {type(e).__name__}: {e}"}
 
 
+# ---------- Guarded servers ----------
+# Full access with guardrails (principal, 2026-11-05, for Bland). A server whose
+# config carries `guard` is sorted per call:
+#   read tools ............................ run
+#   contact tools aimed ONLY at the principal  run (his number from the env var)
+#   contact to anyone else, or untargeted ... HELD for his yes
+#   deletes, spending, raw API ............... HELD for his yes
+#   every other write ........................ run
+# and in guard mode "dry_run" nothing but a read reaches the server: the call is
+# logged as what it would do. A hold is recorded in state/ and released only by
+# resolve_held. A contact tool whose number cannot be read is held, never assumed
+# to be the principal.
+HELD_LOG = os.path.join(BASE, "state", "tool", "held_calls.jsonl")
+
+
+def _digits(v):
+    d = "".join(ch for ch in str(v or "") if ch.isdigit())
+    return d[-10:] if len(d) >= 10 else d
+
+
+def _held_append(rec):
+    os.makedirs(os.path.dirname(HELD_LOG), mode=0o700, exist_ok=True)
+    fd = os.open(HELD_LOG, os.O_WRONLY | os.O_CREAT | os.O_APPEND, 0o600)
+    with os.fdopen(fd, "a") as fh:
+        fh.write(json.dumps(rec) + "\n")
+
+
+def _held_records():
+    try:
+        with open(HELD_LOG) as fh:
+            return [json.loads(x) for x in fh if x.strip()]
+    except OSError:
+        return []
+
+
+def guard_decision(server_id, guard, name, args):
+    """-> (verdict, why). verdict: read | principal | write | held."""
+    args = args or {}
+    if name in (guard.get("read_tools") or []):
+        return "read", "read-only tool"
+    held = guard.get("held_tools") or {}
+    for kind, names in held.items():
+        if name in names:
+            return "held", f"{kind}: needs the principal's yes"
+    if name in (guard.get("contact_untargeted") or []):
+        return "held", "contacts someone with no single number to check - needs the principal's yes"
+    targets = (guard.get("contact_targets") or {}).get(name)
+    if targets is not None:
+        mine = _digits(os.environ.get(guard.get("principal_phone_env") or "", ""))
+        present = [_digits(args.get(f)) for f in targets if args.get(f)]
+        if not mine:
+            return "held", "the principal's number is not set in the environment - held rather than guessed"
+        if present and all(n == mine for n in present):
+            return "principal", "to the principal's own number"
+        return "held", "third-party contact - needs the principal's yes"
+    if name in (guard.get("write_tools") or []):
+        return "write", "a write the principal allowed directly"
+    return "held", "not classified in this server's guard - held until someone decides what it is"
+
+
+def guarded_call(server_id, config, name, args, approved=False):
+    guard = config["guard"]
+    verdict, why = guard_decision(server_id, guard, name, args)
+    if verdict == "held" and not approved:
+        hid = uuid.uuid4().hex[:10]
+        _held_append({"id": hid, "at": datetime.now().isoformat(timespec="seconds"), "server": server_id,
+                      "tool": name, "args": args, "why": why, "status": "held"})
+        log_to_audit("TOOL_HELD", f"{server_id}.{name} held: {why}", metadata={"id": hid})
+        return {"held": True, "id": hid, "tool": name, "why": why,
+                "release": f"resolve_held {hid} approve - only on the principal's yes"}
+    if verdict != "read" and guard.get("mode", "dry_run") != "live":
+        return {"dry_run": True, "would_run": name, "verdict": verdict, "why": why,
+                "note": "guard mode is dry_run - nothing was sent; the principal switches it live"}
+    return None          # proceed to the server
+
+
 # ---------- MCP server caller ----------
-def call_mcp_server(server_id, method, params=None):
+def call_mcp_server(server_id, method, params=None, approved=False):
     if server_id not in servers:
         return {"error": f"Unknown MCP server: {server_id}"}
     config = servers[server_id]
     # A per-server tool allowlist: when present, only the tools named in it may be
     # called. A server that can act on the world - place a call, send a message -
     # starts with only its read-only tools listed.
-    if method == "tools/call" and "allowed_tools" in config:
+    if method == "tools/call" and config.get("guard"):
+        stop = guarded_call(server_id, config, (params or {}).get("name"), (params or {}).get("arguments"), approved)
+        if stop is not None:
+            return stop
+    elif method == "tools/call" and "allowed_tools" in config:
         name = (params or {}).get("name")
         if name not in (config.get("allowed_tools") or []):
             return {"error": f"{server_id}: tool {name!r} is not on this server's allowed_tools list - "
@@ -257,6 +337,32 @@ def execute():
                     tool["server"] = server_id
                     tools.append(tool)
         return jsonify({"result": tools})
+
+    elif task == "resolve_held":
+        # The principal's yes (or no) on a held call. A hold resolves once.
+        if len(args) < 2 or args[1] not in ("approve", "deny"):
+            return jsonify({"error": "Usage: resolve_held <id> approve|deny"})
+        recs = _held_records()
+        rec = next((r for r in recs if r.get("id") == args[0] and r.get("status") == "held"), None)
+        if rec is None:
+            return jsonify({"error": f"no open hold {args[0]!r}"})
+        done = {d.get("resolves") for d in recs if d.get("resolves")}
+        if rec["id"] in done:
+            return jsonify({"error": f"hold {args[0]} was already resolved"})
+        outcome = None
+        if args[1] == "approve":
+            outcome = call_mcp_server(rec["server"], "tools/call", {"name": rec["tool"], "arguments": rec["args"]},
+                                      approved=True)
+        _held_append({"resolves": rec["id"], "at": datetime.now().isoformat(timespec="seconds"),
+                      "decision": args[1], "by": sender, "outcome": outcome})
+        log_to_audit("TOOL_HELD_RESOLVED", f"{rec['server']}.{rec['tool']} {args[1]} by {sender}",
+                     metadata={"id": rec["id"]})
+        return jsonify({"result": {"id": rec["id"], "decision": args[1], "outcome": outcome}})
+
+    elif task == "list_held":
+        recs = _held_records()
+        done = {d.get("resolves") for d in recs if d.get("resolves")}
+        return jsonify({"result": [r for r in recs if r.get("status") == "held" and r["id"] not in done]})
 
     elif task == "list_server_tools":
         # One server's tools - list_tools starts every configured server to answer.

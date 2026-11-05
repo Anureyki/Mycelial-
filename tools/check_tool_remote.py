@@ -90,6 +90,53 @@ with ts.app.test_client() as c:
     rr = c.post("/execute", json={"task": "list_server_tools", "args": ["fake"], "sender": "anansi"}).get_json()
 check("list_server_tools lists one server's tools over the remote transport",
       [t["name"] for t in rr["result"]["result"]["tools"]] == ["list_pathways", "send_call"])
+# ---- guard: full access with guardrails (synthetic numbers only) ----
+import tempfile
+ts.HELD_LOG = os.path.join(tempfile.mkdtemp(), "held.jsonl")
+ts.log_to_audit = lambda *a, **k: None
+os.environ["FAKE_PRINCIPAL_PHONE"] = "+1 (555) 010-0100"
+g = {"mode": "dry_run", "principal_phone_env": "FAKE_PRINCIPAL_PHONE", "read_tools": ["list_pathways"],
+     "write_tools": ["update_agent"], "contact_targets": {"send_call": ["phone_number", "transfer_phone_number"]},
+     "contact_untargeted": ["send_sms_conversation_message"], "held_tools": {"delete": ["delete_agent"]}}
+ts.servers["fake"] = {"url": url, "headers": {"Authorization": "Bearer ${FAKE_MCP_KEY}"}, "guard": g}
+n = len(seen)
+mine = ts.call_mcp_server("fake", "tools/call", {"name": "send_call", "arguments": {"phone_number": "5550100100"}})
+check("a call to the principal's own number is cleared (dry run: logged, not sent)",
+      mine.get("dry_run") and mine.get("verdict") == "principal" and len(seen) == n)
+other = ts.call_mcp_server("fake", "tools/call", {"name": "send_call", "arguments": {"phone_number": "5550199999"}})
+check("a call to anyone else is HELD with an id", other.get("held") and other.get("id"))
+mixed = ts.call_mcp_server("fake", "tools/call", {"name": "send_call",
+                           "arguments": {"phone_number": "5550100100", "transfer_phone_number": "5550199999"}})
+check("a call to him that transfers to someone else is held", mixed.get("held"))
+nonum = ts.call_mcp_server("fake", "tools/call", {"name": "send_call", "arguments": {}})
+check("a contact tool with no readable number is held, never assumed his", nonum.get("held"))
+check("an untargeted contact tool is held",
+      ts.call_mcp_server("fake", "tools/call", {"name": "send_sms_conversation_message", "arguments": {}}).get("held"))
+check("a delete is held",
+      ts.call_mcp_server("fake", "tools/call", {"name": "delete_agent", "arguments": {}}).get("held"))
+check("an unclassified tool is held, not allowed",
+      ts.call_mcp_server("fake", "tools/call", {"name": "brand_new_tool", "arguments": {}}).get("held"))
+w = ts.call_mcp_server("fake", "tools/call", {"name": "update_agent", "arguments": {}})
+check("an allowed write is cleared, and in dry run is not sent", w.get("dry_run") and w.get("verdict") == "write" and len(seen) == n)
+r = ts.call_mcp_server("fake", "tools/call", {"name": "list_pathways", "arguments": {}})
+check("a read reaches the server even in dry run", "result" in r and len(seen) > n)
+os.environ.pop("FAKE_PRINCIPAL_PHONE")
+check("with his number unset, a call 'to him' is held rather than guessed",
+      ts.call_mcp_server("fake", "tools/call", {"name": "send_call", "arguments": {"phone_number": "5550100100"}}).get("held"))
+with ts.app.test_client() as c:
+    held = c.post("/execute", json={"task": "list_held", "args": [], "sender": "t"}).get_json()["result"]
+    check("list_held shows the open holds", other["id"] in [h["id"] for h in held])
+    ap = c.post("/execute", json={"task": "resolve_held", "args": [other["id"], "approve"], "sender": "principal"}).get_json()
+    check("approving a hold in dry run still sends nothing", ap["result"]["outcome"].get("dry_run") and len(seen) == n + 3)
+    again = c.post("/execute", json={"task": "resolve_held", "args": [other["id"], "approve"], "sender": "principal"}).get_json()
+    check("a hold resolves only once", "already resolved" in (again.get("error") or ""))
+    g["mode"] = "live"; os.environ["FAKE_PRINCIPAL_PHONE"] = "5550100100"
+    k = len(seen)
+    live = ts.call_mcp_server("fake", "tools/call", {"name": "send_call", "arguments": {"phone_number": "5550100100"}})
+    check("in live mode a call to him is actually sent", len(seen) > k and "result" in live)
+    k = len(seen)
+    h2 = ts.call_mcp_server("fake", "tools/call", {"name": "send_call", "arguments": {"phone_number": "5550199999"}})
+    check("in live mode a third-party call is still held, nothing sent", h2.get("held") and len(seen) == k)
 srv.shutdown()
 print("check_tool_remote: " + ("ALL OK" if not fails else f"{len(fails)} FAILED: {fails}"))
 sys.exit(1 if fails else 0)
