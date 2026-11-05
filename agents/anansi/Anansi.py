@@ -40,6 +40,8 @@ class Anansi(AgentBase):
             capabilities=["process_request", "narrate_contradiction", "voice_policy",
                           "remember_user_fact", "user_context", "check_cross_domain", "refresh_routing", "drift_alerts",
                           "routing_map",
+                          "approval_holds", "approval_key_status", "enroll_approval_key",
+                          "relay_release", "relay_deny",
                           # Declared because they dispatch. An undeclared verb
                           # works when called and is invisible to the registry,
                           # the dashboard and the router - which is the 82-capability
@@ -186,6 +188,18 @@ class Anansi(AgentBase):
         except Exception as exc:
             res["audit_error"] = str(exc)
         return res
+
+    def _relay_to_security(self, verb, args):
+        """Carry the approval page's request to the Security Agent unchanged. Anansi
+        cannot sign, so it cannot make a release; it adds only who relayed it."""
+        import requests
+        fwd = dict(args) if isinstance(args, dict) else {}
+        fwd["_relayed_by"] = "anansi"
+        try:
+            return requests.post("http://127.0.0.1:9010/execute", timeout=150,
+                                 json={"task": verb, "args": fwd, "sender": "anansi"}).json()
+        except Exception as e:
+            return {"error": f"the Security Agent could not be reached ({e}) - nothing was released"}
 
     def notify(self, args):
         """Deliver something a domain agent needs the principal to know.
@@ -1362,6 +1376,21 @@ class Anansi(AgentBase):
         # strength while the grower was asking what the numbers are, and the
         # Progress card returned a paragraph assembled from three session-log
         # entries. Neither carried a timestamp, so stale output looked current.
+        # COURIER ONLY for held actions (principal, 2026-11-05). The approval page on
+        # his phone signs a release with a key only the phone holds; Anansi carries
+        # those bytes to the Security Agent unchanged and decides nothing. It cannot
+        # sign, so it cannot make a release - and it adds only who relayed it.
+        if task == "approval_holds":
+            return self._relay_to_security("list_holds", args)
+        if task == "approval_key_status":
+            return self._relay_to_security("principal_key_status", args)
+        if task == "enroll_approval_key":
+            return self._relay_to_security("enroll_principal_key", args)
+        if task == "relay_release":
+            return self._relay_to_security("release_hold", args)
+        if task == "relay_deny":
+            return self._relay_to_security("deny_hold", args)
+
         if task == "receive_mail":
             return self.receive_mail(args if isinstance(args, dict) else {})
         if task == "inbound_mail":

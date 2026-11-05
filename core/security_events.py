@@ -58,6 +58,10 @@ EVENT_TYPES = (
     # exactly the negative example worth keeping.
     "claim_refused", "claim_accepted",
     "payment_classified",
+    # Held actions (2026-11-05). A hold is the place authority waits, so it is
+    # watched: who asked, who tried to release it, and on what proof.
+    "hold_created", "hold_release_refused", "hold_released", "hold_denied",
+    "principal_key_enrolled",
 )
 
 

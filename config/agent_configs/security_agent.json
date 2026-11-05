@@ -18,7 +18,12 @@
     "scan_codebase",
     "drift_scan",
     "start_drift_watch",
-    "drift_status"
+    "drift_status",
+    "principal_key_status",
+    "enroll_principal_key",
+    "list_holds",
+    "release_hold",
+    "deny_hold"
   ],
   "entry_point": "agents.security_agent.security_agent:main",
   "description": "Authorizes every inbound /execute against config/guards.json",

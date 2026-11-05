@@ -192,6 +192,8 @@ jobs:
         run: python tools/check_growth_data.py
       - name: Tool Service remote MCP - env-referenced headers, allowlist, fail closed (check_tool_remote)
         run: python tools/check_tool_remote.py
+      - name: Held actions release only on the principal's phone signature (check_hold_release)
+        run: python tools/check_hold_release.py
       - name: Only approved artifacts reach the media library (check_media_publish)
         run: python tools/check_media_publish.py
 

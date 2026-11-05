@@ -38,7 +38,12 @@
     "check_cross_domain",
     "refresh_routing",
     "routing_map",
-    "drift_alerts"
+    "drift_alerts",
+    "approval_holds",
+    "approval_key_status",
+    "enroll_approval_key",
+    "relay_release",
+    "relay_deny"
   ],
   "entry_point": "agents.anansi.Anansi:main",
   "description": "Unified Interface agent"

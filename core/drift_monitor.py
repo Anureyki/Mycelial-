@@ -53,7 +53,14 @@ THRESHOLDS = {
     # Allows whose provenance does not resolve.
     "weak_provenance_ratio": 0.30,
     "weak_provenance_floor": 3,
+    # Held actions: open holds that pile up, or wait too long, are a queue
+    # nobody is reading - and an unread queue is where a drain goes unnoticed.
+    "open_holds_max": 5,
+    "open_hold_max_age_hours": 48,
 }
+
+HOLD_TYPES = ("hold_created", "hold_release_refused", "hold_released", "hold_denied",
+              "principal_key_enrolled")
 
 MODEL_ACTORS = {"mycos_core", "mycelial_core", "student", "core_model"}
 
@@ -257,6 +264,14 @@ def scan(records=RECORDS, recent=60, actors=None, window_hours=6):
             "not_a_verdict": "Threshold breach only.",
         })
 
+    # 5. HELD ACTIONS - the place authority waits (principal, 2026-11-05)
+    #
+    # A hold is released only on the principal's phone signature, so EVERY refused
+    # release is an attempt by something that is not him - or a broken phone - and
+    # either is worth his attention. The checks read records AND quarantine,
+    # because a release (a positive with no ACL provenance) lands in quarantine.
+    alerts.extend(_hold_alerts(recs, quar, records, cutoff, metrics))
+
     return {"scanned_at": datetime.now(timezone.utc).isoformat(),
             "records": len(recs), "quarantined": len(quar),
             "alerts": alerts, "metrics": metrics,
@@ -264,3 +279,70 @@ def scan(records=RECORDS, recent=60, actors=None, window_hours=6):
             "note": ("The monitor detects. It does not adjudicate, and nothing "
                      "here revokes access - a monitor that acted on its own "
                      "findings would be an authority nobody granted.")}
+
+
+def _hold_alerts(recs, quar, records, cutoff, metrics):
+    try:
+        from tools.eval_harness import effective_origin, _reviews
+        rev = _reviews(records)
+        quar = [r for r in quar if effective_origin(r, rev) != "test"]
+    except Exception:
+        pass        # recs are already filtered; an unfiltered quarantine only adds rows
+    rows = [r for r in list(recs) + list(quar) if r.get("event_type") in HOLD_TYPES]
+    ex = lambda r: r.get("extra") or {}
+    out = []
+    refused = [r for r in rows if r["event_type"] == "hold_release_refused"
+               and (r.get("observed_at") or "") >= cutoff]
+    if refused:
+        out.append({
+            "kind": "unbound_release_attempt", "severity": "high",
+            "detail": {"count": len(refused),
+                       "attempted_by": sorted({str(ex(r).get("attempted_by")) for r in refused}),
+                       "holds": sorted({str(ex(r).get("hold_id")) for r in refused})[:8],
+                       "reasons": sorted({(r.get("reason") or "")[:120] for r in refused})[:4]},
+            "why": ("Something tried to release a held action without a valid signature from "
+                    "the principal's phone. Only he can release a hold, so each attempt is "
+                    "either a caller that is not him or a phone that is failing to sign."),
+            "not_a_verdict": "Threshold breach only. Every hold is still held.",
+        })
+    selfish = [r for r in rows if r["event_type"] in ("hold_release_refused", "hold_released")
+               and ex(r).get("attempted_by") not in (None, "", "unknown")
+               and ex(r).get("attempted_by") == ex(r).get("requested_by")]
+    if selfish:
+        out.append({
+            "kind": "self_release", "severity": "critical",
+            "detail": {"count": len(selfish),
+                       "agents": sorted({str(ex(r).get("attempted_by")) for r in selfish}),
+                       "holds": sorted({str(ex(r).get("hold_id")) for r in selfish})[:8]},
+            "why": ("The agent that asked for an action is the one trying to release its hold. "
+                    "That is the queue being drained by the thing it was built to hold back."),
+            "not_a_verdict": "Threshold breach only.",
+        })
+    created = {ex(r).get("hold_id"): r for r in rows if r["event_type"] == "hold_created"}
+    closed = {ex(r).get("hold_id") for r in rows if r["event_type"] in ("hold_released", "hold_denied")}
+    open_ = [r for h, r in created.items() if h and h not in closed]
+    age_cut = (datetime.now(timezone.utc)
+               - timedelta(hours=THRESHOLDS["open_hold_max_age_hours"])).isoformat()
+    stale = [r for r in open_ if (r.get("observed_at") or "") < age_cut]
+    metrics["_holds"] = {"open": len(open_), "stale": len(stale),
+                         "release_refusals_in_window": len(refused)}
+    if len(open_) >= THRESHOLDS["open_holds_max"] or stale:
+        out.append({
+            "kind": "hold_queue_unread", "severity": "medium",
+            "detail": {"open": len(open_), "older_than_hours": THRESHOLDS["open_hold_max_age_hours"],
+                       "stale": len(stale)},
+            "why": ("Held actions are piling up or waiting long. A queue nobody reads is where "
+                    "a drain would go unnoticed."),
+            "not_a_verdict": "Threshold breach only.",
+        })
+    enrol = [r for r in rows if r["event_type"] == "principal_key_enrolled"
+             and (r.get("observed_at") or "") >= cutoff]
+    if enrol:
+        out.append({
+            "kind": "principal_key_enrolled", "severity": "medium",
+            "detail": {"count": len(enrol), "reasons": [(r.get("reason") or "")[:120] for r in enrol][:3]},
+            "why": ("A key that can release held actions was enrolled. If the principal did not "
+                    "enrol it from his phone, it is not his."),
+            "not_a_verdict": "Notice only. Confirm the fingerprint against his phone.",
+        })
+    return out

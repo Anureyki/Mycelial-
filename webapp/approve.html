@@ -1,0 +1,171 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Held Actions</title>
+<style>
+/* Release held actions with a key that lives only in this phone's browser. */
+:root { --bg:#f6f4ef; --ink:#23201b; --muted:#6f685d; --card:#ffffff; --line:#ddd6c9;
+  --ok:#2f6b3a; --warn:#9a5b12; --bad:#a3352a; --btn:#23201b; --btn-ink:#f6f4ef; }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { --bg:#16140f; --ink:#ece6da; --muted:#a39b8c;
+  --card:#211e18; --line:#3a352c; --ok:#7fbf87; --warn:#e0a85a; --bad:#e58a7d; --btn:#ece6da; --btn-ink:#16140f; } }
+:root[data-theme="dark"] { --bg:#16140f; --ink:#ece6da; --muted:#a39b8c; --card:#211e18; --line:#3a352c;
+  --ok:#7fbf87; --warn:#e0a85a; --bad:#e58a7d; --btn:#ece6da; --btn-ink:#16140f; }
+body { margin:0; background:var(--bg); color:var(--ink); font:15px/1.5 system-ui, sans-serif; }
+main { max-width:640px; margin:0 auto; padding:20px 16px 40px; }
+h1 { font-size:1.35rem; margin:0 0 4px; }
+p { margin:4px 0; color:var(--muted); }
+.card { background:var(--card); border:1px solid var(--line); border-radius:10px; padding:14px; margin-top:14px; }
+.tool { font-weight:600; font-size:1.05rem; word-break:break-word; }
+.why { color:var(--warn); }
+pre { background:var(--bg); border:1px solid var(--line); border-radius:6px; padding:8px; overflow-x:auto;
+  font-size:12.5px; white-space:pre-wrap; word-break:break-word; margin:8px 0; }
+.row { display:flex; gap:10px; margin-top:10px; flex-wrap:wrap; }
+button { font:inherit; border-radius:8px; padding:10px 16px; border:1px solid var(--btn); cursor:pointer; }
+button.go { background:var(--btn); color:var(--btn-ink); }
+button.no { background:transparent; color:var(--ink); }
+button:disabled { opacity:.5; cursor:default; }
+.fp { font-family:ui-monospace, monospace; font-size:14px; letter-spacing:.5px; }
+.status { margin-top:8px; font-size:13.5px; }
+.status.ok { color:var(--ok); } .status.bad { color:var(--bad); }
+small { color:var(--muted); }
+</style>
+</head>
+<body>
+<main>
+  <h1>Held actions</h1>
+  <p>Each one waits for you. Approving signs a release with a key kept only in this phone's browser.
+     Nothing on the server can make that signature.</p>
+  <div id="key" class="card"></div>
+  <div id="list"></div>
+</main>
+
+<script>
+// The key is generated here as NON-EXTRACTABLE: the browser will sign with it but
+// will not hand the private half to any script, including this one. It is kept in
+// this site's IndexedDB on this phone. Clearing site data loses it, and the server
+// then has to be reset by hand before a new key can be enrolled (write-once).
+const DB = "mycelial-approval", STORE = "keys";
+const $ = id => document.getElementById(id);
+const b64 = buf => btoa(String.fromCharCode(...new Uint8Array(buf)));
+const hex = buf => [...new Uint8Array(buf)].map(x => x.toString(16).padStart(2, "0")).join("");
+
+function idb() {
+  return new Promise((ok, no) => { const r = indexedDB.open(DB, 1);
+    r.onupgradeneeded = () => r.result.createObjectStore(STORE);
+    r.onsuccess = () => ok(r.result); r.onerror = () => no(r.error); });
+}
+async function getKey() { const db = await idb();
+  return new Promise(ok => { const q = db.transaction(STORE).objectStore(STORE).get("principal");
+    q.onsuccess = () => ok(q.result || null); q.onerror = () => ok(null); }); }
+async function putKey(k) { const db = await idb();
+  return new Promise((ok, no) => { const t = db.transaction(STORE, "readwrite");
+    t.objectStore(STORE).put(k, "principal"); t.oncomplete = ok; t.onerror = () => no(t.error); }); }
+
+async function call(task, args) {
+  const r = await fetch("/execute", { method: "POST", headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ task, args: args || {}, sender: "approval_page" }) });
+  const d = await r.json();
+  return d && d.result !== undefined ? d.result : d;
+}
+
+// The same canonical form the server hashes: sorted keys, no spaces, raw unicode.
+function canon(v) {
+  if (Array.isArray(v)) return "[" + v.map(canon).join(",") + "]";
+  if (v && typeof v === "object") return "{" + Object.keys(v).sort().map(k => JSON.stringify(k) + ":" + canon(v[k])).join(",") + "}";
+  return JSON.stringify(v);
+}
+const sha256 = async s => hex(await crypto.subtle.digest("SHA-256", new TextEncoder().encode(s)));
+async function fingerprint(spkiBuf) {
+  const h = hex(await crypto.subtle.digest("SHA-256", spkiBuf)).slice(0, 24).toUpperCase();
+  return h.match(/.{4}/g).join(" ");
+}
+
+let mine = null;     // {privateKey, publicKey, fp}
+
+async function showKey() {
+  const box = $("key");
+  if (!window.isSecureContext || !crypto.subtle) {
+    box.innerHTML = "<b>This page needs a secure connection.</b><p>Open it through https on port 8443.</p>";
+    return;
+  }
+  const server = await call("approval_key_status");
+  const stored = await getKey();
+  if (stored) {
+    const fp = await fingerprint(await crypto.subtle.exportKey("spki", stored.publicKey));
+    mine = { ...stored, fp };
+    const match = server.enrolled && server.fingerprint === fp;
+    box.innerHTML = `<b>This phone's key</b><p class="fp">${fp}</p>` +
+      (match ? `<p class="status ok">Matches the key the server holds. Approvals from this phone will verify.</p>`
+             : server.enrolled ? `<p class="status bad">The server holds a DIFFERENT key (${server.fingerprint}). ` +
+                                  `Approvals from this phone will be refused. If you did not enrol that key, it is not yours.</p>`
+                               : `<p class="status bad">Not enrolled on the server yet.</p><div class="row"><button class="go" id="enrol">Enrol this phone</button></div>`);
+    if ($("enrol")) $("enrol").onclick = () => enrol(stored);
+    return;
+  }
+  box.innerHTML = server.enrolled
+    ? `<b>No key on this phone.</b><p>The server already holds a key (${server.fingerprint}). If that was this phone ` +
+      `before its data was cleared, the server key has to be reset at the machine before this phone can enrol again.</p>`
+    : `<b>Set up this phone</b><p>Creates a signing key that never leaves this browser, and enrols its public half. ` +
+      `You will get an email with its fingerprint.</p><div class="row"><button class="go" id="make">Create key and enrol</button></div>`;
+  if ($("make")) $("make").onclick = async () => {
+    const kp = await crypto.subtle.generateKey({ name: "ECDSA", namedCurve: "P-256" }, false, ["sign", "verify"]);
+    await putKey({ privateKey: kp.privateKey, publicKey: kp.publicKey });
+    await enrol(kp);
+  };
+}
+
+async function enrol(kp) {
+  const spki = await crypto.subtle.exportKey("spki", kp.publicKey);
+  const res = await call("enroll_approval_key", { public_key: b64(spki), label: "phone" });
+  if (!res.enrolled) alert("Enrolment refused: " + (res.error || JSON.stringify(res)));
+  await showKey(); await showHolds();
+}
+
+async function showHolds() {
+  const list = $("list"); list.innerHTML = "";
+  const res = await call("approval_holds");
+  if (res.error) { list.innerHTML = `<div class="card status bad">${res.error}</div>`; return; }
+  if (!res.holds.length) { list.innerHTML = `<div class="card"><p>Nothing is waiting.</p></div>`; return; }
+  for (const h of res.holds) {
+    const c = document.createElement("div"); c.className = "card";
+    c.innerHTML = `<div class="tool"></div><p class="why"></p><pre></pre>
+      <small></small><div class="row"><button class="go">Approve</button><button class="no">Deny</button></div>
+      <div class="status"></div>`;
+    c.querySelector(".tool").textContent = `${h.server} · ${h.tool}`;
+    c.querySelector(".why").textContent = h.why;
+    c.querySelector("pre").textContent = JSON.stringify(h.args, null, 2);
+    c.querySelector("small").textContent = `asked by ${h.requested_by} · ${h.at} · hold ${h.id}`;
+    const [go, no] = c.querySelectorAll("button"), st = c.querySelector(".status");
+    go.disabled = !mine;
+    go.onclick = async () => {
+      go.disabled = no.disabled = true;
+      // Sign what is SHOWN: the hash is recomputed here from the arguments on screen,
+      // and a server that reports a different hash gets no signature.
+      const digest = await sha256(canon(h.args));
+      if (digest !== h.args_sha256) { st.className = "status bad";
+        st.textContent = "Refused to sign: the server's hash of these arguments does not match what is shown."; return; }
+      const now = new Date(), exp = new Date(now.getTime() + 10 * 60 * 1000);
+      const payload = JSON.stringify({ kind: "hold_release", hold_id: h.id, server: h.server, tool: h.tool,
+        args_sha256: digest, issued_at: now.toISOString(), expires_at: exp.toISOString() });
+      const sig = await crypto.subtle.sign({ name: "ECDSA", hash: "SHA-256" }, mine.privateKey, new TextEncoder().encode(payload));
+      const r = await call("relay_release", { payload, signature: b64(sig) });
+      st.className = "status " + (r.released ? "ok" : "bad");
+      st.textContent = r.released ? ("Released. " + (r.outcome && r.outcome.dry_run ? "Dry run: logged, nothing sent." : "Ran."))
+                                  : ("Refused: " + (r.why || r.error));
+    };
+    no.onclick = async () => {
+      go.disabled = no.disabled = true;
+      const r = await call("relay_deny", { hold_id: h.id });
+      st.className = "status " + (r.denied ? "ok" : "bad");
+      st.textContent = r.denied ? "Denied. It will not run." : ("Could not deny: " + (r.why || r.error));
+    };
+    list.appendChild(c);
+  }
+}
+
+showKey().then(showHolds).catch(e => { $("key").innerHTML = `<p class="status bad">${e}</p>`; });
+</script>
+</body>
+</html>

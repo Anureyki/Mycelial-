@@ -195,6 +195,33 @@ def _held_records():
         return []
 
 
+def _check_release(rec, artifact):
+    """-> (ok, why). Two independent checks; both must pass."""
+    if not isinstance(artifact, dict):
+        return False, "no release was presented - a release is signed by Security and carries the principal's signature"
+    try:
+        import sys as _sys
+        if BASE not in _sys.path:
+            _sys.path.insert(0, BASE)
+        from core.sandbox.signing import verify
+        from core.principal_release import verify_release
+    except Exception as e:
+        return False, f"release checking is unavailable ({e}) - refused, not assumed"
+    ok, why = verify(artifact, expected_sender="security_agent")
+    if not ok:
+        return False, f"Security's envelope does not verify: {why}"
+    env = artifact["envelope"]
+    body = env.get("body") or {}
+    if env.get("recipient") != "tool_service" or env.get("kind") != "hold_release":
+        return False, "the envelope is not a hold release addressed to Tool Service"
+    if body.get("hold_id") != rec.get("id"):
+        return False, "the envelope is for a different hold"
+    ok, why, _ = verify_release(body.get("principal_payload"), body.get("principal_signature"), rec)
+    if not ok:
+        return False, f"the principal's signature does not hold up here: {why}"
+    return True, "ok"
+
+
 def guard_decision(server_id, guard, name, args):
     """-> (verdict, why). verdict: read | principal | write | held."""
     args = args or {}
@@ -220,13 +247,33 @@ def guard_decision(server_id, guard, name, args):
     return "held", "not classified in this server's guard - held until someone decides what it is"
 
 
-def guarded_call(server_id, config, name, args, approved=False):
+def _emit_hold(event_type, agent, rec, decision, reason, attempted_by=None):
+    """Emit, never record - the harness writes the record (core/security_events).
+    Observation must never change the decision, and must never fail mute."""
+    try:
+        import sys as _sys
+        if BASE not in _sys.path:
+            _sys.path.insert(0, BASE)
+        from core.security_events import emit
+        emit(event_type, agent=agent, resource=f"hold:{rec.get('server')}.{rec.get('tool')}",
+             action="release" if attempted_by else "hold", decision=decision, reason=reason,
+             extra={"hold_id": rec.get("id"), "requested_by": rec.get("requested_by"),
+                    "attempted_by": attempted_by})
+    except Exception as _e:
+        print(f"SECURITY EVENT NOT OBSERVED ({_e}) - the decision stood, the record did not", flush=True)
+
+
+def guarded_call(server_id, config, name, args, approved=False, requested_by=None):
     guard = config["guard"]
     verdict, why = guard_decision(server_id, guard, name, args)
     if verdict == "held" and not approved:
         hid = uuid.uuid4().hex[:10]
-        _held_append({"id": hid, "at": datetime.now().isoformat(timespec="seconds"), "server": server_id,
-                      "tool": name, "args": args, "why": why, "status": "held"})
+        from core.principal_release import args_digest
+        rec = {"id": hid, "at": datetime.now().isoformat(timespec="seconds"), "server": server_id,
+               "tool": name, "args": args or {}, "args_sha256": args_digest(args or {}), "why": why,
+               "requested_by": requested_by or "unknown", "status": "held"}
+        _held_append(rec)
+        _emit_hold("hold_created", rec["requested_by"], rec, "held", f"held, not run: {why}")
         log_to_audit("TOOL_HELD", f"{server_id}.{name} held: {why}", metadata={"id": hid})
         return {"held": True, "id": hid, "tool": name, "why": why,
                 "release": f"resolve_held {hid} approve - only on the principal's yes"}
@@ -237,7 +284,7 @@ def guarded_call(server_id, config, name, args, approved=False):
 
 
 # ---------- MCP server caller ----------
-def call_mcp_server(server_id, method, params=None, approved=False):
+def call_mcp_server(server_id, method, params=None, approved=False, requested_by=None):
     if server_id not in servers:
         return {"error": f"Unknown MCP server: {server_id}"}
     config = servers[server_id]
@@ -245,7 +292,8 @@ def call_mcp_server(server_id, method, params=None, approved=False):
     # called. A server that can act on the world - place a call, send a message -
     # starts with only its read-only tools listed.
     if method == "tools/call" and config.get("guard"):
-        stop = guarded_call(server_id, config, (params or {}).get("name"), (params or {}).get("arguments"), approved)
+        stop = guarded_call(server_id, config, (params or {}).get("name"), (params or {}).get("arguments"),
+                            approved, requested_by)
         if stop is not None:
             return stop
     elif method == "tools/call" and "allowed_tools" in config:
@@ -351,16 +399,23 @@ def execute():
             return jsonify({"error": f"hold {args[0]} was already resolved"})
         outcome = None
         if args[1] == "approve":
-            # Not bound to the principal yet (2026-11-05): `sender` is self-reported, and
-            # this process also holds the credential the hold protects - so an approval
-            # here proves only that something could reach Tool Service. Approve stays
-            # refused until a release is verified against something only he holds,
-            # outside this process. Deny needs no such proof: it can only reduce exposure.
-            return jsonify({"error": "approve is refused: a release is not yet bound to the principal - "
-                                     "any caller of Tool Service could otherwise drain the hold queue. "
-                                     "The hold stays open; deny is available."})
+            # A release must be (1) an envelope Security signed for Tool Service, for this
+            # hold, and (2) carry the principal's own signature over this hold's id, tool
+            # and exact arguments - checked HERE again, not taken from Security's word.
+            # sender is self-reported and proves nothing; it is recorded, never trusted.
+            ok, why = _check_release(rec, args[2] if len(args) > 2 else None)
+            if not ok:
+                _emit_hold("hold_release_refused", sender, rec, "denied",
+                           f"release refused: {why}", attempted_by=sender)
+                return jsonify({"error": f"approve refused: {why}. The hold stays open."})
+            _emit_hold("hold_released", sender, rec, "allowed",
+                       "released on the principal's signature, verified by Security and by Tool Service",
+                       attempted_by=sender)
             outcome = call_mcp_server(rec["server"], "tools/call", {"name": rec["tool"], "arguments": rec["args"]},
-                                      approved=True)
+                                      approved=True, requested_by=rec.get("requested_by"))
+        else:
+            _emit_hold("hold_denied", sender, rec, "denied", "denied - the held action will not run",
+                       attempted_by=sender)
         _held_append({"resolves": rec["id"], "at": datetime.now().isoformat(timespec="seconds"),
                       "decision": args[1], "by": sender, "outcome": outcome})
         log_to_audit("TOOL_HELD_RESOLVED", f"{rec['server']}.{rec['tool']} {args[1]} by {sender}",
@@ -384,7 +439,8 @@ def execute():
         server_id = args[0]
         tool_name = args[1]
         tool_args = json.loads(args[2]) if len(args) > 2 else {}
-        response = call_mcp_server(server_id, "tools/call", {"name": tool_name, "arguments": tool_args})
+        response = call_mcp_server(server_id, "tools/call", {"name": tool_name, "arguments": tool_args},
+                                   requested_by=sender)
 
         # Log the call
         log_to_audit("TOOL_CALL", f"Tool {tool_name} called on {server_id} by {sender}",

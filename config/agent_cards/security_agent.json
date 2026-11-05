@@ -18,7 +18,12 @@
     "scan_codebase",
     "drift_scan",
     "start_drift_watch",
-    "drift_status"
+    "drift_status",
+    "principal_key_status",
+    "enroll_principal_key",
+    "list_holds",
+    "release_hold",
+    "deny_hold"
   ],
   "endpoint": "/execute",
   "port": 9010,
@@ -50,7 +55,12 @@
     "scan_codebase": "records",
     "drift_scan": "computes",
     "start_drift_watch": "computes",
-    "drift_status": "computes"
+    "drift_status": "computes",
+    "principal_key_status": "computes",
+    "enroll_principal_key": "records",
+    "list_holds": "records",
+    "release_hold": "records",
+    "deny_hold": "records"
   },
   "effects_unprovable": [
     "scan_codebase"

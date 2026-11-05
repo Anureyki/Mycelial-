@@ -32,7 +32,9 @@ class SecurityAgent(AgentBase):
                           "check_guard", "reload_guards", "quarantine", "eliminate",
                           "list_pending_approvals",
                           "scan_codebase", "drift_scan",
-                          "start_drift_watch", "drift_status"],
+                          "start_drift_watch", "drift_status",
+                          "principal_key_status", "enroll_principal_key",
+                          "list_holds", "release_hold", "deny_hold"],
             role="security"
         )
         self.tokens = {}  # simple in-memory token store (persist later)
@@ -418,7 +420,113 @@ class SecurityAgent(AgentBase):
                            else "no drift detected")
         return out
 
+    # ---------- Held actions: release only on the principal's phone signature ----------
+    #
+    # Security owns this choke point (principal, 2026-11-05). A hold is released by
+    # a signature only his phone can make; Security verifies it, signs a release
+    # envelope addressed to Tool Service for THAT hold, and Tool Service checks the
+    # principal's signature again before it runs anything. Anansi only carries the
+    # signed bytes from the phone - it can neither make nor alter a release.
+    def _tool(self, task, args):
+        import requests
+        r = requests.post("http://127.0.0.1:8015/execute", json={"task": task, "args": args, "sender": "security_agent"}, timeout=120)
+        return r.json()
+
+    def _emit(self, event_type, reason, decision, extra=None, resource="principal_key"):
+        try:
+            from core.security_events import emit
+            emit(event_type, agent="security_agent", resource=resource, action="enroll",
+                 decision=decision, reason=reason, extra=extra)
+        except Exception as e:
+            self.log(f"SECURITY EVENT NOT OBSERVED ({e}) - the decision stood, the record did not")
+
+    def principal_key_status(self, args=None):
+        from core.principal_release import enrolled
+        k = enrolled()
+        if not k:
+            return {"enrolled": False, "why": "no key enrolled - no held action can be released"}
+        return {"enrolled": True, "fingerprint": k["fingerprint"], "label": k.get("label"),
+                "enrolled_at": k.get("enrolled_at"), "algorithm": k.get("algorithm")}
+
+    def enroll_principal_key(self, args):
+        from core.principal_release import enroll
+        a = args if isinstance(args, dict) else {}
+        out = enroll(a.get("public_key") or "", a.get("label") or "phone")
+        if not out.get("enrolled"):
+            return out
+        fp = out["fingerprint"]
+        self._emit("principal_key_enrolled", f"a release key was enrolled, fingerprint {fp}", "allowed",
+                   extra={"fingerprint": fp})
+        # Announced, so a key he did not enrol is a key he hears about.
+        told = None
+        try:
+            import requests
+            told = requests.post("http://127.0.0.1:8081/execute", timeout=60, json={
+                "task": "notify", "sender": "security_agent", "args": {
+                    "from_agent": "security_agent", "verbatim": True, "channels": ["email", "dashboard"],
+                    "subject": "A release key was enrolled",
+                    "body": (f"A key that can release held actions was enrolled at the Security Agent.\n\n"
+                             f"Fingerprint: {fp}\n\nYour phone's approval page shows the fingerprint of its own "
+                             f"key. If they match, this was you. If you did not just set up your phone, this "
+                             f"key is not yours - tell me and it will be removed.")}}).json()
+        except Exception as e:
+            told = {"error": str(e)[:200]}
+        out["announced"] = told
+        return out
+
+    def list_holds(self, args=None):
+        res = self._tool("list_held", [])
+        return {"holds": [{k: h.get(k) for k in ("id", "at", "server", "tool", "args", "args_sha256",
+                                                 "why", "requested_by")}
+                          for h in (res.get("result") or [])]} if "result" in res else {"error": res.get("error")}
+
+    def release_hold(self, args):
+        from core.principal_release import verify_release
+        from core.sandbox.signing import sign
+        a = args if isinstance(args, dict) else {}
+        payload, sig = a.get("payload"), a.get("signature")
+        try:
+            hid = json.loads(payload or "{}").get("hold_id")
+        except ValueError:
+            hid = None
+        hold = next((h for h in (self._tool("list_held", []).get("result") or []) if h.get("id") == hid), None)
+        if hold is None:
+            self._emit("hold_release_refused", f"release refused at Security: no open hold {hid!r}", "denied",
+                       extra={"hold_id": hid, "attempted_by": a.get("_relayed_by") or "unknown"},
+                       resource="hold")
+            return {"released": False, "why": f"no open hold {hid!r}"}
+        ok, why, _ = verify_release(payload, sig, hold)
+        if not ok:
+            self._emit("hold_release_refused", f"release refused at Security: {why}", "denied",
+                       extra={"hold_id": hid, "requested_by": hold.get("requested_by"),
+                              "attempted_by": a.get("_relayed_by") or "unknown"},
+                       resource=f"hold:{hold.get('server')}.{hold.get('tool')}")
+            return {"released": False, "why": why}
+        art = sign("security_agent", {"hold_id": hid, "args_sha256": hold.get("args_sha256"),
+                                      "principal_payload": payload, "principal_signature": sig},
+                   recipient="tool_service", kind="hold_release", ttl=300)
+        res = self._tool("resolve_held", [hid, "approve", art])
+        if res.get("error"):
+            return {"released": False, "why": res["error"]}
+        return {"released": True, "hold_id": hid, "outcome": (res.get("result") or {}).get("outcome")}
+
+    def deny_hold(self, args):
+        a = args if isinstance(args, dict) else {}
+        res = self._tool("resolve_held", [str(a.get("hold_id") or ""), "deny"])
+        return {"denied": True, "hold_id": a.get("hold_id")} if "result" in res else {"denied": False, "why": res.get("error")}
+
     def handle_task(self, task, args, sender):
+        if task == "principal_key_status":
+            return self.principal_key_status(args)
+        if task == "enroll_principal_key":
+            return self.enroll_principal_key(args)
+        if task == "list_holds":
+            return self.list_holds(args)
+        if task == "release_hold":
+            return self.release_hold(args)
+        if task == "deny_hold":
+            return self.deny_hold(args)
+
         if task == "start_drift_watch":
             return self.start_drift_watch(args if isinstance(args, dict) else {})
 

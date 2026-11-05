@@ -19,7 +19,11 @@ from http.server import BaseHTTPRequestHandler, HTTPServer
 
 os.environ["MYCELIAL_EVENT_ORIGIN"] = "test"
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+sys.path.insert(0, ROOT)
 sys.path.insert(0, os.path.join(ROOT, "services", "tool"))
+import tempfile as _tf  # noqa: E402
+import core.security_events as _se  # noqa: E402
+_se.SPOOL = os.path.join(_tf.mkdtemp(), "spool")   # hold events from this gate never reach the live spool
 import service as ts  # noqa: E402
 
 fails, seen = [], []
@@ -129,7 +133,7 @@ with ts.app.test_client() as c:
     k0 = len(seen)
     ap = c.post("/execute", json={"task": "resolve_held", "args": [other["id"], "approve"], "sender": "principal"}).get_json()
     check("approve is refused - a self-reported sender cannot drain the queue, nothing sent",
-          "approve is refused" in (ap.get("error") or "") and len(seen) == k0)
+          "approve refused" in (ap.get("error") or "") and len(seen) == k0)
     still = c.post("/execute", json={"task": "list_held", "args": [], "sender": "t"}).get_json()["result"]
     check("a refused approve leaves the hold open", other["id"] in [h["id"] for h in still])
     dn = c.post("/execute", json={"task": "resolve_held", "args": [other["id"], "deny"], "sender": "t"}).get_json()

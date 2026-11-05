@@ -55,9 +55,11 @@ RECORDS = os.path.join(ROOT, "datasets", "security_eval")
 CHAIN_HEAD = os.path.join(RECORDS, "_head.json")
 
 DENY_TYPES = {"acl_denied", "guard_denied", "channel_denied", "veto_fired",
-              "artifact_rejected", "route_refused"}
+              "artifact_rejected", "route_refused",
+              "hold_created", "hold_release_refused", "hold_denied"}
 ALLOW_TYPES = {"acl_allowed", "guard_allowed", "channel_allowed",
-               "veto_passed", "artifact_signed", "route_selected"}
+               "veto_passed", "artifact_signed", "route_selected",
+               "hold_released", "principal_key_enrolled"}
 MIN_REASON_CHARS = 12
 
 
@@ -217,6 +219,11 @@ def ingest(spool=SPOOL, records=RECORDS, quarantine=True):
                         "source_sha256": src,
                         "prev_hash": prev,
                     }
+                    # Carried when present, as fields - the drift monitor reads who
+                    # requested a hold and who tried to release it, and a fact
+                    # left in prose is a fact that becomes ambiguous.
+                    if ev.get("extra"):
+                        rec["extra"] = ev["extra"]
                     rec["record_hash"] = hashlib.sha256(
                         _canonical(rec)).hexdigest()
                     line_out = (json.dumps(rec, ensure_ascii=False,
