@@ -126,10 +126,16 @@ check("with his number unset, a call 'to him' is held rather than guessed",
 with ts.app.test_client() as c:
     held = c.post("/execute", json={"task": "list_held", "args": [], "sender": "t"}).get_json()["result"]
     check("list_held shows the open holds", other["id"] in [h["id"] for h in held])
+    k0 = len(seen)
     ap = c.post("/execute", json={"task": "resolve_held", "args": [other["id"], "approve"], "sender": "principal"}).get_json()
-    check("approving a hold in dry run still sends nothing", ap["result"]["outcome"].get("dry_run") and len(seen) == n + 3)
-    again = c.post("/execute", json={"task": "resolve_held", "args": [other["id"], "approve"], "sender": "principal"}).get_json()
-    check("a hold resolves only once", "already resolved" in (again.get("error") or ""))
+    check("approve is refused - a self-reported sender cannot drain the queue, nothing sent",
+          "approve is refused" in (ap.get("error") or "") and len(seen) == k0)
+    still = c.post("/execute", json={"task": "list_held", "args": [], "sender": "t"}).get_json()["result"]
+    check("a refused approve leaves the hold open", other["id"] in [h["id"] for h in still])
+    dn = c.post("/execute", json={"task": "resolve_held", "args": [other["id"], "deny"], "sender": "t"}).get_json()
+    again = c.post("/execute", json={"task": "resolve_held", "args": [other["id"], "deny"], "sender": "t"}).get_json()
+    check("deny works, and a hold resolves only once",
+          dn["result"]["decision"] == "deny" and "already resolved" in (again.get("error") or ""))
     g["mode"] = "live"; os.environ["FAKE_PRINCIPAL_PHONE"] = "5550100100"
     k = len(seen)
     live = ts.call_mcp_server("fake", "tools/call", {"name": "send_call", "arguments": {"phone_number": "5550100100"}})

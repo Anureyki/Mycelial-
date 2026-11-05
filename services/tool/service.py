@@ -351,6 +351,14 @@ def execute():
             return jsonify({"error": f"hold {args[0]} was already resolved"})
         outcome = None
         if args[1] == "approve":
+            # Not bound to the principal yet (2026-11-05): `sender` is self-reported, and
+            # this process also holds the credential the hold protects - so an approval
+            # here proves only that something could reach Tool Service. Approve stays
+            # refused until a release is verified against something only he holds,
+            # outside this process. Deny needs no such proof: it can only reduce exposure.
+            return jsonify({"error": "approve is refused: a release is not yet bound to the principal - "
+                                     "any caller of Tool Service could otherwise drain the hold queue. "
+                                     "The hold stays open; deny is available."})
             outcome = call_mcp_server(rec["server"], "tools/call", {"name": rec["tool"], "arguments": rec["args"]},
                                       approved=True)
         _held_append({"resolves": rec["id"], "at": datetime.now().isoformat(timespec="seconds"),
