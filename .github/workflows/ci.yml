@@ -188,6 +188,8 @@ jobs:
         run: python tools/check_organ_clock.py
       - name: Personal-data firewall - patterns from config, fails closed (check_personal_data)
         run: python tools/check_personal_data.py
+      - name: Grow per-day environment series (check_growth_data)
+        run: python tools/check_growth_data.py
       - name: Only approved artifacts reach the media library (check_media_publish)
         run: python tools/check_media_publish.py
 

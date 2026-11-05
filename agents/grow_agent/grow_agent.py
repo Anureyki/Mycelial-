@@ -918,7 +918,7 @@ class GrowAgent(AgentBase):
                 "log_training_event", "recommend_feed", "plan_system_transition",
                 "set_grow_system", "get_grow_system", "amend_grow_system",
                 "field_history", "assess_root_zone", "void_reservoir_eval",
-                "which_plant", "record_refill", "record_level", "change_out_review", "recipe_elements", "resolve_lesson_rule", "project_nutrients", "status_card", "journal", "light_periods",
+                "which_plant", "record_refill", "record_level", "change_out_review", "recipe_elements", "resolve_lesson_rule", "project_nutrients", "status_card", "journal", "light_periods", "backfill_environment_days",
                 "reconcile_ec_temperature", "intake_reading", "when_to_top_up", "project_topup", "plan_feed_for_target", "reconcile_dose", "ingest_environment_export", "predict_flowering", "calibrate_blend", "record_ripeness", "assess_ripeness", "maintenance_due", "notify_maintenance", "record_lesson", "list_lessons", "ppm_per_ml", "round_to_instrument", "assess_ph", "record_ph_adjustment", "reopen_dose", "record_dose_poured", "defer_full_change", "start_drink_down", "read_flower_photo", "simulate_water_alert", "quantities",
                 "get_nutrient_history",
                 "set_inventory", "get_inventory",
@@ -2871,6 +2871,132 @@ class GrowAgent(AgentBase):
         except Exception:
             return []
 
+    @staticmethod
+    def _export_rows(csv_path, since=None):
+        """Rows of a tent export, the way the ingest reads them (BOM-safe), cut at `since`."""
+        import csv as _csv
+        with open(csv_path, newline="", encoding="utf-8-sig") as fh:
+            rows = list(_csv.DictReader(fh))
+        if since:
+            _s = str(since)[:19].replace("T", " ")
+            rows = [r for r in rows if str(r.get("Timestamp") or r.get("timestamp") or "") >= _s]
+        return rows
+
+    def _daily_series(self, rows):
+        """-> (light, climate): per-day DERIVED series from a tent export's raw rows.
+
+        light:   hours lit, PPFD while lit, DLI (sum(ppfd x interval)/1e6) - as before.
+        climate: temperature and humidity min/mean/max, air VPD mean/min/max (from the
+                 export's VPD column, or computed from temperature and humidity with the
+                 same calculate_vpd the rest of Grow uses - leaf temperature is not measured).
+        A day the export covers only partly is flagged `partial`, so a half-day of samples
+        is never read as a whole day. Raw rows are not stored here; the file is."""
+        def col(r, *names):
+            for n in names:
+                if n in r:
+                    return r[n]
+            return None
+        pts = []
+        for r in rows:
+            ts = col(r, "Timestamp", "timestamp")
+            try:
+                t = datetime.fromisoformat(str(ts)[:19].replace(" ", "T")) if ts else None
+            except ValueError:
+                t = None
+            if t:
+                pts.append((t, self._parse_numeric(col(r, "ppfd")), self._parse_numeric(col(r, "temperature(°C)", "temperature_c")),
+                            self._parse_numeric(col(r, "humidity")), self._parse_numeric(col(r, "vpd"))))
+        if not pts:
+            return ({"by_day": None, "why": "no timestamped rows"}, {"by_day": None, "why": "no timestamped rows"})
+        pts.sort(key=lambda x: x[0])
+
+        def cadence(idx):
+            """Each series is judged by its own sensor's sampling interval - a light
+            channel and a climate channel can report at different rates."""
+            ts = [p[0] for p in pts if p[idx] is not None]
+            gaps = sorted((b - a).total_seconds() for a, b in zip(ts, ts[1:]) if (b - a).total_seconds() > 0)
+            st_ = gaps[len(gaps) // 2] if gaps else 1800.0
+            return st_, (int(round(86400 / st_)) if st_ else None)
+        step, per_day = cadence(1)          # light: PPFD rows, as the ingest always measured it
+        c_step, c_per_day = cadence(2)      # climate: temperature rows
+        days = {}
+        for p in pts:
+            days.setdefault(p[0].date().isoformat(), []).append(p)
+
+        def st(v):
+            v = [x for x in v if x is not None]
+            return {"min": round(min(v), 2), "mean": round(sum(v) / len(v), 2), "max": round(max(v), 2)} if v else None
+        light_days, climate_days = [], []
+        for d, ps in sorted(days.items()):
+            pf = [p[1] for p in ps if p[1] is not None]
+            tc = [p for p in ps if p[2] is not None]
+            if pf:
+                lit = [v for v in pf if v > 0]
+                light_days.append({"date": d, "samples": len(pf), "partial": bool(per_day and len(pf) < per_day * 0.9),
+                                   "hours_lit": round(len(lit) * step / 3600, 2),
+                                   "ppfd_avg_while_lit": round(sum(lit) / len(lit), 1) if lit else 0.0,
+                                   "dli_mol_m2": round(sum(pf) * step / 1e6, 2)})
+            vp = [p[4] if p[4] is not None else (round(calculate_vpd(p[2], p[3]), 3)
+                  if p[2] is not None and p[3] is not None else None) for p in ps]
+            if any(p[2] is not None for p in ps):
+                climate_days.append({"date": d, "samples": len(tc), "partial": bool(c_per_day and len(tc) < c_per_day * 0.9),
+                                     "temp_c": st([p[2] for p in ps]), "humidity_pct": st([p[3] for p in ps]),
+                                     "vpd_kpa": st(vp)})
+        light = ({"by_day": light_days, "sample_step_minutes": round(step / 60, 1),
+                  "basis": "lit = ppfd above zero; DLI = sum(ppfd x sample interval) / 1e6"}
+                 if light_days else {"by_day": None, "why": "no ppfd values in this export"})
+        climate = ({"by_day": climate_days, "sample_step_minutes": round(c_step / 60, 1),
+                    "basis": "per-day min/mean/max of the tent sensor; air VPD (leaf temperature not measured)"}
+                   if climate_days else {"by_day": None, "why": "no temperature values in this export"})
+        return light, climate
+
+    def backfill_environment_days(self, apply=False):
+        """Fill per-day light and climate on every stored environment event, from the
+        raw export that event already points to. DRY RUN unless apply=True. Only the
+        derived fields are added; raw files and existing summaries are not touched,
+        and an event whose file is gone is reported, never guessed."""
+        plants = ["current_plant"] + [p.get("plant_id") for p in (self._get_all_plants() or [])
+                                      if p.get("plant_id") and p.get("plant_id") != "current_plant"]
+        report = []
+        for pid in dict.fromkeys(plants):
+            # a COPY: a dry run reports what it would fill and leaves the events it read untouched
+            ev = json.loads(json.dumps(self._environment_events(pid)))
+            if not ev:
+                continue
+            row = {"plant_id": pid, "events": len(ev), "climate_filled": 0, "light_filled": 0,
+                   "already_complete": 0, "missing_source": [], "days": set()}
+            changed = False
+            for e in ev:
+                need_c = not ((e.get("climate") or {}).get("by_day"))
+                need_l = not ((e.get("light") or {}).get("by_day"))
+                if not (need_c or need_l):
+                    row["already_complete"] += 1
+                    for d in (e["climate"]["by_day"] or []):
+                        row["days"].add(d["date"])
+                    continue
+                src = e.get("source_file")
+                if not src or not os.path.isfile(src):
+                    row["missing_source"].append(src)
+                    continue
+                light, climate = self._daily_series(self._export_rows(src, e.get("since")))
+                if need_c and climate.get("by_day"):
+                    e["climate"] = climate
+                    row["climate_filled"] += 1
+                    changed = True
+                if need_l and light.get("by_day"):
+                    e["light"] = light
+                    row["light_filled"] += 1
+                    changed = True
+                for d in ((e.get("climate") or {}).get("by_day") or []):
+                    row["days"].add(d["date"])
+            if changed and apply:
+                self.store_own_memory(f"environment_events_{pid}", json.dumps(ev[-200:]))
+            days = sorted(row.pop("days"))
+            row["climate_days_covered"] = f"{days[0]} .. {days[-1]} ({len(days)} days)" if days else "none"
+            report.append(row)
+        return {"applied": bool(apply), "plants": report,
+                "basis": "re-derived from each event's retained raw export via _daily_series; derived fields only"}
+
     def ingest_environment_export(self, plant_id=None, csv_path=None, note="", since=None):
         """Summarize a bulk ambient-conditions export (temperature, humidity,
         VPD from a tent sensor like a Mars Hydro THP unit) and attach it to a
@@ -2981,36 +3107,9 @@ class GrowAgent(AgentBase):
         # read only temperature and humidity. Lit = ppfd above zero; hours lit and
         # the daily light integral come from the export's own sampling interval. An
         # export with no ppfd values says so instead of reporting zero light.
-        light_by_day = None
-        _pts = []
-        for r in rows:
-            ts_, pf_ = _col(r, "Timestamp", "timestamp"), self._parse_numeric(_col(r, "ppfd"))
-            if ts_ and pf_ is not None:
-                try:
-                    _pts.append((datetime.fromisoformat(str(ts_)[:19].replace(" ", "T")), pf_))
-                except ValueError:
-                    pass
-        if _pts:
-            _pts.sort()
-            gaps = sorted((b_[0] - a_[0]).total_seconds() for a_, b_ in zip(_pts, _pts[1:])
-                          if (b_[0] - a_[0]).total_seconds() > 0)
-            step = gaps[len(gaps) // 2] if gaps else 1800.0
-            per_day = int(round(86400 / step)) if step else None
-            days = {}
-            for t_, pf_ in _pts:
-                days.setdefault(t_.date().isoformat(), []).append(pf_)
-            light_by_day = []
-            for d_, vals in sorted(days.items()):
-                lit = [v for v in vals if v > 0]
-                light_by_day.append({
-                    "date": d_, "samples": len(vals),
-                    "partial": bool(per_day and len(vals) < per_day * 0.9),
-                    "hours_lit": round(len(lit) * step / 3600, 2),
-                    "ppfd_avg_while_lit": round(sum(lit) / len(lit), 1) if lit else 0.0,
-                    "dli_mol_m2": round(sum(vals) * step / 1e6, 2)})
-        light = ({"by_day": light_by_day, "sample_step_minutes": round(step / 60, 1),
-                  "basis": "lit = ppfd above zero; DLI = sum(ppfd x sample interval) / 1e6"}
-                 if light_by_day else {"by_day": None, "why": "no ppfd values in this export"})
+        # Per-day light AND climate, from one shared helper - the backfill of older
+        # exports uses the same one, so a live ingest and a re-derivation cannot differ.
+        light, climate = self._daily_series(rows)
         device = next((_col(r, "deviceSerialnum", "device") for r in rows
                       if _col(r, "deviceSerialnum", "device")), None)
 
@@ -3034,7 +3133,7 @@ class GrowAgent(AgentBase):
                  "time_start": timestamps[0] if timestamps else None,
                  "time_end": timestamps[-1] if timestamps else None,
                  "temp_c": temp_c, "humidity_pct": humidity, "vpd_kpa": vpd,
-                 "vpd_time_in_band": vpd_in_band, "last_24h": last24, "light": light,
+                 "vpd_time_in_band": vpd_in_band, "last_24h": last24, "light": light, "climate": climate,
                  "since": str(since) if since else None,
                  "source_file": stored_path or csv_path,
                  "source_copied": bool(stored_path), "note": str(note)[:300]}
@@ -17386,6 +17485,9 @@ class GrowAgent(AgentBase):
             return {"result": {"active": self.active_plants(),
                                "archived": self.archived_plants()}}
 
+        elif task == "backfill_environment_days":
+            a = args if isinstance(args, dict) else {}
+            return {"result": self.backfill_environment_days(apply=bool(a.get("apply")))}
         elif task == "light_periods":
             a = args if isinstance(args, dict) else {}
             return {"result": self.light_periods(a.get("plant_id", "current_plant"), a.get("periods"))}

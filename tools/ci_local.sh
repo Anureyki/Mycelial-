@@ -124,6 +124,7 @@ step "check_mycos_core (ATI off)"   "$PY" tools/check_mycos_core.py
 step "check_voice"                  "$PY" tools/check_voice.py
 step "check_organ_clock"            "$PY" tools/check_organ_clock.py
 step "check_personal_data"          "$PY" tools/check_personal_data.py
+step "check_growth_data"            "$PY" tools/check_growth_data.py
 step "check_media_publish"          "$PY" tools/check_media_publish.py
 step "check_dispute_letters"        "$PY" tools/check_dispute_letters.py
 step "check_fcra_furnisher"         "$PY" tools/check_fcra_furnisher.py
