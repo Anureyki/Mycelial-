@@ -196,8 +196,11 @@ class Anansi(AgentBase):
         fwd = dict(args) if isinstance(args, dict) else {}
         fwd["_relayed_by"] = "anansi"
         try:
-            return requests.post("http://127.0.0.1:9010/execute", timeout=150,
-                                 json={"task": verb, "args": fwd, "sender": "anansi"}).json()
+            out = requests.post("http://127.0.0.1:9010/execute", timeout=150,
+                                json={"task": verb, "args": fwd, "sender": "anansi"}).json()
+            # Security answers {"result": ...}; this agent's /execute wraps again, so
+            # unwrap here or the page reads the envelope as the answer.
+            return out["result"] if isinstance(out, dict) and "result" in out else out
         except Exception as e:
             return {"error": f"the Security Agent could not be reached ({e}) - nothing was released"}
 
