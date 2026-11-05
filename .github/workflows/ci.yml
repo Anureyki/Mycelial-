@@ -190,6 +190,8 @@ jobs:
         run: python tools/check_personal_data.py
       - name: Grow per-day environment series (check_growth_data)
         run: python tools/check_growth_data.py
+      - name: Tool Service remote MCP - env-referenced headers, allowlist, fail closed (check_tool_remote)
+        run: python tools/check_tool_remote.py
       - name: Only approved artifacts reach the media library (check_media_publish)
         run: python tools/check_media_publish.py
 

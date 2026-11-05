@@ -1,0 +1,9 @@
+{
+  "bland": {
+    "transport": "http",
+    "url": "https://api.bland.ai/v1/mcp",
+    "headers": {"Authorization": "Bearer ${BLAND_API_KEY}"},
+    "allowed_tools": [],
+    "description": "Bland AI voice calls, for Anansi through Tool Service (principal, 2026-11-05). The key is read from .env at call time. allowed_tools starts EMPTY: listing tools is possible, calling none is - read-only tools are added once Bland's list has been seen. A tool that places a call stays off the list until the principal decides how calls are authorised; a call to anyone but the principal is a third-party send and is refused without his sign-off (CLAUDE.md)."
+  }
+}

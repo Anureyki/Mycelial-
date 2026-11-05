@@ -206,6 +206,14 @@
       "write": [],
       "execute": [],
       "why": "Jellyfin's loopback URL (http://127.0.0.1:8096). Not secret; listed so Anansi can see it."
+    },
+    "credential:BLAND_API_KEY": {
+      "kind": "credential",
+      "owner": "anansi",
+      "read": [],
+      "write": [],
+      "execute": [],
+      "why": "Bland voice calls reach the principal through Anansi, the only agent that talks to him; the key is used by Tool Service on Anansi's behalf. Nobody else is granted."
     }
   }
 }

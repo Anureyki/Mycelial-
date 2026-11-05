@@ -94,11 +94,87 @@ def reload_config():
 
 load_mcp_config()
 
+# ---------- Remote MCP (Streamable HTTP) ----------
+# Tool Service holds MCP usage for every agent (principal, 2026-11-05). Local
+# servers are launched over stdio; a server configured with a `url` is spoken to
+# over HTTP. Secrets never sit in the config: a header value may reference an
+# environment variable as ${NAME}, filled in at call time from .env - and an
+# unset variable REFUSES the call rather than sending an empty credential.
+import re as _re
+
+_ENV_REF = _re.compile(r"\$\{([A-Z0-9_]+)\}")
+
+
+def _expand_headers(headers):
+    out, missing = {}, []
+    for k, v in (headers or {}).items():
+        def sub(m):
+            val = os.environ.get(m.group(1))
+            if not val:
+                missing.append(m.group(1))
+                return ""
+            return val
+        out[k] = _ENV_REF.sub(sub, str(v))
+    return out, missing
+
+
+def _rpc_body(resp):
+    """A JSON-RPC response from a Streamable HTTP reply - plain JSON or an event stream."""
+    ctype = resp.headers.get("Content-Type", "")
+    if "text/event-stream" in ctype:
+        msg = None
+        for line in resp.text.splitlines():
+            if line.startswith("data:"):
+                try:
+                    msg = json.loads(line[5:].strip())
+                except ValueError:
+                    continue
+        return msg
+    return resp.json() if resp.text.strip() else None
+
+
+def call_remote_mcp(server_id, config, method, params=None):
+    url = config.get("url")
+    headers, missing = _expand_headers(config.get("headers"))
+    if missing:
+        return {"error": f"{server_id}: header references {', '.join(missing)}, which is not set in the "
+                         "environment - add it to .env; the call was refused rather than sent without it"}
+    base = {"Content-Type": "application/json", "Accept": "application/json, text/event-stream", **headers}
+    try:
+        init = requests.post(url, headers=base, timeout=30, json={
+            "jsonrpc": "2.0", "id": 0, "method": "initialize",
+            "params": {"protocolVersion": "2025-03-26", "capabilities": {},
+                       "clientInfo": {"name": "mycelial-tool-service", "version": "1.1.0"}}})
+        if init.status_code >= 400:
+            return {"error": f"{server_id}: initialize returned HTTP {init.status_code}: {init.text[:400]}"}
+        sess = init.headers.get("Mcp-Session-Id")
+        h = dict(base, **({"Mcp-Session-Id": sess} if sess else {}))
+        requests.post(url, headers=h, timeout=30, json={"jsonrpc": "2.0", "method": "notifications/initialized"})
+        r = requests.post(url, headers=h, timeout=60, json={"jsonrpc": "2.0", "id": 1, "method": method,
+                                                            "params": params or {}})
+        if r.status_code >= 400:
+            return {"error": f"{server_id}: {method} returned HTTP {r.status_code}: {r.text[:400]}"}
+        body = _rpc_body(r)
+        return body if body is not None else {"error": f"{server_id}: {method} returned no JSON-RPC message"}
+    except Exception as e:
+        return {"error": f"{server_id}: {type(e).__name__}: {e}"}
+
+
 # ---------- MCP server caller ----------
 def call_mcp_server(server_id, method, params=None):
     if server_id not in servers:
         return {"error": f"Unknown MCP server: {server_id}"}
     config = servers[server_id]
+    # A per-server tool allowlist: when present, only the tools named in it may be
+    # called. A server that can act on the world - place a call, send a message -
+    # starts with only its read-only tools listed.
+    if method == "tools/call" and "allowed_tools" in config:
+        name = (params or {}).get("name")
+        if name not in (config.get("allowed_tools") or []):
+            return {"error": f"{server_id}: tool {name!r} is not on this server's allowed_tools list - "
+                             "refused; add it to the server's config deliberately to allow it"}
+    if config.get("url"):
+        return call_remote_mcp(server_id, config, method, params)
     cmd = config.get("command")
     if not cmd:
         return {"error": f"No command for server: {server_id}"}
