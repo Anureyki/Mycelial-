@@ -258,6 +258,12 @@ def execute():
                     tools.append(tool)
         return jsonify({"result": tools})
 
+    elif task == "list_server_tools":
+        # One server's tools - list_tools starts every configured server to answer.
+        if not args:
+            return jsonify({"error": "Usage: list_server_tools <server_id>"})
+        return jsonify({"result": call_mcp_server(args[0], "tools/list")})
+
     elif task == "call_tool":
         if len(args) < 2:
             return jsonify({"error": "Usage: call_tool <server_id> <tool_name> [args_json]"})

@@ -85,6 +85,11 @@ os.environ["FAKE_MCP_KEY"] = "wrong"
 r = ts.call_mcp_server("fake", "tools/list")
 check("an HTTP error from the server comes back with its status and text",
       "HTTP 401" in (r.get("error") or "") and "unauthorized" in r["error"])
+os.environ["FAKE_MCP_KEY"] = "test-secret"
+with ts.app.test_client() as c:
+    rr = c.post("/execute", json={"task": "list_server_tools", "args": ["fake"], "sender": "anansi"}).get_json()
+check("list_server_tools lists one server's tools over the remote transport",
+      [t["name"] for t in rr["result"]["result"]["tools"]] == ["list_pathways", "send_call"])
 srv.shutdown()
 print("check_tool_remote: " + ("ALL OK" if not fails else f"{len(fails)} FAILED: {fails}"))
 sys.exit(1 if fails else 0)
