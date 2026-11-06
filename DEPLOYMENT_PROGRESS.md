@@ -1808,3 +1808,29 @@ retrain. Bursty and infrequent favors renting; frequent, ongoing training
 favors owning. Common sequence discussed: rent now to unblock the current 125M
 work cheaply, decide on a local box once real retraining frequency is known
 rather than guessed at up front.
+
+## Deferred - Grow's root-zone assessment over-weights colour (2026-11-06)
+
+**Not now, by the principal's call** ("not something that needs to be done
+immediately... we don't have a lot of information about the root zone right
+now"). Recorded so it is not rediscovered.
+
+What happened at GSC1's 2026-11-06 change-out: smell neutral, not slimy, strip
+test negative (root snaps whole, outer layer does not strip), solution 18 C,
+air stone running all cycle - and `assess_root_zone` still returned
+`rot_indicated`, from the colour channel alone ("tan to light orange-brown",
+read from a photo). Three assessments are stored (09:30, 09:40, 09:45).
+
+Two defects in `_root_channel` / the verdict:
+1. **Any single failing channel decides the verdict.** One colour read
+   outweighs four clean checks and a good temperature. The code's own comment
+   says GH Flora stains roots tan-brown and "the other channels decide" - but
+   that path only fires when the word "stained" is supplied. Grade the verdict
+   by how many channels fail and which ones (slime/smell/strip outrank colour).
+2. **Brittleness is unreadable.** "Breaks apart easily", "snaps" - real damage
+   signs - match no texture vocabulary and are recorded uninterpreted. A strip
+   test (cortex sloughing to a thin core vs. snapping whole) is a channel of
+   its own and has no field.
+
+Brittle-but-not-rotting roots (GSC1, cause undetermined) are the case the
+fix must say something honest about: damaged, not rot, cause unknown.
