@@ -906,7 +906,7 @@ class GrowAgent(AgentBase):
                 # the interface layer doing this agent's job and re-editing
                 # itself every time a plant gains a field.
                 "roster",
-                "log_reading", "check_stage", "observe_stage_markers", "volume_history", "correct_volume_event", "withdraw_dose_plan", "record_full_change", "record_gaps", "project_water", "ingest_tent_export", "environment_adjustment", "girdling_advice", "record_girdle", "girdle_outcome", "reconcile_topup", "prediction_check", "record_species", "record_genetics", "record_plant", "compare_plants", "adopt_species_layer", "record_light_flip", "plan_harvest", "log_dry_start", "log_stem_check", "log_cure_start", "log_cure_burp", "log_sift", "harvest_record", "amend_species",
+                "log_reading", "check_stage", "observe_stage_markers", "volume_history", "correct_volume_event", "void_volume_event", "withdraw_dose_plan", "record_full_change", "record_gaps", "project_water", "ingest_tent_export", "environment_adjustment", "girdling_advice", "record_girdle", "girdle_outcome", "reconcile_topup", "prediction_check", "record_species", "record_genetics", "record_plant", "compare_plants", "adopt_species_layer", "record_light_flip", "plan_harvest", "log_dry_start", "log_stem_check", "log_cure_start", "log_cure_burp", "log_sift", "harvest_record", "amend_species",
                 "adjust_nutrients",
                 "transition_stage", "log_water_change", "get_status",
                 "set_germination_date", "set_current_nutrients",
@@ -2727,6 +2727,15 @@ class GrowAgent(AgentBase):
     _REFILL_ADDED = re.compile(
         r"\badded\s*(\d{1,3}(?:\.\d+)?)\s*(?:l\b|liters?|litres?)", re.I)
 
+    # A QUESTION OR A PLAN IS NOT A REFILL (2026-11-05). "Should he add nutrients
+    # when he fills to 20 L?" was recorded as a refill to 17 L, and "Will fill to
+    # 20l" would have recorded 20 L before a drop was poured. Plan time is not pour
+    # time: only a report of water that went in becomes an event.
+    _REFILL_NOT_DONE = re.compile(
+        r"\?|^\s*(?:should|would|could|can|do|does|did|is|are|what|how|when|why|which|shall)\b|"
+        r"\b(?:will|i'll|ill|going\s+to|gonna|plan(?:s|ning)?\s+to|about\s+to|need\s+to|want\s+to|wanna)"
+        r"(?:\s+\w+){0,2}\s+(?:refill|fill|top)", re.I)
+
     def _volume_events(self, plant_id):
         raw = self._unwrap_value(self.retrieve_own_memory(f"volume_events_{plant_id}"))
         try:
@@ -3257,6 +3266,13 @@ class GrowAgent(AgentBase):
                             f"({rec.get('vessel') or pid}). Either the volume is wrong or "
                             f"this is the wrong vessel. Nothing was recorded.")}
         delta = None if before is None else round(to_v - before, 2)
+        if delta is not None and abs(delta) < 0.05:
+            # NO WATER WENT IN. A refill from 17 L to 17 L is not an event; recording
+            # one is how a question became a phantom refill on 2026-11-05.
+            return {"recorded": False, "reason": "no change",
+                    "why": (f"The level on record is already {before:g} L ({start_basis}), so "
+                            f"filling to {to_v:g} L added nothing. If water did go in, give the "
+                            f"level it started at.")}
         now = str(at)[:26] if at else datetime.now().isoformat()
         ev = self._volume_events(pid)
         ev.append({"at": now, "kind": "refill", "from_liters": before, "liters": to_v,
@@ -3403,6 +3419,10 @@ class GrowAgent(AgentBase):
         text = prompt or ""
         if not self._REFILL_ASK.search(text):
             return {"recorded": False, "reason": "not a refill"}
+        if self._REFILL_NOT_DONE.search(text):
+            return {"recorded": False, "reason": "not a report",
+                    "why": ("This asks about a refill or plans one; it does not report water "
+                            "that went in. Nothing was recorded - say the level once it is poured.")}
         t = self._digits_for_spoken(text)
         pid = plant_id or self._plant_from_text(text)
         m = self._REFILL_TO.search(t)
@@ -15406,6 +15426,30 @@ class GrowAgent(AgentBase):
         return {"withdrawn": True, "plan": {k: hit.get(k) for k in ("at", "add_now_ml", "volume_liters",
                                                                      "ppm_predicted_at_final")}}
 
+    def void_volume_event(self, plant_id=None, at=None, reason=""):
+        """Withdraw a volume event that did not happen. MOVED, not flagged: twenty-odd
+        readers use the active list, and a flag some of them ignore would be a
+        false fix. The event goes to volume_events_voided_<plant> with the reason,
+        so the record of what was once believed is kept."""
+        if not (plant_id and at and reason):
+            return {"error": "Needs plant_id, at (the event timestamp) and reason."}
+        ev = self._volume_events(plant_id)
+        hits = [e for e in ev if str(e.get("at", "")).startswith(str(at))]
+        if len(hits) != 1:
+            return {"error": f"{len(hits)} volume events at {at} for {plant_id} - name exactly one."}
+        hit = hits[0]
+        ev = [e for e in ev if e is not hit]
+        raw = self._unwrap_value(self.retrieve_own_memory(f"volume_events_voided_{plant_id}"))
+        try:
+            voided = json.loads(raw) if raw else []
+        except Exception:
+            voided = []
+        voided.append({**hit, "voided_at": datetime.now().isoformat(timespec="seconds"),
+                       "void_reason": str(reason)[:300]})
+        self.store_own_memory(f"volume_events_voided_{plant_id}", json.dumps(voided[-200:]))
+        self.store_own_memory(f"volume_events_{plant_id}", json.dumps(ev[-200:]))
+        return {"voided": True, "event": hit, "kept_in": f"volume_events_voided_{plant_id}"}
+
     def correct_volume_event(self, plant_id=None, at=None, from_liters=None, reason="",
                              to_liters=None, water=None):
         """Correct a recorded volume event's levels, keeping what it said.
@@ -15969,6 +16013,8 @@ class GrowAgent(AgentBase):
             return {"result": self.record_full_change(**(args if isinstance(args, dict) else {}))}
         elif task == "withdraw_dose_plan":
             return {"result": self.withdraw_dose_plan(**(args if isinstance(args, dict) else {}))}
+        elif task == "void_volume_event":
+            return {"result": self.void_volume_event(**(args if isinstance(args, dict) else {}))}
         elif task == "correct_volume_event":
             return {"result": self.correct_volume_event(**(args if isinstance(args, dict) else {}))}
         elif task == "void_reading":

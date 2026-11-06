@@ -124,7 +124,8 @@
     "what_i_know",
     "when_to_top_up",
     "which_plant",
-    "ingest_environment_export"
+    "ingest_environment_export",
+    "void_volume_event"
   ],
   "entry_point": "agents.grow_agent.grow_agent:main",
   "description": "Tracks grow stages and suggests nutrient adjustments",

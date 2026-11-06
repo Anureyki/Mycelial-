@@ -176,6 +176,18 @@ def main():
        g3.record_refill(None, to_liters=15).get("reason") == "no plant named")
     ck("record_refill refuses with no volume",
        g3.record_refill("current_plant").get("reason") == "no volume given")
+    for q in ("Should he add nutrients when he fills to 20 L?",
+              "GSC-2 read 655 ppm at 17 L after a DI top-up. He plans to fill it to 20 L. What dose?",
+              "Will fill to 20l", "gonna top it up to 18 L", "I'll refill gsc2 to 20 L"):
+        ck(f"a question or plan is not a refill: {q[:40]!r}",
+           g3.refill_from_text(q, plant_id="gsc_auto_2").get("reason") in ("not a report", "not a refill"))
+    ck("a reported refill still passes the guard",
+       not g3._REFILL_NOT_DONE.search("Gsc2 refilled to 17l with di water")
+       and not g3._REFILL_NOT_DONE.search("Topped it back up to 15 L"))
+    ck("a refill that adds nothing is refused, not recorded",
+       "abs(delta) < 0.05" in src and '"reason": "no change"' in src)
+    ck("a wrong volume event can be voided, and is kept rather than deleted",
+       "volume_events_voided_" in src and "def void_volume_event" in src)
     ck("it never invents a ppm - the refusal path returns no reading fields",
        "not_a_reading" in src)
 
