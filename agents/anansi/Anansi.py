@@ -1814,6 +1814,17 @@ class Anansi(AgentBase):
             chosen = domains[0]
             self.log(f"routing DIRECT to {chosen} (no Boss hop)")
             ans = self._ask_domain(chosen, prompt, metadata)
+            if ans is None or ans == "" or ans == {} or ans == []:
+                # AN EMPTY ANSWER IS A DECLINE, AND IT IS SAID (2026-11-06). A request no
+                # department owns can still be routed - the intent model must pick from
+                # the roster - and the wrong department answered with nothing, which was
+                # relayed as nothing. The person heard silence and could not tell a gap
+                # from an outage.
+                self._provenance(prompt, domains, chosen, metadata, "empty_answer")
+                return {"result": (f"I asked {chosen.replace('_agent', '')} and it had nothing to say - "
+                                   f"it most likely does not own this. No department here answered it, "
+                                   f"which is a gap in what the system can do, not an answer."),
+                        "routed_to": chosen, "answered": False, "domains_considered": domains}
             self._provenance(prompt, domains, chosen, metadata, "answered")
             return {"result": ans, "routed_to": chosen, "domains_considered": domains}
 

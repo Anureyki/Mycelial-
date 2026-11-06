@@ -203,6 +203,33 @@ def main():
     else:
         print(f"    [PASS] {sum(len(v) for v in roles.values())} role(s) all reachable")
 
+    # A WRONG ROUTE MUST NOT END IN SILENCE (2026-11-06): a workout-plan request was
+    # routed to Legal by the intent model, Legal returned nothing, and Anansi relayed
+    # None. An empty department answer is a decline, and Anansi says so.
+    print("\n  an empty department answer is stated, not relayed as silence:")
+    try:
+        from agents.anansi.Anansi import Anansi
+        a = object.__new__(Anansi)
+        a.log = lambda *x, **k: None
+        a._provenance = lambda *x, **k: None
+        a._policy_check = lambda d, p: {"allowed": True}
+        a._router = type("R", (), {"domains_for": lambda self, p: ["legal_agent"]})()
+        ok = True
+        for empty in (None, "", {}):
+            a._ask_domain = lambda aid, p, m, _e=empty: _e
+            out = a.route_direct("a request nobody owns", {})
+            ok = ok and out.get("answered") is False and isinstance(out.get("result"), str) \
+                and "gap" in out["result"]
+        a._ask_domain = lambda aid, p, m: {"text": "a real answer"}
+        out = a.route_direct("a legal question", {})
+        ok = ok and out.get("result") == {"text": "a real answer"} and "answered" not in out
+        print(f"    [{'PASS' if ok else 'FAIL'}] None, '' and {{}} become a stated gap; a real answer passes through")
+        if not ok:
+            failures.append("an empty department answer is relayed as silence")
+    except Exception as e:
+        print(f"    [FAIL] could not exercise route_direct: {e}")
+        failures.append(f"route_direct empty-answer check could not run: {e}")
+
     print()
     if failures:
         print(f"  {len(failures)} FAILURE(S) - routing is wrong, the build is red")
