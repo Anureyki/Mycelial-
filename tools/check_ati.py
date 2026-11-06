@@ -345,9 +345,15 @@ check("each day's pillar advances one step of the sixty-day cycle",
 _nb = _syn["bazi_pillars"]["day"]["branch"]
 _pairs = {frozenset(p) for p in (("zi", "wu"), ("chou", "wei"), ("yin", "shen"), ("mao", "you"),
                                  ("chen", "xu"), ("si", "hai"))}
-check("a day-branch clash is listed on exactly the days whose branch clashes the natal day branch",
-      set(_C["summary"]["day_branch_clashes"]) == {d["date"] for d in _days
-          if any(frozenset((d["pillars"][k]["branch"], _nb)) in _pairs for k in ("year", "month", "day"))})
+check("a DAILY clash is listed on exactly the days whose own day branch clashes the natal day branch",
+      set(_C["summary"]["daily"]["day_branch_clashed"]) == {d["date"] for d in _days
+          if frozenset((d["pillars"]["day"]["branch"], _nb)) in _pairs})
+_yr_clash = [p for p in _C["summary"]["backdrop_periods"] if p["from"] == "year" and p["type"] == "clash"]
+check("a year- or month-pillar interaction is a period with a start and end, never a run of daily entries",
+      all(p["start"] <= p["end"] for p in _C["summary"]["backdrop_periods"])
+      and all(p["from"] in ("year", "month") for p in _C["summary"]["backdrop_periods"])
+      and len({(p["from"], p["type"], p["tag"], p["start"]) for p in _C["summary"]["backdrop_periods"]})
+          == len(_C["summary"]["backdrop_periods"]))
 _txt = _json.dumps(_C, ensure_ascii=False)
 def _keys(o):
     if isinstance(o, dict):

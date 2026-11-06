@@ -107,17 +107,41 @@ def timing_calendar(natal_record, start=None, days=91, tz="America/Chicago"):
                       "new_moon": lun["day"] == 1},
         })
 
-    def dates(kind):
-        return [x["date"] for x in out_days if any(t["type"] == kind for t in x["day_master"])]
+    # THREE TIME-SCALES, KEPT APART. A year pillar's clash holds for the whole year and a
+    # month pillar's for a month; listed day by day beside the day pillar's, they buried
+    # the daily rhythm (first run: "clash" on 89 of 91 days, all of it the year pillar).
+    def daily(kind):
+        return [x["date"] for x in out_days
+                if any(t["type"] == kind and t["from"] == "day" for t in x["day_master"])]
+
+    def periods():
+        runs, open_ = [], {}
+        for x in out_days:
+            here = {(t["from"], t["type"], t["tag"]) for t in x["day_master"] if t["from"] != "day"}
+            for key in list(open_):
+                if key not in here:
+                    runs.append(open_.pop(key))
+            for key in here:
+                if key in open_:
+                    open_[key]["end"] = x["date"]
+                else:
+                    open_[key] = {"from": key[0], "type": key[1], "tag": key[2],
+                                  "start": x["date"], "end": x["date"]}
+        runs.extend(open_.values())
+        return sorted(runs, key=lambda r: (r["start"], r["from"], r["type"]))
     slow = [g for g in ingresses if g["body"] != "moon"]
     return {
         "start": start.isoformat(), "days": days, "tz": str(zone),
         "natal_status": "present" if natal else "absent - no natal pillars on record, so no interactions",
         "houses_status": hstatus,
         "summary": {
-            "day_master_supported": dates("generation"),
-            "day_master_controlled": dates("control"),
-            "day_branch_clashes": dates("clash"),
+            "daily": {"day_master_supported": daily("generation"),
+                      "day_master_controlled": daily("control"),
+                      "day_branch_clashed": daily("clash"),
+                      "why": "from the DAY pillar only - the day-to-day rhythm"},
+            "backdrop_periods": periods(),
+            "backdrop_why": ("from the YEAR and MONTH pillars - each holds for its whole year or "
+                             "month, so it is a period, not a daily event"),
             "new_moons": [x["date"] for x in out_days if x["lunar"]["new_moon"]],
             "ingresses_excluding_moon": slow,
             "moon_ingress_count": len(ingresses) - len(slow),
