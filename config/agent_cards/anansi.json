@@ -43,7 +43,8 @@
     "training_quest_status",
     "advance_campaign",
     "review_candidate",
-    "voice"
+    "voice",
+    "timing_calendar"
   ],
   "endpoint": "/execute",
   "port": 8081,
@@ -100,7 +101,8 @@
     "approval_key_status": "records",
     "enroll_approval_key": "records",
     "relay_release": "records",
-    "relay_deny": "records"
+    "relay_deny": "records",
+    "timing_calendar": "computes"
   },
   "effects_unprovable": [],
   "effects_basis": "read from the code by core/effects.py (dispatch path, self-calls, inherited base methods; operational logging excluded); kept equal to the code by tools/check_effects.py",

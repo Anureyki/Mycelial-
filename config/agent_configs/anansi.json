@@ -43,7 +43,8 @@
     "approval_key_status",
     "enroll_approval_key",
     "relay_release",
-    "relay_deny"
+    "relay_deny",
+    "timing_calendar"
   ],
   "entry_point": "agents.anansi.Anansi:main",
   "description": "Unified Interface agent"

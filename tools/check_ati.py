@@ -326,5 +326,61 @@ for fn in os.listdir(os.path.join(ROOT, "ati")):
             loops.append(f"{fn}:{node.lineno} while True")
 check("on demand only: no threads, timers or loops in ati/" + (f" ({loops})" if loops else ""), not loops)
 
+# ---- timing calendar (2026-11-06): a SYNTHETIC birth, never the principal's ----
+from ati.calendar import timing_calendar as _tc
+from ati.bazi import pillars as _pl, STEMS as _ST, BRANCHES as _BR
+from ati.ephemeris import SIGNS as _SIGNS, available as _eph_ok
+_syn_p = _pl("1990-06-15T08:30", "Asia/Tokyo")
+_syn = {"birth_datetime_utc": "1990-06-14T23:30:00Z", "birth_location": {"lat": 35.7, "lon": 139.7},
+        "bazi_pillars": {k: {kk: _syn_p[k][kk] for kk in ("stem", "branch", "hanzi", "stem_element")}
+                         for k in ("year", "month", "day", "hour")}}
+_C = _tc(_syn, start="2026-11-07", days=91, tz="America/Chicago")
+_days = _C.get("calendar") or []
+check("the calendar covers 91 consecutive days", len(_days) == 91 and _days[0]["date"] == "2026-11-07"
+      and _days[-1]["date"] == "2027-02-05")
+check("each day's pillar advances one step of the sixty-day cycle",
+      all((_ST.index(b["pillars"]["day"]["stem"]) - _ST.index(a["pillars"]["day"]["stem"])) % 10 == 1
+          and (_BR.index(b["pillars"]["day"]["branch"]) - _BR.index(a["pillars"]["day"]["branch"])) % 12 == 1
+          for a, b in zip(_days, _days[1:])))
+_nb = _syn["bazi_pillars"]["day"]["branch"]
+_pairs = {frozenset(p) for p in (("zi", "wu"), ("chou", "wei"), ("yin", "shen"), ("mao", "you"),
+                                 ("chen", "xu"), ("si", "hai"))}
+check("a day-branch clash is listed on exactly the days whose branch clashes the natal day branch",
+      set(_C["summary"]["day_branch_clashes"]) == {d["date"] for d in _days
+          if any(frozenset((d["pillars"][k]["branch"], _nb)) in _pairs for k in ("year", "month", "day"))})
+_txt = _json.dumps(_C, ensure_ascii=False)
+def _keys(o):
+    if isinstance(o, dict):
+        for k, v in o.items():
+            yield k
+            yield from _keys(v)
+    elif isinstance(o, list):
+        for v in o:
+            yield from _keys(v)
+_FORBIDDEN = {"natal_pillars", "natal_ghosts", "ascendant", "longitude", "longitudes", "degrees",
+              "sign", "birth_datetime_utc", "birth_location", "bazi_pillars"}
+_leak = sorted(set(_keys(_C)) & _FORBIDDEN)
+check("no sign name, degree, ascendant, birth data or natal pillar leaves the calendar"
+      + (f" (leaked keys: {_leak})" if _leak else ""),
+      not _leak and not any(sg in _txt for sg in _SIGNS) and "°" not in _txt)
+_probe = dict(_C, natal_pillars={"day": "x"})
+check("and the leak check itself catches a natal block when one is present",
+      "natal_pillars" in set(_keys(_probe)) & _FORBIDDEN)
+check("aspects are declared not computed, and days are not rated",
+      any("aspect" in n for n in _C["not_computed"]) and any("good or bad" in n for n in _C["not_computed"]))
+check("a window over the limit is refused, not truncated", "error" in _tc(_syn, start="2026-11-07", days=400))
+check("with no natal pillars there are no interactions, and it says so",
+      _tc({}, start="2026-11-07", days=3)["natal_status"].startswith("absent"))
+if _eph_ok()[0]:
+    _hm = [d["houses"] for d in _days]
+    _ing = [(g["date"], g["body"], g["from_house"], g["to_house"]) for g in _C["ingresses"]]
+    _exp = [(_days[i]["date"], b, _hm[i - 1][b], _hm[i][b]) for i in range(1, len(_days))
+            for b in sorted(_hm[i]) if _hm[i - 1].get(b) not in (None, _hm[i][b])]
+    check("every ingress is a real change of natal house between consecutive days", _ing == _exp)
+    check("the moon changes house every two to three days (~30-45 in 91 days)",
+          30 <= _C["summary"]["moon_ingress_count"] <= 45)
+else:
+    print("  skip  ephemeris not present here - houses unlit, pillars checked above")
+
 print("check_ati: " + ("ALL OK" if not fails else f"{len(fails)} FAILED: {fails}"))
 sys.exit(1 if fails else 0)

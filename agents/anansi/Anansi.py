@@ -40,6 +40,7 @@ class Anansi(AgentBase):
             capabilities=["process_request", "narrate_contradiction", "voice_policy",
                           "remember_user_fact", "user_context", "check_cross_domain", "refresh_routing", "drift_alerts",
                           "routing_map",
+                          "timing_calendar",
                           "approval_holds", "approval_key_status", "enroll_approval_key",
                           "relay_release", "relay_deny",
                           # Declared because they dispatch. An undeclared verb
@@ -1025,6 +1026,18 @@ class Anansi(AgentBase):
         natal = HermesStore(self).get_natal(cfg.get("entity_id") or "principal")
         return lighting(datetime.now(zone), natal), None
 
+    def timing_calendar(self, args):
+        """ATI's day-by-day timing over a window, against the principal's natal record
+        (2026-11-06, option a). Calculation only - no advice, no rating of a day; what to
+        do with a day belongs to whatever owns that subject. Computed per request."""
+        from ati.calendar import timing_calendar
+        from ati.store import HermesStore
+        a = args if isinstance(args, dict) else {}
+        cfg = self._clock_cfg()
+        natal = HermesStore(self).get_natal(cfg.get("entity_id") or "principal")
+        return timing_calendar(natal, start=a.get("start"), days=a.get("days", 91),
+                               tz=a.get("tz") or cfg.get("timezone") or "America/Chicago")
+
     def lighting(self, args):
         """What the body interface may light for this moment (principal, 2026-11-03).
         Computed here on every request from the natal record ATI holds; the page
@@ -1410,6 +1423,8 @@ class Anansi(AgentBase):
             return self.organ_clock_status(args)
         if task == "lighting":
             return self.lighting(args)
+        if task == "timing_calendar":
+            return self.timing_calendar(args)
         if task == "sector_briefing":
             return self.sector_briefing(args)
         if task == "route_held_mail":
