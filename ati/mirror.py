@@ -126,8 +126,83 @@ def _phase(sun, moon):
     return next(n for lim, n in names if e < lim), round(e)
 
 
-def sky_read(natal_record, moment, location=None, facing=None, cfg=None):
-    """moment: timezone-aware local datetime. location / facing: a direction (N, NE ... NW)."""
+CHALDEAN = ("Saturn", "Jupiter", "Mars", "Sun", "Venus", "Mercury", "Moon")
+DAY_RULER = ("Moon", "Mars", "Mercury", "Jupiter", "Venus", "Saturn", "Sun")   # Monday .. Sunday
+
+
+def planetary_hours(day, lat, lon, tz):
+    """The twelve day and twelve night hours of a civil date at a place (Chaldean order;
+    the first day hour belongs to the weekday's ruler). Unequal hours: sunrise to sunset
+    split in twelve, sunset to the next sunrise split in twelve. -> None if the sun does
+    not both rise and set that day there."""
+    from datetime import timedelta
+    from skyfield import almanac
+    from skyfield.api import wgs84
+    from ati.ephemeris import _load
+    from zoneinfo import ZoneInfo
+    zone = ZoneInfo(str(tz))
+    ts, eph = _load()
+    f = almanac.sunrise_sunset(eph, wgs84.latlon(lat, lon))
+    start = datetime(day.year, day.month, day.day, tzinfo=zone)
+    times, ev = almanac.find_discrete(ts.from_datetime(start), ts.from_datetime(start + timedelta(days=2)), f)
+    ev_list = [(t.utc_datetime().astimezone(zone), bool(e)) for t, e in zip(times, ev)]
+    rise = next((t for t, up in ev_list if up and t.date() == day), None)
+    if rise is None:
+        return None
+    sset = next((t for t, up in ev_list if not up and t > rise), None)
+    nrise = next((t for t, up in ev_list if up and sset and t > sset), None)
+    if not (sset and nrise):
+        return None
+    first = CHALDEAN.index(DAY_RULER[day.weekday()])
+    hours, d_len, n_len = [], (sset - rise) / 12, (nrise - sset) / 12
+    for i in range(24):
+        a = rise + d_len * i if i < 12 else sset + n_len * (i - 12)
+        b = a + (d_len if i < 12 else n_len)
+        hours.append({"ruler": CHALDEAN[(first + i) % 7], "part": "day" if i < 12 else "night",
+                      "start": a.isoformat(timespec="minutes"), "end": b.isoformat(timespec="minutes")})
+    return {"day_ruler": DAY_RULER[day.weekday()], "sunrise": rise.isoformat(timespec="minutes"),
+            "sunset": sset.isoformat(timespec="minutes"), "hours": hours}
+
+
+def _hour_at(ph, moment):
+    for h in (ph or {}).get("hours") or []:
+        if datetime.fromisoformat(h["start"]) <= moment < datetime.fromisoformat(h["end"]):
+            return h
+    return None
+
+
+def event_chart(moment, lat, lon, natal_longitudes=None, until=None, cfg=None):
+    """The moment's own chart where it happened: rising sign, midheaven, the sky's
+    whole-sign houses from that rising sign, and the angles' aspects to the natal chart.
+    With `until`, the minutes the rising sign changed during the practice."""
+    from datetime import timedelta
+    from ati.ephemeris import angles, longitudes, whole_sign_house
+    cfg = cfg or _cfg()
+    utc = moment.astimezone(timezone.utc)
+    an = angles(utc, lat, lon)
+    asc, mc = float(an["ascendant"]), float(an["midheaven"])
+    sky = {k: float(v) for k, v in longitudes(utc).items()}
+    out = {"rising": _sign(asc)["sign"], "midheaven": _sign(mc)["sign"],
+           "houses": {k: whole_sign_house(v, asc) for k, v in sky.items()}}
+    if natal_longitudes:
+        out["angles_to_natal"] = _aspects({"rising": asc, "midheaven": mc}, natal_longitudes,
+                                          cfg["orbs"]["sky"], cfg, "angle", "natal")
+    if until and until > moment:
+        changes, t, prev = [], moment, out["rising"]
+        while t <= until:
+            t += timedelta(minutes=1)
+            sg = _sign(float(angles(t.astimezone(timezone.utc), lat, lon)["ascendant"]))["sign"]
+            if sg != prev:
+                changes.append({"at": t.isoformat(timespec="minutes"), "rising": sg})
+                prev = sg
+        out["rising_changes"] = changes
+    return out
+
+
+def sky_read(natal_record, moment, location=None, facing=None, cfg=None, place=None, until=None):
+    """moment: timezone-aware local datetime. location / facing: a direction (N, NE ... NW).
+    place: (lat, lon) of where it happened - adds the event chart and planetary hours.
+    until: when the practice ended - adds the rising-sign changes and the hours it spanned."""
     cfg = cfg or _cfg()
     from ati.ephemeris import available, longitudes, whole_sign_house
     from ati.lighting import lighting
@@ -166,7 +241,20 @@ def sky_read(natal_record, moment, location=None, facing=None, cfg=None):
     out["sky_to_sidereal_self"] = _aspects(sky, sid_self, cfg["orbs"]["sky"], cfg, "sky", "natal")
     m = mirror(natal_record, cfg)
     out["mirror_growth_point"] = m.get("growth_point")
-    out["standing"] = {"computed": "pillars, organ window, lunar day, phase, signs, houses, aspects",
+    if place:
+        lat, lon = place
+        out["event_chart"] = event_chart(moment, lat, lon, natal_bodies, until=until, cfg=cfg)
+        ph = planetary_hours(moment.date(), lat, lon, moment.tzinfo)
+        if ph:
+            out["planetary_hour"] = _hour_at(ph, moment)
+            out["day_ruler"], out["sunrise"], out["sunset"] = ph["day_ruler"], ph["sunrise"], ph["sunset"]
+            if until:
+                out["planetary_hours_spanned"] = [h for h in ph["hours"]
+                                                  if datetime.fromisoformat(h["end"]) > moment
+                                                  and datetime.fromisoformat(h["start"]) < until]
+    out["not_computed"] = ["the lunar nodes (North/South Node)"]
+    out["standing"] = {"computed": "pillars, organ window, lunar day, phase, signs, houses, aspects, "
+                                   "event chart and planetary hours when a place is given",
                        "framework": "sky against two selves - the principal's mirror",
                        "tradition": "meanings of hours, directions, Four Symbols, signs and aspects"}
     return out

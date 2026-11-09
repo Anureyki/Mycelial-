@@ -13,6 +13,9 @@
     "drift_alerts",
     "routing_map",
     "timing_calendar",
+    "mirror_read",
+    "sky_read",
+    "practice_journal",
     "approval_holds",
     "approval_key_status",
     "enroll_approval_key",
@@ -44,10 +47,7 @@
     "training_quest_status",
     "advance_campaign",
     "review_candidate",
-    "voice",
-    "mirror_read",
-    "sky_read",
-    "practice_journal"
+    "voice"
   ],
   "endpoint": "/execute",
   "port": 8081,
@@ -62,7 +62,7 @@
   "public_key": "",
   "owner": "anureyki",
   "created": "2026-07-21T17:59:55.506343",
-  "updated": "2026-11-06T14:29:10.363638",
+  "updated": "2026-11-09T11:44:08.872365",
   "effects": {
     "process_request": "computes",
     "narrate_contradiction": "computes",

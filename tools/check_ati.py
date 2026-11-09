@@ -417,6 +417,28 @@ if _eph_ok()[0]:
     _leak2 = sorted((set(_keys(_M1)) | set(_keys(_S))) & ((_FORBIDDEN - {"sign"}) | {"longitude_deg", "degrees_in_sign"}))
     check("no degree, ascendant longitude or birth data leaves the mirror or the sky read" + (f" ({_leak2})" if _leak2 else ""),
           not _leak2 and "°" not in _json.dumps(_M1, ensure_ascii=False) + _json.dumps(_S, ensure_ascii=False))
+if _eph_ok()[0]:
+    from ati.mirror import planetary_hours as _ph, event_chart as _ec, CHALDEAN as _CH
+    from ati.ephemeris import angles as _ang, sign_of as _so
+    from datetime import date as _date, timedelta as _td
+    _G = (51.4779, 0.0)                         # Greenwich - a public place, never the principal's
+    _P = _ph(_date(2026, 11, 9), _G[0], _G[1], "Europe/London")
+    check("planetary hours: 24 of them, a Monday opens on the Moon, Chaldean order throughout",
+          _P and len(_P["hours"]) == 24 and _P["hours"][0]["ruler"] == "Moon"
+          and all(_CH[(_CH.index(a_["ruler"]) + 1) % 7] == b_["ruler"] for a_, b_ in zip(_P["hours"], _P["hours"][1:]))
+          and all(a_["end"] == b_["start"] for a_, b_ in zip(_P["hours"], _P["hours"][1:])))
+    _m = _dt(2026, 11, 9, 10, 0, tzinfo=_ZI("Europe/London"))
+    _E = _ec(_m, _G[0], _G[1], until=_m + _td(hours=2))
+    check("the event chart's rising sign is the ascendant's sign at that place and moment",
+          _E["rising"] == _so(_ang(_m.astimezone(_tzu.utc), _G[0], _G[1])["ascendant"]))
+    check("rising-sign changes during a practice are in time order, each a new sign",
+          all(x["at"] < y["at"] and x["rising"] != y["rising"] for x, y in zip(_E["rising_changes"], _E["rising_changes"][1:]))
+          and all(c["rising"] != _E["rising"] for c in _E["rising_changes"][:1]))
+    _S2 = _sky(_syn, _m, place=_G, until=_m + _td(hours=2))
+    _h = _S2.get("planetary_hour") or {}
+    check("with a place, the sky read names the planetary hour that holds the moment",
+          _h and _h["start"] <= _m.isoformat(timespec="minutes") < _h["end"] and _S2.get("day_ruler") == "Moon")
+    check("the lunar nodes are declared not computed", "the lunar nodes (North/South Node)" in _S2["not_computed"])
 _st = _MS()
 _e = {"event_id": "practice_t1", "entity_id": "z", "timestamp_utc": "2026-11-09T16:00:00+00:00",
       "event_type": "practice", "source_agent": "test", "title": "t"}

@@ -1046,6 +1046,23 @@ class Anansi(AgentBase):
         m = datetime.fromisoformat(str(at))
         return m if m.tzinfo else m.replace(tzinfo=zone)
 
+    @staticmethod
+    def _place(a):
+        """Where it happened: explicit lat/lon, else the city-level ATI_LOCAL_* in .env."""
+        import os as _os
+        lat, lon = a.get("lat"), a.get("lon")
+        if lat is None or lon is None:
+            lat, lon = _os.getenv("ATI_LOCAL_LAT"), _os.getenv("ATI_LOCAL_LON")
+        try:
+            return (float(lat), float(lon)) if lat is not None and lon is not None else None
+        except ValueError:
+            return None
+
+    def _until(self, a, cfg):
+        if not a.get("until"):
+            return None
+        return self._moment({"at": a["until"], "tz": a.get("tz")}, cfg)
+
     def sky_read(self, args):
         """The sky at a moment against both selves, with pillars, organ window, lunar day and
         the Four Symbols for a location and a facing. Calculation, labelled as such."""
@@ -1056,7 +1073,8 @@ class Anansi(AgentBase):
             moment = self._moment(a, cfg)
         except Exception as e:
             return {"error": f"could not read the moment: {e}"}
-        return sky_read(st.get_natal(eid), moment, location=a.get("location"), facing=a.get("facing"))
+        return sky_read(st.get_natal(eid), moment, location=a.get("location"), facing=a.get("facing"),
+                        place=self._place(a), until=self._until(a, cfg))
 
     def practice_journal(self, args):
         """Record a practice (a bath, a ritual, a session) with the sky read for its moment
@@ -1080,10 +1098,13 @@ class Anansi(AgentBase):
                  "event_type": "practice", "source_agent": "anansi",
                  "recorded_at": datetime.now().isoformat(timespec="seconds"),
                  "title": str(a["title"])[:120], "started_local": moment.isoformat(timespec="minutes")}
-        for k in ("location", "facing", "materials", "steps", "principal_reading", "advice", "notes"):
+        for k in ("location", "facing", "materials", "steps", "principal_reading", "advice", "notes",
+                  "ended_local", "supplements", "outside_reading"):
             if a.get(k) is not None:
                 entry[k] = a[k]
-        entry["sky_read"] = sky_read(st.get_natal(eid), moment, location=a.get("location"), facing=a.get("facing"))
+        entry["sky_read"] = sky_read(st.get_natal(eid), moment, location=a.get("location"), facing=a.get("facing"),
+                                     place=self._place(a), until=self._until({"until": a.get("ended_local") or a.get("until"),
+                                                                               "tz": a.get("tz")}, cfg))
         return st.add_journal(entry)
 
     def timing_calendar(self, args):
