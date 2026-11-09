@@ -78,6 +78,23 @@ def _aspects(a, b, orbs, cfg, a_label, b_label):
     return sorted(out, key=lambda x: x["orb"])
 
 
+def _node_longitudes(dt_utc):
+    """The TRUE nodes as placements (the mean is reported beside them in node_detail)."""
+    from ati.nodes import nodes
+    n = nodes(dt_utc)
+    return {"north_node": n["north_true"], "south_node": n["south_true"]}
+
+
+def _node_detail(dt_utc):
+    from ati.nodes import nodes
+    n = nodes(dt_utc)
+    gap = abs((n["north_true"] - n["north_mean"] + 180) % 360 - 180)
+    return {"placement": "true node (Meeus ch.47, five periodic terms)",
+            "mean_north_sign": _sign(n["north_mean"])["sign"],
+            "true_north_sign": _sign(n["north_true"])["sign"],
+            "true_minus_mean_deg": round(gap, 2)}
+
+
 def _natal_longitudes(rec):
     from ati.ephemeris import longitudes, angles
     loc = rec.get("birth_location") if isinstance(rec.get("birth_location"), dict) else {}
@@ -87,6 +104,7 @@ def _natal_longitudes(rec):
     # Plain floats at the boundary: the ephemeris hands back numpy values, whose bools
     # do not serialise and would break any record this is stored in.
     lons = {k: float(v) for k, v in longitudes(birth).items()}
+    lons.update(_node_longitudes(birth))
     lons["ascendant"] = float(angles(birth, loc["lat"], loc["lon"])["ascendant"])
     return birth, lons
 
@@ -109,7 +127,7 @@ def mirror(natal_record, cfg=None):
                            "near_cusp": {"tropical": _near_cusp(trop[k], cfg), "sidereal": _near_cusp(sid[k], cfg)}})
     inter = _aspects(trop, sid, cfg["orbs"]["mirror"], cfg, "tropical", "sidereal")
     hard = [x for x in inter if x["aspect"] in ("square", "opposite")]
-    return {"status": "computed", "placements": placements,
+    return {"status": "computed", "placements": placements, "node_detail": _node_detail(birth),
             "anchors": [p["body"] for p in placements if p["same_sign"]],
             "interaspects": inter,
             "growth_point": dict(hard[0], rule=cfg["growth_point_rule"], basis=cfg["growth_point_basis"]) if hard else None,
@@ -212,6 +230,7 @@ def sky_read(natal_record, moment, location=None, facing=None, cfg=None, place=N
         return {"status": "unavailable", "why": f"ephemeris unavailable ({why})"}
     utc = moment.astimezone(timezone.utc)
     sky = {k: float(v) for k, v in longitudes(utc).items()}
+    sky.update(_node_longitudes(utc))
     birth, trop = _natal_longitudes(natal_record or {})
     L = lighting(moment, natal_record)
     lun = lunar_date(moment, local_date=True)
@@ -252,7 +271,7 @@ def sky_read(natal_record, moment, location=None, facing=None, cfg=None, place=N
                 out["planetary_hours_spanned"] = [h for h in ph["hours"]
                                                   if datetime.fromisoformat(h["end"]) > moment
                                                   and datetime.fromisoformat(h["start"]) < until]
-    out["not_computed"] = ["the lunar nodes (North/South Node)"]
+    out["not_computed"] = []
     out["standing"] = {"computed": "pillars, organ window, lunar day, phase, signs, houses, aspects, "
                                    "event chart and planetary hours when a place is given",
                        "framework": "sky against two selves - the principal's mirror",

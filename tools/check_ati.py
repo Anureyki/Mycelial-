@@ -399,8 +399,8 @@ if _eph_ok()[0]:
     _M1 = _mirror(_syn)
     _M2 = _mirror(_syn)
     check("the mirror is the same calculation every time", _json.dumps(_M1, sort_keys=True) == _json.dumps(_M2, sort_keys=True))
-    check("every placement is read in both zodiacs, ascendant included",
-          len(_M1["placements"]) == 11 and all("tropical" in p and "sidereal" in p for p in _M1["placements"]))
+    check("every placement is read in both zodiacs - ten bodies, both nodes, the ascendant",
+          len(_M1["placements"]) == 13 and all("tropical" in p and "sidereal" in p for p in _M1["placements"]))
     check("a same-sign anchor is exactly a placement whose two signs match",
           set(_M1["anchors"]) == {p["body"] for p in _M1["placements"] if p["tropical"]["sign"] == p["sidereal"]["sign"]})
     _hard = [x for x in _M1["interaspects"] if x["aspect"] in ("square", "opposite")]
@@ -438,7 +438,34 @@ if _eph_ok()[0]:
     _h = _S2.get("planetary_hour") or {}
     check("with a place, the sky read names the planetary hour that holds the moment",
           _h and _h["start"] <= _m.isoformat(timespec="minutes") < _h["end"] and _S2.get("day_ruler") == "Moon")
-    check("the lunar nodes are declared not computed", "the lunar nodes (North/South Node)" in _S2["not_computed"])
+    check("the lunar nodes are now placements in the mirror and the sky read",
+          {"north_node", "south_node"} <= {p["body"] for p in _M1["placements"]}
+          and {"north_node", "south_node"} <= set(_S2["sky"]) and "lunar nodes" not in " ".join(_S2["not_computed"]))
+from ati.nodes import nodes as _nodes, mean_node as _mn
+_J = _dt(2000, 1, 1, 12, tzinfo=_tzu.utc)
+check("the mean node is Meeus's 125.04 deg at J2000, and regresses ~19.34 deg a year",
+      abs(_mn(_J) - 125.0445) < 0.001
+      and abs(((_mn(_J) - _mn(_dt(2001, 1, 1, 12, tzinfo=_tzu.utc))) % 360) - 19.36) < 0.05)
+_nn = [_nodes(_J + __import__("datetime").timedelta(days=d)) for d in range(0, 3650, 37)]
+# The true node swings up to ~1.9 deg from the mean (measured against DE421 below); a
+# 1.75 bound, the figure often quoted, failed on the real sky - the bound was wrong.
+check("the true node stays within 2 deg of the mean, and the south node is always opposite",
+      all(abs((n["north_true"] - n["north_mean"] + 180) % 360 - 180) <= 2.0 for n in _nn)
+      and all(abs((n["south_true"] - n["north_true"]) % 360 - 180) < 1e-9 for n in _nn))
+if _eph_ok()[0]:
+    import numpy as _np, math as _math
+    from skyfield.framelib import ecliptic_frame as _ecl
+    import ati.ephemeris as _E
+    _ts, _eph = _E._load()
+
+    def _osc(dt):
+        rel = (_eph["moon"] - _eph["earth"]).at(_ts.from_datetime(dt))
+        r, v = rel.frame_xyz(_ecl).km, rel.frame_xyz_and_velocity(_ecl)[1].km_per_s
+        n = _np.cross([0, 0, 1], _np.cross(r, v))
+        return _math.degrees(_math.atan2(n[1], n[0])) % 360
+    _err = max(abs((_osc(_J + __import__("datetime").timedelta(days=d)) - _nodes(_J + __import__("datetime").timedelta(days=d))["north_true"] + 180) % 360 - 180)
+               for d in range(0, 3650, 61))
+    check(f"the true node matches the osculating node from DE421 within 0.3 deg (worst {_err:.2f})", _err <= 0.3)
 _st = _MS()
 _e = {"event_id": "practice_t1", "entity_id": "z", "timestamp_utc": "2026-11-09T16:00:00+00:00",
       "event_type": "practice", "source_agent": "test", "title": "t"}
