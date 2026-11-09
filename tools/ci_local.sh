@@ -127,6 +127,7 @@ step "check_personal_data"          "$PY" tools/check_personal_data.py
 step "check_growth_data"            "$PY" tools/check_growth_data.py
 step "check_tool_remote"            "$PY" tools/check_tool_remote.py
 step "check_hold_release"           "$PY" tools/check_hold_release.py
+step "check_water_rhythm"           "$PY" tools/check_water_rhythm.py
 step "check_media_publish"          "$PY" tools/check_media_publish.py
 step "check_dispute_letters"        "$PY" tools/check_dispute_letters.py
 step "check_fcra_furnisher"         "$PY" tools/check_fcra_furnisher.py

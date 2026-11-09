@@ -125,7 +125,8 @@
     "when_to_top_up",
     "which_plant",
     "ingest_environment_export",
-    "void_volume_event"
+    "void_volume_event",
+    "refill_rhythm"
   ],
   "entry_point": "agents.grow_agent.grow_agent:main",
   "description": "Tracks grow stages and suggests nutrient adjustments",

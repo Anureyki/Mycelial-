@@ -125,7 +125,8 @@
     "leaf_differential",
     "lookup",
     "list_training_events",
-    "void_training_event"
+    "void_training_event",
+    "refill_rhythm"
   ],
   "endpoint": "/execute",
   "port": 9009,
@@ -264,7 +265,8 @@
     "lookup": "computes",
     "list_training_events": "computes",
     "void_training_event": "records",
-    "void_volume_event": "records"
+    "void_volume_event": "records",
+    "refill_rhythm": "computes"
   },
   "effects_basis": "read from the code by core/effects.py (dispatch path, self-calls, inherited base methods; operational logging excluded); kept equal to the code by tools/check_effects.py",
   "effects_gated_by": {},

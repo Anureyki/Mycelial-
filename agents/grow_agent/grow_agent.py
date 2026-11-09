@@ -906,7 +906,7 @@ class GrowAgent(AgentBase):
                 # the interface layer doing this agent's job and re-editing
                 # itself every time a plant gains a field.
                 "roster",
-                "log_reading", "check_stage", "observe_stage_markers", "volume_history", "correct_volume_event", "void_volume_event", "withdraw_dose_plan", "record_full_change", "record_gaps", "project_water", "ingest_tent_export", "environment_adjustment", "girdling_advice", "record_girdle", "girdle_outcome", "reconcile_topup", "prediction_check", "record_species", "record_genetics", "record_plant", "compare_plants", "adopt_species_layer", "record_light_flip", "plan_harvest", "log_dry_start", "log_stem_check", "log_cure_start", "log_cure_burp", "log_sift", "harvest_record", "amend_species",
+                "log_reading", "check_stage", "observe_stage_markers", "volume_history", "correct_volume_event", "void_volume_event", "refill_rhythm", "withdraw_dose_plan", "record_full_change", "record_gaps", "project_water", "ingest_tent_export", "environment_adjustment", "girdling_advice", "record_girdle", "girdle_outcome", "reconcile_topup", "prediction_check", "record_species", "record_genetics", "record_plant", "compare_plants", "adopt_species_layer", "record_light_flip", "plan_harvest", "log_dry_start", "log_stem_check", "log_cure_start", "log_cure_burp", "log_sift", "harvest_record", "amend_species",
                 "adjust_nutrients",
                 "transition_stage", "log_water_change", "get_status",
                 "set_germination_date", "set_current_nutrients",
@@ -14602,6 +14602,52 @@ class GrowAgent(AgentBase):
                 "note": ("Each gap is a fact the record does not hold. A projection across one "
                          "would be an assumption presented as a measurement.")}
 
+    # A ROUTINE IS A PATTERN IN EVENTS THE RECORD ALREADY HOLDS (principal, 2026-11-09).
+    # He reported every top-up - eight on GSC2 since 10/22 - and the projection still
+    # drained the bucket on paper from a 36-hour-old level and emailed DANGER at 9.1 L,
+    # because nothing here looked across the refills. "How did Grow not know?" It held
+    # every fact; no verb reasoned with them. This is that verb.
+    RHYTHM_SESSION_HOURS = 8        # fills this close together are one session (8 -> 20 L)
+    RHYTHM_MIN_INTERVALS = 3
+
+    def refill_rhythm(self, plant_id="current_plant", window_days=45):
+        """-> how often this reservoir is topped up, and to what, learned from its own
+        refill and change-out events. Says 'not_learned' rather than guess from two."""
+        cutoff = (datetime.now() - timedelta(days=int(window_days))).isoformat()[:19]
+        fills = sorted((str(e.get("at"))[:19], self._parse_numeric(e.get("liters")))
+                       for e in self._volume_events(plant_id)
+                       if e.get("kind") in ("refill", "full_change") and str(e.get("at", ""))[:19] >= cutoff
+                       and self._parse_numeric(e.get("liters")))
+        sessions = []
+        for at, lv in fills:
+            t = datetime.fromisoformat(at)
+            if sessions and (t - sessions[-1]["end"]).total_seconds() <= self.RHYTHM_SESSION_HOURS * 3600:
+                sessions[-1]["end"], sessions[-1]["to"] = t, max(sessions[-1]["to"], lv)
+            else:
+                sessions.append({"start": t, "end": t, "to": lv})
+        gaps = [(b["end"] - a["end"]).total_seconds() / 86400 for a, b in zip(sessions, sessions[1:])]
+        stated = self._jload(f"grow_system_{plant_id}", {}).get("refill_routine")
+        out = {"plant_id": plant_id, "window_days": int(window_days), "sessions": len(sessions),
+               "intervals": len(gaps), "stated_routine": stated or None}
+        if sessions:
+            out["last_fill_at"] = sessions[-1]["end"].isoformat(timespec="minutes")
+            out["last_fill_to_liters"] = sessions[-1]["to"]
+        if len(gaps) < self.RHYTHM_MIN_INTERVALS:
+            out.update(status="not_learned",
+                       reason=f"{len(gaps)} interval(s) between fills on record; a rhythm needs "
+                              f"{self.RHYTHM_MIN_INTERVALS}")
+            return out
+        g = sorted(gaps)
+        tos = sorted(x["to"] for x in sessions)
+        med = g[len(g) // 2] if len(g) % 2 else (g[len(g) // 2 - 1] + g[len(g) // 2]) / 2
+        out.update(status="learned", median_days=round(med, 2),
+                   range_days=[round(g[0], 2), round(g[-1], 2)],
+                   usual_to_liters=tos[len(tos) // 2],
+                   next_expected_at=(sessions[-1]["end"] + timedelta(days=med)).isoformat(timespec="minutes"),
+                   basis="median gap between fill sessions; fills within "
+                         f"{self.RHYTHM_SESSION_HOURS} h of each other count as one session")
+        return out
+
     def project_water(self, plant_id="current_plant", low_water_liters=None):
         cfg = self._alerts_cfg()
         low = float(low_water_liters or cfg.get("low_water_liters") or 12)
@@ -14669,6 +14715,36 @@ class GrowAgent(AgentBase):
                                 f"{low:g} L in about {hrs:.0f} h."))
         if any(x["date_only"] for x in recent):
             out["precision"] = "one interval starts at a change-out timed only to the day"
+        # A PROJECTION GIVES A DATE, NEVER A LOW LEVEL (principal, 2026-11-09): "the water
+        # level never gets that low. So it can't send me a projection when the measured
+        # level is high. If you're going to send me a projection, give me a projected
+        # date that it's going to need refilling." A low-water or DANGER alert now needs
+        # a MEASURED level younger than stale_level_hours. Past that, the projection is
+        # the date the bucket is expected to reach the low mark - said as a date, with
+        # the routine beside it, and nothing about where it "is now".
+        age_h = max(0.0, (now - lt).total_seconds() / 3600)
+        stale_h = float(cfg.get("stale_level_hours") or 12)
+        out["level_age_hours"] = round(age_h, 1)
+        out["unconfirmed"] = age_h > stale_h
+        refill_by = lt + timedelta(days=max(0.0, (last["liters"] - low) / rate)) if rate > 0 else None
+        out["refill_by"] = refill_by.isoformat(timespec="minutes") if refill_by else None
+        try:
+            rh = self.refill_rhythm(plant_id)
+        except Exception as exc:
+            rh = {"status": "error", "reason": str(exc)[:120]}
+        out["rhythm"] = {k: rh.get(k) for k in ("status", "median_days", "usual_to_liters",
+                                                "last_fill_at", "next_expected_at", "reason")}
+        if out["unconfirmed"]:
+            routine = (f" Your usual: a top-up about every {rh['median_days']:g} days to about "
+                       f"{rh['usual_to_liters']:g} L." if rh.get("status") == "learned" else "")
+            when = refill_by.strftime("%a %b %-d, %H:%M") if refill_by else "unknown"
+            passed = bool(refill_by and refill_by <= now)
+            out.update(status="projected_refill", projected_status=out.get("status"),
+                       refill_by_passed=passed, hours_to_crossing=(
+                           None if not refill_by else round((refill_by - now).total_seconds() / 3600, 1)),
+                       message=(f"Top-up projected {'by' if not passed else 'from'} around {when} - from "
+                                f"{last['liters']:g} L measured at {out['last_known']['at']}, drawing "
+                                f"{rate:.2f} L/day.{routine} A projection, not a measurement."))
         return out
 
     NUTRIENT_WINDOW_DAYS = 14
@@ -15072,10 +15148,16 @@ class GrowAgent(AgentBase):
             return (f"{label}: drunk down - time for the full change-out",
                     f"{label}: {pr['message']} The drink-down is done: change the reservoir "
                     f"rather than topping it up.")
+        if pr["status"] == "projected_refill":
+            when = (datetime.fromisoformat(pr["refill_by"]).strftime("%a %b %-d, %H:%M")
+                    if pr.get("refill_by") else "unknown")
+            return (f"{label}: top-up projected around {when}", f"{label}: {pr['message']}")
+        if pr["status"] == "ok" and pr.get("refill_by"):
+            when = datetime.fromisoformat(pr["refill_by"]).strftime("%a %b %-d, %H:%M")
+            return (f"{label}: top-up projected around {when}", f"{label}: {pr['message']}")
         subject = (f"DANGER - {label}: reservoir at or below {pr['danger_liters']:g} L"
                    if pr["status"] == "danger" else
-                   f"{label}: reservoir will be at {pr['low_water_liters']:g} L "
-                   + ("now" if pr["status"] != "ok" else f"in about {pr['hours_to_crossing']:.0f} h"))
+                   f"{label}: reservoir at {pr['low_water_liters']:g} L - top up")
         return subject, f"{label}: {pr['message']}" + (
             f" {change_due} Top up only to hold until it is changed." if change_due else "")
 
@@ -15160,8 +15242,10 @@ class GrowAgent(AgentBase):
             self.log(f"_water_alert: projection failed for {plant_id}: {exc}")
             return None
         within = float(cfg.get("alert_within_hours") or 24)
+        # Measured lows fire; a projection fires only as an upcoming DATE, never once passed.
         fire = pr.get("status") in ("at_or_below_low_water", "danger") or (
-            pr.get("status") == "ok" and pr.get("hours_to_crossing", 1e9) <= within)
+            pr.get("status") in ("ok", "projected_refill") and not pr.get("refill_by_passed")
+            and (pr.get("hours_to_crossing") if pr.get("hours_to_crossing") is not None else 1e9) <= within)
         entry = {"at": datetime.now().isoformat(timespec="seconds"), "plant_id": plant_id,
                  "trigger": trigger, "mode": cfg["mode"], "fire": fire,
                  "status": pr.get("status"), "message": pr.get("message") or pr.get("reason")}
@@ -15185,6 +15269,8 @@ class GrowAgent(AgentBase):
                 if isinstance(res, dict) and res.get("sent_any"):
                     log[key] = entry["at"]
                     self.store_own_memory("water_alerts_sent", json.dumps(log))
+        if not fire and trigger in self.CLEARING_TRIGGERS:
+            entry["cleared"] = self._clear_water_alerts(plant_id, pr, trigger, cfg)
         try:
             os.makedirs(os.path.dirname(self.ALERT_LOG), mode=0o700, exist_ok=True)
             fd = os.open(self.ALERT_LOG, os.O_WRONLY | os.O_CREAT | os.O_APPEND, 0o600)
@@ -15193,6 +15279,40 @@ class GrowAgent(AgentBase):
         except Exception as exc:
             self.log(f"_water_alert: could not log: {exc}")
         return entry
+
+    # AN ALERT THAT STOPS BEING TRUE IS SAID TO HAVE STOPPED (2026-11-09). The 11/5 DANGER
+    # email was never withdrawn after the 17 L and 20 L fills were recorded, and an inbox
+    # assistant read it back the next morning as current. A reported level or refill that
+    # ends a recent alert now sends one "cleared" notice through the same channel.
+    CLEARING_TRIGGERS = ("record_refill", "record_level", "record_full_change", "intake_reading")
+    CLEAR_WINDOW_DAYS = 3
+
+    def _clear_water_alerts(self, plant_id, pr, trigger, cfg):
+        sent = self._jload("water_alerts_sent", {})
+        done = self._jload("water_alerts_cleared", {})
+        cutoff = (datetime.now() - timedelta(days=self.CLEAR_WINDOW_DAYS)).strftime("%Y-%m-%d")
+        open_ = sorted(k for k in sent if k.startswith(f"{plant_id}:") and k not in done
+                       and k.rsplit(":", 1)[-1] >= cutoff)
+        if not open_:
+            return None
+        lk = pr.get("last_known") or {}
+        label = self._jload(f"grow_system_{plant_id}", {}).get("instance_label") or plant_id
+        what = ", ".join(sorted({k.split(":")[1].replace("_", " ") for k in open_}))
+        out = {"keys": open_, "mode": cfg.get("mode")}
+        if cfg.get("mode") == "live":
+            r = self.send_a2a("anansi", "notify", {
+                "subject": f"{label}: water alert cleared",
+                "body": (f"{label}: now {lk.get('liters')} L ({lk.get('kind')}, {lk.get('at')}), from your "
+                         f"{trigger.replace('_', ' ')}. The earlier {what} alert no longer applies."),
+                "from_agent": "grow_agent", "register": "low_stakes", "channels": ["email", "dashboard"]})
+            r = r.get("result", r) if isinstance(r, dict) else r
+            out["delivery"] = r
+            if not (isinstance(r, dict) and r.get("sent_any")):
+                return out                      # not marked cleared unless it was actually sent
+        for k in open_:
+            done[k] = datetime.now().isoformat(timespec="seconds")
+        self.store_own_memory("water_alerts_cleared", json.dumps(done))
+        return out
 
     def _end_drink_down(self, plant_id):
         dd = self._jload(f"grow_system_{plant_id}", {}).get("drink_down") or {}
@@ -16013,6 +16133,9 @@ class GrowAgent(AgentBase):
             return {"result": self.record_full_change(**(args if isinstance(args, dict) else {}))}
         elif task == "withdraw_dose_plan":
             return {"result": self.withdraw_dose_plan(**(args if isinstance(args, dict) else {}))}
+        elif task == "refill_rhythm":
+            a = args if isinstance(args, dict) else {}
+            return {"result": self.refill_rhythm(a.get("plant_id", "current_plant"), a.get("window_days", 45))}
         elif task == "void_volume_event":
             return {"result": self.void_volume_event(**(args if isinstance(args, dict) else {}))}
         elif task == "correct_volume_event":
