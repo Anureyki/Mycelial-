@@ -124,6 +124,20 @@ class HermesStore:
         self._put(f"natal:{record['entity_id']}", record)
         return record
 
+    def journal_ids(self, entity_id):
+        idx = self._get(f"journal_index:{entity_id}") or {}
+        return list(idx.get("events") or []) if isinstance(idx, dict) else []
+
+    def add_journal(self, entry):
+        """A practice journal entry: an event snapshot, indexed so it can be listed.
+        Append-only - an entry is never rewritten; a correction is a new entry naming it."""
+        self.put_event(entry)
+        ids = self.journal_ids(entry["entity_id"])
+        if entry["event_id"] not in ids:
+            ids.append(entry["event_id"])
+            self._put(f"journal_index:{entry['entity_id']}", {"events": ids})
+        return entry
+
     def put_event(self, snapshot):
         missing = [k for k in EVENT_REQUIRED if not snapshot.get(k)]
         if missing:

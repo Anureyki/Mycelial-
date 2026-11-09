@@ -40,6 +40,7 @@ READ_TASKS = {"lookup", "retrieve_memory", "retrieve_many", "knowledge_search", 
 # Operational logging is execution history, kept apart from domain records by
 # design (CLAUDE.md, Ownership model) - a log line is not a change to the grow.
 NOT_AN_EFFECT = {"log", "_log", "log_event", "audit"}
+STORE_WRITES = {"put_event", "put_natal", "amend_natal", "add_journal"}
 WRITE_SELF = {"store_own_memory", "amend_grow_system", "record_provenance_event",
               "pin_memory", "delete_own_memory"}
 EXTERNAL_MODULES = {"smtplib"}
@@ -155,6 +156,11 @@ class _Direct(ast.NodeVisitor):
                     pass
                 else:
                     self._hit("records", f"send_a2a({peer}, {task})")
+        # ATI's store writes through an object the agent builds (HermesStore(self)), so the
+        # send_a2a inside it is invisible here. Its write methods are named instead
+        # (2026-11-09: practice_journal read as 'computes' while it recorded to Hermes).
+        if isinstance(f, ast.Attribute) and f.attr in STORE_WRITES:
+            self._hit("records", f"store.{f.attr}")
         if name in ("open",) and not on_self:
             mode = _const(n.args[1]) if len(n.args) > 1 else None
             for kw in n.keywords:

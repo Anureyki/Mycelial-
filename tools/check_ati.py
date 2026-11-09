@@ -388,5 +388,45 @@ if _eph_ok()[0]:
 else:
     print("  skip  ephemeris not present here - houses unlit, pillars checked above")
 
+# ---- mirror + sky read + practice journal (2026-11-09), synthetic birth only ----
+from ati.mirror import mirror as _mirror, sky_read as _sky, ayanamsa as _ay
+from ati.store import MemoryStore as _MS
+from datetime import timezone as _tzu
+check("the ayanamsa is about 23.85 deg at J2000 and grows ~50 arcsec a year",
+      abs(_ay(_dt(2000, 1, 1, 12, tzinfo=_tzu.utc)) - 23.853) < 0.01
+      and abs(_ay(_dt(2100, 1, 1, 12, tzinfo=_tzu.utc)) - _ay(_dt(2000, 1, 1, 12, tzinfo=_tzu.utc)) - 1.397) < 0.01)
+if _eph_ok()[0]:
+    _M1 = _mirror(_syn)
+    _M2 = _mirror(_syn)
+    check("the mirror is the same calculation every time", _json.dumps(_M1, sort_keys=True) == _json.dumps(_M2, sort_keys=True))
+    check("every placement is read in both zodiacs, ascendant included",
+          len(_M1["placements"]) == 11 and all("tropical" in p and "sidereal" in p for p in _M1["placements"]))
+    check("a same-sign anchor is exactly a placement whose two signs match",
+          set(_M1["anchors"]) == {p["body"] for p in _M1["placements"] if p["tropical"]["sign"] == p["sidereal"]["sign"]})
+    _hard = [x for x in _M1["interaspects"] if x["aspect"] in ("square", "opposite")]
+    check("the growth point is the tightest square or opposition across the mirror",
+          (_M1["growth_point"] is None and not _hard) or (_M1["growth_point"]["orb"] == min(x["orb"] for x in _hard)))
+    _S = _sky(_syn, _dt(2026, 11, 9, 10, 0, tzinfo=_ZI("America/Chicago")), location="SW", facing="NW")
+    check("the sky read carries pillars, organ window, lunar day and phase",
+          _S["organ_window"]["organ"] == "spleen" and _S["pillars"]["hour"].endswith("巳") and _S["moon_phase"] == "new")
+    check("SW is Kun earth (Bird, Tiger) and NW is Qian metal (Tiger, Tortoise)",
+          _S["location"]["element"] == "earth" and _S["facing"]["symbols"] == ["White Tiger", "Black Tortoise"])
+    check("the sky is read against BOTH selves", "sky_to_tropical_self" in _S and "sky_to_sidereal_self" in _S)
+    # Signs ARE the mirror's content (the calendar's no-sign rule does not apply here);
+    # degrees, the ascendant's longitude and birth data are not.
+    _leak2 = sorted((set(_keys(_M1)) | set(_keys(_S))) & ((_FORBIDDEN - {"sign"}) | {"longitude_deg", "degrees_in_sign"}))
+    check("no degree, ascendant longitude or birth data leaves the mirror or the sky read" + (f" ({_leak2})" if _leak2 else ""),
+          not _leak2 and "°" not in _json.dumps(_M1, ensure_ascii=False) + _json.dumps(_S, ensure_ascii=False))
+_st = _MS()
+_e = {"event_id": "practice_t1", "entity_id": "z", "timestamp_utc": "2026-11-09T16:00:00+00:00",
+      "event_type": "practice", "source_agent": "test", "title": "t"}
+_st.add_journal(_e); _st.add_journal(dict(_e))
+check("a journal entry is stored once and listed", _st.journal_ids("z") == ["practice_t1"] and _st.get_event("practice_t1")["title"] == "t")
+try:
+    _st.add_journal({"event_id": "x", "entity_id": "z"})
+    check("a journal entry missing required fields is refused", False)
+except Exception:
+    check("a journal entry missing required fields is refused", True)
+
 print("check_ati: " + ("ALL OK" if not fails else f"{len(fails)} FAILED: {fails}"))
 sys.exit(1 if fails else 0)

@@ -44,7 +44,10 @@
     "enroll_approval_key",
     "relay_release",
     "relay_deny",
-    "timing_calendar"
+    "timing_calendar",
+    "mirror_read",
+    "sky_read",
+    "practice_journal"
   ],
   "entry_point": "agents.anansi.Anansi:main",
   "description": "Unified Interface agent"

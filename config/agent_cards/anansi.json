@@ -44,7 +44,10 @@
     "training_quest_status",
     "advance_campaign",
     "review_candidate",
-    "voice"
+    "voice",
+    "mirror_read",
+    "sky_read",
+    "practice_journal"
   ],
   "endpoint": "/execute",
   "port": 8081,
@@ -102,7 +105,10 @@
     "enroll_approval_key": "records",
     "relay_release": "records",
     "relay_deny": "records",
-    "timing_calendar": "computes"
+    "timing_calendar": "computes",
+    "mirror_read": "computes",
+    "sky_read": "computes",
+    "practice_journal": "records"
   },
   "effects_unprovable": [],
   "effects_basis": "read from the code by core/effects.py (dispatch path, self-calls, inherited base methods; operational logging excluded); kept equal to the code by tools/check_effects.py",

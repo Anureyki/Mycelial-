@@ -12,6 +12,7 @@
     "volume_history",
     "correct_volume_event",
     "void_volume_event",
+    "refill_rhythm",
     "withdraw_dose_plan",
     "record_full_change",
     "record_gaps",
@@ -125,8 +126,7 @@
     "leaf_differential",
     "lookup",
     "list_training_events",
-    "void_training_event",
-    "refill_rhythm"
+    "void_training_event"
   ],
   "endpoint": "/execute",
   "port": 9009,
@@ -141,7 +141,7 @@
   "public_key": "",
   "owner": "anureyki",
   "created": "2026-07-28T23:04:50.187235",
-  "updated": "2026-11-05T20:46:09.722258",
+  "updated": "2026-11-09T06:26:41.224652",
   "effects": {
     "pulse": "computes",
     "veto": "records",

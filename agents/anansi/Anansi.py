@@ -40,7 +40,7 @@ class Anansi(AgentBase):
             capabilities=["process_request", "narrate_contradiction", "voice_policy",
                           "remember_user_fact", "user_context", "check_cross_domain", "refresh_routing", "drift_alerts",
                           "routing_map",
-                          "timing_calendar",
+                          "timing_calendar", "mirror_read", "sky_read", "practice_journal",
                           "approval_holds", "approval_key_status", "enroll_approval_key",
                           "relay_release", "relay_deny",
                           # Declared because they dispatch. An undeclared verb
@@ -1026,6 +1026,66 @@ class Anansi(AgentBase):
         natal = HermesStore(self).get_natal(cfg.get("entity_id") or "principal")
         return lighting(datetime.now(zone), natal), None
 
+    def _natal(self):
+        from ati.store import HermesStore
+        cfg = self._clock_cfg()
+        return HermesStore(self), cfg, cfg.get("entity_id") or "principal"
+
+    def mirror_read(self, args):
+        """The tropical and sidereal charts read as two selves in synastry (principal, 2026-11-09)."""
+        from ati.mirror import mirror
+        st, _cfg, eid = self._natal()
+        return mirror(st.get_natal(eid))
+
+    def _moment(self, a, cfg):
+        from zoneinfo import ZoneInfo
+        zone = ZoneInfo(str(a.get("tz") or cfg.get("timezone") or "America/Chicago"))
+        at = a.get("at")
+        if not at:
+            return datetime.now(zone)
+        m = datetime.fromisoformat(str(at))
+        return m if m.tzinfo else m.replace(tzinfo=zone)
+
+    def sky_read(self, args):
+        """The sky at a moment against both selves, with pillars, organ window, lunar day and
+        the Four Symbols for a location and a facing. Calculation, labelled as such."""
+        from ati.mirror import sky_read
+        a = args if isinstance(args, dict) else {}
+        st, cfg, eid = self._natal()
+        try:
+            moment = self._moment(a, cfg)
+        except Exception as e:
+            return {"error": f"could not read the moment: {e}"}
+        return sky_read(st.get_natal(eid), moment, location=a.get("location"), facing=a.get("facing"))
+
+    def practice_journal(self, args):
+        """Record a practice (a bath, a ritual, a session) with the sky read for its moment
+        attached, or list the journal. The principal's own reading and advice are kept in
+        his words beside the calculation - never merged into it."""
+        import uuid as _uuid
+        from ati.mirror import sky_read
+        a = args if isinstance(args, dict) else {}
+        st, cfg, eid = self._natal()
+        if (a.get("action") or "add") == "list":
+            return {"entries": [st.get_event(i) for i in st.journal_ids(eid)]}
+        if not (a.get("title") and a.get("at")):
+            return {"error": "a journal entry needs a title and the moment it started (at, local time)"}
+        try:
+            moment = self._moment(a, cfg)
+        except Exception as e:
+            return {"error": f"could not read the moment: {e}"}
+        from datetime import timezone as _tz
+        entry = {"event_id": f"practice_{_uuid.uuid4().hex[:10]}", "entity_id": eid,
+                 "timestamp_utc": moment.astimezone(_tz.utc).isoformat(timespec="minutes"),
+                 "event_type": "practice", "source_agent": "anansi",
+                 "recorded_at": datetime.now().isoformat(timespec="seconds"),
+                 "title": str(a["title"])[:120], "started_local": moment.isoformat(timespec="minutes")}
+        for k in ("location", "facing", "materials", "steps", "principal_reading", "advice", "notes"):
+            if a.get(k) is not None:
+                entry[k] = a[k]
+        entry["sky_read"] = sky_read(st.get_natal(eid), moment, location=a.get("location"), facing=a.get("facing"))
+        return st.add_journal(entry)
+
     def timing_calendar(self, args):
         """ATI's day-by-day timing over a window, against the principal's natal record
         (2026-11-06, option a). Calculation only - no advice, no rating of a day; what to
@@ -1425,6 +1485,12 @@ class Anansi(AgentBase):
             return self.lighting(args)
         if task == "timing_calendar":
             return self.timing_calendar(args)
+        if task == "mirror_read":
+            return self.mirror_read(args)
+        if task == "sky_read":
+            return self.sky_read(args)
+        if task == "practice_journal":
+            return self.practice_journal(args)
         if task == "sector_briefing":
             return self.sector_briefing(args)
         if task == "route_held_mail":

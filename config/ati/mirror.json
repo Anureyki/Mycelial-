@@ -1,0 +1,22 @@
+{
+  "_": "The tropical/sidereal mirror and its sky reading (principal, 2026-11-09). The two zodiacs are read as two selves facing each other - 'like looking in a mirror at your opposite' - and compared as a synastry. His framework, computed the same way every time from these settings.",
+  "ayanamsa": {"name": "Lahiri (linear approximation)", "j2000_degrees": 23.85282, "arcsec_per_year": 50.2788,
+               "_": "about 0.05 degrees from the full Lahiri series over this century - enough for signs and aspects, flagged near a sign line"},
+  "aspects": {"conjunct": 0, "sextile": 60, "square": 90, "trine": 120, "opposite": 180},
+  "orbs": {"mirror": {"conjunct": 5, "sextile": 3, "square": 4, "trine": 4, "opposite": 5},
+           "sky": {"conjunct": 6, "sextile": 4, "square": 5, "trine": 5, "opposite": 6}},
+  "cusp_degrees": 0.5,
+  "growth_point_rule": "the tightest square or opposition between the tropical self and the sidereal self",
+  "growth_point_basis": "Principal 2026-11-09: 'That one tight friction is the work around the growth point.'",
+  "directions": {
+    "N":  {"trigram": "Kan 坎", "element": "water", "symbols": ["Black Tortoise"]},
+    "NE": {"trigram": "Gen 艮", "element": "earth", "symbols": ["Black Tortoise", "Azure Dragon"]},
+    "E":  {"trigram": "Zhen 震", "element": "wood", "symbols": ["Azure Dragon"]},
+    "SE": {"trigram": "Xun 巽", "element": "wood", "symbols": ["Azure Dragon", "Vermilion Bird"]},
+    "S":  {"trigram": "Li 離", "element": "fire", "symbols": ["Vermilion Bird"]},
+    "SW": {"trigram": "Kun 坤", "element": "earth", "symbols": ["Vermilion Bird", "White Tiger"]},
+    "W":  {"trigram": "Dui 兌", "element": "metal", "symbols": ["White Tiger"]},
+    "NW": {"trigram": "Qian 乾", "element": "metal", "symbols": ["White Tiger", "Black Tortoise"]}
+  },
+  "directions_basis": "Later Heaven (King Wen) bagua for the eight directions; the Four Symbols hold the cardinal quarters and share the corners between them."
+}
