@@ -394,9 +394,7 @@ class LegalAgent(AgentBase):
     def _format_definitions(self, entries):
         if not entries:
             return ""
-        lines = ["Definitions of terms used below, for reading the instrument "
-                 "precisely. A definition inside the instrument itself always "
-                 "overrides these."]
+        lines = [self._behavior("definitions_header")]
         for e in entries:
             lines.append(f"- {e['term']}: {e['definition']}")
             lines.append(f"  (source: {e['source']})")
@@ -415,7 +413,7 @@ class LegalAgent(AgentBase):
     def _format_context_block(self, hits):
         if not hits:
             return ""
-        lines = ["Relevant cached reference material:"]
+        lines = [self._behavior("context_header")]
         for h in hits:
             lines.append(f"- [{h['category'] or 'general'}/{h['id']}] {h['snippet']}")
         return "\n".join(lines) + "\n\n"
@@ -1372,6 +1370,39 @@ class LegalAgent(AgentBase):
         capability. Returns a capability name, never a model name."""
         return CAPABILITY_FOR.get(requirements, "reasoning")
 
+    # ---------- Behaviour file (legal.md) ----------
+    # What Legal says to a model lives in legal.md beside this file (principal,
+    # 2026-11-10, option A increment 2). Re-read when it changes, so an edit takes
+    # effect on the next call. A missing section or an unfilled placeholder RAISES:
+    # half a prompt sent is worse than none.
+    LEGAL_MD = os.path.join(os.path.dirname(os.path.abspath(__file__)), "legal.md")
+    _behavior_cache = {"mtime": None, "sections": {}}
+
+    @classmethod
+    def _behavior_sections(cls):
+        mt = os.path.getmtime(cls.LEGAL_MD)
+        if cls._behavior_cache["mtime"] != mt:
+            text = open(cls.LEGAL_MD, encoding="utf-8").read()
+            secs = {}
+            for m in re.finditer(r"^## (\S+)[ \t]*\n(.*?)(?=^## |\Z)", text, re.M | re.S):
+                f = re.search(r"```text\n(.*?)\n```", m.group(2), re.S)
+                if f:
+                    if m.group(1) in secs:
+                        raise ValueError(f"legal.md defines section {m.group(1)!r} twice")
+                    secs[m.group(1)] = f.group(1)
+            cls._behavior_cache.update(mtime=mt, sections=secs)
+        return cls._behavior_cache["sections"]
+
+    def _behavior(self, name, **fields):
+        from string import Template
+        secs = self._behavior_sections()
+        if name not in secs:
+            raise KeyError(f"legal.md has no section {name!r}")
+        return Template(secs[name]).substitute(**{k: str(v) for k, v in fields.items()})
+
+    def _behavior_lines(self, name):
+        return [ln.strip() for ln in self._behavior(name).split("\n") if ln.strip()]
+
     def _call_inference(self, prompt, model_name=None, timeout=None, capability=None,
                         status=None, temperature=None):
         """Returns the model's text, or "" if it never answered.
@@ -1383,6 +1414,8 @@ class LegalAgent(AgentBase):
         if status is None:
             status = {}
         status["ok"] = False
+        # Every model call carries Legal's standing rules from legal.md.
+        prompt = self._behavior("preamble") + "\n\n" + str(prompt)
         status["reason"] = None
         timeout = timeout or INFERENCE_TIMEOUT
         if model_name is None and capability is None:
@@ -1466,50 +1499,8 @@ class LegalAgent(AgentBase):
         definitions = self._definitions_for(contract_text, self.SCHEMA_TERMS)
         context_block = self._format_definitions(definitions) + self._format_context_block(cache_hits)
         list_fields = {"obligations", "rights", "applicable_statutes"}
-        prompt = (
-            context_block +
-            "You are a private-ordering structuring assistant. Read the text below - it may be "
-            "a contract, trust document, lease, arbitration agreement, or other private "
-            "arrangement - and extract ONLY the following fields as a single valid JSON object. "
-            f'"relationship_type" must be exactly one of: {", ".join(RELATIONSHIP_TYPES)}. '
-            "Leave any field that doesn't apply to this relationship_type as an empty string "
-            "or empty list rather than guessing.\n"
-            "{\n"
-            '  "relationship_type": "",\n'
-            '  "entity_a": "",\n'
-            '  "entity_b": "",\n'
-            '  "contract_type": "",\n'
-            '  "asset": "",\n'
-            '  "asset_owner": "",\n'
-            '  "custodian": "",\n'
-            '  "obligations": [],\n'
-            '  "rights": [],\n'
-            '  "beneficiary": "",\n'
-            '  "service_provider": "",\n'
-            '  "fee_recipient": "",\n'
-            '  "governing_law": "",\n'
-            '  "applicable_statutes": [],\n'
-            '  "offer": "",\n'
-            '  "acceptance": "",\n'
-            '  "consideration": "",\n'
-            '  "termination_conditions": "",\n'
-            '  "dispute_resolution": "",\n'
-            '  "performance_requirements": "",\n'
-            '  "settlor": "",\n'
-            '  "trustee": "",\n'
-            '  "trust_property": "",\n'
-            '  "fiduciary_duties": "",\n'
-            '  "governing_documents": "",\n'
-            '  "jurisdiction": "",\n'
-            '  "venue": "",\n'
-            '  "court_authority": "",\n'
-            '  "procedural_rules_source": ""\n'
-            "}\n"
-            "If a field cannot be determined, use empty string or empty list. "
-            "Only extract what is explicitly stated. Do not determine enforceability or legal "
-            "validity - structural extraction only.\n\n"
-            f"Text:\n\"\"\"\n{contract_text}\n\"\"\"\n\nJSON:"
-        )
+        prompt = context_block + self._behavior(
+            "relationship_extraction", relationship_types=", ".join(RELATIONSHIP_TYPES), text=contract_text)
         status = {}
         raw = self._call_inference(prompt, model_name=model, status=status, temperature=0)
         parsed, parse_error = self._safe_parse_json(raw)
@@ -1536,23 +1527,7 @@ class LegalAgent(AgentBase):
         return parsed
 
     def _extract_case(self, case_text, model=None):
-        prompt = (
-            "You are a legal case analyst. Read the following court case text and extract "
-            "ONLY the following fields as a single valid JSON object:\n"
-            "{\n"
-            '  "parties": [{"name": "", "role": ""}],\n'
-            '  "legal_issues": [],\n'
-            '  "ruling": "",\n'
-            '  "date": "",\n'
-            '  "court": "",\n'
-            '  "jurisdiction": "",\n'
-            '  "cited_statutes": [],\n'
-            '  "summary": ""\n'
-            "}\n"
-            "If a field cannot be determined, use an empty string or empty list. "
-            "Only extract what is explicitly stated.\n\n"
-            f"Case text:\n\"\"\"\n{case_text[:8000]}\n\"\"\"\n\nJSON:"
-        )
+        prompt = self._behavior("case_extraction", case_text=case_text[:8000])
         status = {}
         raw = self._call_inference(prompt, model_name=model, status=status, temperature=0)
         parsed, parse_error = self._safe_parse_json(raw)
@@ -1604,22 +1579,11 @@ class LegalAgent(AgentBase):
     def _analyze_case_perspectives(self, case_text):
         """Four short, separate inference passes - kept out of _extract_case so the
         already-verified baseline extraction is untouched when perspectives isn't requested."""
-        questions = {
-            "judge": "What authority does the court have? What requirements must be satisfied? "
-                     "What information is missing? What makes a filing difficult to evaluate?",
-            "clerk": "Is the filing properly organized? Can deadlines and requested actions be "
-                     "identified? Are documents easy to process?",
-            "plaintiff": "What injury is alleged? What evidence supports it? What remedy is requested?",
-            "defendant": "What arguments would challenge the claim? What weaknesses would be identified?",
-        }
+        questions = dict(ln.split(": ", 1) for ln in self._behavior_lines("case_perspective_questions"))
         perspectives = {}
         for role, questions_text in questions.items():
-            prompt = (
-                f"You are analyzing a legal case from the {role}'s perspective. Answer these "
-                f"questions briefly, based only on what's in the text below - do not give legal "
-                f"advice or an opinion on who should win:\n{questions_text}\n\n"
-                f"Case text:\n\"\"\"\n{case_text[:6000]}\n\"\"\"\n\nAnswer:"
-            )
+            prompt = self._behavior("case_perspective", role=role, questions=questions_text,
+                                    case_text=case_text[:6000])
             perspectives[role] = self._call_inference(prompt)
         return perspectives
 
@@ -1804,13 +1768,7 @@ class LegalAgent(AgentBase):
                     "method": "keyword"
                 })
                 break
-        llm_prompt = (
-            "Does the following text contain any personally identifiable or protected "
-            "information NOT limited to Social Security numbers, tax ID numbers, financial "
-            "account numbers, or birth dates (e.g. minor identifiers, medical information, other "
-            "protected identifiers)? Answer with either 'none found' or a brief comma-separated "
-            "list of what you found, no explanation:\n\n" + text[:3000]
-        )
+        llm_prompt = self._behavior("pii_check", text=text[:3000])
         llm_result = self._call_inference(llm_prompt)
         if llm_result and "none found" not in llm_result.lower():
             hits.append({
@@ -5589,7 +5547,7 @@ class LegalAgent(AgentBase):
                     "answer": web_result,
                     "disclaimer": DISCLAIMER
                 }
-            raw = self._call_inference(f"Briefly define or explain: {term}, without giving legal advice.")
+            raw = self._call_inference(self._behavior("define_term", term=term))
             return {
                 "term": term,
                 "source": "inference_fallback",
@@ -5963,34 +5921,14 @@ class LegalAgent(AgentBase):
                 return {"error": f"Matter {matter_id} not found", "disclaimer": DISCLAIMER}
             requested_outcome = matter.get("requested_outcome", "")
 
-            remedy_prompt = (
-                "Review this filing draft against the case's requested outcome. Answer these 5 "
-                "questions briefly:\n"
-                "1. What specific harm is being identified?\n"
-                "2. Who has authority to address it?\n"
-                "3. What action is being requested?\n"
-                "4. Does this forum have authority to provide that action?\n"
-                "5. What evidence supports the request?\n\n"
-                f"Requested outcome: {requested_outcome}\n\nDraft:\n\"\"\"\n{draft_text[:6000]}\n\"\"\"\n\nAnswers:"
-            )
+            remedy_prompt = self._behavior("filing_remedy_review", requested_outcome=requested_outcome,
+                                           draft=draft_text[:6000])
             remedy_alignment = self._call_inference(remedy_prompt)
 
-            checklist_items = [
-                "What is the single primary issue?",
-                "What relief is requested?",
-                "Does every section support that relief?",
-                "Is this introducing a new issue?",
-                "Does this belong in another proceeding?",
-                "Is information repeated?",
-                "Are citations relevant?",
-                "Are exhibits organized and referenced?",
-                "Is the document unnecessarily long?",
-            ]
-            checklist_prompt = (
-                "Review this filing draft. For each item below, answer briefly (one short line per item):\n"
-                + "\n".join(f"{i+1}. {q}" for i, q in enumerate(checklist_items))
-                + f"\n\nDraft:\n\"\"\"\n{draft_text[:6000]}\n\"\"\"\n\nAnswers (one per line, in order):"
-            )
+            checklist_items = self._behavior_lines("filing_checklist_items")
+            checklist_prompt = self._behavior(
+                "filing_checklist", items="\n".join(f"{i+1}. {q}" for i, q in enumerate(checklist_items)),
+                draft=draft_text[:6000])
             checklist_raw = self._call_inference(checklist_prompt)
             checklist_lines = [l.strip() for l in checklist_raw.split("\n") if l.strip()][:len(checklist_items)]
             discipline_checklist = [
@@ -6001,11 +5939,8 @@ class LegalAgent(AgentBase):
             paragraphs = [p.strip() for p in draft_text.split("\n\n") if p.strip()][:30]
             scope_results = []
             for para in paragraphs:
-                scope_prompt = (
-                    f"Does this paragraph directly assist resolving the following requested issue: "
-                    f"\"{requested_outcome}\"? Answer with exactly one word - keep, move_to_notebook, "
-                    f"or remove - then a brief reason on the same line.\n\nParagraph:\n\"\"\"\n{para[:1000]}\"\"\""
-                )
+                scope_prompt = self._behavior("filing_scope", requested_outcome=requested_outcome,
+                                              paragraph=para[:1000])
                 result = self._call_inference(scope_prompt)
                 verdict = "keep"
                 lowered = (result or "").lower()
@@ -6043,20 +5978,8 @@ class LegalAgent(AgentBase):
             notebook = self._get_layer_entries("notebook_index", matter_id)
             evidence = self._get_layer_entries("evidence_index", matter_id)
             combined_text = "\n\n".join(e["content"] for e in notebook + evidence)[:10000]
-            prompt = (
-                "You are compressing a large legal research archive into a usable filing format. "
-                "Read the material below and produce a single valid JSON object with these fields:\n"
-                "{\n"
-                '  "executive_summary": "",\n'
-                '  "timeline": [],\n'
-                '  "key_facts": [],\n'
-                '  "issue_statement": "",\n'
-                '  "evidence_list": [],\n'
-                '  "requested_relief": ""\n'
-                "}\n\n"
-                f"Requested outcome (from intake): {matter.get('requested_outcome', '')}\n\n"
-                f"Research material:\n\"\"\"\n{combined_text}\n\"\"\"\n\nJSON:"
-            )
+            prompt = self._behavior("archive_compression",
+                                    requested_outcome=matter.get('requested_outcome', ''), material=combined_text)
             raw = self._call_inference(prompt)
             parsed, parse_error = self._safe_parse_json(raw)
             if parsed is None:
@@ -6128,18 +6051,7 @@ class LegalAgent(AgentBase):
             entries = docket_data.get("results", []) if isinstance(docket_data, dict) else (docket_data if isinstance(docket_data, list) else [])
             formatted_alerts = []
             for entry in entries[:5]:
-                entry_prompt = (
-                    "Format this docket entry into a Docket Alert. Produce a single valid JSON object:\n"
-                    "{\n"
-                    '  "type": "",\n'
-                    '  "action_required": true,\n'
-                    '  "deadline": "",\n'
-                    '  "priority": "",\n'
-                    '  "summary": "",\n'
-                    '  "recommended_next_step": ""\n'
-                    "}\n\n"
-                    f"Docket entry:\n\"\"\"\n{json.dumps(entry)[:2000]}\n\"\"\"\n\nJSON:"
-                )
+                entry_prompt = self._behavior("docket_alert", entry=json.dumps(entry)[:2000])
                 raw = self._call_inference(entry_prompt)
                 parsed, _ = self._safe_parse_json(raw)
                 if parsed is None:
@@ -6183,13 +6095,7 @@ class LegalAgent(AgentBase):
                 "evidence_binder": self._get_layer_entries("evidence_index", matter_id),
                 "filing_layer": self._get_layer_entries("filing_index", matter_id),
             }
-            prompt = (
-                "Reflect on this completed (or in-progress) legal matter. Answer these 5 questions "
-                "briefly, focused on process improvement, not legal conclusions:\n"
-                "1. What worked?\n2. What failed?\n3. What procedural mistakes occurred?\n"
-                "4. What assumptions were incorrect?\n5. What workflow improvements should be applied?\n\n"
-                f"Matter:\n{json.dumps(view, default=str)[:8000]}\n\nAnswers:"
-            )
+            prompt = self._behavior("matter_reflection", matter=json.dumps(view, default=str)[:8000])
             reflection = self._call_inference(prompt)
             result = {"matter_id": matter_id, "reflection": reflection, "disclaimer": DISCLAIMER}
             if isinstance(args, dict) and args.get("file_lesson"):

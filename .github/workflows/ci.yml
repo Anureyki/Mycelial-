@@ -198,6 +198,8 @@ jobs:
         run: python tools/check_water_rhythm.py
       - name: Legal's MCP wiring lives in tools/legal and is callable only by permission (check_legal_tools)
         run: python tools/check_legal_tools.py
+      - name: What Legal tells a model lives in legal.md, and file and code agree (check_legal_behavior)
+        run: python tools/check_legal_behavior.py
       - name: Only approved artifacts reach the media library (check_media_publish)
         run: python tools/check_media_publish.py
 
