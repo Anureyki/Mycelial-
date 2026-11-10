@@ -214,6 +214,14 @@
       "write": [],
       "execute": [],
       "why": "Bland voice calls reach the principal through Anansi, the only agent that talks to him; the key is used by Tool Service on Anansi's behalf. Nobody else is granted."
+    },
+    "tool:courtlistener": {
+      "kind": "tool",
+      "owner": "legal_agent",
+      "read": [],
+      "write": [],
+      "execute": [],
+      "why": "CourtListener's MCP wiring, extracted to tools/legal/courtlistener.py (2026-11-09) and callable only by permission. Legal's, like the credential behind it; granting another department is an edit here."
     }
   }
 }

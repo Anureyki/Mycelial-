@@ -6,6 +6,7 @@ import json
 import time
 import uuid
 import requests
+from tools.legal import courtlistener as _cl  # CourtListener wiring, callable by permission
 from datetime import datetime, timedelta
 
 # Add project root
@@ -819,8 +820,8 @@ class LegalAgent(AgentBase):
             return {}
 
     def _docket_newest(self, docket_id):
-        lst = self._unwrap_mcp(self.call_tool("courtlistener", "docket_documents",
-                                              {"docket_id": int(docket_id), "order_by": "-id"}))
+        lst = _cl.call_unwrapped(self.agent_id, "docket_documents",
+                                              {"docket_id": int(docket_id), "order_by": "-id"})
         if not isinstance(lst, dict) or lst.get("error"):
             return None, ((lst or {}).get("error") if isinstance(lst, dict) else "no response")
         return lst.get("documents") or [], None
@@ -952,8 +953,8 @@ class LegalAgent(AgentBase):
         if subscribe:
             # CourtListener refreshes a docket from the court's feed only while
             # someone is subscribed - without this a watch can sit on a stale copy.
-            sub = self._unwrap_mcp(self.call_tool("courtlistener", "subscribe_docket_alert",
-                                                  {"docket": int(did)}))
+            sub = _cl.call_unwrapped(self.agent_id, "subscribe_docket_alert",
+                                                  {"docket": int(did)})
         return {"watching": did, "label": w[did]["label"], "case_id": case_id,
                 "baseline_entries": len(w[did]["baseline_ids"]),
                 "baseline_newest": w[did]["baseline_newest"],
@@ -2957,33 +2958,8 @@ class LegalAgent(AgentBase):
     # The output is a triage - what is cited, what is openable in the corpus,
     # what would have to be verified - not a plan of action.
 
-    @staticmethod
-    def _unwrap_mcp(raw):
-        """Get the payload out of the JSON-RPC envelope MCP returns.
-
-        A tool call comes back as {"result": {"content": [{"type": "text",
-        "text": "<json>"}]}}, and reading the wrapper for the payload's keys
-        finds none of them - so the first version reported the court's own order
-        as unreadable while the text sat two levels down. The same nesting class
-        as describe() looking for `reading` one level too deep and telling the
-        grower his entry had not been logged.
-        """
-        d = raw
-        for _ in range(4):
-            if not isinstance(d, dict):
-                break
-            if "content" in d and isinstance(d["content"], list) and d["content"]:
-                t = (d["content"][0] or {}).get("text")
-                if isinstance(t, str):
-                    try:
-                        return json.loads(t)
-                    except Exception:
-                        return {"error": "MCP returned text that is not JSON", "raw": t[:400]}
-            if "result" in d:
-                d = d["result"]
-                continue
-            break
-        return d
+    # The MCP envelope is unwrapped by the tool module now - one definition, not two.
+    _unwrap_mcp = staticmethod(_cl.unwrap)
 
     # ------------------------------------------------------------------
     # Whose matter is this?
@@ -3449,8 +3425,8 @@ class LegalAgent(AgentBase):
         # Same flakiness as the search, same rule: a transient failure to read
         # is not a finding about the opinion.
         # One call. The MCP caches the result and waits out a rate limit itself.
-        raw = self._unwrap_mcp(self.call_tool("courtlistener", "opinion_text",
-                                              {"cluster_id": int(cid)}))
+        raw = _cl.call_unwrapped(self.agent_id, "opinion_text",
+                                              {"cluster_id": int(cid)})
         if not isinstance(raw, dict) or not raw.get("readable"):
             return {"case": case, "matched": top.get("caseName"),
                     "verdict": "opinion_not_readable",
@@ -3579,7 +3555,7 @@ class LegalAgent(AgentBase):
         payload = {"q": case, "type": "o", "case_name": case}
         if a.get("court"):
             payload["court"] = a["court"]
-        raw = self._unwrap_mcp(self.call_tool("courtlistener", "search", payload))
+        raw = _cl.call_unwrapped(self.agent_id, "search", payload)
         if not isinstance(raw, dict) or raw.get("error"):
             return None
         parties = re.split(r"\s+v\.?\s+", re.sub(r"[,(].*$", "", case).strip(), maxsplit=1)
@@ -3600,8 +3576,8 @@ class LegalAgent(AgentBase):
         # preferred only among those that pass.
         best, text, subject, passed_over = None, None, None, []
         for cand in matches[:3]:
-            got = self._unwrap_mcp(self.call_tool("courtlistener", "opinion_text",
-                                                  {"cluster_id": int(cand["cluster_id"])}))
+            got = _cl.call_unwrapped(self.agent_id, "opinion_text",
+                                                  {"cluster_id": int(cand["cluster_id"])})
             if not isinstance(got, dict) or not got.get("readable"):
                 passed_over.append({"caseName": cand.get("caseName"), "outcome": "unreadable"})
                 continue
@@ -3707,7 +3683,7 @@ class LegalAgent(AgentBase):
             payload["court"] = a["court"]
         if a.get("filed_after"):
             payload["filed_after"] = a["filed_after"]
-        raw = self._unwrap_mcp(self.call_tool("courtlistener", "search", payload))
+        raw = _cl.call_unwrapped(self.agent_id, "search", payload)
         if not isinstance(raw, dict) or raw.get("error"):
             return {"acquired": False, "case": case, "verdict": "search_failed",
                     "why": (raw or {}).get("error") if isinstance(raw, dict) else "no response",
@@ -3746,8 +3722,8 @@ class LegalAgent(AgentBase):
         found, unreachable = [], []
         for r in cands[:4]:
             did = int(r["docket_id"])
-            lst = self._unwrap_mcp(self.call_tool("courtlistener", "docket_documents",
-                                                  {"docket_id": did}))
+            lst = _cl.call_unwrapped(self.agent_id, "docket_documents",
+                                                  {"docket_id": did})
             if not isinstance(lst, dict) or lst.get("error"):
                 # A tool error is not an empty docket. Reported apart, so a
                 # throttled API can never come back as "nothing in RECAP".
@@ -3827,9 +3803,9 @@ class LegalAgent(AgentBase):
         found.sort(key=lambda f: int(f.get("document_number") or 0), reverse=True)
         pick, text, subject, rd, passed_over = None, None, None, None, []
         for cand in found:
-            rd = self._unwrap_mcp(self.call_tool("courtlistener", "docket_documents",
+            rd = _cl.call_unwrapped(self.agent_id, "docket_documents",
                                                  {"docket_id": cand["docket_id"],
-                                                  "document_number": str(cand["document_number"])}))
+                                                  "document_number": str(cand["document_number"])})
             if not isinstance(rd, dict) or rd.get("error"):
                 passed_over.append({**cand, "outcome": "unreadable",
                                     "error": (rd or {}).get("error") if isinstance(rd, dict) else "no response"})
@@ -4107,7 +4083,7 @@ class LegalAgent(AgentBase):
         payload = {"docket_id": int(did)}
         if a.get("document_number") is not None:
             payload["document_number"] = str(a["document_number"])
-        out = self.call_tool("courtlistener", "docket_documents", payload)
+        out = _cl.call(self.agent_id, "docket_documents", payload)
         out = self._unwrap_mcp(out)
         if not isinstance(out, dict) or out.get("error"):
             return {"error": (out or {}).get("error", "no response from courtlistener")
@@ -5759,7 +5735,7 @@ class LegalAgent(AgentBase):
             if not query:
                 return {"error": "Usage: search_cases <query> [type], or {query, type}",
                         "disclaimer": DISCLAIMER}
-            tool_result = self.call_tool("courtlistener", "search", {"q": query, "type": case_type})
+            tool_result = _cl.call(self.agent_id, "search", {"q": query, "type": case_type})
             return self._unwrap_tool_result(tool_result, disclaimer=True)
 
         elif task == "monitor_user":
@@ -5767,7 +5743,7 @@ class LegalAgent(AgentBase):
                 return {"error": "Usage: monitor_user <name> [rate: rt|dly|wly|mly]", "disclaimer": DISCLAIMER}
             name = args[0]
             rate = args[1] if len(args) > 1 and args[1] else "dly"
-            tool_result = self.call_tool("courtlistener", "create_alert", {
+            tool_result = _cl.call(self.agent_id, "create_alert", {
                 "name": f"Mycelial monitor: {name}",
                 "query": {"type": "r", "party_name": name},
                 "rate": rate,
@@ -5781,7 +5757,7 @@ class LegalAgent(AgentBase):
                 docket_id = int(args[0])
             except (TypeError, ValueError):
                 return {"error": "docket_id must be an integer", "disclaimer": DISCLAIMER}
-            tool_result = self.call_tool("courtlistener", "subscribe_docket_alert", {"docket": docket_id})
+            tool_result = _cl.call(self.agent_id, "subscribe_docket_alert", {"docket": docket_id})
             return self._unwrap_tool_result(tool_result, disclaimer=True)
 
         elif task == "log_lesson":
@@ -6144,7 +6120,7 @@ class LegalAgent(AgentBase):
                 docket_id = int(docket_id_raw)
             except (TypeError, ValueError):
                 return {"error": "docket_id must be an integer", "disclaimer": DISCLAIMER}
-            tool_result = self.call_tool("courtlistener", "search", {"q": str(docket_id), "type": "r"})
+            tool_result = _cl.call(self.agent_id, "search", {"q": str(docket_id), "type": "r"})
             docket_data = self._unwrap_tool_result(tool_result)
             if isinstance(docket_data, dict) and docket_data.get("error"):
                 return {"error": docket_data["error"], "disclaimer": DISCLAIMER}
