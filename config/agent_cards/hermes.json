@@ -14,7 +14,9 @@
     "log_session_summary",
     "get_progress_summary",
     "consolidate_audit",
-    "get_audit_digests"
+    "get_audit_digests",
+    "governance_register",
+    "governance_check"
   ],
   "endpoint": "/execute",
   "port": 8002,
@@ -42,7 +44,9 @@
     "log_session_summary": "records",
     "get_progress_summary": "records",
     "consolidate_audit": "records",
-    "get_audit_digests": "computes"
+    "get_audit_digests": "computes",
+    "governance_register": "computes",
+    "governance_check": "computes"
   },
   "effects_unprovable": [],
   "effects_basis": "read from the code by core/effects.py (dispatch path, self-calls, inherited base methods; operational logging excluded); kept equal to the code by tools/check_effects.py",

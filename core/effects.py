@@ -30,7 +30,7 @@ CLASSES = ("computes", "records", "notifies", "actuates", "external")
 RANK = {c: i for i, c in enumerate(CLASSES)}
 
 # a2a tasks known to only read - anything else sent to a peer counts as a write
-READ_TASKS = {"lookup", "retrieve_memory", "retrieve_many", "knowledge_search", "search_docs",
+READ_TASKS = {"governance_register", "governance_check", "lookup", "retrieve_memory", "retrieve_many", "knowledge_search", "search_docs",
               "get_audit_digests", "get_progress_summary", "search", "query", "search_memory",
               "check_budget_constraint", "authorize_route", "check_guard",
               "routing_terms", "roles", "describe", "answer", "list_lessons",

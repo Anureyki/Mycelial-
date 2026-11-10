@@ -14,7 +14,9 @@
     "retrieve_memory",
     "search_docs",
     "store_memory",
-    "update_memory"
+    "update_memory",
+    "governance_register",
+    "governance_check"
   ],
   "entry_point": "agents.hermes.hermes_interface:main",
   "description": "Memory Intelligence agent"

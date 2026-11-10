@@ -130,6 +130,7 @@ step "check_hold_release"           "$PY" tools/check_hold_release.py
 step "check_water_rhythm"           "$PY" tools/check_water_rhythm.py
 step "check_legal_tools"            "$PY" tools/check_legal_tools.py
 step "check_legal_behavior"         "$PY" tools/check_legal_behavior.py
+step "check_governance"             "$PY" tools/check_governance.py
 step "check_media_publish"          "$PY" tools/check_media_publish.py
 step "check_dispute_letters"        "$PY" tools/check_dispute_letters.py
 step "check_fcra_furnisher"         "$PY" tools/check_fcra_furnisher.py

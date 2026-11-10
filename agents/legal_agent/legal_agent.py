@@ -41,11 +41,13 @@ INFERENCE_TIMEOUT = int(os.getenv("AGENT_INFERENCE_TIMEOUT", "240"))
 FALLBACK_TIMEOUT = int(os.getenv("AGENT_FALLBACK_TIMEOUT", "120"))
 DEFAULT_MODEL = "qwen2.5:1.5b"
 
-DISCLAIMER = (
-    "This output is generated automatically for informational purposes only. "
-    "It is an extraction/structuring of the provided text, not legal advice, "
-    "and should be reviewed by a qualified professional before being relied upon."
-)
+# THE DISCLAIMER IS GOVERNANCE, AND HERMES SERVES IT (principal, 2026-11-10, option A
+# increment 3): it lives in config/governance/legal_agent.json with the rest of what
+# Legal will not do. Until the register has been read, outputs carry this notice
+# instead - a statement that the register was not reached, never a second copy of it.
+GOVERNANCE_UNREACHABLE = ("Legal's governance register has not been reached, so this output has not been "
+                          "checked against it. It is not legal advice; treat it as unreviewed.")
+DISCLAIMER = GOVERNANCE_UNREACHABLE
 
 RELATIONSHIP_FIELDS = [
     "entity_a", "entity_b", "contract_type", "asset", "asset_owner", "custodian",
@@ -217,6 +219,7 @@ class LegalAgent(AgentBase):
         self.init_cag(cache_ttl=86400, watch_interval=300)
         self.subscribe_project_events()
         self.log("Legal Agent initialized (extraction/structuring only - no legal advice).")
+        self._load_governance()
 
     def on_project_event(self, project_id, event_type, data, sender):
         self.log(f"Project event {project_id}/{event_type} from {sender}")
@@ -978,13 +981,19 @@ class LegalAgent(AgentBase):
                 return sfd.authorize_cycle(a.get("cycle_id"), a.get("authorization_ref"),
                                            a.get("authorized_on"))
             if task == "ssa_demand_draft":
+                gov = self._handoff("draft_ssa_demand")
+                if gov.get("decision") == "refuse":
+                    return {"refused": True, "reason": gov.get("text"), "governance": gov}
                 req = dict(a.get("requester") or {})
                 if not req.get("mailing_address"):
                     req["mailing_address"] = self.user_constraint("legal_mail_address")
                 if not req.get("name"):
                     req["name"] = self.user_constraint("legal_name")
-                return sfd.draft(a.get("cycle_id"), a.get("recipient"), req,
-                                 resolver=self.lookup_reference, today=a.get("today"))
+                out = sfd.draft(a.get("cycle_id"), a.get("recipient"), req,
+                                resolver=self.lookup_reference, today=a.get("today"))
+                if isinstance(out, dict):
+                    out["governance"] = [gov, self._handoff("deliver_ssa_demand")]
+                return out
             if task == "ssa_demand_log_principal_sent":
                 return sfd.record_principal_sent(a.get("recipient"), a.get("sent_on"), a.get("method"),
                                                  a.get("document_ref"), a.get("items"), a.get("label", ""))
@@ -4611,7 +4620,7 @@ class LegalAgent(AgentBase):
         return {"answered_as": "dispute_letter",
                 "text": (f"{kind_name}, drafted from the corpus. Nothing has been sent - "
                          f"this is yours to sign and send.{note}\n\n" + out["letter"]),
-                "facts": out}
+                "facts": out, "governance": self._handoff("deliver_dispute_letter")}
 
     def answer(self, prompt):
         """Pick this agent's own capability for a legal question.
@@ -5247,7 +5256,46 @@ class LegalAgent(AgentBase):
                 "absence_state": "not_checked" if not step else "verified_clear",
                 "implemented": True}
 
+    # ---------- Governance (Hermes's register) ----------
+    def _hermes_payload(self, r):
+        for _ in range(4):
+            if isinstance(r, dict) and "result" in r and len(r) <= 2 and not r.get("decision"):
+                r = r["result"]
+            else:
+                break
+        return r if isinstance(r, dict) else {}
+
+    def _load_governance(self):
+        """Read the register through Hermes; the disclaimer comes from it."""
+        global DISCLAIMER
+        try:
+            reg = self._hermes_payload(self.send_a2a("hermes", "governance_register", {"domain": "legal_agent"}))
+        except Exception as e:
+            self.log(f"governance register not reached: {e}")
+            return None
+        if reg.get("disclaimer"):
+            DISCLAIMER = reg["disclaimer"]
+            self._governance = reg
+            return reg
+        self.log(f"governance register not usable: {str(reg)[:200]}")
+        return None
+
+    def _handoff(self, action):
+        """Hermes's ruling on a governed step. Unreachable is HELD for the principal,
+        never assumed allowed."""
+        try:
+            r = self._hermes_payload(self.send_a2a("hermes", "governance_check",
+                                                   {"domain": "legal_agent", "action": action}))
+        except Exception as e:
+            r = {"error": str(e)}
+        if r.get("decision") not in ("allow", "refuse", "handoff"):
+            return {"decision": "handoff", "action": action, "rule": "governance_unreachable",
+                    "text": "The governance register did not answer - held for the principal, not assumed allowed."}
+        return r
+
     def handle_task(self, task, args, sender):
+        if DISCLAIMER == GOVERNANCE_UNREACHABLE:
+            self._load_governance()
         if task == "assess_peonage":
             return self.assess_peonage(args if isinstance(args, dict) else {})
         if task == "assess_equity_claim":
@@ -5905,6 +5953,8 @@ class LegalAgent(AgentBase):
                           "should succeed."),
                 "disclaimer": DISCLAIMER,
             }
+            if blocks:
+                result["governance"] = self._handoff("filing_with_block")
             self._write_lesson(
                 f"check_filing run: {verdict} ({len(blocks)} blocking, {len(warns)} warnings)",
                 strategy_type="pre_filing_check", case_id=matter_id or "", category="procedural"

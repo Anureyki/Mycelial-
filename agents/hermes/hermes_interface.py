@@ -32,7 +32,8 @@ class HermesInterface(AgentBase):
                 "pin_memory",
                 "search_docs",          # NEW: librarian skill
                 "log_session_summary", "get_progress_summary",
-                "consolidate_audit", "get_audit_digests"
+                "consolidate_audit", "get_audit_digests",
+                "governance_register", "governance_check"
             ]
         )
         self.log("🧠 Hermes (Memory Intelligence + Librarian) initialized.")
@@ -103,8 +104,50 @@ class HermesInterface(AgentBase):
         except:
             return False
 
+    # ---------- Governance registers ----------
+    # What a department will not do, and what goes to the principal, held as data in
+    # config/governance/<domain>.json and served from here (principal, 2026-11-10):
+    # governance, not domain knowledge. Hermes reads and answers; it does not decide
+    # anything the register does not say. An action the register does not name is
+    # refused - an act nobody decided about is not an act anybody allowed.
+    GOVERNANCE_DIR = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))),
+                                  "config", "governance")
+    DECISIONS = ("allow", "refuse", "handoff")
+
+    def governance_register(self, domain):
+        import re as _re
+        if not _re.fullmatch(r"[a-z][a-z0-9_]{1,40}", str(domain or "")):
+            return {"error": f"not a domain name: {domain!r}"}
+        path = os.path.join(self.GOVERNANCE_DIR, f"{domain}.json")
+        try:
+            with open(path, encoding="utf-8") as fh:
+                reg = json.load(fh)
+        except FileNotFoundError:
+            return {"error": f"no governance register for {domain}"}
+        except Exception as e:
+            return {"error": f"the register for {domain} could not be read: {e}"}
+        return reg
+
+    def governance_check(self, domain, action):
+        reg = self.governance_register(domain)
+        if "error" in reg:
+            return {"decision": "refuse", "domain": domain, "action": action,
+                    "rule": "register_unavailable", "text": reg["error"] + " - refused, not assumed"}
+        a = (reg.get("actions") or {}).get(str(action))
+        if not a or a.get("decision") not in self.DECISIONS:
+            return {"decision": reg.get("unknown_action", "refuse"), "domain": domain, "action": action,
+                    "rule": "not_in_register", "text": f"{action!r} is not in {domain}'s register - refused"}
+        return {"decision": a["decision"], "domain": domain, "action": action, "rule": a.get("rule"),
+                "text": (reg.get("rules") or {}).get(a.get("rule"), "")}
+
     def handle_task(self, task, args, sender):
         self.log(f"A2A task: {task} from {sender}")
+        if task == "governance_register":
+            a = args if isinstance(args, dict) else {"domain": (args or [None])[0] if isinstance(args, list) else None}
+            return self.governance_register(a.get("domain"))
+        if task == "governance_check":
+            a = args if isinstance(args, dict) else {}
+            return self.governance_check(a.get("domain"), a.get("action"))
 
         if task == "store_memory":
             if len(args) < 3:
