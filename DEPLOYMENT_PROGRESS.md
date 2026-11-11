@@ -1997,3 +1997,30 @@ SSN, DOB, EIN and account-number shapes, plus the keyed digests of his real valu
 a match is refused - fail closed - with the rule cited, logged as a security event, and
 turned into a handoff where the receptionist is on a call. The receptionist (UI-3)
 cannot go live before this exists.
+
+## UI-4 - movement and body signals from the phone and wearables (2026-11-11)
+
+The principal's development idea, from a post showing a TikTok iOS request with
+`har_predict` (static / walking / lie-down / by-car percentages) and `play_time_predict`
+read from the phone's motion sensors. The "reverse-engineered TikTok" claim is
+unverified (standing unknown); the technique - human activity recognition (HAR) - is
+established and needs no reverse engineering. **Recorded only; nothing started.**
+
+**What:** a read of the user's movement and body state between the phone and a watch or
+Fitbit - stationary, walking, running, driving, lying down; sleep and wake; heart rate.
+Sources already exist: iOS Core Motion (on-device activity classes) and HealthKit;
+Android / Wear OS Health Connect; the Fitbit and Garmin APIs.
+
+**Where it feeds:** ATI's body clock (real sleep and wake times in place of the generic
+organ-clock table - the pinned option (c)); the situational-awareness department (driving
+or travelling changes what is urgent); the receptionist and notifications (do not
+interrupt while driving or asleep); the practice journal (movement and heart rate around
+a practice, as data rather than recollection).
+
+**The rule that decides it:** TikTok reads the body to keep the user scrolling - the data
+serves the platform. Here the same signal serves only the user. Raw sensor streams stay on
+the device; only derived states leave it. Body and movement data is personal data under
+the sensitive-data rule (Legal's reason, Security's enforcement): behind the personal-data
+firewall, never passed to an MCP tool or a third party. Opt-in per sensor, consent
+recorded; the differential-privacy layer applies when other users' nodes join.
+Lives in the UI-1 phone app; depends on it.
