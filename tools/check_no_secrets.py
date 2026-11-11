@@ -119,6 +119,9 @@ ALLOWED = {
     "tools/check_retrieval.py": "a zero-filled citation placeholder",
     "reference/accounting_agent/internal_revenue_manual_part_5.json":
         "the IRS's own published example SSN inside the Internal Revenue Manual",
+    "reference/legal_agent/31_cfr_part_363_regulations_governing_securities_held_in_tre.json":
+        "31 CFR 363's own illustrative registration ('John Doe SSN ... POD Joseph Doe SSN ...'): checked 2026-11-11 - "
+        "one is the placeholder 123-45-6789, the other has a 9xx area the SSA never issues; neither is a real number",
     "reference/trust_agent/dod_7000_14_r_financial_management_regulation_volume_5_disbu.json":
         "DoD FMR Volume 5 Table 9-1, a published DATA EXAMPLE of disbursement voucher "
         "blocks: 'DSSN' is a Disbursing Station Symbol Number (a 4-digit office code), "

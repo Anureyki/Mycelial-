@@ -1,0 +1,41 @@
+{
+  "title": "31 U.S.C. \u00a7 3123",
+  "source": "United States Code title 31 section 3123, retrieved from Cornell LII (law.cornell.edu). The statutory text is a U.S. government work and is public domain; Cornell's annotations are excluded.",
+  "authority_class": "federal_statute",
+  "authority_class_basis": "Title of the work is a U.S. Code section citation, which fixes the class",
+  "claim_layer": "doctrinal",
+  "claim_layer_meaning": "States or describes the rule. Cite for what the law IS.",
+  "authorities_cited": [],
+  "term_index": {},
+  "origin_pdf": "usc31_3123.txt",
+  "extraction": {
+    "extractor": "text file (already extracted)",
+    "pages": 1,
+    "no_text_layer": [],
+    "raised": [],
+    "recovered": [],
+    "lost": [],
+    "complete": true
+  },
+  "pages": 1,
+  "sections": [
+    {
+      "citation": "\u00a7 3123.",
+      "kind": "section_sign",
+      "page": 1,
+      "text": "\u00a7 3123. Payment of obligations and interest on the public debt. (a) The faith of the United States Government is pledged to pay, in legal tender, principal and interest on the obligations of the Government issued under this chapter. (b) The Secretary of the Treasury shall pay interest due or accrued on the public debt. As the Secretary considers expedient, the Secretary may pay in advance interest on the public debt by a period of not more than one year, with or without a rebate of interest on the coupons. (c) (1) The Secretary may issue a bond, note, or certificate of indebtedness authorized under this chapter whose principal and interest are payable in a foreign currency stated in the bond, note, or certificate. The Secretary may dispose of the bonds, notes, and certificates at a price that is at least par value without complying with section 3102(b)\u2013(d) of this title. (2) In determining the dollar amount of bonds, notes, and certificates of indebtedness that may be issued under this chapter, the dollar equivalent of the amount of bonds, notes, and certificates payable in a foreign currency is determined by the par of the exchange value on the date of issue of the bonds, notes, or certificates as published by the Secretary under section 5151 of this title . (3) The Secretary may designate depositaries in foreign countries in which any part of the proceeds of bonds, notes, or certificates of indebtedness payable in the foreign currency may be deposited.",
+      "integrity": {
+        "state": "complete",
+        "basis": "Full retrieved body of 1,478 characters stored; under the 60,000 cap, so nothing was cut.",
+        "stamped_at": "2026-09-29T17:45:55",
+        "stored_chars": 1478,
+        "source_chars": 1478,
+        "cap_applied": 60000
+      },
+      "authority_class": "federal_statute",
+      "claim_layer": "doctrinal",
+      "claim_layer_meaning": "States or describes the rule. Cite for what the law IS."
+    }
+  ],
+  "claim_layer_basis": "Set from the class, not from the text: a statute or regulation states the rule rather than describing or arguing it, which the citation in the title establishes definitionally."
+}

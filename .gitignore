@@ -5,6 +5,9 @@ env/
 
 # Container secrets (see .env.example for the expected keys)
 .env
+# Backups of the secrets file are secrets too (2026-11-11: .env.bak-2026-10-05 sat untracked, one 'git add .' from GitHub)
+.env.bak*
+.env.*.bak
 
 # Python cache
 __pycache__/

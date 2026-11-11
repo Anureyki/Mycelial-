@@ -1,0 +1,41 @@
+{
+  "title": "31 U.S.C. \u00a7 3101",
+  "source": "United States Code title 31 section 3101, retrieved from Cornell LII (law.cornell.edu). The statutory text is a U.S. government work and is public domain; Cornell's annotations are excluded.",
+  "authority_class": "federal_statute",
+  "authority_class_basis": "Title of the work is a U.S. Code section citation, which fixes the class",
+  "claim_layer": "doctrinal",
+  "claim_layer_meaning": "States or describes the rule. Cite for what the law IS.",
+  "authorities_cited": [],
+  "term_index": {},
+  "origin_pdf": "usc31_3101.txt",
+  "extraction": {
+    "extractor": "text file (already extracted)",
+    "pages": 1,
+    "no_text_layer": [],
+    "raised": [],
+    "recovered": [],
+    "lost": [],
+    "complete": true
+  },
+  "pages": 1,
+  "sections": [
+    {
+      "citation": "\u00a7 3101.",
+      "kind": "section_sign",
+      "page": 1,
+      "text": "\u00a7 3101. Public debt limit. (a) In this section, the current redemption value of an obligation issued on a discount basis and redeemable before maturity at the option of its holder is deemed to be the face amount of the obligation. (b) The face amount of obligations issued under this chapter and the face amount of obligations whose principal and interest are guaranteed by the United States Government (except guaranteed obligations held by the Secretary of the Treasury) may not be more than $14,294,000,000,000, outstanding at one time, subject to changes periodically made in that amount as provided by law through the congressional budget process described in Rule XLIX [1] of the Rules of the House of Representatives or as provided by section 3101A or otherwise. (c) For purposes of this section, the face amount, for any month, of any obligation issued on a discount basis that is not redeemable before maturity at the option of the holder of the obligation is an amount equal to the sum of\u2014 (1) the original issue price of the obligation, plus (2) the portion of the discount on the obligation attributable to periods before the beginning of such month (as determined under the principles of section 1272(a) of the Internal Revenue Code of 1986 without regard to any exceptions contained in paragraph (2) of such section).",
+      "integrity": {
+        "state": "complete",
+        "basis": "Full retrieved body of 1,331 characters stored; under the 60,000 cap, so nothing was cut.",
+        "stamped_at": "2026-09-29T17:45:54",
+        "stored_chars": 1331,
+        "source_chars": 1331,
+        "cap_applied": 60000
+      },
+      "authority_class": "federal_statute",
+      "claim_layer": "doctrinal",
+      "claim_layer_meaning": "States or describes the rule. Cite for what the law IS."
+    }
+  ],
+  "claim_layer_basis": "Set from the class, not from the text: a statute or regulation states the rule rather than describing or arguing it, which the citation in the title establishes definitionally."
+}

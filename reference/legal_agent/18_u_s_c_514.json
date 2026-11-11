@@ -1,0 +1,41 @@
+{
+  "title": "18 U.S.C. \u00a7 514",
+  "source": "United States Code title 18 section 514, retrieved from Cornell LII (law.cornell.edu). The statutory text is a U.S. government work and is public domain; Cornell's annotations are excluded.",
+  "authority_class": "federal_statute",
+  "authority_class_basis": "Title of the work is a U.S. Code section citation, which fixes the class",
+  "claim_layer": "doctrinal",
+  "claim_layer_meaning": "States or describes the rule. Cite for what the law IS.",
+  "authorities_cited": [],
+  "term_index": {},
+  "origin_pdf": "usc18_514.txt",
+  "extraction": {
+    "extractor": "text file (already extracted)",
+    "pages": 1,
+    "no_text_layer": [],
+    "raised": [],
+    "recovered": [],
+    "lost": [],
+    "complete": true
+  },
+  "pages": 1,
+  "sections": [
+    {
+      "citation": "\u00a7 514.",
+      "kind": "section_sign",
+      "page": 1,
+      "text": "\u00a7 514. Fictitious obligations. (a) Whoever, with the intent to defraud\u2014 (1) draws, prints, processes, produces, publishes, or otherwise makes, or attempts or causes the same, within the United States; (2) passes, utters, presents, offers, brokers, issues, sells, or attempts or causes the same, or with like intent possesses, within the United States; or (3) utilizes interstate or foreign commerce, including the use of the mails or wire, radio, or other electronic communication, to transmit, transport, ship, move, transfer, or attempts or causes the same, to, from, or through the United States, any false or fictitious instrument, document, or other item appearing, representing, purporting, or contriving through scheme or artifice, to be an actual security or other financial instrument issued under the authority of the United States, a foreign government, a State or other political subdivision of the United States, or an organization, shall be guilty of a class B felony. (b) For purposes of this section, any term used in this section that is defined in section 513(c) has the same meaning given such term in section 513(c). (c) The United States Secret Service , in addition to any other agency having such authority, shall have authority to investigate offenses under this section. (Added Pub. L. 104\u2013208, div. A, title I, \u00a7 101(f) [title VI, \u00a7 648(b)(1)] , title II, \u00a7 2603(b)(1), Sept. 30, 1996 , 110 Stat. 3009\u2013314 , 3009\u2013367, 3009\u2013470.)",
+      "integrity": {
+        "state": "complete",
+        "basis": "Full retrieved body of 1,454 characters stored; under the 60,000 cap, so nothing was cut.",
+        "stamped_at": "2026-09-29T17:45:56",
+        "stored_chars": 1454,
+        "source_chars": 1454,
+        "cap_applied": 60000
+      },
+      "authority_class": "federal_statute",
+      "claim_layer": "doctrinal",
+      "claim_layer_meaning": "States or describes the rule. Cite for what the law IS."
+    }
+  ],
+  "claim_layer_basis": "Set from the class, not from the text: a statute or regulation states the rule rather than describing or arguing it, which the citation in the title establishes definitionally."
+}

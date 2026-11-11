@@ -1,0 +1,3760 @@
+{
+"title": "31 CFR Part 363 - Regulations Governing Securities Held In Treasurydirect",
+"source": "Electronic CFR, title 31 part 363, as of 2026-08-01, retrieved from ecfr.gov. Federal regulation - public domain.",
+"authority_class": "regulation",
+"authority_class_basis": "Title of the work is a CFR part citation, which fixes the class",
+"claim_layer": "doctrinal",
+"claim_layer_meaning": "States or describes the rule. Cite for what the law IS.",
+"authorities_cited": [],
+"term_index": {
+"eligible book entry": [
+0,
+3,
+8
+],
+"online account": [
+0,
+8,
+11,
+12
+],
+"treasury securities": [
+0,
+1,
+3,
+6,
+8,
+21,
+30,
+31,
+38,
+41,
+43,
+97,
+98,
+99,
+100,
+102
+],
+"book entry treasury": [
+0,
+1,
+6,
+8,
+99,
+100,
+104
+],
+"treasurydirect system": [
+0,
+1,
+5,
+7,
+51,
+64,
+68,
+92
+],
+"book entry": [
+0,
+1,
+3,
+5,
+6,
+8,
+10,
+18,
+20,
+22,
+23,
+30,
+42,
+43,
+44,
+45,
+46,
+47,
+48,
+49,
+50,
+53,
+54,
+56,
+59,
+60,
+83,
+84,
+85,
+87,
+88,
+89,
+91,
+92,
+98,
+99,
+100,
+104,
+106
+],
+"eligible book": [
+0,
+3,
+8
+],
+"entry treasury": [
+0,
+1,
+6,
+8,
+99,
+100,
+104
+],
+"entry treasury securities": [
+0,
+1,
+8,
+99
+],
+"conduct transactions": [
+0,
+6,
+8,
+18,
+20,
+21,
+23,
+27,
+38,
+39
+],
+"securities held": [
+1,
+6,
+7,
+8,
+18,
+20,
+21,
+23,
+25,
+31,
+38,
+39,
+102
+],
+"treasury securities held": [
+1,
+21,
+102
+],
+"what treasury": [
+1,
+43,
+98
+],
+"what treasury securities": [
+1,
+43,
+98
+],
+"united states": [
+2,
+6,
+9,
+23,
+25,
+31,
+37,
+38,
+41,
+60,
+108,
+109
+],
+"certain transactions": [
+2,
+5,
+107
+],
+"federal reserve": [
+2,
+6,
+39
+],
+"fiscal service": [
+2,
+4,
+6,
+11,
+16,
+23,
+24,
+35,
+37,
+39,
+41,
+96,
+108,
+110
+],
+"marketable treasury securities": [
+3,
+6,
+30,
+31,
+97,
+100,
+102
+],
+"savings bonds": [
+3,
+6,
+8,
+10,
+20,
+23,
+30,
+31,
+36,
+37,
+38,
+39,
+42,
+43,
+44,
+45,
+47,
+48,
+49,
+50,
+51,
+58,
+83,
+84
+],
+"eligible treasury securities": [
+3,
+30,
+31
+],
+"zero percent": [
+3,
+6,
+23,
+30,
+31,
+34,
+51,
+62,
+63,
+64,
+65,
+66,
+67,
+68,
+69,
+70,
+71,
+72,
+73,
+74,
+75,
+76,
+77,
+78,
+79,
+80,
+81,
+88,
+89,
+94,
+103
+],
+"zero percent certificates": [
+3,
+30,
+69
+],
+"book entry system": [
+3,
+6,
+22,
+23,
+30,
+99,
+104,
+106
+],
+"financial institutions": [
+3,
+5,
+6
+],
+"treasury direct system": [
+3,
+6,
+30,
+99
+],
+"eligible treasury": [
+3,
+30,
+31
+],
+"entry savings": [
+3,
+6,
+42,
+43,
+44,
+45,
+46,
+47,
+48,
+49,
+50,
+53,
+54,
+56,
+59,
+60,
+88
+],
+"entry savings bonds": [
+3,
+42,
+43,
+44,
+45,
+47,
+48,
+49,
+50
+],
+"commercial book entry": [
+3,
+6,
+22,
+23,
+30,
+99,
+104,
+106
+],
+"commercial book": [
+3,
+6,
+22,
+23,
+30,
+99,
+104,
+106
+],
+"percent certificates": [
+3,
+30,
+69
+],
+"entry system": [
+3,
+6,
+22,
+23,
+30,
+99,
+104,
+106
+],
+"book entry savings": [
+3,
+6,
+42,
+43,
+44,
+45,
+46,
+47,
+48,
+49,
+50,
+53,
+54,
+56,
+59,
+60,
+88
+],
+"financial institution": [
+3,
+5,
+6,
+9,
+26,
+31,
+32,
+34,
+35,
+37,
+51,
+52,
+60,
+66,
+71,
+74,
+80,
+81,
+103,
+104
+],
+"marketable treasury": [
+3,
+6,
+22,
+23,
+30,
+31,
+34,
+97,
+98,
+100,
+101,
+102,
+104,
+105,
+106
+],
+"treasury direct": [
+3,
+4,
+6,
+22,
+30,
+89,
+99,
+104
+],
+"legacy treasury": [
+3,
+6,
+22,
+30,
+99,
+104
+],
+"eligible marketable": [
+3,
+30,
+100
+],
+"direct system": [
+3,
+6,
+30,
+99
+],
+"computer record": [
+3,
+5,
+6
+],
+"legacy treasury direct": [
+3,
+6,
+22,
+30,
+99,
+104
+],
+"address provided": [
+4,
+13,
+21,
+27
+],
+"within treasurydirect": [
+4,
+22,
+103
+],
+"closed book period": [
+5,
+34,
+103,
+107
+],
+"book period": [
+5,
+34,
+103,
+107
+],
+"account means": [
+5,
+6,
+8
+],
+"closed book": [
+5,
+34,
+103,
+107
+],
+"definitive savings bond": [
+5,
+6,
+82,
+85,
+86,
+87,
+90,
+92
+],
+"treasury security": [
+5,
+6,
+11,
+22,
+23,
+33,
+34,
+100,
+101,
+104,
+105,
+106
+],
+"definitive savings": [
+5,
+6,
+82,
+83,
+84,
+85,
+86,
+87,
+90,
+92
+],
+"business days": [
+5,
+74,
+77,
+107
+],
+"account establishment": [
+5,
+6,
+11
+],
+"marketable security": [
+5,
+6,
+20,
+100,
+103,
+107
+],
+"treasurydirect account": [
+5,
+6,
+8,
+9,
+10,
+11,
+15,
+18,
+20,
+22,
+23,
+26,
+27,
+28,
+30,
+31,
+32,
+33,
+34,
+35,
+36,
+37,
+38,
+44,
+47,
+51,
+55,
+58,
+61,
+66,
+70,
+72,
+74,
+78,
+79,
+80,
+81,
+85,
+88,
+89,
+91,
+92,
+93,
+94,
+100,
+103,
+104,
+105,
+106
+],
+"entry security": [
+5,
+6,
+18
+],
+"individual named": [
+5,
+6,
+18
+],
+"transactions will": [
+5,
+21,
+27
+],
+"book entry security": [
+5,
+6,
+18
+],
+"savings bond": [
+5,
+6,
+18,
+20,
+22,
+34,
+39,
+46,
+47,
+51,
+53,
+54,
+55,
+56,
+58,
+59,
+60,
+74,
+82,
+85,
+86,
+87,
+88,
+89,
+90,
+91,
+92,
+93,
+94,
+95,
+96
+],
+"book entry bonds": [
+6,
+8,
+43,
+83,
+84,
+92
+],
+"secondary owner": [
+6,
+8,
+18,
+20,
+23,
+39
+],
+"bond held": [
+6,
+46,
+59
+],
+"treasurydirect primary": [
+6,
+8,
+85
+],
+"originally issued": [
+6,
+43,
+92
+],
+"voluntary representative": [
+6,
+10,
+38
+],
+"taxpayer identification number": [
+6,
+18,
+23
+],
+"incompetent person": [
+6,
+10,
+18
+],
+"payroll savings": [
+6,
+31,
+51,
+52,
+64,
+74,
+79,
+80
+],
+"offline verification": [
+6,
+12,
+13
+],
+"minimum amount": [
+6,
+45,
+46,
+47,
+48,
+49,
+51,
+57
+],
+"account number": [
+6,
+11,
+14,
+15
+],
+"your primary": [
+6,
+8,
+35,
+66,
+103
+],
+"entry savings bond": [
+6,
+46,
+53,
+54,
+56,
+59,
+60,
+88
+],
+"definitive bond": [
+6,
+86,
+87,
+89,
+90,
+91
+],
+"proportionate interest": [
+6,
+48,
+49,
+57
+],
+"your treasurydirect": [
+6,
+8,
+18,
+31,
+32,
+33,
+34,
+35,
+36,
+44,
+51,
+55,
+66,
+74,
+78,
+80,
+81,
+94,
+100,
+103
+],
+"minor linked account": [
+6,
+23,
+89
+],
+"purchase price": [
+6,
+76,
+103
+],
+"redemption value": [
+6,
+38,
+46,
+48,
+49,
+57
+],
+"minor account": [
+6,
+8,
+23
+],
+"more information": [
+6,
+8,
+51,
+80
+],
+"zero percent certificate": [
+6,
+23,
+31,
+34,
+51,
+62,
+63,
+64,
+65,
+66,
+67,
+68,
+70,
+71,
+72,
+73,
+74,
+75,
+76,
+77,
+78,
+79,
+80,
+81,
+88,
+89,
+94,
+103
+],
+"minor linked": [
+6,
+23,
+89
+],
+"entry bond": [
+6,
+85,
+87,
+89,
+91,
+92
+],
+"savings plan": [
+6,
+31,
+51,
+52,
+64,
+74,
+79,
+80
+],
+"taxpayer identification": [
+6,
+18,
+23
+],
+"primary account": [
+6,
+8,
+23,
+79,
+85,
+88,
+103
+],
+"security held": [
+6,
+20,
+25,
+39,
+103
+],
+"percent certificate": [
+6,
+23,
+31,
+34,
+51,
+62,
+63,
+64,
+65,
+66,
+67,
+68,
+70,
+71,
+72,
+73,
+74,
+75,
+76,
+77,
+78,
+79,
+80,
+81,
+88,
+89,
+94,
+103
+],
+"entry bonds": [
+6,
+8,
+43,
+83,
+84,
+92
+],
+"single owner": [
+6,
+8,
+18,
+20,
+43,
+47,
+56,
+83,
+85,
+88,
+91,
+92,
+94,
+104
+],
+"payroll zero percent": [
+6,
+31,
+51,
+64,
+74,
+78,
+79,
+80,
+81
+],
+"account manager": [
+6,
+8,
+9,
+11,
+12,
+13,
+18,
+20
+],
+"treasurydirect primary account": [
+6,
+8,
+85
+],
+"open your": [
+6,
+36,
+51
+],
+"linked account": [
+6,
+8,
+23,
+58,
+88,
+89
+],
+"final maturity": [
+6,
+34,
+61,
+88,
+89,
+94
+],
+"depository financial institution": [
+6,
+9,
+37,
+60
+],
+"depository financial": [
+6,
+9,
+37,
+60
+],
+"owner with secondary": [
+6,
+8,
+18,
+20,
+23
+],
+"entity account manager": [
+6,
+8,
+9,
+11,
+12,
+13,
+18,
+20
+],
+"used only": [
+6,
+38,
+64
+],
+"bond without": [
+6,
+18,
+92
+],
+"more information about": [
+6,
+8,
+51
+],
+"legal guardian": [
+6,
+18,
+23
+],
+"linked accounts": [
+6,
+8,
+74
+],
+"your primary account": [
+6,
+8,
+103
+],
+"payroll savings plan": [
+6,
+31,
+51,
+52,
+64,
+74,
+79,
+80
+],
+"owner form": [
+6,
+20,
+47,
+56,
+92,
+104
+],
+"identification number": [
+6,
+9,
+18,
+23
+],
+"entity account": [
+6,
+8,
+9,
+11,
+12,
+13,
+18,
+20
+],
+"owner with beneficiary": [
+6,
+8,
+18,
+20,
+23,
+43,
+83,
+85,
+88,
+89,
+91,
+92,
+93,
+94
+],
+"payroll zero": [
+6,
+31,
+51,
+64,
+74,
+78,
+79,
+80,
+81
+],
+"legal representative": [
+6,
+18,
+38
+],
+"bond registered": [
+6,
+85,
+89,
+92
+],
+"principal amount": [
+6,
+38,
+44
+],
+"your employer": [
+6,
+31,
+51,
+52,
+74,
+80
+],
+"savings bond registered": [
+6,
+85,
+89,
+92
+],
+"single owner form": [
+6,
+20,
+47,
+56,
+92,
+104
+],
+"primary owner": [
+6,
+8,
+18,
+20,
+23
+],
+"coowner form": [
+6,
+43,
+83,
+85,
+89,
+91,
+92,
+94
+],
+"beneficiary secondary": [
+6,
+18,
+39
+],
+"your treasurydirect account": [
+6,
+8,
+18,
+31,
+32,
+33,
+34,
+35,
+36,
+44,
+51,
+55,
+66,
+74,
+78,
+80,
+81,
+94,
+100,
+103
+],
+"access your": [
+6,
+8,
+11,
+14
+],
+"information about": [
+6,
+8,
+51
+],
+"converted savings": [
+6,
+8,
+18,
+20,
+30,
+39,
+43,
+83,
+87,
+90,
+91,
+92,
+94,
+95
+],
+"converting coowner": [
+6,
+43,
+83,
+92,
+94
+],
+"book entry bond": [
+6,
+85,
+87,
+89,
+91,
+92
+],
+"made through": [
+6,
+18,
+64
+],
+"marketable treasury security": [
+6,
+22,
+23,
+34,
+100,
+101,
+104,
+105,
+106
+],
+"beneficiary form": [
+6,
+20,
+43,
+83,
+85,
+89,
+91,
+92
+],
+"beneficiary secondary owner": [
+6,
+18,
+39
+],
+"converted savings bond": [
+6,
+18,
+39,
+87,
+90,
+91,
+92,
+94,
+95
+],
+"redemption proceeds": [
+6,
+18,
+31,
+76,
+88,
+89,
+94,
+103
+],
+"does this subpart": [
+7,
+43,
+63,
+98
+],
+"gift savings bonds": [
+8,
+23,
+58
+],
+"book entry securities": [
+8,
+10,
+20
+],
+"conversion linked": [
+8,
+88,
+89
+],
+"converted savings bonds": [
+8,
+20,
+30,
+43,
+83
+],
+"single owner owner": [
+8,
+18,
+94
+],
+"owner owner": [
+8,
+18,
+23,
+94
+],
+"entry securities": [
+8,
+10,
+20
+],
+"entity form": [
+8,
+43,
+47,
+56,
+83,
+85,
+91,
+92,
+94
+],
+"conversion linked account": [
+8,
+88,
+89
+],
+"gift savings": [
+8,
+22,
+23,
+55,
+58
+],
+"account owner": [
+9,
+10,
+13,
+20,
+26,
+38,
+53,
+58,
+59,
+70,
+79,
+85,
+88,
+89,
+104
+],
+"securities through": [
+10,
+18,
+31
+],
+"treasurydirect account owner": [
+10,
+20,
+26,
+38,
+58,
+70,
+79,
+88,
+89
+],
+"manager must certify": [
+11,
+18,
+20
+],
+"your account number": [
+11,
+14,
+15
+],
+"your account": [
+11,
+14,
+15,
+17,
+21,
+30,
+33,
+34,
+36,
+46,
+57
+],
+"deem appropriate": [
+11,
+12,
+13,
+26
+],
+"your password": [
+11,
+15,
+17
+],
+"require offline": [
+12,
+13,
+19
+],
+"will provide": [
+13,
+21,
+86
+],
+"individual account": [
+13,
+38,
+56,
+85,
+104
+],
+"individual account owner": [
+13,
+38,
+85,
+104
+],
+"using your": [
+14,
+15,
+80
+],
+"account using": [
+15,
+34,
+80
+],
+"treasurydirect account using": [
+15,
+34,
+80
+],
+"through your": [
+18,
+21,
+31,
+33,
+36,
+80,
+94
+],
+"know about": [
+18,
+23,
+70
+],
+"through your treasurydirect": [
+18,
+31,
+33,
+36,
+80,
+94
+],
+"security will": [
+18,
+103,
+104
+],
+"security using": [
+18,
+76,
+78,
+103
+],
+"conducting transactions": [
+20,
+21,
+23
+],
+"marketable securities": [
+20,
+38,
+100
+],
+"will require": [
+21,
+38,
+39,
+40
+],
+"online instructions": [
+21,
+23,
+86
+],
+"direct account": [
+22,
+89,
+104
+],
+"treasury direct account": [
+22,
+89,
+104
+],
+"another treasurydirect": [
+23,
+26,
+72,
+105
+],
+"another treasurydirect account": [
+23,
+26,
+72,
+105
+],
+"conducted through": [
+23,
+91,
+92
+],
+"will notify": [
+26,
+35,
+36
+],
+"debit entry": [
+26,
+74,
+77
+],
+"another person": [
+28,
+47,
+54,
+56
+],
+"what happens": [
+28,
+32,
+35,
+38,
+66,
+88,
+89
+],
+"your payroll": [
+31,
+51,
+52,
+74,
+80
+],
+"debit from your": [
+31,
+80,
+103
+],
+"your financial institution": [
+31,
+32,
+35,
+51,
+71,
+74,
+80
+],
+"make payment": [
+31,
+39,
+41,
+60,
+61
+],
+"only method": [
+31,
+80,
+103
+],
+"indebtedness through": [
+31,
+74,
+77,
+80
+],
+"your zero percent": [
+31,
+76,
+77,
+103
+],
+"your financial": [
+31,
+32,
+35,
+51,
+71,
+74,
+80
+],
+"your zero": [
+31,
+76,
+77,
+103
+],
+"will make": [
+33,
+41,
+60,
+61
+],
+"reached final": [
+34,
+88,
+89
+],
+"reached final maturity": [
+34,
+88,
+89
+],
+"bank account": [
+35,
+44,
+66
+],
+"will hold": [
+35,
+55,
+89,
+107
+],
+"judicial proceedings": [
+38,
+39,
+40,
+41
+],
+"registered owner": [
+39,
+44,
+85,
+89,
+91,
+92,
+93
+],
+"transaction request": [
+39,
+40,
+41
+],
+"final judgment": [
+40,
+41,
+47
+],
+"will make payment": [
+41,
+60,
+61
+],
+"bonds purchased": [
+42,
+44,
+92
+],
+"cent increments above": [
+45,
+48,
+49,
+51
+],
+"above that amount": [
+45,
+48,
+49,
+51
+],
+"cent increments": [
+45,
+48,
+49,
+51
+],
+"increments above": [
+45,
+48,
+49,
+51
+],
+"each bond": [
+45,
+46,
+51
+],
+"transaction each": [
+45,
+48,
+49
+],
+"bond will": [
+47,
+55,
+56,
+58,
+90,
+92
+],
+"your payroll savings": [
+51,
+52,
+74,
+80
+],
+"gift bond": [
+55,
+57,
+89
+],
+"otherwise noted": [
+62,
+82,
+97
+],
+"unless otherwise": [
+62,
+82,
+97
+],
+"unless otherwise noted": [
+62,
+82,
+97
+],
+"indebtedness within": [
+64,
+74,
+77
+],
+"proceeds will": [
+66,
+88,
+94
+],
+"indebtedness issued": [
+68,
+69,
+75
+],
+"days after": [
+74,
+77,
+101
+],
+"funds from your": [
+74,
+80,
+103
+],
+"eligible series": [
+83,
+85,
+91
+],
+"series registered": [
+83,
+91,
+92,
+94
+],
+"automatically redeemed": [
+88,
+89,
+94
+],
+"owner either": [
+88,
+89,
+92,
+93
+],
+"owner either coowner": [
+88,
+89,
+92,
+93
+],
+"either coowner": [
+88,
+89,
+92,
+93
+],
+"converted bond": [
+90,
+92,
+93,
+94
+],
+"holding period": [
+94,
+105,
+106
+],
+"marketable book": [
+99,
+100,
+104
+],
+"marketable book entry": [
+99,
+100,
+104
+],
+"your marketable": [
+102,
+104,
+105,
+106
+],
+"your marketable treasury": [
+102,
+104,
+105,
+106
+],
+"transfer your": [
+104,
+105,
+106
+]
+},
+"origin_pdf": "31cfr363.txt",
+"extraction": {
+"extractor": "text file (already extracted)",
+"pages": 1,
+"no_text_layer": [],
+"raised": [],
+"recovered": [],
+"lost": [],
+"complete": true
+},
+"pages": 1,
+"sections": [
+{
+"citation": "\u00a7 363.0",
+"kind": "section_sign",
+"page": 1,
+"text": "\u00a7 363.0 What is the TreasuryDirect \u00ae system? The TreasuryDirect system (TreasuryDirect) is an online account system in which you may hold and conduct transactions in eligible book-entry Treasury securities.",
+"integrity": {
+"state": "complete",
+"basis": "Full retrieved body of 206 characters stored; under the 60,000 cap, so nothing was cut.",
+"stamped_at": "2026-09-21T22:09:50",
+"stored_chars": 206,
+"source_chars": 206,
+"cap_applied": 60000
+},
+"authority_class": "regulation",
+"claim_layer": "doctrinal",
+"claim_layer_meaning": "States or describes the rule. Cite for what the law IS."
+},
+{
+"citation": "\u00a7 363.1",
+"kind": "section_sign",
+"page": 1,
+"text": "\u00a7 363.1 What Treasury securities are covered by these regulations? The regulations in this part apply to book-entry Treasury securities held in the TreasuryDirect \u00ae system.",
+"integrity": {
+"state": "complete",
+"basis": "Full retrieved body of 172 characters stored; under the 60,000 cap, so nothing was cut.",
+"stamped_at": "2026-09-21T22:09:50",
+"stored_chars": 172,
+"source_chars": 172,
+"cap_applied": 60000
+},
+"authority_class": "regulation",
+"claim_layer": "doctrinal",
+"claim_layer_meaning": "States or describes the rule. Cite for what the law IS."
+},
+{
+"citation": "\u00a7 363.2",
+"kind": "section_sign",
+"page": 1,
+"text": "\u00a7 363.2 What agency administers TreasuryDirect \u00ae? The Bureau of the Fiscal Service (Fiscal Service), Department of the Treasury (Treasury) is responsible for administering TreasuryDirect. Fiscal Service may delegate authority to process certain transactions in TreasuryDirect to Federal Reserve Banks and Branches as fiscal agents of the United States.",
+"integrity": {
+"state": "complete",
+"basis": "Full retrieved body of 352 characters stored; under the 60,000 cap, so nothing was cut.",
+"stamped_at": "2026-09-21T22:09:50",
+"stored_chars": 352,
+"source_chars": 352,
+"cap_applied": 60000
+},
+"authority_class": "regulation",
+"claim_layer": "doctrinal",
+"claim_layer_meaning": "States or describes the rule. Cite for what the law IS."
+},
+{
+"citation": "\u00a7 363.4",
+"kind": "section_sign",
+"page": 1,
+"text": "\u00a7 363.4 How is TreasuryDirect\u00ae different from the Legacy Treasury Direct\u00ae system and the commercial book-entry system? (a) TreasuryDirect. TreasuryDirect is a book-entry, online system maintained by Treasury for purchasing, holding and conducting permitted transactions in eligible Treasury securities in electronic form as a computer record on the books of Treasury. TreasuryDirect currently provides for the purchase and holding of eligible book-entry savings bonds, zero-percent certificates of indebtedness, and eligible marketable Treasury securities. (b) Legacy Treasury Direct. The Legacy Treasury Direct system is a non-Internet-based book-entry system maintained by Treasury for holding and conducting permitted transactions in eligible marketable Treasury securities as book-entry products. The terms and conditions for the Legacy Treasury Direct system are found at 31 CFR part 357, subpart C. (c) Commercial book-entry system. The commercial book-entry system is the book-entry system in which Treasury securities are held in a tiered system through securities intermediaries such as financial institutions or brokerage firms. The regulations governing the commercial book-entry system are found at 31 CFR part 357, subpart B, and may be referred to in that part as Treasury/Reserve Automated Debt Entry System (TRADES). [70 FR 57442, Sept. 30, 2005, as amended at 76 FR 18064, Apr. 1, 2011]",
+"integrity": {
+"state": "complete",
+"basis": "Full retrieved body of 1,403 characters stored; under the 60,000 cap, so nothing was cut.",
+"stamped_at": "2026-09-21T22:09:50",
+"stored_chars": 1403,
+"source_chars": 1403,
+"cap_applied": 60000
+},
+"authority_class": "regulation",
+"claim_layer": "doctrinal",
+"claim_layer_meaning": "States or describes the rule. Cite for what the law IS."
+},
+{
+"citation": "\u00a7 363.5",
+"kind": "section_sign",
+"page": 1,
+"text": "\u00a7 363.5 How do I contact Fiscal Service? (a) You may use the \u201cContact Us\u201d feature within TreasuryDirect \u00ae to communicate information to us over a secure Internet connection. (b) Emails may be sent to: treasury.direct@bpd.treas.gov. We will reply by e-mail unless you request otherwise. We are not responsible for the security of e-mail messages you may send to us, or replies we may send to you. (c) Letters should be addressed to the address provided on our web site at http://www.treasurydirect.gov/write.htm. [67 FR 64286, Oct. 17, 2002, as amended at 70 FR 57442, Sept. 30, 2005; 74 FR 19416, Apr. 29, 2009]",
+"integrity": {
+"state": "complete",
+"basis": "Full retrieved body of 611 characters stored; under the 60,000 cap, so nothing was cut.",
+"stamped_at": "2026-09-21T22:09:50",
+"stored_chars": 611,
+"source_chars": 611,
+"cap_applied": 60000
+},
+"authority_class": "regulation",
+"claim_layer": "doctrinal",
+"claim_layer_meaning": "States or describes the rule. Cite for what the law IS."
+},
+{
+"citation": "\u00a7 363.6",
+"kind": "section_sign",
+"page": 1,
+"text": "\u00a7 363.6 What special terms do I need to know to understand this part? Account means a TreasuryDirect \u00ae account as described in \u00a7 363.10. Authentication means confirming that the person accessing a TreasuryDirect account is the same person whose identity was initially verified at account establishment. Automated Clearing House (ACH) means a funds transfer system governed by the Rules of the National Automated Clearing House Association (NACHA). NACHA provides for the interbank clearing of electronic entries for participating financial institutions. Beneficiary refers to the second individual named in the registration of a definitive savings bond, a converted definitive savings bond, or a book-entry security purchased through the TreasuryDirect system, registered, e.g., \u201cJohn Doe SSN 123-45-6789 POD (payable on death to) Joseph Doe SSN 987-65-4321. Book-entry security means a Treasury security maintained by us in electronic or paperless form as a computer record. Business day means any day that funds may be settled through ACH. Closed book period means a period of four business days prior to the date a scheduled marketable security interest and/or maturity payment is made, during which time certain transactions will be delayed until after the closed book period is completed. ( See",
+"integrity": {
+"state": "complete",
+"basis": "Full retrieved body of 1,299 characters stored; under the 60,000 cap, so nothing was cut.",
+"stamped_at": "2026-09-21T22:09:50",
+"stored_chars": 1299,
+"source_chars": 1299,
+"cap_applied": 60000
+},
+"authority_class": "regulation",
+"claim_layer": "doctrinal",
+"claim_layer_meaning": "States or describes the rule. Cite for what the law IS."
+},
+{
+"citation": "\u00a7 363.210.",
+"kind": "section_sign",
+"page": 1,
+"text": "\u00a7 363.210.) Commercial book-entry system refers to the book-entry system in which you hold your Treasury securities in a tiered system through securities intermediaries such as financial institutions or brokerage firms. (See \u00a7 363.4.) Court means a court of law with jurisdiction over the parties and the subject matter. Conversion account means a linked account in TreasuryDirect that contains only savings bonds that have been converted from definitive bonds to book-entry bonds. Converted savings bond means a savings bond originally issued as a definitive bond that has been surrendered to us and converted to a book-entry savings bond to be maintained by Treasury solely as a computer record. Converting coowner is the coowner who initiates and completes the transaction to convert a definitive savings bond to a book-entry bond through his or her TreasuryDirect account. Coowner means either of the persons named in the registration of a definitive or a converted definitive savings bond, registered, e.g., \u201cJohn Doe SSN 123-45-6789 or Joseph Doe.\u201d Custodian of a minor account means a person who opens an account on behalf of the minor. (See \u00a7 363.27 for more information about minor accounts.) Custom account means an account that you establish for a specific purpose that is linked to your primary account. You use your primary account as the portal to open and access your custom linked account. (See \u00a7 363.10 for more information about custom accounts.) Definitive security means a Treasury security held in paper form. De-link means the online process by which all securities contained within the minor linked account are moved to the minor's primary TreasuryDirect account and the linked account is deactivated. Delivery means moving a minimum amount of $25 (consisting of principal and proportionate interest) of a security held as a gift from the account of the purchaser to the account of the recipient. Entity means any owner of a TreasuryDirect account that is not an individual. Entity is a sole proprietorship, partnership, corporation, limited liability company or professional limited liability company, trust, the estate of a decedent, or the estate of a living person such as an incompetent or a minor. Entity account manager is the individual who initially opens the TreasuryDirect account for an entity, or his or her replacement; who is authorized by the entity to act alone on its behalf to open, access, and conduct transactions with respect to the account; and who certifies that he or she is so authorized. Federal Reserve Bank (Reserve Bank) means a Federal Reserve Bank or Branch. Final maturity of a savings bond means the date beyond which an unredeemed savings bond no longer earns interest. 1 1 Series EE and Series I savings bonds currently have an original maturity period of 20 years and an extended maturity period of 10 years beyond original maturity during which the bonds continue to earn interest. Financial institution, or depository financial institution , means an entity described in 12 U.S.C. 461 (b)(1)(A)(i)-(vi). Gift means a Treasury security purchased for or transferred to an intended recipient, without consideration. Incompetent individual or incompetent person means an individual who has been declared by a court to be legally incompetent, incapacitated, or otherwise unable to manage his or her financial affairs. Individual means a natural person. Interest on a savings bond means the difference between the purchase price and the redemption value of the bond. Legacy Treasury Direct\u00ae system is a non-Internet-based book-entry system maintained by Treasury since 1986 for holding and conducting permitted transactions in marketable Treasury securities directly with Treasury as book-entry products. (See \u00a7 363.4.) Legal guardian of a minor or incompetent person refers to the court-appointed or otherwise qualified person, regardless of title, who is legally authorized to act for the minor or incompetent individual. Legal representative refers to the court-appointed or otherwise qualified person, regardless of title, who is legally authorized to manage and settle the estate of a decedent. The term includes an executor and an administrator. Legally incompetent means a court has declared an individual to be incapable of handling his or her business affairs. Linked account means an account that is a separate account from your primary account, but connected to your primary account. You use your primary account as a portal to open and access the linked account. (See \u00a7 363.10 for more information about linked accounts.) Marketable Treasury security refers to a Treasury bill, note, or bond that is negotiable and transferable, that is, may be bought and sold in the secondary market. Minor means an individual under the age of 18 years. The term minor is also used to refer to an individual who has attained the age of 18 years but has not yet taken control of the securities contained in his or her minor account. Minor account means an account that a custodian controls on behalf of a minor, that is linked to the custodian's primary account. (See \u00a7\u00a7 363.10 and 363.27 for more information about minor accounts.) Non-converting coowner is the coowner who does not participate in the transaction to convert a definitive savings bond to a book-entry bond. Online means use of the Internet. Owner when referring to an individual, is either the single individual named in the registration of a security held in the single owner form of registration, the first individual named on a security held in the owner with beneficiary form of registration, the first individual named on a security held in the primary owner with secondary owner form of registration, or either individual named on a converted savings bond held in the coowner form of registration; when referring to a minor linked account, the owner is the minor; when referring to an entity, the owner is the entity. Payroll savings plan is a method for the purchase of savings bonds using periodic ACH credits from your employer or financial institution to purchase a payroll zero-percent certificate of indebtedness until a sufficient amount of payroll zero-percent certificate of indebtedness is accumulated to enable the purchase of a savings bond in an amount, series, and registration that you previously selected using functionality in your TreasuryDirect account. ( See also the definition of payroll zero-percent certificate of indebtedness.) Payroll zero-percent certificate of indebtedness is a restricted form of the zero-percent certificate of indebtedness that is held separately from the zero-percent certificate of indebtedness and used only for purchases made through the payroll savings plan. (See also the definition for zero-percent certificate of indebtedness.) Person means an individual or an entity. Primary account means the account that you establish when you first open your TreasuryDirect account; your primary account is the portal used to open and access all your linked accounts. (See \u00a7 363.10 for more information about primary accounts.) Primary owner means the first person named in the registration of a security held in TreasuryDirect registered, e.g., \u201cJohn Doe SSN 123-45-6789 with Joseph Doe SSN 987-65-4321.\u201d In this example, John Doe is the primary owner. Principal amount means the amount of the original investment. Principal amount does not include any interest earned. Recipient means the person to whom a gift is given. Redemption of a savings bond refers to the payment of principal and interest at final maturity, or prior to final maturity at the option of the owner. The owner may redeem all principal and interest or a portion of the principal and the proportionate amount of interest. Redemption value means principal plus accrued interest of a bond, or a portion of the principal plus a proportionate amount of accrued interest on the bond, as of the date of redemption. Registration or Registered means that the name and taxpayer identification number(s) (TIN) of the person(s) named on the security are maintained on our records. Reinvestment means using the redemption proceeds of a maturing marketable security to purchase a new marketable security of the same type and term, using the automatic reinvestment option available in TreasuryDirect. Secondary owner means the second person named in the registration of a book-entry security held in TreasuryDirect registered, e.g. \u201cJohn Doe SSN 123-45-6789 with Joseph Doe SSN 987-65-4321.\u201d In this example, Joseph Doe is the secondary owner. Security, or Treasury security, as used in this part, means an obligation issued by Treasury that may be held in TreasuryDirect. Series EE savings bond is an accrual-type savings bond, issued either in definitive (paper) form or in book-entry form, that accrues interest on the principal based on rates determined by Treasury. Series I savings bond is a savings bond, issued either in definitive (paper) form or in book-entry form, that accrues interest in accordance with a formula that includes a fixed component and a component indexed to the rate of inflation. Signature guarantee program means a signature guarantee program established under 17 CFR 240.17Ad-15, issued under authority of the Securities Exchange Act of 1934. For the purpose of this part, we recognize the Securities Transfer Agents Medallion Program (STAMP), the Stock Exchanges Medallion Program (SEMP), and the New York Stock Exchange, Inc., Medallion Signature Program (MSP). These certifications are acceptable for transfers of securities, but are not acceptable for offline account establishment. Single owner means the individual named in the registration of a book-entry Treasury security or a converted savings bond without a beneficiary, secondary owner, or coowner. Social security account number or social security number (SSN) means the identifying number required on tax returns and other documents submitted to the Internal Revenue Service by an individual. A SSN is composed of nine digits separated by two hyphens, for example, 123-45-6789. Taxpayer identification number (TIN) means the identifying number required on tax returns and other documents submitted to the Internal Revenue Service; that is, an individual's social security number (SSN) or an employer identification number (EIN). A SSN is composed of nine digits separated by two hyphens, for example, 123-45-6789. An EIN is composed of nine digits separated by one hyphen, for example, 12-3456789. The hyphens are an essential part of the numbers. Tender means an offer, or bid, to purchase a marketable Treasury security. Transaction is any action affecting Treasury securities or account information. Transfer is a transaction to move a security, or a portion of a security, to or from a TreasuryDirect account. (See \u00a7 363.26.) Verification means confirming the identity of an online applicant for a TreasuryDirect account at account establishment using an online verification service or offline verification. Verification service means a public or private service that confirms the identity of an online applicant for a TreasuryDirect account at account establishment using information provided by the applicant. Voluntary representative means the person qualified by the Department of the Treasury to accept payment or direct distribution of a decedent's securities pursuant to \u00a7 363.44. We, us, or our refers to the Bureau of the Fiscal Service. The term includes the Secretary of the Treasury and the Secretary's delegates at the Treasury Department and Bureau of the Fiscal Service. The term also includes any fiscal or financial agent we designate to act on behalf of the United States. You or your refers to a TreasuryDirect primary account holder. Zero-percent certificate of indebtedness is a one-day, non-interest-bearing security that automatically matures and is rolled over each day until you request that it be redeemed. [67 FR 64286, Oct. 17, 2002, as amended at 68 FR 24807, May 8, 2003; 69 FR 2507, Jan. 16, 2004; 69 FR 50308, Aug. 16, 2004; 70 FR 14942, Mar. 23, 2005; 70 FR 57433, Sept. 30, 2005; 70 FR 57442, Sept. 30, 2005; 72 FR 30978, June 5, 2007; 74 FR 19416, Apr. 29, 2009; 75 FR 26090, May 11, 2010; 75 FR 70815, Nov. 19, 2010; 75 FR 78901, Dec. 17, 2010; 76 FR 18064, Apr. 1, 2011] Subpart B\u2014General Provisions Governing Securities Held in TreasuryDirect",
+"integrity": {
+"state": "complete",
+"basis": "Full retrieved body of 12,406 characters stored; under the 60,000 cap, so nothing was cut.",
+"stamped_at": "2026-09-21T22:09:50",
+"stored_chars": 12406,
+"source_chars": 12406,
+"cap_applied": 60000
+},
+"authority_class": "regulation",
+"claim_layer": "doctrinal",
+"claim_layer_meaning": "States or describes the rule. Cite for what the law IS."
+},
+{
+"citation": "\u00a7 363.9",
+"kind": "section_sign",
+"page": 1,
+"text": "\u00a7 363.9 What does this subpart cover? This subpart provides general rules governing securities held within the TreasuryDirect \u00ae system. Provisions in the subparts governing specific securities that conflict with these general rules will supersede these general rules. [70 FR 57433, Sept. 30, 2005]",
+"integrity": {
+"state": "complete",
+"basis": "Full retrieved body of 297 characters stored; under the 60,000 cap, so nothing was cut.",
+"stamped_at": "2026-09-21T22:09:50",
+"stored_chars": 297,
+"source_chars": 297,
+"cap_applied": 60000
+},
+"authority_class": "regulation",
+"claim_layer": "doctrinal",
+"claim_layer_meaning": "States or describes the rule. Cite for what the law IS."
+},
+{
+"citation": "\u00a7 363.10",
+"kind": "section_sign",
+"page": 1,
+"text": "\u00a7 363.10 What is a TreasuryDirect \u00ae account? A TreasuryDirect account is an online account maintained by us solely in your name in which you may hold and conduct transactions in eligible book-entry Treasury securities. (a) Primary account. The primary account is the account that you establish when initially opening your TreasuryDirect account. The primary account may contain the following Treasury securities: (1) Individual. A primary account for an individual may contain Treasury securities purchased initially as book-entry securities that are your personal holdings registered in single owner, owner with beneficiary, and primary owner with secondary owner forms of registration; gifts of savings bonds that have not yet been delivered; and converted savings bonds that were transferred from the conversion linked account. (2) Entities. A primary account for an entity may contain Treasury securities purchased initially as book-entry securities registered in the name of the entity and converted savings bonds in the name of the entity that were transferred from the conversion linked account. (b) Linked account. A linked account is an account that is a separate account from your primary account, but that is connected to your primary account. You use your primary account as a portal to open and access the linked account. Linked accounts include the following: (1) Custom account. A custom account is an account that is linked to your primary account. You use your primary account as the portal to open and access your custom account. You may informally designate a purpose for the custom account, for example, \u201cvacation fund\u201d, or \u201cJohnny's college fund\u201d. However, the designation as to purpose has no legal effect; the registration of the securities held in the custom account determines ownership (Annual purchase limitations include securities held in custom accounts). You, as an individual owner, may use your custom account to buy, redeem, and transfer securities that you own in single owner, owner with beneficiary, and primary owner with secondary owner forms of registration. An individual owner may also buy and deliver gift savings bonds from the custom account. An entity account manager, acting on behalf of an entity, may use the entity's custom account to buy, redeem, and transfer securities registered in the entity form of registration. (2) Minor account. A minor account is an account established by an individual custodian for an individual who has not yet reached the age of 18 years. We do not permit an entity to open a minor account. A minor account is linked to the custodian's primary account. The minor is the owner of the securities, but the custodian controls the account on behalf of the minor. (See \u00a7 363.27 for more information about minor accounts.) (3) Conversion account means a linked account in TreasuryDirect that contains only savings bonds that have been converted from definitive bonds to book-entry bonds. (c) Closing an account. If a TreasuryDirect primary account and all associated linked accounts have had no holdings and no activity for a period of two years, we reserve the right to close the account, along with all linked accounts. [69 FR 2507, Jan. 16, 2004, as amended at 70 FR 14943, Mar. 23, 2005. Redesignated at 70 FR 57433, Sept. 30, 2005, as amended at 70 FR 57442, Sept. 30, 2005; 74 FR 19417, Apr. 29, 2009; 75 FR 78901, Dec. 17, 2010]",
+"integrity": {
+"state": "complete",
+"basis": "Full retrieved body of 3,409 characters stored; under the 60,000 cap, so nothing was cut.",
+"stamped_at": "2026-09-21T22:09:50",
+"stored_chars": 3409,
+"source_chars": 3409,
+"cap_applied": 60000
+},
+"authority_class": "regulation",
+"claim_layer": "doctrinal",
+"claim_layer_meaning": "States or describes the rule. Cite for what the law IS."
+},
+{
+"citation": "\u00a7 363.11",
+"kind": "section_sign",
+"page": 1,
+"text": "\u00a7 363.11 Who is eligible to open a TreasuryDirect \u00ae account? Only an individual or an entity is eligible to open a TreasuryDirect account. In order to open a TreasuryDirect account, an individual or entity account manager must have a valid social security number (SSN), be 18 years of age or over, and be legally competent. An entity must have a valid SSN or employer identification number. The account owner must have a United States address of record and have an account at a United States depository financial institution that will accept debits and credits using the Automated Clearing House method of payment. [74 FR 19417, Apr. 29, 2009]",
+"integrity": {
+"state": "complete",
+"basis": "Full retrieved body of 643 characters stored; under the 60,000 cap, so nothing was cut.",
+"stamped_at": "2026-09-21T22:09:50",
+"stored_chars": 643,
+"source_chars": 643,
+"cap_applied": 60000
+},
+"authority_class": "regulation",
+"claim_layer": "doctrinal",
+"claim_layer_meaning": "States or describes the rule. Cite for what the law IS."
+},
+{
+"citation": "\u00a7 363.12",
+"kind": "section_sign",
+"page": 1,
+"text": "\u00a7 363.12 Who may purchase and hold book-entry securities in TreasuryDirect \u00ae? (a) A TreasuryDirect account owner may purchase and hold securities through his or her account. (b) We do not permit a legally incompetent person to open an account, purchase securities, or convert savings bonds once we have been provided with an order from a court with appropriate jurisdiction determining incompetence to perform such activities. (c) We do not permit a voluntary representative to purchase securities on behalf of the estate of a decedent. (d) We may reject any application for the purchase of a security, in whole or in part. We may refuse to issue a security in any case or class of cases, if we deem the action to be in the public interest. Our decision in any such respect is final. [70 FR 57433, Sept. 30, 2005, as amended at 74 FR 19417, Apr. 29, 2009 ]",
+"integrity": {
+"state": "complete",
+"basis": "Full retrieved body of 856 characters stored; under the 60,000 cap, so nothing was cut.",
+"stamped_at": "2026-09-21T22:09:50",
+"stored_chars": 856,
+"source_chars": 856,
+"cap_applied": 60000
+},
+"authority_class": "regulation",
+"claim_layer": "doctrinal",
+"claim_layer_meaning": "States or describes the rule. Cite for what the law IS."
+},
+{
+"citation": "\u00a7 363.13",
+"kind": "section_sign",
+"page": 1,
+"text": "\u00a7 363.13 How can I open a TreasuryDirect \u00ae account? (a) General. You must establish a TreasuryDirect account online before you purchase a Treasury security to be held in your account. Instructions for online account establishment may be found at the official Fiscal Service website at http://www.treasurydirect.gov, or such other Internet address as Fiscal Service may from time to time announce by publication in the Federal Register. When you have completed the application, you will create a password to access your account. We will verify your identity and send your account number to you by e-mail when your account application is approved. In addition to your password, we may require you to use any other form(s) of authentication that we consider necessary for the protection of your account. (b) Entities. An individual, referred to as an entity account manager, must establish an account on behalf of an entity. We will verify the identity of the entity account manager. We may verify the identity of the entity using any evidence we deem appropriate. The entity account manager must certify that he or she is authorized to open and access an account for the entity and has the authority to act alone on behalf of the entity with regard to the account. [74 FR 19417, Apr. 29, 2009]",
+"integrity": {
+"state": "complete",
+"basis": "Full retrieved body of 1,291 characters stored; under the 60,000 cap, so nothing was cut.",
+"stamped_at": "2026-09-21T22:09:50",
+"stored_chars": 1291,
+"source_chars": 1291,
+"cap_applied": 60000
+},
+"authority_class": "regulation",
+"claim_layer": "doctrinal",
+"claim_layer_meaning": "States or describes the rule. Cite for what the law IS."
+},
+{
+"citation": "\u00a7 363.14",
+"kind": "section_sign",
+"page": 1,
+"text": "\u00a7 363.14 How will you verify my identity? (a) Individual. When you establish an account, we may use a verification service to verify your identity using information you provide about yourself on the online application. At our option, we may require offline verification. (b) Entity. When an entity account manager establishes an online account on behalf of an entity, we may use a verification service to verify the identity of the entity account manager using information that the entity account manager provides about himself or herself on the online application. At our option, we may require offline verification of the entity account manager. At our option, we may require any evidence we deem appropriate to verify the identity of the entity. [74 FR 19417, Apr. 29, 2009]",
+"integrity": {
+"state": "complete",
+"basis": "Full retrieved body of 777 characters stored; under the 60,000 cap, so nothing was cut.",
+"stamped_at": "2026-09-21T22:09:50",
+"stored_chars": 777,
+"source_chars": 777,
+"cap_applied": 60000
+},
+"authority_class": "regulation",
+"claim_layer": "doctrinal",
+"claim_layer_meaning": "States or describes the rule. Cite for what the law IS."
+},
+{
+"citation": "\u00a7 363.15",
+"kind": "section_sign",
+"page": 1,
+"text": "\u00a7 363.15 What is the procedure for offline verification? In the event we require offline verification, we will provide a printable verification form for the individual account owner or entity account manager to sign. The signature on the form must be certified or guaranteed as provided at \u00a7 363.43, and the form must be mailed to us at the address provided in \u00a7 363.5. We may require documentary verification of an entity as we deem appropriate. [74 FR 19417, Apr. 29, 2009]",
+"integrity": {
+"state": "complete",
+"basis": "Full retrieved body of 475 characters stored; under the 60,000 cap, so nothing was cut.",
+"stamped_at": "2026-09-21T22:09:50",
+"stored_chars": 475,
+"source_chars": 475,
+"cap_applied": 60000
+},
+"authority_class": "regulation",
+"claim_layer": "doctrinal",
+"claim_layer_meaning": "States or describes the rule. Cite for what the law IS."
+},
+{
+"citation": "\u00a7 363.16",
+"kind": "section_sign",
+"page": 1,
+"text": "\u00a7 363.16 How do I access my account? You may access your account online using your account number, password, and any other form(s) of authentication that we may require. [72 FR 30978, June 5, 2007]",
+"integrity": {
+"state": "complete",
+"basis": "Full retrieved body of 197 characters stored; under the 60,000 cap, so nothing was cut.",
+"stamped_at": "2026-09-21T22:09:50",
+"stored_chars": 197,
+"source_chars": 197,
+"cap_applied": 60000
+},
+"authority_class": "regulation",
+"claim_layer": "doctrinal",
+"claim_layer_meaning": "States or describes the rule. Cite for what the law IS."
+},
+{
+"citation": "\u00a7 363.17",
+"kind": "section_sign",
+"page": 1,
+"text": "\u00a7 363.17 Who is liable if someone else accesses my TreasuryDirect \u00ae account using my password? You are solely responsible for the confidentiality and use of your account number, password, and any other form(s) of authentication we may require. We will treat any transactions conducted using your password as having been authorized by you. We are not liable for any loss, liability, cost, or expense that you may incur as a result of transactions made using your password. [72 FR 30978, June 5, 2007]",
+"integrity": {
+"state": "complete",
+"basis": "Full retrieved body of 499 characters stored; under the 60,000 cap, so nothing was cut.",
+"stamped_at": "2026-09-21T22:09:50",
+"stored_chars": 499,
+"source_chars": 499,
+"cap_applied": 60000
+},
+"authority_class": "regulation",
+"claim_layer": "doctrinal",
+"claim_layer_meaning": "States or describes the rule. Cite for what the law IS."
+},
+{
+"citation": "\u00a7 363.18",
+"kind": "section_sign",
+"page": 1,
+"text": "\u00a7 363.18 Is Fiscal Service liable if the electronic transmission of my data is intercepted? We are not liable for any interception of electronic data or communication. [67 FR 64286, Oct. 17, 2002. Redesignated at 70 FR 57434, Sept. 30, 2005]",
+"integrity": {
+"state": "complete",
+"basis": "Full retrieved body of 241 characters stored; under the 60,000 cap, so nothing was cut.",
+"stamped_at": "2026-09-21T22:09:50",
+"stored_chars": 241,
+"source_chars": 241,
+"cap_applied": 60000
+},
+"authority_class": "regulation",
+"claim_layer": "doctrinal",
+"claim_layer_meaning": "States or describes the rule. Cite for what the law IS."
+},
+{
+"citation": "\u00a7 363.19",
+"kind": "section_sign",
+"page": 1,
+"text": "\u00a7 363.19 What should I do if I become aware that my password or other form of authentication has become compromised? If you become aware that your password has become compromised, that any other form of authentication has been compromised, lost, stolen, or misused, or that there have been any unauthorized transactions in your account, you may place a hold on your account so that it cannot be accessed by anyone, and you should notify us immediately by e-mail or telephone. Contact information is available on the TreasuryDirect Web site. [72 FR 30978, June 5, 2007]",
+"integrity": {
+"state": "complete",
+"basis": "Full retrieved body of 568 characters stored; under the 60,000 cap, so nothing was cut.",
+"stamped_at": "2026-09-21T22:09:50",
+"stored_chars": 568,
+"source_chars": 568,
+"cap_applied": 60000
+},
+"authority_class": "regulation",
+"claim_layer": "doctrinal",
+"claim_layer_meaning": "States or describes the rule. Cite for what the law IS."
+},
+{
+"citation": "\u00a7 363.20",
+"kind": "section_sign",
+"page": 1,
+"text": "\u00a7 363.20 What do I need to know about the forms of registration that are available for purchases of securities through my TreasuryDirect \u00ae account? (a) General principles. (1) Registration must express the actual ownership of, and interest in, the security. Registration conclusively establishes ownership of a security. (2) You must provide a last name and a first name for each individual included in the registration of the security. (3) You must provide the valid taxpayer identification number for each person named in the registration of the security. (b) Forms of registration for individuals. The forms of registration available for individuals for purchases of securities made through your TreasuryDirect account are single owner, owner with beneficiary, and primary owner with secondary owner, unless the forms of registration available for a security are specifically limited by the subpart governing that security. (1) Single owner. (i) A single owner is the individual named in the registration of a book-entry security or a converted savings bond without a beneficiary, secondary owner, or coowner. (ii) A single owner may add a beneficiary or secondary owner. (iii) A single owner may conduct permitted online transactions on securities held in his or her account. (iv) Upon the death of the single owner, his or her estate is entitled to the security. In determining entitlement, the law of the decedent's domicile will be followed. (v) Registration example: \u201cJohn Doe, SSN 123-45-6789.\u201d (2) Owner with beneficiary. (i) The purchaser must be named as the owner with another individual as beneficiary. (ii) The owner may remove or change the beneficiary without the consent of the beneficiary. (iii) The owner may conduct permitted online transactions on securities held in his or her account without the consent of the beneficiary. (iv) The beneficiary has no ownership rights to the security during the owner's lifetime. Upon the death of the owner, the security becomes the property of the surviving beneficiary, despite any attempted testamentary disposition or any applicable local law to the contrary. (v) If the beneficiary does not survive the owner, the security belongs to the estate of the owner. (vi) If both the owner and the beneficiary die under conditions where it cannot be established, either by presumption of law or otherwise, who died first, the security is the property of the estate of the owner. (vii) In order for the beneficiary to obtain the security or the redemption proceeds after the death of the owner, the beneficiary must provide proof of death of the owner. If the beneficiary has a TreasuryDirect account, the security will be transferred to that account. If the beneficiary does not have an account, he or she may establish an account. Alternatively, a beneficiary named on a savings bond may request redemption. If the beneficiary requests redemption, he or she must provide ACH instructions for the payment. (viii) Registration example: \u201cJohn Doe, SSN 123-45-6789 POD (payable on death to) Jane Doe, SSN 987-65-4321.\u201d (3) Primary owner with secondary owner. (i) The purchaser must be named in the registration as the primary owner with another individual as secondary owner. (ii) The primary owner holds the securities in his or her account and may view or conduct permitted online transactions in the securities. (iii) The primary owner may remove the secondary owner without the consent of the secondary owner. (iv) The secondary owner has no rights to view or conduct transactions in any security unless the primary owner gives the secondary owner these rights. (v) The primary owner may give the secondary owner the right to view any security or rights to view and conduct transactions in any security online from the account of the secondary owner. (vi) Once the right to conduct transactions in a security has been given to the secondary owner, the primary owner may view and conduct transactions in the security from the primary owner's account, and the secondary owner may view and conduct transactions in the security using the secondary owner's own account. (vii) The primary owner may revoke any rights previously given to the secondary owner at any time. (viii) Upon the death of either the primary or secondary owner, the security becomes the property of the survivor, despite any attempted testamentary disposition or any applicable local law to the contrary. (ix) If both the primary and the secondary owner die under conditions where it cannot be established, either by presumption of law or otherwise, who died first, the security is the property of the estate of the primary owner. (x) In order for the secondary owner to obtain the security or the security proceeds after the death of the primary owner, the secondary owner must provide proof of death of the primary owner. If the secondary owner has a TreasuryDirect account, the security will be transferred to that account. If the secondary owner does not have an account, he or she may establish an account. Alternatively, a secondary owner named on a savings bond may request redemption. If the secondary owner requests redemption, he or she must provide ACH instructions. (xi) Registration example: \u201cJohn Doe, SSN 123-45-6789 with Joseph Doe, SSN 987-65-4321.\u201d (c) Forms of registration for entities. The forms of registration available for entities are sole proprietorship; partnership; corporation; limited liability company or professional limited liability company (LLC or PLLC); trust; decedent's estate; and estate of a living person such as an incompetent or a minor. (1) Sole proprietorship. A sole proprietorship form of registration is available for an individual who is doing business as a sole proprietor. The entity account manager must be the owner of the business. Registration example: \u201cJohn Doe DBA Doe Plumbing Supplies, EIN 12-3456789, [or SSN 123-45-6789].\u201d (2) Partnership. A partnership form of registration is available for two or more individuals who are doing business as a partnership, including a limited liability partnership. Unless the name of a partnership includes the word \u201cpartnership,\u201d the registration must include descriptive words indicating partnership status. The entity account manager must be a general partner, and must certify that he or she has the authority to act alone on behalf of the partnership with regard to this account. Registration example: \u201cSmith and Jones Construction Company, a partnership, EIN 98-7654321, or SSN 987-65-4321.\u201d (3) Corporation. A corporate form of registration is available for an entity that has been incorporated pursuant to state law. The registration must contain a reference to the corporate status. The entity account manager must be a corporate officer or designated employee and must certify that he or she has the authority to act alone on behalf of the corporation with regard to this account. Registration example: \u201cABC Corporation, EIN 23-4567891.\u201d (4) Limited Liability Company (LLC) or Professional Limited Liability Company (PLLC). A LLC or PLLC form of registration is available for an entity that has registered articles of organization pursuant to state law. The registration must contain a reference to the company's status. The entity account manager must be a company official or designated employee and must certify that he or she has the authority to act alone on behalf of the company with regard to this account. Registration example: \u201cPaine Dental Associates, PLLC, EIN 34-5678912\u201d or \u201cSummit Consulting Service, LLC, EIN 12-3456789.\u201d (5) Trust. A trust form of registration is available. The trust form of registration is not available for trusts in which the trustee is acting on behalf of a federal, state, or local government. The registration must identify the trust with specificity; at a minimum, it must include the authority or document creating the trust, the date the document was executed (except in the case of a probated will when the date is not necessary), the name of a trustee of the trust who is authorized to act alone on behalf of the trust with regard to the account, and any information that is necessary to distinguish the trust from any other trust. The registration may also include the names of additional trustees and the full name of the trust. If one or more of the trustees are individuals, and the entity account manager is an individual trustee, the entity account manager must be named in the registration. If an organization serving as a trustee of the trust will administer this account, the entity account manager must be a duly authorized employee of that organization who has the authority to act alone on behalf of the organization in its role as trustee of the trust with regard to the account, and the organization must be named in the registration. In either case, the entity account manager must certify that he or she has the authority to act alone on behalf of the trust with regard to the account. Registration examples: \u201cJohn Doe, Trustee under Declaration of Trust dated January 1, 2001, SSN 123-45-6789\u201d; \u201cFirst National Bank, Trustee under Agreement with William Jones dated January 1, 2001, EIN 12-3456789\u201d; \u201cJohn Doe or Sarah Jones, Trustees under Agreement with Jane Doe dated January 1, 2001, SSN 123-45-6789\u201d; \u201cSarah Jones, Trustee under the Will of Matthew Smith, deceased, SSN 123-45-6789\u201d; \u201cJane Doe, Trustee of the Doe Family Trust dated January 1, 2001, EIN 12-3456789.\u201d (6) The estate of a decedent. The decedent's estate form of registration is available for an individual or organization that has been appointed by a court according to state law to act on behalf of the estate of a decedent. This form of registration is not available where the legal representative is acting on behalf of a federal, state, or local government. The entity account manager must be a court-appointed individual legal representative who has the authority to act alone with regard to the account, or an employee of the court-appointed organizational legal representative who has the authority to act alone with regard to the account on behalf of the organization in its role as legal representative of the estate. Registration example: \u201cJohn Doe, Legal Representative of the Estate of William Jones, a decedent, EIN 12-3456789, or SSN 123-45-6789.\u201d (7) The estate of a living person such as an incompetent or a minor. A form of registration is available for an individual or organization that has been appointed according to state law to act on behalf of the estate of an incompetent person, a minor, or other living person. This form of registration is not available where the legal guardian is acting on behalf of a federal, state, or local government. The entity account manager must be a court-appointed legal guardian who has the authority to act alone with regard to the account, or an employee of the court-appointed organizational legal guardian who has the authority to act alone with regard to the account on behalf of the organization in its role as legal guardian. Registration example: \u201cJohn Doe, Legal Guardian of the estate of William Jones.\u201d The SSN of the incompetent person or the minor will be used. [70 FR 57434, Sept. 30, 2005, as amended at 74 FR 19417, Apr. 29, 2009; 79 FR 8860, Feb. 14, 2014]",
+"integrity": {
+"state": "complete",
+"basis": "Full retrieved body of 11,292 characters stored; under the 60,000 cap, so nothing was cut.",
+"stamped_at": "2026-09-21T22:09:50",
+"stored_chars": 11292,
+"source_chars": 11292,
+"cap_applied": 60000
+},
+"authority_class": "regulation",
+"claim_layer": "doctrinal",
+"claim_layer_meaning": "States or describes the rule. Cite for what the law IS."
+},
+{
+"citation": "\u00a7 363.21",
+"kind": "section_sign",
+"page": 1,
+"text": "\u00a7 363.21 When may you require offline authentication and documentary evidence? We may require offline authentication and documentary evidence at our option. [74 FR 19419, Apr. 29, 2009]",
+"integrity": {
+"state": "complete",
+"basis": "Full retrieved body of 185 characters stored; under the 60,000 cap, so nothing was cut.",
+"stamped_at": "2026-09-21T22:09:50",
+"stored_chars": 185,
+"source_chars": 185,
+"cap_applied": 60000
+},
+"authority_class": "regulation",
+"claim_layer": "doctrinal",
+"claim_layer_meaning": "States or describes the rule. Cite for what the law IS."
+},
+{
+"citation": "\u00a7 363.22",
+"kind": "section_sign",
+"page": 1,
+"text": "\u00a7 363.22 Who has the right to conduct online transactions in book-entry securities? (a) Individual \u2014(1) Single owner form of registration. A single owner can conduct transactions in securities held in his or her TreasuryDirect \u00ae account. (2) Owner with beneficiary form of registration. The owner can conduct transactions in securities held in his or her TreasuryDirect account. The beneficiary has no rights during the lifetime of the owner and therefore cannot conduct transactions in the securities. (3) Primary owner with secondary owner form of registration. (i) The primary owner can conduct any permitted transaction in a security held in the primary owner's TreasuryDirect account. (See \u00a7 363.20(e)). (ii) If the primary owner has given the secondary owner the right to conduct transactions in a security, and has not revoked that right, then the secondary owner can conduct transactions in the security. Transactions that may be conducted by the secondary owner include transferring a marketable security, redeeming a savings bond, and changing the destination of interest and redemption payments for marketable securities. (b) Converted savings bonds. The rules for transactions governing converted savings bonds are contained in subpart E of this part. (c) Entity. The entity account manager can conduct transactions in the securities held within the entity's account. Initially, the entity account manager is the individual who opens the account. The entity account manager may be changed to a different individual using procedures available on our Web site. The entity account manager must certify that he or she is authorized to act alone on behalf of the entity in accessing and conducting transactions on behalf of the entity with regard to the entity's account. [70 FR 57434, Sept. 30, 2005, as amended at 70 FR 57443, Sept. 30, 2005; 74 FR 19419, Apr. 29, 2009; 75 FR 78901, Dec. 17, 2010]",
+"integrity": {
+"state": "complete",
+"basis": "Full retrieved body of 1,907 characters stored; under the 60,000 cap, so nothing was cut.",
+"stamped_at": "2026-09-21T22:09:50",
+"stored_chars": 1907,
+"source_chars": 1907,
+"cap_applied": 60000
+},
+"authority_class": "regulation",
+"claim_layer": "doctrinal",
+"claim_layer_meaning": "States or describes the rule. Cite for what the law IS."
+},
+{
+"citation": "\u00a7 363.25",
+"kind": "section_sign",
+"page": 1,
+"text": "\u00a7 363.25 How do I conduct transactions in my account or in Treasury securities held in my account? We will provide online instructions for conducting transactions through your account. If you are unable to conduct a transaction online, you should contact us at the address provided in \u00a7 363.5. Offline transactions will require a certified or guaranteed signature. See \u00a7 363.43 for instructions for obtaining a certified or guaranteed signature.",
+"integrity": {
+"state": "complete",
+"basis": "Full retrieved body of 445 characters stored; under the 60,000 cap, so nothing was cut.",
+"stamped_at": "2026-09-21T22:09:50",
+"stored_chars": 445,
+"source_chars": 445,
+"cap_applied": 60000
+},
+"authority_class": "regulation",
+"claim_layer": "doctrinal",
+"claim_layer_meaning": "States or describes the rule. Cite for what the law IS."
+},
+{
+"citation": "\u00a7 363.26",
+"kind": "section_sign",
+"page": 1,
+"text": "\u00a7 363.26 What is a transfer? (a) A transfer is a transaction to: (1) Move a Treasury security, or a portion of a Treasury security, from one account to another within TreasuryDirect \u00ae; (2) Move a marketable Treasury security to or from a TreasuryDirect account and an account in the commercial book-entry system; (3) Move a marketable Treasury security to a TreasuryDirect account from a Legacy Treasury Direct\u00ae account. (b) Transfers of a specific type of security may be limited by the subparts that refer to that security. (c) Gift delivery is not a transfer. A transfer does not include delivery of a gift savings bond from the donor to the recipient. This is referred to as a delivery. [67 FR 64286, Oct. 17, 2002, as amended at 70 FR 57443, Sept. 30, 2005; 76 FR 18064, Apr. 1, 2011]",
+"integrity": {
+"state": "complete",
+"basis": "Full retrieved body of 789 characters stored; under the 60,000 cap, so nothing was cut.",
+"stamped_at": "2026-09-21T22:09:50",
+"stored_chars": 789,
+"source_chars": 789,
+"cap_applied": 60000
+},
+"authority_class": "regulation",
+"claim_layer": "doctrinal",
+"claim_layer_meaning": "States or describes the rule. Cite for what the law IS."
+},
+{
+"citation": "\u00a7 363.27",
+"kind": "section_sign",
+"page": 1,
+"text": "\u00a7 363.27 What do I need to know about accounts for minors who have not had a legal guardian appointed by a court? (a) We do not permit a minor to purchase securities. (b) Opening an account in the name of a minor. (1) A parent or an individual who provides the chief financial support of a minor may open an account for a minor. The person opening the account for a minor is referred to as the custodian of the minor's account. (2) The custodian is a fiduciary for the minor as to the securities held in the minor's account. (3) The custodian must have an existing primary TreasuryDirect \u00ae account in order to open the minor's account. (i) The minor's account is an account that is linked to the custodian's primary account. (ii) The custodian must use his or her primary TreasuryDirect account as a portal to open and access the minor's account. (4) Securities contained in the minor's account will be registered in the name and SSN of the minor, in either sole owner, owner with beneficiary, or primary owner with secondary owner forms of registration. (c) Procedure for opening an account for a minor. (1) Online instructions will be provided for establishing an account for a minor. (2) The custodian must certify that all transactions conducted through the account will be on the minor's behalf. (d) Procedure for conducting transactions in the minor's account. The custodian must conduct all transactions in the minor's account on behalf of the minor. Access to the minor's account is through the custodian's primary account. (e) Transactions permitted in the minor's account. (1) The custodian may purchase securities for and on behalf of the minor through the minor's account. (2) The custodian may redeem savings bonds on behalf of the minor through the minor's account. We will report the interest earned on the security to the name and SSN of the minor. (3) The custodian may not purchase gift savings bonds from the minor's account. (4) The custodian may transfer a security to another TreasuryDirect account, provided the account is a linked account bearing the name and taxpayer identification number of the minor. The custodian can transfer a marketable Treasury security to an account in the commercial book-entry system. (5) Securities may be transferred to the minor's account. (6) Gift savings bonds may be delivered to the minor's account. (7) The custodian may grant rights to view and conduct transactions in the security as may be permitted by \u00a7 363.22. (8) The custodian may purchase a zero-percent certificate of indebtedness on behalf of the minor. The zero-percent certificate of indebtedness is the property of the minor. (f) When the minor reaches the age of 18 years. (1) The only transactions that the custodian may make in the minor's account after the minor attains the age of 18 years are to purchase new securities, and to transfer the securities contained in the minor's account to another account in the name and SSN of the minor. The receiving account in the name and SSN of the minor may be a primary account established by the minor, or it may be another minor linked account with the same or a different custodian. The custodian may transfer one or more of the securities at a time, or the custodian may de-link the account and transfer all of the securities contained in the account to the minor's previously established primary TreasuryDirect account. The minor must establish his or her own primary TreasuryDirect account prior to transfer of his or her securities. (2) In order to gain control of the securities held in the minor's account, the minor must first open his or her own primary account. (3) The minor may gain control of the securities held in the minor's account by the custodian transferring the securities held in the minor's account to the minor's primary account, or the minor may request that Fiscal Service transfer the securities to his or her primary account. (4) The minor may gain control of his or her zero-percent certificate of indebtedness by the custodian de-linking the account and transferring the zero-percent certificate of indebtedness to the minor's primary account, or the minor may request that Fiscal Service de-link the account and transfer the zero-percent certificate of indebtedness to his or her primary account. (g) Liability. We rely on the certification of the custodian that he or she is acting on behalf of the minor. We are not liable to the minor, or any other person or party acting on behalf of the minor, for the actions of the custodian, nor are we liable for the application of any proceeds from the transfer or redemption of securities held in the minor's account. The custodian agrees to indemnify and hold harmless the United States in the event that we suffer any loss on account of any claim relating to a minor account. [69 FR 2507, Jan. 16, 2004, as amended at 69 FR 50309, Aug. 16, 2004; 70 FR 57443, Sept. 30, 2005; 74 FR 19419, Apr. 29, 2009; 75 FR 78901, Dec. 17, 2010; 76 FR 18064, Apr. 1, 2011]",
+"integrity": {
+"state": "complete",
+"basis": "Full retrieved body of 5,006 characters stored; under the 60,000 cap, so nothing was cut.",
+"stamped_at": "2026-09-21T22:09:50",
+"stored_chars": 5006,
+"source_chars": 5006,
+"cap_applied": 60000
+},
+"authority_class": "regulation",
+"claim_layer": "doctrinal",
+"claim_layer_meaning": "States or describes the rule. Cite for what the law IS."
+},
+{
+"citation": "\u00a7 363.28",
+"kind": "section_sign",
+"page": 1,
+"text": "\u00a7 363.28 Does Fiscal Service reserve the right to require that any TreasuryDirect \u00ae transaction be conducted in paper form? We reserve the right to require any transaction to be conducted in paper form. Signatures on paper transactions must be certified or guaranteed as provided in \u00a7 363.43. [70 FR 57434, Sept. 30, 2005]",
+"integrity": {
+"state": "complete",
+"basis": "Full retrieved body of 322 characters stored; under the 60,000 cap, so nothing was cut.",
+"stamped_at": "2026-09-21T22:09:50",
+"stored_chars": 322,
+"source_chars": 322,
+"cap_applied": 60000
+},
+"authority_class": "regulation",
+"claim_layer": "doctrinal",
+"claim_layer_meaning": "States or describes the rule. Cite for what the law IS."
+},
+{
+"citation": "\u00a7 363.29",
+"kind": "section_sign",
+"page": 1,
+"text": "\u00a7 363.29 May Treasury close an account, suspend transactions in an account, or refuse to open an account? We reserve the right to take any of the following actions if, in our sole discretion, we deem the action to be in the best interests of the United States: (a) Refuse to open an account for any person; (b) Close any existing account, redeem, sell, or liquidate the securities held in the account, and pay the proceeds to the person entitled; (c) Suspend transactions with respect to an account or any security held in an account; or (d) Take any other action with regard to any account that we deem necessary, if not inconsistent with existing law and existing rights. [70 FR 57434, Sept. 30, 2005, as amended at 72 FR 30978, June 5, 2007]",
+"integrity": {
+"state": "complete",
+"basis": "Full retrieved body of 744 characters stored; under the 60,000 cap, so nothing was cut.",
+"stamped_at": "2026-09-21T22:09:50",
+"stored_chars": 744,
+"source_chars": 744,
+"cap_applied": 60000
+},
+"authority_class": "regulation",
+"claim_layer": "doctrinal",
+"claim_layer_meaning": "States or describes the rule. Cite for what the law IS."
+},
+{
+"citation": "\u00a7 363.30",
+"kind": "section_sign",
+"page": 1,
+"text": "\u00a7 363.30 What actions may Treasury take if funds used to purchase a security were credited or debited in error or through fraud? (a) If Treasury sustains a loss because the funds used to purchase a security were debited from an account at a financial institution from which the TreasuryDirect account owner did not have the right to authorize such ACH debit entry, we reserve the right to redeem that security from the account and use the proceeds to reimburse Treasury for the loss. If such security has been transferred to another TreasuryDirect account, we reserve the right to reverse the transfer, redeem the security, and use the proceeds to reimburse Treasury for the loss. If such security has been redeemed or has matured and the proceeds paid to the account owner, we reserve the right to take any action that we deem appropriate, including redeeming other securities remaining in the account and using the proceeds to reimburse Treasury for the loss. (b) If an employer or a third-party agent acting on behalf of one or more employers certifies, under penalty of perjury, that it has made an erroneous ACH credit entry to purchase a TreasuryDirect certificate of indebtedness, we reserve the right to redeem securities from the TreasuryDirect account to which the entry was made in the amount of the erroneous entry and return the funds. No action will be taken if the certification is not received by Treasury within 45 days of the erroneous entry. We will only return funds if the erroneous entry was made to an account that does not belong to the intended recipient, is a duplicate payment, is in an amount that is greater than was authorized by the recipient, or was made in error because the employee was not in a pay status. We reserve the right to refuse to return an entry. By requesting that Treasury correct an erroneous entry, the employer agrees to indemnify Treasury for any loss that Treasury may incur as a result of the correction of the error and agrees to provide such information and assistance as Treasury may require. (c) If a financial institution, except a financial institution acting on behalf of an employer, makes an erroneous ACH credit entry to a TreasuryDirect\u00ae account and provides a certification as to the circumstances of the erroneous entry within 6 months of the entry date, we will notify the account owner of the erroneous ACH credit entry and attempt to resolve the issue. We reserve the right to place a hold on and to redeem securities from the TreasuryDirect\u00ae account to which the ACH credit entry was made in the amount of the erroneous credit entry and return the funds to the financial institution. The financial institution agrees to indemnify Treasury for any loss that Treasury may incur as a result of the correction of the error and agrees to provide information and assistance as Treasury may require. [75 FR 70815, Nov. 19, 2010]",
+"integrity": {
+"state": "complete",
+"basis": "Full retrieved body of 2,892 characters stored; under the 60,000 cap, so nothing was cut.",
+"stamped_at": "2026-09-21T22:09:50",
+"stored_chars": 2892,
+"source_chars": 2892,
+"cap_applied": 60000
+},
+"authority_class": "regulation",
+"claim_layer": "doctrinal",
+"claim_layer_meaning": "States or describes the rule. Cite for what the law IS."
+},
+{
+"citation": "\u00a7 363.33",
+"kind": "section_sign",
+"page": 1,
+"text": "\u00a7 363.33 Can an attorney-in-fact conduct transactions in my TreasuryDirect \u00ae account? (a) An attorney-in-fact who provides a copy of a durable power of attorney granting him or her the authority to conduct TreasuryDirect transactions on behalf of the owner may conduct transactions online. (b) An attorney-in-fact who provides a copy of a limited power of attorney may only conduct transactions that he or she is permitted by his or her power. Such transactions will be through an offline process. (c) A written copy of the power of attorney must be sent to the address provided in \u00a7 363.5. We may require any additional evidence that we consider necessary to support the power.",
+"integrity": {
+"state": "complete",
+"basis": "Full retrieved body of 678 characters stored; under the 60,000 cap, so nothing was cut.",
+"stamped_at": "2026-09-21T22:09:50",
+"stored_chars": 678,
+"source_chars": 678,
+"cap_applied": 60000
+},
+"authority_class": "regulation",
+"claim_layer": "doctrinal",
+"claim_layer_meaning": "States or describes the rule. Cite for what the law IS."
+},
+{
+"citation": "\u00a7 363.34",
+"kind": "section_sign",
+"page": 1,
+"text": "\u00a7 363.34 What happens if an owner becomes incompetent after opening a TreasuryDirect \u00ae account? If we receive notice that the owner of a TreasuryDirect account has become incompetent, we will suspend all transactions in the account until we establish the authority of another person to act in his or her behalf. [67 FR 64286, Oct. 17, 2002, as amended at 68 FR 24807, May 8, 2003]",
+"integrity": {
+"state": "complete",
+"basis": "Full retrieved body of 380 characters stored; under the 60,000 cap, so nothing was cut.",
+"stamped_at": "2026-09-21T22:09:50",
+"stored_chars": 380,
+"source_chars": 380,
+"cap_applied": 60000
+},
+"authority_class": "regulation",
+"claim_layer": "doctrinal",
+"claim_layer_meaning": "States or describes the rule. Cite for what the law IS."
+},
+{
+"citation": "\u00a7 363.35",
+"kind": "section_sign",
+"page": 1,
+"text": "\u00a7 363.35 When is a transaction effective? A transaction is effective when we post it to our records.",
+"integrity": {
+"state": "complete",
+"basis": "Full retrieved body of 100 characters stored; under the 60,000 cap, so nothing was cut.",
+"stamped_at": "2026-09-21T22:09:50",
+"stored_chars": 100,
+"source_chars": 100,
+"cap_applied": 60000
+},
+"authority_class": "regulation",
+"claim_layer": "doctrinal",
+"claim_layer_meaning": "States or describes the rule. Cite for what the law IS."
+},
+{
+"citation": "\u00a7 363.36",
+"kind": "section_sign",
+"page": 1,
+"text": "\u00a7 363.36 What securities can I purchase and hold in my TreasuryDirect \u00ae account? You can purchase and hold eligible Treasury securities in your account. Eligible securities are Series EE and Series I savings bonds, zero-percent certificates of indebtedness, and marketable Treasury securities that are available for purchase through the TreasuryDirect Web site. In addition, you can hold converted savings bonds and eligible marketable Treasury securities that have been transferred from the Legacy Treasury Direct system or the commercial book-entry system. [70 FR 57443, Sept. 30, 2005]",
+"integrity": {
+"state": "complete",
+"basis": "Full retrieved body of 588 characters stored; under the 60,000 cap, so nothing was cut.",
+"stamped_at": "2026-09-21T22:09:50",
+"stored_chars": 588,
+"source_chars": 588,
+"cap_applied": 60000
+},
+"authority_class": "regulation",
+"claim_layer": "doctrinal",
+"claim_layer_meaning": "States or describes the rule. Cite for what the law IS."
+},
+{
+"citation": "\u00a7 363.37",
+"kind": "section_sign",
+"page": 1,
+"text": "\u00a7 363.37 How do I purchase and make payment for eligible Treasury securities through my TreasuryDirect \u00ae account? (a) Online purchase. Purchases of eligible Treasury securities through your TreasuryDirect account must be made online. (b) Payment for savings bonds and marketable Treasury securities. You can pay for eligible savings bonds and marketable Treasury securities by either a debit from your designated account at a United States financial institution using the ACH method, or by using the redemption proceeds of your zero-percent certificate of indebtedness. You can pay for savings bonds automatically using the redemption proceeds of your payroll zero-percent certificate of indebtedness through the payroll savings plan. (c) Payment for zero-percent certificate of indebtedness. You can pay for a zero-percent certificate of indebtedness by: (1) A credit from your financial institution or employer using the ACH method to your TreasuryDirect\u00ae account; (2) A debit from your designated account at a financial institution using the ACH method, limited to $1000 or less per transaction; or (3) Using the proceeds of maturing securities held in your TreasuryDirect\u00ae account. (d) Payment for a payroll zero-percent certificate of indebtedness. The only method available to purchase a payroll zero-percent certificate of indebtedness is to arrange for your employer or financial institution to send a credit by the ACH method to purchase a payroll zero-percent certificate of indebtedness in your TreasuryDirect\u00ae account. [70 FR 57443, Sept. 30, 2005, as amended at 75 FR 70816, Nov. 19, 2010]",
+"integrity": {
+"state": "complete",
+"basis": "Full retrieved body of 1,602 characters stored; under the 60,000 cap, so nothing was cut.",
+"stamped_at": "2026-09-21T22:09:50",
+"stored_chars": 1602,
+"source_chars": 1602,
+"cap_applied": 60000
+},
+"authority_class": "regulation",
+"claim_layer": "doctrinal",
+"claim_layer_meaning": "States or describes the rule. Cite for what the law IS."
+},
+{
+"citation": "\u00a7 363.38",
+"kind": "section_sign",
+"page": 1,
+"text": "\u00a7 363.38 What happens if my financial institution returns an ACH debit? If your designated financial institution returns an ACH debit, we reserve the right to reinitiate the debit at our option. We also reserve the right to reverse the transaction, thereby removing the security from your TreasuryDirect \u00ae account. If the ACH return occurs after the security has been redeemed, transferred, or has matured and the proceeds paid, we reserve the right to reverse previously processed security transactions. We are not responsible for any fees your financial institution may charge relating to returned ACH debits. [70 FR 57443, Sept. 30, 2005]",
+"integrity": {
+"state": "complete",
+"basis": "Full retrieved body of 641 characters stored; under the 60,000 cap, so nothing was cut.",
+"stamped_at": "2026-09-21T22:09:50",
+"stored_chars": 641,
+"source_chars": 641,
+"cap_applied": 60000
+},
+"authority_class": "regulation",
+"claim_layer": "doctrinal",
+"claim_layer_meaning": "States or describes the rule. Cite for what the law IS."
+},
+{
+"citation": "\u00a7 363.39",
+"kind": "section_sign",
+"page": 1,
+"text": "\u00a7 363.39 Will I receive a confirmation of my request to purchase a Treasury security? At the time that you submit a request to purchase a Treasury security through your TreasuryDirect \u00ae account, we will make available a printable online confirmation of your request. Final confirmation will occur when the security is issued into your account. You will not receive a mailed confirmation.",
+"integrity": {
+"state": "complete",
+"basis": "Full retrieved body of 387 characters stored; under the 60,000 cap, so nothing was cut.",
+"stamped_at": "2026-09-21T22:09:50",
+"stored_chars": 387,
+"source_chars": 387,
+"cap_applied": 60000
+},
+"authority_class": "regulation",
+"claim_layer": "doctrinal",
+"claim_layer_meaning": "States or describes the rule. Cite for what the law IS."
+},
+{
+"citation": "\u00a7 363.40",
+"kind": "section_sign",
+"page": 1,
+"text": "\u00a7 363.40 How are payments of principal and interest made? (a) Payment of a savings bond that has reached final maturity. We will purchase a zero-percent certificate of indebtedness in your TreasuryDirect \u00ae account using the proceeds of a matured savings bond. (b) Payments of interest and principal (except a savings bond that has reached final maturity). (1) We provide two methods of receiving payments of principal and interest: (i) Payment to your account at a financial institution by the ACH method, or (ii) Payment to your TreasuryDirect account to purchase a zero-percent certificate of indebtedness. (2) You may select different payment destinations for principal and interest for a marketable Treasury security. You may change your payment destination at any time, unless the security is in the closed book period. (See \u00a7 363.210.) (3) If we are unable to deliver a payment, we will use the payment to purchase a zero-percent certificate of indebtedness in your TreasuryDirect account. [70 FR 57443, Sept. 30, 2005]",
+"integrity": {
+"state": "complete",
+"basis": "Full retrieved body of 1,025 characters stored; under the 60,000 cap, so nothing was cut.",
+"stamped_at": "2026-09-21T22:09:50",
+"stored_chars": 1025,
+"source_chars": 1025,
+"cap_applied": 60000
+},
+"authority_class": "regulation",
+"claim_layer": "doctrinal",
+"claim_layer_meaning": "States or describes the rule. Cite for what the law IS."
+},
+{
+"citation": "\u00a7 363.41",
+"kind": "section_sign",
+"page": 1,
+"text": "\u00a7 363.41 What happens if an ACH payment is returned to Fiscal Service? We will notify you electronically of the returned payment. We will hold your payment until you provide us with instructions. Returned payments will not earn interest. We reserve the right to redirect a returned payment to the bank account at a financial institution that you have designated in your TreasuryDirect \u00ae account as your primary bank account, if that account is different from the one that returned the payment to us. We are not responsible for any fees your financial institution may charge relating to returned ACH payments. [69 FR 50308, Aug. 16, 2004]",
+"integrity": {
+"state": "complete",
+"basis": "Full retrieved body of 637 characters stored; under the 60,000 cap, so nothing was cut.",
+"stamped_at": "2026-09-21T22:09:50",
+"stored_chars": 637,
+"source_chars": 637,
+"cap_applied": 60000
+},
+"authority_class": "regulation",
+"claim_layer": "doctrinal",
+"claim_layer_meaning": "States or describes the rule. Cite for what the law IS."
+},
+{
+"citation": "\u00a7 363.42",
+"kind": "section_sign",
+"page": 1,
+"text": "\u00a7 363.42 How will my interest income be reported for tax purposes? When you open your TreasuryDirect \u00ae account, you consent to receive the appropriate tax reporting forms by electronic means. We will notify you when your tax reporting forms are available. The form will be available in printable form through your TreasuryDirect account. If you withdraw your consent to receive tax reporting forms by electronic means, we reserve the right to redeem any savings bonds held in your account and close your account. [67 FR 64286, Oct. 17, 2002, as amended at 70 FR 57435, Sept. 30, 2005]",
+"integrity": {
+"state": "complete",
+"basis": "Full retrieved body of 584 characters stored; under the 60,000 cap, so nothing was cut.",
+"stamped_at": "2026-09-21T22:09:50",
+"stored_chars": 584,
+"source_chars": 584,
+"cap_applied": 60000
+},
+"authority_class": "regulation",
+"claim_layer": "doctrinal",
+"claim_layer_meaning": "States or describes the rule. Cite for what the law IS."
+},
+{
+"citation": "\u00a7 363.43",
+"kind": "section_sign",
+"page": 1,
+"text": "\u00a7 363.43 What are the procedures for certifying my signature on an offline application for a TreasuryDirect \u00ae account, or on an offline transaction form? (a) Certification within the United States. For certifications within the United States, the certifying individual must be authorized to bind his or her institution by his or her acts, to guarantee signatures to assignments of securities, or to certify assignments of securities. The following table provides a list of authorized certifying individuals and the required evidence of authority. Members of Treasury-recognized signature guarantee programs are for security transfers only. Who can certify signatures in the U.S. Evidence of certifying individual's authority (1) Officers and employees of depository institutions (i) We require the institution's seal or signature guarantee stamp. (ii) If the institution is an authorized paying agent for U.S. Savings Bonds, we require a legible imprint of the paying agent's stamp. (2) Institutions that are members of Treasury\u2014recognized signature guarantee programs (for security transfers only) We require the imprint of the signature guarantee stamp, i.e., the STAMP, SEMP, or MSP stamp for members of the Securities Transfer Agents Medallion Program, the Stock Exchanges Medallion Program, or the New York Stock Exchange Inc. Medallion Signature Program. (3) Officers and employees of corporate central credit unions, Federal Land Banks, Federal Intermediate Credit Banks and Banks for Cooperatives, the Central Bank for Cooperatives, and Federal Home Loan Banks We require the entity's seal. (4) Commissioned or warrant officers of the United States Armed Forces, for signatures executed by Armed Forces personnel, civilian field employees, and members of their families (i) We require a statement that the person executing the assignment is one whose signature the officer is authorized to certify under our regulations. (ii) The certifying official's rank must be shown. (5) A judge or clerk of the court We require the seal of the court. (6) Other persons as designated by the Commissioner or Deputy Commissioner of Fiscal Service Evidence is determined by our procedures. (b) Certification within foreign countries. The following table lists the authorized certifying individuals for foreign countries and the required evidence of the individual's authority. Who can certify signatures in foreign countries Evidence of certifying individual's authority (1) United States diplomatic or consular officials (i) We require the seal or stamp of the office. (ii) If there is no seal or stamp, then we require certification by some other authorized individual, under seal or stamp. (2) Managers and officers of foreign branches of U.S. depository institutions and institutions that are members of Treasury-recognized signature guarantee programs (for security transfers only) We require the seal of the depository institution, or the imprint of the signature guarantee stamp, i.e., the STAMP, SEMP, or MSP stamp for members of the Securities Transfer Agents Medallion Program, the Stock Exchanges Medallion Program, or the New York Stock Exchange Incorporated Medallion Signature Program. (3) Notaries Public and other officers authorized to administer oaths, provided their authority is certified by a United States diplomatic or consular official (i) We require the official seal or stamp of the office. (ii) If there is no seal or stamp, the position must be certified by some other authorized individual, under seal or stamp, or otherwise proved to our satisfaction. (c) Duties and liabilities of certifying individuals. (1) The certifying individual must first establish the identity of the signer. (2) The form must be signed in the presence of the certifying individual. (3) If the certifying individual is not an officer, the certifying individual must insert the words \u201cAuthorized Signature\u201d in the space provided for the title. (4) If the certifying individual is negligent in making the certification, the certifying individual and his or her organization are jointly and severally liable for any loss the United States may incur as a result of the negligence. (d) Guaranteed signatures. (1) A security or other form requiring certification need not be executed in the presence of a certifying individual if the signature is unconditionally guaranteed by the certifying individual. To guarantee a signature, the certifying individual must add a dated endorsement after the signature. For example: Signature guaranteed, First National Bank of Smithville, Smithville, NH, by A. B. Doe, President, dated 1/1/2001. (2) The certifying individual and his or her organization unconditionally guarantee to us that the signature is genuine and the signer had the legal capacity to execute the assignment or related form. (e) Guaranteed absence of a signature. (1) A form requiring a certified signature need not be signed when a certifying individual associated with a depository financial institution places the following endorsement on the security or the form: Absence of signature by owner and validity of transaction guaranteed, Second State Bank of Jonesville, Jonesville, NC, by B. R. Butler, Vice President, dated 11/1/2001. (2) The endorsement must be dated and the seal of the institution must be added. (3) This form of endorsement is an unconditional guarantee to us that the institution is acting for the signer under proper authorization. (f) Persons who cannot act as certifying individuals. Any person having an interest in a security involved in the transaction cannot act as a certifying individual. However, an authorized officer or employee of a depository financial institution that is a member of a Treasury-recognized signature guarantee program can act as a certifying individual for transfer of a security to the institution or on behalf of the institution. [67 FR 64286, Oct. 17, 2002, as amended at 70 FR 57435, Sept. 30, 2005]",
+"integrity": {
+"state": "complete",
+"basis": "Full retrieved body of 5,960 characters stored; under the 60,000 cap, so nothing was cut.",
+"stamped_at": "2026-09-21T22:09:50",
+"stored_chars": 5960,
+"source_chars": 5960,
+"cap_applied": 60000
+},
+"authority_class": "regulation",
+"claim_layer": "doctrinal",
+"claim_layer_meaning": "States or describes the rule. Cite for what the law IS."
+},
+{
+"citation": "\u00a7 363.44",
+"kind": "section_sign",
+"page": 1,
+"text": "\u00a7 363.44 What happens when a TreasuryDirect \u00ae account owner dies and the estate is entitled to securities held in the account? (a) Estate is being administered. For an estate that is being administered, the legal representative of the estate must open a TreasuryDirect account in the name of the estate in order to conduct transactions. The legal representative of the estate may then conduct any transactions that are available to an individual account owner. We will require appropriate proof of appointment for the legal representative of the estate. Letters of appointment must be dated not more than one year prior to the date of submission of the letters of appointment. (b) Estate has been settled previously. If the estate has been settled previously through judicial proceedings, the persons entitled may request payment of securities, if the securities are eligible for redemption, or may transfer the securities to the TreasuryDirect accounts of the persons entitled, if the securities are eligible for transfer. We will require a certified copy of the court-approved final accounting for the estate, the court's decree of distribution, or other appropriate evidence. If payment is requested, we will require ACH instructions to process the request. (c) Special provisions under the law of the jurisdiction of the decedent's domicile. If there is no formal or regular administration and no representative of the estate is to be appointed, the person appointed to receive or distribute the assets of a decedent's estate without regular administration under summary or small estates procedures under applicable local law may request payment of securities, if the securities are eligible for redemption, or may transfer the securities to or on behalf of the persons entitled by the law of the jurisdiction in which the decedent was domiciled at the date of death, if the securities are eligible for transfer. We will require appropriate evidence. If payment is requested, we will require ACH instructions to process the request. (d) When administration is required. If the total redemption value of the Treasury securities and undelivered payments, if any, held directly on our records that are the property of the decedent's estate is greater than $100,000, administration of the decedent's estate will be required. The redemption value of savings bonds and the principal amount of marketable securities will be used to determine the value of securities, and will be determined as of the date of death. Administration may also be required at the discretion of the Department for any case. (e) Voluntary representative for small estates that are not being otherwise administered \u2014(1) General. A voluntary representative is a person qualified according to paragraph (e)(3) of this section, to redeem or transfer a decedent's securities. The voluntary representative procedures are for the convenience of the Department; entitlement to the decedent's securities and held payments, if any, is determined by the law of the jurisdiction in which the decedent was domiciled at the date of death. Voluntary representative procedures may be used only if: (i) There has been no administration, no administration is contemplated, and no summary or small estate procedures under applicable local law have been used; (ii) The total redemption value of the Treasury securities and held payments, if any, held directly on our records that are the property of the decedent's estate is $100,000 or less, as of the date of death, and (iii) There is a person eligible to serve as the voluntary representative according to paragraph (e)(3) of this section. (2) Authority of voluntary representative. A voluntary representative may: (i) Redeem the decedent's savings bonds that are eligible for redemption. Payment may be made to the voluntary representative on behalf of or directly to the persons entitled by the law of the jurisdiction in which the decedent was domiciled at the date of death; (ii) Transfer the decedent's securities to the persons entitled by the law of the jurisdiction in which the decedent was domiciled at the date of death. (3) Order of precedence for voluntary representative. An individual eighteen years of age or older may act as a voluntary representative according to the following order of precedence: a surviving spouse; if there is no surviving spouse, then a child of the decedent; if there are none of the above, then a descendant of a deceased child of the decedent; if there are none of the above, then a parent of the decedent; if there are none of the above, then a brother or sister of the decedent; if there are none of the above, then a descendant of a deceased brother or sister of the decedent; if there are none of the above, then a next of kin of the decedent, as determined by the laws of the decedent's domicile at the date of death. As used in this order of precedence, child means a natural or adopted child of the decedent. (4) Liability. By serving, the voluntary representative warrants that the distribution of payments or securities are to or on behalf of the persons entitled by the law of the jurisdiction in which the decedent was domiciled at the date of death. The United States is not liable to any person for the improper distribution of payments or securities. Upon payment or transfer of the securities to the voluntary representative, the United States is released to the same extent as if it had paid or delivered to a representative of the estate appointed pursuant to the law of the jurisdiction in which the decedent was domiciled at the date of death. The voluntary representative shall indemnify and hold harmless the United States and all creditors and persons entitled to the estate of the decedent. The amount of the indemnification is limited to an amount no greater than the value received by the voluntary representative. (5) Creditor. If there has been no administration, no administration is contemplated, no summary or small estate procedures under applicable local law have been used, and there is no person eligible to serve as a voluntary representative pursuant to paragraph (e) of this section, then a creditor may make a claim for payment of the amount of the debt, providing the debt has not been barred by applicable local law. [70 FR 57435, Sept. 30, 2005, as amended at 70 FR 57443, Sept. 30, 2005; 74 FR 19419, Apr. 29, 2009]",
+"integrity": {
+"state": "complete",
+"basis": "Full retrieved body of 6,406 characters stored; under the 60,000 cap, so nothing was cut.",
+"stamped_at": "2026-09-21T22:09:50",
+"stored_chars": 6406,
+"source_chars": 6406,
+"cap_applied": 60000
+},
+"authority_class": "regulation",
+"claim_layer": "doctrinal",
+"claim_layer_meaning": "States or describes the rule. Cite for what the law IS."
+},
+{
+"citation": "\u00a7 363.45",
+"kind": "section_sign",
+"page": 1,
+"text": "\u00a7 363.45 What are the rules for judicial and administrative actions involving securities held in TreasuryDirect \u00ae? (a) Notice of adverse claim or pending judicial proceedings. We are not subject to and will not accept a notice of an adverse claim or notice of pending judicial proceedings involving a security held in TreasuryDirect. (b) Competing claims to a security. The Department of the Treasury, Fiscal Service, and the Federal Reserve Banks are not proper defendants in a judicial proceeding involving competing claims to a security held in TreasuryDirect. (c) Divorce decree. We will recognize a divorce decree that either disposes of a security held in TreasuryDirect or ratifies a property settlement agreement disposing of a security that is the property of either of the parties. If the divorce decree does not set out the terms of the property settlement agreement, we will require a certified copy of the agreement. (d) Final court order. We will recognize a final order entered by a court that affects ownership rights in a security held in TreasuryDirect only to the extent that the order is consistent with the provisions of this part. The owner of the security must be a party to the proceedings. (e) Levy to satisfy money judgment. We will honor a transaction request submitted by a person appointed by a court and having authority under an order of a court to dispose of a security held in TreasuryDirect pursuant to a money judgment against the owner of the security, as owner is defined in \u00a7 363.6 of this part. In the case of savings bonds, we will only make payment pursuant to the court order to the extent of the money judgment. We will not transfer the savings bonds. (f) Internal Revenue Service (IRS) levy. We will honor an IRS notice of levy under section 6331 of the Internal Revenue Code: (1) Against the owner, as owner is defined in \u00a7 363.6 of this part, including a levy against the owner in the capacity of nominee, transferee, or alter ego; (2) Against a secondary owner, if the secondary owner has the right to conduct transactions in a security at the date and time the notice of levy is delivered to Fiscal Service; or (3) Against an owner's property to which a federal tax lien is attached. (g) Trustee in bankruptcy, a receiver of an insolvent's estate, a receiver in equity, or a similar court officer. We will honor a transaction request submitted by a trustee in bankruptcy, a receiver of an insolvent's estate, a receiver in equity, or a similar court officer, if the original court order is against the owner, as owner is defined in \u00a7 363.6 of this part. In the case of savings bonds, we will only make payment. We will not transfer the savings bonds. (h) Court order that attempts to defeat or impair survivorship rights. We will not recognize a court order that attempts to defeat or impair the survivorship rights of a beneficiary, secondary owner, coowner of a converted savings bond, or the registered owner of an undelivered gift security held in TreasuryDirect. [70 FR 57435, Sept. 30, 2005, as amended at 75 FR 70816, Nov. 19, 2010]",
+"integrity": {
+"state": "complete",
+"basis": "Full retrieved body of 3,087 characters stored; under the 60,000 cap, so nothing was cut.",
+"stamped_at": "2026-09-21T22:09:50",
+"stored_chars": 3087,
+"source_chars": 3087,
+"cap_applied": 60000
+},
+"authority_class": "regulation",
+"claim_layer": "doctrinal",
+"claim_layer_meaning": "States or describes the rule. Cite for what the law IS."
+},
+{
+"citation": "\u00a7 363.46",
+"kind": "section_sign",
+"page": 1,
+"text": "\u00a7 363.46 What evidence is required to establish the validity of judicial proceedings? (a) We will require certified copies of the final judgment, decree, or court order, and any necessary supplementary proceedings. (b) A transaction request by a trustee in bankruptcy or a receiver of an insolvent's estate must be supported by evidence of appointment and qualification. (c) A transaction request by a receiver in equity or a similar court officer (other than a receiver of an insolvent's estate) must be supported by a copy of an order that authorizes the receiver or similar court officer to take possession and control of the security. [70 FR 57435, Sept. 30, 2005]",
+"integrity": {
+"state": "complete",
+"basis": "Full retrieved body of 668 characters stored; under the 60,000 cap, so nothing was cut.",
+"stamped_at": "2026-09-21T22:09:50",
+"stored_chars": 668,
+"source_chars": 668,
+"cap_applied": 60000
+},
+"authority_class": "regulation",
+"claim_layer": "doctrinal",
+"claim_layer_meaning": "States or describes the rule. Cite for what the law IS."
+},
+{
+"citation": "\u00a7 363.47",
+"kind": "section_sign",
+"page": 1,
+"text": "\u00a7 363.47 Will Fiscal Service pay Treasury securities pursuant to a forfeiture proceeding? (a) General. We will honor a judicial or administrative forfeiture order or declaration of forfeiture submitted by a federal agency. We will rely exclusively upon the information provided by the Federal forfeiting agency and will not make any independent evaluation of the validity of the forfeiture order, the request for payment, or the authority of the individual signing the transaction request. The amount to be paid or transferred is limited to the value of the security as of the date of forfeiture. (b) Definition of special terms relating to forfeitures. Contact point means the individual designated by the Federal investigative agency, United States Attorney's Office, or forfeiting agency, to receive referrals from Fiscal Service. Forfeiting agency means the federal law enforcement agency responsible for the forfeiture. Forfeiture means the process by which property may be forfeited by a federal agency. Administrative forfeiture is forfeiture by a federal agency without judicial proceedings resulting in a declaration of forfeiture; judicial forfeiture is a forfeiture through either a civil or criminal proceeding in a United States District Court resulting in a final judgment and order of forfeiture. (c) Procedures for a forfeiting agency to request forfeiture of Treasury securities. A forfeiting agency must request forfeiture. An individual authorized by the forfeiting agency must sign the transaction request. The request must be mailed to the Department of the Treasury, Bureau of the Fiscal Service, Parkersburg, WV 26106-7015. (d) Fiscal Service procedures upon receipt of forfeiture request. Upon receipt and review of the transaction request, we will make payment to the forfeiture fund specified, if the security is eligible for payment, or we will transfer the security pursuant to the transaction request. We will record the forfeiture, the forfeiture fund into which the proceeds were paid or the security transfer records, the contact point, and any related information. (e) Inquiries from previous owner. All inquiries or claims from the previous owner will be referred to the contact point of the forfeiting agency. We will tell the person who inquired that we referred his or her inquiry to the contact point. We will not investigate the inquiry. We will defer to the forfeiting agency's determination of the appropriate course of action, including settlement where appropriate. Any settlement will be paid from the forfeiture fund into which the proceeds were deposited. [70 FR 57436, Sept. 30, 2005]",
+"integrity": {
+"state": "complete",
+"basis": "Full retrieved body of 2,631 characters stored; under the 60,000 cap, so nothing was cut.",
+"stamped_at": "2026-09-21T22:09:50",
+"stored_chars": 2631,
+"source_chars": 2631,
+"cap_applied": 60000
+},
+"authority_class": "regulation",
+"claim_layer": "doctrinal",
+"claim_layer_meaning": "States or describes the rule. Cite for what the law IS."
+},
+{
+"citation": "\u00a7\u00a7 363.48-363.49",
+"kind": "section_sign",
+"page": 1,
+"text": "\u00a7\u00a7 363.48-363.49 [Reserved] Subpart C\u2014Book-Entry Savings Bonds Purchased Through TreasuryDirect General",
+"integrity": {
+"state": "complete",
+"basis": "Full retrieved body of 103 characters stored; under the 60,000 cap, so nothing was cut.",
+"stamped_at": "2026-09-21T22:09:50",
+"stored_chars": 103,
+"source_chars": 103,
+"cap_applied": 60000
+},
+"authority_class": "regulation",
+"claim_layer": "doctrinal",
+"claim_layer_meaning": "States or describes the rule. Cite for what the law IS."
+},
+{
+"citation": "\u00a7 363.50",
+"kind": "section_sign",
+"page": 1,
+"text": "\u00a7 363.50 What Treasury securities does this subpart govern? This subpart governs: (a) Series EE and Series I book-entry savings bonds that were originally issued as book-entry bonds through TreasuryDirect \u00ae; and (b) Converted savings bonds that are registered in: (1) The single owner or entity form of registration of any series, (2) The owner with beneficiary form of registration of Series EE and Series I savings bonds, (3) The owner with beneficiary form of registration of Series E savings bonds in which the beneficiary has consented to a change in the registration of the bond after conversion, and (4) The coowner form of registration of any series in which the non-converting coowner has consented to a change in the registration of the bond after conversion. [70 FR 14943, Mar. 23, 2005, as amended at 74 FR 19419, Apr. 29, 2009]",
+"integrity": {
+"state": "complete",
+"basis": "Full retrieved body of 840 characters stored; under the 60,000 cap, so nothing was cut.",
+"stamped_at": "2026-09-21T22:09:50",
+"stored_chars": 840,
+"source_chars": 840,
+"cap_applied": 60000
+},
+"authority_class": "regulation",
+"claim_layer": "doctrinal",
+"claim_layer_meaning": "States or describes the rule. Cite for what the law IS."
+},
+{
+"citation": "\u00a7 363.52",
+"kind": "section_sign",
+"page": 1,
+"text": "\u00a7 363.52 What is the principal amount of book-entry Series EE and Series I savings bonds that I may acquire in one year? (a) The principal amount of book-entry savings bonds that you may acquire in any calendar year is limited to $10,000 for Series EE savings bonds and $10,000 for Series I savings bonds. (b) Bonds purchased or transferred as gifts will be included in the computation of this limit for the account of the recipient for the year in which the bonds are delivered to the recipient. (c) Bonds purchased as gifts or in a fiduciary capacity are not included in the computation for the purchaser. Bonds received due to the death of the registered owner are not included in the computation for the recipient. (d) We reserve the right to take any action we deem necessary to adjust the excess, including the right to remove the excess bonds from your TreasuryDirect account and refund the payment price to your bank account of record using the ACH method of payment. [77 FR 213, Jan. 4, 2012]",
+"integrity": {
+"state": "complete",
+"basis": "Full retrieved body of 1,001 characters stored; under the 60,000 cap, so nothing was cut.",
+"stamped_at": "2026-09-21T22:09:50",
+"stored_chars": 1001,
+"source_chars": 1001,
+"cap_applied": 60000
+},
+"authority_class": "regulation",
+"claim_layer": "doctrinal",
+"claim_layer_meaning": "States or describes the rule. Cite for what the law IS."
+},
+{
+"citation": "\u00a7 363.53",
+"kind": "section_sign",
+"page": 1,
+"text": "\u00a7 363.53 What is the minimum amount of book-entry savings bonds that I may purchase in any transaction? Each bond purchase must be in a minimum amount of $25, with additional one-cent increments above that amount, in any one transaction. For example, a purchase may be $25.00, $25.01, $25.02, or $25.03, and so forth.",
+"integrity": {
+"state": "complete",
+"basis": "Full retrieved body of 317 characters stored; under the 60,000 cap, so nothing was cut.",
+"stamped_at": "2026-09-21T22:09:50",
+"stored_chars": 317,
+"source_chars": 317,
+"cap_applied": 60000
+},
+"authority_class": "regulation",
+"claim_layer": "doctrinal",
+"claim_layer_meaning": "States or describes the rule. Cite for what the law IS."
+},
+{
+"citation": "\u00a7 363.54",
+"kind": "section_sign",
+"page": 1,
+"text": "\u00a7 363.54 What is the minimum amount of a book-entry savings bond that I must hold in my account? Each bond held in your account must have a redemption value of at least $25. If you request a transaction that would reduce the remaining redemption value of the bond to an amount less than $25, we will not permit the transaction to occur.",
+"integrity": {
+"state": "complete",
+"basis": "Full retrieved body of 336 characters stored; under the 60,000 cap, so nothing was cut.",
+"stamped_at": "2026-09-21T22:09:50",
+"stored_chars": 336,
+"source_chars": 336,
+"cap_applied": 60000
+},
+"authority_class": "regulation",
+"claim_layer": "doctrinal",
+"claim_layer_meaning": "States or describes the rule. Cite for what the law IS."
+},
+{
+"citation": "\u00a7 363.55",
+"kind": "section_sign",
+"page": 1,
+"text": "\u00a7 363.55 May I transfer my book-entry savings bonds to another person? (a) You may transfer a savings bond or a portion of a savings bond to the TreasuryDirect \u00ae account of another person in a minimum amount of $25. The transfer may only be made as a gift or in response to a final judgment, court order, divorce decree, or property settlement agreement. You must certify online that the transfer is a gift or a specified exception. (b) We do not permit the transfer of savings bonds for consideration, unless it is an exception specified in paragraph (a) of this section. (c) If the bond is being transferred to an individual, the bond will be transferred in the single owner form of registration. If the bond is being transferred to an entity, the bond will be transferred in the entity form of registration. (d) We reserve the right to limit the transferability of savings bonds at any time by amendment to these regulations. [67 FR 64286, Oct. 17, 2002, as amended at 68 FR 24807, May 8, 2003; 70 FR 57436, Sept. 30, 2005; 74 FR 19419, Apr. 29, 2009]",
+"integrity": {
+"state": "complete",
+"basis": "Full retrieved body of 1,054 characters stored; under the 60,000 cap, so nothing was cut.",
+"stamped_at": "2026-09-21T22:09:50",
+"stored_chars": 1054,
+"source_chars": 1054,
+"cap_applied": 60000
+},
+"authority_class": "regulation",
+"claim_layer": "doctrinal",
+"claim_layer_meaning": "States or describes the rule. Cite for what the law IS."
+},
+{
+"citation": "\u00a7 363.56",
+"kind": "section_sign",
+"page": 1,
+"text": "\u00a7 363.56 What is the minimum amount of book-entry savings bonds that I may transfer in any one transaction? Each transfer must be in a minimum amount of $25 redemption value, with additional one-cent increments above that amount, in any one transaction. For example, you may transfer $25.00, $25.01, $25.02, or $25.03, and so forth. Transfers will be comprised of principal and proportionate interest.",
+"integrity": {
+"state": "complete",
+"basis": "Full retrieved body of 401 characters stored; under the 60,000 cap, so nothing was cut.",
+"stamped_at": "2026-09-21T22:09:50",
+"stored_chars": 401,
+"source_chars": 401,
+"cap_applied": 60000
+},
+"authority_class": "regulation",
+"claim_layer": "doctrinal",
+"claim_layer_meaning": "States or describes the rule. Cite for what the law IS."
+},
+{
+"citation": "\u00a7 363.57",
+"kind": "section_sign",
+"page": 1,
+"text": "\u00a7 363.57 What is the minimum amount of book-entry savings bonds that I may redeem in any one transaction? Each redemption must be in a minimum amount of $25 redemption value, with additional one-cent increments above that amount, in any one transaction. For example, you may redeem $25.00, $25.01, $25.02, or $25.03, and so forth. Redemptions will be comprised of principal and proportionate interest.",
+"integrity": {
+"state": "complete",
+"basis": "Full retrieved body of 401 characters stored; under the 60,000 cap, so nothing was cut.",
+"stamped_at": "2026-09-21T22:09:50",
+"stored_chars": 401,
+"source_chars": 401,
+"cap_applied": 60000
+},
+"authority_class": "regulation",
+"claim_layer": "doctrinal",
+"claim_layer_meaning": "States or describes the rule. Cite for what the law IS."
+},
+{
+"citation": "\u00a7 363.58",
+"kind": "section_sign",
+"page": 1,
+"text": "\u00a7 363.58 May book-entry savings bonds be pledged or used as collateral? Bonds may not be pledged or used as collateral for the performance of an obligation.",
+"integrity": {
+"state": "complete",
+"basis": "Full retrieved body of 156 characters stored; under the 60,000 cap, so nothing was cut.",
+"stamped_at": "2026-09-21T22:09:50",
+"stored_chars": 156,
+"source_chars": 156,
+"cap_applied": 60000
+},
+"authority_class": "regulation",
+"claim_layer": "doctrinal",
+"claim_layer_meaning": "States or describes the rule. Cite for what the law IS."
+},
+{
+"citation": "\u00a7 363.59",
+"kind": "section_sign",
+"page": 1,
+"text": "\u00a7 363.59 What is a payroll savings plan? A payroll savings plan is an automatic method of purchasing savings bonds. (See the definition in \u00a7 363.6.) You may open your payroll savings plan by selecting an amount, series, and registration for your savings bond purchases using functionality in your TreasuryDirect\u00ae account. Each bond purchase must be in a minimum amount of $25 with additional one-cent increments above that amount, up to a maximum amount of $5000, in any one transaction. The series may be either a Series EE or Series I savings bond. The registration may be any authorized form of registration for an electronic savings bond. You must also initiate a request to your employer or your financial institution to send credits on a recurring basis to your payroll savings plan through the ACH method to purchase a payroll zero-percent certificate of indebtedness. (See Subpart D for more information about a payroll zero-percent certificate of indebtedness.) When you have accumulated a sufficient amount of payroll zero-percent certificate of indebtedness to purchase a savings bond in the amount, series, and registration that you selected, the TreasuryDirect\u00ae system will automatically redeem your payroll zero-percent certificate of indebtedness and purchase your selected savings bond. [75 FR 70816, Nov. 19, 2010]",
+"integrity": {
+"state": "complete",
+"basis": "Full retrieved body of 1,331 characters stored; under the 60,000 cap, so nothing was cut.",
+"stamped_at": "2026-09-21T22:09:50",
+"stored_chars": 1331,
+"source_chars": 1331,
+"cap_applied": 60000
+},
+"authority_class": "regulation",
+"claim_layer": "doctrinal",
+"claim_layer_meaning": "States or describes the rule. Cite for what the law IS."
+},
+{
+"citation": "\u00a7 363.60",
+"kind": "section_sign",
+"page": 1,
+"text": "\u00a7 363.60 How do I discontinue my participation in my payroll savings plan? You may discontinue your participation in your payroll savings plan by arranging with your employer or financial institution to discontinue sending funds. [75 FR 70816, Nov. 19, 2010]",
+"integrity": {
+"state": "complete",
+"basis": "Full retrieved body of 258 characters stored; under the 60,000 cap, so nothing was cut.",
+"stamped_at": "2026-09-21T22:09:50",
+"stored_chars": 258,
+"source_chars": 258,
+"cap_applied": 60000
+},
+"authority_class": "regulation",
+"claim_layer": "doctrinal",
+"claim_layer_meaning": "States or describes the rule. Cite for what the law IS."
+},
+{
+"citation": "\u00a7 363.83",
+"kind": "section_sign",
+"page": 1,
+"text": "\u00a7 363.83 May an account owner transfer a book-entry savings bond to a minor? An account owner may transfer a bond to a minor as a gift or pursuant to one of the specified exceptions in \u00a7 363.55(a).",
+"integrity": {
+"state": "complete",
+"basis": "Full retrieved body of 197 characters stored; under the 60,000 cap, so nothing was cut.",
+"stamped_at": "2026-09-21T22:09:50",
+"stored_chars": 197,
+"source_chars": 197,
+"cap_applied": 60000
+},
+"authority_class": "regulation",
+"claim_layer": "doctrinal",
+"claim_layer_meaning": "States or describes the rule. Cite for what the law IS."
+},
+{
+"citation": "\u00a7 363.95",
+"kind": "section_sign",
+"page": 1,
+"text": "\u00a7 363.95 How may I give, and who can receive, a book-entry savings bond as a gift? You may give a book-entry savings bond as a gift in two ways: (a) An individual may purchase a book-entry savings bond online as a gift and give it to an individual; or (b) A person who owns a bond may transfer that bond to another person as a gift with immediate delivery. [67 FR 64286, Oct. 17, 2002, as amended at 68 FR 24807, May 8, 2003; 70 FR 57437, Sept. 30, 2005; 74 FR 19419, Apr. 29, 2009]",
+"integrity": {
+"state": "complete",
+"basis": "Full retrieved body of 482 characters stored; under the 60,000 cap, so nothing was cut.",
+"stamped_at": "2026-09-21T22:09:50",
+"stored_chars": 482,
+"source_chars": 482,
+"cap_applied": 60000
+},
+"authority_class": "regulation",
+"claim_layer": "doctrinal",
+"claim_layer_meaning": "States or describes the rule. Cite for what the law IS."
+},
+{
+"citation": "\u00a7 363.96",
+"kind": "section_sign",
+"page": 1,
+"text": "\u00a7 363.96 What do I need to know if I initially purchase a bond as a gift? (a) An entity may not purchase a gift savings bond. (b) The gift bond will be registered in the name of the recipient(s). The registration is irrevocable with regard to the owner named on the gift bond. (c) You must provide the SSN of the recipient. (d) You may deliver the bond upon purchase, or you may hold the bond in your TreasuryDirect \u00ae account until you are ready to deliver the bond to the owner named on the gift bond. (e) If the purchaser dies before delivering a gift bond to the recipient, the bond belongs to the owner named on the gift bond, notwithstanding any testamentary attempts to the contrary by the purchaser, or any state law to the contrary. We will hold the bond until we receive instructions from the owner named on the gift bond. [67 FR 64286, Oct. 17, 2002, as amended at 69 FR 2508, Jan. 16, 2004; 74 FR 19419, Apr. 29, 2009]",
+"integrity": {
+"state": "complete",
+"basis": "Full retrieved body of 929 characters stored; under the 60,000 cap, so nothing was cut.",
+"stamped_at": "2026-09-21T22:09:50",
+"stored_chars": 929,
+"source_chars": 929,
+"cap_applied": 60000
+},
+"authority_class": "regulation",
+"claim_layer": "doctrinal",
+"claim_layer_meaning": "States or describes the rule. Cite for what the law IS."
+},
+{
+"citation": "\u00a7 363.97",
+"kind": "section_sign",
+"page": 1,
+"text": "\u00a7 363.97 What do I need to know if I transfer a book-entry savings bond to another person as a gift? (a) You must certify online that the transfer is a gift. (b) You must provide the SSN or EIN of the recipient. (c) Once the transfer is made, the gift is irrevocable. (d) The bond will be transferred in the single owner form of registration for individual account owners, and in the entity form of registration for account owners that are entities. [67 FR 64286, Oct. 17, 2002, as amended at 74 FR 19420, Apr. 29, 2009]",
+"integrity": {
+"state": "complete",
+"basis": "Full retrieved body of 520 characters stored; under the 60,000 cap, so nothing was cut.",
+"stamped_at": "2026-09-21T22:09:50",
+"stored_chars": 520,
+"source_chars": 520,
+"cap_applied": 60000
+},
+"authority_class": "regulation",
+"claim_layer": "doctrinal",
+"claim_layer_meaning": "States or describes the rule. Cite for what the law IS."
+},
+{
+"citation": "\u00a7 363.99",
+"kind": "section_sign",
+"page": 1,
+"text": "\u00a7 363.99 What is the minimum amount of a bond that I may transfer or deliver as a gift in any one transaction? You may transfer or deliver gift bonds in any one-cent increment value equal to or greater than $25.00 redemption value. For example, you may deliver a gift bond with a redemption value of $25.00, $25.01, $25.02, and so forth. If the bond was held in your account prior to delivery to the recipient for a period of time and has accrued interest, the delivery will include principal and proportionate interest.",
+"integrity": {
+"state": "complete",
+"basis": "Full retrieved body of 520 characters stored; under the 60,000 cap, so nothing was cut.",
+"stamped_at": "2026-09-21T22:09:50",
+"stored_chars": 520,
+"source_chars": 520,
+"cap_applied": 60000
+},
+"authority_class": "regulation",
+"claim_layer": "doctrinal",
+"claim_layer_meaning": "States or describes the rule. Cite for what the law IS."
+},
+{
+"citation": "\u00a7 363.100",
+"kind": "section_sign",
+"page": 1,
+"text": "\u00a7 363.100 What are the rules for purchasing and delivering gift savings bonds to minors? (a) A TreasuryDirect \u00ae account owner can purchase a savings bond as a gift with a minor as the recipient. (b) An account owner can deliver a bond purchased as a gift to a minor. The account owner must deliver the security to the minor's linked account. Once delivered, the bond will be under the control of the custodian of the minor's account. (See \u00a7 363.27.) [70 FR 57444, Sept. 30, 2005]",
+"integrity": {
+"state": "complete",
+"basis": "Full retrieved body of 479 characters stored; under the 60,000 cap, so nothing was cut.",
+"stamped_at": "2026-09-21T22:09:50",
+"stored_chars": 479,
+"source_chars": 479,
+"cap_applied": 60000
+},
+"authority_class": "regulation",
+"claim_layer": "doctrinal",
+"claim_layer_meaning": "States or describes the rule. Cite for what the law IS."
+},
+{
+"citation": "\u00a7 363.101",
+"kind": "section_sign",
+"page": 1,
+"text": "\u00a7 363.101 Can an account owner transfer a book-entry savings bond to a minor? An account owner can transfer a book-entry savings bond held in TreasuryDirect \u00ae to a minor as a gift or pursuant to one of the specified exceptions in \u00a7 363.55(a). [70 FR 57444, Sept. 30, 2005]",
+"integrity": {
+"state": "complete",
+"basis": "Full retrieved body of 272 characters stored; under the 60,000 cap, so nothing was cut.",
+"stamped_at": "2026-09-21T22:09:50",
+"stored_chars": 272,
+"source_chars": 272,
+"cap_applied": 60000
+},
+"authority_class": "regulation",
+"claim_layer": "doctrinal",
+"claim_layer_meaning": "States or describes the rule. Cite for what the law IS."
+},
+{
+"citation": "\u00a7 363.125",
+"kind": "section_sign",
+"page": 1,
+"text": "\u00a7 363.125 How is payment made on a book-entry savings bond? We will make payment by the ACH method to the designated account at a United States depository financial institution.",
+"integrity": {
+"state": "complete",
+"basis": "Full retrieved body of 177 characters stored; under the 60,000 cap, so nothing was cut.",
+"stamped_at": "2026-09-21T22:09:50",
+"stored_chars": 177,
+"source_chars": 177,
+"cap_applied": 60000
+},
+"authority_class": "regulation",
+"claim_layer": "doctrinal",
+"claim_layer_meaning": "States or describes the rule. Cite for what the law IS."
+},
+{
+"citation": "\u00a7 363.126",
+"kind": "section_sign",
+"page": 1,
+"text": "\u00a7 363.126 Under what circumstances will payment be made? We will make payment: (a) Upon your request for redemption prior to maturity; (b) When the bond reaches final maturity; and (c) If a person who becomes entitled to the bond is unable, unwilling or ineligible to open a TreasuryDirect \u00ae account.",
+"integrity": {
+"state": "complete",
+"basis": "Full retrieved body of 300 characters stored; under the 60,000 cap, so nothing was cut.",
+"stamped_at": "2026-09-21T22:09:50",
+"stored_chars": 300,
+"source_chars": 300,
+"cap_applied": 60000
+},
+"authority_class": "regulation",
+"claim_layer": "doctrinal",
+"claim_layer_meaning": "States or describes the rule. Cite for what the law IS."
+},
+{
+"citation": "\u00a7\u00a7 363.127-363.129",
+"kind": "section_sign",
+"page": 1,
+"text": "\u00a7\u00a7 363.127-363.129 [Reserved] Subpart D\u2014Zero-Percent Certificate of Indebtedness Source: 69 FR 50309, Aug. 16, 2004, unless otherwise noted. General",
+"integrity": {
+"state": "complete",
+"basis": "Full retrieved body of 148 characters stored; under the 60,000 cap, so nothing was cut.",
+"stamped_at": "2026-09-21T22:09:50",
+"stored_chars": 148,
+"source_chars": 148,
+"cap_applied": 60000
+},
+"authority_class": "regulation",
+"claim_layer": "doctrinal",
+"claim_layer_meaning": "States or describes the rule. Cite for what the law IS."
+},
+{
+"citation": "\u00a7 363.130",
+"kind": "section_sign",
+"page": 1,
+"text": "\u00a7 363.130 What does this subpart cover? This subpart is the offering of the zero-percent certificate of indebtedness by the Secretary of the Treasury (Secretary), and will continue until suspended or terminated by the Secretary. This subpart is also the governing regulations for the zero-percent certificate of indebtedness.",
+"integrity": {
+"state": "complete",
+"basis": "Full retrieved body of 325 characters stored; under the 60,000 cap, so nothing was cut.",
+"stamped_at": "2026-09-21T22:09:50",
+"stored_chars": 325,
+"source_chars": 325,
+"cap_applied": 60000
+},
+"authority_class": "regulation",
+"claim_layer": "doctrinal",
+"claim_layer_meaning": "States or describes the rule. Cite for what the law IS."
+},
+{
+"citation": "\u00a7 363.131",
+"kind": "section_sign",
+"page": 1,
+"text": "\u00a7 363.131 What is a TreasuryDirect \u00ae zero-percent certificate of indebtedness? A TreasuryDirect\u00ae zero-percent certificate of indebtedness is a non-interest-bearing security that is issued daily, with a one-day maturity, which automatically rolls over at maturity until you request redemption. A zero-percent certificate of indebtedness has a minimum purchase amount of one cent. The only purpose of a zero-percent certificate of indebtedness is to accumulate funds for the purchase of another eligible security in the TreasuryDirect system. A zero-percent certificate of indebtedness within a minor's account is the property of the minor alone. The payroll zero-percent certificate of indebtedness is a restricted form of the zero-percent certificate of indebtedness that is held separately from the zero-percent certificate of indebtedness and used only for purchases made through the payroll savings plan. [69 FR 50309, Aug. 16, 2004, as amended at 75 FR 70816, Nov. 19, 2010]",
+"integrity": {
+"state": "complete",
+"basis": "Full retrieved body of 978 characters stored; under the 60,000 cap, so nothing was cut.",
+"stamped_at": "2026-09-21T22:09:50",
+"stored_chars": 978,
+"source_chars": 978,
+"cap_applied": 60000
+},
+"authority_class": "regulation",
+"claim_layer": "doctrinal",
+"claim_layer_meaning": "States or describes the rule. Cite for what the law IS."
+},
+{
+"citation": "\u00a7 363.132",
+"kind": "section_sign",
+"page": 1,
+"text": "\u00a7 363.132 Can the sale of the zero-percent certificate of indebtedness be suspended? The Secretary may suspend and rescind the suspension of sales of the zero-percent certificate of indebtedness by announcement at any time.",
+"integrity": {
+"state": "complete",
+"basis": "Full retrieved body of 223 characters stored; under the 60,000 cap, so nothing was cut.",
+"stamped_at": "2026-09-21T22:09:50",
+"stored_chars": 223,
+"source_chars": 223,
+"cap_applied": 60000
+},
+"authority_class": "regulation",
+"claim_layer": "doctrinal",
+"claim_layer_meaning": "States or describes the rule. Cite for what the law IS."
+},
+{
+"citation": "\u00a7 363.133",
+"kind": "section_sign",
+"page": 1,
+"text": "\u00a7 363.133 What happens to my zero-percent certificate of indebtedness if the offering is terminated by the Secretary? Upon the termination of this offering by the Secretary, the zero-percent certificate of indebtedness ceases to roll over; the proceeds will be paid by the ACH method to the bank account at a financial institution that you designated in your TreasuryDirect \u00ae account as your primary bank account.",
+"integrity": {
+"state": "complete",
+"basis": "Full retrieved body of 413 characters stored; under the 60,000 cap, so nothing was cut.",
+"stamped_at": "2026-09-21T22:09:50",
+"stored_chars": 413,
+"source_chars": 413,
+"cap_applied": 60000
+},
+"authority_class": "regulation",
+"claim_layer": "doctrinal",
+"claim_layer_meaning": "States or describes the rule. Cite for what the law IS."
+},
+{
+"citation": "\u00a7 363.134",
+"kind": "section_sign",
+"page": 1,
+"text": "\u00a7 363.134 What regulations cover a zero-percent certificate of indebtedness? The regulations in part 363 apply to a zero-percent certificate of indebtedness. We expressly disclaim representations or warranties regarding a zero-percent certificate of indebtedness that in any way conflict with these regulations and other applicable law.",
+"integrity": {
+"state": "complete",
+"basis": "Full retrieved body of 336 characters stored; under the 60,000 cap, so nothing was cut.",
+"stamped_at": "2026-09-21T22:09:50",
+"stored_chars": 336,
+"source_chars": 336,
+"cap_applied": 60000
+},
+"authority_class": "regulation",
+"claim_layer": "doctrinal",
+"claim_layer_meaning": "States or describes the rule. Cite for what the law IS."
+},
+{
+"citation": "\u00a7 363.135",
+"kind": "section_sign",
+"page": 1,
+"text": "\u00a7 363.135 In what form is a zero-percent certificate of indebtedness issued? A zero-percent certificate of indebtedness is issued in electronic form only in the TreasuryDirect \u00ae system.",
+"integrity": {
+"state": "complete",
+"basis": "Full retrieved body of 185 characters stored; under the 60,000 cap, so nothing was cut.",
+"stamped_at": "2026-09-21T22:09:50",
+"stored_chars": 185,
+"source_chars": 185,
+"cap_applied": 60000
+},
+"authority_class": "regulation",
+"claim_layer": "doctrinal",
+"claim_layer_meaning": "States or describes the rule. Cite for what the law IS."
+},
+{
+"citation": "\u00a7 363.136",
+"kind": "section_sign",
+"page": 1,
+"text": "\u00a7 363.136 Do zero-percent certificates of indebtedness pay interest? Zero-percent certificates of indebtedness do not pay any interest. However, the Secretary may prescribe a rate of interest, or change the interest rate, for zero-percent certificates of indebtedness by announcement at any time. The new rate would apply to zero-percent certificates of indebtedness issued thereafter, as provided in the announcement. The Secretary's determination of the rate will be final.",
+"integrity": {
+"state": "complete",
+"basis": "Full retrieved body of 475 characters stored; under the 60,000 cap, so nothing was cut.",
+"stamped_at": "2026-09-21T22:09:50",
+"stored_chars": 475,
+"source_chars": 475,
+"cap_applied": 60000
+},
+"authority_class": "regulation",
+"claim_layer": "doctrinal",
+"claim_layer_meaning": "States or describes the rule. Cite for what the law IS."
+},
+{
+"citation": "\u00a7 363.137",
+"kind": "section_sign",
+"page": 1,
+"text": "\u00a7 363.137 What do I need to know about the registration of a zero-percent certificate of indebtedness? A zero-percent certificate of indebtedness is automatically registered in the name of the TreasuryDirect \u00ae account owner. [74 FR 19420, Apr. 29, 2009]",
+"integrity": {
+"state": "complete",
+"basis": "Full retrieved body of 253 characters stored; under the 60,000 cap, so nothing was cut.",
+"stamped_at": "2026-09-21T22:09:50",
+"stored_chars": 253,
+"source_chars": 253,
+"cap_applied": 60000
+},
+"authority_class": "regulation",
+"claim_layer": "doctrinal",
+"claim_layer_meaning": "States or describes the rule. Cite for what the law IS."
+},
+{
+"citation": "\u00a7 363.138",
+"kind": "section_sign",
+"page": 1,
+"text": "\u00a7 363.138 Is Treasury liable for the purchase of a zero-percent certificate of indebtedness that is made in error? We are not liable for any deposits of funds for the purchase of a zero-percent certificate of indebtedness that are made in error by your financial institution or employer. [69 FR 50309, Aug. 16, 2004. Redesignated at 75 FR 70816, Nov. 19, 2010]",
+"integrity": {
+"state": "complete",
+"basis": "Full retrieved body of 360 characters stored; under the 60,000 cap, so nothing was cut.",
+"stamped_at": "2026-09-21T22:09:50",
+"stored_chars": 360,
+"source_chars": 360,
+"cap_applied": 60000
+},
+"authority_class": "regulation",
+"claim_layer": "doctrinal",
+"claim_layer_meaning": "States or describes the rule. Cite for what the law IS."
+},
+{
+"citation": "\u00a7 363.139",
+"kind": "section_sign",
+"page": 1,
+"text": "\u00a7 363.139 May I transfer or deliver my zero-percent certificate of indebtedness? A zero-percent certificate of indebtedness is nontransferable. You may not deliver a zero-percent certificate of indebtedness to another TreasuryDirect \u00ae account as a gift. [69 FR 50309, Aug. 16, 2004. Redesignated at 75 FR 70816, Nov. 19, 2010]",
+"integrity": {
+"state": "complete",
+"basis": "Full retrieved body of 326 characters stored; under the 60,000 cap, so nothing was cut.",
+"stamped_at": "2026-09-21T22:09:50",
+"stored_chars": 326,
+"source_chars": 326,
+"cap_applied": 60000
+},
+"authority_class": "regulation",
+"claim_layer": "doctrinal",
+"claim_layer_meaning": "States or describes the rule. Cite for what the law IS."
+},
+{
+"citation": "\u00a7 363.140",
+"kind": "section_sign",
+"page": 1,
+"text": "\u00a7 363.140 May a zero-percent certificate of indebtedness be pledged or used as collateral? A zero-percent certificate of indebtedness may not be pledged or used as collateral for the performance of an obligation. [69 FR 50309, Aug. 16, 2004. Redesignated at 70 FR 57437, Sept. 30, 2005, and further redesignated at 75 FR 70816, Nov. 19, 2010] Zero-Percent Certificate of Indebtedness",
+"integrity": {
+"state": "complete",
+"basis": "Full retrieved body of 383 characters stored; under the 60,000 cap, so nothing was cut.",
+"stamped_at": "2026-09-21T22:09:50",
+"stored_chars": 383,
+"source_chars": 383,
+"cap_applied": 60000
+},
+"authority_class": "regulation",
+"claim_layer": "doctrinal",
+"claim_layer_meaning": "States or describes the rule. Cite for what the law IS."
+},
+{
+"citation": "\u00a7 363.141",
+"kind": "section_sign",
+"page": 1,
+"text": "\u00a7 363.141 How do I purchase a zero-percent certificate of indebtedness? (a) Primary and linked accounts. You may purchase a zero-percent certificate of indebtedness through one or more of the following four methods: (1) Payroll deduction, in which your employer sends funds through the ACH method to your TreasuryDirect\u00ae account; (2) Deposit by your financial institution, in which your financial institution sends funds by the ACH method to your TreasuryDirect\u00ae account on a recurring or one-time basis; (3) Through the Buy Direct function of your TreasuryDirect\u00ae account, in which you direct us to debit funds from your financial institution account to purchase a zero-percent certificate of indebtedness. This method is limited to an amount no greater than $1000 per transaction. When you use the Buy Direct function to debit funds to purchase all or a portion of a zero-percent certificate of indebtedness, you will not be permitted to schedule a redemption to your financial institution from the zero-percent certificate of indebtedness within five business days after the settlement date of the debit entry; and (4) By using the proceeds from the redemption of a savings bond, the proceeds of a maturing security, or an interest payment from a security to purchase a zero-percent certificate of indebtedness. (b) Payroll savings plan. You may purchase a payroll zero-percent certificate of indebtedness for your payroll savings plan through payroll deduction, in which your employer sends funds through the ACH method to your TreasuryDirect\u00ae payroll savings plan, or through a credit using the ACH method by your financial institution, in which your financial institution sends funds by the ACH method to your TreasuryDirect\u00ae payroll savings plan. [75 FR 70816, Nov. 19, 2010]",
+"integrity": {
+"state": "complete",
+"basis": "Full retrieved body of 1,782 characters stored; under the 60,000 cap, so nothing was cut.",
+"stamped_at": "2026-09-21T22:09:50",
+"stored_chars": 1782,
+"source_chars": 1782,
+"cap_applied": 60000
+},
+"authority_class": "regulation",
+"claim_layer": "doctrinal",
+"claim_layer_meaning": "States or describes the rule. Cite for what the law IS."
+},
+{
+"citation": "\u00a7 363.142",
+"kind": "section_sign",
+"page": 1,
+"text": "\u00a7 363.142 When is a zero-percent certificate of indebtedness issued? A zero-percent certificate of indebtedness is issued the business day after the purchase transaction is made. [69 FR 50309, Aug. 16, 2004. Redesignated at 75 FR 70816, Nov. 19, 2010]",
+"integrity": {
+"state": "complete",
+"basis": "Full retrieved body of 251 characters stored; under the 60,000 cap, so nothing was cut.",
+"stamped_at": "2026-09-21T22:09:50",
+"stored_chars": 251,
+"source_chars": 251,
+"cap_applied": 60000
+},
+"authority_class": "regulation",
+"claim_layer": "doctrinal",
+"claim_layer_meaning": "States or describes the rule. Cite for what the law IS."
+},
+{
+"citation": "\u00a7 363.143",
+"kind": "section_sign",
+"page": 1,
+"text": "\u00a7 363.143 How do I purchase a security using the redemption proceeds of my zero-percent certificate of indebtedness? You may purchase an eligible security by redeeming all or a portion of your zero-percent certificate of indebtedness and applying the proceeds toward the purchase of another eligible security. To do this, your zero-percent certificate of indebtedness must be of sufficient value to cover the cost of the security. If you are paying for a security using the redemption proceeds of a zero-percent certificate of indebtedness, you must pay the full amount of the purchase price of the security using the redemption proceeds. [69 FR 50309, Aug. 16, 2004. Redesignated at 75 FR 70816, Nov. 19, 2010]",
+"integrity": {
+"state": "complete",
+"basis": "Full retrieved body of 711 characters stored; under the 60,000 cap, so nothing was cut.",
+"stamped_at": "2026-09-21T22:09:50",
+"stored_chars": 711,
+"source_chars": 711,
+"cap_applied": 60000
+},
+"authority_class": "regulation",
+"claim_layer": "doctrinal",
+"claim_layer_meaning": "States or describes the rule. Cite for what the law IS."
+},
+{
+"citation": "\u00a7 363.144",
+"kind": "section_sign",
+"page": 1,
+"text": "\u00a7 363.144 Can I redeem my zero-percent certificate of indebtedness? You can redeem part or all of the value of your zero-percent certificate of indebtedness at any time, with one exception: if you purchased all or a portion of your zero-percent certificate of indebtedness through a debit using the ACH method, you may not schedule a redemption from your zero-percent certificate of indebtedness within five business days after the date of the debit entry. [70 FR 57444, Sept. 30, 2005. Redesignated at 75 FR 70816, Nov. 19, 2010]",
+"integrity": {
+"state": "complete",
+"basis": "Full retrieved body of 530 characters stored; under the 60,000 cap, so nothing was cut.",
+"stamped_at": "2026-09-21T22:09:50",
+"stored_chars": 530,
+"source_chars": 530,
+"cap_applied": 60000
+},
+"authority_class": "regulation",
+"claim_layer": "doctrinal",
+"claim_layer_meaning": "States or describes the rule. Cite for what the law IS."
+},
+{
+"citation": "\u00a7 363.145",
+"kind": "section_sign",
+"page": 1,
+"text": "\u00a7 363.145 May I delete a pending transaction involving a zero-percent certificate of indebtedness? (a) You may delete a pending purchase of a zero-percent certificate of indebtedness initiated from your TreasuryDirect \u00ae account. (b) You may delete a pending purchase of a security using a zero-percent certificate of indebtedness as payment. (c) You may not delete a pending redemption of all or part of the value of a zero-percent certificate of indebtedness. [69 FR 50309, Aug. 16, 2004. Redesignated at 75 FR 70816, Nov. 19, 2010] Payroll Zero-Percent Certificate of Indebtedness",
+"integrity": {
+"state": "complete",
+"basis": "Full retrieved body of 582 characters stored; under the 60,000 cap, so nothing was cut.",
+"stamped_at": "2026-09-21T22:09:50",
+"stored_chars": 582,
+"source_chars": 582,
+"cap_applied": 60000
+},
+"authority_class": "regulation",
+"claim_layer": "doctrinal",
+"claim_layer_meaning": "States or describes the rule. Cite for what the law IS."
+},
+{
+"citation": "\u00a7 363.146",
+"kind": "section_sign",
+"page": 1,
+"text": "\u00a7 363.146 Who may purchase a payroll zero-percent certificate of indebtedness? Only an individual TreasuryDirect\u00ae account owner may purchase a payroll zero-percent certificate of indebtedness, only through his or her primary account, and only through the payroll savings plan. [75 FR 70817, Nov. 19, 2010]",
+"integrity": {
+"state": "complete",
+"basis": "Full retrieved body of 305 characters stored; under the 60,000 cap, so nothing was cut.",
+"stamped_at": "2026-09-21T22:09:50",
+"stored_chars": 305,
+"source_chars": 305,
+"cap_applied": 60000
+},
+"authority_class": "regulation",
+"claim_layer": "doctrinal",
+"claim_layer_meaning": "States or describes the rule. Cite for what the law IS."
+},
+{
+"citation": "\u00a7 363.147",
+"kind": "section_sign",
+"page": 1,
+"text": "\u00a7 363.147 How do I purchase a payroll zero-percent certificate of indebtedness? You may purchase a payroll zero-percent certificate of indebtedness through your TreasuryDirect\u00ae account using your payroll savings plan. (See \u00a7\u00a7 363.59 and 363.60 for more information on opening a payroll savings plan.) The only method of purchase for a payroll zero-percent certificate of indebtedness is a credit of funds from your employer or financial institution using the ACH method. You cannot purchase a payroll zero-percent certificate of indebtedness by using a debit from your financial institution. [75 FR 70817, Nov. 19, 2010]",
+"integrity": {
+"state": "complete",
+"basis": "Full retrieved body of 620 characters stored; under the 60,000 cap, so nothing was cut.",
+"stamped_at": "2026-09-21T22:09:50",
+"stored_chars": 620,
+"source_chars": 620,
+"cap_applied": 60000
+},
+"authority_class": "regulation",
+"claim_layer": "doctrinal",
+"claim_layer_meaning": "States or describes the rule. Cite for what the law IS."
+},
+{
+"citation": "\u00a7 363.148",
+"kind": "section_sign",
+"page": 1,
+"text": "\u00a7 363.148 Can I redeem all or a portion of my accumulated payroll zero-percent certificate of indebtedness? You may redeem all or a portion of your accumulated payroll zero-percent certificate of indebtedness to any financial institution that is of record in your TreasuryDirect\u00ae account. [75 FR 70817, Nov. 19, 2010]",
+"integrity": {
+"state": "complete",
+"basis": "Full retrieved body of 317 characters stored; under the 60,000 cap, so nothing was cut.",
+"stamped_at": "2026-09-21T22:09:50",
+"stored_chars": 317,
+"source_chars": 317,
+"cap_applied": 60000
+},
+"authority_class": "regulation",
+"claim_layer": "doctrinal",
+"claim_layer_meaning": "States or describes the rule. Cite for what the law IS."
+},
+{
+"citation": "\u00a7\u00a7 363.149-363.152",
+"kind": "section_sign",
+"page": 1,
+"text": "\u00a7\u00a7 363.149-363.152 [Reserved] Subpart E\u2014Conversion of a Definitive Savings Bond Source: 70 FR 14943, Mar. 23, 2005, unless otherwise noted.",
+"integrity": {
+"state": "complete",
+"basis": "Full retrieved body of 139 characters stored; under the 60,000 cap, so nothing was cut.",
+"stamped_at": "2026-09-21T22:09:50",
+"stored_chars": 139,
+"source_chars": 139,
+"cap_applied": 60000
+},
+"authority_class": "regulation",
+"claim_layer": "doctrinal",
+"claim_layer_meaning": "States or describes the rule. Cite for what the law IS."
+},
+{
+"citation": "\u00a7 363.160",
+"kind": "section_sign",
+"page": 1,
+"text": "\u00a7 363.160 What subparts govern the conversion of definitive savings bonds? (a) This subpart governs: (1) The process of converting definitive savings bonds of all eligible series and types of registration to book-entry bonds in TreasuryDirect \u00ae; (2) Converted savings bonds of all series registered in the coowner form of registration, unless the non-converting coowner consents to a change in the registration of the bonds after conversion; (3) Converted savings bonds of Series E registered in the owner with beneficiary form of registration, unless the beneficiary consents to a change in the registration of the bonds after conversion; and (4) Converted savings bonds of all series that are held as gift bonds by the person who converted the bonds. (b) Subpart C governs: (1) Converted savings bonds of any series registered in the single owner or entity form of registration; (2) Converted Series EE and Series I savings bonds registered in the owner with beneficiary form of registration; (3) Converted Series E savings bonds registered in the owner with beneficiary form of registration, where the beneficiary has consented to a change in the registration of the bonds after conversion; and (4) Converted savings bonds of all series registered in the coowner form of registration, where the non-converting coowner has consented to a change in the registration of the bonds after conversion. [70 FR 14943, Mar. 23, 2005, as amended at 70 FR 57347, Sept. 30, 2005; 74 FR 19420, Apr. 29, 2009]",
+"integrity": {
+"state": "complete",
+"basis": "Full retrieved body of 1,497 characters stored; under the 60,000 cap, so nothing was cut.",
+"stamped_at": "2026-09-21T22:09:50",
+"stored_chars": 1497,
+"source_chars": 1497,
+"cap_applied": 60000
+},
+"authority_class": "regulation",
+"claim_layer": "doctrinal",
+"claim_layer_meaning": "States or describes the rule. Cite for what the law IS."
+},
+{
+"citation": "\u00a7 363.161",
+"kind": "section_sign",
+"page": 1,
+"text": "\u00a7 363.161 What definitive savings bonds are eligible to be converted to book-entry bonds? Series E, Series EE, and Series I savings bonds issued in denominations of $25 or greater are eligible for conversion to book-entry bonds in TreasuryDirect \u00ae. [74 FR 19420, Apr. 29, 2009]",
+"integrity": {
+"state": "complete",
+"basis": "Full retrieved body of 277 characters stored; under the 60,000 cap, so nothing was cut.",
+"stamped_at": "2026-09-21T22:09:50",
+"stored_chars": 277,
+"source_chars": 277,
+"cap_applied": 60000
+},
+"authority_class": "regulation",
+"claim_layer": "doctrinal",
+"claim_layer_meaning": "States or describes the rule. Cite for what the law IS."
+},
+{
+"citation": "\u00a7 363.162",
+"kind": "section_sign",
+"page": 1,
+"text": "\u00a7 363.162 Who may convert a definitive savings bond? The owner of a TreasuryDirect \u00ae primary account may convert a definitive savings bond. (a) Bond that is registered to the account owner. The following persons may convert a definitive savings bond of an eligible series to a book-entry bond to be held in the person's TreasuryDirect account: (1) The owner of a definitive savings bond registered in the single owner or entity form of registration; (2) Either co-owner of a bond registered in the coowner form of registration; and (3) The owner of a bond registered in the owner with beneficiary form of registration. (b) Bond that is registered to someone other than the account owner. We will convert an eligible definitive savings bond submitted by an individual account owner who is not the registered owner of the savings bond. See the special rules in \u00a7 363.166. [74 FR 19420, Apr. 29, 2009]",
+"integrity": {
+"state": "complete",
+"basis": "Full retrieved body of 898 characters stored; under the 60,000 cap, so nothing was cut.",
+"stamped_at": "2026-09-21T22:09:50",
+"stored_chars": 898,
+"source_chars": 898,
+"cap_applied": 60000
+},
+"authority_class": "regulation",
+"claim_layer": "doctrinal",
+"claim_layer_meaning": "States or describes the rule. Cite for what the law IS."
+},
+{
+"citation": "\u00a7 363.163",
+"kind": "section_sign",
+"page": 1,
+"text": "\u00a7 363.163 How do I convert an eligible definitive savings bond? We will provide online instructions for converting your definitive savings bond. You must surrender to us the definitive bond to be converted at the time of conversion.",
+"integrity": {
+"state": "complete",
+"basis": "Full retrieved body of 232 characters stored; under the 60,000 cap, so nothing was cut.",
+"stamped_at": "2026-09-21T22:09:50",
+"stored_chars": 232,
+"source_chars": 232,
+"cap_applied": 60000
+},
+"authority_class": "regulation",
+"claim_layer": "doctrinal",
+"claim_layer_meaning": "States or describes the rule. Cite for what the law IS."
+},
+{
+"citation": "\u00a7 363.164",
+"kind": "section_sign",
+"page": 1,
+"text": "\u00a7 363.164 Is a converted savings bond eligible to be converted back into a definitive bond? Once a definitive savings bond has been converted to a book-entry bond, it may not be converted back into a definitive bond.",
+"integrity": {
+"state": "complete",
+"basis": "Full retrieved body of 216 characters stored; under the 60,000 cap, so nothing was cut.",
+"stamped_at": "2026-09-21T22:09:50",
+"stored_chars": 216,
+"source_chars": 216,
+"cap_applied": 60000
+},
+"authority_class": "regulation",
+"claim_layer": "doctrinal",
+"claim_layer_meaning": "States or describes the rule. Cite for what the law IS."
+},
+{
+"citation": "\u00a7 363.165",
+"kind": "section_sign",
+"page": 1,
+"text": "\u00a7 363.165 What happens when I convert a savings bond that is registered in my name as a single owner, either coowner, an owner with a beneficiary, or an entity? (a) Unmatured savings bond. When the conversion is approved, an unmatured savings bond that is registered in the name of the TreasuryDirect \u00ae account owner as a single owner, either coowner, an owner with beneficiary, or an entity, will be released to the account owner's conversion linked account. (b) Matured savings bond. A savings bond that has reached final maturity and is registered in the name of the TreasuryDirect account owner as a single owner, either coowner, an owner with beneficiary, or an entity, will be converted to a book-entry savings bond and automatically redeemed. The redemption proceeds will be used to purchase a zero-percent certificate of indebtedness in the account owner's name in the primary account. [74 FR 19420, Apr. 29, 2009]",
+"integrity": {
+"state": "complete",
+"basis": "Full retrieved body of 922 characters stored; under the 60,000 cap, so nothing was cut.",
+"stamped_at": "2026-09-21T22:09:50",
+"stored_chars": 922,
+"source_chars": 922,
+"cap_applied": 60000
+},
+"authority_class": "regulation",
+"claim_layer": "doctrinal",
+"claim_layer_meaning": "States or describes the rule. Cite for what the law IS."
+},
+{
+"citation": "\u00a7 363.166",
+"kind": "section_sign",
+"page": 1,
+"text": "\u00a7 363.166 What happens when I convert a savings bond that is not registered in my name as owner, either coowner, or owner with beneficiary (including a bond registered in the name of a minor)? We will presume that a savings bond registered in the name of someone other than the TreasuryDirect \u00ae account owner (including a bond registered in the name of a minor) was purchased by the account owner as a gift for the registered owner. We will not permit an entity to convert a savings bond that is not registered in the name of the entity. (a) Unmatured savings bond \u2014(1) General. An unmatured savings bond registered in the name of someone other than the account owner will be converted to a book-entry bond, released as a gift bond to the account owner's conversion linked account, and held until delivered to the TreasuryDirect account (or minor linked account, if the registered owner is a minor) of the registered owner. (2) Delivery of unmatured gift bond to registered owner. The TreasuryDirect account owner may deliver the converted gift bond to the TreasuryDirect account (or minor linked account, if the registered owner is a minor) of the registered owner, or, if the bond is registered in the coowner form of registration, to the account of either coowner. A bond registered in coowner or owner with beneficiary form of registration will retain the coowner or beneficiary form of registration upon delivery. (b) Savings bond that has reached final maturity \u2014(1) General. A savings bond that has reached final maturity and is registered in the name of someone other than the account owner will be converted to a book-entry bond, released as a gift bond into the account owner's conversion linked account, and automatically redeemed. We will hold the redemption proceeds in the name of the registered owner of the definitive bond until the proceeds are delivered to the TreasuryDirect account (or minor linked account, if the registered owner is a minor) of the registered owner. (2) Delivery of bond proceeds to registered owner. If the gift bond has reached final maturity and has been automatically redeemed, then the Treasury Direct account owner may direct that the held redemption proceeds be delivered to the Treasury Direct account of the registered owner (or minor linked account, if the registered owner is a minor), where we will use the proceeds to purchase a zero-percent certificate of indebtedness in the name of the registered owner. If the bond is registered in the coowner form of registration, the account owner may direct that the held redemption proceeds be delivered to the account of either coowner, where we will use the proceeds to purchase a zero-percent certificate of indebtedness in the name of the coowner to whose account the bond was delivered. [70 FR 14943, Mar. 23, 2005, as amended at 70 FR 57347, Sept. 30, 2005; 74 FR 19420, Apr. 29, 2009]",
+"integrity": {
+"state": "complete",
+"basis": "Full retrieved body of 2,885 characters stored; under the 60,000 cap, so nothing was cut.",
+"stamped_at": "2026-09-21T22:09:50",
+"stored_chars": 2885,
+"source_chars": 2885,
+"cap_applied": 60000
+},
+"authority_class": "regulation",
+"claim_layer": "doctrinal",
+"claim_layer_meaning": "States or describes the rule. Cite for what the law IS."
+},
+{
+"citation": "\u00a7 363.167",
+"kind": "section_sign",
+"page": 1,
+"text": "\u00a7 363.167 How will a converted savings bond be registered? The registration of the converted bond will be the same as on the definitive bond, provided that it was registered properly in an authorized form of registration. We will change a definitive savings bond that was not registered in an authorized form of registration to the closest authorized form of registration. For example, a definitive savings bond erroneously registered \u201cJohn Doe and Jane Doe\u201d will be changed to \u201cJohn Doe or Jane Doe.\u201d We are not liable to any person for any such decision as to the closest form of authorized registration.",
+"integrity": {
+"state": "complete",
+"basis": "Full retrieved body of 606 characters stored; under the 60,000 cap, so nothing was cut.",
+"stamped_at": "2026-09-21T22:09:50",
+"stored_chars": 606,
+"source_chars": 606,
+"cap_applied": 60000
+},
+"authority_class": "regulation",
+"claim_layer": "doctrinal",
+"claim_layer_meaning": "States or describes the rule. Cite for what the law IS."
+},
+{
+"citation": "\u00a7 363.168",
+"kind": "section_sign",
+"page": 1,
+"text": "\u00a7 363.168 What rules regarding registration apply to a converted savings bond? (a) Savings bond of any series registered in the single owner or entity form of registration. By converting a definitive bond of any eligible series registered in the single owner or entity form of registration to book-entry in TreasuryDirect \u00ae, the owner has consented to the bond being governed by the rules regarding registration contained in subpart C of this part. (b) Savings bond of Series EE or Series I registered in the owner with beneficiary form of registration. By converting a definitive bond of Series EE or Series I registered in an owner with beneficiary form of registration to a book-entry bond in TreasuryDirect, the owner has consented to the bond being governed by the rules regarding registration contained in subpart C of this part. (c) Savings bond of Series E registered in the owner with beneficiary form of registration. The registration of a converted savings bond of Series E registered in the owner with beneficiary form of registration may be changed upon the request of the owner and the consent of the beneficiary. The transaction will not be conducted through the registered owner's TreasuryDirect account. (d) Savings bond of any series registered in the coowner form of registration. The registration of a converted savings bond of any eligible series registered in the coowner form of registration may be changed upon the request of one coowner and the consent of the other coowner. The transaction will not be conducted through the registered owner's TreasuryDirect account. [70 FR 14943, Mar. 23, 2005, as amended at 74 FR 19420, Apr. 29, 2009]",
+"integrity": {
+"state": "complete",
+"basis": "Full retrieved body of 1,663 characters stored; under the 60,000 cap, so nothing was cut.",
+"stamped_at": "2026-09-21T22:09:50",
+"stored_chars": 1663,
+"source_chars": 1663,
+"cap_applied": 60000
+},
+"authority_class": "regulation",
+"claim_layer": "doctrinal",
+"claim_layer_meaning": "States or describes the rule. Cite for what the law IS."
+},
+{
+"citation": "\u00a7 363.169",
+"kind": "section_sign",
+"page": 1,
+"text": "\u00a7 363.169 What transactions can I conduct in a converted savings bond on which I am registered as the single owner, either coowner, the owner with a beneficiary, or an entity? (a) Savings bond of any series registered in the single owner or entity form of registration. By converting a definitive savings bond of any series registered in the single owner or entity form of registration to a book-entry bond, you have consented to the bond being treated as if it were originally issued as a book-entry bond in TreasuryDirect \u00ae. The bond will be subject to the provisions of subpart C of this part. Any transaction available for a book-entry bond originally issued in the TreasuryDirect system is available for a converted bond registered in single owner or entity form of registration. (b) Savings bond of Series EE and Series I registered in the owner with beneficiary form of registration. By converting a definitive savings bond registered in the owner with beneficiary form of registration to a book-entry bond, you have consented to the bond being treated as if it were originally issued as a book-entry bond in TreasuryDirect. The bond will be subject to the provisions of subpart C of this part. Any transaction available for a book-entry bond purchased in the TreasuryDirect system is available for a converted bond of Series EE and Series I registered in the owner with beneficiary form of registration. (c) Savings bond of Series E registered in the owner with beneficiary form of registration. The owner of a converted Series E bond registered in the owner with beneficiary form of registration may make the following transactions: (1) Provide view rights to the beneficiary. The owner may provide the beneficiary with the right to view the bond in the beneficiary's TreasuryDirect account. Once the right to view the bond is provided to the beneficiary, the owner may not revoke that right. (2) Transfer without change in registration. The owner may transfer the bond without a change of registration to another account in the name of the owner. (3) Remove the beneficiary from the registration. The owner may remove the beneficiary's name from the registration with the consent of the beneficiary. The transaction will not be conducted through the registered owner's TreasuryDirect account. The bond will be changed to the single owner form of registration. Once the transaction is completed, the bond will be treated as a bond originally issued as a book-entry bond in TreasuryDirect, and will be subject to subpart C of this part. The owner may then perform any transaction available for book-entry bonds purchased in the TreasuryDirect system. (4) Transfer to the beneficiary or a third party with a change in registration. The owner may remove his or her name from the registration and transfer the bond to the account of the beneficiary or a third party, with the consent of the beneficiary. The transaction will not be conducted through the registered owner's TreasuryDirect account. The bond will be transferred in the single owner form of registration. Once the transfer is completed, the bond will be treated as a bond originally issued as a book-entry bond in TreasuryDirect, and will be subject to subpart C of this part. The owner may then perform any transaction available for book-entry bonds purchased in the TreasuryDirect system. (d) Savings bond of any series registered in the coowner form of registration. The converting coowner of a converted bond registered in the coowner form of registration may make the following transactions: (1) Provide view or transact rights to non-converting coowner. The converting coowner may provide the non-converting coowner with the rights to view the bond or to view and redeem the bond through the non-converting coowner's TreasuryDirect account. Once either of these rights is provided to the non-converting coowner, the converting coowner may not revoke the right. (2) Transfer without change in registration. The converting coowner may transfer the bond without a change in registration to another account in the name of the converting coowner. The bond may be transferred without the consent of the non-converting coowner, and will retain the coowner registration. (3) Remove a coowner from the registration. The converting coowner (or the non-converting coowner, if the bond has been previously transferred to the account of the non-converting coowner) may remove the other coowner from the registration. The consent of the other coowner is required. The bond must reside in the account of the coowner who is requesting the transaction. The transaction will not be conducted through the registered owner's TreasuryDirect account. The bond's registration will be changed to the single owner form of registration. Once this transaction is completed, the bond will be treated as a bond originally issued as a book-entry bond in TreasuryDirect, and will be subject to subpart C of this part. The owner may then perform any transaction available for book-entry bonds purchased in the TreasuryDirect system. (4) Transfer to non-converting coowner or a third party with a change in registration. The converting coowner may remove his or her name from the registration and transfer the bond to either the account of the non-converting coowner or to the account of a third party. The consent of the non-converting coowner is required. The transaction will not be conducted through the registered owner's TreasuryDirect account. The bond will be transferred in the single owner form of registration. Once the transfer is completed, the bond will be treated as a bond originally issued as a book-entry bond in TreasuryDirect, and will be subject to subpart C of this part. The owner may then perform any transaction available for book-entry bonds purchased in the TreasuryDirect system. [70 FR 14943, Mar. 23, 2005, as amended at 74 FR 19420, Apr. 29, 2009]",
+"integrity": {
+"state": "complete",
+"basis": "Full retrieved body of 5,919 characters stored; under the 60,000 cap, so nothing was cut.",
+"stamped_at": "2026-09-21T22:09:50",
+"stored_chars": 5919,
+"source_chars": 5919,
+"cap_applied": 60000
+},
+"authority_class": "regulation",
+"claim_layer": "doctrinal",
+"claim_layer_meaning": "States or describes the rule. Cite for what the law IS."
+},
+{
+"citation": "\u00a7 363.170",
+"kind": "section_sign",
+"page": 1,
+"text": "\u00a7 363.170 What transactions can I conduct in a savings bond that I converted on which I am not registered as the owner, either coowner, or owner with beneficiary? The only transaction that you may conduct on a savings bond that you converted on which you are not registered as the owner, either coowner, or owner with beneficiary is to deliver the converted bond to the TreasuryDirect \u00ae account of the registered owner.",
+"integrity": {
+"state": "complete",
+"basis": "Full retrieved body of 419 characters stored; under the 60,000 cap, so nothing was cut.",
+"stamped_at": "2026-09-21T22:09:50",
+"stored_chars": 419,
+"source_chars": 419,
+"cap_applied": 60000
+},
+"authority_class": "regulation",
+"claim_layer": "doctrinal",
+"claim_layer_meaning": "States or describes the rule. Cite for what the law IS."
+},
+{
+"citation": "\u00a7 363.171",
+"kind": "section_sign",
+"page": 1,
+"text": "\u00a7 363.171 How do I redeem a converted savings bond? (a) Before final maturity \u2014(1) Savings bond of any series registered in the single owner, owner with beneficiary, or entity form of registration. You may redeem your converted savings bond of any series registered either in the single owner, owner with beneficiary, or entity form of registration any time prior to final maturity after the minimum holding period through your TreasuryDirect \u00ae account. (2) Savings bond of any series registered in the coowner form of registration. The converting coowner may redeem the converted savings bond of any series registered in the coowner form of registration at any time prior to final maturity after the minimum holding period through his or her TreasuryDirect account. The non-converting coowner may redeem the converted savings bond at any time prior to final maturity after the minimum holding period provided that he or she has been granted transaction rights in the converted bond by the converting coowner. (b) Upon final maturity \u2014(1) Savings bond of any series registered in the single owner, owner with beneficiary, coowner, or entity forms of registration. If you have not previously redeemed or transferred your converted savings bond of any series registered in the single owner, owner with beneficiary, coowner, or entity forms of registration, it will be automatically redeemed for you at final maturity. (2) The redemption proceeds will be automatically used to purchase a zero-percent certificate of indebtedness registered in your name and held in your TreasuryDirect account. [70 FR 14943, Mar. 23, 2005, as amended at 74 FR 19420, Apr. 29, 2009]",
+"integrity": {
+"state": "complete",
+"basis": "Full retrieved body of 1,661 characters stored; under the 60,000 cap, so nothing was cut.",
+"stamped_at": "2026-09-21T22:09:50",
+"stored_chars": 1661,
+"source_chars": 1661,
+"cap_applied": 60000
+},
+"authority_class": "regulation",
+"claim_layer": "doctrinal",
+"claim_layer_meaning": "States or describes the rule. Cite for what the law IS."
+},
+{
+"citation": "\u00a7 363.176",
+"kind": "section_sign",
+"page": 1,
+"text": "\u00a7 363.176 May a converted savings bond be pledged or used as collateral? A converted savings bond may not be pledged or used as collateral for the performance of an obligation.",
+"integrity": {
+"state": "complete",
+"basis": "Full retrieved body of 176 characters stored; under the 60,000 cap, so nothing was cut.",
+"stamped_at": "2026-09-21T22:09:50",
+"stored_chars": 176,
+"source_chars": 176,
+"cap_applied": 60000
+},
+"authority_class": "regulation",
+"claim_layer": "doctrinal",
+"claim_layer_meaning": "States or describes the rule. Cite for what the law IS."
+},
+{
+"citation": "\u00a7 363.179",
+"kind": "section_sign",
+"page": 1,
+"text": "\u00a7 363.179 Does Fiscal Service make any reservations as to the conversion of an eligible savings bond? We may reject any application for conversion or refuse to convert a savings bond in any case or class of cases, if we deem the action to be in the public interest. Our action in any such respect is final.",
+"integrity": {
+"state": "complete",
+"basis": "Full retrieved body of 306 characters stored; under the 60,000 cap, so nothing was cut.",
+"stamped_at": "2026-09-21T22:09:50",
+"stored_chars": 306,
+"source_chars": 306,
+"cap_applied": 60000
+},
+"authority_class": "regulation",
+"claim_layer": "doctrinal",
+"claim_layer_meaning": "States or describes the rule. Cite for what the law IS."
+},
+{
+"citation": "\u00a7\u00a7 363.180-363.199",
+"kind": "section_sign",
+"page": 1,
+"text": "\u00a7\u00a7 363.180-363.199 [Reserved] Subpart F\u2014Marketable Treasury Securities Source: 70 FR 57444, Sept. 30, 2005, unless otherwise noted.",
+"integrity": {
+"state": "complete",
+"basis": "Full retrieved body of 131 characters stored; under the 60,000 cap, so nothing was cut.",
+"stamped_at": "2026-09-21T22:09:50",
+"stored_chars": 131,
+"source_chars": 131,
+"cap_applied": 60000
+},
+"authority_class": "regulation",
+"claim_layer": "doctrinal",
+"claim_layer_meaning": "States or describes the rule. Cite for what the law IS."
+},
+{
+"citation": "\u00a7 363.200",
+"kind": "section_sign",
+"page": 1,
+"text": "\u00a7 363.200 What Treasury securities does this subpart govern? This subpart provides the rules for holding marketable Treasury bills, notes, and bonds in book-entry form in TreasuryDirect \u00ae.",
+"integrity": {
+"state": "complete",
+"basis": "Full retrieved body of 188 characters stored; under the 60,000 cap, so nothing was cut.",
+"stamped_at": "2026-09-21T22:09:50",
+"stored_chars": 188,
+"source_chars": 188,
+"cap_applied": 60000
+},
+"authority_class": "regulation",
+"claim_layer": "doctrinal",
+"claim_layer_meaning": "States or describes the rule. Cite for what the law IS."
+},
+{
+"citation": "\u00a7 363.201",
+"kind": "section_sign",
+"page": 1,
+"text": "\u00a7 363.201 What other regulations govern book-entry marketable book-entry Treasury bills, notes, and bonds? (a) 31 CFR part 356 governs the sale and issue of marketable book-entry Treasury securities on or after March 1, 1993, whether held in TreasuryDirect \u00ae, Legacy Treasury Direct, or the commercial book-entry system. (b) 31 CFR part 357 governs holding marketable book-entry Treasury bills, notes, and bonds in the Legacy Treasury Direct system and in the commercial book-entry system.",
+"integrity": {
+"state": "complete",
+"basis": "Full retrieved body of 489 characters stored; under the 60,000 cap, so nothing was cut.",
+"stamped_at": "2026-09-21T22:09:50",
+"stored_chars": 489,
+"source_chars": 489,
+"cap_applied": 60000
+},
+"authority_class": "regulation",
+"claim_layer": "doctrinal",
+"claim_layer_meaning": "States or describes the rule. Cite for what the law IS."
+},
+{
+"citation": "\u00a7 363.202",
+"kind": "section_sign",
+"page": 1,
+"text": "\u00a7 363.202 What marketable Treasury securities may I purchase and hold through my TreasuryDirect \u00ae account? (a) Purchase. (1) Advance purchase. You may purchase any marketable Treasury security that is available for purchase through the TreasuryDirect \u00ae website. One day each week, marketable securities that are scheduled for auction within 8 weeks will be made available on the TreasuryDirect website for scheduling an advance purchase, and are the only marketable securities that you can schedule for advance purchase. (2) Purchases scheduled prior to May 15, 2010, with an effective issue date on or after May 15, 2010. (i) Any marketable security purchase scheduled prior to May 15, 2010, and with an effective issue date of May 15, 2010, through July 9, 2010, will be treated as a new purchase, even if the transaction would have been treated as a reinvestment under the rules in effect prior to May 15, 2010. (ii) Any marketable security purchase scheduled prior to May 15, 2010, with an effective issue date after July 9, 2010, will be canceled. (b) Hold. You may transfer into the system and maintain in your TreasuryDirect account any eligible marketable book-entry Treasury bill, note, or bond. [70 FR 57444, Sept. 30, 2005, as amended at 75 FR 26090, May 11, 2010]",
+"integrity": {
+"state": "complete",
+"basis": "Full retrieved body of 1,275 characters stored; under the 60,000 cap, so nothing was cut.",
+"stamped_at": "2026-09-21T22:09:50",
+"stored_chars": 1275,
+"source_chars": 1275,
+"cap_applied": 60000
+},
+"authority_class": "regulation",
+"claim_layer": "doctrinal",
+"claim_layer_meaning": "States or describes the rule. Cite for what the law IS."
+},
+{
+"citation": "\u00a7 363.203",
+"kind": "section_sign",
+"page": 1,
+"text": "\u00a7 363.203 After I purchase my marketable Treasury security in TreasuryDirect \u00ae, is there a period of time during which I may not transfer the security? Once you purchase a marketable Treasury security in TreasuryDirect, you may not transfer that security for a period of 45 calendar days after the issue date of the security, or the term of the security, whichever is less.",
+"integrity": {
+"state": "complete",
+"basis": "Full retrieved body of 373 characters stored; under the 60,000 cap, so nothing was cut.",
+"stamped_at": "2026-09-21T22:09:50",
+"stored_chars": 373,
+"source_chars": 373,
+"cap_applied": 60000
+},
+"authority_class": "regulation",
+"claim_layer": "doctrinal",
+"claim_layer_meaning": "States or describes the rule. Cite for what the law IS."
+},
+{
+"citation": "\u00a7 363.204",
+"kind": "section_sign",
+"page": 1,
+"text": "\u00a7 363.204 What registrations are available for my marketable Treasury securities held in TreasuryDirect \u00ae? You may register your marketable Treasury securities in any form of registration permitted by \u00a7 363.20 of this part.",
+"integrity": {
+"state": "complete",
+"basis": "Full retrieved body of 223 characters stored; under the 60,000 cap, so nothing was cut.",
+"stamped_at": "2026-09-21T22:09:50",
+"stored_chars": 223,
+"source_chars": 223,
+"cap_applied": 60000
+},
+"authority_class": "regulation",
+"claim_layer": "doctrinal",
+"claim_layer_meaning": "States or describes the rule. Cite for what the law IS."
+},
+{
+"citation": "\u00a7 363.205",
+"kind": "section_sign",
+"page": 1,
+"text": "\u00a7 363.205 How do I reinvest the proceeds of a maturing security held in TreasuryDirect \u00ae? (a) Method for reinvesting a maturing security. The only method of reinvesting a maturing marketable security in TreasuryDirect \u00ae is through the automatic reinvestment option available in your TreasuryDirect account. Purchasing a security by directing that the proceeds of a maturing security be used to purchase a zero-percent certificate of indebtedness, and then scheduling the purchase of a new security using the redemption proceeds of the zero-percent certificate of indebtedness, is not a reinvestment. (b) When a reinvestment can be scheduled, edited, or canceled. You can schedule your reinvestment either at the time of purchase or after the security is issued into your TreasuryDirect account. You cannot schedule, edit, or cancel a reinvestment when the maturing security goes into a closed book period, or when a noncompetitive bid for the replacement security is no longer accepted, whichever comes first. (c) What securities can be reinvested. Any marketable security can be reinvested. (d) Limits on scheduling reinvestments. Reinvestments will be limited at any one time to 25 times for a 4-week bill, 7 times for a 13-week bill, 3 times for a 26-week bill, and once for all other marketable security types. (e) Canceling reinvestments. If there is no security available for reinvestment with an issue date that coincides with the maturity date or call date, if invoked, of the maturing security, and with the same type and term, the scheduled reinvestment will be canceled and the proceeds of the maturing security will be returned to the customer. (f) Procedure if there are insufficient funds from the maturing security to pay the full purchase price of the replacement security. If there are insufficient funds from the maturing security to pay the full purchase price of the replacement security, we will either debit your primary account at a financial institution or pay the additional funds using the redemption proceeds of your zero-percent certificate of indebtedness. (1) Debit from primary account at financial institution. If the maturing security is purchased on or after May 15, 2010, we will pay the additional funds by a debit from your primary account at a financial institution if the maturing security was purchased within TreasuryDirect by a debit from a financial institution account or if the maturing security was received through a transfer. If we are unable to obtain sufficient funds from your primary account at a financial institution, the reinvestment will be canceled and we will refund the proceeds of the maturing security. (2) Withdrawal of funds from zero-percent certificate of indebtedness. If the maturing security is purchased on or after May 15, 2010, we will pay the additional funds using the redemption proceeds of your zero-percent certificate of indebtedness if the purchase of the maturing security was made using the zero-percent certificate of indebtedness. If the amount available from a redemption of the zero-percent certificate of indebtedness is insufficient to pay the additional amount, the reinvestment will be canceled and we will refund the proceeds of the maturing security. (3) Special rules if the maturing security was purchased prior to May 15, 2010. If the maturing security was purchased within TreasuryDirect or received through a transfer prior to May 15, 2010, we will debit your primary account at a financial institution for the additional funds. If we are unable to obtain sufficient funds from your primary account at a financial institution, the reinvestment will be canceled and we will refund the proceeds of the maturing security. [75 FR 26090, May 11, 2010]",
+"integrity": {
+"state": "complete",
+"basis": "Full retrieved body of 3,741 characters stored; under the 60,000 cap, so nothing was cut.",
+"stamped_at": "2026-09-21T22:09:50",
+"stored_chars": 3741,
+"source_chars": 3741,
+"cap_applied": 60000
+},
+"authority_class": "regulation",
+"claim_layer": "doctrinal",
+"claim_layer_meaning": "States or describes the rule. Cite for what the law IS."
+},
+{
+"citation": "\u00a7 363.206",
+"kind": "section_sign",
+"page": 1,
+"text": "\u00a7 363.206 How can I transfer my marketable Treasury security into my TreasuryDirect \u00ae account from another book-entry system? (a) Legacy Treasury Direct to TreasuryDirect. 31 CFR part 357, subpart C, governs the transfer of a marketable book-entry Treasury security from your Legacy Treasury Direct account into TreasuryDirect. (b) Commercial book-entry system to TreasuryDirect. You may transfer your marketable Treasury security from the commercial book-entry system by contacting the financial institution or broker that handles your commercial book-entry account. (c)(1) Individuals. When a security is transferred into the TreasuryDirect account of an individual, it will be transferred in the name of the individual account owner in the single owner form of registration, regardless of the form of registration prior to the transfer. After the transfer is completed, you can change the registration to any form of registration permitted by these regulations. (2) Entities. When a security is transferred into the TreasuryDirect account of an entity, the security will be transferred in the name of the entity, regardless of the form of registration prior to the transfer. (d) Amounts transferred. You can only transfer in increments of $1000. [70 FR 57444, Sept. 30, 2005, as amended at 74 FR 19421, Apr. 29, 2009]",
+"integrity": {
+"state": "complete",
+"basis": "Full retrieved body of 1,320 characters stored; under the 60,000 cap, so nothing was cut.",
+"stamped_at": "2026-09-21T22:09:50",
+"stored_chars": 1320,
+"source_chars": 1320,
+"cap_applied": 60000
+},
+"authority_class": "regulation",
+"claim_layer": "doctrinal",
+"claim_layer_meaning": "States or describes the rule. Cite for what the law IS."
+},
+{
+"citation": "\u00a7 363.207",
+"kind": "section_sign",
+"page": 1,
+"text": "\u00a7 363.207 Can I transfer my marketable Treasury security from my TreasuryDirect \u00ae account to another TreasuryDirect account? After the initial 45-calendar day holding period for your marketable Treasury security (see \u00a7 363.203) you can transfer your security to another TreasuryDirect account in increments of $1000.",
+"integrity": {
+"state": "complete",
+"basis": "Full retrieved body of 316 characters stored; under the 60,000 cap, so nothing was cut.",
+"stamped_at": "2026-09-21T22:09:50",
+"stored_chars": 316,
+"source_chars": 316,
+"cap_applied": 60000
+},
+"authority_class": "regulation",
+"claim_layer": "doctrinal",
+"claim_layer_meaning": "States or describes the rule. Cite for what the law IS."
+},
+{
+"citation": "\u00a7 363.208",
+"kind": "section_sign",
+"page": 1,
+"text": "\u00a7 363.208 Can I transfer my marketable Treasury security from my TreasuryDirect \u00ae account to an account in another book-entry system? After the initial 45-calendar day holding period for your marketable Treasury security (see \u00a7 363.203) you can transfer your security to an account in the commercial book-entry system in increments of $1000. [70 FR 57444, Sept. 30, 2005, as amended at 76 FR 18064, Apr. 1, 2011]",
+"integrity": {
+"state": "complete",
+"basis": "Full retrieved body of 412 characters stored; under the 60,000 cap, so nothing was cut.",
+"stamped_at": "2026-09-21T22:09:50",
+"stored_chars": 412,
+"source_chars": 412,
+"cap_applied": 60000
+},
+"authority_class": "regulation",
+"claim_layer": "doctrinal",
+"claim_layer_meaning": "States or describes the rule. Cite for what the law IS."
+},
+{
+"citation": "\u00a7 363.210",
+"kind": "section_sign",
+"page": 1,
+"text": "\u00a7 363.210 Is there any period of time during which I will be unable to process certain transactions regarding my security? A closed book period will be in effect for four business days prior to the date a marketable security interest and/or redemption payment is made. During the closed book period, you cannot change the registration of the security, change the payment destination of the proceeds, change the view or transaction rights, make transfers, or schedule, edit, or cancel a reinvestment. We will hold transactions requiring submission of a form for processing until the closed book period ends. [75 FR 26091, May 11, 2010, as amended at 75 FR 78901, Dec. 17, 2010]",
+"integrity": {
+"state": "complete",
+"basis": "Full retrieved body of 676 characters stored; under the 60,000 cap, so nothing was cut.",
+"stamped_at": "2026-09-21T22:09:50",
+"stored_chars": 676,
+"source_chars": 676,
+"cap_applied": 60000
+},
+"authority_class": "regulation",
+"claim_layer": "doctrinal",
+"claim_layer_meaning": "States or describes the rule. Cite for what the law IS."
+},
+{
+"citation": "\u00a7 363.250",
+"kind": "section_sign",
+"page": 1,
+"text": "\u00a7 363.250 May Fiscal Service waive these regulations? We may waive or modify any provision of the regulations in this part. We may do so in any particular case or class of cases for the convenience of the United States or in order to relieve any person or persons of unnecessary hardship: (a) If the waiver would not be inconsistent with law or equity; (b) If the waiver does not impair any material existing rights; and (c) If we are satisfied that the waiver would not subject the United States to any substantial expense or liability. [67 FR 64286, Oct. 17, 2002. Redesignated at 70 FR 14943, Mar. 23, 2005. Redesignated at 70 FR 57444, Sept. 30, 2005]",
+"integrity": {
+"state": "complete",
+"basis": "Full retrieved body of 655 characters stored; under the 60,000 cap, so nothing was cut.",
+"stamped_at": "2026-09-21T22:09:50",
+"stored_chars": 655,
+"source_chars": 655,
+"cap_applied": 60000
+},
+"authority_class": "regulation",
+"claim_layer": "doctrinal",
+"claim_layer_meaning": "States or describes the rule. Cite for what the law IS."
+},
+{
+"citation": "\u00a7 363.251",
+"kind": "section_sign",
+"page": 1,
+"text": "\u00a7 363.251 Can I be required to provide additional evidence to support a transaction? We may require additional evidence and/or a bond of indemnity, with or without surety, in any case where we determine it necessary to protect the interests of the United States. [67 FR 64286, Oct. 17, 2002. Redesignated at 70 FR 14943, Mar. 23, 2005. Redesignated at 70 FR 57444, Sept. 30, 2005]",
+"integrity": {
+"state": "complete",
+"basis": "Full retrieved body of 380 characters stored; under the 60,000 cap, so nothing was cut.",
+"stamped_at": "2026-09-21T22:09:50",
+"stored_chars": 380,
+"source_chars": 380,
+"cap_applied": 60000
+},
+"authority_class": "regulation",
+"claim_layer": "doctrinal",
+"claim_layer_meaning": "States or describes the rule. Cite for what the law IS."
+},
+{
+"citation": "\u00a7 363.252",
+"kind": "section_sign",
+"page": 1,
+"text": "\u00a7 363.252 May Fiscal Service amend or supplement these regulations? We may amend, revise, or supplement these regulations at any time. [67 FR 64286, Oct. 17, 2002. Redesignated at 70 FR 14943, Mar. 23, 2005. Redesignated at 70 FR 57444, Sept. 30, 2005]",
+"integrity": {
+"state": "complete",
+"basis": "Full retrieved body of 252 characters stored; under the 60,000 cap, so nothing was cut.",
+"stamped_at": "2026-09-21T22:09:50",
+"stored_chars": 252,
+"source_chars": 252,
+"cap_applied": 60000
+},
+"authority_class": "regulation",
+"claim_layer": "doctrinal",
+"claim_layer_meaning": "States or describes the rule. Cite for what the law IS."
+}
+],
+"claim_layer_basis": "Set from the class, not from the text: a statute or regulation states the rule rather than describing or arguing it, which the citation in the title establishes definitionally."
+}

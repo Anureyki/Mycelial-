@@ -1,0 +1,41 @@
+{
+  "title": "31 U.S.C. \u00a7 5118",
+  "source": "United States Code title 31 section 5118, retrieved from Cornell LII (law.cornell.edu). The statutory text is a U.S. government work and is public domain; Cornell's annotations are excluded.",
+  "authority_class": "federal_statute",
+  "authority_class_basis": "Title of the work is a U.S. Code section citation, which fixes the class",
+  "claim_layer": "doctrinal",
+  "claim_layer_meaning": "States or describes the rule. Cite for what the law IS.",
+  "authorities_cited": [],
+  "term_index": {},
+  "origin_pdf": "usc31_5118.txt",
+  "extraction": {
+    "extractor": "text file (already extracted)",
+    "pages": 1,
+    "no_text_layer": [],
+    "raised": [],
+    "recovered": [],
+    "lost": [],
+    "complete": true
+  },
+  "pages": 1,
+  "sections": [
+    {
+      "citation": "\u00a7 5118.",
+      "kind": "section_sign",
+      "page": 1,
+      "text": "\u00a7 5118. Gold clauses and consent to sue. (a) In this section\u2014 (1) \u201c gold clause \u201d means a provision in or related to an obligation alleging to give the obligee a right to require payment in\u2014 (A) gold; (B) a particular United States coin or currency; or (C) United States money measured in gold or a particular United States coin or currency. (2) \u201c public debt obligation \u201d means a domestic obligation issued or guaranteed by the United States Government to repay money or interest. (b) The United States Government may not pay out any gold coin. A person lawfully holding United States coins and currency may present the coins and currency to the Secretary of the Treasury for exchange (dollar for dollar) for other United States coins and currency (other than gold and silver coins) that may be lawfully held. The Secretary shall make the exchange under regulations prescribed by the Secretary. (c) (1) The Government withdraws its consent given to anyone to assert against the Government, its agencies, or its officers, employees, or agents, a claim\u2014 (A) on a gold clause public debt obligation or interest on the obligation; (B) for United States coins or currency; or (C) arising out of the surrender, requisition, seizure, or acquisition of United States coins or currency, gold, or silver involving the effect or validity of a change in the metallic content of the dollar or in a regulation about the value of money. (2) Paragraph (1) of this subsection does not apply to a proceeding in which no claim is made for payment or credit in an amount greater than the face or nominal value in dollars of public debt obligations or United States coins or currency involved in the proceeding. (3) Except when consent is not withdrawn under this subsection, an amount appropriated for payment on public debt obligations and for United States coins and currency may be expended only dollar for dollar. (d) (1) In this subsection, \u201c obligation \u201d means any obligation (except United States currency) payable in United States money. (2) An obligation issued containing a gold clause or governed by a gold clause is discharged on payment (dollar for dollar) in United States coin or currency that is legal tender at the time of payment. This paragraph does not apply to an obligation issued after October 27, 1977 .",
+      "integrity": {
+        "state": "complete",
+        "basis": "Full retrieved body of 2,308 characters stored; under the 60,000 cap, so nothing was cut.",
+        "stamped_at": "2026-09-29T17:45:55",
+        "stored_chars": 2308,
+        "source_chars": 2308,
+        "cap_applied": 60000
+      },
+      "authority_class": "federal_statute",
+      "claim_layer": "doctrinal",
+      "claim_layer_meaning": "States or describes the rule. Cite for what the law IS."
+    }
+  ],
+  "claim_layer_basis": "Set from the class, not from the text: a statute or regulation states the rule rather than describing or arguing it, which the citation in the title establishes definitionally."
+}
