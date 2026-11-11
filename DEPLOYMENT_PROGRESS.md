@@ -2024,3 +2024,25 @@ the sensitive-data rule (Legal's reason, Security's enforcement): behind the per
 firewall, never passed to an MCP tool or a third party. Opt-in per sensor, consent
 recorded; the differential-privacy layer applies when other users' nodes join.
 Lives in the UI-1 phone app; depends on it.
+
+## DevOps work items - polling and leftover layers (2026-11-11)
+
+From the two rules now in CLAUDE.md ("Events, not polling - and changes made whole").
+Recorded; each is its own small increment.
+
+**Polling to replace with events:**
+- Mail listener: cron asks AgentMail every 5 minutes -> AgentMail's WebSocket, which the
+  organ-clock listener already uses.
+- `webapp/body.html`: refreshes every 60 s -> one timer for the next organ-window boundary
+  (windows change every two hours), or a server push. The one that drains a phone.
+- Legal's knowledge-base watcher: file-poll every 300 s -> file-change notifications.
+- Agent heartbeats every 60 s -> start/stop events to the registry (server-side; lower
+  priority).
+- Not polling, stay as they are: the daily reminder runs and weekly digests (schedules).
+
+**Leftover layers to remove:**
+- `LegalAgent._unwrap_mcp = staticmethod(_cl.unwrap)` - an alias kept when CourtListener
+  moved to tools/legal/ (2026-11-10); move its last caller to `_cl.unwrap` and delete it.
+- Legal's lookup chain (corpus -> cache -> web -> model): each step is labelled by source,
+  but a chain that keeps falling back hides which answered. Decide per verb which sources
+  are allowed at all, rather than falling through.

@@ -727,6 +727,28 @@ scope, transaction limits, kill switch, audit trail and reconciliation
 requirement, separate from general control-service authority. Both are coherent.
 Drifting into the second by implementing the first is not.
 
+## Events, not polling - and changes made whole
+
+Two DevOps rules from the principal (2026-11-11), learned the way most of this file was.
+
+**Subscribe to events; do not poll.** Asking a server "anything new?" every few seconds
+is fine in a test and wrong in use: on a phone it drains the battery and drops the frame
+rate, and on a server it adds latency the event would not have (the Mars Hydro exports
+waited two minutes for the next five-minute mail check). The grow already runs on events
+- water added, a reading taken, a reservoir that needs a dose - the principal triggers
+them by hand today. New work subscribes (WebSocket, MQTT, push, file-change
+notifications); a scheduled job is a SCHEDULE, which is fine, not a poll. Anything that
+reaches a phone is push-only from the start.
+
+**No fallbacks or backwards-compatibility layers - make the change complete.** Building
+version 2 on top of version 1 leaves both, and the old path is where the next bug hides.
+When something moves, every caller moves with it and the old name is deleted, not
+aliased. This is NOT the same as a declared failure posture - the perimeter failing open,
+the ACL failing closed, "governance register not reached" - which are tested decisions
+about what to do when something is down and stay. The difference is whether the
+behaviour was decided and gated, or left behind. `DEPLOYMENT_PROGRESS.md` is where a
+change is planned whole before it starts, so it is not built in layers.
+
 ## Supervision is on demand, and narrow
 
 Service Manager does not run a restart loop. `POST localhost:8014/heal` checks
