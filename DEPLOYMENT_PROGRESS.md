@@ -1975,3 +1975,25 @@ Decided up front, so they are not discovered later:
   type, with his feedback - the same outcome-loop method as Grow.
 - Bland's guard today holds all call and SMS tools, and its key still sits in Tool
   Service (the actuator move is pending). Both are prerequisites. Dry run first.
+
+## Rule - sensitive data never leaves through an agent or a tool (2026-11-11)
+
+The principal: no sensitive data of the user - **SSNs, dates of birth, EINs, and any
+financial data from Accounting** - is passed to calling agents, MCP tools or resources
+used on his behalf, including in private and contractual negotiations. "Legal has the
+reason why. Security enforces it." When that data is needed, "port the call over to
+the user, human in charge. This way, the user has the choice of giving away personal
+data." The same rule will govern differential privacy and user-node integration - a
+separate privacy layer, to be discussed later.
+
+**Recorded now:** Legal's governance register holds the rule
+(`sensitive_data_stays_home`) and two actions Hermes answers from today:
+`disclose_sensitive_data` -> refuse, `sensitive_data_requested` -> hand off to him.
+
+**Security's enforcement point - not built yet:** an egress check at the Tool Service
+boundary, on every outbound MCP call and every agent-to-outside payload, before it is
+sent. It reuses the personal-data firewall (`config/personal_data_patterns.json`: the
+SSN, DOB, EIN and account-number shapes, plus the keyed digests of his real values) so
+a match is refused - fail closed - with the rule cited, logged as a security event, and
+turned into a handoff where the receptionist is on a call. The receptionist (UI-3)
+cannot go live before this exists.

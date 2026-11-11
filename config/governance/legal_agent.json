@@ -9,17 +9,50 @@
     "principal_signs_and_sends": "A draft addressed to someone else is handed to the principal to read, sign and send. Nothing is sent from here.",
     "ssa_demand_written_authorization": "An SSA form-demand cycle needs the principal's written authorization (authorization_ref) before anything is drafted - enforced in core/ssa_form_demand.py, rule 7.",
     "block_goes_to_principal": "A filing check that finds a BLOCK goes to the principal before anything is filed: 'DO NOT FILE' is a finding for him, not a decision made for him.",
-    "contested_goes_to_principal": "A claim that comes back contested - domains disagree - goes to the principal. Neither domain resolves it by outranking the other. (Produced by core/claim_assessment.py, shared with Trust and Accounting; not yet wired to this register.)"
+    "contested_goes_to_principal": "A claim that comes back contested - domains disagree - goes to the principal. Neither domain resolves it by outranking the other. (Produced by core/claim_assessment.py, shared with Trust and Accounting; not yet wired to this register.)",
+    "sensitive_data_stays_home": "No sensitive data of the principal - Social Security numbers, dates of birth, EINs, or financial data from Accounting - is passed to any calling agent, MCP tool or outside resource acting on his behalf, including in private and contractual negotiations. Legal holds the reason (protecting personal and private data from every tool and resource used for him); Security enforces it. When such data is genuinely needed, the call is handed to the principal, so giving it out is always his choice. (Principal, 2026-11-11.)"
   },
   "actions": {
-    "send_to_third_party": {"decision": "refuse", "rule": "nothing_leaves"},
-    "file_with_court": {"decision": "refuse", "rule": "nothing_leaves"},
-    "give_legal_advice": {"decision": "refuse", "rule": "no_advice"},
-    "deliver_dispute_letter": {"decision": "handoff", "rule": "principal_signs_and_sends"},
-    "deliver_ssa_demand": {"decision": "handoff", "rule": "principal_signs_and_sends"},
-    "draft_ssa_demand": {"decision": "handoff", "rule": "ssa_demand_written_authorization"},
-    "filing_with_block": {"decision": "handoff", "rule": "block_goes_to_principal"},
-    "contested_claim": {"decision": "handoff", "rule": "contested_goes_to_principal"}
+    "send_to_third_party": {
+      "decision": "refuse",
+      "rule": "nothing_leaves"
+    },
+    "file_with_court": {
+      "decision": "refuse",
+      "rule": "nothing_leaves"
+    },
+    "give_legal_advice": {
+      "decision": "refuse",
+      "rule": "no_advice"
+    },
+    "deliver_dispute_letter": {
+      "decision": "handoff",
+      "rule": "principal_signs_and_sends"
+    },
+    "deliver_ssa_demand": {
+      "decision": "handoff",
+      "rule": "principal_signs_and_sends"
+    },
+    "draft_ssa_demand": {
+      "decision": "handoff",
+      "rule": "ssa_demand_written_authorization"
+    },
+    "filing_with_block": {
+      "decision": "handoff",
+      "rule": "block_goes_to_principal"
+    },
+    "contested_claim": {
+      "decision": "handoff",
+      "rule": "contested_goes_to_principal"
+    },
+    "disclose_sensitive_data": {
+      "decision": "refuse",
+      "rule": "sensitive_data_stays_home"
+    },
+    "sensitive_data_requested": {
+      "decision": "handoff",
+      "rule": "sensitive_data_stays_home"
+    }
   },
   "unknown_action": "refuse"
 }
