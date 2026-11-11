@@ -1921,3 +1921,57 @@ go into weights.
 **Phase 5 - multi-user nodes: DID and ZKP authorization.** Each user proves identity and
 grants without exposing their data. Last, because it governs access to a system that
 should first exist and be proven.
+
+## Direction - separate DevOps from user interface and operations (2026-11-11)
+
+The principal: "There's a difference between DevOps layer and user interface and
+operation layer. We've been mixing DevOps with user interface and operations." The
+focus moves to the user-facing side, in phases, "not rushing it" - and he is learning
+design, architecture and operation as it is built. **Recorded only; nothing started.**
+
+**Two tracks, kept apart from here on:**
+- **DevOps** - the agents, services, gates, CI, deployment, the repository. What has
+  been built so far is mostly this track.
+- **User interface and operations** - what the principal (and later other users)
+  touches: the apps, the receptionist, notifications, daily use. It consumes the
+  DevOps layer through defined interfaces and never reaches into it.
+
+**UI-1. The applications.** A phone app (today's PWA at :8443 is the starting point),
+a downloadable build for the ROG Ally, and a desktop app - one interface layer over
+Anansi, the same way the webapp reaches only Anansi today.
+
+**UI-2. A dedicated inference device.** Port the inference layer to a small machine
+with its own RAM, so models stay resident and 9B-14B reasoning models can run (this
+host has 7 GB). The OS consumes it through the existing inference interface and
+`config/model_routing.json` - the model stays interchangeable, per the Mycelial Core
+boundary. Open decision: the hardware (memory and GPU for a 14B model, cost, power).
+
+**UI-3. A receptionist agent on Bland AI.** Its job, in his words:
+- take inquiries and **take messages** on his behalf;
+- plan negotiations: how to obtain paperwork, how to negotiate with the person on the
+  phone; and **initiate purchase negotiations** - negotiating, never purchasing;
+- **learn** how to handle interactions an ordinary AI would not get around, adjusting
+  from outcomes;
+- know **when to forward the call to him**;
+- **Legal in the background**: flag the pivot moments in a contract negotiation so the
+  other side understands where their policy conflicts with his needs, associations and
+  rights by law;
+- after a call not forwarded to him, a **call summary**.
+
+Decided up front, so they are not discovered later:
+- **Speaking to a third party is an outward act.** CLAUDE.md refuses sends to third
+  parties without his sign-off, so the receptionist needs a written authorization
+  scope: what it may do alone (greet, answer from approved facts, take a message,
+  gather details, schedule a callback) and what it may never do (agree to terms,
+  commit to a price, sign, pay, or give legal advice). Negotiation happens as plans
+  and positions he approves; anything binding is forwarded to him.
+- **Disclosure and recording.** Laws on disclosing an AI caller and on call-recording
+  consent vary by state (Texas is one-party consent; some states require every party
+  to consent). Legal checks this before calls go live.
+- **Legal's live flags are a latency question.** In-call flags need Legal's analysis
+  ready before the call (a pre-call brief of the policies and rights in play) and a
+  post-call review; Legal does not reason mid-sentence.
+- **"Learning" means records, not weights:** what worked and what did not, per call
+  type, with his feedback - the same outcome-loop method as Grow.
+- Bland's guard today holds all call and SMS tools, and its key still sits in Tool
+  Service (the actuator move is pending). Both are prerequisites. Dry run first.
