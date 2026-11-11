@@ -1834,3 +1834,90 @@ Two defects in `_root_channel` / the verdict:
 
 Brittle-but-not-rotting roots (GSC1, cause undetermined) are the case the
 fix must say something honest about: damaged, not rot, cause unknown.
+
+## Status - 2026-11-11
+
+What is in place as of this date, and what is waiting. Recorded at the principal's
+request ("update to current status") - a snapshot, not a plan.
+
+**Landed (pushed unless marked):**
+- **Tool Service speaks remote MCP** (Streamable HTTP, `${VAR}` headers from `.env`,
+  refuses when unset). **Bland** connected for Anansi: all 338 tools classified; reads
+  run, edits run, calls/SMS run only to the principal's number, third-party contact,
+  deletes, spending and raw API are held - and the guard is in **dry run**.
+- **Held actions release only on the principal's phone signature** (P-256 key in his
+  browser, non-extractable; Security verifies and signs the release; Tool Service
+  re-checks his signature). `webapp/approve.html`. **His phone is not yet enrolled.**
+- **Grow:** a question or plan is not a refill; refill rhythm learned from the record
+  (~2.15 days); water projections are a top-up DATE, low/DANGER only on a measured
+  level, "cleared" notices; GSC1 medium corrected to `clay_pebbles`; the tent and
+  lemongrass placed in the second bedroom (west side).
+- **ATI:** 3-month timing calendar; the tropical/sidereal **mirror** (growth point:
+  tropical Mercury square sidereal Jupiter, 0.4 deg); sky read against both selves;
+  the event's own chart and planetary hours (city-level location in `.env`); lunar
+  nodes (true node within 0.18 deg of DE421); practice journal.
+- **Legal, option A, three increments:** CourtListener wiring -> `tools/legal/`
+  (callable by permission); model instructions -> `agents/legal_agent/legal.md`;
+  governance -> `config/governance/legal_agent.json`, served by Hermes.
+  Increment 3 (94f480a) is **committed locally, not pushed**.
+- **Anansi:** an empty department answer is stated as a gap; the principal's home
+  orientation is a standing constraint (all windows southeast; exit west; master
+  bedroom east; second bedroom west, holding the tent and the lemongrass).
+
+**Running now:** GSC1 and GSC2 in flower (GSC2 flipped by sighting ~2026-11-06),
+fresh reservoirs 11/6 and 11/8; GSC2's 11/10 dose closed without a settled reading.
+Five lemongrass cuttings (rooting, from 2026-11-11) in an east/west/center formation
+under the second bedroom's southeast window - the east side gets more light, recorded.
+
+**Waiting on the principal:** push 94f480a; enrol his phone at `/approve.html`; switch
+Bland's guard live; Bland call authorization; the organ-clock listener live switch.
+
+**Deferred or proposed, not started:** Grow's root-assessment fix (colour over-weighted,
+brittleness unreadable - entry above); a Grow **hygiene / contamination** capability
+(shared-space map, pathway rules, `hygiene_review`, `record_hygiene_event`, a
+sanitation reminder at change-outs); Legal's rule tables (~340 lines) into data files;
+the contested-claim rule wired into `core/claim_assessment.py`; Bland's key moved out
+of Tool Service into a sandboxed actuator; growth-correlation increments 2-4
+(`record_observation` first); Grow's source ingester (extension/USDA floor, forums as
+practitioner reports).
+
+## Plan - situational awareness, pattern recognition, and the nodes (2026-11-11)
+
+The principal's direction, organised into phases. **Recorded only - nothing here is
+started**, and each phase begins on his word. His framing: events that have happened
+show their representation in the sky (the 2026-11-09 bath; San Antonio on 2026-11-11 -
+Mars, Jupiter and the South Node in the 8th, Scorpio on the MC, Mercury retrograde in
+Scorpio in the 11th), and that pattern recognition is background Anansi should have -
+held so it can be counted, not just remembered. And an agent should watch the feeds
+so he does not have to: "flag something imperative to my location", with routes of
+safety and egress plans when needed - at home, in another state, abroad.
+
+**Phase 1 - world events in ATI, and patterns against a baseline.** The practice
+journal gains world events (a killing, a storm, a market break) with the chart of the
+moment and place. ATI reports recurrence against random times ("Mars in the 8th in 9
+of 14 recorded violent events in San Antonio, against X% of all hours") - correlation
+with a baseline, never causation, the growth-correlation method. Anansi narrates what
+ATI finds; it does not hold the pattern itself. Uses only what exists; no outside data.
+
+**Phase 2 - a situational-awareness department.** A new domain, not an Anansi feature.
+Sources by standing: official alerts first (NWS, police/incident feeds, emergency
+alerts), then news, then social. Location from the home constraint plus where he is
+when travelling - personal, kept in `.env`/Hermes behind the personal-data firewall.
+Thresholds (distance, recency, severity, corroboration): below them, a daily digest;
+only the imperative reaches him at once, by the voice registers. Routes and egress
+plans are drafted and recommended, never acted on. Starts in dry run.
+
+**Phase 3 - social media through MCP.** Everything from it is untrusted data (posts can
+carry instructions aimed at agents) - through Tool Service and the sandbox, never as
+commands. Nothing flagged on social alone without a second source. Other people's
+details stripped; keep what the flag needs and a link (the "convenience for me is a
+breach for another" rule). Platform terms decide which connector.
+
+**Phase 4 - training data for Mycelial Core.** Curated, redacted, provenance-tagged:
+the deterministic layers' verified decisions and their reasons - what was flagged, why,
+and whether it proved real. Lives in the Core repository; mutable personal facts never
+go into weights.
+
+**Phase 5 - multi-user nodes: DID and ZKP authorization.** Each user proves identity and
+grants without exposing their data. Last, because it governs access to a system that
+should first exist and be proven.
