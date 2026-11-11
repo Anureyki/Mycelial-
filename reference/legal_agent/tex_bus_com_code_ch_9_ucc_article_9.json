@@ -1278,6 +1278,51 @@
 }
 ],
 "term_index": {
+"reservation buyer": [
+1,
+8,
+27
+],
+"credit right": [
+1,
+6,
+11,
+15,
+16,
+24,
+30,
+32,
+40,
+47,
+68,
+95
+],
+"debtor under section": [
+1,
+75,
+76
+],
+"secured obligation": [
+1,
+8,
+15,
+16,
+17,
+112,
+120,
+122
+],
+"immediately before": [
+1,
+124,
+125,
+126,
+127,
+128,
+131,
+134,
+135
+],
 "obligation primarily": [
 1,
 62,
@@ -1285,109 +1330,18 @@
 64,
 65
 ],
-"agricultural lien security": [
-1,
-26,
-28,
-29
-],
-"person related": [
+"possession after": [
 1,
 96,
-109,
-120
+97,
+103
 ],
-"uncertificated security": [
+"office rule": [
 1,
-5,
-23,
-32
-],
-"financing statement": [
-1,
-28,
-29,
-33,
-34,
-35,
-38,
-42,
-44,
-55,
-69,
-70,
-71,
-72,
-73,
-74,
-75,
-76,
-77,
-78,
-79,
-80,
-81,
-82,
-83,
-84,
-86,
 87,
 88,
-89,
 90,
-92,
-95,
-99,
-105,
-115,
-122,
-127,
-128,
-129,
-130,
-131,
-136,
-137,
-138,
-139
-],
-"filing office rules": [
-1,
-93,
-94
-],
-"obligation compulsory": [
-1,
-65,
-67,
-96,
-114,
-118
-],
-"commodity intermediary": [
-1,
-5,
-16,
-23,
-27,
-34,
-46
-],
-"filing provisions": [
-1,
-26,
-28,
-29
-],
-"lien creditor": [
-1,
-25,
-29,
-35,
-41,
-125,
-126,
-127
+92
 ],
 "united states": [
 1,
@@ -1395,74 +1349,11 @@
 25,
 29
 ],
-"sale lease license": [
+"lien security interests": [
 1,
-33,
-104
-],
-"accounts documents": [
-1,
+26,
 28,
-30,
-41,
-42
-],
-"obligation secured": [
-1,
-11,
-81,
-101,
-108,
-113,
-114
-],
-"obligation compulsory disposition": [
-1,
-65,
-67,
-96,
-114,
-118
-],
-"lease license": [
-1,
-33,
-104
-],
-"section passing": [
-1,
-8,
-27
-],
-"tort claim": [
-1,
-7,
-8,
-12
-],
-"purchase money security": [
-1,
-2,
-27,
-35,
-42,
-43,
-48,
-51,
-114,
-127
-],
-"records communicating information": [
-1,
-81,
-87,
-90
-],
-"indexing records communicating": [
-1,
-81,
-87,
-90
+29
 ],
 "section filing office": [
 1,
@@ -1477,24 +1368,249 @@
 137,
 138
 ],
-"health care insurance": [
+"obligation incurred": [
 1,
-8,
-27,
-60,
-63,
-64,
-65,
-67
+2,
+42,
+51
 ],
-"section attachment": [
+"filing financing": [
 1,
+70,
+80,
+82,
+83,
+88,
+92
+],
+"bound under section": [
+1,
+34,
+76
+],
+"obligation compulsory disposition": [
+1,
+65,
+67,
+96,
+114,
+118
+],
+"take possession": [
+1,
+96,
+97,
+103,
+110
+],
+"account chattel": [
+1,
+17,
+36,
+65
+],
+"filing office rules": [
+1,
+93,
+94
+],
+"initial financing statement": [
+1,
+76,
+77,
+79,
+80,
+81,
+82,
+83,
+84,
+86,
+87,
+89,
+92,
+127,
+128,
+129,
+130,
+136,
+137,
+138,
+139
+],
+"supporting obligations": [
+1,
+11,
 34,
 35,
 76,
 125,
 126,
 131
+],
+"registered organization": [
+1,
+25,
+71
+],
+"section filing": [
+1,
+70,
+80,
+84,
+87,
+88,
+127,
+128,
+129,
+137,
+138
+],
+"continuation statement": [
+1,
+78,
+83,
+84,
+127,
+128,
+130,
+136,
+137,
+139
+],
+"documents goods instruments": [
+1,
+19,
+31,
+35,
+55
+],
+"obtaining priority over": [
+1,
+25,
+29
+],
+"statement time": [
+1,
+70,
+80,
+82,
+83,
+88,
+92
+],
+"documents goods": [
+1,
+19,
+28,
+31,
+35,
+55
+],
+"lien security": [
+1,
+26,
+28,
+29
+],
+"interest secures": [
+1,
+2,
+41
+],
+"lien creditor": [
+1,
+25,
+29,
+35,
+41,
+125,
+126,
+127
+],
+"standing": [
+1
+],
+"sale lease": [
+1,
+33,
+104
+],
+"means goods": [
+1,
+2,
+53
+],
+"records communicating": [
+1,
+81,
+87,
+90
+],
+"home transaction": [
+1,
+51,
+83,
+92
+],
+"payment intangible": [
+1,
+8,
+17,
+27,
+36,
+65,
+67,
+73
+],
+"formal requisites": [
+1,
+11,
+34,
+35,
+76,
+125,
+126,
+131
+],
+"person that becomes": [
+1,
+35,
+39,
+41,
+125,
+126,
+127
+],
+"deposit accounts": [
+1,
+8,
+11,
+22,
+28,
+30,
+32,
+34,
+40,
+41,
+42
+],
+"statement means": [
+1,
+113,
+129,
+138
+],
+"partial satisfaction": [
+1,
+8,
+65,
+67,
+96,
+114,
+115,
+116,
+117,
+118
 ],
 "financing statement covering": [
 1,
@@ -1507,41 +1623,169 @@
 92,
 95
 ],
-"payment intangible": [
+"personal family": [
 1,
-8,
-17,
-27,
-36,
-65,
-67,
-73
+38,
+62,
+63,
+64,
+65
 ],
-"standing": [
+"security agreement": [
 1,
-16,
-17,
-25,
-27,
-29,
-33
+9,
+11,
+12,
+30,
+44,
+70,
+74,
+75,
+76,
+77,
+98,
+101
 ],
-"security interest secures": [
+"general intangible": [
+1,
+35,
+39,
+67
+],
+"farm products": [
+1,
+20,
+38,
+42
+],
+"filing financing statement": [
+1,
+70,
+80,
+82,
+83,
+88,
+92
+],
+"purchase money": [
 1,
 2,
-41
+27,
+35,
+42,
+43,
+48,
+51,
+114,
+127
+],
+"rejected goods": [
+1,
+8,
+27,
+43
+],
+"after default": [
+1,
+52,
+65,
+67,
+95,
+96,
+97,
+98,
+101,
+103,
+104,
+105,
+106,
+109,
+110,
+111,
+112,
+114,
+117,
+118
+],
+"commodity account": [
+1,
+5,
+7,
+11,
+23,
+26,
+27,
+46
+],
+"indexing records communicating": [
+1,
+81,
+87,
+90
+],
+"general intangibles": [
+1,
+39,
+60,
+67
+],
+"noncash proceeds": [
+1,
+96,
+102,
+109
+],
+"security entitlement": [
+1,
+5,
+7,
+14,
+16,
+23,
+32,
+46
+],
+"filed record": [
+1,
+78,
+81,
+83,
+84,
+85,
+86,
+87,
+119
+],
+"care insurance": [
+1,
+8,
+27,
+60,
+63,
+64,
+65,
+67
+],
+"health care insurance": [
+1,
+8,
+27,
+60,
+63,
+64,
+65,
+67
+],
+"title reservation": [
+1,
+8,
+27
 ],
 "commercial tort": [
 1,
 7,
 8,
 12
-],
-"records communicating": [
-1,
-81,
-87,
-90
 ],
 "secured party": [
 1,
@@ -1629,33 +1873,70 @@
 136,
 139
 ],
-"interest attaches": [
-1,
-11,
-26,
-33,
-34,
-35,
-53
-],
-"interest arising": [
+"general buyer": [
 1,
 8,
-11,
-14,
 27,
-38,
-40
+43
 ],
-"supporting obligations formal": [
+"financing statement time": [
 1,
-11,
+70,
+80,
+82,
+83,
+88,
+92
+],
+"account debtor": [
+1,
+8,
+15,
+17,
+60,
+62,
+63,
+64,
+65,
+67,
+81,
+101,
+119
+],
+"indexing records": [
+1,
+81,
+87,
+90
+],
+"consumer obligor": [
+1,
+110,
+119
+],
+"person having": [
+1,
+16,
+52
+],
+"personal property": [
+1,
+7,
+8,
+72,
+98
+],
+"whose effectiveness": [
+1,
+50,
+84
+],
+"original debtor": [
+1,
+28,
 34,
-35,
-76,
-125,
-126,
-131
+44,
+76
 ],
 "filing office": [
 1,
@@ -1682,60 +1963,17 @@
 137,
 138
 ],
-"secures payment": [
+"interest proceeds supporting": [
 1,
-50,
-102,
-109
-],
-"whose effectiveness": [
-1,
-50,
-84
-],
-"deposit account": [
-1,
-3,
-8,
 11,
-15,
-16,
-22,
-30,
-32,
-40,
-42,
-45,
-48,
-49,
-57,
-58,
-59,
-95,
-101
-],
-"registered organization": [
-1,
-25,
-71
-],
-"agricultural liens": [
-1,
-8,
-20,
-26,
-28,
-29,
+34,
 35,
-40,
-41,
-42,
-43,
-46,
-48,
+76,
+125,
+126,
 131
 ],
-"instruments investment property": [
+"instruments investment": [
 1,
 28,
 30,
@@ -1743,7 +1981,55 @@
 41,
 42
 ],
-"title reservation": [
+"become fixtures": [
+1,
+51,
+69,
+70,
+98
+],
+"consumer goods": [
+1,
+2,
+7,
+12,
+15,
+27,
+51,
+81,
+96,
+105,
+107,
+108,
+110,
+114,
+118,
+119,
+122
+],
+"commodity customer": [
+1,
+5,
+23
+],
+"health care": [
+1,
+8,
+27,
+60,
+63,
+64,
+65,
+67
+],
+"goods instruments": [
+1,
+19,
+31,
+35,
+55
+],
+"section passing": [
 1,
 8,
 27
@@ -1758,179 +2044,51 @@
 126,
 131
 ],
-"original debtor": [
-1,
-28,
-34,
-44,
-76
-],
-"information contained": [
-1,
-85,
-86
-],
-"documents goods instruments": [
-1,
-19,
-31,
-35,
-55
-],
-"general buyer": [
-1,
-8,
-27,
-43
-],
-"obtaining priority": [
-1,
-25,
-29
-],
-"record authenticated": [
-1,
-18,
-113,
-114
-],
-"statement covering": [
-1,
-35,
-38,
-42,
-70,
-81,
-83,
-92,
-95
-],
-"value given": [
-1,
-2,
-30,
-42
-],
-"statement record": [
-1,
-70,
-80,
-82,
-83,
-88,
-92
-],
-"priority over": [
-1,
-25,
-29,
-30,
-35,
-37,
-40,
-42,
-45,
-46,
-48,
-50,
-51,
-52,
-53,
-98,
-125
-],
-"fixture filing": [
-1,
-19,
-51,
-69,
-70,
-82,
-83,
-87,
-92
-],
-"number assigned": [
-1,
-86,
-87,
-89,
-90
-],
-"record filed": [
-1,
-71,
-84,
-87
-],
-"insurance receivables": [
-1,
-60,
-67
-],
-"home transaction": [
-1,
-51,
-83,
-92
-],
-"section secured party": [
+"obligations formal requisites": [
 1,
 11,
-28,
-77,
-96,
-97,
-101
-],
-"financing statement record": [
-1,
-70,
-80,
-82,
-83,
-88,
-92
-],
-"property subject": [
-1,
-27,
-28,
-29,
 34,
-51,
-52,
-54,
-73,
-105,
-115
+35,
+76,
+125,
+126,
+131
 ],
-"account chattel paper": [
-1,
-17,
-36,
-65
-],
-"account debtor": [
+"shipment under reservation": [
 1,
 8,
+27
+],
+"paper payment": [
+1,
+8,
+10,
+12,
 15,
 17,
+18,
+36,
+41,
 60,
-62,
-63,
 64,
 65,
-67,
-81,
-101,
-119
+95,
+102,
+109
 ],
-"farm products": [
+"limited application": [
 1,
-20,
-38,
-42
+8,
+27
+],
+"interest attaches": [
+1,
+11,
+26,
+33,
+34,
+35,
+53
 ],
 "accounts chattel paper": [
 1,
@@ -1948,34 +2106,36 @@
 102,
 109
 ],
-"proceeds supporting obligations": [
+"deposit accounts documents": [
 1,
-11,
-34,
-35,
-76,
-125,
-126,
-131
-],
-"compulsory disposition": [
-1,
-65,
-67,
-96,
-114,
-118
-],
-"person that becomes": [
-1,
-35,
-39,
+28,
+30,
 41,
-125,
-126,
-127
+42
 ],
-"chattel paper payment": [
+"account chattel paper": [
+1,
+17,
+36,
+65
+],
+"office rules": [
+1,
+93,
+94
+],
+"commercial tort claim": [
+1,
+7,
+8,
+12
+],
+"information contained": [
+1,
+85,
+86
+],
+"payment intangibles": [
 1,
 8,
 10,
@@ -1983,7 +2143,7 @@
 15,
 17,
 18,
-36,
+27,
 41,
 60,
 64,
@@ -1991,6 +2151,28 @@
 95,
 102,
 109
+],
+"obligation compulsory": [
+1,
+65,
+67,
+96,
+114,
+118
+],
+"accept collateral": [
+1,
+96,
+114,
+115
+],
+"file number": [
+1,
+80,
+82,
+86,
+87,
+89
 ],
 "chattel paper": [
 1,
@@ -2023,560 +2205,56 @@
 102,
 109
 ],
-"information provided": [
-1,
-75,
-80,
-81,
-87,
-89,
-90,
-129,
-138
-],
-"manufactured home transaction": [
-1,
-51,
-83,
-92
-],
-"indexing records": [
-1,
-81,
-87,
-90
-],
-"perfect security interest": [
-1,
-26,
-28,
-29
-],
-"money security": [
-1,
-2,
-27,
-35,
-42,
-43,
-48,
-51,
-114,
-127
-],
-"obligations formal requisites": [
-1,
-11,
-34,
-35,
-76,
-125,
-126,
-131
-],
-"section secured": [
-1,
-11,
-28,
-77,
-96,
-97,
-101
-],
-"security interest arising": [
-1,
-8,
-11,
-14,
-27,
-40
-],
-"sale lease": [
-1,
-33,
-104
-],
-"real property": [
+"tort claim": [
 1,
 7,
 8,
-11,
-26,
-51,
-69,
-70,
-83,
-84,
-87,
-98
+12
 ],
-"security agreement": [
+"accounts documents": [
 1,
-9,
-11,
-12,
+28,
 30,
+41,
+42
+],
+"insurance receivable": [
+1,
+8,
+27,
+63,
+64,
+65,
+67
+],
+"becomes bound": [
+1,
+11,
+34,
 44,
-70,
 74,
 75,
-76,
-77,
-98,
-101
-],
-"take possession": [
-1,
-96,
-97,
-103,
-110
-],
-"household purposes": [
-1,
-38,
-62,
-63,
-64,
-65
-],
-"reservation buyer": [
-1,
-8,
-27
-],
-"cash proceeds": [
-1,
-33,
-40,
-42,
-48,
-102,
-109
-],
-"continuation statement": [
-1,
-78,
-83,
-84,
-127,
-128,
-130,
-136,
-137,
-139
-],
-"general intangible": [
-1,
-35,
-39,
-67
-],
-"consumer goods": [
-1,
-2,
-7,
-12,
-15,
-27,
-51,
-81,
-96,
-105,
-107,
-108,
-110,
-114,
-118,
-119,
-122
-],
-"become fixtures": [
-1,
-51,
-69,
-70,
-98
-],
-"money security interest": [
-1,
-2,
-27,
-35,
-42,
-48,
-51,
-114,
-127
-],
-"care insurance receivables": [
-1,
-60,
-67
-],
-"partial satisfaction": [
-1,
-8,
-65,
-67,
-96,
-114,
-115,
-116,
-117,
-118
-],
-"office rule": [
-1,
-87,
-88,
-90,
-92
-],
-"filing required": [
-1,
-26,
-28,
-29
-],
-"file number": [
-1,
-80,
-82,
-86,
-87,
-89
-],
-"after default": [
-1,
-52,
-65,
-67,
-95,
-96,
-97,
-98,
-101,
-103,
-104,
-105,
-106,
-109,
-110,
-111,
-112,
-114,
-117,
-118
-],
-"secondary obligor": [
-1,
-15,
-95,
-96,
-99,
-101,
-105,
-109,
-112,
-115,
-117,
-118,
-119,
-120,
-122
-],
-"proceeds supporting": [
-1,
-11,
-34,
-35,
-76,
-125,
-126,
-131
-],
-"personal family": [
-1,
-38,
-62,
-63,
-64,
-65
-],
-"security limited": [
-1,
-8,
-27
-],
-"possession after default": [
-1,
-96,
-97,
-103
-],
-"section filing": [
-1,
-70,
-80,
-84,
-87,
-88,
-127,
-128,
-129,
-137,
-138
-],
-"consumer transaction": [
-1,
-7,
-8,
-62,
-63,
-106,
-114,
-120,
-122
-],
-"formal requisites": [
-1,
-11,
-34,
-35,
-76,
-125,
-126,
-131
-],
-"credit right": [
-1,
-6,
-11,
-15,
-16,
-24,
-30,
-32,
-40,
-47,
-68,
-95
-],
-"person having": [
-1,
-16,
-52
-],
-"bound under section": [
-1,
-34,
 76
 ],
-"public finance transaction": [
-1,
-83,
-92
-],
-"noncash proceeds": [
-1,
-96,
-102,
-109
-],
-"interest secures": [
-1,
-2,
-41
-],
-"finance transaction": [
-1,
-83,
-92
-],
-"personal property": [
-1,
-7,
-8,
-72,
-98
-],
-"section seller": [
-1,
-8,
-27
-],
-"instruments investment": [
-1,
-28,
-30,
-40,
-41,
-42
-],
-"deposit accounts": [
-1,
-8,
-11,
-22,
-28,
-30,
-32,
-34,
-40,
-41,
-42
-],
-"limited application": [
-1,
-8,
-27
-],
-"account maintained": [
-1,
-22,
-46,
-57,
-58
-],
-"filing financing": [
-1,
-70,
-80,
-82,
-83,
-88,
-92
-],
-"means goods": [
-1,
-2,
-53
-],
-"interest proceeds": [
-1,
-11,
-34,
-35,
-76,
-125,
-126,
-131
-],
-"payment intangibles": [
-1,
-8,
-10,
-12,
-15,
-17,
-18,
-27,
-41,
-60,
-64,
-65,
-95,
-102,
-109
-],
-"office rules": [
-1,
-93,
-94
-],
-"more than days": [
-1,
-41,
-110
-],
-"obtaining priority over": [
-1,
-25,
-29
-],
-"collateral means": [
-1,
-2,
-18
-],
-"commodity customer": [
+"commodity intermediary": [
 1,
 5,
-23
-],
-"filing financing statement": [
-1,
-70,
-80,
-82,
-83,
-88,
-92
-],
-"interest proceeds supporting": [
-1,
-11,
-34,
-35,
-76,
-125,
-126,
-131
-],
-"security entitlement": [
-1,
-5,
-7,
-14,
 16,
 23,
-32,
+27,
+34,
 46
 ],
-"accounts chattel": [
+"statement covering": [
 1,
-8,
-10,
-12,
-15,
-17,
-18,
-41,
-60,
-64,
-65,
-95,
-102,
-109
-],
-"public finance": [
-1,
+35,
+38,
+42,
+70,
+81,
 83,
-92
-],
-"person obligated": [
-1,
-65,
-67,
-81,
-101
-],
-"communicating information": [
-1,
-81,
-87,
-90
-],
-"goods transaction": [
-1,
-2,
-96,
-107,
-108,
-110,
-118,
-122
+92,
+95
 ],
 "paper payment intangibles": [
 1,
@@ -2594,10 +2272,49 @@
 102,
 109
 ],
-"shipment under reservation": [
+"uncertificated security": [
+1,
+5,
+23,
+32
+],
+"financing statement record": [
+1,
+70,
+80,
+82,
+83,
+88,
+92
+],
+"finance transaction": [
+1,
+83,
+92
+],
+"security interest arising": [
 1,
 8,
-27
+11,
+14,
+27,
+40
+],
+"creditor with respect": [
+1,
+25,
+29
+],
+"money security interest": [
+1,
+2,
+27,
+35,
+42,
+48,
+51,
+114,
+127
 ],
 "transmitting utility": [
 1,
@@ -2608,11 +2325,112 @@
 127,
 136
 ],
-"general intangibles": [
+"purchase money security": [
 1,
+2,
+27,
+35,
+42,
+43,
+48,
+51,
+114,
+127
+],
+"fixture filing": [
+1,
+19,
+51,
+69,
+70,
+82,
+83,
+87,
+92
+],
+"commodity contract": [
+1,
+5,
+7,
+16,
+23,
+27,
+46
+],
+"another person": [
+1,
+11,
+31,
 39,
-60,
+43,
+46,
+59
+],
+"money security": [
+1,
+2,
+27,
+35,
+42,
+43,
+48,
+51,
+114,
+127
+],
+"sale lease license": [
+1,
+33,
+104
+],
+"instruments investment property": [
+1,
+28,
+30,
+40,
+41,
+42
+],
+"collateral means": [
+1,
+2,
+18
+],
+"care insurance receivable": [
+1,
+8,
+27,
+63,
+64,
+65,
 67
+],
+"chattel paper payment": [
+1,
+8,
+10,
+12,
+15,
+17,
+18,
+36,
+41,
+60,
+64,
+65,
+95,
+102,
+109
+],
+"interest proceeds": [
+1,
+11,
+34,
+35,
+76,
+125,
+126,
+131
 ],
 "agricultural lien": [
 1,
@@ -2641,92 +2459,45 @@
 111,
 116
 ],
-"section when filing": [
-1,
-26,
-29
-],
-"financing statement time": [
-1,
-70,
-80,
-82,
-83,
-88,
-92
-],
-"purchase money": [
-1,
-2,
-27,
-35,
-42,
-43,
-48,
-51,
-114,
-127
-],
-"security interest attaches": [
-1,
-11,
-26,
-33,
-34,
-35,
-53
-],
-"debtor under section": [
-1,
-75,
-76
-],
-"filed record": [
-1,
-78,
-81,
-83,
-84,
-85,
-86,
-87,
-119
-],
-"securities account": [
+"investment property": [
 1,
 5,
 7,
 11,
-14,
+15,
+16,
 23,
-26,
-46
-],
-"becomes bound": [
-1,
-11,
+27,
+28,
+30,
+32,
 34,
-44,
-74,
-75,
-76
+40,
+41,
+42,
+46,
+95
 ],
-"lien security interests": [
+"agricultural liens": [
 1,
+8,
+20,
 26,
 28,
-29
+29,
+35,
+40,
+41,
+42,
+43,
+46,
+48,
+131
 ],
-"rejected goods": [
+"public finance transaction": [
 1,
-8,
-27,
-43
-],
-"security limited application": [
-1,
-8,
-27
+83,
+92
 ],
 "filing office rule": [
 1,
@@ -2735,26 +2506,48 @@
 90,
 92
 ],
-"commodity contract": [
+"possession after default": [
 1,
-5,
-7,
-16,
-23,
-27,
-46
+96,
+97,
+103
 ],
-"goods instruments": [
+"section when filing": [
 1,
-19,
-31,
+26,
+29
+],
+"arising under section": [
+1,
+8,
+27
+],
+"security limited": [
+1,
+8,
+27
+],
+"financing statement": [
+1,
+28,
+29,
+33,
+34,
 35,
-55
-],
-"initial financing statement": [
-1,
+38,
+42,
+44,
+55,
+69,
+70,
+71,
+72,
+73,
+74,
+75,
 76,
 77,
+78,
 79,
 80,
 81,
@@ -2763,77 +2556,48 @@
 84,
 86,
 87,
+88,
 89,
+90,
 92,
+95,
+99,
+105,
+115,
+122,
 127,
 128,
 129,
 130,
+131,
 136,
 137,
 138,
 139
 ],
-"consumer goods transaction": [
+"communicating information": [
 1,
-2,
+81,
+87,
+90
+],
+"compulsory disposition": [
+1,
+65,
+67,
 96,
-107,
-108,
-110,
-118,
-122
+114,
+118
 ],
-"another person": [
+"extracted collateral": [
 1,
-11,
-31,
-39,
-43,
-46,
-59
-],
-"insurance receivable": [
-1,
-8,
-27,
-63,
-64,
-65,
-67
-],
-"paper payment": [
-1,
-8,
-10,
-12,
-15,
-17,
-18,
-36,
-41,
-60,
-64,
-65,
-95,
-102,
-109
-],
-"account chattel": [
-1,
-17,
-36,
-65
-],
-"commodity account": [
-1,
-5,
-7,
-11,
-23,
-26,
-27,
-46
+19,
+34,
+69,
+70,
+83,
+87,
+92
 ],
 "security interest proceeds": [
 1,
@@ -2845,12 +2609,174 @@
 126,
 131
 ],
-"deposit accounts documents": [
+"ordinary course": [
 1,
-28,
-30,
+14,
+31,
+35,
+38,
+39,
 41,
-42
+48,
+50
+],
+"account maintained": [
+1,
+22,
+46,
+57,
+58
+],
+"property subject": [
+1,
+27,
+28,
+29,
+34,
+51,
+52,
+54,
+73,
+105,
+115
+],
+"accounts chattel": [
+1,
+8,
+10,
+12,
+15,
+17,
+18,
+41,
+60,
+64,
+65,
+95,
+102,
+109
+],
+"consumer transaction": [
+1,
+7,
+8,
+62,
+63,
+106,
+114,
+120,
+122
+],
+"obtaining priority": [
+1,
+25,
+29
+],
+"insurance receivables": [
+1,
+60,
+67
+],
+"agricultural lien security": [
+1,
+26,
+28,
+29
+],
+"person related": [
+1,
+96,
+109,
+120
+],
+"supporting obligations formal": [
+1,
+11,
+34,
+35,
+76,
+125,
+126,
+131
+],
+"section secured party": [
+1,
+11,
+28,
+77,
+96,
+97,
+101
+],
+"perfect security": [
+1,
+26,
+28,
+29
+],
+"numbering maintaining": [
+1,
+81,
+87,
+90
+],
+"obligation secured": [
+1,
+11,
+81,
+101,
+108,
+113,
+114
+],
+"number assigned": [
+1,
+86,
+87,
+89,
+90
+],
+"deposit account": [
+1,
+3,
+8,
+11,
+15,
+16,
+22,
+30,
+32,
+40,
+42,
+45,
+48,
+49,
+57,
+58,
+59,
+95,
+101
+],
+"perfect security interest": [
+1,
+26,
+28,
+29
+],
+"communicating information provided": [
+1,
+81,
+87,
+90
+],
+"section attachment": [
+1,
+34,
+35,
+76,
+125,
+126,
+131
 ],
 "initial financing": [
 1,
@@ -2875,22 +2801,32 @@
 138,
 139
 ],
-"care insurance receivable": [
+"real property": [
 1,
+7,
 8,
-27,
-63,
-64,
-65,
-67
+11,
+26,
+51,
+69,
+70,
+83,
+84,
+87,
+98
 ],
-"possession after": [
+"value given": [
 1,
-96,
-97,
-103
+2,
+30,
+42
 ],
-"statement time": [
+"financing statement means": [
+1,
+129,
+138
+],
+"statement record": [
 1,
 70,
 80,
@@ -2899,53 +2835,14 @@
 88,
 92
 ],
-"documents goods": [
+"interest arising": [
 1,
-19,
-28,
-31,
-35,
-55
-],
-"obligation incurred": [
-1,
-2,
-42,
-51
-],
-"financing statement means": [
-1,
-129,
-138
-],
-"numbering maintaining": [
-1,
-81,
-87,
-90
-],
-"accept collateral": [
-1,
-96,
-114,
-115
-],
-"lien security": [
-1,
-26,
-28,
-29
-],
-"creditor with respect": [
-1,
-25,
-29
-],
-"take possession after": [
-1,
-96,
-97,
-103
+8,
+11,
+14,
+27,
+38,
+40
 ],
 "manufactured home": [
 1,
@@ -2953,114 +2850,45 @@
 83,
 92
 ],
-"consumer obligor": [
+"record filed": [
 1,
-110,
-119
+71,
+84,
+87
 ],
-"communicating information provided": [
+"secures payment": [
 1,
-81,
-87,
-90
+50,
+102,
+109
 ],
-"security interests": [
+"take possession after": [
 1,
-2,
-8,
-11,
-19,
-21,
-22,
-23,
-24,
-26,
-27,
-28,
-29,
-30,
-34,
-35,
-40,
-41,
-42,
-43,
-44,
-45,
-46,
-47,
-48,
-51,
-52,
-53,
-54,
-73,
-105,
-115,
-131
+96,
+97,
+103
 ],
-"health care": [
+"household purposes": [
 1,
-8,
-27,
-60,
+38,
+62,
 63,
 64,
-65,
-67
+65
 ],
-"extracted collateral": [
+"security interest secures": [
 1,
-19,
-34,
-69,
-70,
-83,
-87,
-92
+2,
+41
 ],
-"commercial tort claim": [
+"cash proceeds": [
 1,
-7,
-8,
-12
-],
-"supporting obligations": [
-1,
-11,
-34,
-35,
-76,
-125,
-126,
-131
-],
-"secured obligation": [
-1,
-8,
-15,
-16,
-17,
-112,
-120,
-122
-],
-"statement means": [
-1,
-113,
-129,
-138
-],
-"ordinary course": [
-1,
-14,
-31,
-35,
-38,
-39,
-41,
+33,
+40,
+42,
 48,
-50
+102,
+109
 ],
 "security interest": [
 1,
@@ -3151,79 +2979,222 @@
 138,
 139
 ],
-"immediately before": [
-1,
-124,
-125,
-126,
-127,
-128,
-131,
-134,
-135
-],
-"investment property": [
-1,
-5,
-7,
-11,
-15,
-16,
-23,
-27,
-28,
-30,
-32,
-34,
-40,
-41,
-42,
-46,
-95
-],
-"arising under section": [
-1,
-8,
-27
-],
-"care insurance": [
-1,
-8,
-27,
-60,
-63,
-64,
-65,
-67
-],
-"perfect security": [
+"filing required": [
 1,
 26,
 28,
 29
 ],
-"interest does": [
-2,
-12,
-34,
+"priority over": [
+1,
+25,
+29,
+30,
+35,
+37,
+40,
+42,
+45,
+46,
+48,
+50,
 51,
-53
+52,
+53,
+98,
+125
 ],
-"following order": [
-2,
-102,
-109,
+"care insurance receivables": [
+1,
+60,
+67
+],
+"public finance": [
+1,
+83,
+92
+],
+"securities account": [
+1,
+5,
+7,
+11,
+14,
+23,
+26,
+46
+],
+"manufactured home transaction": [
+1,
+51,
+83,
+92
+],
+"records communicating information": [
+1,
+81,
+87,
+90
+],
+"section secured": [
+1,
+11,
+28,
+77,
+96,
+97,
+101
+],
+"more than days": [
+1,
+41,
 110
 ],
-"money security interests": [
-2,
-42,
-43
+"section seller": [
+1,
+8,
+27
 ],
-"interest depends": [
+"information provided": [
+1,
+75,
+80,
+81,
+87,
+89,
+90,
+129,
+138
+],
+"security interests": [
+1,
 2,
-13,
-31
+8,
+11,
+19,
+21,
+22,
+23,
+24,
+26,
+27,
+28,
+29,
+30,
+34,
+35,
+40,
+41,
+42,
+43,
+44,
+45,
+46,
+47,
+48,
+51,
+52,
+53,
+54,
+73,
+105,
+115,
+131
+],
+"proceeds supporting": [
+1,
+11,
+34,
+35,
+76,
+125,
+126,
+131
+],
+"security interest attaches": [
+1,
+11,
+26,
+33,
+34,
+35,
+53
+],
+"lease license": [
+1,
+33,
+104
+],
+"person obligated": [
+1,
+65,
+67,
+81,
+101
+],
+"security limited application": [
+1,
+8,
+27
+],
+"record authenticated": [
+1,
+18,
+113,
+114
+],
+"proceeds supporting obligations": [
+1,
+11,
+34,
+35,
+76,
+125,
+126,
+131
+],
+"filing provisions": [
+1,
+26,
+28,
+29
+],
+"goods transaction": [
+1,
+2,
+96,
+107,
+108,
+110,
+118,
+122
+],
+"consumer goods transaction": [
+1,
+2,
+96,
+107,
+108,
+110,
+118,
+122
+],
+"secondary obligor": [
+1,
+15,
+95,
+96,
+99,
+101,
+105,
+109,
+112,
+115,
+117,
+118,
+119,
+120,
+122
 ],
 "security interest does": [
 2,
@@ -3240,23 +3211,38 @@
 110,
 117
 ],
-"debtor acquired": [
+"money security interests": [
 2,
-43,
-76
+42,
+43
+],
+"following order": [
+2,
+102,
+109,
+110
+],
+"interest does": [
+2,
+12,
+34,
+51,
+53
+],
+"interest depends": [
+2,
+13,
+31
 ],
 "security interest depends": [
 2,
 13,
 31
 ],
-"without further": [
-3,
-5,
-125,
-126,
-134,
-135
+"debtor acquired": [
+2,
+43,
+76
 ],
 "authenticated record": [
 3,
@@ -3267,6 +3253,14 @@
 58,
 77,
 114
+],
+"without further": [
+3,
+5,
+125,
+126,
+134,
+135
 ],
 "otherwise provided": [
 4,
@@ -3349,6 +3343,30 @@
 16,
 48
 ],
+"certificated security": [
+5,
+11,
+14,
+23,
+28,
+30,
+31,
+32,
+35,
+46
+],
+"party having": [
+5,
+15,
+16,
+31,
+45,
+46,
+47,
+95,
+96,
+119
+],
 "section control": [
 5,
 11,
@@ -3364,18 +3382,6 @@
 95,
 101
 ],
-"party having": [
-5,
-15,
-16,
-31,
-45,
-46,
-47,
-95,
-96,
-119
-],
 "party having control": [
 5,
 16,
@@ -3385,6 +3391,26 @@
 119
 ],
 "commodity contracts carried": [
+5,
+11,
+26,
+46
+],
+"having control": [
+5,
+16,
+45,
+46,
+47,
+119
+],
+"commodity contracts": [
+5,
+11,
+26,
+46
+],
+"contracts carried": [
 5,
 11,
 26,
@@ -3408,37 +3434,14 @@
 96,
 119
 ],
-"certificated security": [
-5,
-11,
-14,
-23,
-28,
-30,
-31,
-32,
-35,
-46
-],
-"having control": [
-5,
-16,
-45,
-46,
-47,
-119
-],
-"contracts carried": [
-5,
-11,
-26,
-46
-],
-"commodity contracts": [
-5,
-11,
-26,
-46
+"section assignment": [
+6,
+8,
+65,
+79,
+84,
+87,
+92
 ],
 "nominated person": [
 6,
@@ -3450,14 +3453,10 @@
 40,
 68
 ],
-"section assignment": [
-6,
-8,
-65,
-79,
-84,
-87,
-92
+"similar import": [
+7,
+73,
+104
 ],
 "financial asset": [
 7,
@@ -3465,15 +3464,11 @@
 14,
 27
 ],
-"similar import": [
-7,
-73,
-104
-],
-"against deposit": [
+"collecting bank": [
 8,
-57,
-58
+11,
+27,
+40
 ],
 "conflicting security": [
 8,
@@ -3491,6 +3486,11 @@
 55,
 131
 ],
+"arising under chapter": [
+8,
+11,
+40
+],
 "defenses against assignee": [
 8,
 62,
@@ -3498,22 +3498,38 @@
 127,
 128
 ],
-"collecting bank": [
+"conflicting security interests": [
 8,
-11,
-27,
-40
+35,
+40,
+41,
+42,
+43,
+44,
+45,
+46,
+47,
+48,
+131
 ],
-"accompanying documents": [
+"against deposit": [
 8,
-11,
-27,
-40
+57,
+58
 ],
-"recourse against": [
+"among conflicting": [
 8,
-15,
-101
+35,
+40,
+41,
+42,
+43,
+44,
+45,
+46,
+47,
+48,
+131
 ],
 "priorities among": [
 8,
@@ -3526,12 +3542,116 @@
 48,
 131
 ],
+"items accompanying documents": [
+8,
+11,
+27,
+40
+],
+"section effectiveness": [
+8,
+44,
+58,
+74,
+75,
+81,
+83,
+125,
+134
+],
+"against assignee": [
+8,
+62,
+63,
+127,
+128
+],
+"another state": [
+8,
+128,
+137
+],
+"accompanying documents": [
+8,
+11,
+27,
+40
+],
+"items accompanying": [
+8,
+11,
+27,
+40
+],
+"interest created": [
+8,
+27,
+38,
+43
+],
+"security interest created": [
+8,
+27,
+38,
+43
+],
+"section security interest": [
+8,
+11,
+26,
+27,
+28,
+40,
+41
+],
 "against deposit account": [
 8,
 57,
 58
 ],
-"among conflicting": [
+"section security": [
+8,
+11,
+26,
+27,
+28,
+40,
+41
+],
+"defenses against": [
+8,
+62,
+63,
+127,
+128
+],
+"statute regulation": [
+8,
+28,
+29,
+68,
+105,
+115
+],
+"section priority": [
+8,
+40,
+42,
+48,
+88
+],
+"priorities among conflicting": [
+8,
+35,
+40,
+41,
+42,
+43,
+46,
+48,
+131
+],
+"among conflicting security": [
 8,
 35,
 40,
@@ -3553,136 +3673,10 @@
 59,
 122
 ],
-"another state": [
+"recourse against": [
 8,
-128,
-137
-],
-"interest created": [
-8,
-27,
-38,
-43
-],
-"statute regulation": [
-8,
-28,
-29,
-68,
-105,
-115
-],
-"defenses against": [
-8,
-62,
-63,
-127,
-128
-],
-"section security": [
-8,
-11,
-26,
-27,
-28,
-40,
-41
-],
-"section security interest": [
-8,
-11,
-26,
-27,
-28,
-40,
-41
-],
-"items accompanying documents": [
-8,
-11,
-27,
-40
-],
-"against assignee": [
-8,
-62,
-63,
-127,
-128
-],
-"section effectiveness": [
-8,
-44,
-58,
-74,
-75,
-81,
-83,
-125,
-134
-],
-"items accompanying": [
-8,
-11,
-27,
-40
-],
-"conflicting security interests": [
-8,
-35,
-40,
-41,
-42,
-43,
-44,
-45,
-46,
-47,
-48,
-131
-],
-"among conflicting security": [
-8,
-35,
-40,
-41,
-42,
-43,
-44,
-45,
-46,
-47,
-48,
-131
-],
-"section priority": [
-8,
-40,
-42,
-48,
-88
-],
-"priorities among conflicting": [
-8,
-35,
-40,
-41,
-42,
-43,
-46,
-48,
-131
-],
-"security interest created": [
-8,
-27,
-38,
-43
-],
-"arising under chapter": [
-8,
-11,
-40
+15,
+101
 ],
 "different rule": [
 9,
@@ -3691,111 +3685,17 @@
 64,
 65
 ],
-"against creditors": [
-9,
-13,
-28
-],
 "trade practices": [
 9,
 11,
 40
 ],
-"entitlements carried": [
-11,
-26,
-46
+"against creditors": [
+9,
+13,
+28
 ],
-"paper control": [
-11,
-15,
-32,
-95
-],
-"party perfects security": [
-11,
-28,
-29,
-30,
-31,
-34,
-38,
-46
-],
-"interest without filing": [
-11,
-28,
-29,
-30,
-31,
-34,
-38,
-46
-],
-"chattel paper control": [
-11,
-15,
-32,
-95
-],
-"security entitlements carried": [
-11,
-26,
-46
-],
-"supporting obligation": [
-11,
-26,
-40
-],
-"secured party perfects": [
-11,
-28,
-29,
-30,
-31,
-34,
-38,
-46
-],
-"account control": [
-11,
-15,
-32,
-95
-],
-"becomes enforceable": [
-11,
-41,
-125,
-126,
-131
-],
-"deposit account control": [
-11,
-15,
-32,
-95
-],
-"debtor becomes bound": [
-11,
-34,
-44,
-74,
-75,
-76
-],
-"person becomes": [
-11,
-39,
-41
-],
-"party under section": [
-11,
-28,
-38
-],
-"party perfects": [
+"perfects security interest": [
 11,
 28,
 29,
@@ -3814,20 +3714,50 @@
 32,
 55
 ],
-"section when possession": [
+"paper control": [
+11,
+15,
+32,
+95
+],
+"entitlements carried": [
+11,
+26,
+46
+],
+"becomes enforceable": [
+11,
+41,
+125,
+126,
+131
+],
+"title control": [
+11,
+15,
+32,
+95
+],
+"party perfects": [
 11,
 28,
+29,
 30,
+31,
+34,
 38,
 46
 ],
-"debtor becomes": [
+"account control": [
 11,
-34,
-44,
-74,
-75,
-76
+15,
+32,
+95
+],
+"collateral only": [
+11,
+80,
+118
 ],
 "without filing": [
 11,
@@ -3841,9 +3771,32 @@
 42,
 46
 ],
-"registered form": [
+"debtor becomes bound": [
 11,
+34,
+44,
+74,
+75,
+76
+],
+"supporting obligation": [
+11,
+26,
+40
+],
+"party under section": [
+11,
+28,
+38
+],
+"secured party perfects": [
+11,
+28,
+29,
+30,
 31,
+34,
+38,
 46
 ],
 "security interest without": [
@@ -3857,46 +3810,16 @@
 46,
 135
 ],
-"collateral only": [
+"registered form": [
 11,
-80,
-118
-],
-"perfects security": [
-11,
-28,
-29,
-30,
 31,
-34,
-38,
 46
 ],
-"perfects security interest": [
+"deposit account control": [
 11,
-28,
-29,
-30,
-31,
-34,
-38,
-46
-],
-"control under section": [
-11,
-28,
-30,
+15,
 32,
-45,
-46,
-47,
-57,
-101
-],
-"enforceable against": [
-11,
-67,
-68
+95
 ],
 "interest without": [
 11,
@@ -3909,21 +3832,100 @@
 46,
 135
 ],
-"title control": [
+"section when possession": [
+11,
+28,
+30,
+38,
+46
+],
+"enforceable against": [
+11,
+67,
+68
+],
+"chattel paper control": [
 11,
 15,
 32,
 95
+],
+"control under section": [
+11,
+28,
+30,
+32,
+45,
+46,
+47,
+57,
+101
+],
+"party perfects security": [
+11,
+28,
+29,
+30,
+31,
+34,
+38,
+46
+],
+"security entitlements carried": [
+11,
+26,
+46
+],
+"interest without filing": [
+11,
+28,
+29,
+30,
+31,
+34,
+38,
+46
+],
+"debtor becomes": [
+11,
+34,
+44,
+74,
+75,
+76
+],
+"person becomes": [
+11,
+39,
+41
+],
+"perfects security": [
+11,
+28,
+29,
+30,
+31,
+34,
+38,
+46
 ],
 "secured party gives": [
 12,
 52,
 98
 ],
-"party gives": [
+"within days": [
 12,
-52,
-98
+16,
+17,
+18,
+33,
+35,
+42,
+51,
+81,
+110,
+114
 ],
 "days after": [
 12,
@@ -3939,6 +3941,19 @@
 110,
 114
 ],
+"future advances": [
+12,
+41,
+46
+],
+"gives value": [
+12,
+35,
+48,
+54,
+55,
+84
+],
 "within days after": [
 12,
 16,
@@ -3949,31 +3964,17 @@
 110,
 114
 ],
-"gives value": [
+"party gives": [
 12,
-35,
-48,
-54,
-55,
-84
+52,
+98
 ],
-"within days": [
-12,
-16,
-17,
-18,
-33,
-35,
-42,
-51,
-81,
-110,
-114
-],
-"future advances": [
-12,
-41,
-46
+"secured party fails": [
+13,
+111,
+116,
+119,
+120
 ],
 "section does": [
 13,
@@ -3989,6 +3990,16 @@
 92,
 101
 ],
+"attachment perfection": [
+13,
+65,
+66
+],
+"collateral including": [
+13,
+69,
+104
+],
 "party fails": [
 13,
 111,
@@ -3996,22 +4007,13 @@
 119,
 120
 ],
-"attachment perfection": [
-13,
-65,
-66
-],
-"secured party fails": [
-13,
-111,
-116,
-119,
-120
-],
-"collateral including": [
-13,
-69,
-104
+"securities intermediary": [
+14,
+16,
+23,
+27,
+34,
+46
 ],
 "agreement between": [
 14,
@@ -4023,21 +4025,20 @@
 65,
 67
 ],
-"securities intermediary": [
-14,
-16,
-23,
-27,
-34,
-46
-],
-"having possession": [
+"party having possession": [
 15,
 31,
 95,
 96
 ],
-"party having possession": [
+"reasonable expenses": [
+15,
+101,
+102,
+109,
+117
+],
+"having possession": [
 15,
 31,
 95,
@@ -4057,33 +4058,20 @@
 117,
 118
 ],
-"reasonable expenses": [
-15,
-101,
-102,
-109,
-117
-],
-"section applies": [
+"account under section": [
 16,
-17,
-21,
-25
-],
-"otherwise give": [
-16,
-17,
-81
+45,
+119
 ],
 "make advances": [
 16,
 17,
 81
 ],
-"account under section": [
+"advances incur": [
 16,
-45,
-119
+17,
+81
 ],
 "otherwise give value": [
 16,
@@ -4095,10 +4083,21 @@
 17,
 81
 ],
+"otherwise give": [
+16,
+17,
+81
+],
 "give value": [
 16,
 17,
 81
+],
+"section applies": [
+16,
+17,
+21,
+25
 ],
 "authenticated demand": [
 16,
@@ -4107,12 +4106,7 @@
 102,
 109
 ],
-"advances incur": [
-16,
-17,
-81
-],
-"assignment restrictions": [
+"account debtor notification": [
 17,
 60,
 64,
@@ -4124,22 +4118,44 @@
 64,
 65
 ],
-"party shall send": [
-17,
-105,
-110
-],
 "assignment identification": [
 17,
 60,
 64,
 65
 ],
-"account debtor notification": [
+"party shall send": [
+17,
+105,
+110
+],
+"assignment restrictions": [
 17,
 60,
 64,
 65
+],
+"accounting request regarding": [
+18,
+96,
+119
+],
+"accounting request": [
+18,
+96,
+119
+],
+"after receipt": [
+18,
+65,
+110
+],
+"month period": [
+18,
+34,
+78,
+84,
+110
 ],
 "mailing address": [
 18,
@@ -4149,6 +4165,16 @@
 108,
 110,
 113
+],
+"each additional": [
+18,
+110,
+127
+],
+"regarding list": [
+18,
+96,
+119
 ],
 "request regarding": [
 18,
@@ -4160,75 +4186,10 @@
 96,
 119
 ],
-"regarding list": [
-18,
-96,
-119
-],
-"month period": [
-18,
-34,
-78,
-84,
-110
-],
-"accounting request regarding": [
-18,
-96,
-119
-],
-"each additional": [
-18,
-110,
-127
-],
-"after receipt": [
-18,
-65,
-110
-],
-"accounting request": [
-18,
-96,
-119
-],
 "section request": [
 18,
 96,
 119
-],
-"governing perfection": [
-19,
-20,
-21,
-22,
-23,
-24,
-34,
-127,
-129,
-136,
-138
-],
-"governs perfection": [
-19,
-20,
-21,
-22,
-23,
-24,
-69,
-127,
-129,
-136,
-138
-],
-"jurisdiction governs perfection": [
-19,
-20,
-22,
-23,
-24
 ],
 "goods covered": [
 19,
@@ -4243,12 +4204,17 @@
 48,
 54
 ],
-"jurisdiction governs": [
+"tangible chattel": [
 19,
-20,
-22,
-23,
-24
+31,
+35,
+55
+],
+"tangible chattel paper": [
+19,
+31,
+35,
+55
 ],
 "following rules determine": [
 19,
@@ -4257,12 +4223,44 @@
 25,
 53
 ],
-"rules determine": [
+"jurisdiction governs": [
 19,
+20,
 22,
 23,
-25,
-53
+24
+],
+"negotiable documents": [
+19,
+30,
+31,
+40
+],
+"governs perfection": [
+19,
+20,
+21,
+22,
+23,
+24,
+69,
+127,
+129,
+136,
+138
+],
+"governing perfection": [
+19,
+20,
+21,
+22,
+23,
+24,
+34,
+127,
+129,
+136,
+138
 ],
 "following rules": [
 19,
@@ -4280,23 +4278,19 @@
 108,
 120
 ],
-"tangible chattel": [
+"jurisdiction governs perfection": [
 19,
-31,
-35,
-55
+20,
+22,
+23,
+24
 ],
-"tangible chattel paper": [
+"rules determine": [
 19,
-31,
-35,
-55
-],
-"negotiable documents": [
-19,
-30,
-31,
-40
+22,
+23,
+25,
+53
 ],
 "another jurisdiction": [
 21,
@@ -4311,32 +4305,12 @@
 51,
 53
 ],
-"deposit account maintained": [
-22,
-57,
-58
-],
 "subchapter this chapter": [
 22,
 23,
 124
 ],
-"subdivision does": [
-22,
-23,
-71
-],
 "executive office": [
-22,
-23,
-25
-],
-"expressly provides": [
-22,
-23,
-50
-],
-"neither subdivision": [
 22,
 23,
 25
@@ -4346,15 +4320,43 @@
 23,
 25
 ],
+"deposit account maintained": [
+22,
+57,
+58
+],
+"neither subdivision": [
+22,
+23,
+25
+],
+"expressly provides": [
+22,
+23,
+50
+],
 "chief executive office": [
 22,
 23,
 25
 ],
+"subdivision does": [
+22,
+23,
+71
+],
 "subdivision applies": [
 22,
 23,
 25
+],
+"following rules apply": [
+23,
+34,
+102,
+107,
+108,
+120
 ],
 "rules apply": [
 23,
@@ -4364,13 +4366,10 @@
 108,
 120
 ],
-"following rules apply": [
-23,
-34,
-102,
-107,
-108,
-120
+"section when security": [
+24,
+28,
+30
 ],
 "perfected continuity": [
 24,
@@ -4384,11 +4383,6 @@
 30,
 41
 ],
-"section when security": [
-24,
-28,
-30
-],
 "information concerning": [
 25,
 105,
@@ -4400,13 +4394,26 @@
 40,
 77
 ],
+"interest perfected": [
+26,
+27,
+28,
+29,
+30,
+34,
+41,
+45,
+46,
+125,
+134
+],
 "perfected upon attachment": [
 26,
 27,
 28,
 41
 ],
-"interest perfected": [
+"security interest perfected": [
 26,
 27,
 28,
@@ -4436,18 +4443,22 @@
 135,
 136
 ],
-"security interest perfected": [
-26,
+"section perfection": [
 27,
 28,
-29,
 30,
 34,
 41,
+42,
 45,
 46,
-125,
-134
+47,
+51,
+52,
+54,
+73,
+105,
+115
 ],
 "treaty described": [
 27,
@@ -4481,23 +4492,6 @@
 105,
 115
 ],
-"section perfection": [
-27,
-28,
-30,
-34,
-41,
-42,
-45,
-46,
-47,
-51,
-52,
-54,
-73,
-105,
-115
-],
 "certain statutes": [
 27,
 28,
@@ -4510,16 +4504,29 @@
 105,
 115
 ],
-"currencies letter": [
+"property virtual": [
 28,
 30,
-32,
 41,
 42
 ],
-"temporary perfection without": [
+"chattel paper deposit": [
 28,
 30,
+40,
+41,
+42
+],
+"filing temporary perfection": [
+28,
+30,
+41,
+42
+],
+"virtual currencies letter": [
+28,
+30,
+32,
 41,
 42
 ],
@@ -4529,10 +4536,33 @@
 42,
 46
 ],
-"virtual currencies": [
+"temporary perfection without": [
 28,
 30,
-32,
+41,
+42
+],
+"documents instruments investment": [
+28,
+30,
+40,
+41,
+42
+],
+"filing temporary": [
+28,
+30,
+41,
+42
+],
+"possession under section": [
+28,
+30,
+42
+],
+"money perfection": [
+28,
+30,
 41,
 42
 ],
@@ -4549,61 +4579,9 @@
 41,
 42
 ],
-"perfection without": [
-28,
-30,
-41,
-42
-],
 "perfection without filing": [
 28,
 30,
-41,
-42
-],
-"chattel paper deposit": [
-28,
-30,
-40,
-41,
-42
-],
-"paper deposit accounts": [
-28,
-30,
-40,
-41,
-42
-],
-"permissive filing temporary": [
-28,
-30,
-41,
-42
-],
-"documents instruments investment": [
-28,
-30,
-40,
-41,
-42
-],
-"permissive filing": [
-28,
-30,
-41,
-42
-],
-"investment property virtual": [
-28,
-30,
-41,
-42
-],
-"virtual currencies letter": [
-28,
-30,
-32,
 41,
 42
 ],
@@ -4622,6 +4600,25 @@
 134,
 135
 ],
+"permissive filing temporary": [
+28,
+30,
+41,
+42
+],
+"virtual currencies": [
+28,
+30,
+32,
+41,
+42
+],
+"temporary perfection": [
+28,
+30,
+41,
+42
+],
 "section effect": [
 28,
 31,
@@ -4636,35 +4633,13 @@
 41,
 42
 ],
-"filing temporary": [
+"perfection without": [
 28,
 30,
 41,
 42
 ],
-"possession under section": [
-28,
-30,
-42
-],
-"property virtual": [
-28,
-30,
-41,
-42
-],
-"certificated securities": [
-28,
-30,
-31
-],
-"money perfection": [
-28,
-30,
-41,
-42
-],
-"temporary perfection": [
+"investment property virtual": [
 28,
 30,
 41,
@@ -4685,16 +4660,41 @@
 134,
 135
 ],
+"permissive filing": [
+28,
+30,
+41,
+42
+],
+"currencies letter": [
+28,
+30,
+32,
+41,
+42
+],
+"paper deposit accounts": [
+28,
+30,
+40,
+41,
+42
+],
+"certificated securities": [
+28,
+30,
+31
+],
 "perfected without filing": [
 28,
 30,
 42
 ],
-"filing temporary perfection": [
-28,
-30,
-41,
-42
+"collateral subject": [
+29,
+43,
+102,
+111
 ],
 "remains perfected": [
 29,
@@ -4706,17 +4706,6 @@
 52,
 125,
 134
-],
-"collateral subject": [
-29,
-43,
-102,
-111
-],
-"becomes perfected": [
-30,
-34,
-126
 ],
 "taking possession": [
 30,
@@ -4730,13 +4719,10 @@
 120,
 121
 ],
-"secured party does": [
-31,
-32,
-67,
-71,
-99,
-114
+"becomes perfected": [
+30,
+34,
+126
 ],
 "effective under subsection": [
 31,
@@ -4749,18 +4735,18 @@
 99,
 122
 ],
-"takes possession": [
-31,
-48,
-96
-],
-"party does": [
+"secured party does": [
 31,
 32,
 67,
 71,
 99,
 114
+],
+"takes possession": [
+31,
+48,
+96
 ],
 "collateral after": [
 31,
@@ -4777,88 +4763,27 @@
 114,
 117
 ],
-"statement effect": [
-33,
-78,
-80,
-83,
-84,
-87,
-89,
-90,
-128,
-137
+"party does": [
+31,
+32,
+67,
+71,
+99,
+114
 ],
-"section termination statement": [
+"termination statement": [
 33,
 77,
-119
-],
-"filed financing": [
-33,
-44,
-55,
-75,
-76,
+81,
 83,
-86,
-88,
-89
+119,
+129,
+138
 ],
-"extent provided": [
-33,
-102,
-109
-],
-"lien continues": [
-33,
-75,
-77
-],
-"days thereafter": [
+"within days thereafter": [
 33,
 42,
 51
-],
-"section termination": [
-33,
-77,
-119
-],
-"lapsed financing statement": [
-33,
-78,
-80,
-83,
-84,
-87,
-89,
-90,
-128,
-137
-],
-"filed financing statement": [
-33,
-44,
-55,
-75,
-76,
-83,
-86,
-88,
-89
-],
-"becomes unperfected": [
-33,
-34,
-83,
-127
-],
-"statement covers": [
-33,
-72,
-77,
-81
 ],
 "financing statement effect": [
 33,
@@ -4872,15 +4797,6 @@
 128,
 137
 ],
-"termination statement": [
-33,
-77,
-81,
-83,
-119,
-129,
-138
-],
 "section duration": [
 33,
 78,
@@ -4892,23 +4808,101 @@
 128,
 137
 ],
+"section termination statement": [
+33,
+77,
+119
+],
+"filed financing statement": [
+33,
+44,
+55,
+75,
+76,
+83,
+86,
+88,
+89
+],
 "financing statement covers": [
 33,
 72,
 77,
 81
 ],
-"within days thereafter": [
+"days thereafter": [
 33,
 42,
 51
+],
+"becomes unperfected": [
+33,
+34,
+83,
+127
+],
+"extent provided": [
+33,
+102,
+109
 ],
 "agricultural lien continues": [
 33,
 75,
 77
 ],
+"statement covers": [
+33,
+72,
+77,
+81
+],
+"filed financing": [
+33,
+44,
+55,
+75,
+76,
+83,
+86,
+88,
+89
+],
+"lapsed financing statement": [
+33,
+78,
+80,
+83,
+84,
+87,
+89,
+90,
+128,
+137
+],
+"section termination": [
+33,
+77,
+119
+],
 "lapsed financing": [
+33,
+78,
+80,
+83,
+84,
+87,
+89,
+90,
+128,
+137
+],
+"lien continues": [
+33,
+75,
+77
+],
+"statement effect": [
 33,
 78,
 80,
@@ -4926,28 +4920,15 @@
 87,
 92
 ],
-"four months after": [
+"months after": [
 34,
 75,
 76
 ],
-"filed before": [
+"within four": [
 34,
-70,
-76,
-127,
-128,
-129,
-130,
-136,
-137,
-138,
-139
-],
-"jurisdiction before": [
-34,
-127,
-136
+75,
+76
 ],
 "financing statement filed": [
 34,
@@ -4965,11 +4946,6 @@
 138,
 139
 ],
-"four months": [
-34,
-75,
-76
-],
 "year after": [
 34,
 87,
@@ -4977,23 +4953,12 @@
 127,
 134
 ],
-"months after": [
+"four months after": [
 34,
 75,
 76
 ],
-"statement naming": [
-34,
-76,
-87,
-92
-],
-"within four": [
-34,
-75,
-76
-],
-"within four months": [
+"four months": [
 34,
 75,
 76
@@ -5025,13 +4990,39 @@
 138,
 139
 ],
-"takes free": [
+"filed before": [
+34,
+70,
+76,
+127,
+128,
+129,
+130,
+136,
+137,
+138,
+139
+],
+"within four months": [
+34,
+75,
+76
+],
+"statement naming": [
+34,
+76,
+87,
+92
+],
+"jurisdiction before": [
+34,
+127,
+136
+],
+"collateral without": [
 35,
-38,
-41,
-54,
-55,
-111
+61,
+96
 ],
 "debtor receives": [
 35,
@@ -5039,15 +5030,7 @@
 63,
 65
 ],
-"person entitled": [
-35,
-52,
-56,
-62,
-98,
-139
-],
-"section priorities among": [
+"section priorities": [
 35,
 41,
 42,
@@ -5060,13 +5043,30 @@
 54,
 55
 ],
-"section priorities": [
+"section priorities among": [
 35,
 41,
 42,
 43,
 48,
 131
+],
+"statement with respect": [
+35,
+78,
+86,
+87,
+89,
+90,
+137
+],
+"person entitled": [
+35,
+52,
+56,
+62,
+98,
+139
 ],
 "without knowledge": [
 35,
@@ -5077,19 +5077,13 @@
 54,
 109
 ],
-"collateral without": [
+"takes free": [
 35,
-61,
-96
-],
-"statement with respect": [
-35,
-78,
-86,
-87,
-89,
-90,
-137
+38,
+41,
+54,
+55,
+111
 ],
 "security interest held": [
 37,
@@ -5122,6 +5116,13 @@
 65,
 66
 ],
+"priority among conflicting": [
+40,
+44,
+45,
+46,
+47
+],
 "conflicting security interest": [
 40,
 42,
@@ -5130,13 +5131,6 @@
 47,
 54,
 55
-],
-"priority among conflicting": [
-40,
-44,
-45,
-46,
-47
 ],
 "rank according": [
 40,
@@ -5177,42 +5171,27 @@
 52,
 53
 ],
-"collateral perfected": [
-44,
-105,
-115
-],
 "sections effectiveness": [
 44,
 129,
 138
 ],
-"another secured party": [
-45,
-46,
-78
+"collateral perfected": [
+44,
+105,
+115
 ],
 "another secured": [
 45,
 46,
 78
 ],
+"another secured party": [
+45,
+46,
+78
+],
 "obtaining control": [
-45,
-46,
-47
-],
-"rules govern": [
-45,
-46,
-47
-],
-"govern priority": [
-45,
-46,
-47
-],
-"rules govern priority": [
 45,
 46,
 47
@@ -5223,6 +5202,21 @@
 47
 ],
 "party that does": [
+45,
+46,
+47
+],
+"rules govern priority": [
+45,
+46,
+47
+],
+"rules govern": [
+45,
+46,
+47
+],
+"govern priority": [
 45,
 46,
 47
@@ -5245,14 +5239,14 @@
 106,
 109
 ],
-"party need": [
+"secured party need": [
 52,
 98,
 102,
 109,
 120
 ],
-"secured party need": [
+"party need": [
 52,
 98,
 102,
@@ -5264,22 +5258,12 @@
 125,
 134
 ],
-"financing statement providing": [
-55,
-76,
-88
-],
-"constitutes filing effectiveness": [
-55,
-84,
-88
-],
-"what constitutes filing": [
-55,
-84,
-88
-],
 "constitutes filing": [
+55,
+84,
+88
+],
+"what constitutes": [
 55,
 84,
 88
@@ -5289,17 +5273,27 @@
 76,
 88
 ],
+"financing statement providing": [
+55,
+76,
+88
+],
+"what constitutes filing": [
+55,
+84,
+88
+],
 "reasonable reliance": [
 55,
 84,
 122
 ],
-"what constitutes": [
+"filing effectiveness": [
 55,
 84,
 88
 ],
-"filing effectiveness": [
+"constitutes filing effectiveness": [
 55,
 84,
 88
@@ -5315,6 +5309,12 @@
 60,
 65,
 66
+],
+"assert defenses": [
+62,
+63,
+127,
+128
 ],
 "record does": [
 62,
@@ -5334,58 +5334,30 @@
 64,
 65
 ],
-"assert defenses": [
-62,
-63,
-127,
-128
-],
-"disposition under section": [
+"section disposition": [
 65,
 67,
+103,
+105,
 109,
+110,
+112,
+114,
 117
 ],
-"sale pursuant": [
-65,
-67,
-95
-],
-"section acceptance": [
-65,
-67,
-118
-],
-"default breach right": [
+"default breach": [
 65,
 66,
 67,
 68
 ],
-"claim defense termination": [
-65,
-66,
-67,
-68
-],
-"recoupment claim defense": [
+"defense termination": [
 65,
 66,
 67,
 68
 ],
 "reasonable proof": [
-65,
-102,
-109
-],
-"recoupment claim": [
-65,
-66,
-67,
-68
-],
-"furnish reasonable": [
 65,
 102,
 109
@@ -5402,26 +5374,21 @@
 67,
 68
 ],
-"section disposition": [
+"termination right": [
 65,
+66,
 67,
-103,
-105,
-109,
-110,
-112,
-114,
-117
+68
 ],
 "ineffective under subsection": [
 65,
 67,
 68
 ],
-"furnish reasonable proof": [
+"section acceptance": [
 65,
-102,
-109
+67,
+118
 ],
 "collateral after default": [
 65,
@@ -5437,31 +5404,7 @@
 114,
 117
 ],
-"defense termination": [
-65,
-66,
-67,
-68
-],
-"breach right": [
-65,
-66,
-67,
-68
-],
-"termination right": [
-65,
-66,
-67,
-68
-],
 "prohibits restricts": [
-65,
-66,
-67,
-68
-],
-"default breach": [
 65,
 66,
 67,
@@ -5473,31 +5416,90 @@
 67,
 68
 ],
-"debtor does": [
+"breach right": [
+65,
+66,
 67,
-70,
-71
+68
+],
+"furnish reasonable": [
+65,
+102,
+109
+],
+"disposition under section": [
+65,
+67,
+109,
+117
+],
+"recoupment claim": [
+65,
+66,
+67,
+68
+],
+"sale pursuant": [
+65,
+67,
+95
+],
+"furnish reasonable proof": [
+65,
+102,
+109
+],
+"recoupment claim defense": [
+65,
+66,
+67,
+68
+],
+"default breach right": [
+65,
+66,
+67,
+68
+],
+"claim defense termination": [
+65,
+66,
+67,
+68
 ],
 "render performance": [
 67,
 68,
 101
 ],
-"state governs perfection": [
-69,
-129,
-138
+"debtor does": [
+67,
+70,
+71
 ],
 "state governs": [
 69,
 129,
 138
 ],
+"state governs perfection": [
+69,
+129,
+138
+],
+"constructive notice": [
+70
+],
 "section name": [
 70,
 74,
 75,
 136
+],
+"covers goods": [
+70,
+81,
+98
 ],
 "collateral covered": [
 70,
@@ -5509,18 +5511,15 @@
 136,
 138
 ],
-"covers goods": [
-70,
-81,
-98
-],
-"constructive notice": [
-70
-],
-"statement indicates": [
+"financing statement provides": [
 71,
-77,
-92
+72,
+75
+],
+"statement provides": [
+71,
+72,
+75
 ],
 "name provided": [
 71,
@@ -5534,26 +5533,21 @@
 129,
 138
 ],
+"additional information": [
+71,
+108,
+110
+],
 "person named": [
 71,
 79,
 86,
 119
 ],
-"financing statement provides": [
+"statement indicates": [
 71,
-72,
-75
-],
-"additional information": [
-71,
-108,
-110
-],
-"statement provides": [
-71,
-72,
-75
+77,
+92
 ],
 "statement under subsection": [
 73,
@@ -5572,33 +5566,16 @@
 107,
 110
 ],
-"secured party knows": [
-75,
-99,
-122
-],
-"filed within": [
-75,
-78,
-84,
-127
-],
-"party knows": [
-75,
-99,
-122
-],
-"financing statement remains": [
-75,
-76,
-128,
-137
-],
 "statement remains effective": [
 75,
 76,
 128,
 137
+],
+"party knows": [
+75,
+99,
+122
 ],
 "statement remains": [
 75,
@@ -5613,10 +5590,32 @@
 128,
 137
 ],
-"record authorizes": [
+"secured party knows": [
+75,
+99,
+122
+],
+"financing statement remains": [
+75,
+76,
+128,
+137
+],
+"filed within": [
+75,
+78,
+84,
+127
+],
+"statement only": [
 77,
-130,
-139
+129,
+138
+],
+"financing statement only": [
+77,
+129,
+138
 ],
 "persons entitled": [
 77,
@@ -5630,25 +5629,20 @@
 80,
 84
 ],
-"financing statement only": [
+"record authorizes": [
 77,
-129,
-138
-],
-"statement only": [
-77,
-129,
-138
-],
-"section persons entitled": [
-78,
-80,
-119
+130,
+139
 ],
 "effective only": [
 78,
 127,
 136
+],
+"section persons entitled": [
+78,
+80,
+119
 ],
 "section persons": [
 78,
@@ -5660,26 +5654,16 @@
 84,
 87
 ],
-"delete collateral covered": [
-80,
-129,
-138
-],
-"otherwise amend": [
-80,
-129,
-138
-],
-"delete collateral": [
-80,
-129,
-138
-],
 "each financing": [
 80,
 82,
 90,
 92
+],
+"information specified": [
+80,
+107,
+108
 ],
 "each financing statement": [
 80,
@@ -5687,11 +5671,10 @@
 90,
 92
 ],
-"filing office described": [
+"delete collateral": [
 80,
-84,
-87,
-88
+129,
+138
 ],
 "section contents": [
 80,
@@ -5701,16 +5684,27 @@
 107,
 108
 ],
-"information specified": [
-80,
-107,
-108
-],
 "office described": [
 80,
 84,
 87,
 88
+],
+"filing office described": [
+80,
+84,
+87,
+88
+],
+"delete collateral covered": [
+80,
+129,
+138
+],
+"otherwise amend": [
+80,
+129,
+138
 ],
 "comply with subsection": [
 81,
@@ -5730,7 +5724,7 @@
 109,
 112
 ],
-"statement ceases": [
+"timely filing": [
 83,
 127,
 136
@@ -5740,7 +5734,7 @@
 127,
 136
 ],
-"timely filing": [
+"statement ceases": [
 83,
 127,
 136
@@ -5750,16 +5744,16 @@
 93,
 94
 ],
-"lapsed under section": [
-84,
-89,
-90
-],
 "record relates": [
 84,
 86,
 87,
 89
+],
+"lapsed under section": [
+84,
+89,
+90
 ],
 "international association": [
 84,
@@ -5771,12 +5765,17 @@
 87,
 89
 ],
-"business days": [
+"manner prescribed": [
 87,
 88,
 90
 ],
 "business days after": [
+87,
+88,
+90
+],
+"business days": [
 87,
 88,
 90
@@ -5791,21 +5790,16 @@
 88,
 90
 ],
-"manner prescribed": [
-87,
-88,
-90
-],
-"following information": [
-90,
-108,
-110
-],
 "days before": [
 90,
 105,
 110,
 115
+],
+"following information": [
+90,
+108,
+110
 ],
 "most recent": [
 93,
@@ -5813,52 +5807,17 @@
 128,
 137
 ],
-"section collection": [
-95,
-96,
-102,
-117
-],
 "section waiver": [
 95,
 96,
 97,
 114
 ],
-"redeem collateral": [
+"section collection": [
+95,
 96,
-108,
-117,
-118
-],
-"section explanation": [
-96,
-110,
-119,
-122
-],
-"collateral general": [
-96,
-107,
-108
-],
-"section right": [
-96,
-108,
-118
-],
-"notification before disposition": [
-96,
-105,
-106,
-107,
-108,
-118
-],
-"collateral consumer goods": [
-96,
-107,
-108
+102,
+117
 ],
 "disposition liability": [
 96,
@@ -5867,19 +5826,38 @@
 117,
 120
 ],
-"collateral consumer": [
+"comply with chapter": [
+96,
+119,
+122
+],
+"section right": [
+96,
+108,
+118
+],
+"notification before": [
+96,
+105,
+106,
+107,
+108,
+118
+],
+"redeem collateral": [
+96,
+108,
+117,
+118
+],
+"collateral consumer goods": [
 96,
 107,
 108
 ],
-"section application": [
+"section explanation": [
 96,
 110,
-117,
-120
-],
-"comply with chapter": [
-96,
 119,
 122
 ],
@@ -5891,13 +5869,29 @@
 108,
 118
 ],
-"notification before": [
+"section application": [
+96,
+110,
+117,
+120
+],
+"collateral general": [
+96,
+107,
+108
+],
+"notification before disposition": [
 96,
 105,
 106,
 107,
 108,
 118
+],
+"collateral consumer": [
+96,
+107,
+108
 ],
 "financing statement against": [
 99,
@@ -5911,7 +5905,7 @@
 115,
 122
 ],
-"expenses incurred": [
+"reasonable attorney": [
 101,
 102,
 109
@@ -5924,17 +5918,12 @@
 109,
 121
 ],
-"legal expenses incurred": [
+"expenses incurred": [
 101,
 102,
 109
 ],
 "legal expenses": [
-101,
-102,
-109
-],
-"reasonable attorney": [
 101,
 102,
 109
@@ -5953,17 +5942,10 @@
 109,
 121
 ],
-"lien within": [
+"legal expenses incurred": [
+101,
 102,
-109,
-124,
-133
-],
-"subordinate security interest": [
-102,
-109,
-111,
-116
+109
 ],
 "subordinate security": [
 102,
@@ -5971,12 +5953,24 @@
 111,
 116
 ],
+"subordinate security interest": [
+102,
+109,
+111,
+116
+],
+"lien within": [
+102,
+109,
+124,
+133
+],
 "time place": [
 104,
 107,
 108
 ],
-"private disposition": [
+"public disposition": [
 104,
 107,
 108
@@ -5986,7 +5980,7 @@
 105,
 121
 ],
-"public disposition": [
+"private disposition": [
 104,
 107,
 108
@@ -6001,11 +5995,6 @@
 108,
 117
 ],
-"sufficient even": [
-107,
-108,
-110
-],
 "particular phrasing": [
 107,
 108,
@@ -6016,41 +6005,35 @@
 108,
 110
 ],
+"sufficient even": [
+107,
+108,
+110
+],
 "subordinate lien": [
 109,
 111,
 116
-],
-"party liability": [
-119,
-120,
-122
 ],
 "enforcement disposition": [
 119,
 120,
 121
 ],
-"secured party liability": [
-119,
-120,
-122
-],
 "collection enforcement disposition": [
 119,
 120,
 121
 ],
-"takes effect": [
-123,
-124,
-125,
-126,
-127,
-128,
-129,
-130,
-131
+"party liability": [
+119,
+120,
+122
+],
+"secured party liability": [
+119,
+120,
+122
 ],
 "reenacted from acts": [
 123,
@@ -6064,17 +6047,6 @@
 131
 ],
 "revision takes effect": [
-123,
-124,
-125,
-126,
-127,
-128,
-129,
-130,
-131
-],
-"revision takes": [
 123,
 124,
 125,
@@ -6101,10 +6073,26 @@
 137,
 138
 ],
-"existed immediately before": [
+"revision takes": [
+123,
 124,
+125,
+126,
 127,
 128,
+129,
+130,
+131
+],
+"takes effect": [
+123,
+124,
+125,
+126,
+127,
+128,
+129,
+130,
 131
 ],
 "existed immediately": [
@@ -6113,89 +6101,11 @@
 128,
 131
 ],
-"enforceable under section": [
-125,
-126,
+"existed immediately before": [
+124,
+127,
+128,
 131
-],
-"interest becomes": [
-125,
-126,
-127
-],
-"action taken": [
-125,
-127,
-129,
-134,
-136,
-138
-],
-"without further action": [
-125,
-126,
-134,
-135
-],
-"revised before": [
-125,
-126,
-127
-],
-"before effective date": [
-125,
-126,
-127,
-129,
-134,
-135,
-136,
-138
-],
-"action taken before": [
-125,
-127,
-129,
-134,
-136,
-138
-],
-"taken before": [
-125,
-127,
-129,
-134,
-136,
-138
-],
-"further action": [
-125,
-126,
-134,
-135
-],
-"taken before effective": [
-125,
-127,
-129,
-134,
-136,
-138
-],
-"security interest becomes": [
-125,
-126,
-127
-],
-"before effective": [
-125,
-126,
-127,
-129,
-134,
-135,
-136,
-138
 ],
 "before july": [
 125,
@@ -6210,32 +6120,129 @@
 139,
 140
 ],
+"before effective date": [
+125,
+126,
+127,
+129,
+134,
+135,
+136,
+138
+],
+"revised before": [
+125,
+126,
+127
+],
+"interest becomes": [
+125,
+126,
+127
+],
+"without further action": [
+125,
+126,
+134,
+135
+],
+"action taken before": [
+125,
+127,
+129,
+134,
+136,
+138
+],
+"taken before effective": [
+125,
+127,
+129,
+134,
+136,
+138
+],
+"action taken": [
+125,
+127,
+129,
+134,
+136,
+138
+],
+"security interest becomes": [
+125,
+126,
+127
+],
+"enforceable under section": [
+125,
+126,
+131
+],
+"further action": [
+125,
+126,
+134,
+135
+],
+"before effective": [
+125,
+126,
+127,
+129,
+134,
+135,
+136,
+138
+],
+"taken before": [
+125,
+127,
+129,
+134,
+136,
+138
+],
+"statement before": [
+127,
+131,
+136
+],
 "immediately before july": [
 127,
 134,
 135
 ],
-"financing statement before": [
-127,
-131,
-136
-],
-"period provided": [
-127,
-128,
-136,
-137
-],
-"jurisdiction governing perfection": [
+"jurisdiction governing": [
 127,
 129,
 136,
 138
 ],
-"financing statement reenacted": [
+"continuation statement filed": [
+127,
+128,
+136,
+137
+],
+"statement reenacted": [
 127,
 129,
 131
+],
+"statement suffices": [
+127,
+128,
+129,
+136,
+137,
+138
+],
+"financing statement before": [
+127,
+131,
+136
 ],
 "filed before july": [
 127,
@@ -6244,7 +6251,12 @@
 138,
 139
 ],
-"section when initial": [
+"financing statement reenacted": [
+127,
+129,
+131
+],
+"jurisdiction governing perfection": [
 127,
 129,
 136,
@@ -6258,20 +6270,19 @@
 137,
 138
 ],
-"statement before": [
-127,
-131,
-136
-],
-"statement suffices": [
+"filed after": [
 127,
 128,
-129,
 136,
-137,
-138
+137
 ],
-"jurisdiction governing": [
+"period provided": [
+127,
+128,
+136,
+137
+],
+"section when initial": [
 127,
 129,
 136,
@@ -6282,35 +6293,6 @@
 128,
 129,
 136,
-137,
-138
-],
-"statement reenacted": [
-127,
-129,
-131
-],
-"filed after": [
-127,
-128,
-136,
-137
-],
-"continuation statement filed": [
-127,
-128,
-136,
-137
-],
-"office specified": [
-128,
-129,
-137,
-138
-],
-"effective date financing": [
-128,
-129,
 137,
 138
 ],
@@ -6326,18 +6308,22 @@
 137,
 138
 ],
+"office specified": [
+128,
+129,
+137,
+138
+],
+"effective date financing": [
+128,
+129,
+137,
+138
+],
 "existed before": [
 131,
 136,
 140
-],
-"take effect": [
-132,
-134,
-135,
-136,
-137,
-138
 ],
 "amendments take effect": [
 132,
@@ -6348,6 +6334,14 @@
 138
 ],
 "amendments take": [
+132,
+134,
+135,
+136,
+137,
+138
+],
+"take effect": [
 132,
 134,
 135,

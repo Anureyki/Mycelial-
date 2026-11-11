@@ -15,10 +15,6 @@
 0,
 1
 ],
-"res": [
-0,
-1
-],
 "twentieth anniversary": [
 0,
 1
@@ -35,10 +31,7 @@
 0,
 1
 ],
-"rule against perpetuities": [
-1
-],
-"modification": [
+"default rule": [
 1
 ],
 "conflict of interest": [
@@ -47,40 +40,34 @@
 "mandatory rule": [
 1
 ],
-"prudent investor": [
-1
-],
 "beneficiary": [
 1
 ],
-"restatement": [
+"trustee": [
 1
 ],
-"duty to inform": [
-1
-],
-"revocable": [
-1
-],
-"settlor": [
-1
-],
-"standing": [
-1
-],
-"ilit": [
-1
-],
-"breach of trust": [
-1
-],
-"default rule": [
+"rule against perpetuities": [
 1
 ],
 "irrevocable": [
 1
 ],
-"trustee": [
+"breach of trust": [
+1
+],
+"settlor": [
+1
+],
+"restatement": [
+1
+],
+"modification": [
+1
+],
+"duty to inform": [
+1
+],
+"prudent investor": [
 1
 ]
 },

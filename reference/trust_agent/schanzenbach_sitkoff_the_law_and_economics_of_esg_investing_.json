@@ -19,10 +19,15 @@
 "Uzyel v. Kadisha"
 ],
 "term_index": {
-"schanzenbach robert": [
+"corporate governance": [
 0,
-1,
-6
+5,
+11,
+12,
+39,
+40,
+47,
+48
 ],
 "environmental social": [
 0,
@@ -42,150 +47,14 @@
 2,
 3
 ],
-"corporate governance": [
-0,
-5,
-11,
-12,
-39,
-40,
-47,
-48
-],
-"res": [
+"schanzenbach robert": [
 0,
 1,
-2,
-3,
-4,
-5,
-6,
-7,
-8,
-9,
-10,
-11,
-12,
-13,
-14,
-15,
-16,
-17,
-18,
-19,
-20,
-21,
-22,
-23,
-24,
-25,
-26,
-27,
-28,
-29,
-30,
-31,
-32,
-33,
-34,
-35,
-36,
-37,
-38,
-39,
-40,
-41,
-42,
-43,
-44,
-45,
-46,
-47,
-48,
-49,
-50,
-51,
-52,
-53,
-54,
-55
+6
 ],
 "paper series": [
 0,
 15
-],
-"fiduciary investors": [
-1,
-10
-],
-"hand some": [
-1,
-43
-],
-"risk adjusted return": [
-1,
-5,
-7,
-13,
-43,
-55
-],
-"good faith": [
-1,
-7,
-18,
-19,
-21,
-23,
-29,
-34,
-55
-],
-"investment fiduciary": [
-1,
-5,
-6,
-8,
-10,
-50,
-55
-],
-"sole interest rule": [
-1,
-2,
-5,
-6,
-17,
-18,
-19,
-20,
-21,
-22,
-23,
-24,
-26,
-27,
-28,
-29
-],
-"risk adjusted returns": [
-1,
-5,
-6,
-7,
-8,
-9,
-11,
-12,
-20,
-33,
-40,
-41,
-45,
-50,
-51,
-55,
-56
 ],
 "fiduciary believes": [
 1,
@@ -204,6 +73,201 @@
 35,
 45,
 51,
+55
+],
+"financial economics": [
+1,
+7,
+8,
+24,
+35,
+54
+],
+"adjusted return": [
+1,
+5,
+7,
+13,
+43,
+55
+],
+"improving risk adjusted": [
+1,
+7,
+55
+],
+"investment strategy": [
+1,
+3,
+4,
+5,
+7,
+12,
+13,
+15,
+16,
+20,
+35,
+36,
+40,
+45,
+52,
+53,
+54,
+56
+],
+"returns from risk": [
+1,
+51
+],
+"obtain collateral benefits": [
+1,
+32
+],
+"risk adjusted": [
+1,
+5,
+6,
+7,
+8,
+9,
+11,
+12,
+13,
+20,
+33,
+40,
+41,
+43,
+45,
+46,
+50,
+51,
+55,
+56
+],
+"superior risk adjusted": [
+1,
+33,
+55
+],
+"exclusive motive": [
+1,
+7,
+20,
+55
+],
+"provide superior": [
+1,
+33,
+55
+],
+"fiduciary investors": [
+1,
+10
+],
+"risk adjusted return": [
+1,
+5,
+7,
+13,
+43,
+55
+],
+"bessemer trust": [
+1,
+23
+],
+"collateral benefits": [
+1,
+2,
+5,
+6,
+7,
+8,
+12,
+13,
+16,
+20,
+21,
+22,
+23,
+24,
+27,
+28,
+29,
+30,
+31,
+32,
+33,
+38,
+40,
+43,
+55
+],
+"fiduciary must consider": [
+1,
+8,
+52
+],
+"duty of care": [
+1,
+2,
+8,
+10,
+11,
+16,
+20,
+23,
+26,
+33,
+34,
+35,
+37,
+49,
+53,
+55
+],
+"risk return": [
+1,
+2,
+6,
+7,
+8,
+9,
+10,
+12,
+13,
+15,
+16,
+20,
+22,
+23,
+33,
+34,
+37,
+38,
+41,
+43,
+45,
+47,
+49,
+50,
+51,
+52,
+53,
+55,
+56
+],
+"direct benefit": [
+1,
+5,
+7,
+55
+],
+"improving risk": [
+1,
+7,
 55
 ],
 "adjusted returns": [
@@ -225,15 +289,51 @@
 55,
 56
 ],
-"beneficiary directly": [
+"obtain this direct": [
 1,
 7,
 55
 ],
-"allen ferrell": [
+"good faith": [
 1,
+7,
+18,
+19,
+21,
+23,
+29,
+34,
+55
+],
+"risk adjusted returns": [
+1,
+5,
+6,
+7,
+8,
+9,
+11,
 12,
-38
+20,
+33,
+40,
+41,
+45,
+50,
+51,
+55,
+56
+],
+"superior risk": [
+1,
+23,
+33,
+34,
+55
+],
+"consider only": [
+1,
+5
 ],
 "beneficiary": [
 1,
@@ -267,97 +367,9 @@
 54,
 55
 ],
-"against this backdrop": [
+"permissible under similar": [
 1,
-31,
-41
-],
-"superior risk": [
-1,
-23,
-33,
-34,
-55
-],
-"direct benefit": [
-1,
-5,
-7,
-55
-],
-"consider only": [
-1,
-5
-],
-"duty of loyalty": [
-1,
-5,
-8,
-10,
-11,
-13,
-16,
-17,
-19,
-20,
-21,
-23,
-26,
-28,
-29,
-30,
-33,
-55
-],
-"improving risk adjusted": [
-1,
-7,
-55
-],
-"bessemer trust": [
-1,
-23
-],
-"fiduciary must consider": [
-1,
-8,
-52
-],
-"risk return": [
-1,
-2,
-6,
-7,
-8,
-9,
-10,
-12,
-13,
-15,
-16,
-20,
-22,
-23,
-33,
-34,
-37,
-38,
-41,
-43,
-45,
-47,
-49,
-50,
-51,
-52,
-53,
-55,
-56
-],
-"provide superior": [
-1,
-33,
-55
+7
 ],
 "sole interest": [
 1,
@@ -419,19 +431,35 @@
 55,
 56
 ],
-"similar circumstances": [
+"allen ferrell": [
 1,
-7,
-34,
+12,
+38
+],
+"provide superior risk": [
+1,
+33,
 55
 ],
-"financial economics": [
+"duty of loyalty": [
 1,
-7,
+5,
 8,
-24,
-35,
-54
+10,
+11,
+13,
+16,
+17,
+19,
+20,
+21,
+23,
+26,
+28,
+29,
+30,
+33,
+55
 ],
 "esg": [
 1,
@@ -485,22 +513,108 @@
 55,
 56
 ],
+"beneficiary directly": [
+1,
+7,
+55
+],
+"similar circumstances": [
+1,
+7,
+34,
+55
+],
+"balanced assessment": [
+1,
+33,
+56
+],
 "john langbein": [
 1,
 10,
 17
 ],
-"permissible under similar": [
+"against this backdrop": [
 1,
-7
+31,
+41
+],
+"third parties": [
+1,
+5,
+11,
+13,
+22
 ],
 "obtain collateral": [
 1,
 32
 ],
-"provide superior risk": [
+"fiduciary duty": [
 1,
-33,
+7,
+10,
+11,
+13,
+16,
+17,
+18,
+20,
+21,
+22,
+35,
+49,
+53,
+55
+],
+"hand some": [
+1,
+43
+],
+"investment professionals": [
+1,
+3,
+11,
+15
+],
+"will benefit": [
+1,
+7,
+55
+],
+"sole interest rule": [
+1,
+2,
+5,
+6,
+17,
+18,
+19,
+20,
+21,
+22,
+23,
+24,
+26,
+27,
+28,
+29
+],
+"united states": [
+1,
+25
+],
+"basis some": [
+1,
+11
+],
+"investment fiduciary": [
+1,
+5,
+6,
+8,
+10,
+50,
 55
 ],
 "interest rule": [
@@ -521,260 +635,161 @@
 28,
 29
 ],
-"collateral benefits": [
-1,
+"best interest versus": [
 2,
-5,
-6,
+27
+],
+"firm performance": [
+2,
 7,
 8,
 12,
 13,
-16,
-20,
-21,
-22,
-23,
-24,
-27,
-28,
-29,
-30,
-31,
-32,
-33,
-38,
-40,
-43,
-55
-],
-"ilit": [
-1,
-4,
-6,
-7,
-10,
-12,
-14,
-15,
-30,
-31,
-32,
-34,
-35,
-36,
+37,
 38,
 39,
 40,
-41,
-43,
-45,
-47,
-48,
-49,
-50,
-51,
-52,
-55,
-56
-],
-"returns from risk": [
-1,
-51
-],
-"risk adjusted": [
-1,
-5,
-6,
-7,
-8,
-9,
-11,
-12,
-13,
-20,
-33,
-40,
-41,
-43,
-45,
 46,
-50,
-51,
-55,
-56
-],
-"fiduciary duty": [
-1,
-7,
-10,
-11,
-13,
-16,
-17,
-18,
-20,
-21,
-22,
-35,
 49,
 53,
 55
 ],
-"duty of care": [
-1,
+"active strategies": [
 2,
-8,
-10,
-11,
-16,
-20,
-23,
-26,
-33,
-34,
-35,
-37,
-49,
-53,
-55
-],
-"united states": [
-1,
-25
-],
-"exclusive motive": [
-1,
-7,
-20,
-55
-],
-"obtain collateral benefits": [
-1,
-32
-],
-"basis some": [
-1,
-11
-],
-"superior risk adjusted": [
-1,
-33,
-55
-],
-"improving risk": [
-1,
-7,
-55
-],
-"balanced assessment": [
-1,
-33,
-56
-],
-"third parties": [
-1,
-5,
-11,
-13,
-22
-],
-"obtain this direct": [
-1,
-7,
-55
-],
-"adjusted return": [
-1,
-5,
-7,
-13,
-43,
-55
-],
-"investment strategy": [
-1,
-3,
-4,
-5,
-7,
-12,
-13,
-15,
-16,
-20,
 35,
 36,
-40,
-45,
-52,
-53,
-54,
-56
+54
 ],
-"will benefit": [
-1,
-7,
-55
-],
-"investment professionals": [
-1,
-3,
-11,
-15
-],
-"prudence": [
+"fiduciary prudence": [
 2,
-8,
-10,
-16,
-20,
-23,
-24,
-25,
-26,
-28,
-33,
-34,
-35,
-36,
-37,
-49,
-50,
-51,
-52,
-53,
-55
+33
 ],
-"versus risk": [
+"caveats about stock": [
 2,
-8,
-12,
-20
+44
+],
+"usual caveats": [
+2,
+44
+],
+"interest versus": [
+2,
+27
+],
+"questioning market": [
+2,
+41
 ],
 "interest versus sole": [
 2,
 27
 ],
-"cost sensitivity monitoring": [
+"private trust": [
 2,
-36,
-37
+7,
+16,
+21,
+22,
+25,
+26,
+27,
+28,
+30,
+33,
+55
 ],
-"benefits versus risk": [
+"benefits versus": [
 2,
 8,
 20
 ],
-"questioning market": [
+"contrarian anti": [
 2,
-41
+8,
+45,
+56
+],
+"about stock": [
+2,
+44
+],
+"necessarily prudent": [
+2,
+49
+],
+"governance factors": [
+2,
+4,
+5,
+8,
+12,
+13,
+15,
+38,
+39,
+40,
+47,
+51
+],
+"zero tolerance": [
+2,
+6,
+21
+],
+"market efficiency": [
+2,
+36,
+41,
+46
 ],
 "social factors": [
 2,
 13,
 14,
 38
+],
+"fiduciary loyalty": [
+2,
+16,
+19
+],
+"monitoring": [
+2,
+24,
+34,
+36,
+37,
+47,
+49,
+50,
+51
+],
+"trust authorization": [
+2,
+28,
+31
+],
+"sensitivity monitoring": [
+2,
+36,
+37
+],
+"versus sole interest": [
+2,
+27
+],
+"questioning market efficiency": [
+2,
+41
+],
+"strategies cost": [
+2,
+36
+],
+"benefits versus risk": [
+2,
+8,
+20
 ],
 "prudent investor rule": [
 2,
@@ -788,11 +803,37 @@
 50,
 52
 ],
-"active strategies": [
+"versus risk": [
 2,
-35,
-36,
-54
+8,
+12,
+20
+],
+"versus risk return": [
+2,
+8,
+12,
+20
+],
+"about stock picking": [
+2,
+44
+],
+"active investing": [
+2,
+7,
+13,
+15,
+34,
+37,
+40,
+41,
+44,
+45,
+46,
+47,
+50,
+55
 ],
 "best interest": [
 2,
@@ -817,131 +858,17 @@
 29,
 31
 ],
-"sensitivity monitoring": [
-2,
-36,
-37
-],
-"versus risk return": [
-2,
-8,
-12,
-20
-],
-"stock picking": [
-2,
-42,
-43,
-44,
-45,
-46
-],
-"strategies cost sensitivity": [
-2,
-36
-],
-"zero tolerance": [
+"fiduciary principles": [
 2,
 6,
-21
-],
-"benefits versus": [
-2,
 8,
-20
-],
-"usual caveats about": [
-2,
-44
-],
-"market efficiency": [
-2,
-36,
-41,
-46
-],
-"active investing": [
-2,
-7,
-13,
-15,
-34,
-37,
-40,
-41,
-44,
-45,
-46,
-47,
-50,
-55
-],
-"investing collateral": [
-2,
-20
-],
-"usual caveats": [
-2,
-44
-],
-"necessarily prudent": [
-2,
-49
-],
-"governance factors": [
-2,
-4,
-5,
-8,
-12,
-13,
-15,
-38,
-39,
-40,
-47,
-51
-],
-"interest versus": [
-2,
-27
-],
-"fiduciary loyalty": [
-2,
-16,
-19
-],
-"strategies cost": [
-2,
-36
-],
-"caveats about": [
-2,
-44
-],
-"contrarian anti": [
-2,
-8,
-45,
-56
-],
-"private trust": [
-2,
-7,
-16,
-21,
-22,
-25,
+10,
+17,
+18,
+24,
 26,
 27,
-28,
-30,
-33,
-55
-],
-"best interest versus": [
-2,
-27
+53
 ],
 "cost sensitivity": [
 2,
@@ -951,41 +878,14 @@
 50,
 52
 ],
-"investor rule": [
+"cost sensitivity monitoring": [
 2,
-6,
-10,
-16,
-34,
-35,
 36,
-37,
-50,
-52
+37
 ],
-"about stock picking": [
+"strategies cost sensitivity": [
 2,
-44
-],
-"fiduciary prudence": [
-2,
-33
-],
-"monitoring": [
-2,
-24,
-34,
-36,
-37,
-47,
-49,
-50,
-51
-],
-"trust authorization": [
-2,
-28,
-31
+36
 ],
 "active shareholding": [
 2,
@@ -1006,61 +906,9 @@
 53,
 55
 ],
-"collateral benefits versus": [
-2,
-8,
-20
-],
-"fiduciary principles": [
-2,
-6,
-8,
-10,
-17,
-18,
-24,
-26,
-27,
-53
-],
-"versus sole": [
-2,
-27
-],
-"versus sole interest": [
-2,
-27
-],
 "investing collateral benefits": [
 2,
 20
-],
-"firm performance": [
-2,
-7,
-8,
-12,
-13,
-37,
-38,
-39,
-40,
-46,
-49,
-53,
-55
-],
-"caveats about stock": [
-2,
-44
-],
-"what counts": [
-2,
-13
-],
-"about stock": [
-2,
-44
 ],
 "prudent investor": [
 2,
@@ -1077,57 +925,86 @@
 52,
 53
 ],
-"questioning market efficiency": [
+"caveats about": [
 2,
-41
+44
 ],
-"fiduciary investment": [
-3,
-6,
-7,
-47,
-51,
-52,
-55
+"collateral benefits versus": [
+2,
+8,
+20
 ],
-"charitable endowment": [
-3,
-7,
+"prudence": [
+2,
+8,
+10,
 16,
-17,
+20,
+23,
+24,
 25,
 26,
-29,
+28,
 33,
-37,
-49,
-55
-],
-"investment decisions": [
-3,
-12,
-29,
-32
-],
-"find that most": [
-3,
-15
-],
-"fuel companies": [
-3,
-26,
-27
-],
-"active investment strategy": [
-3,
-5,
-13,
-15,
+34,
 35,
 36,
-40,
+37,
+49,
+50,
+51,
+52,
+53,
+55
+],
+"usual caveats about": [
+2,
+44
+],
+"investor rule": [
+2,
+6,
+10,
+16,
+34,
+35,
+36,
+37,
+50,
+52
+],
+"versus sole": [
+2,
+27
+],
+"investing collateral": [
+2,
+20
+],
+"stock picking": [
+2,
+42,
+43,
+44,
 45,
-53
+46
+],
+"what counts": [
+2,
+13
+],
+"investment managers": [
+3,
+10
+],
+"responsible investment": [
+3,
+4,
+6,
+9,
+11,
+15,
+31
 ],
 "governance issues": [
 3,
@@ -1135,10 +1012,26 @@
 50,
 53
 ],
-"fossil fuel companies": [
+"institutional investors": [
+3,
+14,
+48,
+49
+],
+"divest from fossil": [
 3,
 26,
 27
+],
+"investing even": [
+3,
+29
+],
+"investment decisions": [
+3,
+12,
+29,
+32
 ],
 "fossil fuel": [
 3,
@@ -1154,39 +1047,14 @@
 42,
 53
 ],
-"investing even": [
+"fiduciary investment": [
 3,
-29
-],
-"pension funds": [
-3,
-10,
-48
-],
-"investment managers": [
-3,
-10
-],
-"responsible investing": [
-3,
-5,
-9,
-11,
-12,
-23,
-41,
-44
-],
-"settlor": [
-3,
-18,
-20,
-28,
-29,
-30,
-31,
-32,
-33
+6,
+7,
+47,
+51,
+52,
+55
 ],
 "active investment": [
 3,
@@ -1202,74 +1070,161 @@
 50,
 53
 ],
-"responsible investment": [
+"charitable endowment": [
 3,
-4,
-6,
-9,
-11,
-15,
-31
+7,
+16,
+17,
+25,
+26,
+29,
+33,
+37,
+49,
+55
 ],
 "some type": [
 3,
 15
 ],
-"index funds": [
-3,
-42
-],
-"institutional investors": [
-3,
-14,
-48,
-49
-],
-"divest from fossil": [
+"fossil fuel companies": [
 3,
 26,
 27
 ],
-"investment governance": [
-4,
-22
+"active investment strategy": [
+3,
+5,
+13,
+15,
+35,
+36,
+40,
+45,
+53
 ],
-"about vanguard": [
-4,
-47
+"index funds": [
+3,
+42
 ],
-"investment stewardship": [
-4,
-47
+"fuel companies": [
+3,
+26,
+27
 ],
-"wall street": [
-4,
-40
+"settlor": [
+3,
+18,
+20,
+28,
+29,
+30,
+31,
+32,
+33
 ],
-"mission related": [
+"pension funds": [
+3,
+10,
+48
+],
+"responsible investing": [
+3,
+5,
+9,
+11,
+12,
+23,
+41,
+44
+],
+"find that most": [
+3,
+15
+],
+"related investing": [
 4,
 26
 ],
-"interpretive bulletins": [
+"field assistance": [
 4,
 5,
 20
+],
+"retirement accounts": [
+4,
+6,
+16,
+35
+],
+"proxy voting": [
+4,
+15,
+24,
+36,
+40,
+42,
+47,
+51
+],
+"assistance bulletin": [
+4,
+5,
+20
+],
+"field assistance bulletin": [
+4,
+5,
+20
+],
+"investment stewardship policies": [
+4,
+47
 ],
 "united kingdom": [
 4,
 6
 ],
-"first state": [
+"bulletins including": [
 4,
-31
+20
 ],
-"exercising shareholder": [
+"investment policy": [
 4,
-7
+6,
+37,
+52
 ],
-"pensions regulator": [
+"delaware amended": [
 4,
-22
+33
+],
+"climate change": [
+4,
+14,
+27,
+28,
+53
+],
+"investment stewardship": [
+4,
+47
+],
+"last year": [
+4,
+5
+],
+"about vanguard": [
+4,
+47
+],
+"strategy might avoid": [
+4,
+12
+],
+"wall street": [
+4,
+40
 ],
 "trust code": [
 4,
@@ -1282,68 +1237,35 @@
 35,
 36
 ],
-"strategy might avoid": [
+"exercising shareholder": [
 4,
-12
+7
 ],
-"assistance bulletin": [
-4,
-5,
-20
-],
-"bulletins including": [
-4,
-20
-],
-"field assistance bulletin": [
-4,
-5,
-20
-],
-"field assistance": [
-4,
-5,
-20
-],
-"delaware amended": [
-4,
-33
-],
-"venue": [
-4
-],
-"last year": [
-4,
-5
-],
-"investment stewardship policies": [
-4,
-47
-],
-"mission related investing": [
+"mission related": [
 4,
 26
-],
-"retirement accounts": [
-4,
-6,
-16,
-35
-],
-"climate change": [
-4,
-14,
-27,
-28,
-53
 ],
 "might avoid": [
 4,
 12
 ],
+"interpretive bulletins": [
+4,
+5,
+20
+],
 "roughly speaking": [
 4,
 42
+],
+"stewardship policies": [
+4,
+47
+],
+"umbrella term": [
+4,
+12,
+15
 ],
 "passive investing": [
 4,
@@ -1352,96 +1274,81 @@
 52,
 53
 ],
-"umbrella term": [
-4,
-12,
-15
-],
-"stewardship policies": [
-4,
-47
-],
 "strategy might": [
 4,
 12
 ],
-"proxy voting": [
-4,
-15,
-24,
-36,
-40,
-42,
-47,
-51
-],
-"related investing": [
+"mission related investing": [
 4,
 26
+],
+"pensions regulator": [
+4,
+22
 ],
 "investment strategy might": [
 4,
 12
 ],
-"investment policy": [
+"first state": [
 4,
+31
+],
+"investment governance": [
+4,
+22
+],
+"corporate governance factors": [
+5,
+39
+],
+"third party": [
+5,
 6,
-37,
-52
+12,
+17,
+26,
+31
+],
+"social investment": [
+5,
+9,
+11,
+42
+],
+"divestment campaign aimed": [
+5,
+8
+],
+"divestment campaign": [
+5,
+8,
+38
+],
+"improve risk adjusted": [
+5,
+6,
+7,
+12,
+13,
+43
 ],
 "engagement with management": [
 5,
 13,
 36
 ],
-"socially responsible investing": [
+"share price": [
 5,
-9,
-11,
-12,
-23,
-41,
-44
-],
-"economically targeted": [
-5,
-24
-],
-"earlier bulletins": [
-5,
-21
-],
-"divestment campaign aimed": [
-5,
-8
-],
-"risk and return": [
-5,
-6,
-10,
 13,
-23,
-24,
-34,
-35,
+39,
 41,
-49,
-50,
-51,
-53,
-55
+45
 ],
-"apartheid regime": [
+"regulatory risks": [
 5,
-8
-],
-"movement that came": [
-5,
-8
-],
-"targeted investments": [
-5,
-24
+13,
+39
 ],
 "socially responsible": [
 5,
@@ -1459,12 +1366,21 @@
 43,
 44
 ],
-"fossil fuel industry": [
+"investment returns": [
 5,
-12,
-26,
-28,
-38
+13,
+27,
+49,
+54
+],
+"shareholder voting": [
+5,
+13,
+47
+],
+"investing could": [
+5,
+56
 ],
 "south africa": [
 5,
@@ -1475,24 +1391,44 @@
 21,
 27
 ],
-"fiduciary subject": [
+"without regard": [
 5,
-6,
-55
+31
 ],
-"fossil fuel company": [
+"economically targeted investments": [
 5,
-13,
-42
+24
 ],
-"investment fiduciary subject": [
-5,
-6,
-55
-],
-"campaign aimed": [
+"movement that came": [
 5,
 8
+],
+"fossil fuel industry": [
+5,
+12,
+26,
+28,
+38
+],
+"strategy that seeks": [
+5,
+7
+],
+"risk and return": [
+5,
+6,
+10,
+13,
+23,
+24,
+34,
+35,
+41,
+49,
+50,
+51,
+53,
+55
 ],
 "improve risk": [
 5,
@@ -1507,40 +1443,40 @@
 13,
 42
 ],
-"shareholder voting": [
-5,
-13,
-47
-],
-"corporate governance factors": [
-5,
-39
-],
-"third party": [
+"investment fiduciary subject": [
 5,
 6,
-12,
-17,
-26,
-31
+55
 ],
-"regulatory risks": [
-5,
-13,
-39
-],
-"share price": [
-5,
-13,
-39,
-41,
-45
-],
-"social investment": [
+"socially responsible investing": [
 5,
 9,
 11,
+12,
+23,
+41,
+44
+],
+"fossil fuel company": [
+5,
+13,
 42
+],
+"fiduciary subject": [
+5,
+6,
+55
+],
+"fuel industry": [
+5,
+12,
+26,
+28,
+38
+],
+"apartheid regime": [
+5,
+8
 ],
 "social investing": [
 5,
@@ -1550,59 +1486,25 @@
 11,
 30
 ],
-"investment returns": [
-5,
-13,
-27,
-49,
-54
-],
-"investing could": [
-5,
-56
-],
-"improve risk adjusted": [
-5,
-6,
-7,
-12,
-13,
-43
-],
-"strategy that seeks": [
-5,
-7
-],
-"divestment campaign": [
-5,
-8,
-38
-],
-"without regard": [
-5,
-31
-],
-"fuel industry": [
-5,
-12,
-26,
-28,
-38
-],
-"economically targeted investments": [
+"targeted investments": [
 5,
 24
 ],
-"socially responsible investment": [
-6,
-9,
-11,
-31
+"earlier bulletins": [
+5,
+21
 ],
-"ethical reasons": [
+"campaign aimed": [
+5,
+8
+],
+"economically targeted": [
+5,
+24
+],
+"california constitution": [
 6,
-12,
-31
+17
 ],
 "pension fiduciary": [
 6,
@@ -1610,53 +1512,47 @@
 17,
 51
 ],
-"american trust fiduciary": [
+"empirical analysis": [
 6,
+31
+],
+"american trust": [
+6,
+16,
 55
-],
-"contribution pension": [
-6,
-51
-],
-"investment strategies": [
-6,
-8,
-11,
-13,
-44,
-45,
-50,
-52
-],
-"report final": [
-6,
-38
-],
-"market risk": [
-6,
-35,
-43
-],
-"defined contribution": [
-6,
-51
-],
-"distinct question": [
-6,
-38,
-55
-],
-"defined contribution pension": [
-6,
-51
 ],
 "will refer": [
 6,
 12
 ],
-"contribution pension plan": [
+"sustainable investing": [
 6,
-51
+33
+],
+"investing based": [
+6,
+44,
+46
+],
+"times july": [
+6,
+14,
+39
+],
+"socially responsible investment": [
+6,
+9,
+11,
+31
+],
+"american trust fiduciary": [
+6,
+55
+],
+"ethical reasons": [
+6,
+12,
+31
 ],
 "fossil fuels": [
 6,
@@ -1665,17 +1561,13 @@
 39,
 44
 ],
-"public pension": [
-6,
-17
-],
 "menu construction": [
 6,
 51
 ],
-"empirical analysis": [
+"public pension fiduciary": [
 6,
-31
+17
 ],
 "charitable endowments": [
 6,
@@ -1687,14 +1579,40 @@
 6,
 9
 ],
+"providing benefits": [
+6,
+22
+],
+"investment strategies": [
+6,
+8,
+11,
+13,
+44,
+45,
+50,
+52
+],
+"defined contribution": [
+6,
+51
+],
+"contribution pension": [
+6,
+51
+],
+"report final": [
+6,
+38
+],
+"market risk": [
+6,
+35,
+43
+],
 "claims regarding": [
 6,
 12
-],
-"times july": [
-6,
-14,
-39
 ],
 "pension plan": [
 6,
@@ -1703,36 +1621,38 @@
 28,
 51
 ],
-"american trust": [
+"defined contribution pension": [
 6,
-16,
+51
+],
+"distinct question": [
+6,
+38,
 55
 ],
-"providing benefits": [
-6,
-22
-],
-"sustainable investing": [
-6,
-33
-],
-"california constitution": [
+"public pension": [
 6,
 17
 ],
-"investing based": [
+"contribution pension plan": [
 6,
-44,
-46
+51
 ],
-"public pension fiduciary": [
-6,
-17
-],
-"claims about motive": [
+"face value risk": [
 7,
-37,
-50
+37
+],
+"prudent management": [
+7,
+16
+],
+"exploit market mispricing": [
+7,
+44
+],
+"consider material": [
+7,
+53
 ],
 "uniform prudent": [
 7,
@@ -1740,6 +1660,95 @@
 30,
 35,
 36
+],
+"markets adjust": [
+7,
+56
+],
+"gary best interests": [
+7,
+53,
+54
+],
+"program will benefit": [
+7,
+55
+],
+"private trust pension": [
+7,
+16,
+33,
+55
+],
+"overlap between": [
+7,
+55
+],
+"taking claims": [
+7,
+50
+],
+"investment program will": [
+7,
+37,
+55
+],
+"face value": [
+7,
+20,
+37,
+50
+],
+"freshfields report": [
+7,
+23,
+53
+],
+"trust pension": [
+7,
+16,
+33,
+37,
+49,
+55
+],
+"long term": [
+7,
+15,
+42,
+53,
+54,
+55
+],
+"change especially": [
+7,
+56
+],
+"legal framework": [
+7,
+22
+],
+"claims about motive": [
+7,
+37,
+50
+],
+"will call": [
+7,
+8,
+9
+],
+"value risk": [
+7,
+37
+],
+"beneficiary clarifying": [
+7,
+55
+],
+"even more": [
+7,
+14
 ],
 "excess risk": [
 7,
@@ -1751,142 +1760,6 @@
 50,
 51,
 56
-],
-"endowment only": [
-7,
-55
-],
-"markets adjust": [
-7,
-56
-],
-"beneficiary clarifying": [
-7,
-55
-],
-"words that risk": [
-7,
-55
-],
-"long term": [
-7,
-15,
-42,
-53,
-54,
-55
-],
-"certain collateral benefits": [
-7,
-55
-],
-"uniform prudent management": [
-7,
-16
-],
-"gary values": [
-7,
-26
-],
-"legal framework": [
-7,
-22
-],
-"generate excess": [
-7,
-8,
-34,
-50,
-56
-],
-"consistent with fiduciary": [
-7,
-55
-],
-"best interests": [
-7,
-17,
-19,
-25,
-30,
-53,
-54
-],
-"freshfields report": [
-7,
-23,
-53
-],
-"about motive": [
-7,
-37,
-50
-],
-"even more": [
-7,
-14
-],
-"excess risk adjusted": [
-7,
-8,
-11,
-40,
-41,
-45,
-50,
-51,
-56
-],
-"taking claims": [
-7,
-50
-],
-"gary best": [
-7,
-53,
-54
-],
-"every state": [
-7,
-35
-],
-"overlap between": [
-7,
-55
-],
-"value risk": [
-7,
-37
-],
-"program will": [
-7,
-37,
-55
-],
-"exploit market mispricing": [
-7,
-44
-],
-"consider material": [
-7,
-53
-],
-"change especially": [
-7,
-56
-],
-"will call": [
-7,
-8,
-9
-],
-"program will benefit": [
-7,
-55
-],
-"endowments fiduciary": [
-7,
-53
 ],
 "investment program": [
 7,
@@ -1904,39 +1777,84 @@
 51,
 55
 ],
-"market mispricing": [
-7,
-13,
-44,
-54
-],
-"prudent management": [
-7,
-16
-],
-"charitable endowment only": [
-7,
-55
-],
-"institutional funds": [
-7,
-16
-],
-"fiduciary duties": [
-7,
-10,
-35,
-49
-],
-"face value": [
+"claims about": [
 7,
 20,
 37,
 50
 ],
+"endowment only": [
+7,
+55
+],
+"consistent with fiduciary": [
+7,
+55
+],
+"uniform prudent management": [
+7,
+16
+],
+"program will": [
+7,
+37,
+55
+],
+"best interests": [
+7,
+17,
+19,
+25,
+30,
+53,
+54
+],
+"exploit market": [
+7,
+44
+],
+"institutional funds": [
+7,
+16
+],
+"about motive": [
+7,
+37,
+50
+],
+"generate excess": [
+7,
+8,
+34,
+50,
+56
+],
+"words that risk": [
+7,
+55
+],
 "taking claims about": [
 7,
 50
+],
+"every state": [
+7,
+35
+],
+"should consider": [
+7,
+10
+],
+"excess risk adjusted": [
+7,
+8,
+11,
+40,
+41,
+45,
+50,
+51,
+56
 ],
 "generate excess risk": [
 7,
@@ -1944,143 +1862,47 @@
 50,
 56
 ],
-"should consider": [
+"gary values": [
 7,
-10
+26
 ],
 "debate about": [
 7,
 10,
 18
 ],
-"claims about": [
+"certain collateral benefits": [
 7,
-20,
-37,
-50
+55
+],
+"market mispricing": [
+7,
+13,
+44,
+54
+],
+"gary best": [
+7,
+53,
+54
+],
+"endowments fiduciary": [
+7,
+53
+],
+"charitable endowment only": [
+7,
+55
 ],
 "certain collateral": [
 7,
 55
 ],
-"exploit market": [
+"fiduciary duties": [
 7,
-44
-],
-"investment program will": [
-7,
-37,
-55
-],
-"trust pension": [
-7,
-16,
-33,
-37,
-49,
-55
-],
-"private trust pension": [
-7,
-16,
-33,
-55
-],
-"gary best interests": [
-7,
-53,
-54
-],
-"face value risk": [
-7,
-37
-],
-"textbook financial": [
-8,
-24
-],
-"chevron deference": [
-8,
-24,
-25
-],
-"improved risk adjusted": [
-8,
-12,
-20,
-40
-],
-"claim that risk": [
-8,
-56
-],
-"improved risk": [
-8,
-12,
-20,
-40
-],
-"effect classic": [
-8,
-12,
-13
-],
-"fiduciary divestment": [
-8,
-11
-],
-"supreme court precedent": [
-8,
-22,
-24,
-25,
-28
-],
-"south african": [
-8,
 10,
-11
-],
-"contrarian investment": [
-8,
-45
-],
-"doing good": [
-8,
-41
-],
-"investing motivated": [
-8,
-12
-],
-"produce excess": [
-8,
-45,
-51
-],
-"produce excess risk": [
-8,
-45,
-51
-],
-"ethical grounds": [
-8,
-13
-],
-"choosing between": [
-8,
-23
-],
-"investing strategy": [
-8,
-12,
-15,
-20,
-34,
-41,
-44,
-46,
-55
+35,
+49
 ],
 "empirical evidence": [
 8,
@@ -2093,25 +1915,77 @@
 44,
 56
 ],
+"produce excess risk": [
+8,
+45,
+51
+],
+"effect classic": [
+8,
+12,
+13
+],
+"chevron deference": [
+8,
+24,
+25
+],
+"ethical grounds": [
+8,
+13
+],
 "economic theory": [
 8,
 18
+],
+"fiduciary divestment": [
+8,
+11
+],
+"supreme court precedent": [
+8,
+22,
+24,
+25,
+28
+],
+"contrarian investment strategies": [
+8,
+45
+],
+"textbook financial economics": [
+8,
+24
+],
+"investing strategy": [
+8,
+12,
+15,
+20,
+34,
+41,
+44,
+46,
+55
+],
+"improved risk adjusted": [
+8,
+12,
+20,
+40
+],
+"contrarian investment": [
+8,
+45
+],
+"claim that risk": [
+8,
+56
 ],
 "african divestment": [
 8,
 10,
 11
-],
-"fiduciary could": [
-8,
-50,
-51,
-52,
-53
-],
-"textbook financial economics": [
-8,
-24
 ],
 "portfolio efficiency": [
 8,
@@ -2123,9 +1997,9 @@
 28,
 29
 ],
-"contrarian investment strategies": [
+"choosing between": [
 8,
-45
+23
 ],
 "south african divestment": [
 8,
@@ -2136,19 +2010,73 @@
 8,
 55
 ],
-"firm doing business": [
-9,
-10
+"fiduciary could": [
+8,
+50,
+51,
+52,
+53
+],
+"south african": [
+8,
+10,
+11
+],
+"improved risk": [
+8,
+12,
+20,
+40
+],
+"doing good": [
+8,
+41
+],
+"produce excess": [
+8,
+45,
+51
+],
+"textbook financial": [
+8,
+24
+],
+"investing motivated": [
+8,
+12
 ],
 "mutual funds": [
 9,
 14
 ],
-"firm doing": [
+"sullivan principles": [
+9,
+11,
+21,
+27
+],
+"moral grounds": [
+9,
+11
+],
+"better risk": [
+9,
+12
+],
+"financial markets": [
+9,
+11,
+55
+],
+"firm doing business": [
 9,
 10
 ],
-"complete divestment": [
+"asset management": [
+9,
+35
+],
+"firm doing": [
 9,
 10
 ],
@@ -2162,43 +2090,73 @@
 10,
 11
 ],
-"financial markets": [
-9,
-11,
-55
-],
-"asset management": [
-9,
-35
-],
-"sullivan principles": [
-9,
-11,
-21,
-27
-],
 "obtain better": [
 9,
 20
 ],
-"better risk": [
+"complete divestment": [
 9,
-12
+10
 ],
-"moral grounds": [
-9,
-11
+"traditional trust": [
+10,
+51
 ],
-"return objectives reasonably": [
+"oppressed black majority": [
+10,
+21,
+27
+],
+"divestment from south": [
+10,
+21,
+27
+],
+"objectives reasonably suited": [
 10,
 35,
 53
+],
+"africa divestment": [
+10,
+11
+],
+"fiduciary account": [
+10,
+37,
+51
+],
+"social goals": [
+10,
+11
 ],
 "reasonably suited": [
 10,
 35,
 51,
 53
+],
+"prudence with respect": [
+10,
+50
+],
+"south africa divestment": [
+10,
+11
+],
+"oppressed black": [
+10,
+21,
+27
+],
+"objectives reasonably": [
+10,
+35,
+53
+],
+"divestment rethinking": [
+10,
+11
 ],
 "diversification": [
 10,
@@ -2218,48 +2176,40 @@
 52,
 53
 ],
+"social responsibility": [
+10,
+12,
+38,
+39,
+43
+],
 "fiduciary discretion": [
 10,
 11
 ],
-"fiduciary account": [
-10,
-37,
-51
-],
-"south africa divestment": [
-10,
-11
-],
-"oppressed black": [
-10,
-21,
-27
-],
-"divestment from south": [
-10,
-21,
-27
-],
-"social goals": [
-10,
-11
-],
-"black majority": [
-10,
-21,
-27
-],
-"exclusive interest": [
-10,
-16
-],
-"divestment rethinking": [
+"africa divestment rethinking": [
 10,
 11
 ],
 "capital markets": [
 10,
+53
+],
+"loyalty because": [
+10,
+19
+],
+"most prominently": [
+10,
+34
+],
+"ennis parkhill": [
+10,
+11
+],
+"return objectives reasonably": [
+10,
+35,
 53
 ],
 "return objectives": [
@@ -2268,32 +2218,15 @@
 51,
 53
 ],
-"social responsibility": [
-10,
-12,
-38,
-39,
-43
-],
-"objectives reasonably suited": [
-10,
-35,
-53
-],
-"africa divestment": [
-10,
-11
-],
 "total divestment": [
 10,
 11,
 21,
 27
 ],
-"objectives reasonably": [
+"exclusive interest": [
 10,
-35,
-53
+16
 ],
 "charitable purposes": [
 10,
@@ -2301,41 +2234,8 @@
 26,
 27
 ],
-"oppressed black majority": [
+"black majority": [
 10,
-21,
-27
-],
-"africa divestment rethinking": [
-10,
-11
-],
-"traditional trust": [
-10,
-51
-],
-"ennis parkhill": [
-10,
-11
-],
-"prudence with respect": [
-10,
-50
-],
-"most prominently": [
-10,
-34
-],
-"loyalty because": [
-10,
-19
-],
-"ethical screening": [
-11,
-12
-],
-"selective divestment": [
-11,
 21,
 27
 ],
@@ -2349,91 +2249,38 @@
 51,
 52
 ],
-"responsible funds": [
-11,
-12,
-42
-],
 "argued that selective": [
 11,
 21
+],
+"financial interests": [
+11,
+28
 ],
 "hylton socially responsible": [
 11,
 41
 ],
-"hylton socially": [
+"selective divestment": [
 11,
-41
-],
-"financial interests": [
-11,
-28
+21,
+27
 ],
 "socially responsible funds": [
 11,
 12,
 42
 ],
-"firms with high": [
-12,
-34,
-39,
-42,
-43,
-46,
-49,
-54
+"hylton socially": [
+11,
+41
 ],
-"john nosfinger abhishek": [
-12,
-42
+"ethical screening": [
+11,
+12
 ],
-"nosfinger abhishek varma": [
-12,
-42
-],
-"lucian bebchuk": [
-12,
-39
-],
-"abhishek varma": [
-12,
-42
-],
-"bebchuk alma cohen": [
-12,
-39
-],
-"bebchuk alma": [
-12,
-39
-],
-"excess return": [
-12,
-45
-],
-"weak governance": [
-12,
-40
-],
-"equity prices": [
-12,
-44
-],
-"varma socially responsible": [
-12,
-42
-],
-"financial crisis": [
-12,
-44
-],
-"market crises": [
-12,
-42
-],
-"perform better": [
+"responsible funds": [
+11,
 12,
 42
 ],
@@ -2441,25 +2288,17 @@
 12,
 42
 ],
-"significant effect": [
+"excess return": [
+12,
+45
+],
+"regulatory reforms": [
+12,
+47
+],
+"bebchuk alma": [
 12,
 39
-],
-"nosfinger abhishek": [
-12,
-42
-],
-"varma socially": [
-12,
-42
-],
-"alma cohen": [
-12,
-39
-],
-"abhishek varma socially": [
-12,
-42
 ],
 "firm value": [
 12,
@@ -2472,85 +2311,114 @@
 49,
 50
 ],
-"regulatory reforms": [
+"weak governance": [
 12,
-47
+40
 ],
-"collateral social": [
-12,
-21
-],
-"lucian bebchuk alma": [
+"bebchuk alma cohen": [
 12,
 39
 ],
-"factors better": [
+"firms with high": [
 12,
+34,
+39,
+42,
+43,
+46,
+49,
 54
+],
+"perform better": [
+12,
+42
 ],
 "corporate social": [
 12,
 38,
 39
 ],
-"john nosfinger": [
+"varma socially": [
 12,
 42
+],
+"significant effect": [
+12,
+39
+],
+"market crises": [
+12,
+42
+],
+"factors better": [
+12,
+54
+],
+"nosfinger abhishek varma": [
+12,
+42
+],
+"abhishek varma": [
+12,
+42
+],
+"financial crisis": [
+12,
+44
+],
+"lucian bebchuk alma": [
+12,
+39
 ],
 "corporate social responsibility": [
 12,
 38,
 39
 ],
-"dieschbourg nussbaum": [
-13,
-43
+"abhishek varma socially": [
+12,
+42
 ],
-"better returns": [
-13,
-20,
-37
+"collateral social": [
+12,
+21
 ],
-"expected risk": [
-13,
-24
+"nosfinger abhishek": [
+12,
+42
+],
+"lucian bebchuk": [
+12,
+39
+],
+"alma cohen": [
+12,
+39
+],
+"varma socially responsible": [
+12,
+42
+],
+"john nosfinger": [
+12,
+42
+],
+"equity prices": [
+12,
+44
+],
+"john nosfinger abhishek": [
+12,
+42
 ],
 "given consideration": [
 13,
 52
 ],
-"environmental factors": [
-13,
-14,
-38,
-47
-],
-"will improve": [
-13,
-56
-],
-"financial analysts": [
-13,
-23
-],
-"improves firm": [
-13,
-49
-],
 "less risk": [
 13,
 20,
 37
-],
-"ratings services": [
-13,
-40
-],
-"collateral benefit": [
-13,
-20,
-24,
-30
 ],
 "will provide": [
 13,
@@ -2561,22 +2429,79 @@
 13,
 34
 ],
+"will improve": [
+13,
+56
+],
+"ratings services": [
+13,
+40
+],
+"dieschbourg nussbaum": [
+13,
+43
+],
 "consideration qualifies": [
 13,
 52
+],
+"improves firm": [
+13,
+49
 ],
 "factors what": [
 13,
 14,
 15
 ],
+"collateral benefit": [
+13,
+20,
+24,
+30
+],
+"expected risk": [
+13,
+24
+],
+"better returns": [
+13,
+20,
+37
+],
+"environmental factors": [
+13,
+14,
+38,
+47
+],
 "given consideration qualifies": [
 13,
 52
 ],
+"financial analysts": [
+13,
+23
+],
+"ernst young": [
+14,
+47
+],
+"harder question": [
+14,
+29
+],
+"particular focus": [
+14,
+41
+],
 "change over": [
 14,
 44
+],
+"concerned about": [
+14,
+38
 ],
 "over time": [
 14,
@@ -2587,130 +2512,68 @@
 45,
 55
 ],
-"harder question": [
-14,
-29
-],
-"change over time": [
-14,
-44
-],
-"ernst young": [
-14,
-47
-],
 "fighting climate": [
 14,
 27
-],
-"some forms": [
-14,
-48
 ],
 "tail risk": [
 14,
 41,
 42
 ],
-"particular focus": [
-14,
-41
-],
-"fighting climate change": [
-14,
-27
-],
 "energy sources": [
 14,
 39
-],
-"debate over": [
-14,
-55
-],
-"concerned about": [
-14,
-38
-],
-"perhaps even": [
-14,
-23
 ],
 "nuclear power": [
 14,
 52
 ],
-"classified board": [
-15,
-39,
-40,
-52
+"perhaps even": [
+14,
+23
 ],
-"proxy voting guidelines": [
-15,
-47
+"debate over": [
+14,
+55
 ],
-"long term investment": [
-15,
-53
+"res": [
+14
 ],
-"empirical studies": [
-15,
-40,
-43
+"fighting climate change": [
+14,
+27
 ],
-"blackrock proxy": [
-15,
-40,
-47
+"change over time": [
+14,
+44
 ],
-"term investment": [
-15,
-53
-],
-"different factors": [
-15,
-16
-],
-"working paper": [
-15,
-16,
-45
-],
-"voting guidelines": [
-15,
-47
-],
-"three women": [
-15,
-52
-],
-"staggered board": [
-15,
-46
-],
-"least three women": [
-15,
-52
-],
-"blackrock proxy voting": [
-15,
-40,
-47
+"some forms": [
+14,
+48
 ],
 "subjective judgments": [
 15,
 35,
 40
 ],
-"least three": [
+"staggered board": [
 15,
-52
+46
 ],
-"much weight": [
+"proxy voting guidelines": [
+15,
+47
+],
+"blackrock proxy": [
+15,
+40,
+47
+],
+"working paper": [
 15,
 16,
-52
+45
 ],
 "relationship between": [
 15,
@@ -2721,13 +2584,58 @@
 40,
 50
 ],
-"erisa imposes": [
-16,
-24
+"classified board": [
+15,
+39,
+40,
+52
 ],
-"widely adopted": [
+"long term investment": [
+15,
+53
+],
+"empirical studies": [
+15,
+40,
+43
+],
+"much weight": [
+15,
 16,
-34
+52
+],
+"blackrock proxy voting": [
+15,
+40,
+47
+],
+"voting guidelines": [
+15,
+47
+],
+"different factors": [
+15,
+16
+],
+"least three women": [
+15,
+52
+],
+"term investment": [
+15,
+53
+],
+"least three": [
+15,
+52
+],
+"three women": [
+15,
+52
+],
+"restatement second": [
+16,
+17
 ],
 "pension fund": [
 16,
@@ -2736,13 +2644,54 @@
 26,
 27
 ],
-"investing both": [
+"analysis proceeds": [
 16,
-41
+34
+],
+"different investments": [
+16,
+35
 ],
 "consider whether": [
 16,
 33
+],
+"investing both": [
+16,
+41
+],
+"restatement third": [
+16,
+17,
+18,
+19,
+20,
+21,
+25,
+26,
+27,
+28,
+29,
+30,
+31,
+33,
+34,
+35,
+36,
+37,
+52
+],
+"erisa imposes": [
+16,
+24
+],
+"retirement income": [
+16,
+22
+],
+"trust investment": [
+16,
+31
 ],
 "restatement": [
 16,
@@ -2766,87 +2715,13 @@
 37,
 52
 ],
-"different investments": [
-16,
-35
-],
-"restatement second": [
-16,
-17
-],
-"analysis proceeds": [
-16,
-34
-],
-"restatement third": [
-16,
-17,
-18,
-19,
-20,
-21,
-25,
-26,
-27,
-28,
-29,
-30,
-31,
-33,
-34,
-35,
-36,
-37,
-52
-],
-"trust investment": [
-16,
-31
-],
-"retirement income": [
-16,
-22
-],
 "steps first": [
 16,
 34
 ],
-"fischel langbein": [
-17,
-18,
-25
-],
-"evan criddle paul": [
-17,
-18,
-19,
-24,
-27,
-35
-],
-"self-dealing": [
-17,
-18,
-19
-],
-"erisa fiduciary": [
-17,
-25,
-36,
-37,
-52
-],
-"sometimes called": [
-17,
-26
-],
-"criddle paul": [
-17,
-18,
-19,
-24,
-27,
-35
+"widely adopted": [
+16,
+34
 ],
 "paul miller": [
 17,
@@ -2856,28 +2731,59 @@
 27,
 35
 ],
-"plan participants": [
+"emphasis added": [
 17,
-21
+26,
+29
 ],
-"no further inquiry": [
-17
+"self dealing": [
+17,
+18,
+19
+],
+"loyalty even": [
+17,
+19,
+21
 ],
 "best interest rule": [
 17,
 27
 ],
-"trust beneficiaries": [
+"sometimes called": [
 17,
-30
+26
 ],
-"trusts explains": [
+"self-dealing": [
 17,
-28
+18,
+19
 ],
-"compare john": [
+"miller robert": [
 17,
-31
+18,
+19,
+24,
+27,
+35
+],
+"unif trust": [
+17,
+19,
+33,
+35,
+36
+],
+"mixed motives": [
+17,
+18,
+19,
+20,
+27
+],
+"inst emphasis added": [
+17,
+26
 ],
 "evan criddle": [
 17,
@@ -2887,6 +2793,33 @@
 27,
 35
 ],
+"exclusive purpose": [
+17,
+22
+],
+"trust beneficiaries": [
+17,
+30
+],
+"exclusive benefit rule": [
+17,
+24
+],
+"erisa fiduciary": [
+17,
+25,
+36,
+37,
+52
+],
+"no further inquiry": [
+17
+],
+"fischel langbein": [
+17,
+18,
+25
+],
 "criddle paul miller": [
 17,
 18,
@@ -2895,11 +2828,46 @@
 27,
 35
 ],
-"mixed motives": [
+"benefit rule": [
+17,
+24
+],
+"evan criddle paul": [
 17,
 18,
 19,
-20,
+24,
+27,
+35
+],
+"criddle paul": [
+17,
+18,
+19,
+24,
+27,
+35
+],
+"trusts explains": [
+17,
+28
+],
+"conflicted action": [
+17,
+18,
+32
+],
+"inst emphasis": [
+17,
+26
+],
+"compare john": [
+17,
+31
+],
+"more tolerant": [
+17,
+22,
 27
 ],
 "unif trust code": [
@@ -2909,52 +2877,13 @@
 35,
 36
 ],
-"benefit rule": [
-17,
-24
-],
-"exclusive benefit rule": [
-17,
-24
-],
 "exclusive benefit": [
 17,
 24
 ],
-"unif trust": [
+"plan participants": [
 17,
-19,
-33,
-35,
-36
-],
-"inst emphasis": [
-17,
-26
-],
-"loyalty even": [
-17,
-19,
 21
-],
-"conflicted action": [
-17,
-18,
-32
-],
-"self dealing": [
-17,
-18,
-19
-],
-"inst emphasis added": [
-17,
-26
-],
-"emphasis added": [
-17,
-26,
-29
 ],
 "september loyalty": [
 17,
@@ -2968,22 +2897,13 @@
 27,
 35
 ],
-"exclusive purpose": [
-17,
-22
-],
-"miller robert": [
-17,
+"agency costs": [
 18,
-19,
-24,
-27,
-35
+26
 ],
-"more tolerant": [
-17,
-22,
-27
+"personal interests": [
+18,
+28
 ],
 "conflict of interest": [
 18,
@@ -2992,10 +2912,6 @@
 28,
 33
 ],
-"full stop": [
-18,
-24
-],
 "make whole": [
 18
 ],
@@ -3003,9 +2919,13 @@
 18,
 21
 ],
-"personal interests": [
+"trustee cannot defend": [
 18,
-28
+21
+],
+"full stop": [
+18,
+24
 ],
 "mixed motive": [
 18,
@@ -3017,10 +2937,6 @@
 29,
 30
 ],
-"trustee cannot defend": [
-18,
-21
-],
 "fairness test": [
 18,
 27
@@ -3029,29 +2945,18 @@
 18,
 21
 ],
-"agency costs": [
-18,
-26
+"mixed motive breaches": [
+19,
+21
 ],
 "motive breaches": [
 19,
 21
 ],
-"disgorgement": [
-19
-],
-"profit resulted": [
+"undivided loyalty": [
 19,
-21
-],
-"trust code unif": [
-19,
-33,
-34,
-36
-],
-"constructive trust": [
-19
+20,
+28
 ],
 "sitkoff dukeminier": [
 19,
@@ -3063,10 +2968,7 @@
 36,
 54
 ],
-"removal": [
-19
-],
-"mixed motive breaches": [
+"profit resulted": [
 19,
 21
 ],
@@ -3074,10 +2976,11 @@
 19,
 21
 ],
-"undivided loyalty": [
-19,
-20,
-28
+"disgorgement": [
+19
+],
+"removal": [
+19
 ],
 "code unif": [
 19,
@@ -3085,7 +2988,28 @@
 34,
 36
 ],
-"political issues": [
+"constructive trust": [
+19
+],
+"trust code unif": [
+19,
+33,
+34,
+36
+],
+"turn below": [
+20,
+22
+],
+"returns with less": [
+20,
+37
+],
+"recent claims": [
+20,
+37
+],
+"personal views concerning": [
 20,
 29
 ],
@@ -3093,31 +3017,11 @@
 20,
 29
 ],
-"turn below": [
-20,
-22
-],
-"personal views": [
-20,
-29
-],
-"decisions ordinarily": [
-20,
-29
-],
-"taking recent claims": [
-20,
-37
-],
-"taking recent": [
-20,
-37
-],
-"motivated solely": [
-20,
-33
-],
 "concerning social": [
+20,
+29
+],
+"political issues": [
 20,
 29
 ],
@@ -3129,29 +3033,29 @@
 20,
 28
 ],
-"returns with less": [
+"decisions ordinarily": [
 20,
-37
+29
 ],
 "views concerning": [
 20,
 29
 ],
-"recent claims": [
+"taking recent": [
 20,
 37
 ],
-"personal views concerning": [
+"taking recent claims": [
+20,
+37
+],
+"personal views": [
 20,
 29
 ],
-"plan fiduciaries": [
-21,
-23
-],
-"trustee acts": [
-21,
-22
+"motivated solely": [
+20,
+33
 ],
 "trust funds": [
 21,
@@ -3162,6 +3066,27 @@
 21,
 54
 ],
+"plan fiduciaries": [
+21,
+23
+],
+"trustee acts": [
+21,
+22
+],
+"trust fund": [
+21,
+52
+],
+"investment management": [
+21,
+35,
+50
+],
+"prior generation": [
+21,
+27
+],
 "economic interests": [
 21,
 23
@@ -3169,21 +3094,6 @@
 "collateral goals": [
 21,
 23
-],
-"standing": [
-21,
-24,
-33,
-41
-],
-"investment management": [
-21,
-35,
-50
-],
-"trust fund": [
-21,
-52
 ],
 "trust property": [
 21,
@@ -3194,49 +3104,19 @@
 21,
 24
 ],
-"prior generation": [
-21,
-27
-],
-"defraying reasonable expenses": [
+"consider collateral": [
 22,
-36
-],
-"setting aside": [
-22,
-53
-],
-"programmatic investment": [
-22,
-28
-],
-"financial factors": [
-22,
-50
-],
-"pursuing collateral benefits": [
-22,
+23,
+27,
 30
-],
-"might point": [
-22,
-28
-],
-"defraying reasonable": [
-22,
-36
 ],
 "financial benefits": [
 22,
 24
 ],
-"reasonable expenses": [
+"defraying reasonable": [
 22,
 36
-],
-"pursuing collateral": [
-22,
-30
 ],
 "consider collateral benefits": [
 22,
@@ -3244,17 +3124,15 @@
 27,
 30
 ],
-"consider collateral": [
-22,
-23,
-27,
-30
-],
-"trust might": [
+"programmatic investment": [
 22,
 28
 ],
-"investment that substitutes": [
+"defraying reasonable expenses": [
+22,
+36
+],
+"vacation home": [
 22,
 28
 ],
@@ -3262,22 +3140,53 @@
 22,
 28
 ],
-"vacation home": [
+"setting aside": [
+22,
+53
+],
+"might point": [
 22,
 28
+],
+"trust might": [
+22,
+28
+],
+"pursuing collateral": [
+22,
+30
 ],
 "controlling supreme": [
 22,
 24,
 28
 ],
-"time horizon": [
-23,
-24,
-54,
-55
+"pursuing collateral benefits": [
+22,
+30
 ],
-"investment choice": [
+"financial factors": [
+22,
+50
+],
+"investment that substitutes": [
+22,
+28
+],
+"reasonable expenses": [
+22,
+36
+],
+"unif prudent": [
+23,
+35,
+53
+],
+"identical risk": [
+23,
+24
+],
+"appropriate time": [
 23,
 24
 ],
@@ -3285,34 +3194,14 @@
 23,
 45
 ],
-"economically equivalent": [
+"academic network": [
 23,
-24
+43,
+45
 ],
-"analysis showing": [
+"documented analysis showing": [
 23,
 51
-],
-"documented analysis": [
-23,
-25,
-37,
-45,
-47,
-50,
-51
-],
-"periodic revisiting": [
-23,
-50
-],
-"return attributes": [
-23,
-24
-],
-"identical risk": [
-23,
-24
 ],
 "excess returns": [
 23,
@@ -3323,16 +3212,42 @@
 48,
 49
 ],
-"documented analysis showing": [
+"investment choice": [
+23,
+24
+],
+"periodic revisiting": [
+23,
+50
+],
+"analysis showing": [
 23,
 51
 ],
-"unif prudent": [
+"time horizon": [
 23,
-35,
-53
+24,
+54,
+55
 ],
-"appropriate time": [
+"economically equivalent": [
+23,
+24
+],
+"documented analysis": [
+23,
+25,
+37,
+45,
+47,
+50,
+51
+],
+"investment options": [
+23,
+51
+],
+"return attributes": [
 23,
 24
 ],
@@ -3340,37 +3255,25 @@
 23,
 24
 ],
-"investment options": [
-23,
-51
-],
-"academic network": [
-23,
-43,
-45
-],
-"prudence because": [
-24,
-33
-],
-"diversification sacrifice": [
-24,
-25,
-44
-],
-"expected return": [
-24,
-35,
-50
-],
-"kane marcus": [
+"bodie kane": [
 24,
 41,
 42,
 44,
 46
 ],
-"bodie kane": [
+"prudence because": [
+24,
+33
+],
+"bodie kane marcus": [
+24,
+41,
+42,
+44,
+46
+],
+"kane marcus": [
 24,
 41,
 42,
@@ -3385,44 +3288,45 @@
 52,
 54
 ],
+"expected return": [
+24,
+35,
+50
+],
 "interpretive bulletin": [
 24,
 25
 ],
-"bodie kane marcus": [
+"diversification sacrifice": [
 24,
-41,
-42,
-44,
-46
-],
-"evaluated return expectations": [
 25,
-36
+44
 ],
-"more ascertainable": [
-25,
-29
-],
-"sole interest loyalty": [
-25,
-29
-],
-"ascertainable beneficiaries": [
-25,
-26,
-29
-],
-"uniform trust": [
-25,
-34
-],
-"loyalty rule": [
+"recognized charitable purpose": [
 25,
 27,
 29
 ],
-"recognized charitable": [
+"interest loyalty rule": [
+25,
+27,
+29
+],
+"nonprofit organizations": [
+25,
+27,
+34
+],
+"charitable purpose rather": [
+25,
+26
+],
+"charitable trust": [
+25,
+26,
+29
+],
+"interest loyalty": [
 25,
 27,
 29
@@ -3431,38 +3335,11 @@
 25,
 36
 ],
-"charitable nonprofit organizations": [
+"evaluated return expectations": [
 25,
-27,
-34
+36
 ],
-"rather than sole": [
-25,
-27,
-29
-],
-"uniform trust code": [
-25,
-34
-],
-"charitable purpose rather": [
-25,
-26
-],
-"nonprofit organizations": [
-25,
-27,
-34
-],
-"purpose rather": [
-25,
-26
-],
-"more ascertainable beneficiaries": [
-25,
-29
-],
-"recognized charitable purpose": [
+"recognized charitable": [
 25,
 27,
 29
@@ -3471,9 +3348,9 @@
 25,
 36
 ],
-"interest loyalty": [
+"ascertainable beneficiaries": [
 25,
-27,
+26,
 29
 ],
 "return expectations": [
@@ -3481,38 +3358,72 @@
 36,
 45
 ],
-"interest loyalty rule": [
+"charitable nonprofit": [
+25,
+27,
+34
+],
+"sole interest loyalty": [
+25,
+29
+],
+"rather than sole": [
 25,
 27,
 29
 ],
-"charitable trust": [
+"loyalty rule": [
 25,
-26,
+27,
+29
+],
+"uniform trust code": [
+25,
+34
+],
+"purpose rather": [
+25,
+26
+],
+"charitable nonprofit organizations": [
+25,
+27,
+34
+],
+"more ascertainable beneficiaries": [
+25,
 29
 ],
 "natural resources": [
 25,
 28
 ],
+"uniform trust": [
+25,
+34
+],
 "realistically evaluated": [
 25,
 36
 ],
-"charitable nonprofit": [
+"more ascertainable": [
 25,
-27,
-34
+29
+],
+"gilson wolfson": [
+26,
+40
 ],
 "sierra club": [
 26,
 27
 ],
-"brest gilson wolfson": [
+"trust thus": [
 26,
-40
+28,
+53
 ],
-"gilson wolfson": [
+"brest gilson": [
 26,
 40
 ],
@@ -3520,21 +3431,25 @@
 26,
 27
 ],
+"brest gilson wolfson": [
+26,
+40
+],
 "public markets": [
 26,
 40,
 46
 ],
-"brest gilson": [
-26,
-40
-],
-"trust thus": [
-26,
-28,
-53
+"best interest rather": [
+27,
+29
 ],
 "interest test": [
+27,
+28,
+30
+],
+"best interest test": [
 27,
 28,
 30
@@ -3543,14 +3458,15 @@
 27,
 29
 ],
-"best interest rather": [
-27,
-29
+"donative": [
+28
 ],
-"best interest test": [
-27,
+"breach of trust": [
 28,
-30
+31,
+32,
+33,
+52
 ],
 "exercise prudence": [
 28,
@@ -3560,25 +3476,7 @@
 28,
 43
 ],
-"breach of trust": [
-28,
-31,
-32,
-33,
-52
-],
-"donative": [
-28
-],
-"considerations however": [
-29,
-32
-],
 "pursue collateral benefits": [
-29,
-30
-],
-"pursue collateral": [
 29,
 30
 ],
@@ -3586,17 +3484,17 @@
 29,
 41
 ],
-"properly influence": [
+"pursue collateral": [
 29,
-32
+30
 ],
-"noncharitable purpose trust": [
+"purpose trust": [
 29,
 31
 ],
-"collateral benefits over": [
+"considerations however": [
 29,
-30
+32
 ],
 "extent permitted": [
 29,
@@ -3606,29 +3504,27 @@
 29,
 30
 ],
-"purpose trust": [
+"collateral benefits over": [
 29,
-31
+30
 ],
 "noncharitable purpose": [
 29,
 30,
 31
 ],
-"deviation": [
-30,
-41,
-42,
-44
-],
-"trustee from liability": [
-30,
-31,
+"properly influence": [
+29,
 32
 ],
-"against liability": [
+"noncharitable purpose trust": [
+29,
+31
+],
+"uniform prudent investor": [
 30,
-32
+35,
+36
 ],
 "trustee against liability": [
 30,
@@ -3638,16 +3534,26 @@
 30,
 40
 ],
-"uniform prudent investor": [
+"trustee from liability": [
 30,
-35,
-36
+31,
+32
+],
+"trustee against": [
+30,
+32
+],
+"deviation": [
+30,
+41,
+42,
+44
 ],
 "market returns": [
 30,
 44
 ],
-"trustee against": [
+"against liability": [
 30,
 32
 ],
@@ -3655,17 +3561,13 @@
 31,
 32
 ],
-"investment performance": [
-31,
-34
-],
 "specific program": [
 31,
 50
 ],
-"temporal scope": [
-32,
-33
+"investment performance": [
+31,
+34
 ],
 "uncertain temporal scope": [
 32,
@@ -3674,10 +3576,6 @@
 "future beneficiaries": [
 32,
 54
-],
-"multiple beneficiaries": [
-32,
-33
 ],
 "uncertain temporal": [
 32,
@@ -3690,6 +3588,18 @@
 "practical difficulty": [
 32,
 52
+],
+"temporal scope": [
+32,
+33
+],
+"multiple beneficiaries": [
+32,
+33
+],
+"protect against": [
+33,
+39
 ],
 "word about": [
 33,
@@ -3706,27 +3616,25 @@
 51,
 56
 ],
-"protect against": [
-33,
-39
-],
 "ordinary prudence": [
 34,
 52
+],
+"active shareholding section": [
+34,
+37
+],
+"contrarian strategy": [
+34,
+53
 ],
 "investing section": [
 34,
 37
 ],
-"perhaps because": [
+"cost sensitivity ongoing": [
 34,
-46,
-54
-],
-"financial performance": [
-34,
-39,
-53
+50
 ],
 "ongoing monitoring": [
 34,
@@ -3734,55 +3642,53 @@
 37,
 50
 ],
-"active shareholding section": [
+"financial performance": [
 34,
-37
-],
-"active investing section": [
-34,
-37
-],
-"will persist": [
-34,
-55
-],
-"cost sensitivity ongoing": [
-34,
-50
-],
-"contrarian strategy": [
-34,
+39,
 53
-],
-"sensitivity ongoing monitoring": [
-34,
-50
-],
-"sensitivity ongoing": [
-34,
-50
-],
-"similar erisa": [
-34,
-36
-],
-"shareholding section": [
-34,
-37
 ],
 "conclude that risk": [
 34,
 49
 ],
-"idiosyncratic risk": [
-35,
-44
+"will persist": [
+34,
+55
 ],
-"pecific investments": [
-35,
-52
+"sensitivity ongoing monitoring": [
+34,
+50
+],
+"shareholding section": [
+34,
+37
+],
+"similar erisa": [
+34,
+36
+],
+"perhaps because": [
+34,
+46,
+54
+],
+"active investing section": [
+34,
+37
+],
+"sensitivity ongoing": [
+34,
+50
 ],
 "investment strategy having": [
+35,
+53
+],
+"schanzenbach sitkoff": [
+35,
+37
+],
+"strategy having": [
 35,
 53
 ],
@@ -3790,42 +3696,67 @@
 35,
 53
 ],
-"strategy having": [
+"strategy having risk": [
 35,
 53
 ],
-"having risk": [
+"idiosyncratic risk": [
 35,
-53
-],
-"plenary power": [
-35,
-49
-],
-"overall investment strategy": [
-35,
-53
+44
 ],
 "prudent investment": [
 35,
 52,
 53
 ],
-"schanzenbach sitkoff": [
+"plenary power": [
 35,
-37
+49
 ],
 "investment subject": [
 35,
 49,
 51
 ],
-"strategy having risk": [
+"overall investment strategy": [
+35,
+53
+],
+"pecific investments": [
+35,
+52
+],
+"having risk": [
 35,
 53
 ],
 "portfolio theory": [
 35
+],
+"strategies tend": [
+36,
+44
+],
+"diversification cost": [
+36,
+43,
+44
+],
+"portfolio adjustments": [
+36,
+45
+],
+"balancing costs": [
+36,
+51
+],
+"expected benefit": [
+36,
+47
+],
+"costs involved": [
+36,
+51
 ],
 "shareholder engagement": [
 36,
@@ -3837,43 +3768,74 @@
 40,
 54
 ],
-"balancing costs": [
-36,
-51
+"reasonable documented analysis": [
+37,
+50
 ],
-"portfolio adjustments": [
-36,
-45
+"plausibly conclude": [
+37,
+50
 ],
-"costs involved": [
-36,
-51
-],
-"expected benefit": [
-36,
+"shareholding whether based": [
+37,
 47
-],
-"diversification cost": [
-36,
-43,
-44
-],
-"strategies tend": [
-36,
-44
 ],
 "investment program whether": [
 37,
 40,
 51
 ],
+"personal trust pension": [
+37,
+49
+],
 "shareholding whether": [
+37,
+47
+],
+"attendant transaction": [
+37,
+50
+],
+"trustee could": [
+37,
+46,
+53,
+54,
+55
+],
+"whether based": [
+37,
+40,
+44,
+45,
+47
+],
+"active investment program": [
+37,
+40
+],
+"diversification costs": [
+37,
+43,
+53
+],
+"active shareholding whether": [
 37,
 47
 ],
 "reasonable documented": [
 37,
 50
+],
+"expected returns": [
+37,
+45,
+51
+],
+"strategy meant": [
+37,
+44
 ],
 "personal trust": [
 37,
@@ -3884,133 +3846,38 @@
 40,
 51
 ],
-"attendant transaction": [
-37,
-50
-],
-"active shareholding whether": [
-37,
-47
-],
-"personal trust pension": [
-37,
-49
-],
-"diversification costs": [
-37,
-43,
-53
-],
-"strategy meant": [
-37,
-44
-],
-"expected returns": [
-37,
-45,
-51
-],
-"trustee could": [
-37,
-46,
-53,
-54,
-55
-],
-"plausibly conclude": [
-37,
-50
-],
-"reasonable documented analysis": [
-37,
-50
-],
-"active investment program": [
-37,
-40
-],
-"whether based": [
-37,
-40,
-44,
-45,
-47
-],
-"shareholding whether based": [
-37,
-47
-],
-"large fixed investments": [
-38,
-42
-],
-"fuel divestment": [
-38,
-53
-],
-"catastrophic environmental disaster": [
-38,
-42
-],
 "energy breakthrough": [
 38,
 42
 ],
-"clean energy": [
+"firm governance": [
 38,
-42
+40
 ],
-"econ finding": [
+"regulatory risk": [
 38,
-39,
-44
+39
 ],
-"fixed investments": [
+"fuel divestment": [
 38,
-42
+53
 ],
 "investing argue": [
 38,
 41,
 42
 ],
-"jean tirole": [
-38,
-49
-],
-"social risks": [
-38,
-49
-],
-"factors could": [
-38,
-44
-],
-"some supporters": [
-38,
-42
-],
-"active trading": [
-38,
-41
-],
-"firm governance": [
-38,
-40
-],
-"fossil fuel divestment": [
-38,
-53
-],
 "large fixed": [
 38,
 42
 ],
-"empirical support": [
+"catastrophic environmental disaster": [
 38,
-39,
-46,
-53
+42
+],
+"some supporters": [
+38,
+42
 ],
 "clean energy breakthrough": [
 38,
@@ -4024,46 +3891,93 @@
 38,
 48
 ],
+"clean energy": [
+38,
+42
+],
+"empirical support": [
+38,
+39,
+46,
+53
+],
 "finding that corporate": [
 38,
 39
+],
+"fixed investments": [
+38,
+42
 ],
 "catastrophic environmental": [
 38,
 42
 ],
-"regulatory risk": [
+"active trading": [
 38,
-39
+41
 ],
-"between firm": [
-39,
-40
+"factors could": [
+38,
+44
 ],
-"relationship between firm": [
-39,
-40
-],
-"evidence that firms": [
-39,
+"large fixed investments": [
+38,
 42
 ],
-"finding negative": [
-39,
+"social risks": [
+38,
 49
 ],
-"risk management": [
+"econ finding": [
+38,
 39,
+44
+],
+"fossil fuel divestment": [
+38,
 53
+],
+"jean tirole": [
+38,
+49
 ],
 "high environmental": [
 39,
 49
 ],
+"between governance": [
+39,
+40
+],
+"between firm": [
+39,
+40
+],
 "some empirical": [
 39,
 42,
 44
+],
+"risk management": [
+39,
+53
+],
+"evidence that firms": [
+39,
+42
+],
+"studies finding": [
+39,
+49
+],
+"relationship between firm": [
+39,
+40
+],
+"finding negative": [
+39,
+49
 ],
 "some empirical evidence": [
 39,
@@ -4074,22 +3988,17 @@
 39,
 49
 ],
-"studies finding": [
-39,
-49
-],
-"between governance": [
-39,
-40
-],
-"factors will": [
+"general terms": [
 40,
-54,
-56
+54
 ],
-"market prices": [
+"easy pickings": [
 40,
-47
+46
+],
+"thick public markets": [
+40,
+46
 ],
 "poison pill": [
 40,
@@ -4097,22 +4006,35 @@
 48,
 52
 ],
-"easy pickings": [
+"market prices": [
 40,
-46
+47
 ],
 "trading strategies": [
 40,
 45,
 54
 ],
-"easterbrook daniel": [
+"more general terms": [
 40,
-48
+54
 ],
 "disagreement about": [
 40,
 41
+],
+"easterbrook daniel": [
+40,
+48
+],
+"some evidence": [
+40,
+45
+],
+"factors will": [
+40,
+54,
+56
 ],
 "contextual nature": [
 40,
@@ -4122,33 +4044,42 @@
 40,
 46
 ],
-"general terms": [
-40,
-54
-],
-"thick public markets": [
-40,
-46
-],
-"more general terms": [
-40,
-54
-],
-"some evidence": [
-40,
-45
+"stock price": [
+41,
+46,
+47
 ],
 "historical data": [
 41,
 44,
 54
 ],
-"active investing strategy": [
+"profitable active": [
 41,
-44,
-55
+45,
+53
+],
+"strategy based": [
+41,
+54
 ],
 "tail risks": [
+41,
+42
+],
+"returns from using": [
+41,
+49
+],
+"market inefficiency": [
+41,
+44
+],
+"backward looking": [
+41,
+44
+],
+"traditional measures": [
 41,
 42
 ],
@@ -4157,58 +4088,84 @@
 42,
 44
 ],
-"market inefficiency": [
+"active investing strategy": [
 41,
-44
-],
-"traditional measures": [
-41,
-42
-],
-"strategy based": [
-41,
-54
-],
-"returns from using": [
-41,
-49
-],
-"profitable active": [
-41,
-45,
-53
-],
-"backward looking": [
-41,
-44
-],
-"stock price": [
-41,
-46,
-47
-],
-"investor could": [
-42,
-48
+44,
+55
 ],
 "strategy involves": [
 42,
 44
-],
-"screening strategy": [
-42,
-43
-],
-"fund might": [
-42,
-43
 ],
 "index fund": [
 42,
 46,
 52
 ],
-"french type multi": [
+"fund might": [
+42,
+43
+],
+"investor could": [
+42,
+48
+],
+"screening strategy": [
+42,
+43
+],
+"fama french type": [
+43,
+44,
+46
+],
+"pricing model": [
+43,
+46
+],
+"individual stocks": [
+43,
+44
+],
+"type multi": [
+43,
+46
+],
+"asset pricing model": [
+43,
+46
+],
+"french type": [
+43,
+44,
+46
+],
+"multi factor": [
+43,
+44,
+46
+],
+"investor might": [
+43,
+48
+],
+"adjusted basis": [
+43,
+46
+],
+"factor model": [
+43,
+44
+],
+"asset pricing": [
+43,
+46
+],
+"factor asset": [
+43,
+46
+],
+"risk adjusted basis": [
 43,
 46
 ],
@@ -4217,58 +4174,7 @@
 44,
 46
 ],
-"type multi factor": [
-43,
-46
-],
-"adjusted basis": [
-43,
-46
-],
-"risk adjusted basis": [
-43,
-46
-],
-"factor asset": [
-43,
-46
-],
-"factor model": [
-43,
-44
-],
-"french type": [
-43,
-44,
-46
-],
-"fama french type": [
-43,
-44,
-46
-],
-"type multi": [
-43,
-46
-],
-"pricing model": [
-43,
-46
-],
 "predictive power": [
-43,
-44
-],
-"investor might": [
-43,
-48
-],
-"multi factor": [
-43,
-44,
-46
-],
-"individual stocks": [
 43,
 44
 ],
@@ -4276,41 +4182,41 @@
 43,
 46
 ],
-"asset pricing": [
+"type multi factor": [
 43,
 46
 ],
-"asset pricing model": [
+"french type multi": [
 43,
 46
+],
+"stock market": [
+44,
+54
+],
+"stock picking strategy": [
+44,
+45
+],
+"strategy whether": [
+44,
+50
 ],
 "active investing based": [
 44,
 46
 ],
-"active investment strategies": [
+"picking strategy": [
 44,
 45
 ],
-"picking strategy": [
+"active investment strategies": [
 44,
 45
 ],
 "passive strategy": [
 44,
 56
-],
-"stock market": [
-44,
-54
-],
-"strategy whether": [
-44,
-50
-],
-"stock picking strategy": [
-44,
-45
 ],
 "alternatively support": [
 45,
@@ -4320,23 +4226,15 @@
 45,
 54
 ],
-"conceptual logic": [
-45,
-56
-],
-"asset mispricing": [
-45,
-56
-],
 "motivates risk return": [
 45,
 56
 ],
-"publication bias": [
-45,
-54
-],
 "could alternatively support": [
+45,
+56
+],
+"conceptual logic": [
 45,
 56
 ],
@@ -4358,9 +4256,13 @@
 45,
 56
 ],
-"profit opportunity": [
-46,
-53
+"asset mispricing": [
+45,
+56
+],
+"publication bias": [
+45,
+54
 ],
 "reasonably conclude": [
 46,
@@ -4371,52 +4273,6 @@
 46,
 54
 ],
-"firms with poor": [
-46,
-53
-],
-"should pursue": [
-46,
-56
-],
-"could reasonably conclude": [
-46,
-52
-],
-"prudent trustee might": [
-46,
-56
-],
-"conclusion finds": [
-46,
-53
-],
-"contrarian investing": [
-46,
-50
-],
-"data driven": [
-46,
-48
-],
-"trustee could reasonably": [
-46,
-54
-],
-"undervalued perhaps": [
-46,
-53,
-54
-],
-"corporate structure": [
-46,
-49
-],
-"could reasonably": [
-46,
-52,
-54
-],
 "prudent trustee": [
 46,
 53,
@@ -4424,15 +4280,40 @@
 55,
 56
 ],
-"improve firm value": [
+"trustee could reasonably": [
+46,
+54
+],
+"finds abundant theoretical": [
+46,
+53
+],
+"abundant theoretical": [
+46,
+53
+],
+"corporate structure": [
 46,
 49
+],
+"firms with poor": [
+46,
+53
 ],
 "conclusion finds abundant": [
 46,
 53
 ],
-"finds abundant": [
+"trustee might": [
+46,
+56
+],
+"undervalued perhaps": [
+46,
+53,
+54
+],
+"finance literature": [
 46,
 53
 ],
@@ -4440,11 +4321,28 @@
 46,
 49
 ],
-"trustee might": [
+"improve firm value": [
 46,
-56
+49
 ],
-"finds abundant theoretical": [
+"could reasonably conclude": [
+46,
+52
+],
+"data driven": [
+46,
+48
+],
+"profit opportunity": [
+46,
+53
+],
+"could reasonably": [
+46,
+52,
+54
+],
+"conclusion finds": [
 46,
 53
 ],
@@ -4452,30 +4350,30 @@
 46,
 53
 ],
-"finance literature": [
+"should pursue": [
 46,
-53
+56
+],
+"contrarian investing": [
+46,
+50
 ],
 "shareholder proposals": [
 46,
 47,
 49
 ],
-"abundant theoretical": [
-46,
-53
-],
 "cannot beat": [
 46,
 56
 ],
-"active ownership": [
-47,
-49
+"prudent trustee might": [
+46,
+56
 ],
-"fund activism": [
-47,
-49
+"finds abundant": [
+46,
+53
 ],
 "hedge fund": [
 47,
@@ -4485,11 +4383,19 @@
 47,
 48
 ],
+"hedge fund activism": [
+47,
+49
+],
+"active ownership": [
+47,
+49
+],
 "tiaa cref": [
 47,
 48
 ],
-"hedge fund activism": [
+"fund activism": [
 47,
 49
 ],
@@ -4498,11 +4404,7 @@
 48,
 49
 ],
-"hedge funds": [
-48,
-49
-],
-"free rider": [
+"thirty years": [
 48,
 49
 ],
@@ -4514,15 +4416,19 @@
 48,
 49
 ],
-"activist hedge funds": [
-48,
-49
-],
 "proxy fights": [
 48,
 49
 ],
-"thirty years": [
+"activist hedge funds": [
+48,
+49
+],
+"hedge funds": [
+48,
+49
+],
+"free rider": [
 48,
 49
 ],
@@ -4535,24 +4441,28 @@
 51,
 55
 ],
-"bulletin takes": [
-50,
-51
-],
 "fiduciary should": [
 50,
 51,
 53
 ],
+"bulletin takes": [
+50,
+51
+],
 "trustee invests": [
 51,
 52
+],
+"therefore prudently rely": [
+52,
+55
 ],
 "market price": [
 52,
 55
 ],
-"therefore prudently rely": [
+"little hope": [
 52,
 55
 ],
@@ -4564,16 +4474,7 @@
 52,
 55
 ],
-"little hope": [
-52,
-55
-],
-"prudent trustee could": [
-53,
-54,
-55
-],
-"consider long term": [
+"consider long": [
 53,
 54
 ],
@@ -4581,11 +4482,20 @@
 53,
 54
 ],
-"consider long": [
+"consider long term": [
 53,
 54
 ],
-"argument rests": [
+"prudent trustee could": [
+53,
+54,
+55
+],
+"short time horizon": [
+54,
+55
+],
+"term risk": [
 54,
 55
 ],
@@ -4596,19 +4506,15 @@
 "impartiality": [
 54
 ],
-"short time": [
-54,
-55
-],
 "academic findings": [
 54,
 56
 ],
-"term risk": [
+"argument rests": [
 54,
 55
 ],
-"short time horizon": [
+"short time": [
 54,
 55
 ]

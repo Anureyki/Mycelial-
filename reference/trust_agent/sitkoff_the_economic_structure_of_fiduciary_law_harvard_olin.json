@@ -11,21 +11,6 @@
 "McNeil v. McNeil"
 ],
 "term_index": {
-"res": [
-0,
-1,
-2,
-3,
-4,
-5,
-6,
-7,
-8,
-9,
-10,
-11,
-12
-],
 "economic structure": [
 0,
 1,
@@ -36,61 +21,11 @@
 10,
 12
 ],
-"further developing": [
-1,
-3
-],
-"legal institutions generally": [
-1,
-3
-],
-"matured further developing": [
-1,
-3
-],
-"legal institutions": [
-1,
-3
-],
-"previously applied": [
-1,
-3
-],
-"fischel which together": [
-1,
-2
-],
-"economics movement": [
-1,
-3
-],
-"matured further": [
-1,
-3
-],
-"economic contractarian": [
-1,
-2
-],
 "institutions generally": [
 1,
 3
 ],
-"economic contractarian model": [
-1,
-2
-],
-"contractarian": [
-1,
-2,
-5,
-11
-],
-"prevailing economic contractarian": [
-1,
-2
-],
-"contractarian model": [
+"economic contractarian": [
 1,
 2
 ],
@@ -100,23 +35,29 @@
 3,
 12
 ],
+"contractarian": [
+1,
+2,
+5,
+11
+],
 "together have come": [
 1,
 2
 ],
-"standing": [
+"legal institutions generally": [
 1,
 3
 ],
-"decades have passed": [
+"previously applied": [
 1,
-2
+3
 ],
-"passed since": [
+"economics movement": [
 1,
-2
+3
 ],
-"accessible synthesis": [
+"motivates those papers": [
 1,
 3
 ],
@@ -124,9 +65,97 @@
 1,
 2
 ],
-"motivates those papers": [
+"legal institutions": [
 1,
 3
+],
+"accessible synthesis": [
+1,
+3
+],
+"economic contractarian model": [
+1,
+2
+],
+"decades have passed": [
+1,
+2
+],
+"contractarian model": [
+1,
+2
+],
+"passed since": [
+1,
+2
+],
+"matured further": [
+1,
+3
+],
+"prevailing economic contractarian": [
+1,
+2
+],
+"matured further developing": [
+1,
+3
+],
+"further developing": [
+1,
+3
+],
+"fischel which together": [
+1,
+2
+],
+"governance strategy": [
+2,
+5,
+8
+],
+"default rule": [
+2,
+3,
+8,
+9,
+12
+],
+"fiduciary relationships": [
+2,
+3,
+10,
+11
+],
+"agency costs": [
+2,
+3,
+5
+],
+"fiduciary relationship": [
+2,
+9,
+10,
+12
+],
+"fiduciary obligation": [
+2,
+3,
+5,
+6,
+7,
+8,
+9,
+11
+],
+"fiduciary governance strategy": [
+2,
+5,
+8
+],
+"disempowerment strategy": [
+2,
+5
 ],
 "disgorgement": [
 2,
@@ -140,41 +169,29 @@
 11,
 12
 ],
-"governance strategy": [
-2,
-5,
-8
-],
-"default rules": [
-2,
-3,
-8,
-9,
-12
-],
 "easterbrook daniel": [
 2,
 4
 ],
-"default rule": [
+"tamar frankel": [
+2,
+3
+],
+"agency problem": [
 2,
 3,
-8,
-9,
-12
+4,
+5,
+8
 ],
 "john langbein": [
 2,
 5
 ],
-"fiduciary governance strategy": [
+"fiduciary governance": [
 2,
 5,
 8
-],
-"jonathan klick": [
-2,
-3
 ],
 "fiduciary duty": [
 2,
@@ -186,18 +203,16 @@
 11,
 12
 ],
-"agency problem": [
+"default rules": [
 2,
 3,
-4,
-5,
-8
-],
-"fiduciary relationship": [
-2,
+8,
 9,
-10,
 12
+],
+"jonathan klick": [
+2,
+3
 ],
 "fiduciary duties": [
 2,
@@ -209,55 +224,43 @@
 11,
 12
 ],
-"fiduciary governance": [
-2,
-5,
-8
-],
-"tamar frankel": [
-2,
-3
-],
-"fiduciary relationships": [
-2,
-3,
-10,
-11
-],
-"fiduciary obligation": [
-2,
-3,
-5,
-6,
-7,
-8,
-9,
-11
-],
-"agency costs": [
-2,
-3,
-5
-],
-"disempowerment strategy": [
-2,
-5
-],
-"another person": [
-3,
-10
-],
-"satisfactory answer": [
+"agent should": [
 3,
 4
+],
+"agency theory": [
+3,
+4,
+12
 ],
 "agent will": [
 3,
 4
 ],
-"agent should": [
+"agency problems": [
+3,
+5,
+7
+],
+"another person": [
+3,
+10
+],
+"corporate control": [
+3,
+6
+],
+"satisfactory answer": [
 3,
 4
+],
+"principal agency": [
+3,
+12
+],
+"incomplete contracting": [
+3,
+7
 ],
 "trustee": [
 3,
@@ -265,41 +268,9 @@
 6,
 9
 ],
-"agency problems": [
-3,
-5,
-7
-],
 "principal agent": [
 3,
 4
-],
-"incomplete contracting": [
-3,
-7
-],
-"ilit": [
-3,
-4,
-6,
-7,
-8,
-10,
-11,
-12
-],
-"corporate control": [
-3,
-6
-],
-"principal agency": [
-3,
-12
-],
-"agency theory": [
-3,
-4,
-12
 ],
 "principal cannot": [
 3,
@@ -309,8 +280,9 @@
 "moral hazard": [
 4
 ],
-"adverse selection": [
-4
+"specialized skills": [
+4,
+6
 ],
 "particular contingency": [
 4,
@@ -319,11 +291,31 @@
 "monitoring": [
 4
 ],
-"specialized skills": [
-4,
+"adverse selection": [
+4
+],
+"broad discretionary powers": [
+5,
 6
 ],
+"funded": [
+5
+],
 "henry hansmann": [
+5,
+10
+],
+"broad discretionary": [
+5,
+6
+],
+"corporate governance": [
+5,
+6,
+7,
+9
+],
+"hansmann reinier kraakman": [
 5,
 10
 ],
@@ -332,30 +324,19 @@
 6,
 9
 ],
-"henry hansmann reinier": [
-5,
-10
-],
-"given broad": [
-5,
-6
-],
-"best interest": [
-5,
-6,
-9
-],
 "hansmann reinier": [
 5,
 10
 ],
-"corporate governance": [
+"agent must exercise": [
 5,
-6,
-7,
-9
+6
 ],
-"broad discretionary": [
+"given broad discretionary": [
+5,
+6
+],
+"given broad": [
 5,
 6
 ],
@@ -363,35 +344,53 @@
 5,
 10
 ],
+"henry hansmann reinier": [
+5,
+10
+],
 "strategy over": [
 5,
 8
+],
+"best interest": [
+5,
+6,
+9
 ],
 "discretionary powers": [
 5,
 6
 ],
-"broad discretionary powers": [
-5,
+"self dealing": [
+6,
+9
+],
+"disgorgement remedy": [
+6,
+12
+],
+"self-dealing": [
+6,
+9
+],
+"prudent person": [
+6,
+7
+],
+"trusts restatement third": [
+6,
+7
+],
+"duty of care": [
 6
 ],
-"agent must exercise": [
-5,
-6
+"trusts restatement": [
+6,
+7
 ],
-"hansmann reinier kraakman": [
-5,
-10
-],
-"given broad discretionary": [
-5,
-6
-],
-"funded": [
-5
-],
-"prudence": [
-6
+"substantive safeguards": [
+6,
+9
 ],
 "estatement third": [
 6,
@@ -405,36 +404,8 @@
 7,
 9
 ],
-"self-dealing": [
-6,
-9
-],
-"restatement": [
-6,
-7,
-9,
-10,
-11
-],
-"duty of loyalty": [
-6,
-9,
-10
-],
-"material facts": [
-6,
-9
-],
-"trusts restatement third": [
-6,
-7
-],
 "sole interest": [
 6
-],
-"substantive safeguards": [
-6,
-9
 ],
 "restatement third": [
 6,
@@ -443,54 +414,50 @@
 10,
 11
 ],
-"disgorgement remedy": [
-6,
-12
-],
-"duty of care": [
-6
-],
-"trusts restatement": [
-6,
-7
-],
-"self dealing": [
-6,
-9
-],
 "governance analysis": [
 6,
 7,
 8,
 9
 ],
-"prudent person": [
+"material facts": [
 6,
-7
+9
+],
+"duty of loyalty": [
+6,
+9,
+10
 ],
 "agency principles": [
 6,
 7
 ],
-"error costs": [
+"prudence": [
+6
+],
+"restatement": [
+6,
+7,
+9,
+10,
+11
+],
+"specific rules": [
 7,
 8
 ],
 "no further inquiry": [
 7
 ],
-"specific rules": [
-7,
-8
+"codification": [
+7
 ],
 "open ended": [
 7,
 8
 ],
-"codification": [
-7
-],
-"implementing rules": [
+"error costs": [
 7,
 8
 ],
@@ -506,6 +473,15 @@
 "prudent investor": [
 7
 ],
+"implementing rules": [
+7,
+8
+],
+"fiduciary fields": [
+8,
+10,
+11
+],
 "beneficiary": [
 8,
 9
@@ -514,28 +490,29 @@
 8,
 9
 ],
-"fiduciary fields": [
-8,
+"cautionary function": [
+9,
+10
+],
+"mandatory core": [
+9,
 10,
+11
+],
+"niform trust code": [
+9,
 11
 ],
 "internal protective": [
 9,
 10
 ],
-"external categorization": [
+"mandatory rule": [
 9,
-10
+10,
+11
 ],
-"categorization function": [
-9,
-10
-],
-"cautionary function": [
-9,
-10
-],
-"niform trust code": [
+"niform trust": [
 9,
 11
 ],
@@ -547,56 +524,43 @@
 9,
 11
 ],
-"mandatory core": [
-9,
-10,
-11
-],
-"uniform power": [
-9,
-11
-],
-"niform trust": [
-9,
-11
-],
-"external categorization function": [
+"external categorization": [
 9,
 10
-],
-"mandatory rule": [
-9,
-10,
-11
-],
-"modification": [
-9
 ],
 "third parties": [
 9,
 10
 ],
-"limited liability": [
-10,
-11
-],
-"settlor": [
+"categorization function": [
+9,
 10
 ],
-"limited liability companies": [
-10,
+"uniform power": [
+9,
 11
+],
+"modification": [
+9
+],
+"external categorization function": [
+9,
+10
 ],
 "liability companies": [
 10,
 11
 ],
-"nonbreaching party": [
-11,
-12
-],
-"constructive trust": [
+"limited liability": [
+10,
 11
+],
+"limited liability companies": [
+10,
+11
+],
+"settlor": [
+10
 ],
 "make whole": [
 11
@@ -604,13 +568,20 @@
 "uniform act": [
 11
 ],
+"breaching party": [
+11,
+12
+],
+"nonbreaching party": [
+11,
+12
+],
 "compensatory damages": [
 11,
 12
 ],
-"breaching party": [
-11,
-12
+"constructive trust": [
+11
 ],
 "opportunism": [
 12

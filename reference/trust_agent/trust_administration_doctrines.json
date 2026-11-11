@@ -116,10 +116,10 @@
 }
 ],
 "term_index": {
-"res": [
+"settlor": [
 0,
 3,
-4
+6
 ],
 "trustee": [
 0,
@@ -127,11 +127,6 @@
 3,
 4,
 5,
-6
-],
-"settlor": [
-0,
-3,
 6
 ],
 "beneficiary": [
@@ -143,9 +138,6 @@
 1,
 6
 ],
-"testamentary": [
-2
-],
 "inter vivos": [
 2
 ],
@@ -155,8 +147,8 @@
 "irrevocable": [
 2
 ],
-"beneficial interest": [
-3
+"testamentary": [
+2
 ],
 "default rule": [
 3
@@ -168,16 +160,19 @@
 3,
 6
 ],
-"breach of trust": [
-4
+"beneficial interest": [
+3
 ],
 "fiduciary duty": [
 4
 ],
-"accounting": [
-5
+"breach of trust": [
+4
 ],
 "duty to account": [
+5
+],
+"accounting": [
 5
 ]
 },

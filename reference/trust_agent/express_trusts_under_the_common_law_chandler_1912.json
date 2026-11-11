@@ -46,15 +46,30 @@
 "York in the leading case of Warner v. Beers"
 ],
 "term_index": {
-"corporations voluntary": [
+"natural right": [
 0,
-13
+11,
+24,
+27
 ],
-"volun tary associations": [
+"welles stone": [
 0,
-11
+19,
+21
 ],
-"corporate bodies": [
+"mass johnson": [
+0,
+20
+],
+"merchants bank": [
+0,
+15
+],
+"federal constitution": [
+0,
+2
+],
+"nineteen hundred": [
 0,
 27
 ],
@@ -62,34 +77,33 @@
 0,
 25
 ],
-"voluntary associations organized": [
+"street railway": [
+0,
+27
+],
+"personal responsibility": [
+0,
+13,
+16,
+27
+],
+"governor fernald": [
+0,
+5
+],
+"beers wendell": [
+0,
+11,
+14,
+24
+],
+"much less": [
+0,
+27
+],
+"divided into transferable": [
 0,
 6
-],
-"artificial entity": [
-0,
-3,
-14
-],
-"express trusts corporations": [
-0,
-13
-],
-"fellows hall": [
-0,
-25
-],
-"natural persons": [
-0,
-2,
-14
-],
-"transferable certificates": [
-0,
-6,
-12,
-15,
-26
 ],
 "moritz mass": [
 0,
@@ -98,128 +112,95 @@
 23,
 25
 ],
-"beers wendell": [
-0,
-11,
-14,
-24
-],
-"public interest": [
-0,
-7,
-12
-],
-"federal statutes": [
-0,
-2
-],
-"somerville mass": [
-0,
-10
-],
-"stone mercantile": [
-0,
-19,
-20,
-21,
-24,
-25
-],
-"farmers loan": [
-0,
-2
-],
-"neither partners": [
-0,
-12
-],
 "corporation laws": [
 0,
 3,
 7,
 27
 ],
-"welles stone": [
+"transferable certificates": [
 0,
-19,
-21
+6,
+12,
+15,
+26
 ],
-"fellows hall association": [
+"corporations voluntary associations": [
 0,
-25
+13
 ],
-"public policy": [
+"express trusts corporations": [
 0,
+13
+],
+"artificial entity": [
+0,
+3,
+14
+],
+"morris idaho": [
+0,
+9
+],
+"voluntary associations": [
+0,
+6,
 7,
-17,
-24,
-25
+9,
+13,
+27
 ],
-"corporate laws": [
+"mckay mass": [
 0,
-5
+10,
+11,
+12,
+20,
+21,
+26
 ],
-"doing business": [
+"long before": [
 0,
 6
+],
+"legal status": [
+0,
+6,
+8,
+21
+],
+"federal statutes": [
+0,
+2
 ],
 "justices mass": [
 0,
 11
 ],
+"tary associations": [
+0,
+11
+],
+"corporate laws": [
+0,
+5
+],
 "attorney general": [
 0,
 27
 ],
-"mass johnson": [
+"welles stone mercantile": [
 0,
-20
-],
-"blatchford mass": [
-0,
-13,
-20,
+19,
 21
 ],
-"mere incidents": [
-0,
-11
-],
-"electric light": [
-0,
-27
-],
-"massachu setts": [
-0,
-9
-],
-"federal constitution": [
-0,
-2
-],
-"pomeroy mass": [
-0,
-12,
-20,
-21
-],
-"res": [
+"trustee": [
 0,
 1,
 2,
-3,
-4,
 5,
-6,
-7,
-8,
-9,
-10,
-11,
 12,
 13,
-14,
-15,
 16,
 17,
 18,
@@ -229,7 +210,208 @@
 22,
 23,
 24,
+25,
 26,
+27
+],
+"natural persons": [
+0,
+2,
+14
+],
+"present legal status": [
+0,
+6
+],
+"beneficial interest": [
+0,
+6,
+10,
+11,
+21,
+26
+],
+"volun tary": [
+0,
+11,
+12
+],
+"farmers loan": [
+0,
+2
+],
+"busi ness": [
+0,
+1,
+3
+],
+"trusts corporations": [
+0,
+13
+],
+"property valued": [
+0,
+16
+],
+"transferable shares": [
+0,
+4,
+6,
+8,
+9,
+10,
+11,
+12,
+14,
+15,
+26
+],
+"massa chusetts": [
+0,
+5,
+27
+],
+"mcallister mass": [
+0,
+25
+],
+"wood mass": [
+0,
+25
+],
+"corporations voluntary": [
+0,
+13
+],
+"neither partners": [
+0,
+12
+],
+"phelps miss": [
+0,
+25
+],
+"associations organized": [
+0,
+6
+],
+"hall association": [
+0,
+25
+],
+"trusts corporations voluntary": [
+0,
+13
+],
+"blatchford mass": [
+0,
+13,
+20,
+21
+],
+"impersonal corporate bodies": [
+0,
+27
+],
+"fellows hall": [
+0,
+25
+],
+"public interest": [
+0,
+7,
+12
+],
+"ward mass": [
+0,
+13
+],
+"corporate bodies": [
+0,
+27
+],
+"pomeroy mass": [
+0,
+12,
+20,
+21
+],
+"drew mass": [
+0,
+20,
+23
+],
+"written instrument": [
+0,
+6
+],
+"corpora tions": [
+0,
+11,
+13,
+16,
+27
+],
+"winthrop mass": [
+0,
+26
+],
+"electric light": [
+0,
+27
+],
+"arnold mass": [
+0,
+24
+],
+"woodrow wilson": [
+0,
+13,
+27
+],
+"business world": [
+0,
+24
+],
+"volun tary associations": [
+0,
+11
+],
+"mere incidents": [
+0,
+11
+],
+"further control": [
+0,
+6,
+27
+],
+"mass norton": [
+0,
+25
+],
+"fellows hall association": [
+0,
+25
+],
+"voluntary associations organized": [
+0,
+6
+],
+"present legal": [
+0,
+6
+],
+"public hearings": [
+0,
+13
+],
+"somerville mass": [
+0,
+10
+],
+"railroad commissioners": [
+0,
 27
 ],
 "impersonal corporate": [
@@ -256,112 +438,24 @@
 26,
 27
 ],
-"ilit": [
+"legal estate": [
 0,
-5,
-6,
-9,
-10,
-11,
-13,
-14,
-15,
-16,
-17,
-18,
-19,
-23,
-24,
-25,
-27
+24
 ],
-"long before": [
-0,
-6
-],
-"written instrument": [
-0,
-6
-],
-"trusts corporations voluntary": [
-0,
-13
-],
-"drew mass": [
-0,
-20,
-23
-],
-"winthrop mass": [
-0,
-26
-],
-"tary associations": [
+"mass opinion": [
 0,
 11
 ],
-"arnold mass": [
+"doing business": [
 0,
-24
+6
 ],
-"business world": [
+"public policy": [
 0,
-24
-],
-"wood mass": [
-0,
+7,
+17,
+24,
 25
-],
-"beneficial interest": [
-0,
-6,
-10,
-11,
-21,
-26
-],
-"legal status": [
-0,
-6,
-8,
-21
-],
-"woodrow wilson": [
-0,
-13,
-27
-],
-"much less": [
-0,
-27
-],
-"railroad commissioners": [
-0,
-27
-],
-"street railway": [
-0,
-27
-],
-"present legal status": [
-0,
-6
-],
-"associations organized": [
-0,
-6
-],
-"property valued": [
-0,
-16
-],
-"present legal": [
-0,
-6
-],
-"corporations voluntary associations": [
-0,
-13
 ],
 "united states": [
 0,
@@ -374,169 +468,42 @@
 22,
 27
 ],
-"trustee": [
+"stone mercantile": [
 0,
-1,
-2,
-5,
-12,
-13,
-16,
-17,
-18,
 19,
 20,
 21,
-22,
-23,
 24,
-25,
-26,
-27
-],
-"trusts corporations": [
-0,
-13
-],
-"hall association": [
-0,
 25
 ],
-"welles stone mercantile": [
-0,
-19,
-21
-],
-"public hearings": [
-0,
-13
-],
-"mckay mass": [
-0,
-10,
-11,
-12,
-20,
-21,
-26
-],
-"merchants bank": [
-0,
-15
-],
-"mass opinion": [
-0,
-11
-],
-"mcallister mass": [
-0,
-25
-],
-"transferable shares": [
-0,
-4,
-6,
-8,
-9,
-10,
-11,
-12,
-14,
-15,
-26
-],
-"divided into transferable": [
-0,
-6
-],
-"massa chusetts": [
-0,
-5,
-27
-],
-"busi ness": [
-0,
-1,
-3
-],
-"phelps miss": [
-0,
-25
-],
-"morris idaho": [
+"massachu setts": [
 0,
 9
-],
-"impersonal corporate bodies": [
-0,
-27
-],
-"legal estate": [
-0,
-24
-],
-"voluntary associations": [
-0,
-6,
-7,
-9,
-13,
-27
-],
-"nineteen hundred": [
-0,
-27
-],
-"corpora tions": [
-0,
-11,
-13,
-16,
-27
-],
-"governor fernald": [
-0,
-5
-],
-"volun tary": [
-0,
-11,
-12
-],
-"further control": [
-0,
-6,
-27
-],
-"ward mass": [
-0,
-13
-],
-"personal responsibility": [
-0,
-13,
-16,
-27
-],
-"natural right": [
-0,
-11,
-24,
-27
-],
-"mass norton": [
-0,
-25
-],
-"state laws": [
-1,
-4
 ],
 "trustees under express": [
 1,
 5,
 12,
 27
+],
+"state laws": [
+1,
+4
+],
+"beneficiary": [
+1,
+12,
+13,
+18,
+19,
+20,
+21,
+22,
+23
+],
+"loan trust": [
+2,
+18
 ],
 "justice field": [
 2,
@@ -546,69 +513,43 @@
 2,
 22
 ],
-"loan trust": [
-2,
-18
+"past five years": [
+3,
+27
 ],
 "certain public": [
 3,
 6,
 27
 ],
-"corporate charters": [
-3,
-4,
-5
-],
-"past five years": [
-3,
-27
-],
-"five years": [
-3,
-4,
-6,
-27
-],
-"representing many millions": [
-3,
-9
-],
-"conservative massachusetts": [
-3,
-27
-],
-"corporate charters representing": [
-3,
-5
-],
-"past five": [
-3,
-27
-],
-"charters representing": [
-3,
-5
-],
-"last five": [
-3,
-4,
-6
-],
 "last five years": [
 3,
 4,
 6
 ],
+"massachusetts corporations": [
+3,
+4,
+6,
+27
+],
 "corporate charter": [
 3,
 6
+],
+"charters representing": [
+3,
+5
+],
+"conservative massachusetts": [
+3,
+27
 ],
 "many millions": [
 3,
 9
 ],
-"massachusetts corporations": [
+"five years": [
 3,
 4,
 6,
@@ -618,18 +559,31 @@
 3,
 9
 ],
-"whole number": [
-4,
+"corporate charters representing": [
+3,
+5
+],
+"past five": [
+3,
 27
+],
+"representing many millions": [
+3,
+9
+],
+"last five": [
+3,
+4,
+6
+],
+"corporate charters": [
+3,
+4,
+5
 ],
 "corpora tion": [
 4,
 27
-],
-"testamentary": [
-4,
-10,
-17
 ],
 "real estate": [
 4,
@@ -641,22 +595,24 @@
 4,
 13
 ],
-"venue": [
-5
+"whole number": [
+4,
+27
 ],
-"corporate body": [
-5,
-13
-],
-"personal liability": [
-5,
-24
-],
-"body acts": [
-5,
-13
+"testamentary": [
+4,
+10,
+17
 ],
 "moral corporate": [
+5,
+13
+],
+"moral corporate body": [
+5,
+13
+],
+"body acts": [
 5,
 13
 ],
@@ -665,15 +621,19 @@
 12,
 14
 ],
-"corporate body acts": [
+"personal liability": [
 5,
-13
+24
 ],
 "representing millions": [
 5,
 12
 ],
-"moral corporate body": [
+"corporate body acts": [
+5,
+13
+],
+"corporate body": [
 5,
 13
 ],
@@ -685,44 +645,25 @@
 18,
 23
 ],
-"massachusetts legislature": [
+"public service": [
 6,
-27
-],
-"house document": [
-6,
-9
+15
 ],
 "every partner": [
 6,
 22
 ],
-"public service": [
+"house document": [
 6,
-15
+9
 ],
 "partner ship": [
 6,
 18
 ],
-"voluntary asso ciations": [
-7,
-9
-],
-"asso ciations": [
-7,
-8,
-9,
-20
-],
-"voluntary association": [
-7,
-8,
-9
-],
-"called voluntary": [
-7,
-9
+"massachusetts legislature": [
+6,
+27
 ],
 "private contract": [
 7,
@@ -732,15 +673,32 @@
 7,
 9
 ],
-"merely because": [
-9,
-15
+"called voluntary": [
+7,
+9
 ],
-"third persons": [
+"asso ciations": [
+7,
+8,
 9,
-22
+20
+],
+"voluntary asso ciations": [
+7,
+9
+],
+"voluntary association": [
+7,
+8,
+9
 ],
 "stock companies": [
+9,
+13,
+18,
+20
+],
+"joint stock": [
 9,
 13,
 18,
@@ -750,173 +708,89 @@
 9,
 11
 ],
-"restric tion": [
-9,
-23
-],
-"constitutional conflict": [
-9,
-13,
-26
-],
-"trusts created": [
-9,
-15
-],
-"joint stock": [
-9,
-13,
-18,
-20
-],
 "joint stock companies": [
 9,
 13,
 18,
 20
 ],
-"municipal corporations": [
-10,
+"restric tion": [
+9,
+23
+],
+"merely because": [
+9,
 15
+],
+"third persons": [
+9,
+22
+],
+"trusts created": [
+9,
+15
+],
+"constitutional conflict": [
+9,
+13,
+26
 ],
 "mistaken ideas": [
 10,
 11
 ],
-"gives franchises": [
-11,
-12
+"municipal corporations": [
+10,
+15
 ],
 "corporate creations": [
 11,
 13,
 27
 ],
-"readily distinguished": [
-12,
-20
+"gives franchises": [
+11,
+12
 ],
 "well established": [
 12,
 17
 ],
-"corporate prerogatives": [
-13,
-14
-],
-"unequal whereas": [
-13,
-26
-],
-"first that corporations": [
-13,
-14
-],
-"capital whereas": [
-13,
-16
-],
-"whereas inequality": [
-13,
-26
-],
-"part they merely": [
-13,
-14
-],
-"second that corporations": [
-13,
-16
-],
-"fourth that prohibitive": [
-13,
-26
-],
-"highest model": [
-13,
-16
-],
-"third that express": [
-13,
-18
-],
-"lowest while": [
-13,
-16
-],
-"organized capital whereas": [
-13,
-16
-],
-"certain natural common": [
-13,
-14,
-19
-],
-"adopt certain": [
-13,
-14
-],
-"certain natural": [
-13,
-14,
-19
-],
-"agent while trustees": [
-13,
-18
-],
-"while trustees": [
-13,
-18
-],
-"agent while": [
-13,
-18
-],
-"administration offered": [
-13,
-16
-],
-"adopt certain natural": [
-13,
-14
-],
-"powers either": [
-13,
-18
-],
-"unequal whereas inequality": [
-13,
-26
-],
-"accounting": [
-13,
-18
-],
-"most part": [
-13,
-14
-],
-"actual administration": [
-13,
-18
-],
-"national bank": [
-13,
-21
+"readily distinguished": [
+12,
+20
 ],
 "organized capital": [
 13,
 16
 ],
-"regulative legislation": [
+"second that corporations": [
 13,
-26
+16
 ],
-"bestow numerous": [
+"powers either": [
 13,
-14
+18
+],
+"partnerships whereas": [
+13,
+18
+],
+"actual administration": [
+13,
+18
+],
+"highest model": [
+13,
+16
+],
+"accounting": [
+13,
+18
+],
+"corporations present": [
+13,
+16
 ],
 "natural common": [
 13,
@@ -928,48 +802,134 @@
 13,
 26
 ],
-"administration this distinction": [
-13,
-18
-],
-"corporations present": [
+"organized capital whereas": [
 13,
 16
-],
-"merely recognize": [
-13,
-14
-],
-"three standards": [
-13,
-16
-],
-"partnerships whereas": [
-13,
-18
 ],
 "absolute principals": [
 13,
 18,
 23
 ],
+"regulative legislation": [
+13,
+26
+],
+"adopt certain natural": [
+13,
+14
+],
+"merely recognize": [
+13,
+14
+],
+"whereas inequality": [
+13,
+26
+],
+"first that corporations": [
+13,
+14
+],
+"while trustees": [
+13,
+18
+],
+"unequal whereas": [
+13,
+26
+],
+"third that express": [
+13,
+18
+],
+"certain natural": [
+13,
+14,
+19
+],
+"agent while trustees": [
+13,
+18
+],
+"part they merely": [
+13,
+14
+],
+"lowest while": [
+13,
+16
+],
+"national bank": [
+13,
+21
+],
+"agent while": [
+13,
+18
+],
+"corporate prerogatives": [
+13,
+14
+],
+"adopt certain": [
+13,
+14
+],
+"bestow numerous": [
+13,
+14
+],
+"fourth that prohibitive": [
+13,
+26
+],
+"administration offered": [
+13,
+16
+],
+"administration this distinction": [
+13,
+18
+],
+"most part": [
+13,
+14
+],
+"capital whereas": [
+13,
+16
+],
+"three standards": [
+13,
+16
+],
+"certain natural common": [
+13,
+14,
+19
+],
+"unequal whereas inequality": [
+13,
+26
+],
 "more prominent": [
 14,
 15
-],
-"supreme judicial": [
-15,
-20
 ],
 "limited liability": [
 15,
 17
 ],
-"prohibit express": [
+"supreme judicial": [
+15,
+20
+],
+"prohibit express trusts": [
 16,
 27
 ],
-"prohibit express trusts": [
+"prohibit express": [
 16,
 27
 ],
@@ -977,15 +937,11 @@
 17,
 19
 ],
-"debts incurred": [
-18,
-24
-],
-"trusts whether": [
+"express trusts whether": [
 18,
 27
 ],
-"express trusts whether": [
+"trusts whether": [
 18,
 27
 ],
@@ -998,25 +954,24 @@
 18,
 27
 ],
+"debts incurred": [
+18,
+24
+],
+"trust estate": [
+19,
+24
+],
 "contracts made": [
 19,
 24,
 25
-],
-"beneficiary": [
-19,
-20,
-21
 ],
 "distinction between": [
 19,
 26
 ],
 "very nature": [
-19,
-24
-],
-"trust estate": [
 19,
 24
 ],
@@ -1028,12 +983,12 @@
 20,
 22
 ],
-"wells stone": [
+"wells stone mercantile": [
 20,
 24,
 25
 ],
-"wells stone mercantile": [
+"wells stone": [
 20,
 24,
 25
@@ -1048,11 +1003,11 @@
 25,
 26
 ],
-"justice knowlton": [
+"chief justice knowlton": [
 24,
 26
 ],
-"chief justice knowlton": [
+"justice knowlton": [
 24,
 26
 ]

@@ -14,128 +14,48 @@
 "Powell v. DePaul"
 ],
 "term_index": {
-"including employment background": [
+"specific purposes": [
 0,
 11
 ],
-"credit reporting": [
+"center fair": [
 0,
-1,
-2,
-3,
-4,
 6,
-8,
 11,
+18
+],
+"entity-level exemption": [
+0,
+2,
+12,
+13,
+14,
 15,
 16,
-17,
 18,
+20,
 23
-],
-"purposes including": [
-0,
-11
 ],
 "nonprofit basis": [
 0,
 3
 ],
-"privacy laws": [
-0,
-1,
-2,
-11,
-12,
-13,
-16,
-18,
-19,
-20,
-21,
-22,
-23
-],
-"medical insurance": [
-0,
-11
-],
-"medical insurance underwriting": [
-0,
-11
-],
-"bank holding company": [
-0,
-6
-],
 "caitriona fitzgerald": [
 0,
 12
 ],
-"entire entity": [
-0,
-13,
-20
-],
-"consumer credit": [
-0,
-3,
-9,
-15
-],
-"checks subprime lending": [
-0,
-11
-],
-"basis regularly engages": [
+"regularly engages": [
 0,
 3
 ],
-"auto dealers": [
-0,
-6
-],
-"financial activities": [
-0,
-6
-],
-"data level": [
-0,
-2,
-13,
-14,
-15,
-16,
-18,
-23
-],
-"bank holding": [
-0,
-6
-],
-"level exemption": [
+"entity level exemption": [
 0,
 12,
 13,
 14,
 15
 ],
-"inferences about": [
-0,
-1
-],
-"consumer reporting agencies": [
-0,
-1,
-2,
-3,
-4,
-5,
-6,
-17,
-21
-],
-"subprime lending": [
+"medical insurance": [
 0,
 11
 ],
@@ -153,7 +73,156 @@
 21,
 22
 ],
-"employment background": [
+"insurance underwriting": [
+0,
+10,
+11
+],
+"background checks": [
+0,
+11
+],
+"holding company": [
+0,
+6
+],
+"caroline kraczon": [
+0,
+6
+],
+"purposes including": [
+0,
+11
+],
+"evaluating consumer": [
+0,
+3
+],
+"monetary fees": [
+0,
+3
+],
+"reporting agency": [
+0,
+3,
+4,
+13,
+15,
+17
+],
+"data broker": [
+0,
+1,
+2,
+3,
+5,
+15,
+16,
+17,
+18,
+23
+],
+"auto dealers": [
+0,
+6
+],
+"screening medical": [
+0,
+11
+],
+"reporting agencies": [
+0,
+1,
+2,
+3,
+4,
+5,
+6,
+17,
+21
+],
+"consumers data": [
+0,
+1
+],
+"cooperative nonprofit basis": [
+0,
+3
+],
+"purposes including employment": [
+0,
+11
+],
+"subprime lending": [
+0,
+11
+],
+"financial activities": [
+0,
+6
+],
+"credit reports": [
+0,
+1,
+2,
+3,
+4,
+7,
+11,
+21
+],
+"library citing trans": [
+0,
+6
+],
+"sell credit reports": [
+0,
+1,
+11
+],
+"fair credit reporting": [
+0,
+1,
+2,
+3,
+4,
+6,
+11,
+15,
+17,
+18
+],
+"bank holding company": [
+0,
+6
+],
+"activities regulated": [
+0,
+13,
+15
+],
+"tenant screening": [
+0,
+11,
+17
+],
+"credit report": [
+0,
+1,
+2,
+3,
+4,
+7,
+11,
+15,
+17,
+21
+],
+"checks subprime": [
+0,
+11
+],
+"medical insurance underwriting": [
 0,
 11
 ],
@@ -161,17 +230,40 @@
 0,
 3
 ],
-"specialty consumer reports": [
+"lending tenant screening": [
 0,
 11
 ],
-"check cashers": [
+"employment background checks": [
 0,
-6
+11
 ],
-"cooperative nonprofit basis": [
+"data-level exemption": [
 0,
-3
+13,
+14,
+15,
+16,
+18
+],
+"privacy laws": [
+0,
+1,
+2,
+11,
+12,
+13,
+16,
+18,
+19,
+20,
+21,
+22,
+23
+],
+"including employment": [
+0,
+11
 ],
 "entity level": [
 0,
@@ -185,18 +277,27 @@
 20,
 23
 ],
-"data level exemption": [
+"level exemption": [
 0,
+12,
 13,
 14,
 15
 ],
-"national consumer": [
+"only applies": [
 0,
-6,
+13
+],
+"consumer report": [
+0,
+3,
+4,
+7,
 11,
-17,
-18
+13,
+15,
+16,
+17
 ],
 "consumer reporting agency": [
 0,
@@ -211,217 +312,64 @@
 17,
 21
 ],
-"fees dues": [
-0,
-3
-],
-"background checks": [
-0,
-11
-],
-"tenant screening": [
-0,
-11,
-17
-],
-"only applies": [
-0,
-13
-],
-"bank companies": [
-0,
-6
-],
-"monetary fees": [
-0,
-3
-],
-"fair credit": [
-0,
-1,
-2,
-3,
-4,
-6,
-11,
-15,
-17,
-18
-],
-"data-level exemption": [
-0,
-13,
-14,
-15,
-16,
-18
-],
-"caroline kraczon": [
-0,
-6
-],
-"regularly engages": [
-0,
-3
-],
-"entity-level exemption": [
-0,
-2,
-12,
-13,
-14,
-15,
-16,
-18,
-20,
-23
-],
-"library citing trans": [
-0,
-6
-],
-"defined broadly": [
-0,
-6
-],
-"glba exemptions": [
-0,
-12,
-13,
-14,
-15,
-16,
-19,
-20
-],
-"citing trans union": [
-0,
-6
-],
-"consumer reports": [
-0,
-3,
-4,
-11,
-17
-],
-"fair credit reporting": [
-0,
-1,
-2,
-3,
-4,
-6,
-11,
-15,
-17,
-18
-],
-"lending tenant": [
-0,
-11
-],
-"entity level exemption": [
-0,
-12,
-13,
-14,
-15
-],
-"credit information": [
-0,
-3,
-7
-],
-"holding company": [
-0,
-6
-],
-"employment background checks": [
-0,
-11
-],
-"credit report": [
-0,
-1,
-2,
-3,
-4,
-6,
-7,
-8,
-11,
-15,
-16,
-17,
-18,
-21,
-23
-],
-"interstate commerce": [
-0,
-3
-],
-"reporting agencies": [
-0,
-1,
-2,
-3,
-4,
-5,
-6,
-17,
-21
-],
-"sell credit reports": [
-0,
-1,
-11
-],
-"consumer credit information": [
-0,
-3
-],
-"furnishing consumer reports": [
-0,
-3
-],
 "center fair credit": [
 0,
 6,
 11,
 18
 ],
-"monetary fees dues": [
+"fees dues": [
 0,
 3
-],
-"reporting agency": [
-0,
-3,
-4,
-13,
-15,
-17
-],
-"activities regulated": [
-0,
-13,
-15
-],
-"purposes including employment": [
-0,
-11
-],
-"center fair": [
-0,
-6,
-11,
-18
 ],
 "subprime lending tenant": [
 0,
 11
+],
+"credit information": [
+0,
+3,
+7
+],
+"monetary fees dues": [
+0,
+3
+],
+"third parties": [
+0,
+3,
+4,
+6,
+7,
+9,
+10,
+21
+],
+"data brokers": [
+0,
+1,
+2,
+3,
+5,
+15,
+16,
+18,
+23
+],
+"specialty consumer reporting agency": [
+0
+],
+"consumer credit information": [
+0,
+3
+],
+"specific purposes including": [
+0,
+11
+],
+"check cashers": [
+0,
+6
 ],
 "consumer reporting": [
 0,
@@ -436,6 +384,155 @@
 17,
 21
 ],
+"bank holding": [
+0,
+6
+],
+"defined broadly": [
+0,
+6
+],
+"interstate commerce": [
+0,
+3
+],
+"background checks subprime": [
+0,
+11
+],
+"basis regularly engages": [
+0,
+3
+],
+"checks subprime lending": [
+0,
+11
+],
+"trans union": [
+0,
+6
+],
+"national consumer": [
+0,
+6,
+11,
+17,
+18
+],
+"data level exemption": [
+0,
+13,
+14,
+15
+],
+"entire entity": [
+0,
+13,
+20
+],
+"inferences about": [
+0,
+1
+],
+"trade comm": [
+0,
+6
+],
+"evaluating consumer credit": [
+0,
+3
+],
+"specialty consumer": [
+0,
+11
+],
+"citing trans": [
+0,
+6
+],
+"library citing": [
+0,
+6
+],
+"consumer reports": [
+0,
+3,
+4,
+11,
+17
+],
+"tenant screening medical": [
+0,
+11
+],
+"consumer reporting agencies": [
+0,
+1,
+2,
+3,
+4,
+5,
+6,
+17,
+21
+],
+"lending tenant": [
+0,
+11
+],
+"furnishing consumer": [
+0,
+3
+],
+"specialty consumer reports": [
+0,
+11
+],
+"cooperative nonprofit": [
+0,
+3
+],
+"bank companies": [
+0,
+6
+],
+"credit reporting": [
+0,
+1,
+2,
+3,
+4,
+6,
+8,
+11,
+15,
+16,
+17,
+18,
+23
+],
+"justin sherman": [
+0,
+3
+],
+"employment background": [
+0,
+11
+],
+"citing trans union": [
+0,
+6
+],
+"data level": [
+0,
+2,
+13,
+14,
+15,
+16,
+18,
+23
+],
 "personal data": [
 0,
 1,
@@ -449,48 +546,7 @@
 21,
 23
 ],
-"trans union": [
-0,
-6
-],
-"furnishing consumer": [
-0,
-3
-],
-"insurance underwriting": [
-0,
-10,
-11
-],
-"third parties": [
-0,
-3,
-4,
-6,
-7,
-9,
-10,
-21
-],
-"specific purposes including": [
-0,
-11
-],
-"credit reports": [
-0,
-1,
-2,
-3,
-4,
-7,
-11,
-21
-],
-"specialty consumer": [
-0,
-11
-],
-"evaluating consumer credit": [
+"basis regularly": [
 0,
 3
 ],
@@ -499,160 +555,59 @@
 1,
 11
 ],
-"justin sherman": [
+"furnishing consumer reports": [
 0,
 3
 ],
-"data broker": [
+"consumer credit": [
 0,
-1,
-2,
 3,
-5,
-11,
-15,
-16,
-17,
-18,
-23
+9,
+15
 ],
-"specific purposes": [
-0,
-11
-],
-"basis regularly": [
-0,
-3
-],
-"evaluating consumer": [
-0,
-3
-],
-"consumer report": [
+"fair credit": [
 0,
 1,
 2,
 3,
 4,
-5,
 6,
-7,
 11,
+15,
+17,
+18
+],
+"glba exemptions": [
+0,
+12,
 13,
+14,
 15,
 16,
-17,
-21
+19,
+20
 ],
-"consumers data": [
-0,
-1
-],
-"including employment": [
+"including employment background": [
 0,
 11
-],
-"library citing": [
-0,
-6
 ],
 "screening medical insurance": [
 0,
 11
 ],
-"checks subprime": [
-0,
-11
-],
-"data brokers": [
-0,
-1,
-2,
-3,
-5,
-15,
-16,
-18,
-23
-],
-"cooperative nonprofit": [
-0,
-3
-],
-"lending tenant screening": [
-0,
-11
-],
-"citing trans": [
-0,
-6
-],
-"specialty consumer reporting agency": [
-0
-],
-"trade comm": [
-0,
-6
-],
-"background checks subprime": [
-0,
-11
-],
-"screening medical": [
-0,
-11
-],
-"tenant screening medical": [
-0,
-11
-],
-"covered data": [
-1,
-13,
-16,
-21,
-22,
-23
-],
-"state privacy legislation": [
-1,
-11,
-21,
-22
-],
-"brokers often": [
-1,
-5
-],
-"gramm-leach-bliley": [
+"gramm leach": [
 1,
 3,
 5,
 15,
 17
 ],
-"data brokers often": [
+"glba covered": [
 1,
-5
-],
-"sell much": [
-1,
-5
-],
-"financial institutions": [
-1,
-4,
-6,
-7,
-9,
-19,
-20,
-22
-],
-"protections included": [
-1,
-19,
-22
+12,
+13,
+16,
+19
 ],
 "harmful data": [
 1,
@@ -660,40 +615,47 @@
 5,
 23
 ],
-"access their credit": [
+"privacy legislation": [
 1,
+11,
+20,
+21,
 22
-],
-"fair credit reporting act": [
-1,
-2,
-3,
-4,
-15,
-17
 ],
 "fcra covered data": [
 1,
 22,
 23
 ],
-"data brokerage": [
+"leach bliley": [
 1,
 3,
-11,
-16,
-23
-],
-"credit score": [
-1,
-4,
 5,
-22
+15,
+17
 ],
-"glba covered entities": [
+"general state": [
 1,
 12,
-13
+13,
+14,
+16,
+18,
+21,
+22
+],
+"general state privacy": [
+1,
+12,
+13,
+14,
+16,
+18,
+21,
+22
+],
+"regulatory arbitrage": [
+1
 ],
 "state privacy": [
 1,
@@ -708,101 +670,75 @@
 22,
 23
 ],
-"broker industry": [
+"access their credit": [
 1,
-23
+22
 ],
-"glba covered": [
-1,
-12,
-13,
-16,
-19
-],
-"leach bliley": [
+"gramm-leach-bliley": [
 1,
 3,
 5,
 15,
 17
 ],
-"beyond what": [
+"fcra covers": [
 1,
-8
+21
 ],
-"fcra covered": [
+"credit score": [
 1,
-2,
-18,
-22,
+4,
+5,
+22
+],
+"data brokerage": [
+1,
+3,
+11,
+16,
 23
 ],
-"general state": [
+"much more": [
 1,
-12,
-13,
-14,
-16,
-18,
+5,
+21
+],
+"credit file": [
+1,
+22
+],
+"data broker industry": [
+1,
+23
+],
+"financial institutions": [
+1,
+4,
+6,
+7,
+9,
+19,
+20,
+22
+],
+"brokers often": [
+1,
+5
+],
+"protections included": [
+1,
+19,
+22
+],
+"state privacy legislation": [
+1,
+11,
 21,
 22
 ],
 "data including": [
 1,
 10
-],
-"data broker industry": [
-1,
-23
-],
-"gramm leach bliley": [
-1,
-3,
-5,
-15,
-17
-],
-"covered entities": [
-1,
-12,
-13,
-18
-],
-"privacy legislation": [
-1,
-11,
-20,
-21,
-22
-],
-"credit file": [
-1,
-22
-],
-"fcra covers": [
-1,
-21
-],
-"gramm leach": [
-1,
-3,
-5,
-15,
-17
-],
-"general state privacy": [
-1,
-12,
-13,
-14,
-16,
-18,
-21,
-22
-],
-"health information": [
-1,
-20
 ],
 "state privacy laws": [
 1,
@@ -816,12 +752,24 @@
 22,
 23
 ],
-"employment information": [
+"biometric data": [
 1,
 10
 ],
-"regulatory arbitrage": [
-1
+"covered entities": [
+1,
+12,
+13,
+18
+],
+"sell much": [
+1,
+5
+],
+"glba covered entities": [
+1,
+12,
+13
 ],
 "personal information": [
 1,
@@ -838,66 +786,61 @@
 22,
 23
 ],
-"much more": [
+"gramm leach bliley": [
 1,
+3,
 5,
-21
+15,
+17
 ],
-"biometric data": [
+"broker industry": [
+1,
+23
+],
+"covered data": [
+1,
+13,
+16,
+21,
+22,
+23
+],
+"beyond what": [
+1,
+8
+],
+"data brokers often": [
+1,
+5
+],
+"employment information": [
 1,
 10
 ],
-"protections against": [
-2,
-23
-],
-"cras today": [
-2,
-7
-],
-"brokers fulfill": [
-2,
-23
-],
-"receive protections": [
-2,
-23
-],
-"protections against cras": [
-2,
-23
-],
-"protecting americans": [
-2,
-5,
-23
-],
-"documents cfpb": [
-2,
+"health information": [
+1,
 20
 ],
-"place further": [
+"fcra covered": [
+1,
+2,
+18,
+22,
+23
+],
+"fair credit reporting act": [
+1,
+2,
+3,
+4,
+15,
+17
+],
+"brokers violating": [
 2,
 23
 ],
-"cfpb should resuscitate": [
-2,
-23
-],
-"federal agencies": [
-2,
-23
-],
-"laws should pass": [
-2,
-23
-],
-"federal trade": [
-2,
-7,
-23
-],
-"potential loopholes": [
+"gaps states should": [
 2,
 23
 ],
@@ -905,16 +848,65 @@
 2,
 23
 ],
-"actions against": [
+"financial protection": [
 2,
+4,
+5,
+20
+],
+"should also bring": [
+2,
+23
+],
+"selling demographic": [
+2,
+23
+],
+"consumers lastly": [
+2,
+23
+],
+"lawmakers should introduce": [
+2,
+23
+],
+"place further lawmakers": [
+2,
+23
+],
+"actions against data": [
+2,
+23
+],
+"demographic data": [
+2,
+23
+],
+"last accessed": [
+2,
+3,
+4,
+7,
+8,
+17
+],
+"general consumer privacy": [
+2,
+23
+],
+"consumer privacy": [
+2,
+11,
+12,
+16,
 20,
 23
 ],
-"data brokers fulfill": [
+"clarify that many": [
 2,
 23
 ],
-"states should": [
+"laws should evaluate": [
 2,
 23
 ],
@@ -926,20 +918,163 @@
 20,
 23
 ],
-"without entity": [
+"level exemptions": [
+2,
+13,
+15,
+16,
+18,
+20,
+23
+],
+"activities like": [
 2,
 23
 ],
-"consumers credit": [
+"protecting americans": [
+2,
+5,
+23
+],
+"harmful data practices": [
+2,
+23
+],
+"financial protection bureau": [
 2,
 4,
-21
+5,
+20
 ],
-"actions against data": [
+"brokers fulfill": [
 2,
 23
 ],
-"practices rulemaking": [
+"protect consumers": [
+2,
+23
+],
+"without general consumer": [
+2,
+23
+],
+"data activities": [
+2,
+16,
+23
+],
+"fcra meaning data": [
+2,
+23
+],
+"states should remove": [
+2,
+23
+],
+"should introduce legislation": [
+2,
+23
+],
+"remove glba": [
+2,
+23
+],
+"bring enforcement actions": [
+2,
+23
+],
+"first place further": [
+2,
+23
+],
+"bring enforcement": [
+2,
+23
+],
+"enforcement agencies": [
+2,
+7
+],
+"laws should": [
+2,
+16,
+20,
+23
+],
+"many data brokers": [
+2,
+3,
+5,
+23
+],
+"consumer financial protection": [
+2,
+4,
+5,
+20
+],
+"federal trade commission": [
+2,
+7,
+23
+],
+"consumer privacy laws": [
+2,
+20,
+23
+],
+"fcra data level": [
+2,
+14,
+15,
+23
+],
+"further lawmakers": [
+2,
+23
+],
+"laws without entity": [
+2,
+23
+],
+"should resuscitate": [
+2,
+23
+],
+"government agencies": [
+2,
+9,
+11
+],
+"states without": [
+2,
+23
+],
+"data level glba": [
+2,
+23
+],
+"cfpb should": [
+2,
+23
+],
+"fcra without": [
+2,
+23
+],
+"proposal would clarify": [
+2,
+23
+],
+"gaps states": [
+2,
+23
+],
+"cras other data": [
+2,
+23
+],
+"like selling demographic": [
 2,
 23
 ],
@@ -947,11 +1082,252 @@
 2,
 23
 ],
-"meaning data": [
+"cfpb federal trade": [
+2,
+23
+],
+"protection bureau": [
+2,
+4,
+5,
+20
+],
+"covered financial data": [
+2,
+23
+],
+"level glba": [
+2,
+13,
+23
+],
+"without general": [
+2,
+23
+],
+"fcra exemptions": [
+2,
+18,
+21,
+23
+],
+"protections against": [
+2,
+23
+],
+"work number": [
+2,
+3
+],
+"laws without": [
+2,
+23
+],
+"documents cfpb": [
+2,
+20
+],
+"cfpb federal": [
+2,
+23
+],
+"cras today": [
+2,
+7
+],
+"cfpb should resuscitate": [
 2,
 23
 ],
 "consumers from data": [
+2,
+23
+],
+"trade commission": [
+2,
+7,
+23
+],
+"states should": [
+2,
+23
+],
+"against cras": [
+2,
+23
+],
+"like selling": [
+2,
+23
+],
+"lawmakers should": [
+2,
+23
+],
+"laws should pass": [
+2,
+23
+],
+"cras must comply": [
+2,
+23
+],
+"covered financial": [
+2,
+19,
+23
+],
+"without entity": [
+2,
+23
+],
+"access consumers": [
+2,
+12
+],
+"fcra data": [
+2,
+14,
+15,
+23
+],
+"enforcement actions against": [
+2,
+20,
+23
+],
+"federal trade": [
+2,
+7,
+23
+],
+"both exercise": [
+2,
+23
+],
+"data congress": [
+2,
+23
+],
+"fcra covered financial": [
+2,
+23
+],
+"data activities like": [
+2,
+23
+],
+"lastly federal": [
+2,
+23
+],
+"should introduce": [
+2,
+23
+],
+"against data": [
+2,
+23
+],
+"place further": [
+2,
+23
+],
+"exemptions from consumer": [
+2,
+23
+],
+"actions against": [
+2,
+20,
+23
+],
+"should evaluate": [
+2,
+23
+],
+"against data brokers": [
+2,
+23
+],
+"files consumerfinance": [
+2,
+4,
+20
+],
+"receive protections against": [
+2,
+23
+],
+"largest cras": [
+2,
+7
+],
+"enormous amounts": [
+2,
+12
+],
+"consumers credit": [
+2,
+4,
+21
+],
+"consumer financial": [
+2,
+4,
+5,
+20
+],
+"receive protections": [
+2,
+23
+],
+"should pass": [
+2,
+23
+],
+"activities like selling": [
+2,
+23
+],
+"meaning data brokers": [
+2,
+23
+],
+"lastly federal agencies": [
+2,
+23
+],
+"equifax experian": [
+2,
+7,
+9
+],
+"fcra meaning": [
+2,
+23
+],
+"covered activities": [
+2,
+4
+],
+"selling demographic data": [
+2,
+23
+],
+"states with consumer": [
+2,
+23
+],
+"should remove glba": [
+2,
+23
+],
+"close these gaps": [
+2,
+23
+],
+"states without general": [
 2,
 23
 ],
@@ -962,44 +1338,11 @@
 22,
 23
 ],
-"files consumerfinance": [
-2,
-4,
-20
-],
-"fcra data level": [
-2,
-14,
-15,
-23
-],
-"proposal would clarify": [
+"introduce legislation": [
 2,
 23
 ],
-"consumers lastly federal": [
-2,
-23
-],
-"covered activities": [
-2,
-4
-],
-"general consumer privacy": [
-2,
-23
-],
-"cras must comply": [
-2,
-23
-],
-"financial protection bureau": [
-2,
-4,
-5,
-20
-],
-"without general": [
+"meaning data": [
 2,
 23
 ],
@@ -1007,241 +1350,28 @@
 2,
 23
 ],
-"activities like selling": [
-2,
-23
-],
-"states should remove": [
-2,
-23
-],
-"gaps states": [
-2,
-23
-],
-"consumers lastly": [
-2,
-23
-],
-"strengthen rules": [
-2,
-23
-],
-"should introduce": [
-2,
-23
-],
-"consumer financial protection": [
-2,
-4,
-5,
-20
-],
-"data level glba": [
-2,
-23
-],
-"first place": [
-2,
-23
-],
-"access consumers": [
-2,
-12
-],
-"level glba": [
-2,
-13,
-23
-],
-"like selling": [
-2,
-23
-],
-"enforcement actions against": [
-2,
-20,
-23
-],
-"protect consumers": [
-2,
-23
-],
-"states with consumer": [
-2,
-23
-],
-"lastly federal agencies": [
-2,
-23
-],
-"should pass": [
-2,
-23
-],
-"should also bring": [
-2,
-23
-],
-"bring enforcement actions": [
-2,
-23
-],
-"states without general": [
-2,
-23
-],
-"laws should evaluate": [
-2,
-23
-],
-"financial data": [
-2,
-20,
-23
-],
-"introduce legislation": [
-2,
-23
-],
-"fcra data": [
-2,
-14,
-15,
-23
-],
-"financial protection": [
-2,
-4,
-5,
-20
-],
-"first place further": [
-2,
-23
-],
-"level exemptions": [
-2,
-13,
-15,
-16,
-18,
-20,
-23
-],
-"cras other data": [
-2,
-23
-],
-"gaps states should": [
-2,
-23
-],
-"against data brokers": [
-2,
-23
-],
-"government agencies": [
-2,
-9,
-11
-],
-"both exercise": [
-2,
-23
-],
-"laws should": [
-2,
-16,
-20,
-23
-],
-"trade commission": [
-2,
-7,
-23
-],
-"like selling demographic": [
-2,
-23
-],
-"consumer financial": [
-2,
-4,
-5,
-20
-],
-"fcra covered financial": [
-2,
-23
-],
-"enormous amounts": [
-2,
-12
-],
-"exemptions from consumer": [
-2,
-23
-],
-"data activities": [
-2,
-16,
-23
-],
-"data congress": [
-2,
-23
-],
-"many data brokers": [
-2,
-3,
-5,
-23
-],
-"covered financial data": [
-2,
-23
-],
-"place further lawmakers": [
-2,
-23
-],
-"equifax experian": [
-2,
-7,
-9
-],
 "americans from harmful": [
 2,
 5,
 23
 ],
-"fcra exemptions": [
-2,
-18,
-21,
-23
-],
-"federal trade commission": [
-2,
-7,
-23
-],
-"against cras": [
+"data practices rulemaking": [
 2,
 23
 ],
-"activities like": [
+"consumers lastly federal": [
 2,
 23
 ],
-"privacy laws should": [
+"federal agencies": [
 2,
-16,
-20,
 23
 ],
-"harmful data practices": [
+"protections against cras": [
+2,
+23
+],
+"data brokers fulfill": [
 2,
 23
 ],
@@ -1251,11 +1381,7 @@
 5,
 23
 ],
-"should remove glba": [
-2,
-23
-],
-"states without": [
+"strengthen rules": [
 2,
 23
 ],
@@ -1263,61 +1389,13 @@
 2,
 23
 ],
-"without general consumer": [
+"privacy laws should": [
 2,
-23
-],
-"enforcement agencies": [
-2,
-7
-],
-"last accessed": [
-2,
-3,
-4,
-7,
-8,
-17
-],
-"consumer privacy": [
-2,
-11,
-12,
 16,
 20,
 23
 ],
-"brokers violating": [
-2,
-23
-],
-"against data": [
-2,
-23
-],
-"protection bureau": [
-2,
-4,
-5,
-20
-],
-"cfpb federal": [
-2,
-23
-],
-"should resuscitate": [
-2,
-23
-],
-"lastly federal": [
-2,
-23
-],
-"cfpb should": [
-2,
-23
-],
-"selling demographic": [
+"practices rulemaking": [
 2,
 23
 ],
@@ -1326,122 +1404,27 @@
 20,
 23
 ],
-"close these gaps": [
-2,
-23
-],
-"cfpb federal trade": [
-2,
-23
-],
-"consumer privacy laws": [
-2,
-20,
-23
-],
-"fcra meaning data": [
-2,
-23
-],
-"should introduce legislation": [
-2,
-23
-],
-"laws without entity": [
-2,
-23
-],
-"meaning data brokers": [
-2,
-23
-],
 "should remove": [
 2,
 20,
 23
 ],
-"work number": [
+"financial data": [
 2,
-3
+20,
+23
 ],
-"bring enforcement": [
+"first place": [
 2,
 23
 ],
-"lawmakers should": [
+"potential loopholes": [
 2,
 23
 ],
-"fcra meaning": [
-2,
-23
-],
-"selling demographic data": [
-2,
-23
-],
-"further lawmakers": [
-2,
-23
-],
-"data practices rulemaking": [
-2,
-23
-],
-"remove glba": [
-2,
-23
-],
-"fcra without": [
-2,
-23
-],
-"clarify that many": [
-2,
-23
-],
-"demographic data": [
-2,
-23
-],
-"largest cras": [
-2,
-7
-],
-"should evaluate": [
-2,
-23
-],
-"lawmakers should introduce": [
-2,
-23
-],
-"laws without": [
-2,
-23
-],
-"receive protections against": [
-2,
-23
-],
-"covered financial": [
-2,
-19,
-23
-],
-"data activities like": [
-2,
-23
-],
-"standing": [
+"reputation personal characteristics": [
 3,
-7,
-15,
-23
-],
-"data contained": [
-3,
-21
+15
 ],
 "credit standing": [
 3,
@@ -1453,18 +1436,17 @@
 10,
 21
 ],
-"credit capacity character": [
+"employment data": [
+3,
+9
+],
+"credit standing credit": [
 3,
 15
 ],
-"reputation personal": [
+"last accessed september": [
 3,
-15
-],
-"well beyond": [
-3,
-7,
-8
+4
 ],
 "personal characteristics": [
 3,
@@ -1472,23 +1454,7 @@
 15,
 17
 ],
-"credit capacity": [
-3,
-15
-],
-"standing credit capacity": [
-3,
-15
-],
-"character general reputation": [
-3,
-15
-],
-"capacity character general": [
-3,
-15
-],
-"capacity character": [
+"character general": [
 3,
 15
 ],
@@ -1496,16 +1462,39 @@
 3,
 4
 ],
-"last accessed september": [
+"general reputation personal": [
 3,
-4
+15
 ],
-"general reputation": [
+"credit capacity character": [
 3,
-15,
-17
+15
 ],
-"reputation personal characteristics": [
+"data contained": [
+3,
+21
+],
+"character general reputation": [
+3,
+15
+],
+"credit capacity": [
+3,
+15
+],
+"capacity character": [
+3,
+15
+],
+"capacity character general": [
+3,
+15
+],
+"standing credit capacity": [
+3,
+15
+],
+"reputation personal": [
 3,
 15
 ],
@@ -1517,33 +1506,27 @@
 3,
 23
 ],
-"employment data": [
-3,
-9
-],
-"character general": [
+"standing": [
 3,
 15
 ],
-"credit standing credit": [
+"general reputation": [
 3,
-15
+15,
+17
 ],
-"general reputation personal": [
+"well beyond": [
 3,
-15
+7,
+8
 ],
-"inaccurate information": [
+"fcra gives": [
 4,
 22
 ],
-"know what": [
+"information consumer reporting": [
 4,
-22
-],
-"credit freeze": [
-4,
-21
+5
 ],
 "prescreened": [
 4
@@ -1554,21 +1537,33 @@
 15,
 21
 ],
-"information consumer reporting": [
+"inaccurate information": [
 4,
-5
-],
-"permissible purpose": [
-4,
-21
+22
 ],
 "information consumer": [
 4,
 5
 ],
+"unverifiable information": [
+4,
+22
+],
 "dispute incomplete": [
 4,
 22
+],
+"releasing information": [
+4,
+21
+],
+"know what": [
+4,
+22
+],
+"nationwide consumer reporting": [
+4,
+21
 ],
 "reporting data": [
 4,
@@ -1579,19 +1574,27 @@
 4,
 22
 ],
-"releasing information": [
-4,
-21
-],
-"unverifiable information": [
+"delete inaccurate": [
 4,
 22
 ],
-"consumers credit reports": [
+"permissible purpose": [
 4,
 21
 ],
-"nationwide consumer reporting": [
+"inaccurate incomplete": [
+4,
+22
+],
+"credit freeze": [
+4,
+21
+],
+"protect privacy": [
+4,
+12
+],
+"consumers credit reports": [
 4,
 21
 ],
@@ -1599,29 +1602,19 @@
 4,
 22
 ],
-"fcra gives": [
-4,
-22
-],
-"delete inaccurate": [
-4,
-22
-],
-"protect privacy": [
-4,
-12
-],
-"inaccurate incomplete": [
-4,
-22
-],
 "nationwide consumer": [
 4,
 21
 ],
-"financial services": [
+"sensitive personal": [
 5,
-7
+10,
+11,
+21
+],
+"sell data": [
+5,
+23
 ],
 "sell personal": [
 5,
@@ -1631,9 +1624,9 @@
 5,
 7
 ],
-"physical safety": [
+"financial services": [
 5,
-23
+7
 ],
 "history credit": [
 5,
@@ -1643,35 +1636,24 @@
 5,
 21
 ],
-"sell data": [
+"physical safety": [
 5,
 23
-],
-"sensitive personal": [
-5,
-10,
-11,
-21
 ],
 "broad exemptions": [
 6,
 23
 ],
-"provide privacy": [
+"provide strong privacy": [
 6,
 22
 ],
-"provide strong": [
+"strong privacy": [
 6,
 22
 ],
-"financial institutions covered": [
-6,
-19
-],
-"companies provide": [
-6,
-10
+"nonpublic personal information": [
+6
 ],
 "privacy protections": [
 6,
@@ -1682,10 +1664,17 @@
 22,
 23
 ],
-"nonaffiliated third party": [
+"information held": [
+6,
+20
+],
+"institutions must provide": [
+6,
+22
+],
+"glba provides": [
 6,
 7,
-15,
 21
 ],
 "nonaffiliated third": [
@@ -1694,30 +1683,52 @@
 15,
 21
 ],
-"nonaffiliated third parties": [
+"consumer information": [
 6,
-7,
-21
+12
 ],
-"privacy policy": [
+"provide strong": [
+6,
+22
+],
+"privacy notice": [
 6,
 9,
 10,
 11
 ],
-"provide strong privacy": [
+"strong privacy protections": [
 6,
 22
 ],
-"nonpublic personal information": [
-6
-],
-"consumers about": [
+"privacy policies": [
 6,
-12,
+9
+],
+"institutions covered": [
+6,
+19
+],
+"financial information": [
+6,
+7,
+9,
+17,
+21
+],
+"glba provides specific": [
+6,
+7
+],
+"provide privacy": [
+6,
 22
 ],
-"privacy notice": [
+"companies provide": [
+6,
+10
+],
+"privacy policy": [
 6,
 9,
 10,
@@ -1727,62 +1738,35 @@
 6,
 7,
 12,
-21,
-22
-],
-"affiliate": [
-6,
-7,
-15,
 21
 ],
-"strong privacy protections": [
-6,
-22
-],
-"information held": [
-6,
-20
-],
-"privacy policies": [
-6,
-9
-],
-"glba provides": [
+"nonaffiliated third parties": [
 6,
 7,
 21
-],
-"strong privacy": [
-6,
-22
 ],
 "provides specific": [
 6,
 7
 ],
-"glba provides specific": [
+"consumers about": [
 6,
-7
-],
-"institutions must provide": [
-6,
+12,
 22
 ],
-"consumer information": [
-6,
-12
-],
-"financial information": [
+"nonaffiliated third party": [
 6,
 7,
-9,
-17,
+15,
 21
 ],
-"institutions covered": [
+"financial institutions covered": [
 6,
 19
+],
+"security requirements": [
+7,
+15
 ],
 "geolocation data": [
 7,
@@ -1793,18 +1777,14 @@
 7,
 15
 ],
-"security requirements": [
-7,
-15
-],
-"data security": [
-7,
-15
-],
 "certain data": [
 7,
 12,
 22
+],
+"data security": [
+7,
+15
 ],
 "facial recognition technology": [
 8,
@@ -1815,27 +1795,27 @@
 10,
 19
 ],
-"most recently": [
-8,
-16
-],
 "recognition technology": [
 8,
 19
 ],
-"last months": [
+"most recently": [
+8,
+16
+],
+"equifax privacy": [
 9,
 10
 ],
-"information education information": [
+"related information": [
 9,
 10
 ],
-"privacy statement last": [
+"privacy policy transunion": [
 9,
 10
 ],
-"policy experian": [
+"personal identifiers": [
 9,
 10
 ],
@@ -1843,53 +1823,12 @@
 9,
 10
 ],
-"privacy transunion": [
+"transunion last updated": [
 9,
 10,
 11
-],
-"commercial transaction": [
-9,
-10
 ],
 "last updated june": [
-9,
-10
-],
-"privacy policy experian": [
-9,
-10
-],
-"privacy statement equifax": [
-9,
-10
-],
-"public records": [
-9,
-16
-],
-"privacy transunion last": [
-9,
-10,
-11
-],
-"statement equifax": [
-9,
-10
-],
-"commercial information internet": [
-9,
-10
-],
-"third party data": [
-9,
-15
-],
-"data privacy policy": [
-9,
-10
-],
-"drawn from personal": [
 9,
 10
 ],
@@ -1897,24 +1836,32 @@
 9,
 10
 ],
-"policy last": [
+"privacy privacy statement": [
 9,
 10
 ],
-"related information education": [
+"last months": [
 9,
 10
 ],
-"last updated july": [
+"information education": [
+9,
+10
+],
+"last updated": [
 9,
 10,
 11
 ],
-"inferences drawn": [
+"statement last updated": [
 9,
 10
 ],
-"privacy policy transunion": [
+"party data": [
+9,
+15
+],
+"policy last": [
 9,
 10
 ],
@@ -1925,11 +1872,71 @@
 20,
 22
 ],
-"party data": [
+"transunion last": [
+9,
+10,
+11
+],
+"commercial information": [
+9,
+10
+],
+"policy experian": [
+9,
+10
+],
+"statement equifax": [
+9,
+10
+],
+"updated june": [
+9,
+10
+],
+"privacy policy experian": [
+9,
+10
+],
+"policy transunion": [
+9,
+10
+],
+"privacy transunion last": [
+9,
+10,
+11
+],
+"commercial transaction": [
+9,
+10
+],
+"equifax privacy statement": [
+9,
+10
+],
+"inferences drawn": [
+9,
+10
+],
+"privacy transunion": [
+9,
+10,
+11
+],
+"privacy notice transunion": [
+9,
+10,
+11
+],
+"privacy policy last": [
+9,
+10
+],
+"third party data": [
 9,
 15
 ],
-"network activity": [
+"drawn from personal": [
 9,
 10
 ],
@@ -1938,23 +1945,11 @@
 12,
 22
 ],
+"information internet": [
+9,
+10
+],
 "privacy statement sourcesofpersonaldata": [
-9,
-10
-],
-"statement last updated": [
-9,
-10
-],
-"policy transunion": [
-9,
-10
-],
-"privacy privacy statement": [
-9,
-10
-],
-"equifax privacy": [
 9,
 10
 ],
@@ -1966,36 +1961,49 @@
 9,
 10
 ],
-"related information": [
+"public records": [
+9,
+16
+],
+"commercial information internet": [
 9,
 10
+],
+"updated july": [
+9,
+10,
+11
+],
+"notice transunion": [
+9,
+10,
+11
+],
+"related information education": [
+9,
+10
+],
+"privacy statement last": [
+9,
+10
+],
+"data privacy policy": [
+9,
+10
+],
+"contact information": [
+9,
+17
 ],
 "statement sourcesofpersonaldata": [
 9,
 10
 ],
-"privacy statement": [
+"information education information": [
 9,
 10
 ],
-"personal identifiers": [
-9,
-10
-],
-"transunion last updated": [
-9,
-10,
-11
-],
-"privacy policy last": [
-9,
-10
-],
-"commercial information": [
-9,
-10
-],
-"last updated": [
+"last updated july": [
 9,
 10,
 11
@@ -2004,43 +2012,15 @@
 9,
 10
 ],
-"information internet": [
+"network activity": [
 9,
 10
 ],
-"equifax privacy statement": [
+"privacy statement": [
 9,
 10
 ],
-"notice transunion": [
-9,
-10,
-11
-],
-"transunion last": [
-9,
-10,
-11
-],
-"information education": [
-9,
-10
-],
-"contact information": [
-9,
-17
-],
-"updated july": [
-9,
-10,
-11
-],
-"privacy notice transunion": [
-9,
-10,
-11
-],
-"updated june": [
+"privacy statement equifax": [
 9,
 10
 ],
@@ -2054,11 +2034,11 @@
 11,
 19
 ],
-"rhode island": [
+"tracker iapp": [
 11,
-14
+22
 ],
-"legislation tracker": [
+"iapp state": [
 11,
 21,
 22
@@ -2067,9 +2047,13 @@
 11,
 22
 ],
-"give consumers": [
+"iapp state privacy": [
 11,
-22,
+21,
+22
+],
+"credit reporting data": [
+11,
 23
 ],
 "data collection": [
@@ -2077,7 +2061,17 @@
 13,
 16
 ],
-"iapp state privacy": [
+"give consumers": [
+11,
+22,
+23
+],
+"minnesota montana": [
+11,
+12,
+13
+],
+"legislation tracker": [
 11,
 21,
 22
@@ -2091,45 +2085,60 @@
 21,
 22
 ],
-"iapp state": [
+"rhode island": [
 11,
-21,
-22
-],
-"credit reporting data": [
-11,
-23
-],
-"minnesota montana": [
-11,
-12,
-13
-],
-"tracker iapp": [
-11,
-22
-],
-"personal information right": [
-12,
-22
+14
 ],
 "does include": [
 12,
 21
 ],
-"request their data": [
+"provide notice": [
+12,
+21,
+22
+],
+"collected data": [
 12,
 22
 ],
-"state except california": [
+"large entities": [
+12,
+20
+],
+"collected their information": [
+12,
+22
+],
+"delete their personal": [
+12,
+22
+],
+"california connecticut minnesota": [
 12,
 13
 ],
-"except california": [
+"data minimization": [
+12,
+22
+],
+"california connecticut": [
 12,
 13
 ],
-"connecticut minnesota montana": [
+"data from businesses": [
+12,
+22
+],
+"oregon also includes": [
+12,
+13
+],
+"state except": [
+12,
+13
+],
+"every state": [
 12,
 13
 ],
@@ -2142,14 +2151,34 @@
 12,
 22
 ],
-"collected their information": [
+"privacy programs": [
 12,
 22
 ],
-"provide notice": [
+"state except california": [
 12,
-21,
+13
+],
+"every state except": [
+12,
+13
+],
+"right of access": [
+12,
 22
+],
+"certain data practices": [
+12,
+22
+],
+"about certain data": [
+12,
+22
+],
+"privacy laws currently": [
+12,
+18,
+23
 ],
 "glba entity": [
 12,
@@ -2157,50 +2186,51 @@
 14,
 15
 ],
-"right to delete": [
-12,
-22
-],
-"every state": [
-12,
-13
-],
-"request that businesses": [
-12,
-22
-],
 "businesses delete": [
 12,
 22
 ],
-"except california connecticut": [
+"allow consumers": [
 12,
-13
-],
-"about certain data": [
-12,
-22
-],
-"data minimization": [
-12,
-22
-],
-"large entities": [
-12,
-20
-],
-"privacy programs": [
-12,
-22
+15,
+21
 ],
 "laws currently": [
 12,
 18,
 23
 ],
-"california connecticut minnesota": [
+"request their data": [
+12,
+22
+],
+"request that businesses": [
+12,
+22
+],
+"sensitive data": [
+12,
+22
+],
+"right to delete": [
+12,
+22
+],
+"connecticut minnesota montana": [
 12,
 13
+],
+"except california connecticut": [
+12,
+13
+],
+"consumers about certain": [
+12,
+22
+],
+"laws include": [
+12,
+15
 ],
 "information right": [
 12,
@@ -2212,81 +2242,31 @@
 14,
 15
 ],
-"certain data practices": [
+"personal information right": [
 12,
 22
 ],
-"every state except": [
+"except california": [
 12,
 13
-],
-"allow consumers": [
-12,
-15,
-21
-],
-"state except": [
-12,
-13
-],
-"consumers about certain": [
-12,
-22
-],
-"california connecticut": [
-12,
-13
-],
-"delete their personal": [
-12,
-22
-],
-"data from businesses": [
-12,
-22
-],
-"right of access": [
-12,
-22
-],
-"oregon also includes": [
-12,
-13
-],
-"privacy laws currently": [
-12,
-18,
-23
 ],
 "connecticut minnesota": [
 12,
 13
 ],
-"sensitive data": [
-12,
-22
-],
-"laws include": [
-12,
-15
-],
-"collected data": [
-12,
-22
-],
-"glba data": [
+"data level exemptions": [
 13,
-14,
-15
+15,
+16,
+18
 ],
-"glba data level": [
+"laws also include": [
 13,
-14,
-15
+18
 ],
-"include exemptions": [
+"glba covered data": [
 13,
-22
+16
 ],
 "fcra exemption": [
 13,
@@ -2297,22 +2277,9 @@
 13,
 21
 ],
-"entities regulated": [
-13,
-19,
-21
-],
-"laws also include": [
-13,
-18
-],
 "exempt glba": [
 13,
 23
-],
-"glba covered data": [
-13,
-16
 ],
 "level exemptions meaning": [
 13,
@@ -2322,11 +2289,28 @@
 13,
 15
 ],
-"data level exemptions": [
+"glba data": [
 13,
-15,
-16,
-18
+14,
+15
+],
+"include exemptions": [
+13,
+22
+],
+"glba data level": [
+13,
+14,
+15
+],
+"entities regulated": [
+13,
+19,
+21
+],
+"exemptions state": [
+14,
+15
 ],
 "glba exemptions state": [
 14,
@@ -2337,26 +2321,6 @@
 15,
 19
 ],
-"exemptions state": [
-14,
-15
-],
-"broker registry": [
-15,
-18
-],
-"state data broker": [
-15,
-18
-],
-"broker registry laws": [
-15,
-18
-],
-"data broker registry": [
-15,
-18
-],
 "registry laws": [
 15,
 18
@@ -2365,37 +2329,34 @@
 15,
 18
 ],
-"regulatory gaps": [
-16,
-19
+"state data broker": [
+15,
+18
 ],
-"search data": [
-16,
-17
+"data broker registry": [
+15,
+18
 ],
-"people search": [
-16,
-17,
+"broker registry": [
+15,
+18
+],
+"affiliate": [
+15
+],
+"broker registry laws": [
+15,
 18
 ],
 "search data broker": [
 16,
 17
 ],
-"federal privacy": [
-16,
-20,
-23
-],
-"privacy bills": [
-16,
-23
-],
-"exemptions included": [
-16,
-18
-],
 "people search data": [
+16,
+17
+],
+"search data": [
 16,
 17
 ],
@@ -2404,15 +2365,33 @@
 17,
 18
 ],
+"people search": [
+16,
+17,
+18
+],
+"regulatory gaps": [
+16,
+19
+],
 "criminal records": [
 16,
 17
 ],
-"health insurance portability": [
-17,
-19
+"exemptions included": [
+16,
+18
 ],
-"insurance portability": [
+"privacy bills": [
+16,
+23
+],
+"federal privacy": [
+16,
+20,
+23
+],
+"health insurance portability": [
 17,
 19
 ],
@@ -2428,6 +2407,10 @@
 17,
 18,
 21
+],
+"insurance portability": [
+17,
+19
 ],
 "fcra coverage": [
 18,
