@@ -1,0 +1,28 @@
+{
+ "generated_by": "tools/build_points.py",
+ "who_2008_checked_against": "WHO Standard Acupuncture Point Locations in the Western Pacific Region (2008), PDF text parsed locally (not redistributed)",
+ "points": 361,
+ "who_code_found": 361,
+ "pinyin_match": 361,
+ "hanzi_char_overlap_with_WHO_header": 361,
+ "low_location_token_overlap_flag_threshold": 0.3,
+ "low_overlap_points_review_manually": [
+  "BL2",
+  "BL5",
+  "BL7",
+  "BL61",
+  "KI6",
+  "GB13",
+  "CV24"
+ ],
+ "note": "Low overlap values came from wording differences; all 7 flagged points were hand-read against the WHO sentence and have the same meaning.",
+ "hand_read_verdicts": {
+  "BL2": "same meaning (read earlier)",
+  "BL61": "same meaning (read earlier)",
+  "KI6": "same meaning (read earlier)",
+  "BL5": "Same meaning: WHO \"1 B-cun superior to the anterior hairline, 1.5 B-cun lateral to the anterior median line\" vs AcuAtlas \"1 body-cun behind the anterior hairline and 1.5 body-cun lateral to the midline\". Difference is wording only.",
+  "BL7": "Same meaning: WHO 4 B-cun superior to anterior hairline, 1.5 B-cun lateral to anterior median line (midway between BL6 and BL8). AcuAtlas: 4 body-cun behind hairline, 1.5 lateral.",
+  "GB13": "Same meaning: WHO 0.5 B-cun superior to anterior hairline, 3 B-cun lateral to anterior median line. AcuAtlas: 0.5 above hairline, 3 lateral. (WHO adds the GV24-ST8 junction note, not in AcuAtlas.)",
+  "CV24": "Same meaning: WHO \"in the depression in the centre of the mentolabial sulcus\" vs AcuAtlas \"center of the groove between the lower lip and the chin\"."
+ }
+}

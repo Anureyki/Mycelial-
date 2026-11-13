@@ -1,0 +1,148 @@
+{
+ "extras_note": "EX-UE9/10/11 hand extra points are in hand.json, EX-LE8..12 foot extra points in foot.json (outside the WHO 2008 361).",
+ "organs": {
+  "lung_r": {
+   "x": 406.3,
+   "y": 506.6,
+   "organ": "lung",
+   "r": 12.8
+  },
+  "lung_l": {
+   "x": 492.7,
+   "y": 506.6,
+   "organ": "lung",
+   "r": 12.8
+  },
+  "heart": {
+   "x": 464.3,
+   "y": 548.6,
+   "organ": "heart",
+   "r": 11.9
+  },
+  "liver": {
+   "x": 412.4,
+   "y": 644.9,
+   "organ": "liver",
+   "r": 12.8
+  },
+  "gallbladder": {
+   "x": 429.7,
+   "y": 672.1,
+   "organ": "gallbladder",
+   "r": 6.9
+  },
+  "stomach": {
+   "x": 484.1,
+   "y": 647.4,
+   "organ": "stomach",
+   "r": 10.9
+  },
+  "spleen": {
+   "x": 513.7,
+   "y": 635.0,
+   "organ": "spleen",
+   "r": 7.9
+  },
+  "kidney_r": {
+   "x": 422.3,
+   "y": 694.3,
+   "organ": "kidney",
+   "r": 8.9
+  },
+  "kidney_l": {
+   "x": 476.7,
+   "y": 694.3,
+   "organ": "kidney",
+   "r": 8.9
+  },
+  "small_intestine": {
+   "x": 454.4,
+   "y": 743.7,
+   "organ": "small_intestine",
+   "r": 11.9
+  },
+  "large_intestine": {
+   "x": 407.5,
+   "y": 753.6,
+   "organ": "large_intestine",
+   "r": 9.9
+  },
+  "bladder": {
+   "x": 449.5,
+   "y": 867.2,
+   "organ": "bladder",
+   "r": 9.9
+  },
+  "pericardium": {
+   "x": 464.3,
+   "y": 548.6,
+   "organ": "pericardium",
+   "r": 17.8
+  }
+ },
+ "organs_note": "Carried over from body.html geometry.organs (schematic, approximate); re-scaled to the new figure.",
+ "houses": {
+  "regions": {
+   "1": "Head and face",
+   "2": "Neck and throat",
+   "3": "Shoulders, arms, hands",
+   "4": "Chest",
+   "5": "Heart and upper abdomen",
+   "6": "Lower abdomen and digestion",
+   "7": "Hips and lower back",
+   "8": "Reproductive and excretory organs",
+   "9": "Thighs",
+   "10": "Knees",
+   "11": "Calves and ankles",
+   "12": "Feet"
+  },
+  "bands": 12,
+  "top": 136,
+  "bottom": 1470,
+  "note": "12 equal bands head-to-feet, as in the reference image used by body.html (webapp/img/house_body.jpg)."
+ },
+ "hues": [
+  "#a98bd9",
+  "#8f86de",
+  "#6e93dc",
+  "#4fa9b4",
+  "#55b07c",
+  "#9cba4a",
+  "#d9b33f",
+  "#e8913c",
+  "#e66f41",
+  "#dc5466",
+  "#cf569a",
+  "#b77ccf"
+ ],
+ "channel_names": {
+  "lung": "Lung (Hand Taiyin)",
+  "large_intestine": "Large Intestine (Hand Yangming)",
+  "stomach": "Stomach (Foot Yangming)",
+  "spleen": "Spleen (Foot Taiyin)",
+  "heart": "Heart (Hand Shaoyin)",
+  "small_intestine": "Small Intestine (Hand Taiyang)",
+  "bladder": "Bladder (Foot Taiyang)",
+  "kidney": "Kidney (Foot Shaoyin)",
+  "pericardium": "Pericardium (Hand Jueyin)",
+  "triple_burner": "Triple Burner (Hand Shaoyang)",
+  "gallbladder": "Gallbladder (Foot Shaoyang)",
+  "liver": "Liver (Foot Jueyin)"
+ },
+ "element_of": {
+  "lung": "metal",
+  "large_intestine": "metal",
+  "stomach": "earth",
+  "spleen": "earth",
+  "heart": "fire",
+  "small_intestine": "fire",
+  "bladder": "water",
+  "kidney": "water",
+  "pericardium": "fire",
+  "triple_burner": "fire",
+  "gallbladder": "wood",
+  "liver": "wood",
+  "ren": "extraordinary",
+  "du": "extraordinary"
+ }
+}

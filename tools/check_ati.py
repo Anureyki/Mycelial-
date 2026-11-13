@@ -226,9 +226,10 @@ check("house_to_body_region holds the twelve regions verbatim, head to feet; hou
       _hr["1"] == "Head and face" and _hr["12"] == "Feet" and len(_hr) == 12
       and _json.load(open(os.path.join(ROOT, "config", "ati", "house_to_organ.json"), encoding="utf-8"))["houses"] == {})
 _page = open(os.path.join(ROOT, "webapp", "body.html"), encoding="utf-8").read()
-check("webapp/body.html holds no pillar, natal or window values - they arrive from the lighting call",
-      not re.search(r"[甲乙丙丁戊己庚辛壬癸][子丑寅卯辰巳午未申酉戌亥]", _page) and "\"lighting\"" in _page
-      and "11:00" not in _page)
+_js = open(os.path.join(ROOT, "webapp", "body2", "assets", "app.js"), encoding="utf-8").read()
+check("webapp/body.html and its app.js hold no pillar, natal or window values - they arrive from the lighting call",
+      not re.search(r"[甲乙丙丁戊己庚辛壬癸][子丑寅卯辰巳午未申酉戌亥]", _page + _js) and "\"lighting\"" in _js
+      and "11:00" not in _page + _js)
 
 # Houses (ati/ephemeris.py + ati/lighting.houses): whole-sign arithmetic everywhere;
 # accuracy wherever the ephemeris is installed, SKIPPED out loud where it is not.
@@ -262,50 +263,48 @@ else:
     check("houses: a record whose stated ascendant disagrees with the computed one lights nothing",
           _lit == [] and _gh == [] and "disagrees" in _st)
 
-# Layer 2 - SCHEMATIC meridians (webapp/body.html's geometry block): the principal's
-# direction rules and labelling, enforced so a later edit cannot drift from them.
-_bp = open(os.path.join(ROOT, "webapp", "body.html"), encoding="utf-8").read()
-_gm = re.search(r'<script type="application/json" id="geometry">(.*?)</script>', _bp, re.S)
-_G = _json.loads(_gm.group(1)) if _gm else {}
-_M, _F = _G.get("meridians") or {}, _G.get("frame") or {}
-check("twelve schematic pathways, the layer and every path labelled 'schematic reference — not for clinical use'",
-      len(_M) == 12 and _G.get("_label") == "schematic reference — not for clinical use"
-      and "${GEO._label}" in _bp
-      and not re.search(r"follows? classical texts|huangdi|classically accurate|anatomically accurate", _bp, re.I))
-check("posterior channels - Bladder, Small Intestine, Triple Burner - are the ones drawn dashed",
-      {k for k, m in _M.items() if m.get("posterior")} == {"bladder", "small_intestine", "triple_burner"})
-_mid = _F.get("midline_x", 200)
-check("Spleen and Stomach stay off the midline (never within 12 units of it)",
-      all(abs(x - _mid) >= 12 for k in ("spleen", "stomach") for x, _ in _M[k]["path"]))
-_st = _M["stomach"]["points"]
-check("ST36 sits below the knee and above the ankle, and above ST42 on the foot",
-      _F["knee_y"] < _st["ST36"][1] < _F["ankle_y"] and _st["ST36"][1] < _st["ST42"][1])
+# Layer 2 - the body page (webapp/body.html + webapp/body2/): the principal's direction rules and
+# labelling, enforced so a later edit cannot drift from them. The v2 page draws its geometry from
+# webapp/body2/data/points.json + meridians.json (placements are all marked approx), not from an
+# inline schematic block, so the old inline-geometry assertions are expressed against those files.
+_bp = _page
+_D2 = os.path.join(ROOT, "webapp", "body2", "data")
+_PJ = _json.load(open(os.path.join(_D2, "points.json"), encoding="utf-8"))
+_MJ = _json.load(open(os.path.join(_D2, "meridians.json"), encoding="utf-8"))
+_LJ = _json.load(open(os.path.join(_D2, "layers.json"), encoding="utf-8"))
+_FJ = _json.load(open(os.path.join(_D2, "figure.json"), encoding="utf-8"))
+_HJ = _json.load(open(os.path.join(_D2, "hand.json"), encoding="utf-8"))
+_PB = {p["code"]: p for p in _PJ}
+_reg = [k for k in _MJ if k not in ("ren", "du")]
+check("twelve regular pathways plus Ren and Du, and 361 unique codes each placed and marked approximate; "
+      "the page says it is not for clinical use and never claims classical or anatomical accuracy",
+      len(_reg) == 12 and {"ren", "du"} <= set(_MJ) and len(_PJ) == 361 and len(_PB) == 361
+      and all(p["place"] and all(v.get("approx") is True and v.get("basis") for v in p["place"].values()) for p in _PJ)
+      and "not for clinical use" in _bp.lower() and "approximate" in _bp.lower()
+      and not re.search(r"follows? classical texts|huangdi|classically accurate|anatomically accurate", _bp + _js, re.I))
+check("posterior channels - Bladder, Small Intestine, Triple Burner - are the ones flagged posterior (drawn dashed)",
+      {k for k in _reg if _MJ[k].get("posterior_primary")} == {"bladder", "small_intestine", "triple_burner"})
+_midx = _FJ["views"]["front"]["mid_x"]
+check("Spleen and Stomach stay off the midline (never within 12 px of it on the front view)",
+      all(abs(_PB[c]["place"]["front"]["x"] - _midx) >= 12 for k in ("spleen", "stomach")
+          for run in _MJ[k]["runs"] for c in run if "front" in _PB[c]["place"]))
+_fy = lambda c: _PB[c]["place"]["front"]["y"]
+check("ST36 sits below the knee (ST35) and above the ankle (ST40, body frame, y down); ST41 and ST42 are placed on the foot template",
+      _fy("ST35") < _fy("ST36") < _fy("ST40") and all(_PB[c]["place"]["front"]["frame"] == "foot" for c in ("ST41", "ST42")))
 _pts = _json.load(open(os.path.join(ROOT, "config", "ati", "meridian_points.json"), encoding="utf-8"))["points"]
-check("every yuan, luo and rule-derived horary point in the config is placed on its own channel",
-      all(c in _M[m]["points"] for m, p in _pts.items() for c, _, _ in p))
-_out = [tuple(q) for q in _G.get("outline") or []]
-_hd = (_F.get("hand") or {})
-def _digit_tips(seg):
-    """Digit tips are the local extremes along the hand's edge: a point further from the wrist
-    than both neighbours. Five per hand - thumb and four fingers - or the hands have collapsed."""
-    wy = min(p[1] for p in seg)
-    d = [((p[0] - seg[0][0]) ** 2 + (p[1] - wy) ** 2) ** .5 for p in seg]
-    return sum(1 for i in range(1, len(seg) - 1) if d[i] > d[i - 1] and d[i] >= d[i + 1] and d[i] > 30)
-try:
-    _a, _b = _out.index(tuple(_hd["wrist_outer"])), _out.index(tuple(_hd["wrist_inner"]))
-    _right = _out[_a:_b + 1]
-    _left = [(400 - x, y) for x, y in _right]
-    _tips = (_digit_tips(_right), _digit_tips(_left[::-1]))
-except (KeyError, ValueError):
-    _tips = (0, 0)
-check(f"each hand is open with five separate digits (found {_tips[0]} and {_tips[1]})", _tips == (5, 5))
-_HI = _G.get("houses_image") or {}
-_bd = _HI.get("bands") or []
-check("the house layer is the principal's reference image, its twelve bands measured from its divider lines",
-      os.path.exists(os.path.join(ROOT, "webapp", _HI.get("src", "-"))) and len(_bd) == 13
-      and all(80 < _bd[i + 1] - _bd[i] < 100 for i in range(12)) and 'class: "hit"' in _bp and "mask: \"url(#figmask)\"" in _bp)
-check("the meridian panel is titled 'schematic reference — not for clinical use' and draws no organ for the Triple Burner",
-      "SCHEMATIC REFERENCE — NOT FOR CLINICAL USE" in _bp and "triple_burner" not in _json.dumps(_G.get("organs", {})))
+check("every yuan, luo and rule-derived horary point in the config exists in points.json on its own channel, with a placement",
+      all(c in _PB and _PB[c]["meridian"] == m and _PB[c]["place"] for m, p in _pts.items() for c, _, _ in p))
+check("each hand template is open with five separate digits (thumb, index, middle, ring, little) in nails and palmistry",
+      list(_HJ["nails"]) == ["thumb", "index", "middle", "ring", "little"] and len(_HJ["palmistry"]["fingers"]) == 5)
+_hb = _LJ["houses"]
+check("the house layer is twelve equal bands head to feet over the figure, the supplied reference image is still shipped, "
+      "and the bands keep their hit/glow/mask hooks",
+      os.path.exists(os.path.join(ROOT, "webapp", "img", "house_body.jpg")) and _hb["bands"] == 12
+      and 80 < (_hb["bottom"] - _hb["top"]) / 12 < 130
+      and len(_hb["regions"]) == 12 and _hb["regions"]["1"] == "Head and face" and _hb["regions"]["12"] == "Feet"
+      and 'class: "hit"' in _js and 'mask: "url(#figmask)"' in _js and '"data-house"' in _js)
+check("the page header says 'not for clinical use' and the layer draws no organ for the Triple Burner",
+      "not for clinical use" in _bp and "triple_burner" not in _json.dumps(_LJ.get("organs", {})))
 check("the Meridians toggle is enabled now that the paths are drawn",
       re.search(r'id="t-meridians"[^>]*\bdisabled\b', _bp) is None and 'id="t-meridians"' in _bp)
 
