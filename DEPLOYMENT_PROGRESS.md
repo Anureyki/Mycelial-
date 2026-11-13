@@ -2046,3 +2046,47 @@ Recorded; each is its own small increment.
 - Legal's lookup chain (corpus -> cache -> web -> model): each step is labelled by source,
   but a chain that keeps falling back hides which answered. Decide per verb which sources
   are allowed at all, rather than falling through.
+
+## Status update - 2026-11-13
+
+Reconciliation at the principal's request, so nothing is overwritten or rebuilt.
+Everything through commit 391882a is pushed (local == origin/main). This section only
+records what changed since the 2026-11-11 status and what is newly found.
+
+**Resolved since 2026-11-11 (do not redo):**
+- 94f480a (Legal governance register) pushed; no local-only commits remain.
+- The 83 held corpus files are settled. 81 were committed as rebuilt term indexes
+  (2a0489c, statute text unchanged). The FRCP re-ingest was ADOPTED (599ef06): the
+  committed version's labels were mis-parsed U.S. Code numbers under an old 4,000-char
+  cap. The Texas Finance Code ch. 392 re-ingest was REJECTED and the official
+  17-section file kept. **Finding to honour on any future ingest:** the
+  texas.public.law mirror DROPS § 392.308 (consumer victim of identity theft) - use the
+  State's own publisher (statutes.capitol.texas.gov) for ch. 392. A dropped section is
+  invisible once ingested; Legal lost § 392.308 from 2026-09-23 until the 11-13 restore.
+- 36 public-domain authorities that existed only on this machine were committed
+  (9ba8be1); `.env.bak*` is now gitignored so a secrets backup cannot be published.
+
+**New findings (2026-11-13):**
+- Grow `reconcile_dose` auto-matches the first reading whose timestamp is AFTER the dose
+  event's `at` (plan-creation time). A dose logged AFTER its reading (reading entered,
+  then the plan persisted) therefore does not auto-reconcile - it must be passed the
+  reading explicitly (`ppm_after`, `reading_at`). Minor robustness item: match on
+  `poured_at` when present, or warn when a dose is created after the latest reading.
+- Meter is the MF-M51 at the 0.5 scale (ppm = EC uS x 0.5), on both plants' records.
+  Voice-transcribed EC keeps garbling ("$1723", "Twelve 16", a 1701 misread for ~2008);
+  each was caught by `intake_reading`'s ppm/EC cross-check and never stored. No fix
+  needed - the cross-check is the control - but the pattern is noted.
+
+**Legal Standing Review (2026-11-11) - stored, action items PARKED:**
+- The PDF is in `knowledge_base/legal_agent/documents/` (gitignored; carries the
+  principal's EDPI and SSN last-4, so never in the public repo).
+- Its action items are NOT being pursued (the principal does not recall the review),
+  recorded here so they are not lost: the VA FOIA determination deadline passed ~11-10
+  with no logged determination (next step would be a complaint draft under 5 USC
+  552(a)(4)(B), do not file); refused authorities Legal's drafts cite but cannot open -
+  ingestable via `tools/ingest_law.py`: 28 USC 2671-2680 & 1346(b) and 28 CFR Part 14
+  (FTCA), 15 USC 1681c-1 (FCRA); NOT ingestable from public-law sources: DoDI 1336.01 /
+  1000.30, SSA-89 form text, HUD-VASH program authority, agency SORNs.
+
+**Still waiting on the principal (unchanged):** enrol his phone at `/approve.html`;
+switch Bland's guard live; Bland call authorization; the organ-clock listener live switch.
