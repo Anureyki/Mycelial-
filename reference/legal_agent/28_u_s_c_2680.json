@@ -1,0 +1,41 @@
+{
+  "title": "28 U.S.C. \u00a7 2680",
+  "source": "United States Code title 28 section 2680, retrieved from Cornell LII (law.cornell.edu). The statutory text is a U.S. government work and is public domain; Cornell's annotations are excluded.",
+  "authority_class": "federal_statute",
+  "authority_class_basis": "Title of the work is a U.S. Code section citation, which fixes the class",
+  "claim_layer": "doctrinal",
+  "claim_layer_meaning": "States or describes the rule. Cite for what the law IS.",
+  "authorities_cited": [],
+  "term_index": {},
+  "origin_pdf": "usc28_2680.txt",
+  "extraction": {
+    "extractor": "text file (already extracted)",
+    "pages": 1,
+    "no_text_layer": [],
+    "raised": [],
+    "recovered": [],
+    "lost": [],
+    "complete": true
+  },
+  "pages": 1,
+  "sections": [
+    {
+      "citation": "\u00a7 2680.",
+      "kind": "section_sign",
+      "page": 1,
+      "text": "\u00a7 2680. Exceptions. The provisions of this chapter and section 1346(b) of this title shall not apply to\u2014 (a) Any claim based upon an act or omission of an employee of the Government , exercising due care, in the execution of a statute or regulation, whether or not such statute or regulation be valid, or based upon the exercise or performance or the failure to exercise or perform a discretionary function or duty on the part of a federal agency or an employee of the Government , whether or not the discretion involved be abused. (b) Any claim arising out of the loss, miscarriage, or negligent transmission of letters or postal matter. (c) Any claim arising in respect of the assessment or collection of any tax or customs duty, or the detention of any goods, merchandise, or other property by any officer of customs or excise or any other law enforcement officer, except that the provisions of this chapter and section 1346(b) of this title apply to any claim based on injury or loss of goods, merchandise, or other property, while in the possession of any officer of customs or excise or any other law enforcement officer, if\u2014 (1) the property was seized for the purpose of forfeiture under any provision of Federal law providing for the forfeiture of property other than as a sentence imposed upon conviction of a criminal offense; (2) the interest of the claimant was not forfeited; (3) the interest of the claimant was not remitted or mitigated (if the property was subject to forfeiture); and (4) the claimant was not convicted of a crime for which the interest of the claimant in the property was subject to forfeiture under a Federal criminal forfeiture law.. [1] (d) Any claim for which a remedy is provided by chapter 309 or 311 of title 46 relating to claims or suits in admiralty against the United States. (e) Any claim arising out of an act or omission of any employee of the Government in administering the provisions of sections 1\u201331 of Title 50, Appendix. [2] (f) Any claim for damages caused by the imposition or establishment of a quarantine by the United States. [(g) Repealed. Sept. 26, 1950, ch. 1049, \u00a7 13 (5), 64 Stat. 1043 .] (h) Any claim arising out of assault, battery, false imprisonment, false arrest, malicious prosecution, abuse of process, libel, slander, misrepresentation, deceit, or interference with contract rights: Provided, That, with regard to acts or omissions of investigative or law enforcement officers of the United States Government, the provisions of this chapter and section 1346(b) of this title shall apply to any claim arising, on or after the date of the enactment of this proviso, out of assault, battery, false imprisonment, false arrest, abuse of process, or malicious prosecution. For the purpose of this subsection, \u201cinvestigative or law enforcement officer\u201d means any officer of the United States who is empowered by law to execute searches, to seize evidence, or to make arrests for violations of Federal law. (i) Any claim for damages caused by the fiscal operations of the Treasury or by the regulation of the monetary system. (j) Any claim arising out of the combatant activities of the military or naval forces, or the Coast Guard , during time of war. (k) Any claim arising in a foreign country. (l) Any claim arising from the activities of the Tennessee Valley Authority . (m) Any claim arising from the activities of the Panama Canal Company. (n) Any claim arising from the activities of a Federal land bank, a Federal intermediate credit bank, or a bank for cooperatives. (June 25, 1948, ch. 646, 62 Stat. 984 ; July 16, 1949, ch. 340, 63 Stat. 444 ; Sept. 26, 1950, ch. 1049, \u00a7\u00a7 2(a)(2), 13(5), 64 Stat. 1038 , 1043; Pub. L. 86\u2013168, title II, \u00a7 202(b) , Aug. 18, 1959 , 73 Stat. 389 ; Pub. L. 93\u2013253, \u00a7 2 , Mar. 16, 1974 , 88 Stat. 50 ; Pub. L. 106\u2013185, \u00a7 3(a) , Apr. 25, 2000 , 114 Stat. 211 ; Pub. L. 109\u2013304, \u00a7 17(f)(4) , Oct. 6, 2006 , 120 Stat. 1708 .) [1] So in original. [2] See References in Text note below.",
+      "integrity": {
+        "state": "complete",
+        "basis": "Full retrieved body of 3,988 characters stored; under the 60,000 cap, so nothing was cut.",
+        "stamped_at": "2026-11-13T16:47:37",
+        "stored_chars": 3988,
+        "source_chars": 3988,
+        "cap_applied": 60000
+      },
+      "authority_class": "federal_statute",
+      "claim_layer": "doctrinal",
+      "claim_layer_meaning": "States or describes the rule. Cite for what the law IS."
+    }
+  ],
+  "claim_layer_basis": "Set from the class, not from the text: a statute or regulation states the rule rather than describing or arguing it, which the citation in the title establishes definitionally."
+}

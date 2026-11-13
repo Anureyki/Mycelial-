@@ -1,0 +1,41 @@
+{
+  "title": "28 U.S.C. \u00a7 2672",
+  "source": "United States Code title 28 section 2672, retrieved from Cornell LII (law.cornell.edu). The statutory text is a U.S. government work and is public domain; Cornell's annotations are excluded.",
+  "authority_class": "federal_statute",
+  "authority_class_basis": "Title of the work is a U.S. Code section citation, which fixes the class",
+  "claim_layer": "doctrinal",
+  "claim_layer_meaning": "States or describes the rule. Cite for what the law IS.",
+  "authorities_cited": [],
+  "term_index": {},
+  "origin_pdf": "usc28_2672.txt",
+  "extraction": {
+    "extractor": "text file (already extracted)",
+    "pages": 1,
+    "no_text_layer": [],
+    "raised": [],
+    "recovered": [],
+    "lost": [],
+    "complete": true
+  },
+  "pages": 1,
+  "sections": [
+    {
+      "citation": "\u00a7 2672.",
+      "kind": "section_sign",
+      "page": 1,
+      "text": "\u00a7 2672. Administrative adjustment of claims. The head of each Federal agency or his designee, in accordance with regulations prescribed by the Attorney General, may consider, ascertain, adjust, determine, compromise, and settle any claim for money damages against the United States for injury or loss of property or personal injury or death caused by the negligent or wrongful act or omission of any employee of the agency while acting within the scope of his office or employment, under circumstances where the United States, if a private person, would be liable to the claimant in accordance with the law of the place where the act or omission occurred: Provided, That any award, compromise, or settlement in excess of $25,000 shall be effected only with the prior written approval of the Attorney General or his designee. Notwithstanding the proviso contained in the preceding sentence, any award, compromise, or settlement may be effected without the prior written approval of the Attorney General or his or her designee, to the extent that the Attorney General delegates to the head of the agency the authority to make such award, compromise, or settlement. Such delegations may not exceed the authority delegated by the Attorney General to the United States attorneys to settle claims for money damages against the United States. Each Federal agency may use arbitration, or other alternative means of dispute resolution under the provisions of subchapter IV of chapter 5 of title 5, to settle any tort claim against the United States, to the extent of the agency\u2019s authority to award, compromise, or settle such claim without the prior written approval of the Attorney General or his or her designee. Subject to the provisions of this title relating to civil actions on tort claims against the United States, any such award, compromise, settlement, or determination shall be final and conclusive on all officers of the Government, except when procured by means of fraud. Any award, compromise, or settlement in an amount of $2,500 or less made pursuant to this section shall be paid by the head of the Federal agency concerned out of appropriations available to that agency. Payment of any award, compromise, or settlement in an amount in excess of $2,500 made pursuant to this section or made by the Attorney General in any amount pursuant to section 2677 of this title shall be paid in a manner similar to judgments and compromises in like causes and appropriations or funds available for the payment of such judgments and compromises are hereby made available for the payment of awards, compromises, or settlements under this chapter. The acceptance by the claimant of any such award, compromise, or settlement shall be final and conclusive on the claimant, and shall constitute a complete release of any claim against the United States and against the employee of the government whose act or omission gave rise to the claim, by reason of the same subject matter. (June 25, 1948, ch. 646, 62 Stat. 983 ; Apr. 25, 1949, ch. 92, \u00a7 2(b), 63 Stat. 62 ; May 24, 1949, ch. 139, \u00a7 125, 63 Stat. 106 ; Sept. 23, 1950, ch. 1010, \u00a7 9, 64 Stat. 987 ; Pub. L. 86\u2013238, \u00a7 1(1) , Sept. 8, 1959 , 73 Stat. 471 ; Pub. L. 89\u2013506 , \u00a7\u00a7 1, 9(a), July 18, 1966 , 80 Stat. 306 , 308; Pub. L. 101\u2013552, \u00a7 8(a) , Nov. 15, 1990 , 104 Stat. 2746 .)",
+      "integrity": {
+        "state": "complete",
+        "basis": "Full retrieved body of 3,329 characters stored; under the 60,000 cap, so nothing was cut.",
+        "stamped_at": "2026-11-13T16:47:34",
+        "stored_chars": 3329,
+        "source_chars": 3329,
+        "cap_applied": 60000
+      },
+      "authority_class": "federal_statute",
+      "claim_layer": "doctrinal",
+      "claim_layer_meaning": "States or describes the rule. Cite for what the law IS."
+    }
+  ],
+  "claim_layer_basis": "Set from the class, not from the text: a statute or regulation states the rule rather than describing or arguing it, which the citation in the title establishes definitionally."
+}

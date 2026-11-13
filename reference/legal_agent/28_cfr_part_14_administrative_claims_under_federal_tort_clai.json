@@ -1,0 +1,430 @@
+{
+  "title": "28 CFR Part 14 - Administrative Claims Under Federal Tort Claims Act",
+  "source": "Electronic CFR, title 28 part 14, as of 2026-08-01, retrieved from ecfr.gov. Federal regulation - public domain.",
+  "authority_class": "regulation",
+  "authority_class_basis": "Title of the work is a CFR part citation, which fixes the class",
+  "claim_layer": "doctrinal",
+  "claim_layer_meaning": "States or describes the rule. Cite for what the law IS.",
+  "authorities_cited": [],
+  "term_index": {
+    "tort claims": [
+      0,
+      5,
+      10
+    ],
+    "federal agency": [
+      0,
+      1,
+      3,
+      5,
+      6,
+      8
+    ],
+    "federal tort claims": [
+      0,
+      5,
+      10
+    ],
+    "federal tort": [
+      0,
+      5,
+      10
+    ],
+    "united states": [
+      0,
+      3,
+      4,
+      5,
+      8,
+      10
+    ],
+    "each agency": [
+      1,
+      9
+    ],
+    "accrue until": [
+      1,
+      7
+    ],
+    "gave rise": [
+      1,
+      8
+    ],
+    "final disposition": [
+      1,
+      7
+    ],
+    "duly authorized": [
+      1,
+      2,
+      7
+    ],
+    "final agency action": [
+      1,
+      7
+    ],
+    "claims presented": [
+      1,
+      5
+    ],
+    "personal injury": [
+      1,
+      2,
+      3
+    ],
+    "claim arising": [
+      1,
+      5
+    ],
+    "timely filing": [
+      1,
+      7
+    ],
+    "final denial": [
+      1,
+      7
+    ],
+    "months after": [
+      1,
+      7
+    ],
+    "agency specifically": [
+      1,
+      5
+    ],
+    "final agency": [
+      1,
+      7
+    ],
+    "standard form": [
+      1,
+      8
+    ],
+    "legal representative": [
+      1,
+      2,
+      7,
+      8
+    ],
+    "duly authorized agent": [
+      1,
+      2,
+      7
+    ],
+    "authorized agent": [
+      1,
+      2,
+      7
+    ],
+    "agency action": [
+      1,
+      7
+    ],
+    "administrative claim": [
+      1,
+      2,
+      5,
+      7,
+      10
+    ],
+    "claim based": [
+      2,
+      3
+    ],
+    "written request": [
+      3,
+      7
+    ],
+    "subject matter": [
+      3,
+      8
+    ],
+    "administrative claims": [
+      3,
+      5
+    ],
+    "determine compromise": [
+      4,
+      10
+    ],
+    "adjust determine": [
+      4,
+      10
+    ],
+    "agency order": [
+      4,
+      5
+    ],
+    "states code": [
+      4,
+      8,
+      10
+    ],
+    "only after": [
+      4,
+      5
+    ],
+    "title united states": [
+      4,
+      8,
+      10
+    ],
+    "title united": [
+      4,
+      8,
+      10
+    ],
+    "adjust determine compromise": [
+      4,
+      10
+    ],
+    "united states code": [
+      4,
+      8,
+      10
+    ],
+    "civil division": [
+      5,
+      10
+    ],
+    "requesting agency": [
+      5,
+      6
+    ],
+    "award compromise": [
+      5,
+      8
+    ],
+    "general pursuant": [
+      5,
+      8
+    ],
+    "torts branch": [
+      5,
+      10
+    ],
+    "settlement authority": [
+      5,
+      10
+    ],
+    "authority delegated": [
+      5,
+      8,
+      10
+    ],
+    "attorney general pursuant": [
+      5,
+      8
+    ],
+    "attorney general": [
+      5,
+      8,
+      10
+    ],
+    "section order": [
+      7,
+      10
+    ]
+  },
+  "origin_pdf": "28cfr14.txt",
+  "extraction": {
+    "extractor": "text file (already extracted)",
+    "pages": 1,
+    "no_text_layer": [],
+    "raised": [],
+    "recovered": [],
+    "lost": [],
+    "complete": true
+  },
+  "pages": 1,
+  "sections": [
+    {
+      "citation": "\u00a7 14.1",
+      "kind": "section_sign",
+      "page": 1,
+      "text": "\u00a7 14.1 Scope of regulations. These regulations shall apply only to claims asserted under the Federal Tort Claims Act. The terms Federal agency and agency, as used in this part, include the executive departments, the military departments, independent establishments of the United States, and corporations primarily acting as instrumentalities or agencies of the United States but do not include any contractor with the United States. [Order No. 960-81, 46 FR 52355, Oct. 27, 1981]",
+      "integrity": {
+        "state": "complete",
+        "basis": "Full retrieved body of 479 characters stored; under the 60,000 cap, so nothing was cut.",
+        "stamped_at": "2026-11-13T16:47:37",
+        "stored_chars": 479,
+        "source_chars": 479,
+        "cap_applied": 60000
+      },
+      "authority_class": "regulation",
+      "claim_layer": "doctrinal",
+      "claim_layer_meaning": "States or describes the rule. Cite for what the law IS."
+    },
+    {
+      "citation": "\u00a7 14.2",
+      "kind": "section_sign",
+      "page": 1,
+      "text": "\u00a7 14.2 Administrative claim; when presented. (a) For purposes of the provisions of 28 U.S.C. 2401(b), 2672, and 2675, a claim shall be deemed to have been presented when a Federal agency receives from a claimant, his duly authorized agent or legal representative, an executed Standard Form 95 or other written notification of an incident, accompanied by a claim for money damages in a sum certain for injury to or loss of property, personal injury, or death alleged to have occurred by reason of the incident; and the title or legal capacity of the person signing, and is accompanied by evidence of his authority to present a claim on behalf of the claimant as agent, executor, administrator, parent, guardian, or other representative. (b)(1) A claim shall be presented to the Federal agency whose activities gave rise to the claim. When a claim is presented to any other Federal agency, that agency shall transfer it forthwith to the appropriate agency, if the proper agency can be identified from the claim, and advise the claimant of the transfer. If transfer is not feasible the claim shall be returned to the claimant. The fact of transfer shall not, in itself, preclude further transfer, return of the claim to the claimant or other appropriate disposition of the claim. A claim shall be presented as required by 28 U.S.C. 2401(b) as of the date it is received by the appropriate agency. (2) When more than one Federal agency is or may be involved in the events giving rise to the claim, an agency with which the claim is filed shall contact all other affected agencies in order to designate the single agency which will thereafter investigate and decide the merits of the claim. In the event that an agreed upon designation cannot be made by the affected agencies, the Department of Justice shall be consulted and will thereafter designate an agency to investigate and decide the merits of the claim. Once a determination has been made, the designated agency shall notify the claimant that all future correspondence concerning the claim shall be directed to that Federal agency. All involved Federal agencies may agree either to conduct their own administrative reviews and to coordinate the results or to have the investigations conducted by the designated Federal agency, but, in either event, the designated Federal agency will be responsible for the final determination of the claim. (3) A claimant presenting a claim arising from an incident to more than one agency should identify each agency to which the claim is submitted at the time each claim is presented. Where a claim arising from an incident is presented to more than one Federal agency without any indication that more than one agency is involved, and any one of the concerned Federal agencies takes final action on that claim, the final action thus taken is conclusive on the claims presented to the other agencies in regard to the time required for filing suit set forth in 28 U.S.C. 2401(b). However, if a second involved Federal agency subsequently desires to take further action with a view towards settling the claim the second Federal agency may treat the matter as a request for reconsideration of the final denial under 28 CFR 14.9(b), unless suit has been filed in the interim, and so advise the claimant. (4) If, after an agency final denial, the claimant files a claim arising out of the same incident with a different Federal agency, the new submission of the claim will not toll the requirement of 28 U.S.C. 2401(b) that suit must be filed within six months of the final denial by the first agency, unless the second agency specifically and explicitly treats the second submission as a request for reconsideration under 28 CFR 14.9(b) and so advises the claimant. (c) A claim presented in compliance with paragraph (a) of this section may be amended by the claimant at any time prior to final agency action or prior to the exercise of the claimant's option under 28 U.S.C. 2675(a). Amendments shall be submitted in writing and signed by the claimant or his duly authorized agent or legal representative. Upon the timely filing of an amendment to a pending claim, the agency shall have six months in which to make a final disposition of the claim as amended and the claimant's option under 28 U.S.C. 2675(a) shall not accrue until six months after the filing of an amendment. [Order No. 870-79, 45 FR 2650, Jan. 14, 1980, as amended by Order No. 960-81, 46 FR 52355, Oct. 27, 1981; Order No. 1179-87, 52 FR 7411, Mar. 11, 1987]",
+      "integrity": {
+        "state": "complete",
+        "basis": "Full retrieved body of 4,513 characters stored; under the 60,000 cap, so nothing was cut.",
+        "stamped_at": "2026-11-13T16:47:37",
+        "stored_chars": 4513,
+        "source_chars": 4513,
+        "cap_applied": 60000
+      },
+      "authority_class": "regulation",
+      "claim_layer": "doctrinal",
+      "claim_layer_meaning": "States or describes the rule. Cite for what the law IS."
+    },
+    {
+      "citation": "\u00a7 14.3",
+      "kind": "section_sign",
+      "page": 1,
+      "text": "\u00a7 14.3 Administrative claim; who may file. (a) A claim for injury to or loss of property may be presented by the owner of the property, his duly authorized agent or legal representative. (b) A claim for personal injury may be presented by the injured person, his duly authorized agent, or legal representative. (c) A claim based on death may be presented by the executor or administrator of the decendent's estate, or by any other person legally entitled to assert such a claim in accordance with applicable State law. (d) A claim for loss wholly compensated by an insurer with the rights of a subrogee may be presented by the insurer. A claim for loss partially compensated by an insurer with the rights of a subrogee may be presented by the parties individually as their respective interests appear, or jointly. [Order No. 371-66, 31 FR 16616, Dec. 29, 1966, as amended by Order No. 1179-87, 52 FR 7412, Mar. 11, 1987]",
+      "integrity": {
+        "state": "complete",
+        "basis": "Full retrieved body of 920 characters stored; under the 60,000 cap, so nothing was cut.",
+        "stamped_at": "2026-11-13T16:47:37",
+        "stored_chars": 920,
+        "source_chars": 920,
+        "cap_applied": 60000
+      },
+      "authority_class": "regulation",
+      "claim_layer": "doctrinal",
+      "claim_layer_meaning": "States or describes the rule. Cite for what the law IS."
+    },
+    {
+      "citation": "\u00a7 14.4",
+      "kind": "section_sign",
+      "page": 1,
+      "text": "\u00a7 14.4 Administrative claims; evidence and information to be submitted. (a) Death. In support of a claim based on death, the claimant may be required to submit the following evidence or information: (1) An authenticated death certificate or other competent evidence showing cause of death, date of death, and age of the decedent. (2) Decedent's employment or occupation at time of death, including his monthly or yearly salary or earnings (if any), and the duration of his last employment or occupation. (3) Full names, addresses, birth dates, kinship, and marital status of the decedent's survivors, including identification of those survivors who were dependent for support upon the decedent at the time of his death. (4) Degree of support afforded by the decedent to each survivor dependent upon him for support at the time of his death. (5) Decedent's general physical and mental condition before death. (6) Itemized bills for medical and burial expenses incurred by reason of the incident causing death, or itemized receipts of payment for such expenses. (7) If damages for pain and suffering prior to death are claimed, a physician's detailed statement specifying the injuries suffered, duration of pain and suffering, any drugs administered for pain, and the decedent's physical condition in the interval between injury and death. (8) Any other evidence or information which may have a bearing on either the responsibility of the United States for the death or the damages claimed. (b) Personal injury. In support of a claim for personal injury, including pain and suffering, the claimant may be required to submit the following evidence or information: (1) A written report by his attending physician or dentist setting forth the nature and extent of the injury, nature and extent of treatment, any degree of temporary or permanent disability, the prognosis, period of hospitalization, and any diminished earning capacity. In addition, the claimant may be required to submit to a physical or mental examination by a physician employed by the agency or another Federal agency. A copy of the report of the examining physician shall be made available to the claimant upon the claimant's written request provided that he has, upon request, furnished the report referred to in the first sentence of this paragraph and has made or agrees to make available to the agency any other physician's reports previously or thereafter made of the physical or mental condition which is the subject matter of his claim. (2) Itemized bills for medical, dental, and hospital expenses incurred, or itemized receipts of payment for such expenses. (3) If the prognosis reveals the necessity for future treatment, a statement of expected expenses for such treatment. (4) If a claim is made for loss of time from employment, a written statement from his employer showing actual time lost from employment, whether he is a full or part-time employee, and wages or salary actually lost. (5) If a claim is made for loss of income and the claimant is self-employed, documentary evidence showing the amounts of earnings actually lost. (6) Any other evidence or information which may have a bearing on either the responsibility of the United States for the personal injury or the damages claimed. (c) Property damage. In support of a claim for injury to or loss of property, real or personal, the claimant may be required to submit the following evidence or information: (1) Proof of ownership. (2) A detailed statement of the amount claimed with respect to each item of property. (3) An itemized receipt of payment for necessary repairs or itemized written estimates of the cost of such repairs. (4) A statement listing date of purchase, purchase price and salvage value, where repair is not economical. (5) Any other evidence or information which may have a bearing on either the responsibility of the United States for the injury to or loss of property or the damages claimed.",
+      "integrity": {
+        "state": "complete",
+        "basis": "Full retrieved body of 3,955 characters stored; under the 60,000 cap, so nothing was cut.",
+        "stamped_at": "2026-11-13T16:47:37",
+        "stored_chars": 3955,
+        "source_chars": 3955,
+        "cap_applied": 60000
+      },
+      "authority_class": "regulation",
+      "claim_layer": "doctrinal",
+      "claim_layer_meaning": "States or describes the rule. Cite for what the law IS."
+    },
+    {
+      "citation": "\u00a7 14.5",
+      "kind": "section_sign",
+      "page": 1,
+      "text": "\u00a7 14.5 Review by legal officers. The authority to adjust, determine, compromise, and settle a claim under the provisions of section 2672 of title 28, United States Code, shall, if the amount of a proposed compromise, settlement, or award exceeds $5,000, be exercised by the head of an agency or his designee only after review by a legal officer of the agency. [Order No. 371-66, 31 FR 16616, Dec. 29, 1966, as amended by Order No. 757-77, 42 FR 62001, Dec. 8, 1977; Order No. 960-81, 46 FR 52355, Oct. 27, 1981]",
+      "integrity": {
+        "state": "complete",
+        "basis": "Full retrieved body of 511 characters stored; under the 60,000 cap, so nothing was cut.",
+        "stamped_at": "2026-11-13T16:47:37",
+        "stored_chars": 511,
+        "source_chars": 511,
+        "cap_applied": 60000
+      },
+      "authority_class": "regulation",
+      "claim_layer": "doctrinal",
+      "claim_layer_meaning": "States or describes the rule. Cite for what the law IS."
+    },
+    {
+      "citation": "\u00a7 14.6",
+      "kind": "section_sign",
+      "page": 1,
+      "text": "\u00a7 14.6 Dispute resolution techniques and limitations on agency authority. (a) Guidance regarding dispute resolution. The administrative process established pursuant to 28 U.S.C. 2672 and this part 14 is intended to serve as an efficient effective forum for rapidly resolving tort claims with low costs to all participants. This guidance is provided to agencies to improve their use of this administrative process and to maximize the benefit achieved through application of prompt, fair, and efficient techniques that achieve an informal resolution of administrative tort claims without burdening claimants or the agency. This section provides guidance to agencies only and does not create or establish any right to enforce any provision of this part on behalf of any claimant against the United States, its agencies, its officers, or any other person. This section also does not require any agency to use any dispute resolution technique or process. (1) Whenever feasible, administrative claims should be resolved through informal discussions, negotiations, and settlements rather than through the use of any formal or structured process. At the same time, agency personnel processing administrative tort claims should be trained in dispute resolution techniques and skills that can contribute to the prompt, fair, and efficient resolution of administrative claims. (2) An agency may resolve disputed factual questions regarding claims against the United States under the FTCA, including 28 U.S.C. 2671-2680, through the use of any alternative dispute resolution technique or process if the agency specifically agrees to employ the technique or process, and reserves to itself the discretion to accept or reject the determinations made through the use of such technique or process. (3) Alternative dispute resolution techniques or processes should not be adopted arbitrarily but rather should be based upon a determination that use of a particular technique is warranted in the context of a particular claim or claims, and that such use will materially contribute to the prompt, fair, and efficient resolution of the claims. If alternative dispute resolution techniques will not materially contribute to the prompt, fair, and efficient resolution of claims, the dispute resolution processes otherwise used pursuant to these regulations shall be the preferred means of seeking resolution of such claims. (b) Alternative dispute resolution \u2014(1) Case-by-case. In order to use, and before using, any alternative dispute resolution technique or process to facilitate the prompt resolution of disputes that are in excess of the agency's delegated authority, an agency may use the following procedure to obtain written approval from the Attorney General, or his or her designee, to compromise a claim or series of related claims. (i) A request for settlement authority under paragraph (b)(1) of this section shall be directed to the Director, Torts Branch, Civil Division, Department of Justice, (\u201cDirector\u201d) and shall contain information justifying the request, including: (A) The basis for concluding that liability exists under the FTCA; (B) A description of the proposed alternative dispute resolution technique or process and a statement regarding why this proposed form of alternative dispute resolution is suitable for the claim or claims; (C) A statement reflecting the claimant's or claimants' consent to use of the proposed form of alternative dispute resolution, indicating the proportion of any additional cost to the United States from use of the proposed alternative dispute resolution technique or process that shall be borne by the claimant or claimants, and specifying the manner and timing of payment of that proportion to be borne by the claimant or claimants; (D) A statement of how the requested action would facilitate use of an alternative dispute resolution technique or process; (E) An explanation of the extent to which the decision rendered in the alternative dispute resolution proceeding would be made binding upon claimants; and, (F) An estimate of the potential range of possible settlements resulting from use of the proposed alternative dispute resolution technique. (ii) The Director shall forward a request for expedited settlement action under paragraph (b)(1)(i) of this section, along with the Director's recommendation as to what action should be taken, to the Department of Justice official who has authority to authorize settlement of the claim or related claims. If that official approves the request, a written authorization shall be promptly forwarded to the requesting agency. (2) Delegation of authority. Pursuant to, and within the limits of, 28 U.S.C. 2672, the head of an agency or his or her designee may request delegations of authority to make any award, compromise, or settlement without the prior written approval of the Attorney General or his or her designee in excess of the agency's authority. In considering whether to delegate authority pursuant to 28 U.S.C. 2672 in excess of previous authority conferred upon the agency, consideration shall be given to: (i) The extent to which the agency has established an office whose responsibilities expressly include the administrative resolution of claims presented pursuant to the Federal Tort Claims Act; (ii) The agency's experience with the resolution of administrative claims presented pursuant to 28 U.S.C. 2672; (iii) The Department of Justice's experiences with regard to administrative resolution of tort claims arising out of the agency's activities. (c) Monetary authority. An award, compromise, or settlement of a claim by an agency under 28 U.S.C. 2672, in excess of $25,000 or in excess of the authority delegated to the agency by the Attorney General pursuant to 28 U.S.C. 2672, whichever is greater, shall be effected only with the prior written approval of the Attorney General or his or her designee. For purposes of this paragraph, a principal claim and any derivative or subrogated claim shall be treated as a single claim. (d) Limitations on settlement authority \u2014(1) Policy. An administrative claim may be adjusted, determined, compromised, or settled by an agency under 28 U.S.C. 2672 only after consultation with the Department of Justice when, in the opinion of the agency: (i) A new precedent or a new point of law is involved; or (ii) A question of policy is or may be involved; or (iii) The United States is or may be entitled to indemnity or contribution from a third party and the agency is unable to adjust the third party claim; or (iv) The compromise of a particular claim, as a practical matter, will or may control the disposition of a related claim in which the amount to be paid may exceed $25,000 or may exceed the authority delegated to the agency by the Attorney General pursuant to 28 U.S.C. 2672, whichever is greater. (2) Litigation arising from the same incident. An administrative claim may be adjusted, determined, compromised, or settled by an agency under 28 U.S.C. 2672 only after consultation with the Department of Justice when the agency is informed or is otherwise aware that the United States or an employee, agent, or cost-plus contractor of the United States is involved in litigation based on a claim arising out of the same incident or transaction. (e) Procedure. When Department of Justice approval or consultation is required, or the advice of the Department of Justice is otherwise to be requested, under this section, the written referral or request of the Federal agency shall be directed to the Director at any time after presentment of a claim to the Federal agency, and shall contain: (1) A short and concise statement of the facts and of the reasons for the referral or request; (2) Copies of relevant portions of the agency's claim file; and (3) A statement of the recommendations or views of the agency. [Order No. 1591-92, 57 FR 21738, May 22, 1992]",
+      "integrity": {
+        "state": "complete",
+        "basis": "Full retrieved body of 7,914 characters stored; under the 60,000 cap, so nothing was cut.",
+        "stamped_at": "2026-11-13T16:47:37",
+        "stored_chars": 7914,
+        "source_chars": 7914,
+        "cap_applied": 60000
+      },
+      "authority_class": "regulation",
+      "claim_layer": "doctrinal",
+      "claim_layer_meaning": "States or describes the rule. Cite for what the law IS."
+    },
+    {
+      "citation": "\u00a7 14.8",
+      "kind": "section_sign",
+      "page": 1,
+      "text": "\u00a7 14.8 Investigation and examination. A Federal agency may request any other Federal agency to investigate a claim filed under section 2672, title 28, U.S. Code, or to conduct a physical examination of a claimant and provide a report of the physical examination. Compliance with such requests may be conditioned by a Federal agency upon reimbursement by the requesting agency of the expense of investigation or examination where reimbursement is authorized, as well as where it is required, by statute or regulation.",
+      "integrity": {
+        "state": "complete",
+        "basis": "Full retrieved body of 516 characters stored; under the 60,000 cap, so nothing was cut.",
+        "stamped_at": "2026-11-13T16:47:37",
+        "stored_chars": 516,
+        "source_chars": 516,
+        "cap_applied": 60000
+      },
+      "authority_class": "regulation",
+      "claim_layer": "doctrinal",
+      "claim_layer_meaning": "States or describes the rule. Cite for what the law IS."
+    },
+    {
+      "citation": "\u00a7 14.9",
+      "kind": "section_sign",
+      "page": 1,
+      "text": "\u00a7 14.9 Final denial of claim. (a) Final denial of an administrative claim shall be in writing and sent to the claimant, his attorney, or legal representative by certified or registered mail. The notification of final denial may include a statement of the reasons for the denial and shall include a statement that, if the claimant is dissatisfied with the agency action, he may file suit in an appropriate U.S. District Court not later than 6 months after the date of mailing of the notification. (b) Prior to the commencement of suit and prior to the expiration of the 6-month period provided in 28 U.S.C. 2401(b), a claimant, his duly authorized agent, or legal representative, may file a written request with the agency for reconsideration of a final denial of a claim under paragraph (a) of this section. Upon the timely filing of a request for reconsideration the agency shall have 6 months from the date of filing in which to make a final disposition of the claim and the claimant's option under 28 U.S.C. 2675(a) shall not accrue until 6 months after the filing of a request for reconsideration. Final agency action on a request for reconsideration shall be effected in accordance with the provisions of paragraph (a) of this section. [Order No. 371-66, 31 FR 16616, Dec. 29, 1966, as amended by Order No. 422-69, 35 FR 315, Jan. 8, 1970]",
+      "integrity": {
+        "state": "complete",
+        "basis": "Full retrieved body of 1,344 characters stored; under the 60,000 cap, so nothing was cut.",
+        "stamped_at": "2026-11-13T16:47:37",
+        "stored_chars": 1344,
+        "source_chars": 1344,
+        "cap_applied": 60000
+      },
+      "authority_class": "regulation",
+      "claim_layer": "doctrinal",
+      "claim_layer_meaning": "States or describes the rule. Cite for what the law IS."
+    },
+    {
+      "citation": "\u00a7 14.10",
+      "kind": "section_sign",
+      "page": 1,
+      "text": "\u00a7 14.10 Action on approved claims. (a) Any award, compromise, or settlement in an amount of $2,500 or less made pursuant to 28 U.S.C. 2672 shall be paid by the head of the Federal agency concerned out of the appropriations available to that agency. Payment of an award, compromise, or settlement in excess of $2,500 shall be obtained by the agency by forwarding Standard Form 1145 to the Claims Division, General Accounting Office. When an award is in excess of $25,000, or in excess of the authority delegated to the agency by the Attorney General pursuant to 28 U.S.C. 2672, whichever is greater, Standard Form 1145 must be accompanied by evidence that the award, compromise, or settlement has been approved by the Attorney General or his designee. When the use of Standard Form 1145 is required, it shall be executed by the claimant, or it shall be accompanied by either a claims settlement agreement or a Standard Form 95 executed by the claimant. When a claimant is represented by an attorney, the voucher for payment shall designate both the claimant and his attorney as payees; the check shall be delivered to the attorney, whose address shall appear on the voucher. (b) Acceptance by the claimant, his agent, or legal representative, of any award, compromise or settlement made pursuant to the provisions of section 2672 or 2677 of title 28, United States Code, shall be final and conclusive on the claimant, his agent or legal representative and any other person on whose behalf or for whose benefit the claim has been presented, and shall constitute a complete release of any claim against the United States and against any employee of the Government whose act or omission gave rise to the claim, by reason of the same subject matter. [Order No. 371-66, 31 FR 16616, Dec. 29, 1966, as amended by Order No. 834-79, 44 FR 33399, June 11, 1979; Order No. 1591-92, 57 FR 21740, May 22, 1992]",
+      "integrity": {
+        "state": "complete",
+        "basis": "Full retrieved body of 1,897 characters stored; under the 60,000 cap, so nothing was cut.",
+        "stamped_at": "2026-11-13T16:47:37",
+        "stored_chars": 1897,
+        "source_chars": 1897,
+        "cap_applied": 60000
+      },
+      "authority_class": "regulation",
+      "claim_layer": "doctrinal",
+      "claim_layer_meaning": "States or describes the rule. Cite for what the law IS."
+    },
+    {
+      "citation": "\u00a7 14.11",
+      "kind": "section_sign",
+      "page": 1,
+      "text": "\u00a7 14.11 Supplementing regulations. Each agency is authorized to issue regulations and establish procedures consistent with the regulations in this part.",
+      "integrity": {
+        "state": "complete",
+        "basis": "Full retrieved body of 152 characters stored; under the 60,000 cap, so nothing was cut.",
+        "stamped_at": "2026-11-13T16:47:37",
+        "stored_chars": 152,
+        "source_chars": 152,
+        "cap_applied": 60000
+      },
+      "authority_class": "regulation",
+      "claim_layer": "doctrinal",
+      "claim_layer_meaning": "States or describes the rule. Cite for what the law IS."
+    },
+    {
+      "citation": "Appendix A to Part 14",
+      "kind": "appendix",
+      "page": 1,
+      "text": "Appendix A to Part 14\u2014Delegations of Settlement Authority Delegation of Authority to the Secretary of Veterans Affairs Section 1. Authority To Compromise Tort Claims (a) The Secretary of Veterans Affairs shall have the authority to adjust, determine, compromise, and settle a claim involving the Department of Veterans Affairs under section 2672 of title 28, United States Code, relating to the administrative settlement of Federal tort claims, if the amount of the proposed adjustment, compromise, or award does not exceed $500,000. When the Secretary believes a pending administrative claim presents a novel question of law or of policy, the Secretary shall obtain the advice of the Assistant Attorney General in charge of the Civil Division. (b) The Secretary may redelegate, in writing, the settlement authority delegated under this section. Section 2. Memorandum Whenever the Secretary of Veterans Affairs settles any administrative claim pursuant to the authority granted by section 1 for an amount in excess of $200,000 and within the amount delegated under section 1, a memorandum fully explaining the basis for the action taken shall be executed. A copy of this memorandum shall be sent contemporaneously to the Director, FTCA Staff, Torts Branch of the Civil Division. Delegation of Authority to the Postmaster General Section 1. Authority To Compromise Tort Claims (a) The Postmaster General shall have the authority to adjust, determine, compromise, and settle a claim involving the United States Postal Service under section 2672 of title 28, United States Code, relating to the administrative settlement of Federal tort claims, if the amount of the proposed adjustment, compromise, or award does not exceed $500,000. When the Postmaster General believes a pending administrative claim presents a novel question of law or of policy, the Postmaster General shall obtain the advice of the Assistant Attorney General in charge of the Civil Division. (b) The Postmaster General may redelegate, in writing, the settlement authority delegated under this section. Section 2. Memorandum Whenever the Postmaster General settles any administrative claim pursuant to the authority granted by section 1 for an amount in excess of $200,000 and within the amount delegated under section 1, a memorandum fully explaining the basis for the action taken shall be executed. A copy of this memorandum shall be sent contemporaneously to the Director, FTCA Staff, Torts Branch of the Civil Division. Delegation of Authority to the Secretary of Defense Section 1. Authority To Compromise Tort Claims (a) The Secretary of Defense shall have the authority to adjust, determine, compromise, and settle a claim involving the Department of Defense under section 2672 of title 28, United States Code, relating to the administrative settlement of Federal tort claims, if the amount of the proposed adjustment, compromise, or award does not exceed $500,000. When the Secretary believes a pending administrative claim presents a novel question of law or of policy, the Secretary shall obtain the advice of the Assistant Attorney General in charge of the Civil Division. (b) The Secretary may redelegate, in writing, the settlement authority delegated under this section. Section 2. Memorandum Whenever the Secretary of Defense settles any administrative claim pursuant to the authority granted by section 1 for an amount in excess of $200,000 and within the amount delegated under section 1, a memorandum fully explaining the basis for the action taken shall be executed. A copy of this memorandum shall be sent contemporaneously to the Director, FTCA Staff, Torts Branch of the Civil Division. Delegation of Authority to the Secretary of Transportation Section 1. Authority to compromise tort claims. (a) The Secretary of Transportation shall have the authority to adjust, determine, compromise and settle a claim involving the United States Department of Transportation under section 2672 of title 28, United States Code, relating to the administrative settlement of federal tort claims, if the amount of the proposed adjustment, compromise, or award does not exceed $100,000. When the Secretary of Transportation believes a claim pending before him presents a novel question of law or of policy, he shall obtain the advice of the Assistant Attorney General in charge of the Civil Division. (b) The Secretary of Transportation may redelegate in writing the settlement authority delegated to him under this section. Section 2. Memorandum. Whenever the Secretary of Transportation settles any administrative claim pursuant to the authority granted by section 1 for an amount in excess of $50,000 and within the amount delegated to him under section 1, a memorandum fully explaining the basis for the action taken shall be executed. A copy of this memorandum shall be sent to the Director, FTCA Staff, Torts Branch of the Civil Division. Delegation of Authority to the Secretary of Health and Human Services Section 1. Authority To Compromise Tort Claims. (a) The Secretary of Health and Human Services shall have the authority to adjust, determine, compromise, and settle a claim involving the Department of Health and Human Services under section 2672 of title 28, United States Code, relating to the administrative settlement of federal tort claims, if the amount of the proposed adjustment, compromise, or award does not exceed $200,000. When the Secretary of Health and Human Services believes a claim pending before him presents a novel question of law or policy, he shall obtain the advice of the Assistant Attorney General in charge of the Civil Division. (b) The Secretary of Health and Human Services may redelegate, in writing, the settlement authority delegated to him under this section. Section 2. Memorandum. Whenever the Secretary of Health and Human Services settles any administrative claim pursuant to the authority granted by section 1 for an amount in excess of $100,000 and within the amount delegated to him under section 1, a memorandum fully explaining the basis for the action taken shall be executed. A copy of this memorandum shall be sent to the Director, FTCA Staff, Torts Branch of the Civil Division. Delegation of Authority to the Secretary of the Department of Homeland Security Authority To Compromise Tort Claims (a) The Secretary of the Department of Homeland Security shall have the authority to adjust, determine, compromise, and settle a claim involving the Department of Homeland Security under Section 2672 of Title 28, United States Code, relating to the administrative settlement of federal tort claims if the amount of the proposed adjustment, compromise, or award does not exceed $50,000. When the Secretary believes a claim pending before him presents a novel question of law or of policy, he shall obtain the advice of the Assistant Attorney General in charge of the Civil Division. (b) The Secretary may redelegate, in writing, the settlement authority delegated to him under this section. [Order No. 1302-88, 53 FR 37753, Sept. 28, 1988] Editorial Note: For Federal Register citations affecting appendix A to part 14, see the List of CFR Sections Affected, which appears in the Finding Aids section of the printed volume and at www.govinfo.gov.",
+      "integrity": {
+        "state": "complete",
+        "basis": "Full retrieved body of 7,275 characters stored; under the 60,000 cap, so nothing was cut.",
+        "stamped_at": "2026-11-13T16:47:37",
+        "stored_chars": 7275,
+        "source_chars": 7275,
+        "cap_applied": 60000
+      },
+      "authority_class": "regulation",
+      "claim_layer": "doctrinal",
+      "claim_layer_meaning": "States or describes the rule. Cite for what the law IS."
+    }
+  ],
+  "claim_layer_basis": "Set from the class, not from the text: a statute or regulation states the rule rather than describing or arguing it, which the citation in the title establishes definitionally."
+}

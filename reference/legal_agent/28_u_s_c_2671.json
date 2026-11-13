@@ -1,0 +1,41 @@
+{
+  "title": "28 U.S.C. \u00a7 2671",
+  "source": "United States Code title 28 section 2671, retrieved from Cornell LII (law.cornell.edu). The statutory text is a U.S. government work and is public domain; Cornell's annotations are excluded.",
+  "authority_class": "federal_statute",
+  "authority_class_basis": "Title of the work is a U.S. Code section citation, which fixes the class",
+  "claim_layer": "doctrinal",
+  "claim_layer_meaning": "States or describes the rule. Cite for what the law IS.",
+  "authorities_cited": [],
+  "term_index": {},
+  "origin_pdf": "usc28_2671.txt",
+  "extraction": {
+    "extractor": "text file (already extracted)",
+    "pages": 1,
+    "no_text_layer": [],
+    "raised": [],
+    "recovered": [],
+    "lost": [],
+    "complete": true
+  },
+  "pages": 1,
+  "sections": [
+    {
+      "citation": "\u00a7 2671.",
+      "kind": "section_sign",
+      "page": 1,
+      "text": "\u00a7 2671. Definitions. As used in this chapter and sections 1346(b) and 2401(b) of this title, the term \u201cFederal agency\u201d includes the executive departments, the judicial and legislative branches, the military departments, independent establishments of the United States, and corporations primarily acting as instrumentalities or agencies of the United States, but does not include any contractor with the United States. \u201c Employee of the government \u201d includes (1) officers or employees of any federal agency, members of the military or naval forces of the United States, members of the National Guard while engaged in training or duty under section 115, 316, 502, 503, 504, or 505 of title 32, and persons acting on behalf of a federal agency in an official capacity, temporarily or permanently in the service of the United States, whether with or without compensation, and (2) any officer or employee of a Federal public defender organization, except when such officer or employee performs professional services in the course of providing representation under section 3006A of title 18 . \u201cActing within the scope of his office or employment\u201d, in the case of a member of the military or naval forces of the United States or a member of the National Guard as defined in section 101(3) of title 32 , means acting in line of duty. (June 25, 1948, ch. 646, 62 Stat. 982 ; May 24, 1949, ch. 139, \u00a7 124, 63 Stat. 106 ; Pub. L. 89\u2013506, \u00a7 8 , July 18, 1966 , 80 Stat. 307 ; Pub. L. 97\u2013124, \u00a7 1 , Dec. 29, 1981 , 95 Stat. 1666 ; Pub. L. 100\u2013694, \u00a7 3 , Nov. 18, 1988 , 102 Stat. 4564 ; Pub. L. 106\u2013398, \u00a7 1 [[div. A] , title VI, \u00a7 665(b)], Oct. 30, 2000 , 114 Stat. 1654 , 1654A\u2013169; Pub. L. 106\u2013518, title IV, \u00a7 401 , Nov. 13, 2000 , 114 Stat. 2421 .)",
+      "integrity": {
+        "state": "complete",
+        "basis": "Full retrieved body of 1,740 characters stored; under the 60,000 cap, so nothing was cut.",
+        "stamped_at": "2026-11-13T16:47:34",
+        "stored_chars": 1740,
+        "source_chars": 1740,
+        "cap_applied": 60000
+      },
+      "authority_class": "federal_statute",
+      "claim_layer": "doctrinal",
+      "claim_layer_meaning": "States or describes the rule. Cite for what the law IS."
+    }
+  ],
+  "claim_layer_basis": "Set from the class, not from the text: a statute or regulation states the rule rather than describing or arguing it, which the citation in the title establishes definitionally."
+}

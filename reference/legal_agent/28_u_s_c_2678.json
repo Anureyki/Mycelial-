@@ -1,0 +1,41 @@
+{
+  "title": "28 U.S.C. \u00a7 2678",
+  "source": "United States Code title 28 section 2678, retrieved from Cornell LII (law.cornell.edu). The statutory text is a U.S. government work and is public domain; Cornell's annotations are excluded.",
+  "authority_class": "federal_statute",
+  "authority_class_basis": "Title of the work is a U.S. Code section citation, which fixes the class",
+  "claim_layer": "doctrinal",
+  "claim_layer_meaning": "States or describes the rule. Cite for what the law IS.",
+  "authorities_cited": [],
+  "term_index": {},
+  "origin_pdf": "usc28_2678.txt",
+  "extraction": {
+    "extractor": "text file (already extracted)",
+    "pages": 1,
+    "no_text_layer": [],
+    "raised": [],
+    "recovered": [],
+    "lost": [],
+    "complete": true
+  },
+  "pages": 1,
+  "sections": [
+    {
+      "citation": "\u00a7 2678.",
+      "kind": "section_sign",
+      "page": 1,
+      "text": "\u00a7 2678. Attorney fees; penalty. No attorney shall charge, demand, receive, or collect for services rendered, fees in excess of 25 per centum of any judgment rendered pursuant to section 1346(b) of this title or any settlement made pursuant to section 2677 of this title , or in excess of 20 per centum of any award, compromise, or settlement made pursuant to section 2672 of this title . Any attorney who charges, demands, receives, or collects for services rendered in connection with such claim any amount in excess of that allowed under this section, if recovery be had, shall be fined not more than $2,000 or imprisoned not more than one year, or both. (June 25, 1948, ch. 646, 62 Stat. 984 ; Pub. L. 89\u2013506, \u00a7 4 , July 18, 1966 , 80 Stat. 307 .)",
+      "integrity": {
+        "state": "complete",
+        "basis": "Full retrieved body of 750 characters stored; under the 60,000 cap, so nothing was cut.",
+        "stamped_at": "2026-11-13T16:47:36",
+        "stored_chars": 750,
+        "source_chars": 750,
+        "cap_applied": 60000
+      },
+      "authority_class": "federal_statute",
+      "claim_layer": "doctrinal",
+      "claim_layer_meaning": "States or describes the rule. Cite for what the law IS."
+    }
+  ],
+  "claim_layer_basis": "Set from the class, not from the text: a statute or regulation states the rule rather than describing or arguing it, which the citation in the title establishes definitionally."
+}
