@@ -2090,3 +2090,33 @@ records what changed since the 2026-11-11 status and what is newly found.
 
 **Still waiting on the principal (unchanged):** enrol his phone at `/approve.html`;
 switch Bland's guard live; Bland call authorization; the organ-clock listener live switch.
+
+## Legal self-ingest and local-law currency (2026-11-13)
+
+The principal: "legal should be able to ingest on its own ... surf and find public,
+documented court cases, statutes and federal rules and regulations ... and be up to date
+on the latest law changes local to me." Current state and the two gaps, recorded so they
+are built once and not by hand each time.
+
+**Already works:** `acquire_opinion` fetches court opinions from CourtListener itself;
+`watch_docket` tracks dockets; `tools/ingest_law.py` fetches any public CFR part, U.S.
+Code title/section, IRM part, or a state enactment. On 2026-11-13 the FTCA block
+(28 USC 1346, 2671-2680) and 28 CFR Part 14 were ingested THIS way - by hand, because:
+
+**Gap 1 - `acquire_authority` is absent (advisory only).** When Legal is asked for a
+citation it cannot open, it names the gap and PRINTS the exact `ingest_law.py` command
+(legal_agent.py ~line 4349) but does not run it; a human does. The pieces exist (it
+already knows which refused citations are fetchable and the exact argv). The capability
+is: Legal runs the ingest itself, then answers from the freshly-shelved text. Because
+fetching from the internet into the PUBLIC corpus is an outward action, it goes through
+the authorization boundary (Security), fetches only public-domain sources, and the
+personal-data / no-secrets gates already scan whatever lands. Wiring, not new reasoning.
+
+**Gap 2 - local-law currency is absent.** Being "up to date on the latest law local to
+me" means watching for CHANGES to the authorities the principal relies on - his
+jurisdiction (Texas, Bexar County) and the federal statutes/regs in his lanes - and
+flagging when a cited authority is amended, repealed or superseded. CourtListener covers
+the case/docket side; this is the statute/regulation side, and nothing watches it. A
+re-ingest that silently drops or changes a section is the exact failure already recorded
+(texas.public.law dropping Tex. Fin. Code § 392.308), so this watcher diffs against the
+shelved integrity rather than trusting the new fetch.
