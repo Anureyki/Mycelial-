@@ -2140,3 +2140,90 @@ WebSocket; Legal's knowledge-base file-poll -> file-change notifications; agent
 heartbeats -> start/stop events. And the phone app (UI-1) must be push-only. The broader
 event-driven pattern work (world events read AFTER they move, then mapped to the sky as
 behavioural repetition) is Plan phase 1, unchanged.
+
+## Event-driven intelligence - the architecture (2026-11-14)
+
+The principal's architectural statement, recorded as the unifying principle beneath
+Plan phases 1-5, the "Events, not polling" rules, and the Legal self-ingest work. The
+shift: from a system that keeps asking "has anything happened?" to one that KNOWS what
+happened, why it matters, and which agent must respond. The event - not the passage of
+time - is the reason for computation. **Recorded; architecture, nothing built here.**
+
+**The waste being removed.** Polling an LLM every few minutes to establish that nothing
+happened spends intelligence on inactivity: redundant inference, context reloads,
+tool runs, and rate-limit/allocation pressure (direct cost on a metered model like
+Grok). A lightweight HTTP check that detects a new filing is cheap; re-invoking a model
+to decide "did something happen" is the waste. The objective is not fewer tokens - it is
+MORE USEFUL WORK PER TOKEN.
+
+**The seven principles.** Event-driven activation; specialized intelligence (each agent
+its own domain, not everyone's); contextual routing (only relevant agents wake);
+resource-aware inference (model and budget by complexity/importance); shared event
+provenance (traceable, not disconnected interpretations); human-controlled execution
+(Anansi presents, the user decides consequences); persistent institutional awareness
+(MycOS tracks the environment so the person does not monitor every sector by hand).
+
+**Legal as an event-intelligence layer** (not just a Q&A agent): it identifies an
+authoritative development (corporate designation, regulation, export control, FDA action,
+sanction, consumer/employment rule), establishes the official source, and PUBLISHES a
+structured event. Trade reads market exposure, Accounting financial exposure, Analyzer
+correlates and tests the proposed relationship, Anansi presents. Each agent interprets
+the one event through its own responsibility - no agent carries the whole world's context.
+This extends Legal's live column and the recorded acquire_authority / local-law-currency
+gaps; the NVIDIA case is the illustrative shape, not an assertion of cause.
+
+**The event envelope** (to formalize): event_id, event_type, sector, entity,
+jurisdiction, source{authority, document, verified}, effective_date, impact_categories,
+priority, routing[agents], status. It must carry enough for another agent to act without
+re-running the research. Required properties: DEDUPLICATION (one event from four sources
+is one activation), PROVENANCE (where it came from), VERIFICATION (confirmed fact vs
+allegation vs speculation), EXPIRATION (stop treating stale events as current), RELEVANCE
+(do not wake uninvolved agents), PERMISSIONS (research/recommendation/execution are
+SEPARATE authorization boundaries - researching an investment never grants moving money).
+
+**Resource-aware inference.** Three tiers: event detection (lightweight), classification
+(small model or deterministic rules), complex analysis (a larger reasoning model).
+A routine filing is classified and logged; a material restriction wakes Legal and Trade;
+one touching an existing holding wakes Accounting; a tangled legal-financial relationship
+escalates to a stronger model. Separate resource BUDGETS per lane (legal research,
+financial analysis, accounting, orchestration, emergency) so a low-priority job cannot
+starve an important one.
+
+**Interface vs orchestrator - a distinction to RESOLVE against the current design.**
+The principal: Anansi is the human-experience/interface layer; Boss is the orchestrator;
+Anansi should NOT personally execute every agent operation - it talks to Boss, which
+coordinates agents through their protocols, so the interface does not become one
+overloaded agent. BUT the current architecture (CLAUDE.md, 2026-09-11) has Anansi ROUTE
+directly to the owning domain and Boss answer only `authorize_route`, with 687 lines of
+routing deleted from Boss precisely so Boss is not a transport hop. These reconcile as a
+split, and the split is the decision to make deliberately: a single USER REQUEST is
+Anansi routing to one domain (unchanged); a multi-agent EVENT fan-out (one event ->
+legal+trade+accounting+analyzer) is Boss COORDINATING, because that is orchestration of
+several agents against one event, which is Boss's job and not the interface's. Deciding
+this by drifting - letting Anansi fan out events itself - would rebuild the overloaded
+interface this architecture avoids. Flagged, not yet decided.
+
+**Deliberate polling exceptions** (keep, assigned to a SERVICE, never an LLM cycle):
+sources with no webhook/subscription need scheduled INGESTION - market prices during
+trading hours genuinely change often; a filing archive does not need a five-minute model
+analysis cycle. Each exception is documented and owned by the right service.
+
+**What already exists to build on** (do not rebuild): the case layer's CLOSED event-type
+set and Boss routing on type while refusing any envelope carrying evidence/body
+(core/case_manager.py); cross-domain findings refer_finding/receive_finding; Ed25519
+A2A envelopes that are signed over sender/recipient/kind AND EXPIRE (core/sandbox/signing);
+the Provenance service; the claim pipeline as the VERIFICATION axis (unsupported by
+default, confirmed vs alleged); config/model_routing.json (models interchangeable);
+and the authorization boundaries (hardware behind Boss, capital actuation scoped by
+direction, the sensitive-data rule, phone-signed held actions) that already separate
+research from execution. **What is NEW:** an event bus / fan-out, deduplication,
+relevance-based routing, the three-tier model routing, and per-lane resource budgets.
+
+**The goal - augmenting reality.** Not an AI that constantly watches everything, but
+infrastructure that knows how to RESPOND when something relevant to this person's
+circumstances changes - a law, an agency requirement, a corporate designation, a newly
+authorized treatment, a policy change, a restriction on an existing obligation -
+identified, verified, evaluated, and presented when it matters. Anansi is the window;
+Boss coordinates; Legal identifies changes in the rules; Trade the economic
+consequence; Accounting the financial position; the rest contribute their specialty.
+That is the difference between continuous activity and useful intelligence.
