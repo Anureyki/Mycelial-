@@ -971,6 +971,71 @@ class MaintenanceAgent(AgentBase):
                           "status_text": nxt["status_text"]} if nxt else None),
                 "source": "DEPLOYMENT_PROGRESS.md"}
 
+    def _detect_updates(self):
+        """Structured, READ-ONLY update detection. Parses `apt list --upgradable`
+        into per-package facts and reads the reboot flag. No install, no change.
+        This is Maintenance's job: Security consumes this and never runs apt."""
+        import re as _re
+        result = self._execute_local("apt list --upgradable 2>/dev/null")
+        lines = result.get("stdout", "").splitlines()
+        raw = [l for l in lines if l and "upgradable" in l]
+        details, names = [], []
+        for line in raw:
+            # e.g. "libc6/resolute-updates,resolute-security 2.43-2ubuntu2.7 amd64 [upgradable from: 2.43-2ubuntu2.4]"
+            m = _re.match(r"^([^/]+)/(\S+)\s+(\S+)\s+(\S+)\s+\[upgradable from:\s*([^\]]+)\]", line)
+            if not m:
+                continue
+            name, origin, candidate, arch, installed = m.groups()
+            details.append({
+                "name": name, "origin": origin, "candidate": candidate,
+                "architecture": arch, "installed": installed.strip(),
+                "security": "security" in origin.lower(),
+                "download_size_bytes": None, "installed_size_kb": None,
+            })
+            if _re.match(r"^[a-zA-Z0-9][a-zA-Z0-9.+-]*$", name):  # safe package name only
+                names.append(name)
+        # Sizes come from apt-cache (read-only, no network). Match the candidate version.
+        if names:
+            info = self._execute_local("apt-cache show " + " ".join(names) + " 2>/dev/null")
+            pkg = ver = None
+            size = {}
+            for ln in info.get("stdout", "").splitlines():
+                if ln.startswith("Package:"):
+                    pkg = ln.split(":", 1)[1].strip(); ver = None
+                elif ln.startswith("Version:"):
+                    ver = ln.split(":", 1)[1].strip()
+                elif ln.startswith("Size:") and pkg and ver:
+                    size.setdefault((pkg, ver), {})["dl"] = int(ln.split(":", 1)[1].strip() or 0)
+                elif ln.startswith("Installed-Size:") and pkg and ver:
+                    try:
+                        size.setdefault((pkg, ver), {})["inst"] = int(ln.split(":", 1)[1].strip() or 0)
+                    except ValueError:
+                        pass
+            for d in details:
+                s = size.get((d["name"], d["candidate"]))
+                if s:
+                    d["download_size_bytes"] = s.get("dl")
+                    d["installed_size_kb"] = s.get("inst")
+        reboot_flag = "/var/run/reboot-required"
+        reboot_required = os.path.exists(reboot_flag)
+        reboot_pkgs = []
+        if os.path.exists(reboot_flag + ".pkgs"):
+            try:
+                with open(reboot_flag + ".pkgs") as fh:
+                    reboot_pkgs = [p.strip() for p in fh if p.strip()]
+            except OSError:
+                pass
+        return {
+            "upgradable_count": len(details),
+            "packages": raw,                       # kept: existing callers read this
+            "details": details,
+            "security_count": sum(1 for d in details if d["security"]),
+            "reboot_required": reboot_required,
+            "reboot_required_packages": reboot_pkgs,
+            "detected_at": datetime.now().isoformat(),
+            "source": "apt list --upgradable (read-only detection)",
+        }
+
     def handle_task(self, task, args, sender):
         self.log(f"Task: {task} from {sender}")
 
@@ -1204,10 +1269,12 @@ class MaintenanceAgent(AgentBase):
             return {"result": "Cleaned old logs" if result.get("returncode") == 0 else "Failed"}
 
         elif task == "check_updates":
-            result = self._execute_local("apt list --upgradable 2>/dev/null")
-            lines = result.get("stdout", "").splitlines()
-            upgradable = [l for l in lines if l and "upgradable" in l]
-            return {"upgradable_count": len(upgradable), "packages": upgradable}
+            # DETECTION, structured. Maintenance owns the package manager; it parses
+            # `apt list --upgradable` into per-package facts (installed, candidate,
+            # origin, security flag, size) and reads the reboot flag, so Security can
+            # ASSESS without ever touching apt (the ownership split, 2026-11-14). The
+            # old `upgradable_count`/`packages` keys are kept - apply_updates reads them.
+            return self._detect_updates()
 
         elif task == "apply_updates":
             if args.get("confirm") is not True:

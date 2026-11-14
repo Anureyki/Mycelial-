@@ -31,7 +31,7 @@ class SecurityAgent(AgentBase):
                           "flag_finding", "list_findings", "resolve_finding",
                           "check_guard", "reload_guards", "quarantine", "eliminate",
                           "list_pending_approvals",
-                          "scan_codebase", "drift_scan",
+                          "scan_codebase", "drift_scan", "security_patch_scan",
                           "start_drift_watch", "drift_status",
                           "principal_key_status", "enroll_principal_key",
                           "list_holds", "release_hold", "deny_hold"],
@@ -515,6 +515,184 @@ class SecurityAgent(AgentBase):
         res = self._tool("resolve_held", [str(a.get("hold_id") or ""), "deny"])
         return {"denied": True, "hold_id": a.get("hold_id")} if "result" in res else {"denied": False, "why": res.get("error")}
 
+    # --- OS security-patch assessment (Maintenance detects, Security assesses) ---
+    CRITICAL_PACKAGES_FILE = os.path.join(BASE, "config", "security", "critical_packages.json")
+
+    def _load_critical_packages(self):
+        """The curated critical-package map (config, not code). Fail-safe: an
+        unreadable map means nothing is classified as critical, never a crash."""
+        try:
+            with open(self.CRITICAL_PACKAGES_FILE, encoding="utf-8") as fh:
+                return (json.load(fh) or {}).get("families", {}) or {}
+        except (OSError, ValueError) as e:
+            self.log(f"critical_packages map unreadable: {e}")
+            return {}
+
+    def _classify_package(self, name, families):
+        """Return (family_key, family_dict) if the package belongs to a curated
+        critical family, else (None, None). Exact name or declared prefix."""
+        for key, fam in families.items():
+            if name in (fam.get("names") or []):
+                return key, fam
+            for pref in (fam.get("prefixes") or []):
+                if name.startswith(pref):
+                    return key, fam
+        return None, None
+
+    def _cve_correlate(self, name, candidate):
+        """STAGE 2 placeholder - Ubuntu Security Notices / CVE correlation is a
+        separate integration stage. Until it exists, vulnerability severity is
+        NOT inferred (scope rule: no severity without advisory+version evidence)."""
+        return {
+            "integrated": False,
+            "advisories": [],
+            "cve_severity": "unknown",
+            "source": None,
+            "note": "CVE/USN correlation is stage 2; vulnerability severity is not inferred without it.",
+        }
+
+    def security_patch_scan(self, args=None):
+        """READ-ONLY. Consume Maintenance's structured update detection and assess
+        the SECURITY-relevant ones: what each component is, why it matters, and how
+        it affects the running system. Publishes findings for Anansi to present.
+
+        This verb never runs apt, never installs, removes, restarts or reboots -
+        it only reads Maintenance's detection (which is itself read-only) and writes
+        to Security's own findings store. Maintenance owns the package manager;
+        Security owns the security assessment."""
+        args = args or {}
+        resp = self.send_a2a("maintenance_agent", "check_updates", {})
+        # Failure handling: an unreachable or malformed detector is UNKNOWN, never
+        # "clear", and flags nothing - absence of a scan is not absence of patches.
+        data = resp
+        for _ in range(3):
+            if isinstance(data, dict) and "details" in data:
+                break
+            if isinstance(data, dict) and "result" in data:
+                data = data["result"]
+            else:
+                break
+        if not isinstance(data, dict) or "details" not in data:
+            return {
+                "status": "unknown",
+                "reason": "Maintenance update detection was unreachable or returned no structured detail; nothing was assessed.",
+                "source": "maintenance_agent.check_updates",
+                "read_only": True,
+                "findings": [], "scanned_at": datetime.now().isoformat(),
+            }
+
+        families = self._load_critical_packages()
+        reboot_required = bool(data.get("reboot_required"))
+        details = data.get("details") or []
+        assessments, by_component = [], {}
+        existing = self._load_findings()
+        by_location = {f.get("location"): f for f in existing if f.get("status") == "open"}
+
+        for d in details:
+            if not d.get("security"):
+                continue  # non-security version bumps are not security findings
+            name, installed, candidate = d.get("name"), d.get("installed"), d.get("candidate")
+            key, fam = self._classify_package(name, families)
+            if fam:
+                classification = "critical_component"
+                severity = "high"
+                component = key
+                label = fam.get("label")
+                criticality = fam.get("component_criticality")
+                impact = fam.get("system_impact")
+                action = fam.get("post_update_action")
+                needs_investigation = False
+            else:
+                # Unfamiliar security package - FLAG for investigation, do not
+                # auto-classify its impact or inflate its severity (scope rule).
+                classification = "unfamiliar"
+                severity = "medium"
+                component = None
+                label = None
+                criticality = None
+                impact = None
+                action = "Unfamiliar security package - investigate via Ubuntu Security Notice / CVE before applying (stage 2)."
+                needs_investigation = True
+
+            cve = self._cve_correlate(name, candidate)
+            summary = (f"Security update available: {name} {installed} -> {candidate}"
+                       f" ({label or 'unclassified component'})")
+            item = {
+                "category": "os_security_patch",
+                "package": name, "installed": installed, "candidate": candidate,
+                "architecture": d.get("architecture"), "origin": d.get("origin"),
+                "security_pocket": True,
+                "component": component, "component_label": label,
+                "component_criticality": criticality,
+                "classification": classification, "needs_investigation": needs_investigation,
+                "what_it_is": (fam.get("what_it_is") if fam else None),
+                "system_impact": impact,
+                "post_update_action": action,
+                "download_size_bytes": d.get("download_size_bytes"),
+                "installed_size_kb": d.get("installed_size_kb"),
+                "reboot_required": reboot_required,
+                "cve_correlation": cve,
+                "severity": severity,
+                "severity_basis": ("Operational blast-radius of the component (evidence: it is a "
+                                   "security-pocket update to a known-critical component). "
+                                   "Vulnerability/CVE severity is NOT inferred - that is stage 2."),
+                "summary": summary,
+                "location": f"security-patch:{name}",
+                "recommendation": action,
+            }
+            assessments.append(item)
+            bucket = component or "unfamiliar"
+            by_component.setdefault(bucket, []).append(name)
+
+            # Persist as a finding, idempotently: one finding per package, refreshed
+            # to the latest candidate on re-scan (no duplicate pile-up).
+            loc = item["location"]
+            now = time.time()
+            if loc in by_location:
+                f = by_location[loc]
+                f.update({
+                    "severity": severity, "summary": summary, "recommendation": action,
+                    "updated_at": now, "candidate": candidate, "installed": installed,
+                    "component": component, "component_criticality": criticality,
+                    "classification": classification, "needs_investigation": needs_investigation,
+                    "system_impact": impact, "cve_correlation": cve,
+                    "severity_basis": item["severity_basis"], "reboot_required": reboot_required,
+                })
+            else:
+                finding = {
+                    "id": uuid.uuid4().hex[:12], "severity": severity, "summary": summary,
+                    "location": loc, "recommendation": action,
+                    "reporter": "security_agent:security_patch_scan", "status": "open",
+                    "flagged_at": now, "resolved_at": None, "resolution_note": None,
+                    "category": "os_security_patch", "package": name,
+                    "installed": installed, "candidate": candidate,
+                    "component": component, "component_criticality": criticality,
+                    "classification": classification, "needs_investigation": needs_investigation,
+                    "system_impact": impact, "cve_correlation": cve,
+                    "severity_basis": item["severity_basis"], "reboot_required": reboot_required,
+                }
+                existing.append(finding)
+                by_location[loc] = finding
+        self._save_findings(existing)
+
+        return {
+            "status": "ok",
+            "read_only": True,
+            "scanned_at": datetime.now().isoformat(),
+            "source": "maintenance_agent.check_updates (Security assesses, Maintenance detects)",
+            "total_updates": len(details),
+            "security_updates": len(assessments),
+            "critical_component_updates": sum(1 for a in assessments if a["classification"] == "critical_component"),
+            "unfamiliar_security_updates": sum(1 for a in assessments if a["classification"] == "unfamiliar"),
+            "reboot_required": reboot_required,
+            "by_component": by_component,
+            "findings": assessments,
+            "cve_correlation": "not integrated (stage 2 - Ubuntu Security Notices / CVE)",
+            "note": ("Assessment only. Applying patches needs root and belongs to Maintenance "
+                     "with the principal's authorization - this capability cannot install, "
+                     "remove, restart or reboot anything."),
+        }
+
     def handle_task(self, task, args, sender):
         if task == "principal_key_status":
             return self.principal_key_status(args)
@@ -535,6 +713,9 @@ class SecurityAgent(AgentBase):
 
         if task == "drift_scan":
             return self.drift_scan(args if isinstance(args, dict) else {})
+
+        if task == "security_patch_scan":
+            return self.security_patch_scan(args if isinstance(args, dict) else {})
 
         if task == "issue_token":
             agent_id = args.get("agent_id")

@@ -1,0 +1,50 @@
+{
+  "_doc": "Curated critical-package map for Security's security_patch_scan (stage 1). Each family describes WHAT the component is, its system blast radius, and the post-update action. It carries NO vulnerability/CVE severity - that is stage 2 (Ubuntu Security Notices / CVE correlation). component_criticality is blast-radius (how much of the system the component touches), which is evidence, not an inferred vulnerability score. A package matches a family if its name is in `names` or starts with one of `prefixes`.",
+  "families": {
+    "glibc": {
+      "label": "GNU C Library (glibc)",
+      "names": ["libc6", "libc-bin", "libc-dev-bin", "libc6-dev", "libc-gconv-modules-extra", "libc-l10n", "locales"],
+      "prefixes": ["libc6"],
+      "component_criticality": "high",
+      "what_it_is": "The GNU C library - the standard C library linked by virtually every binary and every Python process on the host, including all MycOS agents and services.",
+      "system_impact": "A patch here touches the whole system. Running processes keep the old library mapped in memory until they are restarted, so applying the update does not protect a process that is already running.",
+      "post_update_action": "After applying, restart the MycOS agents in the venv so they run on the patched library. No reboot is required unless the reboot flag is set."
+    },
+    "openssl": {
+      "label": "OpenSSL / libssl",
+      "names": ["openssl", "libssl3", "libssl3t64", "libssl-dev", "libssl-doc"],
+      "prefixes": ["libssl"],
+      "component_criticality": "critical",
+      "what_it_is": "The TLS/crypto library behind HTTPS, certificate verification and secure connections.",
+      "system_impact": "Every agent making outbound HTTPS calls (CourtListener, web search, model APIs) and any TLS listener depends on it. A flaw can mean breakable or forgeable encryption on exactly the connections that carry sensitive data.",
+      "post_update_action": "Restart any service holding long-lived TLS connections after applying. No reboot required unless the reboot flag is set."
+    },
+    "kernel": {
+      "label": "Linux kernel",
+      "names": ["linux-generic", "linux-image-generic", "linux-headers-generic"],
+      "prefixes": ["linux-image", "linux-headers", "linux-modules", "linux-generic"],
+      "component_criticality": "critical",
+      "what_it_is": "The Linux kernel itself.",
+      "system_impact": "A kernel update is the one case that requires a REBOOT to take effect; until the reboot the running kernel is unchanged and unprotected. The phase-1 Docker sandbox shares this kernel, so a kernel flaw is also a container-isolation concern.",
+      "post_update_action": "Schedule a reboot - nothing picks up a kernel patch without one. The reboot flag will usually confirm this."
+    },
+    "openssh": {
+      "label": "OpenSSH",
+      "names": ["openssh-server", "openssh-client", "openssh-sftp-server"],
+      "prefixes": ["openssh"],
+      "component_criticality": "high",
+      "what_it_is": "The SSH client and server - remote login and file transfer for this host.",
+      "system_impact": "openssh-server is the remote-access surface reachable directly from the network, so a flaw here is among the most exposed. openssh-client affects outbound SSH (e.g. git over SSH).",
+      "post_update_action": "Restart the ssh service after applying (sudo systemctl restart ssh); existing sessions stay up. No reboot required."
+    },
+    "docker": {
+      "label": "Docker / containerd",
+      "names": ["docker-ce", "docker-ce-cli", "docker-ce-rootless-extras", "containerd.io", "docker-buildx-plugin", "docker-compose-plugin"],
+      "prefixes": ["docker-", "containerd"],
+      "component_criticality": "high",
+      "what_it_is": "The container engine, CLI and build tooling.",
+      "system_impact": "The phase-1 agent sandbox and Jellyfin run on Docker. Restarting the daemon to apply an engine update bounces every running container.",
+      "post_update_action": "Apply during a maintenance window - restarting Docker will restart running containers (Jellyfin, any sandboxed agents). No host reboot required."
+    }
+  }
+}

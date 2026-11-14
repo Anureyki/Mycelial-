@@ -17,6 +17,7 @@
     "resolve_finding",
     "scan_codebase",
     "drift_scan",
+    "security_patch_scan",
     "start_drift_watch",
     "drift_status",
     "principal_key_status",
