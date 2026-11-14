@@ -2260,3 +2260,15 @@ Security Notices / CVE data as the LIVE column for real severity (the system-sec
 analogue of CourtListener for Legal); a reasoning model only for an unfamiliar package.
 A new Security verb (e.g. `security_patch_scan`) reads Maintenance's detection, never runs
 apt itself, and emits a finding - detect only, no apply.
+
+### BUILT 2026-11-14 (commit 5fc9995) - security_patch_scan stage 1
+
+Shipped the read-only capability above. Maintenance.check_updates now returns structured
+per-package detection (_detect_updates: apt list + apt-cache show, read-only); Security.
+security_patch_scan consumes it over A2A and never runs apt, classifies security-pocket
+updates against config/security/critical_packages.json (glibc, OpenSSL, kernel, OpenSSH,
+Docker), and publishes findings. Effects map classes the verb 'records' (actuates 0,
+external 0). CVE/USN correlation remains stage 2 (cve_correlation.integrated=False).
+Gate: tools/check_security_patch_scan.py (15 assertions) in ci_local.sh and ci.yml. Live
+run assessed the 6 glibc security patches high/critical_component. Applying stays with
+Maintenance under the principal's authorization - this verb cannot install/remove/restart/reboot.
