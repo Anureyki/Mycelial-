@@ -59,6 +59,8 @@ def make_agent(detect):
     a = object.__new__(SecurityAgent)
     a.agent_id = "security_agent"
     a.log = lambda *x, **k: None
+    # Point at the repo-relative map, not ~/mycelial: CI checks out elsewhere.
+    a.CRITICAL_PACKAGES_FILE = os.path.join(ROOT, "config", "security", "critical_packages.json")
     a._store = []
     a._load_findings = lambda: a._store
     a._save_findings = lambda f: setattr(a, "_store", f)
