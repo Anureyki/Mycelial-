@@ -2230,3 +2230,33 @@ identified, verified, evaluated, and presented when it matters. Anansi is the wi
 Boss coordinates; Legal identifies changes in the rules; Trade the economic
 consequence; Accounting the financial position; the rest contribute their specialty.
 That is the difference between continuous activity and useful intelligence.
+
+## Proposed - system security posture: Maintenance detects, Security assesses (2026-11-14)
+
+The principal asked whether the Security Agent can flag OS security patches - what is
+needed, why, and how it affects the system - the way they were explained by hand on
+2026-11-14 (22 apt updates, of which 6 were glibc security). Checked: Maintenance's
+`check_updates` LISTS updates (it shells apt) but does not classify or explain security;
+the Security Agent has NO OS/package/patch verb (all its verbs are internal - guard, ACL,
+drift, holds). So the capability is ABSENT. **Recorded; not built.**
+
+This is the event-driven architecture applied to the system's OWN security posture, and
+it respects the ownership model:
+- **Maintenance DETECTS** (it owns the package manager): upgradable packages, which apt
+  flags `*-security`, download size, reboot-required. Lightweight - the detection tier.
+- **Security ASSESSES** (it owns security posture): takes that list, selects the
+  security-relevant patches, and explains WHAT each component is, WHY it matters, and HOW
+  it affects the running system (e.g. glibc is linked by every agent -> patch-level ->
+  restart the agents after; a Docker patch touches the sandbox and Jellyfin). It FLAGS to
+  the principal through Anansi, like a drift alert. This is Security doing for the SYSTEM
+  what Legal does for the LAW: detect an authoritative change, assess it, publish it.
+- **Applying stays GATED.** Patching needs sudo/root and CLAUDE.md's rule is no agent
+  holds root, so the agent detects/explains/flags; the principal (or a narrowly-authorized
+  path) applies. The reduce-exposure vs change-the-system boundary, same as capital/hardware.
+
+Sources for the why/how, so nothing is guessed: a small curated map of critical packages
+(glibc, openssl, kernel, openssh, docker) and their blast radius (deterministic); Ubuntu
+Security Notices / CVE data as the LIVE column for real severity (the system-security
+analogue of CourtListener for Legal); a reasoning model only for an unfamiliar package.
+A new Security verb (e.g. `security_patch_scan`) reads Maintenance's detection, never runs
+apt itself, and emits a finding - detect only, no apply.
