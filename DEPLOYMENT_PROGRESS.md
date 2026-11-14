@@ -2272,3 +2272,26 @@ external 0). CVE/USN correlation remains stage 2 (cve_correlation.integrated=Fal
 Gate: tools/check_security_patch_scan.py (15 assertions) in ci_local.sh and ci.yml. Live
 run assessed the 6 glibc security patches high/critical_component. Applying stays with
 Maintenance under the principal's authorization - this verb cannot install/remove/restart/reboot.
+
+### security_patch_scan - four maturity items addressed (2026-11-14)
+
+1. **Version accuracy (confirmed).** Maintenance parses `name/origin candidate arch
+   [upgradable from: installed]`. Verified live and gated: version EPOCHS are preserved on
+   both sides (docker-ce 5:29.9.2 -> 5:29.9.3, vim 2:9.1...), the architecture is its own
+   field, architecture-suffixed NAMES survive (libssl3t64), and the size match uses the
+   epoch-bearing candidate version.
+2. **Security-classification provenance (confirmed).** The `security` flag comes ONLY from
+   the package-manager pocket in `origin` ("...-security"), never from a name match. The
+   curated map decides COMPONENT/blast-radius only, never whether something is a security
+   update. Gated both ways: an in-map package in no security pocket (docker-ce, openssh-server)
+   is never a security finding; findings carry `security_basis` naming the pocket. Live: zero
+   packages flagged security without a security pocket.
+3. **CVE correlation is stage 2, key specified.** `_cve_correlate` records the correlation
+   key (distro_release, package, candidate_version) and returns integrated=False,
+   cve_severity="unknown". Stage 2 will correlate that key against Ubuntu Security Notices /
+   CVEs for the installed release; an unknown CVE stays unknown - severity is never inferred
+   without advisory+version evidence. `distro_release` is captured read-only from /etc/os-release.
+4. **Execution boundary (held).** Installation, service restarts and reboot authorization stay
+   OUTSIDE this capability. The verb's effect class is `records` (actuates 0, external 0); the
+   gate forbids any apt/subprocess/systemctl/shutdown/delete path. Applying remains Maintenance's,
+   under the principal's authorization (no agent holds root).

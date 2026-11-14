@@ -50,6 +50,9 @@ DETECT = {"result": {
         {"name": "openssl", "origin": "resolute-security",
          "candidate": "3.0.1", "architecture": "amd64", "installed": "3.0.0",
          "security": True, "download_size_bytes": 500, "installed_size_kb": 10},
+        {"name": "openssh-server", "origin": "resolute-updates",  # IN the map but NOT a security pocket
+         "candidate": "9.9", "architecture": "amd64", "installed": "9.8",
+         "security": False, "download_size_bytes": 10, "installed_size_kb": 2},
     ],
     "security_count": 3, "reboot_required": True, "reboot_required_packages": ["libc6"],
 }}
@@ -96,6 +99,18 @@ check("vulnerability/CVE severity is never inferred (stage 2 not integrated)",
           and "severity_basis" in f for f in res.get("findings", [])))
 check("reboot_required propagates from the detector", res["reboot_required"] is True)
 check("findings were published to the store for Anansi", len(a._store) == 3)
+check("a map package NOT in a security pocket is never a finding (security != name match)",
+      "openssh-server" not in by_pkg)
+check("CVE correlation carries its (release, package, candidate) key and stays unknown",
+      all(set(("integrated", "distro_release", "package", "candidate_version", "cve_severity"))
+          <= set(f["cve_correlation"]) for f in res.get("findings", []))
+      and by_pkg["libc6"]["cve_correlation"]["package"] == "libc6"
+      and by_pkg["libc6"]["cve_correlation"]["candidate_version"] == "2.43-2ubuntu2.7"
+      and by_pkg["libc6"]["cve_correlation"]["integrated"] is False)
+check("the scan result names the distro release (first key of a CVE lookup)",
+      "distro_release" in res)
+check("each finding records the provenance of its security flag (the apt pocket)",
+      all(str(f.get("security_basis", "")).startswith("security pocket") for f in res.get("findings", [])))
 
 # --- idempotency: re-scan does not duplicate ---
 a.security_patch_scan({})
@@ -114,11 +129,48 @@ rc = c.security_patch_scan({})
 check("malformed detection (no details) -> unknown, nothing flagged",
       rc["status"] == "unknown" and c._store == [])
 
+# --- Maintenance parser: versions (epoch + arch suffix), size match, pocket provenance ---
+from agents.maintenance_agent.maintenance_agent import MaintenanceAgent  # noqa: E402
+APT_LIST = (
+    "Listing...\n"
+    "libc6/resolute-updates,resolute-security 2.43-2ubuntu2.7 amd64 [upgradable from: 2.43-2ubuntu2.4]\n"
+    "docker-ce/resolute 5:29.9.3-1~ubuntu.26.04~resolute amd64 [upgradable from: 5:29.9.2-1~ubuntu.26.04~resolute]\n"
+    "libssl3t64/resolute-security 3.0.1-2 arm64 [upgradable from: 3.0.0-1]\n"
+)
+APT_CACHE = (
+    "Package: libc6\nVersion: 2.43-2ubuntu2.7\nSize: 2104256\nInstalled-Size: 12000\n\n"
+    "Package: docker-ce\nVersion: 5:29.9.3-1~ubuntu.26.04~resolute\nSize: 24581704\nInstalled-Size: 99999\n\n"
+    "Package: libssl3t64\nVersion: 3.0.1-2\nSize: 500\nInstalled-Size: 10\n"
+)
+m = object.__new__(MaintenanceAgent)
+m.agent_id, m.log = "maintenance_agent", (lambda *a, **k: None)
+m._execute_local = lambda cmd: (
+    {"stdout": APT_LIST, "stderr": "", "returncode": 0} if cmd.startswith("apt list")
+    else {"stdout": APT_CACHE, "stderr": "", "returncode": 0} if cmd.startswith("apt-cache show")
+    else {"stdout": "", "stderr": "", "returncode": 0})
+det = m._detect_updates()
+bn = {d["name"]: d for d in det["details"]}
+check("parser: plain version installed/candidate (libc6 2.43-2ubuntu2.4 -> .2.7, amd64)",
+      bn["libc6"]["installed"] == "2.43-2ubuntu2.4" and bn["libc6"]["candidate"] == "2.43-2ubuntu2.7"
+      and bn["libc6"]["architecture"] == "amd64")
+check("parser: version EPOCH preserved on both sides (docker-ce 5:...2 -> 5:...3)",
+      bn["docker-ce"]["installed"] == "5:29.9.2-1~ubuntu.26.04~resolute"
+      and bn["docker-ce"]["candidate"] == "5:29.9.3-1~ubuntu.26.04~resolute")
+check("parser: size matches on the epoch-bearing candidate version (docker-ce 24581704)",
+      bn["docker-ce"]["download_size_bytes"] == 24581704)
+check("parser: architecture-suffixed name kept, non-amd64 arch parsed (libssl3t64, arm64)",
+      "libssl3t64" in bn and bn["libssl3t64"]["architecture"] == "arm64"
+      and bn["libssl3t64"]["candidate"] == "3.0.1-2")
+check("provenance: security flag comes from the apt pocket, not the name (docker-ce in-map but no security pocket -> False; libc6/libssl3t64 security pocket -> True)",
+      bn["docker-ce"]["security"] is False and bn["libc6"]["security"] is True
+      and bn["libssl3t64"]["security"] is True and det["security_count"] == 2)
+
 # --- structural read-only proof (source scan) ---
 src = open(os.path.join(ROOT, "agents", "security_agent", "security_agent.py"), encoding="utf-8").read()
 method = src[src.index("def security_patch_scan"):src.index("def handle_task")]
-forbidden = ["subprocess", "Popen", "os.system", "_execute_local", "systemctl",
-             "apt-get", "apt ", "sudo ", "shutil.rmtree", "os.remove", "os.rmdir"]
+forbidden = ["subprocess", "Popen", "os.system", "os.popen", "_execute_local", "systemctl",
+             "apt-get", "apt ", "sudo ", "shutil.rmtree", "os.remove", "os.rmdir",
+             "shutdown", "check_call", "check_output", "pty.spawn"]
 check("security_patch_scan contains no apt/subprocess/restart/reboot/delete path",
       not any(tok in method for tok in forbidden))
 check("security_patch_scan reaches the package manager only via Maintenance detection",

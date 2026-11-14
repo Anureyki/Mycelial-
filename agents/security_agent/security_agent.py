@@ -539,16 +539,38 @@ class SecurityAgent(AgentBase):
                     return key, fam
         return None, None
 
-    def _cve_correlate(self, name, candidate):
-        """STAGE 2 placeholder - Ubuntu Security Notices / CVE correlation is a
-        separate integration stage. Until it exists, vulnerability severity is
-        NOT inferred (scope rule: no severity without advisory+version evidence)."""
+    def _distro_release(self):
+        """Read-only: the Ubuntu release codename, the first key of a CVE/USN
+        lookup (a CVE is fixed in a specific version IN a specific release)."""
+        try:
+            with open("/etc/os-release", encoding="utf-8") as fh:
+                for ln in fh:
+                    if ln.startswith("VERSION_CODENAME="):
+                        return ln.split("=", 1)[1].strip().strip('"')
+        except OSError:
+            pass
+        return None
+
+    def _cve_correlate(self, name, candidate, release=None):
+        """STAGE 2 placeholder - Ubuntu Security Notices / CVE correlation.
+
+        The correlation key is (distro_release, package, candidate_version): a CVE
+        is fixed in a specific package version within a specific release, so all
+        three are required to say which advisory a pending update carries. This
+        stub records that key and returns `unknown`; it is NOT integrated, and
+        vulnerability severity is never inferred without advisory+version evidence.
+        An unknown CVE stays unknown."""
         return {
             "integrated": False,
+            "distro_release": release,
+            "package": name,
+            "candidate_version": candidate,
             "advisories": [],
+            "cve_ids": [],
             "cve_severity": "unknown",
             "source": None,
-            "note": "CVE/USN correlation is stage 2; vulnerability severity is not inferred without it.",
+            "note": ("Stage 2: correlate (distro_release, package, candidate_version) against "
+                     "Ubuntu Security Notices / CVE. Until integrated, severity stays unknown."),
         }
 
     def security_patch_scan(self, args=None):
@@ -582,6 +604,7 @@ class SecurityAgent(AgentBase):
             }
 
         families = self._load_critical_packages()
+        release = self._distro_release()
         reboot_required = bool(data.get("reboot_required"))
         details = data.get("details") or []
         assessments, by_component = [], {}
@@ -614,7 +637,7 @@ class SecurityAgent(AgentBase):
                 action = "Unfamiliar security package - investigate via Ubuntu Security Notice / CVE before applying (stage 2)."
                 needs_investigation = True
 
-            cve = self._cve_correlate(name, candidate)
+            cve = self._cve_correlate(name, candidate, release)
             summary = (f"Security update available: {name} {installed} -> {candidate}"
                        f" ({label or 'unclassified component'})")
             item = {
@@ -622,6 +645,7 @@ class SecurityAgent(AgentBase):
                 "package": name, "installed": installed, "candidate": candidate,
                 "architecture": d.get("architecture"), "origin": d.get("origin"),
                 "security_pocket": True,
+                "security_basis": f"security pocket in package-manager origin: {d.get('origin')}",
                 "component": component, "component_label": label,
                 "component_criticality": criticality,
                 "classification": classification, "needs_investigation": needs_investigation,
@@ -680,6 +704,7 @@ class SecurityAgent(AgentBase):
             "read_only": True,
             "scanned_at": datetime.now().isoformat(),
             "source": "maintenance_agent.check_updates (Security assesses, Maintenance detects)",
+            "distro_release": release,
             "total_updates": len(details),
             "security_updates": len(assessments),
             "critical_component_updates": sum(1 for a in assessments if a["classification"] == "critical_component"),
