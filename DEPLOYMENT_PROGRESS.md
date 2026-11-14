@@ -2210,8 +2210,11 @@ analysis cycle. Each exception is documented and owned by the right service.
 
 **What already exists to build on** (do not rebuild): the case layer's CLOSED event-type
 set and Boss routing on type while refusing any envelope carrying evidence/body
-(core/case_manager.py); cross-domain findings refer_finding/receive_finding; Ed25519
-A2A envelopes that are signed over sender/recipient/kind AND EXPIRE (core/sandbox/signing);
+(core/case_manager.py); cross-domain findings refer_finding/receive_finding; a signed-ARTIFACT
+layer (core/sandbox/signing) whose envelopes are Ed25519-signed over sender/recipient/kind
+and EXPIRE (1 h default; 5 min for the phone-signed hold-release) - distinct from ordinary
+A2A JSON-RPC (send_a2a -> POST /execute), which is UNSIGNED and does not expire; signing the
+events/findings on the bus would use this layer, and is not wired beyond the release flow yet;
 the Provenance service; the claim pipeline as the VERIFICATION axis (unsupported by
 default, confirmed vs alleged); config/model_routing.json (models interchangeable);
 and the authorization boundaries (hardware behind Boss, capital actuation scoped by
