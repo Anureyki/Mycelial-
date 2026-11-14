@@ -2753,13 +2753,24 @@ class GrowAgent(AgentBase):
         out = []
         for pid in self._active_plants():
             rec = self._jload(f"grow_system_{pid}", {})
-            if "tent" not in str(rec.get("location") or "").lower():
+            # IN THE TENT IS A FIELD, NOT A SUBSTRING OF THE LOCATION TEXT (2026-11-13).
+            # This matched any location containing "tent" - so the lemongrass, recorded as
+            # "same room as the grow tent, outside it", was wrongly fed the tent's climate.
+            # One sensor's data is a measurement; a measurement on the wrong plant is the
+            # plants-don't-cross failure. in_tent is an explicit boolean; if it is unset,
+            # fall back to the old text test but ONLY on a positive "in the tent" phrase,
+            # never on a location that merely mentions the tent.
+            in_tent = rec.get("in_tent")
+            if in_tent is None:
+                loc = str(rec.get("location") or "").lower()
+                in_tent = bool(re.search(r"\b(in|inside) (the )?(grow )?tent\b", loc))
+            if not in_tent:
                 continue
             out.append(self.ingest_environment_export(pid, csv_path=csv_path, note=note,
                                                       since=rec.get("in_tent_since")))
         return {"plants": [{k: r.get(k) for k in ("plant_id", "recorded", "since", "row_count",
                                                    "time_start", "time_end", "reason")} for r in out],
-                "note": "filed to every active plant whose location is the tent, from its in_tent_since"}
+                "note": "filed to every active plant with in_tent true (or a location that says it is in the tent), from its in_tent_since"}
 
     def environment_adjustment(self, plant_id="current_plant"):
         """Inside the DWC and outside it, read together. The reservoir's draw is

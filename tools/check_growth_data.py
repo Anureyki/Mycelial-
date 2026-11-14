@@ -67,5 +67,15 @@ check("backfill apply stores derived per-day fields only, from the event's own r
       len(writes) == 1 and st.get("climate", {}).get("by_day") and st.get("light", {}).get("by_day")
       and st.get("source_file") == path)
 
+# The tent sensor is filed only to plants IN the tent, keyed on an explicit in_tent
+# field - never a substring of the location text (2026-11-13: "same room as the grow
+# tent" wrongly fed the window lemongrass the tent's climate). One sensor on the wrong
+# plant is the plants-don't-cross failure, in the environment record.
+_gsrc = open(os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
+                          "agents", "grow_agent", "grow_agent.py"), encoding="utf-8").read()
+_tent = _gsrc[_gsrc.index("def ingest_tent_export"):_gsrc.index("def environment_adjustment")]
+check("ingest_tent_export keys on the in_tent field, not a bare 'tent in location' substring",
+      'rec.get("in_tent")' in _tent and 'if "tent" not in str(rec.get("location")' not in _tent)
+
 print("check_growth_data: " + ("ALL OK" if not fails else f"{len(fails)} FAILED: {fails}"))
 sys.exit(1 if fails else 0)
