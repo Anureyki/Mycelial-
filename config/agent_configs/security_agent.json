@@ -18,6 +18,7 @@
     "scan_codebase",
     "drift_scan",
     "security_patch_scan",
+    "security_advisory_lookup",
     "start_drift_watch",
     "drift_status",
     "principal_key_status",

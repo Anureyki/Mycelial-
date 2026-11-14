@@ -55,6 +55,7 @@ DETECT = {"result": {
          "security": False, "download_size_bytes": 10, "installed_size_kb": 2},
     ],
     "security_count": 3, "reboot_required": True, "reboot_required_packages": ["libc6"],
+    "security_download_bytes": 1500, "total_download_bytes": 3000000,
 }}
 
 
@@ -109,6 +110,8 @@ check("CVE correlation carries its (release, package, candidate) key and stays u
       and by_pkg["libc6"]["cve_correlation"]["integrated"] is False)
 check("the scan result names the distro release (first key of a CVE lookup)",
       "distro_release" in res)
+check("the scan surfaces Maintenance's exact aggregate download size (not a rounded estimate)",
+      res.get("security_download_bytes") == 1500 and res.get("total_download_bytes") == 3000000)
 check("each finding records the provenance of its security flag (the apt pocket)",
       all(str(f.get("security_basis", "")).startswith("security pocket") for f in res.get("findings", [])))
 
@@ -164,6 +167,9 @@ check("parser: architecture-suffixed name kept, non-amd64 arch parsed (libssl3t6
 check("provenance: security flag comes from the apt pocket, not the name (docker-ce in-map but no security pocket -> False; libc6/libssl3t64 security pocket -> True)",
       bn["docker-ce"]["security"] is False and bn["libc6"]["security"] is True
       and bn["libssl3t64"]["security"] is True and det["security_count"] == 2)
+check("Maintenance reports the EXACT aggregate download size (security + total), summed from candidate sizes",
+      det["security_download_bytes"] == 2104256 + 500
+      and det["total_download_bytes"] == 2104256 + 24581704 + 500)
 
 # --- structural read-only proof (source scan) ---
 src = open(os.path.join(ROOT, "agents", "security_agent", "security_agent.py"), encoding="utf-8").read()

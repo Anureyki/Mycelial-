@@ -1025,11 +1025,15 @@ class MaintenanceAgent(AgentBase):
                     reboot_pkgs = [p.strip() for p in fh if p.strip()]
             except OSError:
                 pass
+        def _sum(sel):  # exact aggregate from the detector, never a rounded estimate
+            return sum(d["download_size_bytes"] or 0 for d in details if sel(d))
         return {
             "upgradable_count": len(details),
             "packages": raw,                       # kept: existing callers read this
             "details": details,
             "security_count": sum(1 for d in details if d["security"]),
+            "total_download_bytes": _sum(lambda d: True),
+            "security_download_bytes": _sum(lambda d: d["security"]),
             "reboot_required": reboot_required,
             "reboot_required_packages": reboot_pkgs,
             "detected_at": datetime.now().isoformat(),

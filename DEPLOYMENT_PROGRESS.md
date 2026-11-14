@@ -2295,3 +2295,44 @@ Maintenance under the principal's authorization - this verb cannot install/remov
    OUTSIDE this capability. The verb's effect class is `records` (actuates 0, external 0); the
    gate forbids any apt/subprocess/systemctl/shutdown/delete path. Applying remains Maintenance's,
    under the principal's authorization (no agent holds root).
+
+### Stage 2 BUILT - CVE / Ubuntu Security Notices correlation (separate read-only capability, 2026-11-14)
+
+Stage 1 is preserved at tag `security-patch-scan-stage1` (ad12b4e). Stage 2 is a SEPARATE
+read-only verb, `security_advisory_lookup` (effect class `computes`; actuates 0, external 0),
+not folded into the scanner - the scanner's inline CVE field stays `unknown` by default so the
+Stage 1 checkpoint behaviour is unchanged.
+
+- **Correlation identity:** (distro_release, package, candidate_version). A notice ties a
+  specific package version in a specific release to its CVEs, so a match needs all three.
+- **Source:** the official Ubuntu Security API by GET only - notices.json (version->USN->CVE)
+  and cves.json (CVE->priority). No POST, no apply, and only package+release travel in the
+  query - never personal data.
+- **Honest states:** `matched` (advisories + CVE ids, severity = max CVE priority FROM the
+  data), `no_match` (consulted, no USN names this version - NOT a severity), `source_unavailable`
+  (could not reach the service - NOT "no vulnerability"). Severity is never inferred; an
+  unknown CVE stays unknown. Verified live: for the 6 glibc updates on release 'resolute' the
+  service was reached and returned `no_match` - no CVE invented.
+- **Two tighten-items closed before any apply:** Maintenance now reports the EXACT aggregate
+  download size (`total_download_bytes`, `security_download_bytes`) summed from candidate
+  sizes - the 6 glibc security patches are 10,712,818 B (10.71 MB / 10.22 MiB), not a rounded
+  figure. The glibc restart scope is all 13 running MycOS processes (every one links libc.so.6),
+  not just Maintenance and Security - confirmable post-apply via /proc/<pid>/maps showing
+  `libc.so.6 (deleted)` or `needrestart`.
+- Gate: tools/check_security_advisory.py in ci_local.sh and ci.yml.
+
+### The reusable pattern (principal, 2026-11-14)
+
+This capability is an instance of a pattern that should govern event-driven work across
+domains, not just OS security:
+
+  DETECTION -> EVIDENCE -> CLASSIFICATION -> IMPACT ASSESSMENT -> USER NOTIFICATION -> SEPARATELY AUTHORIZED ACTION
+
+Here: Maintenance DETECTS (package manager), the apt security pocket is the EVIDENCE, Security
+CLASSIFIES (component/blast-radius) and ASSESSES IMPACT, findings are the NOTIFICATION Anansi
+presents, and applying is a SEPARATELY AUTHORIZED ACTION (root, principal sign-off). The same
+shape fits Legal (a new ruling/statute), Trade (a market/regulatory event) and Accounting (a
+filing/obligation): each domain detects and assesses in its own authority, and the consequential
+action stays separately authorized. It maps onto the event envelope already recorded above -
+detection is the event, evidence+classification fill its verified/impact fields, and the
+authorized action is gated by permissions.

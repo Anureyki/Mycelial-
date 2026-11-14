@@ -32,6 +32,7 @@ class SecurityAgent(AgentBase):
                           "check_guard", "reload_guards", "quarantine", "eliminate",
                           "list_pending_approvals",
                           "scan_codebase", "drift_scan", "security_patch_scan",
+                          "security_advisory_lookup",
                           "start_drift_watch", "drift_status",
                           "principal_key_status", "enroll_principal_key",
                           "list_holds", "release_hold", "deny_hold"],
@@ -705,6 +706,8 @@ class SecurityAgent(AgentBase):
             "scanned_at": datetime.now().isoformat(),
             "source": "maintenance_agent.check_updates (Security assesses, Maintenance detects)",
             "distro_release": release,
+            "security_download_bytes": data.get("security_download_bytes"),
+            "total_download_bytes": data.get("total_download_bytes"),
             "total_updates": len(details),
             "security_updates": len(assessments),
             "critical_component_updates": sum(1 for a in assessments if a["classification"] == "critical_component"),
@@ -716,6 +719,105 @@ class SecurityAgent(AgentBase):
             "note": ("Assessment only. Applying patches needs root and belongs to Maintenance "
                      "with the principal's authorization - this capability cannot install, "
                      "remove, restart or reboot anything."),
+        }
+
+    # --- STAGE 2: CVE / Ubuntu Security Notices correlation (separate, read-only) ---
+    USN_SEVERITY_ORDER = {"negligible": 0, "low": 1, "medium": 2, "high": 3, "critical": 4}
+    ADVISORY_BASE = "https://ubuntu.com/security"
+
+    def _advisory_fetch(self, url, timeout=15):
+        """Read-only GET of a JSON advisory source. Sends no personal data - only a
+        package name and release travel in the query. Any failure returns None so
+        correlation degrades to 'source_unavailable', never a guess. No POST, ever."""
+        import urllib.request
+        try:
+            req = urllib.request.Request(url, headers={"User-Agent": "mycelial-security-advisory/1.0",
+                                                        "Accept": "application/json"})
+            with urllib.request.urlopen(req, timeout=timeout) as r:  # nosec - GET only
+                import json as _json
+                return _json.loads(r.read().decode("utf-8", "replace"))
+        except Exception as e:
+            self.log(f"advisory fetch failed ({url.split('?')[0]}): {e}")
+            return None
+
+    def _correlate_advisories(self, package, candidate, release, notices, cve_priorities):
+        """Pure correlation on the key (release, package, candidate). A notice ties a
+        specific package VERSION in a specific RELEASE to its CVEs - so a match requires
+        all three to line up. No match found after looking is 'no_match', not a severity;
+        a source we could not consult is 'source_unavailable'. Severity is only reported
+        when the advisory data provides it; otherwise it stays 'unknown'. Never inferred."""
+        if notices is None:
+            return {"correlation_status": "source_unavailable", "integrated": False,
+                    "advisories": [], "cve_ids": [], "cve_severity": "unknown"}
+        adv, cves = set(), set()
+        for n in notices:
+            pkgs = (n.get("release_packages") or {}).get(release) or []
+            if any(p.get("name") == package and p.get("version") == candidate for p in pkgs):
+                if n.get("id"):
+                    adv.add(n["id"])
+                for c in (n.get("cves") or []):
+                    cves.add(c if isinstance(c, str) else c.get("id"))
+        cves.discard(None)
+        if not adv and not cves:
+            return {"correlation_status": "no_match", "integrated": True,
+                    "advisories": [], "cve_ids": [], "cve_severity": "unknown"}
+        severity = "unknown"
+        if cve_priorities:
+            ranked = [cve_priorities.get(c) for c in cves if cve_priorities.get(c)]
+            ranked = [p for p in ranked if p in self.USN_SEVERITY_ORDER]
+            if ranked:
+                severity = max(ranked, key=lambda p: self.USN_SEVERITY_ORDER[p])
+        return {"correlation_status": "matched", "integrated": True,
+                "advisories": sorted(adv), "cve_ids": sorted(cves), "cve_severity": severity}
+
+    def security_advisory_lookup(self, args=None):
+        """READ-ONLY Stage 2. Correlate pending updates against Ubuntu Security Notices /
+        CVEs. Takes {package, candidate} or {items:[{package,candidate}...]} or
+        {from_scan:true} (pulls the current os_security_patch findings). Consults the
+        official Ubuntu Security API by GET only - no install, no apply, no POST, no
+        personal data. An unknown CVE stays unknown; an unreachable source is reported
+        as such, never treated as 'no vulnerability'."""
+        args = args or {}
+        release = args.get("release") or self._distro_release()
+        items = []
+        if args.get("from_scan"):
+            for f in self._load_findings():
+                if f.get("category") == "os_security_patch" and f.get("status") == "open":
+                    items.append({"package": f.get("package"), "candidate": f.get("candidate")})
+        elif args.get("items"):
+            items = [{"package": i.get("package"), "candidate": i.get("candidate")} for i in args["items"]]
+        elif args.get("package"):
+            items = [{"package": args.get("package"), "candidate": args.get("candidate")}]
+        if not release or not items:
+            return {"status": "unknown", "read_only": True,
+                    "reason": "need a distro release and at least one {package, candidate}",
+                    "release": release, "results": []}
+
+        cache_notices, cache_prio, results = {}, {}, []
+        for it in items:
+            pkg, cand = it.get("package"), it.get("candidate")
+            if not pkg:
+                continue
+            if pkg not in cache_notices:
+                raw = self._advisory_fetch(f"{self.ADVISORY_BASE}/notices.json?details={pkg}&release={release}")
+                cache_notices[pkg] = (raw or {}).get("notices") if isinstance(raw, dict) else None
+                cj = self._advisory_fetch(f"{self.ADVISORY_BASE}/cves.json?package={pkg}")
+                prio = {}
+                if isinstance(cj, dict):
+                    for c in (cj.get("cves") or []):
+                        if c.get("id") and c.get("priority"):
+                            prio[c["id"]] = c["priority"]
+                cache_prio[pkg] = prio or None
+            corr = self._correlate_advisories(pkg, cand, release, cache_notices[pkg], cache_prio.get(pkg))
+            corr.update({"package": pkg, "candidate": cand, "release": release})
+            results.append(corr)
+        return {
+            "status": "ok", "read_only": True, "release": release,
+            "source": f"{self.ADVISORY_BASE}/notices.json + cves.json (read-only GET)",
+            "results": results,
+            "note": ("Correlation only - never applies anything. 'source_unavailable' means the "
+                     "advisory service could not be reached (e.g. offline, or a release the "
+                     "service does not publish), not that no vulnerability exists."),
         }
 
     def handle_task(self, task, args, sender):
@@ -741,6 +843,9 @@ class SecurityAgent(AgentBase):
 
         if task == "security_patch_scan":
             return self.security_patch_scan(args if isinstance(args, dict) else {})
+
+        if task == "security_advisory_lookup":
+            return self.security_advisory_lookup(args if isinstance(args, dict) else {})
 
         if task == "issue_token":
             agent_id = args.get("agent_id")
