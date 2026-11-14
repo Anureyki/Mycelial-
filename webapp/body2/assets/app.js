@@ -1,6 +1,6 @@
 "use strict";
 /* Body Interface v2 - prototype replacement for webapp/body.html.
-   Kept from body.html: ask()/unwrap()/brief() (POST /execute, tasks "lighting" and "sector_briefing"), the 60 s refresh,
+   Kept from body.html: ask()/unwrap()/brief() (POST /execute, tasks "lighting" and "sector_briefing"),
    drawClock / drawPillars / lightHouses / markMeridians, window.POINT_KINDS, the toggle ids (t-clock, t-houses, t-pillars,
    t-meridians, t-active), #clock #pillars #tags #brief #housenote, .glow[data-glow] .hit[data-house] #houses #glyphs #figmask,
    and #mer-<organ> ids on each meridian layer.  Nothing natal lives in this file: every value arrives from ATI's lighting call. */
@@ -532,7 +532,7 @@ function drawClock(L) {
     el("text", {class: "otime", x, y: y + 12}, g).textContent = `${w.start}–${w.end}`;
     if (tags[w.organ]) el("text", {class: "tag", x: 1.27 * x, y: 1.27 * y + 3}, g).textContent = [...tags[w.organ]].join(" · ");
   });
-  el("line", {class: "hand", x1: 0, y1: 0, x2: 0, y2: -R + 44, transform: `rotate(${angle(m) * 180 / Math.PI + 90})`}, svg);
+  el("line", {id: "clockhand", class: "hand", x1: 0, y1: 0, x2: 0, y2: -R + 44, transform: `rotate(${angle(m) * 180 / Math.PI + 90})`}, svg);
   el("text", {class: "oname", x: 0, y: 4}, svg).textContent = `${L.active_window.organ_display} · ${L.active_window.branch_display}`;
 }
 function drawPillars(L) {
@@ -579,9 +579,32 @@ async function refresh() {
   }
 }
 
+/* --------------------------------------------------- the running clock, without polling
+   The organ window, the hour pillar's animal branch, and the active meridian are a running
+   clock: they move continuously but only CHANGE at the twelve two-hour boundaries (23:00,
+   01:00, ... 21:00 - all odd hours). So the hand sweeps LOCALLY from the device clock every
+   second (no network), and ATI's `lighting` is re-fetched ONCE at the next boundary - a
+   scheduled wake, not a poll (CLAUDE.md: "a scheduled job is a SCHEDULE, not a poll").
+   Real-world events (a new law, a class action, movement) are pushed, never polled. */
+function tickClock() {                     // local, no fetch: only the hand moves between boundaries
+  const hand = $("clockhand"); if (!hand) return;
+  const now = new Date(), m = now.getHours() * 60 + now.getMinutes() + now.getSeconds() / 60;
+  hand.setAttribute("transform", `rotate(${angle(m) * 180 / Math.PI + 90})`);
+}
+function msToNextBoundary() {               // ms until the next two-hour window boundary (an odd hour, :00)
+  const d = new Date(), b = new Date(d);
+  b.setMinutes(0, 0, 0); b.setHours(b.getHours() + 1);
+  if (b.getHours() % 2 === 0) b.setHours(b.getHours() + 1);   // boundaries fall on odd hours
+  return b - d;
+}
+function scheduleBoundaryRefresh() {        // re-fetch the data exactly when the window flips, then re-arm
+  setTimeout(async () => { await refresh(); scheduleBoundaryRefresh(); }, msToNextBoundary() + 2000);
+}
 /* ---------------------------------------------------------------- boot */
 buildChips(); wireLayerToggles(); wireViewer();
-renderScene(); refresh(); setInterval(refresh, 60000);
+renderScene(); refresh();
+setInterval(tickClock, 1000);              // the running hand - local computation, never a request
+scheduleBoundaryRefresh();                 // the only repeat fetch, and only at a boundary
 // URL hooks for review: ?view=back&zoom=6&at=x,y&sel=LU11&palm=1
 (function () { const q = new URLSearchParams(location.search);
   if (q.get("view") && (VIEWS[q.get("view")] || DETAIL[q.get("view")])) setView(q.get("view"));

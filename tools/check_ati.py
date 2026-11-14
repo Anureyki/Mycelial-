@@ -230,6 +230,14 @@ _js = open(os.path.join(ROOT, "webapp", "body2", "assets", "app.js"), encoding="
 check("webapp/body.html and its app.js hold no pillar, natal or window values - they arrive from the lighting call",
       not re.search(r"[甲乙丙丁戊己庚辛壬癸][子丑寅卯辰巳午未申酉戌亥]", _page + _js) and "\"lighting\"" in _js
       and "11:00" not in _page + _js)
+# The running clock does not POLL (principal, 2026-11-13). The organ window, the hour
+# branch and the active meridian only change at the two-hour boundaries, so the hand
+# sweeps locally and `lighting` is re-fetched only at the next boundary - a scheduled
+# wake, not a blind interval. A later edit that reintroduces setInterval(refresh, ...)
+# is caught here.
+check("the body page re-fetches the lighting data at the window boundary, never on a blind interval",
+      not re.search(r"setInterval\s*\(\s*refresh\b", _js) and "scheduleBoundaryRefresh" in _js
+      and "msToNextBoundary" in _js and re.search(r"setInterval\s*\(\s*tickClock", _js))
 
 # Houses (ati/ephemeris.py + ati/lighting.houses): whole-sign arithmetic everywhere;
 # accuracy wherever the ephemeris is installed, SKIPPED out loud where it is not.

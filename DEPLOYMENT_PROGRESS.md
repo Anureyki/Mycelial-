@@ -2120,3 +2120,23 @@ the case/docket side; this is the statute/regulation side, and nothing watches i
 re-ingest that silently drops or changes a section is the exact failure already recorded
 (texas.public.law dropping Tex. Fin. Code § 392.308), so this watcher diffs against the
 shelved integrity rather than trusting the new fetch.
+
+## Done - body dashboard v2 merged, and its running clock de-polled (2026-11-13)
+
+Grok's `body-v2-dashboard` was reviewed (passes check_ati - its gate was rewritten to
+validate the new data files - and check_no_secrets; keeps the ATI contract; nothing
+natal in the page) and MERGED to main. `webapp/body.html` is now the v2 entry page over
+`webapp/body2/` (361 WHO points, 14 meridians, hand/foot from public-domain anatomy).
+
+The 60 s poll it carried over is REMOVED (the `webapp/body.html` polling work item from
+"Events, not polling" is resolved for the body page): the organ window, the hour
+branch and the active meridian only change at the twelve two-hour boundaries, so the
+clock hand now sweeps locally from the device clock (`tickClock`, no network) and
+`lighting` is re-fetched only at the next boundary (`scheduleBoundaryRefresh` /
+`msToNextBoundary`), a scheduled wake. check_ati asserts no `setInterval(refresh, ...)`.
+
+Still open from "Events, not polling": the mail listener's 5-minute cron -> AgentMail
+WebSocket; Legal's knowledge-base file-poll -> file-change notifications; agent
+heartbeats -> start/stop events. And the phone app (UI-1) must be push-only. The broader
+event-driven pattern work (world events read AFTER they move, then mapped to the sky as
+behavioural repetition) is Plan phase 1, unchanged.
