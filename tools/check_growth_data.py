@@ -76,6 +76,11 @@ _gsrc = open(os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file
 _tent = _gsrc[_gsrc.index("def ingest_tent_export"):_gsrc.index("def environment_adjustment")]
 check("ingest_tent_export keys on the in_tent field, not a bare 'tent in location' substring",
       'rec.get("in_tent")' in _tent and 'if "tent" not in str(rec.get("location")' not in _tent)
+# light_periods called with no periods surfaces the per-day series (hours_lit, DLI) instead
+# of returning empty - the data is computed at ingest, so Grow owns it in one call (2026-11-14).
+_lp = _gsrc[_gsrc.index("def light_periods"):_gsrc.index("def journal")]
+check("light_periods returns the daily light series by default, not an empty period list",
+      "if not periods:" in _lp and '"by_day": rows' in _lp and "recent_photoperiod_h" in _lp)
 
 print("check_growth_data: " + ("ALL OK" if not fails else f"{len(fails)} FAILED: {fails}"))
 sys.exit(1 if fails else 0)

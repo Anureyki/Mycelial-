@@ -14889,6 +14889,28 @@ class GrowAgent(AgentBase):
         for ev in self._environment_events(plant_id) or []:
             for d in ((ev.get("light") or {}).get("by_day") or []):
                 light[d["date"]] = d
+        # NO PERIODS ASKED -> SURFACE THE DAILY SERIES, don't return empty (2026-11-14).
+        # The per-day light hours and DLI are already computed at ingest; `light_periods`
+        # used to aggregate only named periods and returned {} when none were given, which
+        # read as "no light data" when the data was there. Called bare, it now returns the
+        # per-day rows and a short recent summary, so Grow owns the daily light picture in
+        # one call. Named periods still aggregate as before.
+        if not periods:
+            rows = [light[k] for k in sorted(light)]
+            full = [d for d in rows if not d.get("partial")]
+            recent = full[-14:]
+            summary = {"days_measured": len(full), "partial_days": len(rows) - len(full)}
+            if recent:
+                hrs = sorted(d["hours_lit"] for d in recent)
+                summary.update(
+                    recent_days=len(recent),
+                    recent_photoperiod_h=round(sum(d["hours_lit"] for d in recent) / len(recent), 1),
+                    recent_photoperiod_range_h=[hrs[0], hrs[-1]],
+                    recent_mean_dli_mol_m2=round(sum(d["dli_mol_m2"] for d in recent) / len(recent), 1),
+                    note=("hours_lit is the photoperiod from the PPFD sensor; a changing range means the "
+                          "schedule shifted, which is itself worth seeing"))
+            return {"plant_id": plant_id, "by_day": rows, "summary": summary,
+                    "basis": "the tent's PPFD sensor via the Mars Hydro export; per-day hours_lit and DLI integrated at ingest"}
         out = []
         for per in periods or []:
             lo, hi = str(per.get("from"))[:10], str(per.get("to"))[:10]
