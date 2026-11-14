@@ -2336,3 +2336,21 @@ filing/obligation): each domain detects and assesses in its own authority, and t
 action stays separately authorized. It maps onto the event envelope already recorded above -
 detection is the event, evidence+classification fill its verified/impact fields, and the
 authorized action is gated by permissions.
+
+### Stage 2 correction - the earlier no_match was a QUERY bug, not absence (2026-11-14)
+
+The principal asked to verify release/advisory coverage before interpreting no_match further.
+Verified against the live Ubuntu Security API, and the earlier `no_match` on the glibc set was
+WRONG - two query defects, not a genuine absence:
+  1. the lookup queried `notices.json?details=<pkg>` - `details` is a free-text search, not a
+     package filter (it returned one ancient notice); the correct filter is `release=<codename>`.
+  2. it requested `limit=50`; the API caps limit at 20 (>20 -> HTTP 422), so every page failed
+     and the result degraded to source_unavailable/no_match.
+Fixed: a paginated, cached pull of `notices.json?release=<release>&order=newest&limit=20` (newest
+400, cap 20 pages), matched by binary package name + version within release_packages - the shape
+confirmed against real USN data. Added a `coverage_partial` state so a miss within an incomplete
+survey is never reported as no_match. Verified live: all six glibc packages match **USN-9065-1**
+(7 CVEs) at 2.43-2ubuntu2.7 on resolute - so the glibc updates DO carry a real advisory.
+`cve_severity` stays `unknown` (per-CVE priority enrichment via cves.json by SOURCE package name
+is still deferred). This did not touch Maintenance. Anansi surfacing remains the gated next step
+before any further build. The six glibc patches remain pending authorization - not applied.

@@ -740,12 +740,21 @@ class SecurityAgent(AgentBase):
             self.log(f"advisory fetch failed ({url.split('?')[0]}): {e}")
             return None
 
-    def _correlate_advisories(self, package, candidate, release, notices, cve_priorities):
+    def _correlate_advisories(self, package, candidate, release, notices, cve_priorities,
+                              surveyed_complete=True):
         """Pure correlation on the key (release, package, candidate). A notice ties a
         specific package VERSION in a specific RELEASE to its CVEs - so a match requires
-        all three to line up. No match found after looking is 'no_match', not a severity;
-        a source we could not consult is 'source_unavailable'. Severity is only reported
-        when the advisory data provides it; otherwise it stays 'unknown'. Never inferred."""
+        all three to line up (the notice's release_packages list the binary packages by
+        name and version, verified against real USN data).
+
+        Four honest states, none of them a guess:
+          matched            - a USN names this version in this release (advisories + CVE ids)
+          no_match           - the release's notices were fully surveyed and none names it
+          coverage_partial   - only part of the release's notices were surveyed (page cap hit),
+                               so 'no match yet' is NOT 'no advisory' - never reported as no_match
+          source_unavailable - the advisory service could not be reached at all
+        Severity is reported only when the advisory data carries a CVE priority; else unknown.
+        It is never inferred, and an unknown CVE stays unknown."""
         if notices is None:
             return {"correlation_status": "source_unavailable", "integrated": False,
                     "advisories": [], "cve_ids": [], "cve_severity": "unknown"}
@@ -759,12 +768,11 @@ class SecurityAgent(AgentBase):
                     cves.add(c if isinstance(c, str) else c.get("id"))
         cves.discard(None)
         if not adv and not cves:
-            return {"correlation_status": "no_match", "integrated": True,
-                    "advisories": [], "cve_ids": [], "cve_severity": "unknown"}
+            return {"correlation_status": ("no_match" if surveyed_complete else "coverage_partial"),
+                    "integrated": True, "advisories": [], "cve_ids": [], "cve_severity": "unknown"}
         severity = "unknown"
         if cve_priorities:
-            ranked = [cve_priorities.get(c) for c in cves if cve_priorities.get(c)]
-            ranked = [p for p in ranked if p in self.USN_SEVERITY_ORDER]
+            ranked = [cve_priorities.get(c) for c in cves if cve_priorities.get(c) in self.USN_SEVERITY_ORDER]
             if ranked:
                 severity = max(ranked, key=lambda p: self.USN_SEVERITY_ORDER[p])
         return {"correlation_status": "matched", "integrated": True,
@@ -793,32 +801,52 @@ class SecurityAgent(AgentBase):
                     "reason": "need a distro release and at least one {package, candidate}",
                     "release": release, "results": []}
 
-        cache_notices, cache_prio, results = {}, {}, []
+        # Pull the release's notices ONCE (newest first, paginated, capped) and match every
+        # package against that one corpus. The correct filter is `release=<codename>`; the
+        # notice's release_packages then lists the binary packages by name+version. Pending
+        # security updates are recent USNs, so newest-first within the cap reliably covers
+        # them; if the cap is hit before exhausting the release, a miss is coverage_partial,
+        # never a false no_match. Verified against real data (USN-9065-1 names libc6 ...2.7).
+        notices, complete = self._fetch_release_notices(release)
+        results = []
         for it in items:
             pkg, cand = it.get("package"), it.get("candidate")
             if not pkg:
                 continue
-            if pkg not in cache_notices:
-                raw = self._advisory_fetch(f"{self.ADVISORY_BASE}/notices.json?details={pkg}&release={release}")
-                cache_notices[pkg] = (raw or {}).get("notices") if isinstance(raw, dict) else None
-                cj = self._advisory_fetch(f"{self.ADVISORY_BASE}/cves.json?package={pkg}")
-                prio = {}
-                if isinstance(cj, dict):
-                    for c in (cj.get("cves") or []):
-                        if c.get("id") and c.get("priority"):
-                            prio[c["id"]] = c["priority"]
-                cache_prio[pkg] = prio or None
-            corr = self._correlate_advisories(pkg, cand, release, cache_notices[pkg], cache_prio.get(pkg))
+            corr = self._correlate_advisories(pkg, cand, release, notices, None, surveyed_complete=complete)
             corr.update({"package": pkg, "candidate": cand, "release": release})
             results.append(corr)
         return {
             "status": "ok", "read_only": True, "release": release,
-            "source": f"{self.ADVISORY_BASE}/notices.json + cves.json (read-only GET)",
+            "notices_surveyed": len(notices or []), "survey_complete": complete,
+            "source": f"{self.ADVISORY_BASE}/notices.json?release={release} (read-only GET, newest-first)",
             "results": results,
-            "note": ("Correlation only - never applies anything. 'source_unavailable' means the "
-                     "advisory service could not be reached (e.g. offline, or a release the "
-                     "service does not publish), not that no vulnerability exists."),
+            "severity_enrichment": "deferred - CVE priority (cves.json by source package) not yet integrated; cve_severity stays unknown",
+            "note": ("Correlation only - never applies anything. 'coverage_partial' means only the "
+                     "newest notices were surveyed, 'source_unavailable' means the service was "
+                     "unreachable - neither means 'no vulnerability'."),
         }
+
+    ADVISORY_PAGE = 20          # notices per page - the API's maximum (limit>20 -> HTTP 422)
+    ADVISORY_PAGE_CAP = 20      # newest 400 notices - pending updates are recent USNs
+
+    def _fetch_release_notices(self, release):
+        """Read-only, paginated pull of a release's security notices, newest first.
+        Returns (notices, complete). complete=False means the page cap was hit before the
+        release was exhausted, so a non-match must be reported as coverage_partial, not
+        no_match. A first-page failure returns (None, False) -> source_unavailable."""
+        collected = []
+        for page in range(self.ADVISORY_PAGE_CAP):
+            raw = self._advisory_fetch(f"{self.ADVISORY_BASE}/notices.json?release={release}"
+                                       f"&order=newest&limit={self.ADVISORY_PAGE}&offset={page * self.ADVISORY_PAGE}")
+            if not isinstance(raw, dict):
+                return (collected or None), False
+            batch = raw.get("notices") or []
+            collected += batch
+            total = raw.get("total_results")
+            if not batch or (isinstance(total, int) and len(collected) >= total):
+                return collected, True
+        return collected, False
 
     def handle_task(self, task, args, sender):
         if task == "principal_key_status":

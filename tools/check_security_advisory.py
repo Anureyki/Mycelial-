@@ -63,6 +63,11 @@ check("unreachable advisory source -> source_unavailable, integrated False, unkn
       su["correlation_status"] == "source_unavailable" and su["integrated"] is False
       and su["cve_severity"] == "unknown")
 
+# non-match but the survey was incomplete (page cap hit) -> coverage_partial, NOT a false no_match
+cp = a._correlate_advisories("libc6", "2.43-2ubuntu2.7", REL, [], None, surveyed_complete=False)
+check("non-match with an incomplete survey -> coverage_partial, not a false no_match",
+      cp["correlation_status"] == "coverage_partial" and cp["cve_severity"] == "unknown")
+
 # matched but no priority data -> severity stays unknown (never inferred)
 np = a._correlate_advisories("libc6", "2.43-2ubuntu2.7", REL, NOTICES, None)
 check("matched but no priority data -> severity stays unknown (never inferred)",
@@ -79,12 +84,13 @@ fetched_urls = []
 
 
 def fake_fetch(url, timeout=15):
+    # Simulate the paginated release-notices query: full corpus on offset=0, empty after.
     fetched_urls.append(url)
-    if "notices.json" in url and "details=libc6" in url:
-        return {"notices": NOTICES}
-    if "cves.json" in url and "package=libc6" in url:
-        return {"cves": [{"id": k, "priority": v} for k, v in PRIO.items()]}
-    return None  # openssl: source has nothing -> unknown
+    if "notices.json" in url and ("release=" + REL) in url:
+        if "offset=0" in url:
+            return {"notices": NOTICES, "total_results": len(NOTICES)}
+        return {"notices": [], "total_results": len(NOTICES)}
+    return None
 
 
 a._advisory_fetch = fake_fetch
@@ -92,14 +98,14 @@ res = a.security_advisory_lookup({"from_scan": True})
 by = {r["package"]: r for r in res["results"]}
 check("from_scan correlates the open os_security_patch findings (libc6 + openssl, secret ignored)",
       set(by) == {"libc6", "openssl"})
-check("libc6 resolves to matched/high; openssl with no advisory data -> source_unavailable/unknown",
-      by["libc6"]["correlation_status"] == "matched" and by["libc6"]["cve_severity"] == "high"
-      and by["openssl"]["correlation_status"] == "source_unavailable"
-      and by["openssl"]["cve_severity"] == "unknown")
-check("read-only + privacy: requests carry only package + release, never personal data",
-      all(("package=" in u or "details=" in u) and "release=" in u.replace("package=", "release=") or "package=" in u
-          for u in fetched_urls)
-      and all("ssn" not in u.lower() and "@" not in u for u in fetched_urls))
+check("libc6 matched to its USN; openssl absent from the surveyed corpus -> no_match (not a false severity)",
+      by["libc6"]["correlation_status"] == "matched" and by["libc6"]["advisories"] == ["USN-7000-1"]
+      and by["libc6"]["cve_severity"] == "unknown"              # severity enrichment deferred
+      and by["openssl"]["correlation_status"] == "no_match")
+check("the survey uses the release filter (not a package text-search) and carries no personal data",
+      any(("release=" + REL) in u for u in fetched_urls)
+      and all("details=" not in u for u in fetched_urls)
+      and all("@" not in u and "ssn" not in u.lower() for u in fetched_urls))
 
 # structural read-only proof
 src = open(os.path.join(ROOT, "agents", "security_agent", "security_agent.py"), encoding="utf-8").read()
