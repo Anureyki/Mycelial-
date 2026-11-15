@@ -2594,3 +2594,30 @@ So the three properties that define the document workflow ARE demonstrated again
 Mycelial code. What remains UNVERIFIED is the full user-facing round trip through Anansi with
 a presented, validated answer - the retrieval/source/routing core is proven; the Anansi-surfaced
 "validated output" presentation is not yet demonstrated. In ci_local.sh and ci.yml.
+
+### Document CYCLE eval BUILT - the real Anansi intake + response boundary (2026-11-14)
+
+Closes the four gaps check_document_workflow left (the principal named them): the real ingestion
+entry point, delivery to a live owning agent, cited evidence in a validated final response, and a
+completed persist->retrieve cycle. tools/check_document_cycle.py exercises PRODUCTION code end to end:
+
+- Real **Anansi.ingest_upload** routes a declared document and delivers it, via A2A, to a real
+  owning-agent instance's real **ingest_document** -> real **document_pipeline.intake** ->
+  **evidence_ingest** persistence. Delivery to the owning agent is exercised, not just routing.
+- A real **persist -> retrieve cycle**: evidence_ingest.facts_for reads the ingested clause back
+  with its provenance (document_id + clause location).
+- A validated final response through real **Anansi.process_request**: the owning agent's real
+  retrieval is carried as evidence, and process_request surfaces the CITED evidence behind the answer.
+- Negative: a subject never ingested yields no fact and NO fabricated citation.
+
+Isolation is proven, not promised: evidence_ingest.STORE is redirected to a temp file and a
+before/after snapshot asserts private/, state/ and knowledge_base/ are byte-for-byte unchanged -
+no live-store write, no user-record contamination. The whole cycle runs THROUGH core.workflow_eval
+with the four stages asserted in order.
+
+One honest simulation remains: the A2A transport is IN-PROCESS (Anansi.send_a2a pointed at a real
+owning-agent instance), not a live socket, and narrate is identity so the eval needs no voice config.
+Everything else is production code. So the user-facing document operation is now demonstrated to
+complete - ingest through Anansi, persist, retrieve, and answer with cited evidence - the gap between
+"the functions work together" and "the operation completes" is closed, bar a live socket and voice.
+In ci_local.sh and ci.yml.
