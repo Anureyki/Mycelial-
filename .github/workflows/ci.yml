@@ -202,6 +202,8 @@ jobs:
         run: python tools/check_operational_status.py
       - name: Security-patch lifecycle workflow eval - boundary + failure recovery (check_patch_workflow)
         run: python tools/check_patch_workflow.py
+      - name: Document workflow eval - retrieve correct, preserve source, route to the right agent (check_document_workflow)
+        run: python tools/check_document_workflow.py
       - name: Grow learns the refill rhythm and the water alert defers to it (check_water_rhythm)
         run: python tools/check_water_rhythm.py
       - name: Legal's MCP wiring lives in tools/legal and is callable only by permission (check_legal_tools)

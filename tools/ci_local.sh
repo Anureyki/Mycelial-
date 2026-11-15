@@ -131,6 +131,7 @@ step "check_security_patch_scan"     "$PY" tools/check_security_patch_scan.py
 step "check_security_advisory"       "$PY" tools/check_security_advisory.py
 step "check_operational_status"      "$PY" tools/check_operational_status.py
 step "check_patch_workflow"          "$PY" tools/check_patch_workflow.py
+step "check_document_workflow"       "$PY" tools/check_document_workflow.py
 step "check_water_rhythm"           "$PY" tools/check_water_rhythm.py
 step "check_legal_tools"            "$PY" tools/check_legal_tools.py
 step "check_legal_behavior"         "$PY" tools/check_legal_behavior.py

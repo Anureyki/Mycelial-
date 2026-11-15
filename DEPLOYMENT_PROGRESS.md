@@ -2560,3 +2560,37 @@ This is the first level-4 (workflow) evaluation and answers the fifth maturity q
 lifecycle: the evaluation infrastructure can now establish whether the end-to-end operation worked,
 not merely that each agent runs. It does NOT implement patch execution - the apply stage is simulated
 and the real apply remains gated behind root and the principal's authorization.
+
+### Document workflow eval BUILT - the real test, against real code (2026-11-14)
+
+The principal's real test for the document workflow: can Mycelial RETRIEVE THE CORRECT
+INFORMATION, PRESERVE ITS SOURCE, and PROVIDE IT TO THE APPROPRIATE AGENT? Built
+tools/check_document_workflow.py, which exercises the REAL code on controlled fixtures
+(no stubbing of behaviour, no write to the live knowledge base or corpus) and sequences
+it through core/workflow_eval.py:
+
+- **Retrieve the correct information** - the real CAG retrieval (AgentBase.query_cache):
+  28 USC 1346 ranks first for a real query; a non-match returns NOTHING (a wrong clause is
+  never fabricated); a placeholder fixture is filtered out, never surfaced as authority.
+- **Preserve the source** - every retrieval hit carries its source path (provenance survives
+  the hop); document_intake.segment keeps each clause's own ref; analyse keeps the document
+  as source and the clause refs.
+- **Provide it to the appropriate agent** - document_pipeline.ROUTE sends a declared type to
+  its owning agent (statement/invoice -> Accounting, contract/notice -> Legal, certificate ->
+  Trust) BY THE DECLARED TYPE, not by reading content.
+- **End-to-end** - segment -> route -> retrieve -> validate completes with the correct clause,
+  source preserved, and the right agent chosen; a non-match FAILS the workflow at retrieve
+  rather than returning a wrong clause.
+
+Four boundaries are enforced and tested: (1) PRODUCTION functions - the real segment/analyse/ROUTE/
+query_cache, not imitations; (2) ISOLATED fixtures - a fixture CAG cache and a temp file, with a
+before/after snapshot asserting the live knowledge base and CAG store are byte-for-byte UNCHANGED;
+(3) NEGATIVE cases - wrong source type routes to no agent, missing provenance is rejected at validate,
+an irrelevant query and a no-match document return nothing (no fabricated evidence, no wrong routing);
+(4) through WORKFLOW_EVAL - the stage order is asserted and an early failure (wrong type) stops the
+later stages, so the eval establishes the stages work together in order, not that four functions pass.
+
+So the three properties that define the document workflow ARE demonstrated against real
+Mycelial code. What remains UNVERIFIED is the full user-facing round trip through Anansi with
+a presented, validated answer - the retrieval/source/routing core is proven; the Anansi-surfaced
+"validated output" presentation is not yet demonstrated. In ci_local.sh and ci.yml.
