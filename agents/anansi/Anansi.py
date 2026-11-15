@@ -54,7 +54,8 @@ class Anansi(AgentBase):
                           "system_graph", "actions", "deadlines", "reminders",
                           "inbound_mail", "ack_preview", "journal_email", "orientation", "organ_clock_event", "organ_clock_status", "lighting", "sector_briefing", "route_held_mail", "held_mail_digest",
                           "training_candidates", "training_quest_status",
-                          "advance_campaign", "review_candidate", "voice"],
+                          "advance_campaign", "review_candidate", "voice",
+                          "operational_status"],
             role="interface"
         )
         self.sessions = {}
@@ -1458,8 +1459,146 @@ class Anansi(AgentBase):
         out = self.send_a2a(agent, "ingest_screenshot", payload, timeout=300)
         return {"routed_to": agent, "why": why, "path": path, "result": out}
 
+    def _probe_health(self, port, timeout=2.5):
+        """Live liveness probe of an agent's own /health. The PORT is the EVIDENCE;
+        the registry's status is only a CLAIM, and where they diverge the measurement
+        wins (CLAUDE.md: verifiable state outranks narrative). Returns (live, detail)."""
+        import urllib.request as _u
+        try:
+            r = _u.urlopen(f"http://127.0.0.1:{port}/health", timeout=timeout)
+            body = json.loads(r.read().decode("utf-8", "replace"))
+            return (getattr(r, "status", 200) == 200 and body.get("status") == "alive"), f"HTTP {getattr(r,'status',200)}"
+        except Exception as exc:
+            return False, f"{type(exc).__name__}: {exc}"
+
+    def _read_registry(self):
+        try:
+            with open(REGISTRY_FILE, encoding="utf-8") as fh:
+                return json.load(fh) or {}
+        except (OSError, ValueError):
+            return {}
+
+    def operational_status(self, args=None):
+        """READ-ONLY operational aggregation for the operator. Anansi owns NONE of
+        this data: it probes each authoritative source, records each source's
+        availability and freshness, and relays with provenance. A source that is
+        missing or unreachable is reported as unavailable - NEVER as a healthy or
+        empty state. It changes nothing: no package ops, no approvals consumed, no
+        holds removed, no workflow run. Anansi aggregates; it is not the authority."""
+        now = datetime.now().isoformat()
+        sec = {}
+
+        # 1) HEALTH - registry roster is the claim; each /health probe is the evidence.
+        reg = self._read_registry()
+        rows, live = [], 0
+        for aid in sorted(reg, key=lambda x: reg[x].get("port", 0)):
+            info = reg[aid] or {}
+            port = info.get("port")
+            is_live, detail = (self._probe_health(port) if port else (False, "no port in registry"))
+            live += 1 if is_live else 0
+            rows.append({"agent": aid, "port": port,
+                         "registry_claims": info.get("status"),
+                         "registry_last_seen": info.get("last_seen"),
+                         "port_responding": is_live, "probe_detail": detail,
+                         "divergence": (info.get("status") == "active" and not is_live)})
+        diverged = [r["agent"] for r in rows if r["divergence"]]
+        sec["health"] = {"owner": "registry roster + live /health probe (measurement outranks the registry claim)",
+                         "source": f"{REGISTRY_FILE} + GET /health", "available": True, "as_of": now,
+                         "agents_total": len(rows), "agents_responding": live,
+                         "registered_but_not_responding": diverged, "agents": rows}
+
+        # 2) SECURITY FINDINGS (open) + PATCHES - owned by the Security Agent.
+        f = self._relay_to_security("list_findings", {"status": "open"})
+        if isinstance(f, dict) and "findings" not in f and isinstance(f.get("result"), dict):
+            f = f["result"]  # some verbs double-wrap {"result": {...}}; peel once
+        if isinstance(f, dict) and "findings" in f:
+            findings = f.get("findings") or []
+            patches = [x for x in findings if x.get("category") == "os_security_patch"]
+            by_sev = {}
+            for x in findings:
+                by_sev[x.get("severity", "unknown")] = by_sev.get(x.get("severity", "unknown"), 0) + 1
+            sec["security_findings"] = {"owner": "security_agent", "source": "security_agent.list_findings",
+                                        "available": True, "as_of": now, "open_count": len(findings),
+                                        "by_severity": by_sev, "findings": findings}
+            patch_pkgs = sorted({x.get("package") for x in patches if x.get("package")})  # distinct: duplicate findings never inflate the count
+            patch_times = [t for t in (x.get("updated_at") or x.get("flagged_at") for x in patches) if t]
+            sec["patches"] = {"owner": "security_agent (security_patch_scan)", "source": "os_security_patch findings",
+                              "available": True, "as_of": now, "pending_security_patches": len(patch_pkgs),
+                              "packages": patch_pkgs,
+                              "last_scanned": (max(patch_times) if patch_times else None),
+                              "note": "assessment only - applying is a separate, authorized operation"}
+        else:
+            err = f.get("error") if isinstance(f, dict) else "unexpected response from security_agent"
+            sec["security_findings"] = {"owner": "security_agent", "available": False, "as_of": now, "error": err}
+            sec["patches"] = {"owner": "security_agent", "available": False, "as_of": now, "error": err,
+                              "note": "patch status UNAVAILABLE - this is not 'no patches pending'"}
+
+        # 3) HELD ACTIONS + PENDING APPROVALS - owned by the Security Agent.
+        for key, verb, listkey in (("holds", "list_holds", "holds"),
+                                    ("approvals", "list_pending_approvals", "pending")):
+            r = self._relay_to_security(verb, {})
+            if isinstance(r, dict) and listkey not in r and "error" not in r and isinstance(r.get("result"), dict):
+                r = r["result"]  # peel a double-wrapped {"result": {...}}
+            if isinstance(r, dict) and "error" not in r and listkey in r:
+                sec[key] = {"owner": "security_agent", "source": f"security_agent.{verb}", "available": True,
+                            "as_of": now, "count": len(r.get(listkey) or []), "items": r.get(listkey) or []}
+            else:
+                sec[key] = {"owner": "security_agent", "available": False, "as_of": now,
+                            "error": (r.get("error") if isinstance(r, dict) else "unreachable")}
+
+        # 4) ACTIVE OPERATIONS - matters tracked by the case layer (Legal exposes list_cases).
+        c = self.send_a2a("legal_agent", "list_cases", {})
+        c = c.get("result", c) if isinstance(c, dict) else c
+        if isinstance(c, dict) and "case_ids" in c:
+            ids = c.get("case_ids") or []
+            sec["active_operations"] = {"owner": "legal_agent (case_manager)", "source": "legal_agent.list_cases",
+                                        "available": True, "as_of": now, "cases_tracked": len(ids), "case_ids": ids,
+                                        "note": "per-case state is available via get_case; not expanded here"}
+        else:
+            sec["active_operations"] = {"owner": "legal_agent (case_manager)", "available": False, "as_of": now,
+                                        "error": (c.get("error") if isinstance(c, dict) else "could not reach the case source")}
+
+        return {"read_only": True, "as_of": now,
+                "summary": self._operational_summary(sec),
+                "sections": sec,
+                "note": ("Anansi aggregates and relays; each section names its owning source. "
+                         "Unavailable is reported as unavailable, never as healthy. This changes nothing.")}
+
+    def _operational_summary(self, sec):
+        """Plain-language operator summary built strictly from the structured sections.
+        An unavailable source is stated as unavailable - never silently read as healthy."""
+        parts = []
+        h = sec.get("health", {})
+        parts.append(f"{h.get('agents_responding')} of {h.get('agents_total')} agents responding on their ports.")
+        if h.get("registered_but_not_responding"):
+            parts.append("Registered active but NOT answering (the measurement wins): "
+                         + ", ".join(h["registered_but_not_responding"]) + ".")
+        sf = sec.get("security_findings", {})
+        if sf.get("available"):
+            bits = ", ".join(f"{v} {k}" for k, v in (sf.get("by_severity") or {}).items())
+            parts.append(f"{sf.get('open_count', 0)} open security finding(s)" + (f" ({bits})." if bits else "."))
+        else:
+            parts.append(f"Security findings UNAVAILABLE - could not reach the Security agent ({sf.get('error')}).")
+        p = sec.get("patches", {})
+        if p.get("available"):
+            parts.append(f"{p.get('pending_security_patches', 0)} pending OS security patch(es)"
+                         + (f": {', '.join(x for x in (p.get('packages') or []) if x)}." if p.get("packages") else "."))
+        else:
+            parts.append("OS patch status UNAVAILABLE (not 'none pending').")
+        for key, label in (("holds", "held action(s) awaiting release"), ("approvals", "pending approval(s)")):
+            s = sec.get(key, {})
+            parts.append(f"{s.get('count')} {label}." if s.get("available")
+                         else f"{label.capitalize()} UNAVAILABLE ({s.get('error')}).")
+        ao = sec.get("active_operations", {})
+        parts.append(f"{ao.get('cases_tracked')} matter(s) tracked by the case layer." if ao.get("available")
+                     else f"Active operations UNAVAILABLE ({ao.get('error')}).")
+        return " ".join(parts)
+
     def handle_task(self, task, args, sender):
         self.log(f"Received task: {task}, args: {args}, sender: {sender}")
+
+        if task == "operational_status":
+            return self.operational_status(args if isinstance(args, dict) else {})
 
         # A narrow passthrough for the training review panel. The webapp
         # reaches this agent and nothing else - Phase 6 put one TLS front door
@@ -1719,6 +1858,15 @@ class Anansi(AgentBase):
             # "default" so evidence-mode works out of the box for callers that
             # don't manage their own session id (curl, the webapp client as-is).
             session_id = metadata.get("session_id") or "default"
+
+            # Meta-query about the PLATFORM itself (not a domain request) - Anansi
+            # answers it directly from the operational aggregation, never routed to
+            # a domain and never run through voice (it must not touch these numbers).
+            if re.search(r"\b(system|operational|platform)\s+(status|health|summary|overview)\b"
+                         r"|\bstatus\s+board\b|\bwhat('?s| is)\s+(running|happening|going on)\b",
+                         prompt.lower()):
+                self.log("operational_status (meta) - answering directly, not routing to a domain")
+                return {"result": self.operational_status({})}
 
             if any(kw in prompt.lower() for kw in EVIDENCE_KEYWORDS):
                 session = self.get_or_create_session(session_id)

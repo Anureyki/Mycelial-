@@ -32,6 +32,7 @@
     "training_candidates",
     "training_quest_status",
     "voice",
+    "operational_status",
     "voice_policy",
     "remember_user_fact",
     "user_context",

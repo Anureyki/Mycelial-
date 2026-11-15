@@ -129,6 +129,7 @@ step "check_tool_remote"            "$PY" tools/check_tool_remote.py
 step "check_hold_release"           "$PY" tools/check_hold_release.py
 step "check_security_patch_scan"     "$PY" tools/check_security_patch_scan.py
 step "check_security_advisory"       "$PY" tools/check_security_advisory.py
+step "check_operational_status"      "$PY" tools/check_operational_status.py
 step "check_water_rhythm"           "$PY" tools/check_water_rhythm.py
 step "check_legal_tools"            "$PY" tools/check_legal_tools.py
 step "check_legal_behavior"         "$PY" tools/check_legal_behavior.py

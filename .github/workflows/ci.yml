@@ -198,6 +198,8 @@ jobs:
         run: python tools/check_security_patch_scan.py
       - name: Stage 2 CVE/USN correlation is read-only and keeps unknown unknown (check_security_advisory)
         run: python tools/check_security_advisory.py
+      - name: Anansi operational_status aggregates read-only and never calls missing healthy (check_operational_status)
+        run: python tools/check_operational_status.py
       - name: Grow learns the refill rhythm and the water alert defers to it (check_water_rhythm)
         run: python tools/check_water_rhythm.py
       - name: Legal's MCP wiring lives in tools/legal and is callable only by permission (check_legal_tools)
