@@ -138,6 +138,7 @@ step "check_legal_tools"            "$PY" tools/check_legal_tools.py
 step "check_legal_citation"          "$PY" tools/check_legal_citation.py
 step "check_legal_asset"             "$PY" tools/check_legal_asset.py
 step "check_authority_graph"         "$PY" tools/check_authority_graph.py
+step "check_authority_graph_suite"   "$PY" tools/check_authority_graph_suite.py
 step "check_legal_behavior"         "$PY" tools/check_legal_behavior.py
 step "check_governance"             "$PY" tools/check_governance.py
 step "check_media_publish"          "$PY" tools/check_media_publish.py

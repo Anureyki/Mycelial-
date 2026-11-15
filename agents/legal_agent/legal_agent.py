@@ -3784,28 +3784,36 @@ class LegalAgent(AgentBase):
             return {"graph": None, "case": case, "verdict": "source_not_shelved",
                     "why": "acquire_opinion the root case first.", "disclaimer": DISCLAIMER}
 
-        # 1. Court's reasoning vs dissent. The sections are NOT reliably majority-first (the
-        #    dissent can sit at the top of the assembled text), so we find each opinion marker
-        #    ('Mr. Justice X delivered/dissenting/concurring'), REMOVE the dissent span wherever
-        #    it is, and keep the rest as the majority. The dissent is preserved separately.
-        markers = [(m.start(), ("dissent" if "dissent" in m.group(0).lower()
-                                 else "concur" if "concur" in m.group(0).lower() else "majority"))
-                   for m in re.finditer(r"m[rb]\.?\s+justice\s+[a-zéè]+[^.]{0,30}\b(?:delivered|dissenting|concurring)\b",
-                                        text, re.I)]
-        dissent_spans = []
-        for i, (pos, kind) in enumerate(markers):
-            if kind == "dissent":
-                end = markers[i + 1][0] if i + 1 < len(markers) else len(text)
-                dissent_spans.append((pos, end))
+        # 1. Separate the court's reasoning from every SEPARATE opinion. The sections are NOT
+        #    reliably majority-first, and there can be several dissents and concurrences, so we
+        #    find each opinion marker ('Mr. Justice X delivered/dissenting/concurring'), cut the
+        #    text into those segments, and REMOVE every dissent AND concurrence span from the
+        #    majority. A dissent is counter-authority; a concurrence agrees in result but is NOT
+        #    the majority's reasoning - both are preserved separately, neither is the holding.
+        def _clean(x):
+            return re.sub(r"\s+", " ", x).strip()
+
+        def _just(x):
+            return (x or "").replace("é", "e").replace("è", "e").title()
+
+        marks = [(m.start(), _just(m.group(1)),
+                  ("dissent" if "dissent" in m.group(2).lower()
+                   else "concur" if "concur" in m.group(2).lower() else "majority"))
+                 for m in re.finditer(
+                     r"m[rb]\.?\s+justice\s+([a-zéè]+)[^.]{0,30}\b(delivered|dissenting|concurring)\b", text, re.I)]
+        segs = []
+        for i, (pos, justice, kind) in enumerate(marks):
+            end = marks[i + 1][0] if i + 1 < len(marks) else len(text)
+            segs.append({"justice": justice, "kind": kind, "text": text[pos:end], "a": pos, "b": end})
+        dissent_segs = [s for s in segs if s["kind"] == "dissent"]
+        concur_segs = [s for s in segs if s["kind"] == "concur"]
+        remove = sorted((s["a"], s["b"]) for s in dissent_segs + concur_segs)
         maj_parts, last = [], 0
-        for a0, b0 in sorted(dissent_spans):
+        for a0, b0 in remove:
             maj_parts.append(text[last:a0])
             last = b0
         maj_parts.append(text[last:])
         majority = " ".join(p for p in maj_parts if p.strip()) or text
-        dissent_text = " ".join(text[a0:b0] for a0, b0 in dissent_spans)
-        dj = re.search(r"justice\s+([A-Za-zéè]+)", dissent_text, re.I) if dissent_text else None
-        dissent_by = (dj.group(1).replace("é", "e").replace("è", "e").title() if dj else None)
 
         def _passage(src, pat):
             m = re.search(pat, src, re.I)
@@ -3853,13 +3861,26 @@ class LegalAgent(AgentBase):
         merely_cited = [p for p in maj_pairs if p["relationship"] in ("unproven", "string_cite")]
         distinguished = [p for p in maj_pairs if p["relationship"] in ("distinguished", "negative")]
 
-        # 3. Counter-authorities: the dissent, kept separate, with its own cited cases.
+        # 3. Counter-authorities: EACH dissent kept separate, with its own cited cases.
         counter = {}
-        if dissent_text:
-            counter = {"dissent_by": dissent_by,
-                       "opening_passage": re.sub(r"\s+", " ", dissent_text[:300]).strip(),
-                       "cites": _enrich(_cited_pairs(dissent_text, limit=10)),
+        if dissent_segs:
+            counter = {"dissents": [{"justice": s["justice"], "opening_passage": _clean(s["text"][:300]),
+                                     "cites": _enrich(_cited_pairs(s["text"], limit=8))} for s in dissent_segs],
                        "note": "A dissent is NOT the court's holding - it is opposing reasoning, preserved separately."}
+        # Concurrences: agree in the result but are NOT the majority's reasoning - held apart from both.
+        concurrences = [{"justice": s["justice"], "opening_passage": _clean(s["text"][:300]),
+                         "cites": _enrich(_cited_pairs(s["text"], limit=6)),
+                         "note": "A concurrence agrees in the result but is not the majority's reasoning."}
+                        for s in concur_segs]
+        # Procedural history: how the case arrived and what happened below.
+        procedural = []
+        for pat, label in [(r"writ of error|certiorari|cert\.|on appeal|appeal from|petition for (?:a )?writ",
+                            "how the case arrived"),
+                           (r"revers\w+|affirm\w+|remand\w+|vacat\w+|demurrer|judgment below|court below|the trial court",
+                            "disposition / proceedings below")]:
+            m = re.search(pat, majority, re.I)
+            if m:
+                procedural.append({"aspect": label, "passage": _clean(majority[max(0, m.start() - 40):m.end() + 150])})
 
         # 4. Subsequent treatment: later SHELVED opinions that cite this one, and how.
         subsequent = []
@@ -3908,6 +3929,8 @@ class LegalAgent(AgentBase):
             "supporting_precedents": {"relied_upon": relied_upon, "merely_cited": merely_cited,
                                       "distinguished_or_adverse": distinguished},
             "counter_authorities": counter,
+            "separate_concurrences": concurrences,
+            "procedural_history": procedural,
             "subsequent_treatment": subsequent,
             "acquisition_priority": acquisition_priority,
             "distinctions_preserved": {

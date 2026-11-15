@@ -64,8 +64,8 @@ check("a bare 'See' cite is merely_cited, not asserted load-bearing",
 
 ca = g["counter_authorities"]
 check("the dissent is kept as counter-authority, by its justice, with its OWN cites",
-      ca.get("dissent_by") == "Brandeis"
-      and any(c["citation"] == "3 U.S. 3" for c in ca.get("cites", [])))
+      any(d.get("justice") == "Brandeis" and any(c["citation"] == "3 U.S. 3" for c in d.get("cites", []))
+          for d in ca.get("dissents", [])))
 
 check("every precedent carries BOTH extraction_confidence AND a separate `acquired` flag",
       all("extraction_confidence" in p and "acquired" in p
