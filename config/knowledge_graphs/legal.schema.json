@@ -1,0 +1,8 @@
+{
+  "domain": "legal",
+  "owner_agent": "legal_agent",
+  "node_types": ["case", "statute", "regulation", "constitutional_provision", "authority", "evidence", "dissent", "concurrence"],
+  "edge_types": ["cites", "relied_upon", "distinguishes", "overrules", "limited_by", "subsequent_treatment", "governed_by", "supported_by", "counter_authority"],
+  "cross_domain_edge_types": ["evidences", "references", "governs"],
+  "note": "Legal's graph: cases, statutes, regulations, authorities, evidence (authority_graph emits this shape)."
+}

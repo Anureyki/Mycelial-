@@ -1,0 +1,8 @@
+{
+  "domain": "financial",
+  "owner_agent": "accounting_agent",
+  "node_types": ["account", "transaction", "obligation", "payment", "entity", "instrument", "evidence"],
+  "edge_types": ["owes", "paid", "controls", "beneficial_interest_in", "recorded_in", "evidenced_by", "authorised_by"],
+  "cross_domain_edge_types": ["evidences", "references", "governed_by"],
+  "note": "Financial graph: records, accounting relationships, transactions, supporting evidence."
+}

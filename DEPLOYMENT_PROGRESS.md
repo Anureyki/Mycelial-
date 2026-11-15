@@ -2683,3 +2683,30 @@ roadmap calls for, not new capability count.
   own rule (don't adopt an architecture just because a tutorial teaches it - CAG/KAG over RAG was the
   same call). authority_graph already emits a Legal graph in this shape.
 Pending the principal's choice; nothing built until the substrate is chosen.
+
+### Knowledge-graph layer - increment 1 BUILT: the native per-domain substrate (2026-11-15)
+
+Substrate chosen: the NATIVE lightweight graph layer (not OpenSPG - it does not fit this machine),
+the principal's call. core/knowledge_graph.py enforces every invariant in CODE, with the three
+domain schemas in config/knowledge_graphs/{legal,financial,agricultural}.schema.json:
+- SCHEMA: a node/edge type not in the domain's schema is refused.
+- OWNERSHIP: only the owning agent writes its graph; a cross-domain write is refused outright
+  (no domain overwrites another's knowledge).
+- PROVENANCE: every node/edge needs {source, confidence, timestamp, asserted_by} or it is refused.
+- CONFLICT: a contradicting change does NOT overwrite - both are preserved and a minimal referral
+  is returned for the GOVERNING AGENT (Boss) to resolve (accept/reject/reconcile/escalate); nothing
+  is applied until a Boss-authorised resolution comes back; apply_resolution records the decision,
+  rationale, authoriser and evidence (audit), and 'escalate' flags it for HUMAN review.
+- CROSS-DOMAIN: Legal and Finance stay separate but may hold VERIFIED relationships only through a
+  declared cross_domain_edge_type, recorded on the owner's side, never by writing the other graph.
+Stored owner-only (0600) under state/knowledge_graphs/. Gate tools/check_knowledge_graph.py (10
+assertions, temp store) in ci_local.sh and ci.yml.
+
+Remaining increments (each built whole, not in layers):
+- 2. DOMAIN WIRING: Legal feeds authority_graph output into its graph; Accounting feeds financial
+  records/obligations; AGAI/Grow feed plants, readings, observations and verified adjustments.
+- 3. GOVERNING-AGENT HANDLER: Boss receive_graph_conflict -> review (provenance, confidence,
+  timestamps, departmental authority) -> apply_resolution; threshold-gated, human escalation.
+- 4. ANANSI VISUALISATION: a read-only D3/Cytoscape view in the webapp reading each graph's view()
+  across all three domains, with cross-domain verified relationships drawn, conflicts flagged.
+The governance SEMANTICS reuse Boss/ACL/contested/case_manager/phone-signed escalation already built.

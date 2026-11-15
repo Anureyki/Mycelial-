@@ -1,0 +1,9 @@
+{
+  "domain": "agricultural",
+  "owner_agent": "ag_agent",
+  "operational_agent": "grow_agent",
+  "node_types": ["plant", "reading", "nutrient_dose", "reservoir", "lesson", "species", "observation", "evidence"],
+  "edge_types": ["measured_on", "dosed_into", "observed_in", "learned_from", "adjusted_by", "evidenced_by"],
+  "cross_domain_edge_types": ["evidences", "references"],
+  "note": "Agricultural graph: AGAI owns/constructs; Grow supplies live observations, evidence, verified adjustments."
+}
