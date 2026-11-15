@@ -2354,3 +2354,70 @@ survey is never reported as no_match. Verified live: all six glibc packages matc
 `cve_severity` stays `unknown` (per-CVE priority enrichment via cves.json by SOURCE package name
 is still deferred). This did not touch Maintenance. Anansi surfacing remains the gated next step
 before any further build. The six glibc patches remain pending authorization - not applied.
+
+## Maturity roadmap - optimize for complete workflows, not capability count (principal, 2026-11-14)
+
+The principal's framing: Mycelial's ARCHITECTURE is becoming sophisticated while many individual
+MECHANISMS are still primitive - which is fine for an OS built from simple, carefully related
+components. The central recommendation, held as the north star:
+
+  **Stop optimizing for the NUMBER OF CAPABILITIES implemented. Start optimizing for the number
+  of COMPLETE, DEPENDABLE USER WORKFLOWS Mycelial can perform.**
+
+What NOT to do (explicit): no ten more agents, no premature Kubernetes, no rewriting working
+infrastructure. More components do not make existing ones more intelligent. The leap is making
+existing components cooperate reliably and making that cooperation useful to the operator.
+
+### Six areas, in order - with an honest current-state map
+
+1. **Standardized operational contracts** - every agent exposes the same interface regardless of
+   specialty: identity, capabilities, health, INPUT schema, OUTPUT schema, permissions,
+   dependencies, version. Interchangeable at the INFRASTRUCTURE level, not in responsibility.
+   *Now: PARTIAL.* Agent cards already carry identity, capabilities, effects, port, owner; health
+   is read from the port; routing_terms/roles/effects are declared. *Missing:* per-verb input/output
+   schemas, an explicit dependency manifest, a version field.
+2. **Real event-processing lifecycle** - received -> validated -> classified -> routed -> processing
+   -> completed -> failed -> retried/escalated, with event ids, provenance, timestamps, dedup, retry
+   policy, expiration. *Now: EARLY.* Case events are a closed type set; A2A artifacts are signed and
+   expire; Provenance exists. *Missing:* the lifecycle state machine, retry/dedup/escalation, a
+   central event log.
+3. **Workflow orchestration WITHOUT changing Boss** - a durable workflow execution service tracking
+   multi-agent work, dependencies, checkpoints, failures, recovery. Anansi still routes, Boss still
+   only authorizes, specialists still execute. *Now: ABSENT.* refer_finding/receive_finding are
+   point-to-point; there is no durable multi-step workflow tracker.
+4. **Operational interface in Anansi - HIGHEST PRODUCT PRIORITY.** The operator should SEE: system
+   status (agents, services, health, connectivity), active operations (tasks, events, dependencies,
+   progress), notifications (findings, alerts, unresolved), user authority (permissions, approvals,
+   audit). "You should not have to ask Claude to inspect the server to discover what your own
+   platform is doing." *Now: PARTIAL/FRAGMENTED.* Anansi has organ_clock_status, phase_status,
+   system_graph, approval_key_status, training_quest_status, a Dashboard tab, and a "system status"
+   recap. *Missing:* one unified read-only operational view aggregating health + active ops +
+   findings/alerts + approvals/audit. This is also the gate from the prior turn (surface the
+   security-patch workflow through Anansi before expanding Maintenance).
+5. **Contextual, governed memory** - Hermes is not just a bigger store. Distinct categories:
+   episodic (what happened), semantic (what is known), procedural (how), operational (current state),
+   personal (user context). Add provenance, retention, access control, correction, expiration.
+   Anansi retrieves by task AND permission, never indiscriminately. *Now: EARLY.* Hermes namespaces
+   per agent + a shared user_context; case namespace. *Missing:* the five categories and the
+   governance policies.
+6. **Measurable reliability** - system-wide: task completion rate, failed handoffs, retry frequency,
+   event latency, misclassifications, recovery success, unauthorized-action attempts, resource per
+   workflow. *Now: STARTED.* The security eval harness, drift monitor and CI gates measure parts.
+   *Missing:* the system-wide operational metrics. Maturity = a system that can measure its own
+   operational quality, not merely report that its processes are running.
+
+### Priority sequence (the roadmap)
+
+1. **Operational visibility** - Anansi shows what exists, what works, what needs attention.
+2. **Integrated workflows** - complete everyday tasks across multiple agents without manual coordination.
+3. **Reliable execution** - durable events, validation, checkpoints, recovery, auditability.
+4. **Contextual intelligence** - memory, personalization, ATI, user-specific relevance together.
+5. **Distributed operation** - multiple isolated user instances, controlled shared infrastructure, FL.
+
+### Honest size figures (correcting the record, 2026-11-14)
+
+`core/base_agent.py` is **4,034 lines** now (the earlier 3,786 was from a prior inspection; it has
+grown). Hand-written application + tooling Python is approximately **82,000 lines** (agents 38,573,
+core 21,050, tools 14,213, services 5,194, ati 1,512, models 1,149, mycos 483, webapp 12). The raw
+"all .py excluding venv" count (~358k) is NOT the codebase - 275,560 of it is runtime/generated
+content under state/, and must not be quoted as lines of code.
