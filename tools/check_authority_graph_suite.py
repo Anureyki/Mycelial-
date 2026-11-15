@@ -76,12 +76,45 @@ stat = {s["statute"] for s in g["statutory_source"]}
 check("extensive statutory interpretation: multiple named statutes captured",
       len(stat) >= 2)
 
-# 6. COMPLICATED PROCEDURAL HISTORY
+# 6. COMPLICATED PROCEDURAL HISTORY (and NOT classified as judicial reasoning)
 g = graph_of(
+    "Syllabus. Headnote only. "
     "Mr. Justice Holmes delivered the opinion of the court. This case comes on writ of certiorari. "
     "The trial court sustained the demurrer; the court below reversed and remanded; we affirm in part.")
 check("a complicated procedural history is captured (arrival and proceedings below)",
       len(g["procedural_history"]) >= 1)
+check("procedural history is NOT mis-classified as a constitutional foundation",
+      g["constitutional_foundation"] == [])
+
+# 7. SYLLABUS / ARGUMENT OF COUNSEL excluded from the majority
+g = graph_of(
+    "Syllabus. The Court holds the statute void; see Front v. Matter, 7 U.S. 7. "
+    "Mr. Justice Holmes delivered the opinion of the court. Governed by Alpha v. Beta, 1 U.S. 1.")
+maj = {p["citation"] for grp in g["supporting_precedents"].values() for p in grp}
+check("syllabus/front-matter is excluded from the majority (a syllabus-only cite is not a majority precedent)",
+      "7 U.S. 7" not in maj and "1 U.S. 1" in maj and "opinion-of-the-court" in g["majority_basis"])
+
+# 8. FOUNDATION: mentioned vs relied-upon (detection != support for the holding)
+g = graph_of(
+    "Mr. Justice Holmes delivered the opinion of the court. The statute violates the Fourteenth "
+    "Amendment due process clause. The Fifth Amendment is also mentioned here in passing.")
+cf = {c["provision"]: c for c in g["constitutional_foundation"]}
+check("a provision the holding RESTS on is relied_upon (violates the Fourteenth Amendment)",
+      cf.get("Fourteenth Amendment Due Process", {}).get("foundation_role") == "relied_upon")
+check("a merely-mentioned provision is 'mentioned', supports_holding False - not a false foundation",
+      cf.get("Fifth Amendment Takings Clause", {}).get("foundation_role") == "mentioned"
+      and cf["Fifth Amendment Takings Clause"]["supports_holding"] is False)
+
+# 9. Each separate opinion retains its OWN author, text, and cited authorities
+g = graph_of(
+    "Mr. Justice Holmes delivered the opinion of the court. Governed by Alpha v. Beta, 1 U.S. 1. "
+    "Mr. Justice Brandeis, dissenting. See Gamma v. Delta, 2 U.S. 2. "
+    "Mr. Justice Stone, concurring. See Theta v. Iota, 4 U.S. 4.")
+d0 = g["counter_authorities"]["dissents"][0]
+c0 = g["separate_concurrences"][0]
+check("each dissent/concurrence keeps its own author, text, and cited authorities",
+      d0["justice"] == "Brandeis" and d0["opening_passage"] and any(x["citation"] == "2 U.S. 2" for x in d0["cites"])
+      and c0["justice"] == "Stone" and c0["opening_passage"] and any(x["citation"] == "4 U.S. 4" for x in c0["cites"]))
 
 print("check_authority_graph_suite: " + ("ALL OK" if not fails else f"{len(fails)} FAILED: {fails}"))
 sys.exit(1 if fails else 0)

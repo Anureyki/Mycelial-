@@ -3805,25 +3805,66 @@ class LegalAgent(AgentBase):
         for i, (pos, justice, kind) in enumerate(marks):
             end = marks[i + 1][0] if i + 1 < len(marks) else len(text)
             segs.append({"justice": justice, "kind": kind, "text": text[pos:end], "a": pos, "b": end})
+        # Dedupe by (kind, justice): a header mention and the opinion body can both match the
+        # same justice; keep the longest (the real opinion), so a dissent is not listed twice.
+        best = {}
+        for s in segs:
+            k = (s["kind"], s["justice"])
+            if k not in best or len(s["text"]) > len(best[k]["text"]):
+                best[k] = s
+        segs = sorted(best.values(), key=lambda s: s["a"])
         dissent_segs = [s for s in segs if s["kind"] == "dissent"]
         concur_segs = [s for s in segs if s["kind"] == "concur"]
-        remove = sorted((s["a"], s["b"]) for s in dissent_segs + concur_segs)
-        maj_parts, last = [], 0
-        for a0, b0 in remove:
-            maj_parts.append(text[last:a0])
-            last = b0
-        maj_parts.append(text[last:])
-        majority = " ".join(p for p in maj_parts if p.strip()) or text
+        majority_segs = [s for s in segs if s["kind"] == "majority"]
+        if majority_segs:
+            # The COURT'S holding is the 'delivered the opinion of the court' segment(s). Taking
+            # only this EXCLUDES the syllabus (a reporter's headnotes, not the court), the argument
+            # of counsel, and every separate opinion - none of which is the holding.
+            majority = " ".join(_clean(s["text"]) for s in majority_segs)
+            majority_basis = "the opinion-of-the-court segment (syllabus, argument of counsel, and separate opinions excluded)"
+        else:
+            # No 'delivered the opinion' marker: fall back to the full text minus the separate
+            # opinions, and SAY the syllabus/front-matter may be included so it is weighted as such.
+            remove = sorted((s["a"], s["b"]) for s in dissent_segs + concur_segs)
+            maj_parts, last = [], 0
+            for a0, b0 in remove:
+                maj_parts.append(text[last:a0])
+                last = b0
+            maj_parts.append(text[last:])
+            majority = " ".join(p for p in maj_parts if p.strip()) or text
+            majority_basis = ("fallback: full text minus separate opinions - no 'delivered the opinion' "
+                              "marker was found, so the syllabus or argument of counsel may be included")
 
         def _passage(src, pat):
             m = re.search(pat, src, re.I)
             return re.sub(r"\s+", " ", src[max(0, m.start() - 40):m.end() + 160]).strip() if m else None
 
         mlow = majority.lower()
-        constitutional = [{"provision": name, "passage": _passage(majority, pat),
-                           "extraction_confidence": "high" if re.search(pat, mlow) else "low",
-                           "acquired": False, "acquisition_note": "primary text is the Constitution; cite, do not re-shelve"}
-                          for name, pat in self.CONSTITUTIONAL_FOUNDATIONS if re.search(pat, mlow)]
+        # Detecting a provision is NOT proof the holding RESTS on it. Classify foundation_role:
+        # relied_upon only when the surrounding passage shows the holding turning on the provision
+        # (held/violates/contravenes/guaranteed by/in violation of ...); otherwise 'mentioned'.
+        const_reliance = re.compile(
+            r"\b(we hold|held that|holds?\b|violat\w+|contraven\w+|repugnant to|offend\w+|protected by|"
+            r"guaranteed by|secured by|in violation of|within the (?:meaning|protection) of|"
+            r"rights?[^.]{0,30}\bunder\b|depriv\w+[^.]{0,40}without)\b", re.I)
+        constitutional = []
+        for name, pat in self.CONSTITUTIONAL_FOUNDATIONS:
+            m = re.search(pat, majority, re.I)
+            if not m:
+                continue
+            # Scope reliance to the provision's OWN sentence - a char window bleeds a neighbouring
+            # provision's 'violates' onto one only mentioned in passing.
+            s0 = majority.rfind(". ", 0, m.start()) + 2
+            e0 = majority.find(". ", m.end())
+            sent = majority[s0:(e0 + 1 if e0 >= 0 else len(majority))]
+            relied = bool(const_reliance.search(sent))
+            constitutional.append({
+                "provision": name, "passage": _clean(sent),
+                "foundation_role": "relied_upon" if relied else "mentioned",
+                "supports_holding": relied, "extraction_confidence": "high", "acquired": False,
+                "note": ("the passage shows the holding resting on this provision" if relied else
+                         "MENTIONED only - detecting the provision does not establish it supports the "
+                         "holding; review the passage")})
 
         statutes = []
         for m in re.finditer(r"\b([A-Z][a-z]+(?:\s+[A-Z][a-z]+){0,3}\s+Act)\b", majority):
@@ -3923,6 +3964,7 @@ class LegalAgent(AgentBase):
 
         return {
             "root": {"case": case, "citation": want_cite, "shelved_at": os.path.relpath(path, project_root) if path else None},
+            "majority_basis": majority_basis,
             "constitutional_foundation": constitutional,
             "statutory_source": statutes,
             "property_foundation": prop,
