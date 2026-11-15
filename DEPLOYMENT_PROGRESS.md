@@ -2435,24 +2435,101 @@ which is what the operational_status milestone began. The measure is five concre
   4. Can Legal research and verify a regulatory development?
   5. Can the evaluation infrastructure establish whether those workflows actually worked?
 
-### Honest capability audit (from the codebase, 2026-11-14 - present / partial / absent)
+### Capability audit (from the codebase, 2026-11-14)
 
-| Workflow | Present | Partial | Absent |
-|----------|---------|---------|--------|
-| **Document intelligence** | ingestion + clause chunking + provenance + declared-source routing (core/document_pipeline.py joining document_intake + evidence_ingest); CAG/KAG retrieval | retrieval ranking (overlap-scored CAG, not semantic) | embedding generation, vector index, semantic retrieval, retrieval evaluation - deliberately CAG/KAG, NOT embedding-RAG (confirmed: no SentenceTransformer/faiss/chroma; /embed appears only as a constant) |
-| **Voice intelligence** | tool calling; Bland integration gated + dry_run | voice via BLAND externally (STT/TTS/interruption are Bland's platform) | native STT/TTS; native interruption = own conversational state + cancellation |
-| **Financial (invoice)** | document intake + vision/OCR (ingest_screenshot, MoonDream/ViT); minimal referral to Accounting (refer_finding -> receive_finding equipment_purchase -> ledger, authorization-gated) | invoice-specific structured extraction (vendor, invoice#, line items, totals) | arithmetic validation, required-field check, duplicate-invoice detection; end-to-end unproven |
-| **Research (Legal)** | authoritative research (CourtListener, lookup_reference, ask_peer_corpus) + verification (claim_assessment: unsupported-by-default, says/verified/alleged) - STRONGEST overlap, more rigorous than summarize-top-5 | - | connecting research outputs to the event lifecycle so findings become traceable, actionable events (lifecycle itself is early) |
-| **Evaluation** | model eval (services/evaluation 8011); contract eval (check_contracts, check_effects) | agent eval (eval_harness, check_eval); operational eval (operational_status + drift_monitor) | WORKFLOW eval (multi-agent end-to-end) - the level that proves a workflow actually worked; sustained reliability metrics |
+Taxonomy, five states kept distinct:
+- **present** - implemented and native to Mycelial
+- **partial** - implemented in part, not a complete workflow
+- **externally provided** - supplied by a third party, NOT native Mycelial functionality
+- **absent** - not implemented, and would be needed for the workflow
+- **intentionally not adopted** - a deliberate architectural choice NOT to build it; its
+  absence is a decision, not a defect or a missing requirement
 
-### The realization and the next priority
+Each workflow is recorded across five dimensions: (1) implemented components, (2) missing
+components, (3) external dependencies, (4) user-facing integration status, (5) end-to-end
+verification status.
 
-Five applications, one platform: document / voice / financial / research / evaluation intelligence
-all assemble from the SAME shared infrastructure (agents, services, memory, inference, governance,
-events, evaluation). So the next development priority stays INTEGRATION, not collecting capabilities.
-The two cross-cutting gaps that block "complete, dependable workflows" are (a) WORKFLOW-level
-evaluation (level 4 - without it we cannot establish that an end-to-end workflow worked, which is
-question 5) and (b) the event lifecycle that turns a finding into a traceable, actionable event.
-Proving ONE workflow end-to-end through Anansi, with a workflow-eval that verifies it, is the
-meaningful next step - strongest first candidates: Research (Legal, strongest overlap) or
-Invoice -> Accounting (connects a document to a specialist; the referral plumbing already exists).
+**1. Document intelligence**
+- Implemented: core/document_pipeline.py (intake -> hash -> clause segmentation by the document's
+  own numbering -> provenance via evidence_ingest -> declared-source routing -> refusal of clauses
+  that must not be kept); CAG/KAG retrieval. (present)
+- Missing: retrieval evaluation. (absent)
+- Intentionally NOT adopted: embedding generation, vector index, semantic retrieval ranking.
+  CAG/KAG is the intended retrieval direction; vector retrieval is recorded as absent-by-choice,
+  NOT as an architectural defect or a missing requirement. (confirmed: no SentenceTransformer/
+  faiss/chroma; /embed appears only as a constant.)
+- External dependencies: none (CAG/KAG is local).
+- User-facing integration: documents can be handed in through Anansi (ingest_upload/ingest_document);
+  no document-assistant Q&A surface is exposed.
+- End-to-end verification: UNVERIFIED. The pipeline is present; a full ingest -> retrieve-with-cited-
+  evidence -> grounded-answer round trip has not been demonstrated.
+
+**2. Voice intelligence**
+- Implemented (native): tool calling; the Bland guard (all 338 tools classified, calls/SMS only to
+  the principal, third-party/spend held, dry_run); notify channels by register. (present, native)
+- Missing (native): a native conversational-state machine with cancellation/interruption.
+- External dependencies: Bland AI provides STT, TTS and interruption handling. These are EXTERNALLY
+  PROVIDED - they are not native Mycelial functionality and must not be represented as such.
+- User-facing integration: the Bland guard is wired and dry_run; it has not been switched live.
+- End-to-end verification: UNVERIFIED. No completed voice session; interruption is Bland's and
+  untested through Mycelial.
+
+**3. Financial intelligence (invoice)**
+- Implemented: document intake + a vision/OCR entry point (ingest_screenshot, MoonDream/ViT); a
+  minimal cross-domain referral (refer_finding -> receive_finding equipment_purchase -> ledger entry,
+  authorization-gated); the Accounting agent and its records. (partial)
+- Missing: invoice-specific structured extraction (vendor, invoice#, dates, line items, totals),
+  arithmetic validation, required-field checks, duplicate-invoice detection. (absent)
+- External dependencies: none required (OCR/vision is local).
+- User-facing integration: documents can be handed in; no invoice workflow is surfaced.
+- End-to-end verification: UNVERIFIED. The existence of Accounting infrastructure does NOT establish
+  a completed OCR -> validated-invoice -> ledger workflow.
+
+**4. Research intelligence (Legal)**
+- Implemented: authoritative research (CourtListener, lookup_reference, ask_peer_corpus) + verification
+  (claim_assessment: unsupported-by-default; says / verified / alleged / refuted). Strongest overlap,
+  more rigorous than summarize-the-first-five-results. (present)
+- Missing: connection of research outputs to the event lifecycle so a finding becomes a traceable,
+  actionable event (the lifecycle itself is early). (absent)
+- External dependencies: CourtListener API (optional token) for live case law; the corpus is local.
+- User-facing integration: Legal is reachable through Anansi routing; research is answerable; event
+  publication of findings is not wired.
+- End-to-end verification: PARTIAL. Individual research-and-verify is demonstrable; "research a
+  regulatory development -> verified, traceable event" has not been demonstrated end to end.
+
+**5. Evaluation intelligence**
+- Implemented: model evaluation (services/evaluation 8011); contract evaluation (check_contracts,
+  check_effects); the security eval harness; the drift monitor; operational_status. (present at the
+  model and contract levels)
+- Missing: multi-agent WORKFLOW evaluation (end-to-end task completion) and sustained operational
+  reliability metrics. (absent)
+- External dependencies: none.
+- User-facing integration: CI gates are developer-facing; operational_status is user-facing; there is
+  no workflow-eval surface.
+- End-to-end verification: model and contract evaluation do NOT establish multi-agent workflow
+  evaluation. Level 4 (workflow) is absent; without it, question 5 cannot be answered.
+
+### Smallest existing-infrastructure demonstrations (proposed; NOT built in this increment)
+
+The objective is DEMONSTRATED operational capability, not more technology inventory. Each
+demonstration uses only what already exists; nothing new is built here. Priority order:
+document pipeline, research, then evaluation of the existing security-patch lifecycle.
+
+1. **Document pipeline (priority).** Ingest one declared document through document_pipeline and show
+   its cited clauses, provenance, and declared-source routing, then retrieve one clause by term via
+   CAG. Proves intake -> cited-evidence retrieval on existing infra. End-to-end check: the retrieved
+   clause carries its citation and provenance intact.
+2. **Research (priority).** Legal takes one real statutory/regulatory question, retrieves from the
+   corpus (and CourtListener if available), runs it through claim_assessment, and returns a conclusion
+   with confidence and sources. Proves research + verification on one item - the Legal analogue of the
+   USN-9065-1 advisory correlation already demonstrated for security.
+3. **Security-patch lifecycle evaluation (priority).** A workflow-eval that exercises the ALREADY-SHIPPED
+   security-patch lifecycle end to end (Maintenance detect -> Security assess -> advisory correlate ->
+   operational_status surface) and asserts each handoff produced the expected state. This is the first
+   level-4 (workflow) evaluation, built on what already exists, and it directly answers question 5.
+4. **Invoice.** Hand one invoice image through the vision/OCR + document_pipeline, extract the minimal
+   fields, and refer an equipment_purchase to Accounting. Proves the document -> specialist path; any
+   consequential posting stays authorization-gated. (lower priority)
+5. **Voice.** One Bland dry_run turn to the principal's own number with a scripted prompt, logged, no
+   live action - proves the gated path without switching live. External dependency (Bland) stays
+   dry_run. (lower priority)
