@@ -2421,3 +2421,38 @@ grown). Hand-written application + tooling Python is approximately **82,000 line
 core 21,050, tools 14,213, services 5,194, ati 1,512, models 1,149, mycos 483, webapp 12). The raw
 "all .py excluding venv" count (~358k) is NOT the codebase - 275,560 of it is runtime/generated
 content under state/, and must not be quoted as lines of code.
+
+## The five-application workflow test (principal, 2026-11-14)
+
+The sharper maturity test: not "build five portfolio projects," but "can Mycelial's EXISTING
+infrastructure support five complete application workflows?" Implementing a capability is not
+the same as having a finished, usable workflow. Integration is the priority, not more capabilities -
+which is what the operational_status milestone began. The measure is five concrete questions:
+
+  1. Can Anansi receive and process an invoice?
+  2. Can it retrieve relevant documents with traceable evidence?
+  3. Can it communicate through voice and handle interruptions?
+  4. Can Legal research and verify a regulatory development?
+  5. Can the evaluation infrastructure establish whether those workflows actually worked?
+
+### Honest capability audit (from the codebase, 2026-11-14 - present / partial / absent)
+
+| Workflow | Present | Partial | Absent |
+|----------|---------|---------|--------|
+| **Document intelligence** | ingestion + clause chunking + provenance + declared-source routing (core/document_pipeline.py joining document_intake + evidence_ingest); CAG/KAG retrieval | retrieval ranking (overlap-scored CAG, not semantic) | embedding generation, vector index, semantic retrieval, retrieval evaluation - deliberately CAG/KAG, NOT embedding-RAG (confirmed: no SentenceTransformer/faiss/chroma; /embed appears only as a constant) |
+| **Voice intelligence** | tool calling; Bland integration gated + dry_run | voice via BLAND externally (STT/TTS/interruption are Bland's platform) | native STT/TTS; native interruption = own conversational state + cancellation |
+| **Financial (invoice)** | document intake + vision/OCR (ingest_screenshot, MoonDream/ViT); minimal referral to Accounting (refer_finding -> receive_finding equipment_purchase -> ledger, authorization-gated) | invoice-specific structured extraction (vendor, invoice#, line items, totals) | arithmetic validation, required-field check, duplicate-invoice detection; end-to-end unproven |
+| **Research (Legal)** | authoritative research (CourtListener, lookup_reference, ask_peer_corpus) + verification (claim_assessment: unsupported-by-default, says/verified/alleged) - STRONGEST overlap, more rigorous than summarize-top-5 | - | connecting research outputs to the event lifecycle so findings become traceable, actionable events (lifecycle itself is early) |
+| **Evaluation** | model eval (services/evaluation 8011); contract eval (check_contracts, check_effects) | agent eval (eval_harness, check_eval); operational eval (operational_status + drift_monitor) | WORKFLOW eval (multi-agent end-to-end) - the level that proves a workflow actually worked; sustained reliability metrics |
+
+### The realization and the next priority
+
+Five applications, one platform: document / voice / financial / research / evaluation intelligence
+all assemble from the SAME shared infrastructure (agents, services, memory, inference, governance,
+events, evaluation). So the next development priority stays INTEGRATION, not collecting capabilities.
+The two cross-cutting gaps that block "complete, dependable workflows" are (a) WORKFLOW-level
+evaluation (level 4 - without it we cannot establish that an end-to-end workflow worked, which is
+question 5) and (b) the event lifecycle that turns a finding into a traceable, actionable event.
+Proving ONE workflow end-to-end through Anansi, with a workflow-eval that verifies it, is the
+meaningful next step - strongest first candidates: Research (Legal, strongest overlap) or
+Invoice -> Accounting (connects a document to a specialist; the referral plumbing already exists).
