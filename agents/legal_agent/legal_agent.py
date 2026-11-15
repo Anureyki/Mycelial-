@@ -330,7 +330,8 @@ class LegalAgent(AgentBase):
                 "open_action", "complete_action", "amend_action", "actions",
                 "add_venue", "venues", "running_clocks", "complaint_path",
                 "read_filed_document", "ingest_screenshot", "read_docket_document", "learn_from_case", "verify_quote", "set_principal", "classify_matter",
-                "acquire_opinion", "acquire_cited_cases", "review_deed", "review_consumer_protections",
+                "acquire_opinion", "acquire_cited_cases", "review_deed", "authority_graph",
+                "review_consumer_protections",
                 "triage_source", "record_case_outcome"
             ],
             role="agent"
@@ -3756,6 +3757,167 @@ class LegalAgent(AgentBase):
                           "rights are confirmed conveyed to the trust or business."),
                 "disclaimer": DISCLAIMER}
 
+    CONSTITUTIONAL_FOUNDATIONS = [
+        ("Fifth Amendment Takings Clause", r"fifth amendment|takings? clause|just compensation|taken for public use"),
+        ("Fourteenth Amendment Due Process", r"fourteenth amendment|due process"),
+        ("Contract Clause", r"contract clause|obligation of (?:the )?contract|impair\w* the obligation"),
+    ]
+
+    def authority_graph(self, args):
+        """Assemble a DIRECTED AUTHORITY GRAPH for a shelved opinion: its constitutional
+        and statutory foundations, the property facts, the precedents it CITED vs the ones
+        it RELIED ON, the DISSENT kept separate as counter-authority, and how later courts
+        treated it. Read-only - it maps, it does not acquire. It keeps three distinctions
+        the principal required:
+          - cited vs relied-upon vs subsequent-treatment (never collapsed);
+          - the COURT'S reasoning (the majority) vs a dissent vs an advocate's argument;
+          - EXTRACTION confidence (how well a reference was parsed) vs ACQUISITION confidence
+            (whether its primary source is shelved/verified) - the two never merge.
+        Recursive acquisition is NOT performed here and NOT assumed for every cite: the graph
+        marks an acquisition_priority so only the authorities that actually carry the holding
+        are worth following back."""
+        a = args if isinstance(args, dict) else {"case": args}
+        case = (a.get("case") or a.get("name") or "").strip()
+        want_cite = a.get("citation") or _extract_citation(case)
+        text, path = self._shelved_opinion_text(case, want_cite)
+        if not text:
+            return {"graph": None, "case": case, "verdict": "source_not_shelved",
+                    "why": "acquire_opinion the root case first.", "disclaimer": DISCLAIMER}
+
+        # 1. Court's reasoning vs dissent. The sections are NOT reliably majority-first (the
+        #    dissent can sit at the top of the assembled text), so we find each opinion marker
+        #    ('Mr. Justice X delivered/dissenting/concurring'), REMOVE the dissent span wherever
+        #    it is, and keep the rest as the majority. The dissent is preserved separately.
+        markers = [(m.start(), ("dissent" if "dissent" in m.group(0).lower()
+                                 else "concur" if "concur" in m.group(0).lower() else "majority"))
+                   for m in re.finditer(r"m[rb]\.?\s+justice\s+[a-zéè]+[^.]{0,30}\b(?:delivered|dissenting|concurring)\b",
+                                        text, re.I)]
+        dissent_spans = []
+        for i, (pos, kind) in enumerate(markers):
+            if kind == "dissent":
+                end = markers[i + 1][0] if i + 1 < len(markers) else len(text)
+                dissent_spans.append((pos, end))
+        maj_parts, last = [], 0
+        for a0, b0 in sorted(dissent_spans):
+            maj_parts.append(text[last:a0])
+            last = b0
+        maj_parts.append(text[last:])
+        majority = " ".join(p for p in maj_parts if p.strip()) or text
+        dissent_text = " ".join(text[a0:b0] for a0, b0 in dissent_spans)
+        dj = re.search(r"justice\s+([A-Za-zéè]+)", dissent_text, re.I) if dissent_text else None
+        dissent_by = (dj.group(1).replace("é", "e").replace("è", "e").title() if dj else None)
+
+        def _passage(src, pat):
+            m = re.search(pat, src, re.I)
+            return re.sub(r"\s+", " ", src[max(0, m.start() - 40):m.end() + 160]).strip() if m else None
+
+        mlow = majority.lower()
+        constitutional = [{"provision": name, "passage": _passage(majority, pat),
+                           "extraction_confidence": "high" if re.search(pat, mlow) else "low",
+                           "acquired": False, "acquisition_note": "primary text is the Constitution; cite, do not re-shelve"}
+                          for name, pat in self.CONSTITUTIONAL_FOUNDATIONS if re.search(pat, mlow)]
+
+        statutes = []
+        for m in re.finditer(r"\b([A-Z][a-z]+(?:\s+[A-Z][a-z]+){0,3}\s+Act)\b", majority):
+            nm = re.sub(r"^(?:The|A|An|This|That)\s+", "", m.group(1))  # drop a leading article
+            if nm not in [s["statute"] for s in statutes]:
+                statutes.append({"statute": nm,
+                                 "passage": re.sub(r"\s+", " ", majority[max(0, m.start() - 30):m.end() + 120]).strip(),
+                                 "extraction_confidence": "high", "acquired": False,
+                                 "acquisition_note": "a state act of this era is usually preserved only within the opinion"})
+
+        prop = []
+        pm = re.search(r"(reserv\w+[^.]{0,60}(?:coal|mineral|mining)|deed[^.]{0,80}(?:reserv|coal|mineral|surface))",
+                       majority, re.I)
+        if pm:
+            prop.append({"basis": "the original deed and the reserved mining/mineral rights",
+                         "passage": re.sub(r"\s+", " ", majority[max(0, pm.start() - 40):pm.end() + 120]).strip(),
+                         "extraction_confidence": "high"})
+
+        # 2. Precedents the MAJORITY cites - split cited vs relied-upon (the proof decides).
+        shelved = {_norm_cite(_extract_citation(str(json.load(open(p, encoding="utf-8")).get("title") or "")) or "")
+                   for p in __import__("glob").glob(os.path.join(project_root, "reference", self.agent_id, "*.json"))}
+
+        def _enrich(pairs):
+            out = []
+            for pr in pairs:
+                out.append({"case": pr["case"], "citation": pr["citation"], "role": pr["role"],
+                            "relationship": pr["load_bearing"], "proof_passage": pr["passage"],
+                            "extraction_confidence": "high" if pr["load_bearing"] in ("proven", "distinguished", "negative")
+                            else "medium",
+                            "acquired": _norm_cite(pr["citation"]) in shelved})
+            return out
+
+        maj_pairs = _enrich(_cited_pairs(majority, exclude_norm=_norm_cite(want_cite) if want_cite else None, limit=24))
+        relied_upon = [p for p in maj_pairs if p["relationship"] == "proven"]
+        merely_cited = [p for p in maj_pairs if p["relationship"] in ("unproven", "string_cite")]
+        distinguished = [p for p in maj_pairs if p["relationship"] in ("distinguished", "negative")]
+
+        # 3. Counter-authorities: the dissent, kept separate, with its own cited cases.
+        counter = {}
+        if dissent_text:
+            counter = {"dissent_by": dissent_by,
+                       "opening_passage": re.sub(r"\s+", " ", dissent_text[:300]).strip(),
+                       "cites": _enrich(_cited_pairs(dissent_text, limit=10)),
+                       "note": "A dissent is NOT the court's holding - it is opposing reasoning, preserved separately."}
+
+        # 4. Subsequent treatment: later SHELVED opinions that cite this one, and how.
+        subsequent = []
+        rootkeys = [w for w in re.sub(r"[^a-z ]", "", case.lower()).split() if len(w) > 3][:3]
+        for p in __import__("glob").glob(os.path.join(project_root, "reference", self.agent_id, "*.json")):
+            try:
+                d = json.load(open(p, encoding="utf-8"))
+            except (OSError, ValueError):
+                continue
+            if os.path.basename(p) == os.path.basename(path or ""):
+                continue
+            t = " ".join((s.get("text", "") if isinstance(s, dict) else str(s)) for s in (d.get("sections") or []))
+            tl = t.lower()
+            if not (rootkeys and all(k in tl for k in rootkeys)):
+                continue
+            # Anchor on the most DISTINCTIVE root word (fewest occurrences) so the window
+            # lands on the citing sentence, not the first 'Pennsylvania' in a Pennsylvania case.
+            anchor = min(rootkeys, key=lambda k: tl.count(k))
+            idx = tl.find(anchor)
+            window = tl[max(0, idx - 160):idx + 200]
+            if re.search(r"overrul\w*", window):
+                treat = "overruled"
+            elif re.search(r"distinguish\w*|unlike|not applicable|differ\w*|does not (?:apply|control)", window):
+                treat = "distinguished"
+            elif re.search(r"limit\w*|narrow\w*|qualif\w*", window):
+                treat = "limited"
+            elif re.search(r"follow\w*|reaffirm\w*|adher\w*|rel(?:y|ied|ies) on|appl\w*", window):
+                treat = "affirmed_or_followed"
+            else:
+                treat = "cited_treatment_unclear"
+            subsequent.append({"case": str(d.get("title"))[:80],
+                               "citation": _extract_citation(str(d.get("title")) or ""),
+                               "treatment": treat,
+                               "passage": re.sub(r"\s+", " ", t[max(0, idx - 100):idx + 200]).strip()})
+
+        acquisition_priority = ([{"citation": p["citation"], "case": p["case"], "why": "relied upon by the majority"}
+                                 for p in relied_upon if not p["acquired"]]
+                                + [{"citation": p["citation"], "case": p["case"], "why": "distinguished/treated adversely - shapes the limit"}
+                                   for p in distinguished if not p["acquired"]])
+
+        return {
+            "root": {"case": case, "citation": want_cite, "shelved_at": os.path.relpath(path, project_root) if path else None},
+            "constitutional_foundation": constitutional,
+            "statutory_source": statutes,
+            "property_foundation": prop,
+            "supporting_precedents": {"relied_upon": relied_upon, "merely_cited": merely_cited,
+                                      "distinguished_or_adverse": distinguished},
+            "counter_authorities": counter,
+            "subsequent_treatment": subsequent,
+            "acquisition_priority": acquisition_priority,
+            "distinctions_preserved": {
+                "cited_vs_relied": "merely_cited is appearance; relied_upon is proven reliance in the majority text.",
+                "reasoning_vs_dissent_vs_advocacy": "Only the majority is the court's holding; the dissent is counter-authority; an advocate's argument is neither.",
+                "extraction_vs_acquisition": "extraction_confidence is how well a reference was parsed; `acquired` is whether its primary source is shelved - the two are separate, and a confident extraction is not a confident acquisition.",
+                "acquisition_is_prioritized": "Not every cited case is followed back - only relied_upon and adverse authorities are prioritized.",
+            },
+            "disclaimer": DISCLAIMER}
+
     def _acquire_published_opinion(self, case, expect, a):
         """A reported opinion, from the opinions index. -> result or None.
 
@@ -5680,6 +5842,8 @@ class LegalAgent(AgentBase):
             return self.acquire_cited_cases(args if isinstance(args, dict) else {"case": args})
         if task == "review_deed":
             return self.review_deed(args if isinstance(args, dict) else {"text": args})
+        if task == "authority_graph":
+            return self.authority_graph(args if isinstance(args, dict) else {"case": args})
         if task == "review_consumer_protections":
             return self.review_consumer_protections(args if isinstance(args, dict) else {"case": args})
         if task == "read_filed_document":

@@ -6,6 +6,7 @@
     "acquire_opinion",
     "acquire_cited_cases",
     "review_deed",
+    "authority_graph",
     "actions",
     "add_deadline",
     "ssa_demand_doctrine",

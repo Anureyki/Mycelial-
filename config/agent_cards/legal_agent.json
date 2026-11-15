@@ -109,6 +109,7 @@
     "acquire_opinion",
     "acquire_cited_cases",
     "review_deed",
+    "authority_graph",
     "review_consumer_protections",
     "triage_source",
     "record_case_outcome"
@@ -126,7 +127,7 @@
   "public_key": "",
   "owner": "anureyki",
   "created": "2026-07-31T17:59:12.877063",
-  "updated": "2026-11-15T06:00:22.410557",
+  "updated": "2026-11-15T06:20:37.402366",
   "roles": [
     "credit dispute",
     "debt validation",
@@ -239,6 +240,7 @@
     "acquire_opinion": "records",
     "acquire_cited_cases": "records",
     "review_deed": "computes",
+    "authority_graph": "computes",
     "review_consumer_protections": "computes",
     "triage_source": "computes",
     "record_case_outcome": "records"
