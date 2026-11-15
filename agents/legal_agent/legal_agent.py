@@ -146,6 +146,54 @@ FILING_BURST_WINDOW_DAYS = 7
 FILING_BURST_THRESHOLD = 5
 
 
+# --- Citation provenance (2026-11-15) ---------------------------------------
+# A named case can exist at several court levels - the state decision and the
+# federal decision that REVERSED it carry the same parties. Searching by name
+# alone shelved the wrong one (the Pennsylvania Supreme Court's Mahon, 274 Pa.
+# 489, instead of the U.S. Supreme Court's 260 U.S. 393 that reversed it), and
+# subject verification could not catch it because both opinions are about the
+# same facts. The DISCRIMINATOR is the citation. These parse it, infer the
+# court from its reporter, and compare citations - so acquire_opinion can
+# search the right court and REFUSE an opinion whose citation does not match
+# the one asked for, instead of silently shelving a reversed lower-court case.
+_CITE_RE = re.compile(
+    r"\b(\d+)\s+([A-Z][A-Za-z.]*(?:\s*(?:Ct|Ed|Supp|App|2d|3d)\.?)*)\s+(\d+)\b")
+
+
+def _extract_citation(text):
+    """First reporter citation in a string, e.g. 'Mahon, 260 U.S. 393' -> '260 U.S. 393'."""
+    if not text:
+        return None
+    m = _CITE_RE.search(str(text))
+    return f"{m.group(1)} {re.sub(r'\\s+', ' ', m.group(2)).strip()} {m.group(3)}" if m else None
+
+
+def _norm_cite(s):
+    """Citations compare after stripping spaces/periods/case: '260 U.S. 393' -> '260us393'."""
+    return re.sub(r"[^a-z0-9]", "", str(s or "").lower())
+
+
+_STATE_REPORTER_COURTS = {"pa": "pa", "cal": "cal", "ny": "ny", "ill": "ill",
+                          "tex": "tex", "mass": "mass", "ohio": "ohio", "fla": "fla",
+                          "ga": "ga", "mich": "mich", "wis": "wis", "nj": "njsuperct"}
+
+
+def _court_from_citation(cite):
+    """CourtListener court id implied by a citation's reporter, or None. A U.S.
+    reporter (U.S./S. Ct./L. Ed.) means the Supreme Court; a state reporter means
+    that state's court. Federal case reporters (F.2d/F.3d) pin no single court."""
+    n = _norm_cite(cite)
+    if re.search(r"\d(?:us|sct)\d", n) or "led" in n:
+        return "scotus"
+    m = re.search(r"\d([a-z]{2,4})\d", n)
+    return _STATE_REPORTER_COURTS.get(m.group(1)) if m else None
+
+
+def _citation_norms(cites):
+    """Normalised set of a candidate's citations (CourtListener returns a list)."""
+    return {_norm_cite(c) for c in (cites or []) if _norm_cite(c)}
+
+
 class LegalAgent(AgentBase):
     # Equity and trust doctrine are argued by Legal, applied to instruments
     # by Trust, and used to value positions by Accounting. Shared, not copied.
@@ -3534,6 +3582,26 @@ class LegalAgent(AgentBase):
                        for p in parties))]
         if not matches:
             return None
+        # CITATION PROVENANCE: if a citation was asked for, the opinion shelved MUST
+        # carry it. A named case can exist at several court levels (the state decision
+        # and the federal one that reversed it share parties and facts), so name +
+        # subject cannot tell them apart - the citation is the discriminator. Without
+        # this the reversed lower-court opinion got shelved as the holding (2026-11-15).
+        want_cite = a.get("citation") or _extract_citation(case)
+        if want_cite:
+            wc = _norm_cite(want_cite)
+            cited = [r for r in matches if wc in _citation_norms(r.get("citation"))]
+            if not cited:
+                return {"acquired": False, "case": case, "verdict": "citation_mismatch",
+                        "requested_citation": want_cite,
+                        "found": [{"caseName": r.get("caseName"), "citation": r.get("citation"),
+                                   "court": r.get("court")} for r in matches[:5]],
+                        "why": (f"Asked for {want_cite}, but no opinion under this caption "
+                                f"carries that citation. A named case can exist at several "
+                                f"court levels; this refuses to shelve a different court's "
+                                f"(often reversed) opinion. Nothing was shelved."),
+                        "disclaimer": DISCLAIMER}
+            matches = cited
         # ONE CAPTION, SEVERAL DOCUMENTS. A case has a cert-grant order, the
         # merits opinion, sometimes an order list entry - all captioned the
         # same. Henson v. Santander came back as "Petition for writ of
@@ -3638,6 +3706,17 @@ class LegalAgent(AgentBase):
                               "the decision is about, so the text is checked before "
                               "it is shelved."),
                     "disclaimer": DISCLAIMER}
+        # CITATION PROVENANCE. A citation (from the caller, the case string, or what
+        # the screenshot showed) pins the COURT and later verifies the result. This is
+        # what was missing when the Pennsylvania Supreme Court's Mahon got shelved for
+        # the U.S. Supreme Court's 260 U.S. 393 that reversed it (2026-11-15).
+        want_cite = a.get("citation") or _extract_citation(case) or _extract_citation(expect)
+        if want_cite:
+            a = {**a, "citation": want_cite}
+            if not a.get("court"):
+                inferred = _court_from_citation(want_cite)
+                if inferred:
+                    a["court"] = inferred
         want_docket = str(a.get("docket_number") or "").strip()
         want_doc = a.get("document_number")
 
