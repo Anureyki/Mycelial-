@@ -2533,3 +2533,30 @@ document pipeline, research, then evaluation of the existing security-patch life
 5. **Voice.** One Bland dry_run turn to the principal's own number with a scripted prompt, logged, no
    live action - proves the gated path without switching live. External dependency (Bland) stays
    dry_run. (lower priority)
+
+### Level-4 workflow evaluation BUILT - the security-patch lifecycle (2026-11-14)
+
+The principal's point: testing each agent independently does not establish that the 7-step
+operation works - detect -> correlate -> present -> AUTHORIZE -> apply -> verify -> report.
+What was missing was an evaluation that tests the whole sequence, its failure-recovery path,
+and its authorization boundary. Built (demonstration #3, the prioritized one):
+
+- **core/workflow_eval.py** - a reusable level-4 mechanism. A Workflow is ordered Stages; each
+  names its owner and whether it is authorization-gated or irreversible. The evaluator runs them
+  in order, stops at the first failure (recording where/why, no false completion), refuses a gated
+  stage without explicit authorization, refuses an irreversible stage unless the caller opts into a
+  SIMULATED transition, and treats a raising stage as a failure. Stage runners are injected, so it
+  performs no privileged action itself. This is the same mechanism the document and research
+  workflows will be evaluated with.
+- **tools/check_patch_workflow.py** - the security-patch lifecycle as a 7-stage workflow with
+  deterministic injected runners (no live agents, no network, no apt). Asserts: the happy path
+  completes only on a VERIFIED result; the authorization boundary holds (unauthorized -> stops at
+  authorize, apply never runs); the apply stage is gated AND irreversible and is withheld by default
+  (the eval changes nothing); failure recovery (a failed apply stops the workflow and reports no
+  completion); a self-reported apply success with no real change is CAUGHT at verify (false-success
+  doctrine); an upstream failure (detection down) runs nothing downstream. In ci_local.sh and ci.yml.
+
+This is the first level-4 (workflow) evaluation and answers the fifth maturity question for this
+lifecycle: the evaluation infrastructure can now establish whether the end-to-end operation worked,
+not merely that each agent runs. It does NOT implement patch execution - the apply stage is simulated
+and the real apply remains gated behind root and the principal's authorization.
