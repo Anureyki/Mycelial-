@@ -2621,3 +2621,65 @@ Everything else is production code. So the user-facing document operation is now
 complete - ingest through Anansi, persist, retrieve, and answer with cited evidence - the gap between
 "the functions work together" and "the operation completes" is closed, bar a live socket and voice.
 In ci_local.sh and ci.yml.
+
+## Knowledge-graph layer + cross-domain governance (principal, 2026-11-15) - PLANNED, substrate decision pending
+
+Three domain knowledge graphs under a governing conflict-resolution authority, with Anansi
+visualization. **OpenSPG was requested as the shared substrate; it does NOT fit this machine
+as-is** - disk is at 90% (5.2 GB free) and RAM ~4.1 GB available with 13 agents + Ollama + three
+containers resident, while OpenSPG's stack (server + TuGraph/Neo4j + MySQL) is several GB of images
+and multi-GB resident. Installing it at 90% disk would risk the running system. Not installed - the
+substrate is a decision for the principal (free disk + accept the cost for OpenSPG, or a native
+lightweight graph layer on MycOS's existing governance primitives). Recorded whole so it is built
+once, correctly, not in layers.
+
+### The three domains
+- **Agricultural** - AGAI (dept head: agricultural research, knowledge construction, owns the ag
+  graph) + Gro (operational: live observations, operational evidence, verified adjustments).
+- **Legal** - its own graph: cases, statutes, regulations, authorities, supporting evidence
+  (authority_graph already produces exactly this shape).
+- **Financial** - its own graph: records, accounting relationships, transactions, supporting evidence.
+Legal and Finance stay SEPARATE but may hold VERIFIED cross-domain relationships when relevant.
+Each domain has its OWN schema and controlled access; no domain may overwrite another's knowledge.
+
+### Governing agent = the central conflict-resolution authority
+On a conflicting claim/evidence/relationship/proposed modification:
+1. Affected agents PRESERVE their existing records and supply the supporting evidence via A2A.
+2. The governing agent reviews evidence, source provenance, confidence, timestamps, departmental authority.
+3. It decides: accept / reject / reconcile / escalate.
+4. No agent may unilaterally overwrite another domain's graph or bypass resolution.
+5. Every decision is recorded with its evidence, rationale, and audit history.
+6. Insufficient evidence, or an unresolved legal/financial/operational authority question -> FLAG FOR
+   HUMAN REVIEW, never invent a resolution.
+The governing agent may authorize cross-domain changes but must respect domain ownership/permissions.
+**Authority principle:** departments OWN and maintain their knowledge; the governing agent OVERSEES
+conflicts and authorizes cross-domain resolutions; the HUMAN OPERATOR retains final authority over
+system-wide governance and policy.
+
+### This maps almost entirely onto primitives MycOS ALREADY has (do not rebuild)
+- **Governing agent** = Boss - governance only (`authorize_route`), carries no domain payload, gates
+  on thresholds, escalates. The conflict-resolution authority is Boss's natural role.
+- **Domain ownership + controlled access, no cross-domain overwrite** = `core/acl.py` +
+  `config/resource_acl.json` (owner + read/write/execute grants, fails CLOSED). A per-domain-graph
+  resource with write grants only to the owning domain enforces "no domain overwrites another's".
+- **Preserve evidence, do not auto-resolve a conflict** = the `contested` rule (claim pipeline + the
+  Anansi contradiction check): both readings kept, conflict named, default `undetermined`/`unsupported`.
+- **Conflict travels as a minimal structured payload via A2A** = `refer_finding`/`receive_finding`,
+  Boss gating on thresholds (`requires_signoff` above REFERRAL_THRESHOLD).
+- **One shared object with an append-only event history** = `core/case_manager.py` (shared namespace,
+  event-by-id, closed event-type set) - the audit/decision log the spec requires.
+- **Human-review escalation** = the phone-signed sign-off path already built for held actions.
+- **Evidence never overwritten, state travels with the fact** = the doctrines this file already runs on.
+So the NEW work is the GRAPH SUBSTRATE and per-domain SCHEMAS + the Anansi VISUALIZATION; the
+GOVERNANCE SEMANTICS are mostly assembly of existing parts, which is the integration the maturity
+roadmap calls for, not new capability count.
+
+### Substrate options (the decision)
+- **A. OpenSPG stack** - the requested framework; needs disk freed and the RAM/cost accepted; heaviest,
+  most featureful, external dependency.
+- **B. Native lightweight graph layer** - per-domain graphs stored via Hermes/SQLite with an explicit
+  schema per domain, ACL-enforced ownership, the governing-agent conflict flow on existing primitives,
+  and a D3/Cytoscape visualization in Anansi's webapp. Fits current resources; matches the principal's
+  own rule (don't adopt an architecture just because a tutorial teaches it - CAG/KAG over RAG was the
+  same call). authority_graph already emits a Legal graph in this shape.
+Pending the principal's choice; nothing built until the substrate is chosen.
