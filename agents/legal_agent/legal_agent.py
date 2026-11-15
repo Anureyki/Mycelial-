@@ -194,6 +194,77 @@ def _citation_norms(cites):
     return {_norm_cite(c) for c in (cites or []) if _norm_cite(c)}
 
 
+# A cited case appears in an opinion as "Name v. Name, VOL REPORTER PAGE" - the name
+# AND the citation together. Pairs are what make the cited case acquirable reliably: the
+# name searches, the citation pins the court. Used to build the web of supporting cases.
+# The party before "v." must not be a signal or sentence-opening word ('See', 'Compare',
+# 'The', ...) - those start sentences and would be captured as a fake first party, which
+# both corrupts the name and hides the citing signal from the role check.
+_CASE_CITE_RE = re.compile(
+    r"(?!(?:See|Compare|Cf|Contra|But|Accord|Accordingly|And|Or|The|In|It|We|This|That|"
+    r"Under|Here|Where|When|Nor|Yet|So|Also|Section)\b)"
+    r"([A-Z][A-Za-z.&'’\-]+(?:\s+(?:[A-Z][A-Za-z.&'’\-]*|of|the|and|&)){0,5}"  # party: capitalised words
+    r"\s+v\.?\s+"                                                               # v.
+    r"[A-Z][A-Za-z.&'’\-]+(?:\s+(?:[A-Z][A-Za-z.&'’\-]*|of|the|and|&)){0,5})"   # party
+    r"\s*,?\s+(\d+\s+[A-Z][A-Za-z.]*(?:\s*[A-Za-z.]+){0,2}\.?\s+\d+)")          # citation
+
+
+def _cited_pairs(text, exclude_norm=None, limit=12):
+    """-> [{case, citation, passage, role, load_bearing}] for the cases an opinion cites.
+
+    A citation is NOT load-bearing merely because the winner cited it. Each entry carries
+    the PASSAGE from the opinion where the case is cited (the proof of the dependency) and a
+    conservative role read from the signal words around it:
+      support                   - cited affirmatively (a hint, NOT yet proof of reliance)
+      compare_or_cf             - 'Compare', 'Cf.', 'see also' - contrasted, not relied on
+      negative_or_distinguished - 'but see', 'contra', 'overruled', 'distinguished'
+      string_cite               - one of a run of citations, no individual reliance shown
+
+    `load_bearing` is a VERDICT, defaulting to the cautious one, because a case is not
+    load-bearing merely because the winner cited it:
+      proven       - role is support AND the passage shows RELIANCE (reliance language next
+                     to the cite: 'governed by', 'the rule of', 'on the authority of', ...)
+      unproven     - cited affirmatively but the passage does not demonstrate reliance (REVIEW)
+      string_cite  - part of a citation run, no individual reliance
+      distinguished / negative - contrasted or treated adversely
+    The proof_passage is attached so the dependency can be demonstrated, not assumed.
+    Deduped by citation; the opinion's own citation (exclude_norm) is dropped."""
+    t = text or ""
+    seen, out = set(), []
+    reliance = re.compile(
+        r"\b(follow(?:ed|ing|s)?|governed by|controll?(?:ed|ing|s)?|as held in|as in|"
+        r"on the authority of|the rule (?:of|in)|established (?:in|by)|bound by|"
+        r"settled (?:that|by)|held in|relied on|under the (?:rule|doctrine))\b")
+    for m in _CASE_CITE_RE.finditer(t):
+        name = re.sub(r"\s+", " ", m.group(1)).strip(" ,.")
+        cite = re.sub(r"\s+", " ", m.group(2)).strip(" ,.")
+        n = _norm_cite(cite)
+        if not n or n in seen or (exclude_norm and n == exclude_norm):
+            continue
+        seen.add(n)
+        s, e = m.start(), m.end()
+        # The signal attaches to THIS citation, so read it from the current sentence's lead-in
+        # (text before the name, cut at the previous sentence end) - a wider window catches
+        # another case's 'overruled' or 'controls' and mislabels this one.
+        lead = re.split(r"[.;]\s", t[max(0, s - 120):s])[-1].lower()
+        passage = re.sub(r"\s+", " ", t[max(0, s - 120):min(len(t), e + 160)]).strip()
+        if re.search(r"\b(compare|cf\.|see also)\b", lead):
+            role, verdict = "compare_or_cf", "distinguished"
+        elif re.search(r"\b(but see|contra|overrul\w*|disapprov\w*|distinguish\w*)\b", lead):
+            role, verdict = "negative_or_distinguished", "negative"
+        elif _CASE_CITE_RE.match(t[e:e + 45].lstrip(" ,;")):
+            role, verdict = "string_cite", "string_cite"
+        elif reliance.search(lead):
+            role, verdict = "support", "proven"           # the lead-in demonstrates reliance
+        else:
+            role, verdict = "support", "unproven"         # cited, but reliance not shown - REVIEW
+        out.append({"case": name, "citation": cite, "passage": passage,
+                    "role": role, "load_bearing": verdict})
+        if len(out) >= limit:
+            break
+    return out
+
+
 class LegalAgent(AgentBase):
     # Equity and trust doctrine are argued by Legal, applied to instruments
     # by Trust, and used to value positions by Accounting. Shared, not copied.
@@ -259,7 +330,7 @@ class LegalAgent(AgentBase):
                 "open_action", "complete_action", "amend_action", "actions",
                 "add_venue", "venues", "running_clocks", "complaint_path",
                 "read_filed_document", "ingest_screenshot", "read_docket_document", "learn_from_case", "verify_quote", "set_principal", "classify_matter",
-                "acquire_opinion", "review_consumer_protections",
+                "acquire_opinion", "acquire_cited_cases", "review_deed", "review_consumer_protections",
                 "triage_source", "record_case_outcome"
             ],
             role="agent"
@@ -1775,10 +1846,15 @@ class LegalAgent(AgentBase):
             "---\n\n"
         )
         lessons_dir = os.path.join(self.knowledge_dir, "lessons_learned")
-        os.makedirs(lessons_dir, exist_ok=True)
+        os.makedirs(lessons_dir, mode=0o700, exist_ok=True)
         path = os.path.join(lessons_dir, f"{lesson_id}.md")
         with open(path, "w") as f:
             f.write(front_matter + lesson_text.strip() + "\n")
+        os.chmod(path, 0o600)  # owner-only: these live under the ACL fs boundary (fix the class)
+        try:
+            os.chmod(lessons_dir, 0o700)
+        except OSError:
+            pass
         self.refresh_cache()
         self.log(f"Logged lesson {lesson_id} (category={category}, strategy_type={strategy_type})")
         return {
@@ -3558,6 +3634,127 @@ class LegalAgent(AgentBase):
         if not court:
             return False
         return party is None or court.start() < party.start()
+
+    def _shelved_opinion_text(self, case, citation):
+        """(text, path) for a shelved opinion matching the citation or case name, else (None, None)."""
+        import glob
+        want = _norm_cite(citation) if citation else None
+        cn = [w for w in re.sub(r"[^a-z ]", "", (case or "").lower()).split() if len(w) > 2]
+        for p in glob.glob(os.path.join(project_root, "reference", self.agent_id, "*.json")):
+            try:
+                d = json.load(open(p, encoding="utf-8"))
+            except (OSError, ValueError):
+                continue
+            title = str(d.get("title") or "")
+            tnorm = re.sub(r"[^a-z ]", "", title.lower())
+            tcite = _norm_cite(_extract_citation(title) or "")
+            if (want and tcite == want) or (cn and all(w in tnorm for w in cn)):
+                secs = d.get("sections") or []
+                text = " ".join((s.get("text", "") if isinstance(s, dict) else str(s)) for s in secs) \
+                    if isinstance(secs, list) else str(secs)
+                return text, p
+        return None, None
+
+    def acquire_cited_cases(self, args):
+        """Ingest the supporting cases an opinion RELIES ON - the load-bearing authorities
+        behind the holding, so the corpus holds the web of precedent that swings a case,
+        not just the headline decision. Reads the already-shelved opinion, pulls the
+        (name, citation) pairs it cites, and acquires each by name+citation - so the court
+        is pinned and the citation verified, never a wrong-court pull. One level deep by
+        default; honest about what it could not resolve (a name with no citation in the
+        text is not followed, because the citation is what pins the right court)."""
+        a = args if isinstance(args, dict) else {"case": args}
+        case = (a.get("case") or a.get("name") or "").strip()
+        want_cite = a.get("citation") or _extract_citation(case)
+        limit = int(a.get("limit") or 8)
+        text, _path = self._shelved_opinion_text(case, want_cite)
+        if not text:
+            return {"acquired_web": False, "case": case, "verdict": "source_not_shelved",
+                    "why": "The main opinion is not in this corpus yet - acquire_opinion it first.",
+                    "disclaimer": DISCLAIMER}
+        pairs = _cited_pairs(text, exclude_norm=(_norm_cite(want_cite) if want_cite else None), limit=limit)
+        acquired, unresolved = [], []
+        for pr in pairs:
+            name, cite = pr["case"], pr["citation"]
+            r = self.acquire_opinion({"case": name, "citation": cite})
+            entry = {"case": name, "citation": cite, "role": pr["role"],
+                     # the PASSAGE is the PROOF of the dependency - a case is not load-bearing
+                     # just because the winner cited it; it must be shown relied on in the text.
+                     "load_bearing": pr["load_bearing"], "proof_passage": pr["passage"]}
+            if isinstance(r, dict) and r.get("acquired"):
+                entry["title"] = r.get("title")
+                acquired.append(entry)
+            else:
+                entry["verdict"] = (r or {}).get("verdict") or (r or {}).get("error")
+                unresolved.append(entry)
+        return {"acquired_web": True, "source_case": case, "source_citation": want_cite,
+                "cited_pairs_found": len(pairs), "acquired_count": len(acquired),
+                "proven_load_bearing": sum(1 for e in acquired if e["load_bearing"] == "proven"),
+                "unproven_needs_review": sum(1 for e in acquired if e["load_bearing"] == "unproven"),
+                "acquired": acquired, "unresolved": unresolved,
+                "note": ("One level of supporting authority. 'load_bearing' is 'proven' ONLY where the "
+                         "proof_passage shows the opinion RELIED on the case - not because it favors "
+                         "the winner. 'unproven' means cited but reliance not demonstrated (review the "
+                         "proof_passage); 'distinguished'/'negative'/'string_cite' are not load-bearing. "
+                         "A cited name with no reporter citation in the text is not followed - the "
+                         "citation is what pins the right court."),
+                "disclaimer": DISCLAIMER}
+
+    def review_deed(self, args):
+        """Red-flag a property acquisition for a SURFACE-ONLY or severed-mineral deed - the
+        trap Pennsylvania Coal Co. v. Mahon illustrates: a surface owner whose mineral estate
+        was severed holds hollow title, and the mineral owner can extract beneath the land and
+        strip the surface's equity. Default posture is CAUTION - a deed is NOT full ownership
+        until the mineral/subsurface rights are confirmed conveyed to the trust or business."""
+        a = args if isinstance(args, dict) else {"text": args}
+        low = str(a.get("text") or a.get("description") or a.get("deed") or "").lower()
+        owner = str(a.get("intended_owner") or a.get("to") or "").lower()
+        flags = []
+        if re.search(r"\bsurface\s+(only|estate|rights)\b", low):  # \b so 'subsurface rights' does not match
+            flags.append("conveys only the SURFACE estate")
+        if re.search(r"(reserv|except)\w*\b[^.]{0,70}\b(mineral|coal|oil|gas|granite|ore|metal|subsurface|mining)\b", low):
+            flags.append("RESERVES or EXCEPTS the mineral/subsurface rights to the grantor or a third party")
+        if re.search(r"\bsubject to\b[^.]{0,70}\b(mineral|mining|coal|oil|gas)\b", low):
+            flags.append("subject to a prior mineral/mining reservation")
+        if re.search(r"\bmineral (estate|rights)\b[^.]{0,40}\b(sever|separate|prior|outstanding)", low):
+            flags.append("the mineral estate appears SEVERED from the surface")
+        conveys = bool(re.search(r"(includ\w*|together with|along with|\ball\b)[^.]{0,50}\b(mineral|subsurface|mining)\s+(rights|estate|interest)", low)) \
+            or bool(re.search(r"fee simple\b[^.]{0,80}\bmineral", low))
+        if flags:
+            estate, minerals, posture = "surface_only_or_severed", "severed_or_reserved", "HOLD"
+        elif conveys:
+            estate, minerals, posture = "fee_simple_with_minerals", "conveyed", "OK_IF_TITLED_TO_PRINCIPAL"
+        else:
+            estate, minerals, posture = "mineral_status_unstated", "unknown", "INVESTIGATE"
+        owner_ok = bool(re.search(r"\b(trust|llc|inc|company|corporation|business)\b", owner))
+        mitigations = [
+            "Require the deed to convey FEE SIMPLE including the mineral/subsurface rights - not surface-only.",
+            "Order a mineral-rights title search (chain of title) to find any severed or reserved mineral estate.",
+            "Confirm no outstanding lease or reservation lets a third party extract beneath the land.",
+            "Title the property WITH its mineral rights to the TRUST or BUSINESS, not a bare surface deed.",
+        ]
+        required = []
+        if minerals != "conveyed":
+            required.append("Written confirmation the mineral/subsurface estate is conveyed, not reserved.")
+        if not owner_ok:
+            required.append("Name the grantee as the trust or business and confirm it takes the mineral rights too.")
+        recommendation = {
+            "HOLD": ("DO NOT acquire as-is. This is, or may be, a surface-only / severed-mineral deed - "
+                     "hollow ownership. The mineral owner could extract beneath the land and strip the "
+                     "equity (Mahon). Fix the conveyance or walk away."),
+            "INVESTIGATE": ("Do not treat this as full ownership. The deed is silent on minerals - a "
+                            "title/mineral search is required before acquisition."),
+            "OK_IF_TITLED_TO_PRINCIPAL": ("Mineral rights appear conveyed. Still verify by title search "
+                                          "and ensure the grantee is the trust or business."),
+        }[posture]
+        return {"estate_classification": estate, "mineral_rights": minerals, "posture": posture,
+                "red_flags": flags, "recommendation": recommendation, "mitigations": mitigations,
+                "required_before_acquisition": required, "intended_owner_ok": owner_ok,
+                "authority": ("Pennsylvania Coal Co. v. Mahon, 260 U.S. 393 (1922) - a severed mineral "
+                              "estate can destroy the surface owner's equity"),
+                "basis": ("Default is caution: a deed is not full ownership until the mineral/subsurface "
+                          "rights are confirmed conveyed to the trust or business."),
+                "disclaimer": DISCLAIMER}
 
     def _acquire_published_opinion(self, case, expect, a):
         """A reported opinion, from the opinions index. -> result or None.
@@ -5479,6 +5676,10 @@ class LegalAgent(AgentBase):
             return self.read_docket_document(args if isinstance(args, dict) else {})
         if task == "acquire_opinion":
             return self.acquire_opinion(args if isinstance(args, dict) else {"case": args})
+        if task == "acquire_cited_cases":
+            return self.acquire_cited_cases(args if isinstance(args, dict) else {"case": args})
+        if task == "review_deed":
+            return self.review_deed(args if isinstance(args, dict) else {"text": args})
         if task == "review_consumer_protections":
             return self.review_consumer_protections(args if isinstance(args, dict) else {"case": args})
         if task == "read_filed_document":

@@ -4,6 +4,8 @@
   "port": 9011,
   "capabilities": [
     "acquire_opinion",
+    "acquire_cited_cases",
+    "review_deed",
     "actions",
     "add_deadline",
     "ssa_demand_doctrine",
