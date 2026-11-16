@@ -282,7 +282,7 @@ context injection, leak test - each soft or hard, and hands the voice layer one 
 decides the action, Ward decides the surface - above all what a refusal is not allowed to say. A
 refused reply under `redirect` or `silence_boundary` never names a register or rule id, never
 confirms the boundary's shape, and carries no number the department did not hand over as `ward_known`
-or `ward_pointer` (checked, not hoped; nothing produces them yet, so today a refusal degrades to the bare line). Precedence: **Pulse cold makes Ward irrelevant** (neutral);
+or `ward_pointer` at the top level of its own reply - read inside route_direct's envelope and before narration, never deeper (checked, not hoped; nothing produces them yet, so today a refusal degrades to the bare line). Precedence: **Pulse cold makes Ward irrelevant** (neutral);
 **Veto refuses -> Ward shapes how it is spoken**; **Ward hard and no veto -> the voice modulates and
 redirects**, the answer is still given. Like pulse and veto, `ward` is inherited by every agent
 from `core/base_agent.py`, but only Anansi answers it at dispatch - every other agent, domain or

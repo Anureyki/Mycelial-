@@ -1667,7 +1667,10 @@ shapes a refusal's surface only where the reply carries one - today the route po
 `vetoed_by`. Prose is never parsed for a refusal. Closing it is a per-domain change: have
 `answer` return the veto result it already computes, plus `ward_known` (a status line the
 department already established) and `ward_pointer` (where the matter is already recorded) at the top
-level of the reply. **Nothing produces those two yet**, so today a redirect is the bare line and a
+level of the department's own reply. Anansi reads them there - inside `route_direct`'s
+`{"result": <reply>, "routed_to": ...}` envelope and from the reply as routed, before narration -
+never from deeper and never from Anansi's own envelope alone (that read was the absent-key bug:
+the keys could never arrive, and a refusal returned as a dict skipped the surface entirely). **Nothing produces those two yet**, so today a redirect is the bare line and a
 silence is "That request does not proceed." with no status or pointer - content-free by design, and
 asserted by `check_ward`. Voice never composes either one.
 

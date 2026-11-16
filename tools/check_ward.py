@@ -377,6 +377,39 @@ check("a `known` key (other agents use it for a list of names) is never spoken",
       "ZZ" not in an._ward_apply(fut, dict(resp, ward_known=None, known="ZZ status", pointer="ZZ"))[0]["result"])
 check("ward_known / ward_pointer are read from the top level only",
       "ZZ" not in an._ward_apply(fut, dict(bare, result=RAW1, nested={"ward_known": "ZZ status"}))[0]["result"])
+# THE ROUTED SHAPE. route_direct wraps a department's reply one level down -
+# {"result": <department reply>, "routed_to": ...} - so the keys must be read from
+# the DEPARTMENT's top level, not Anansi's envelope, or they are absent forever.
+dept = {"result": RAW1, "decision": "refuse", "register": GROW_ID,
+        "citation": "differential differential_gsc1", "ward_known": LEAD1}
+routed = {"result": dept, "routed_to": "grow_agent", "domains_considered": ["grow_agent"]}
+told_r, rids_r, _ = an._ward_apply(fut, routed)
+check("routed shape: ward_known is read from the department's reply, not only Anansi's envelope",
+      isinstance(told_r.get("result"), str) and told_r["result"].startswith(LEAD1), str(told_r))
+check("routed shape: the refusal is surfaced, not handed over raw (no register, no structure)",
+      GROW_ID not in json.dumps(told_r) and set(told_r) <= {"result", "routed_to", "domains_considered", "answered"}
+      and rids_r == [GROW_ID], str(told_r))
+routed_bare = {"result": {k: v for k, v in dept.items() if k != "ward_known"}, "routed_to": "grow_agent"}
+check("routed shape, key absent: degrades to the bare redirect line - no status composed",
+      an._ward_apply(fut, routed_bare)[0]["result"]
+      == "That action stays with the differential; the next reading is the one that moves it.")
+check("routed shape, key present but not a string (None, number, dict): treated as absent",
+      all(an._ward_apply(fut, {"result": dict(dept, ward_known=bad), "routed_to": "grow_agent"})[0]["result"]
+          == "That action stays with the differential; the next reading is the one that moves it."
+          for bad in (None, 7, {"ward_known": LEAD1}, "")))
+check("routed shape: a ward key nested BELOW the department's top level is not read",
+      "ZZ" not in an._ward_apply(fut, {"result": dict(routed_bare["result"], deeper={"ward_known": "ZZ status"}),
+                                       "routed_to": "grow_agent"})[0]["result"])
+# Narration (the evidence branch of process_request) rebuilds the reply as a fresh
+# {"result": text}; the refusal and the ward keys must survive via `source`.
+told_n, rids_n, _ = an._ward_apply(fut, {"result": RAW1}, source=routed)
+check("narrated reply: refusal and ward_known survive narration (read from source)",
+      rids_n == [GROW_ID] and told_n["result"].startswith(LEAD1) and told_n.get("routed_to") == "grow_agent", str(told_n))
+check("process_request hands the routed reply to _ward_apply as source",
+      "_ward_apply(ward_fut, narrated, source=response)" in pr)
+xd = {"result": {"contradicted": True, "ward_known": "ZZ status"}, "cross_domain": True, "routed_to": ["a", "b"]}
+check("a cross-domain finding is Anansi's own, not a department reply: never unwrapped for ward keys",
+      an._dept_reply(xd) is xd)
 check("no agent in the repo produces ward_known / ward_pointer yet (the producer is a stated follow-up, not fabricated)",
       not any(re.search(r"ward_known|ward_pointer", open(f, encoding="utf-8", errors="replace").read())
               for f in glob.glob(os.path.join(ROOT, "agents", "*", "*.py")) if not f.endswith("Anansi.py")))

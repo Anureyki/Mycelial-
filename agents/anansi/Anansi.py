@@ -180,43 +180,74 @@ class Anansi(AgentBase):
                 return r
         return None
 
-    def _ward_apply(self, fut, response):
+    @staticmethod
+    def _dept_reply(source):
+        """The department's own reply inside what route_direct hands back.
+
+        route_direct wraps a single department's answer as
+        {"result": <the department's reply>, "routed_to": ...}, so a department
+        that returns a dict puts its keys ONE LEVEL DOWN from Anansi's envelope.
+        Reading `ward_known` / `ward_pointer` only from the envelope meant they
+        were absent on every real reply even once a department produced them
+        (the absent-key issue). A cross-domain finding is Anansi's own, not a
+        department's reply, so it is not unwrapped."""
+        if not isinstance(source, dict):
+            return {}
+        inner = source.get("result")
+        if isinstance(inner, dict) and not source.get("cross_domain"):
+            return inner
+        return source
+
+    def _ward_apply(self, fut, response, source=None):
         """-> (response as it should be spoken, refusal_ids, signal).
 
         Waits for the score (bounded), applies pulse-cold precedence, and hands
         the reply text to Voice.ward_surface. `known` and `pointer` are read from
         the department's own reply (`ward_known`, `ward_pointer`) - the voice
-        composes neither, and absent keys degrade to content-free."""
-        refusal_ids = self._refusal_ids_in(response)
+        composes neither, and absent keys degrade to content-free.
+
+        `source` is the reply as routed, before narration. process_request
+        narrates evidence-bearing replies into a fresh {"result": text}, which
+        drops the department's structure; the refusal, the pulse and the two
+        ward keys are read from `source` so narration cannot erase them."""
+        source = response if source is None else source
+        refusal_ids = self._refusal_ids_in(source)
         try:
             sig = fut.result(timeout=self.WARD_WAIT_SECONDS)
         except Exception as e:
             self.log(f"ward: signal unavailable ({type(e).__name__}) - reply unmodulated")
             return response, refusal_ids, ward_axis.neutral("ward_unavailable")
-        pulse = self._find_key(response, "pulse")
+        pulse = self._find_key(source, "pulse")
         regime = pulse.get("regime") if isinstance(pulse, dict) else None
         sig = ward_axis.resolve(sig, regime)
-        if sig.get("modulation") == "neutral" or not isinstance(response, dict) \
-                or not isinstance(response.get("result"), str):
+        if sig.get("modulation") == "neutral" or not isinstance(response, dict):
+            return response, refusal_ids, sig
+        dept = self._dept_reply(source)
+        text = response.get("result")
+        if not isinstance(text, str):
+            text = dept.get("result")
+        if not isinstance(text, str):
             return response, refusal_ids, sig
         # NOTHING IN THE REPO PRODUCES THESE YET. They are an opt-in contract a
         # department can honour later (a status line it already established,
         # a pointer to where the matter is recorded); until one does, both are
         # absent and the surface degrades to the content-free line - a redirect
         # or a bare boundary, never a composed status. Namespaced and read from
-        # the TOP LEVEL only, because plain `known` already means something
-        # else in other agents' replies (a list of valid names).
-        lead = response.get("ward_known")
-        pointer = response.get("ward_pointer")
+        # the TOP LEVEL of the department's reply only (never searched deeper),
+        # because plain `known` already means something else in other agents'
+        # replies (a list of valid names). A key that is absent, None or not a
+        # string is treated identically: nothing is said.
+        lead = dept.get("ward_known")
+        pointer = dept.get("ward_pointer")
         told = self._voice_for_ward().ward_surface(
-            response["result"], sig, refusal_ids,
+            text, sig, refusal_ids,
             lead=lead if isinstance(lead, str) else "",
             pointer=pointer if isinstance(pointer, str) else "")
         # A WHITELIST, not a strip-list: the structured refusal (register, rule,
         # citation, vetoed_by) is the audit record and stays in the session and
         # the logs; it is not part of what the asker is handed.
-        out = {k: response[k] for k in ("routed_to", "domains_considered", "answered")
-               if k in response}
+        out = {k: source[k] for k in ("routed_to", "domains_considered", "answered")
+               if isinstance(source, dict) and k in source}
         out["result"] = told
         return out, refusal_ids, sig
 
@@ -2010,7 +2041,7 @@ class Anansi(AgentBase):
                 if isinstance(inner, dict) and "evidence" in inner:
                     evidence = inner.get("evidence")
                     narrated = {"result": self.narrate(inner.get("result"), prompt)}
-            narrated, refusal_ids, ward_sig = self._ward_apply(ward_fut, narrated)
+            narrated, refusal_ids, ward_sig = self._ward_apply(ward_fut, narrated, source=response)
             self.append_to_session(session_id, {
                 "timestamp": datetime.now().isoformat(),
                 "prompt": prompt,
