@@ -66,6 +66,11 @@ PROBES = [
     # absent - so the probe looks for the domain marker, not merely a dict.
     ("pulse", {}, "\"implemented\": true"),
     ("veto", {"finding": {}}, "\"implemented\": true"),
+    # Ward is the relation axis and is ANSWERED by Anansi alone: every other
+    # agent inherits the method and is excluded at dispatch, so "." (absent) is
+    # the right reading everywhere but anansi. A stub answering here would be
+    # the bug - tools/check_ward.py holds the static half of that.
+    ("ward", {"message": ""}, "\"implemented\": true"),
 ]
 
 # A crash leaks through as one of these. They are the actual finding - an agent

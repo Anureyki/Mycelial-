@@ -48,7 +48,8 @@
     "advance_campaign",
     "review_candidate",
     "voice",
-    "operational_status"
+    "operational_status",
+    "ward"
   ],
   "endpoint": "/execute",
   "port": 8081,
@@ -110,7 +111,8 @@
     "advance_campaign": "records",
     "review_candidate": "records",
     "voice": "computes",
-    "operational_status": "records"
+    "operational_status": "records",
+    "ward": "computes"
   },
   "effects_unprovable": [],
   "effects_basis": "read from the code by core/effects.py (dispatch path, self-calls, inherited base methods; operational logging excluded); kept equal to the code by tools/check_effects.py",
@@ -129,5 +131,22 @@
     "note": "All outbound email is restricted to the configured user address. No external or third-party recipients are permitted.",
     "declared_by": "the principal, 2026-11-03",
     "enforced_by": "tools/check_voice.py - fails the build if any send path in agents/anansi/Anansi.py sets a recipient other than NOTIFY_TO"
+  },
+  "verbs": {
+    "ward": {
+      "verb": "ward",
+      "owner": "anansi",
+      "inputs": [
+        "message",
+        "turn_window",
+        "last_refusal_ids"
+      ],
+      "outputs": {
+        "pressure_class": "persistence|reframe|affect|meta|injection|leak|none",
+        "intensity": "soft|hard",
+        "modulation": "warm_firm|redirect|silence_boundary|neutral"
+      },
+      "notes": "Does not decide actuation. Does not appear in domain dispatch. Consumed only by voice layer."
+    }
   }
 }

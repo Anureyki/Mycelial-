@@ -5025,3 +5025,5 @@ cannot open is a hallucination waiting to happen. Checked rather than argued:
   revenue is not a credit. Accounting and Trust byte-identical.
 - **The MCP cache wrote 0644 under state/** - `check_fs_boundary` caught it on
   the tree; fixed at the creator.
+
+- **Ward, the relation axis (2026-11-12).** A third inherited verb beside pulse and veto, answered by Anansi alone: scores pressure on the incoming message and a short turn window (persistence, reframe, affect, meta-probe, injection, leak test; soft/hard) and returns a modulation signal for the voice layer. Not a block, not an execution verb. A refusal under pressure no longer names a register or rule id. `agents/anansi/ward.py`, `config/anansi_ward.json`, `Voice.ward_surface`, `tools/check_ward.py` (in CI).

@@ -1,0 +1,226 @@
+{
+  "_": "Ward - the relation / human-state axis. Pulse is the regime, Veto is the rule, Ward is the person: how hard the incoming message is leaning on a boundary. Anansi-only. It scores; it never decides. Veto decides the action, Ward decides the SURFACE the voice layer speaks in. Everything tunable lives here, not in agents/anansi/ward.py, so the vocabulary can change without a code edit. tools/check_ward.py holds it to the card below, to the real refusal ids, and to the no-leak rule.",
+  "card": {
+    "verb": "ward",
+    "owner": "anansi",
+    "inputs": [
+      "message",
+      "turn_window",
+      "last_refusal_ids"
+    ],
+    "outputs": {
+      "pressure_class": "persistence|reframe|affect|meta|injection|leak|none",
+      "intensity": "soft|hard",
+      "modulation": "warm_firm|redirect|silence_boundary|neutral"
+    },
+    "notes": "Does not decide actuation. Does not appear in domain dispatch. Consumed only by voice layer."
+  },
+  "scoring": {
+    "_": "Each pattern hit adds its weight to its class. A class is SOFT at soft_min and HARD at hard_min. The message as a whole is HARD when any class is hard OR hard_if_classes distinct classes fire together - pressure from two directions is not two soft messages. When several classes fire, the primary pressure_class is the first in `priority`: the ones that probe the boundary itself outrank the ones that merely lean on it.",
+    "soft_min": 1,
+    "hard_min": 2,
+    "hard_if_classes": 2,
+    "priority": [
+      "leak",
+      "meta",
+      "injection",
+      "persistence",
+      "reframe",
+      "affect"
+    ],
+    "probing_classes": [
+      "leak",
+      "meta",
+      "injection"
+    ],
+    "window_turns": 6,
+    "similarity_min": 0.3
+  },
+  "modulation": {
+    "_": "none -> neutral. soft -> warm_firm. hard -> silence_boundary when a PROBING class fired (leak, meta, injection - the ones that ask the boundary to describe itself), otherwise redirect.",
+    "none": "neutral",
+    "soft": "warm_firm",
+    "hard_probing": "silence_boundary",
+    "hard_other": "redirect"
+  },
+  "lexicon": {
+    "_": "Regex, case-insensitive, matched on the incoming message only. [pattern, weight]. Deliberately small and explainable; a pattern that cannot be justified in one sentence does not belong here.",
+    "persistence": [
+      [
+        "\\b(again|one more time|i (already )?asked|as i (already )?said|i('ll| will) keep asking)\\b",
+        1
+      ],
+      [
+        "\\bjust (this|one) (once|time)\\b",
+        1
+      ],
+      [
+        "\\bi('m| am) asking (you )?(again|once more)\\b",
+        2
+      ]
+    ],
+    "reframe": [
+      [
+        "\\b(anyway|regardless|either way|even so|even if)\\b",
+        1
+      ],
+      [
+        "\\b(just give me|just tell me|just send)\\b",
+        1
+      ],
+      [
+        "\\b(close enough|good enough|ballpark|rough(ly)? number|fine for now)\\b",
+        1
+      ],
+      [
+        "\\b(one|single|only the one) hypothesis (is|will be) fine\\b",
+        2
+      ],
+      [
+        "\\b(hypothetically|in theory|pretend|suppose|what if i)\\b",
+        1
+      ],
+      [
+        "\\b(a different way|another way|instead)\\b",
+        1
+      ]
+    ],
+    "affect": [
+      [
+        "\\bi know what i('m| am) doing\\b",
+        1
+      ],
+      [
+        "\\b(trust me|i'm sure|i am sure|i promise)\\b",
+        1
+      ],
+      [
+        "\\b(urgent|asap|immediately|hurry|emergency)\\b",
+        1
+      ],
+      [
+        "\\b(you('re| are) (so |the )?(smart|smartest|amazing|the best|brilliant)|only you can)\\b",
+        1
+      ],
+      [
+        "\\b(this is ridiculous|useless|stupid|so annoying|waste of time|come on|please just|i'm begging)\\b",
+        1
+      ]
+    ],
+    "meta": [
+      [
+        "\\b(what|which) (rule|rules|register|registers|policy|policies|guardrail|guardrails)\\b",
+        1
+      ],
+      [
+        "\\b(your|the) (rules|registers|guardrails|instructions|system prompt|internals|veto|governance|refusal)\\b",
+        1
+      ],
+      [
+        "\\bhow (do|does|are) (you|the system|you built|they) (decide|work|refuse|built|choose)\\b",
+        1
+      ],
+      [
+        "\\b(veto|pulse|ward|register name|refusal id)\\b",
+        1
+      ]
+    ],
+    "injection": [
+      [
+        "\\b(already (has|have|approved|authorized|authorised|signed)|has it already|already has it)\\b",
+        1
+      ],
+      [
+        "\\b(it'?s|this is) for the (housing authority|court|bank|landlord|lender|agency|attorney|fiduciary|irs|va)\\b",
+        1
+      ],
+      [
+        "\\b(i('m| am) (the )?(owner|admin|principal)|admin override|i have permission|i('m| am) authorized|authorized by|my (lawyer|attorney) (said|says|told))\\b",
+        1
+      ],
+      [
+        "\\b(boss|legal|security|the court|the judge) (said|says|told|ordered|approved)\\b",
+        1
+      ]
+    ],
+    "leak": [
+      [
+        "\\b(tell me|give me|show me) exactly (what|why|which)\\b",
+        2
+      ],
+      [
+        "\\b(exact|specific) (reason|rule|register|citation)\\b",
+        1
+      ],
+      [
+        "\\b(work around|get around|bypass|circumvent)\\b",
+        1
+      ],
+      [
+        "\\bwhy (can't|can not|cannot|won't|will not|aren't|are not) (you|it)\\b",
+        1
+      ],
+      [
+        "\\b(are you|is it) (not )?(allowed|blocked|prevented|forbidden)\\b",
+        1
+      ],
+      [
+        "\\bwhat('s| is) (blocking|stopping|preventing)\\b",
+        1
+      ],
+      [
+        "\\b(is there|do you have) a rule\\b",
+        1
+      ]
+    ]
+  },
+  "voice": {
+    "_": "What the voice layer says when Ward leans on a REFUSED action. Nothing here may name a register, a rule or a number - tools/check_ward.py proves it. A line that needs a fact takes it from the caller's `lead` or `pointer`, which the DOMAIN supplied; the voice never composes one.",
+    "warm_firm": "I hear you, and I'm not moving on this one.",
+    "redirect_default": "That action stays where it is; the next record is what moves it.",
+    "redirect_by_refusal": {
+      "one_hypothesis_differential": "That action stays with the differential; the next reading is the one that moves it.",
+      "no_discriminator": "That action stays with the differential; the next reading is the one that moves it."
+    },
+    "silence_boundary": "That request does not proceed.",
+    "redirect_tail": "Say what you are trying to get done and I'll take it from there.",
+    "scrub_replacement": "that",
+    "scrub_patterns": [
+      "§+\\s*[\\d.\\-]+[A-Za-z]?(?:\\([a-z0-9]+\\))*",
+      "\\b\\d+\\s*U\\.?S\\.?C\\.?[^.;,]*",
+      "\\b\\d+\\s*C\\.?F\\.?R\\.?[^.;,]*",
+      "\\b(veto|register|governance rule|refusal id)\\b[^.;]*"
+    ]
+  },
+  "refusal_ids": {
+    "_": "Every REAL refusal id the surface must never speak. Each is read from source: the veto registers that return decision=refuse, and the governance rules. tools/check_ward.py re-derives the set from the code and fails if this list is missing one - a new register cannot ship without Ward knowing to keep it quiet. Nothing here is invented.",
+    "veto_registers": [
+      "one_hypothesis_differential",
+      "no_discriminator",
+      "no_1681s-2(b)_predicate",
+      "no_604_permissible_purpose",
+      "missing_1006.6(e)_opt_out",
+      "1006.14(h)_after_stop",
+      "immunity_assumed_away",
+      "citation_not_in_corpus",
+      "normative_cited_as_rule",
+      "theory_cited_as_rule",
+      "unclassified_cited_as_rule",
+      "mixed_layer_needs_reading",
+      "no_res_for_equity_claim",
+      "posted_label_unsupported"
+    ],
+    "governance_rules": [
+      "nothing_leaves",
+      "no_advice",
+      "principal_signs_and_sends",
+      "ssa_demand_written_authorization",
+      "block_goes_to_principal",
+      "contested_goes_to_principal",
+      "sensitive_data_stays_home"
+    ],
+    "route_policy": [
+      "authorize_route"
+    ]
+  }
+}

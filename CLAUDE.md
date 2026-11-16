@@ -271,6 +271,24 @@ readings are perfect" was refused, because the 7 was not in the payload.
 Nothing here calls a model - every fabrication this system has produced came
 from giving a small model a gap and room to fill it.
 
+**Ward is the relation axis, and it is Anansi's alone (landed 2026-11-12).** Pulse is the *regime*
+(may anything actuate now), Veto is the *rule* (is there a ground to refuse), Ward is the *person*:
+how hard the incoming message is leaning on a boundary. Anansi scores the message plus a short
+window of earlier turns (`agents/anansi/ward.py`, vocabulary and thresholds in
+`config/anansi_ward.json`) for six pressure patterns - persistence, reframe, affect, meta-probe,
+context injection, leak test - each soft or hard, and hands the voice layer one signal:
+`pressure_class`, `intensity`, `modulation` (`warm_firm | redirect | silence_boundary | neutral`).
+`Voice.ward_surface` is the only consumer. **Ward decides no action and blocks nothing**: Veto
+decides the action, Ward decides the surface - above all what a refusal is not allowed to say. A
+refused reply under `redirect` or `silence_boundary` never names a register or rule id, never
+confirms the boundary's shape, and carries no number the department did not hand over as `ward_known`
+or `ward_pointer` (checked, not hoped; nothing produces them yet, so today a refusal degrades to the bare line). Precedence: **Pulse cold makes Ward irrelevant** (neutral);
+**Veto refuses -> Ward shapes how it is spoken**; **Ward hard and no veto -> the voice modulates and
+redirects**, the answer is still given. Like pulse and veto, `ward` is inherited by every agent
+from `core/base_agent.py`, but only Anansi answers it at dispatch - every other agent, domain or
+not, returns "Unknown task" - and it is a `computes` verb, not a new execution verb. Boss still
+practises no domain. `tools/check_ward.py` holds all of it.
+
 **Seven registers control how much personality a situation gets**, most serious
 match winning: `low_stakes` 1.0, `technical` 0.6, `security` 0.4, `legal` and
 `financial` 0.35, `sensitive` 0.25, `safety_critical` 0.1. Anansi is allowed to

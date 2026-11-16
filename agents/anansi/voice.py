@@ -181,6 +181,98 @@ class Voice:
             return text
         return told
 
+    # -- ward: the surface a refusal is allowed to have --------------------
+    def ward_surface(self, text, signal, refusal_ids=(), lead="", pointer=""):
+        """Speak `text` the way Ward's modulation signal says to.
+
+        Ward (agents/anansi/ward.py) scores how the asker is pressing; this is
+        the ONLY place that signal is consumed. It changes the SURFACE and never
+        the decision: whether something was refused was settled by veto, upstream.
+
+          neutral          text unchanged.
+          no refusal       the action was allowed, so nothing is withheld; the
+                           text is only SCRUBBED of register names, rule ids and
+                           citations (leaky wording), and `redirect` adds a steer.
+          refused, warm_firm        the reason is kept, scrubbed, behind a firm line.
+          refused, redirect         lead with what is KNOWN (`lead`), then one
+                                    line that points at what moves it. The
+                                    refusal's reason is never spoken.
+          refused, silence_boundary content-free: the boundary is not described,
+                                    named or confirmed. `pointer`, when the domain
+                                    supplied one, is the only added sentence.
+
+        NOTHING IS COMPOSED HERE. Every fact in a redirect or a silence comes from
+        `lead` or `pointer`, which the DOMAIN handed over - the voice invents no
+        status, no number and no pointer, which is the rule for all of Anansi.
+        And it is checked, not hoped: a redirect/silence that contains a refusal
+        id, or any number not present in lead+pointer, is thrown away for the
+        bare boundary line. An unreadable ward config degrades to the text
+        scrubbed of every id it can still see - never to the raw refusal."""
+        sig = signal if isinstance(signal, dict) else {}
+        mod = sig.get("modulation", "neutral")
+        if mod not in ("warm_firm", "redirect", "silence_boundary"):
+            return text
+        try:
+            from agents.anansi import ward as _ward
+            wcfg = _ward.load()[0]
+            vc = wcfg["voice"]
+            known = _ward.known_refusal_ids()
+        except Exception as e:
+            self.log(f"ward: config unreadable, text returned scrubbed only: {e}")
+            return self._ward_scrub(text, list(refusal_ids or []), {})
+        ids = list(refusal_ids or [])
+        text = text if isinstance(text, str) else ""
+        lead = (lead or "").strip()
+        pointer = (pointer or "").strip()
+
+        if not ids:
+            out = self._ward_scrub(text, known + ids, vc)
+            if mod == "redirect":
+                out = (out + " " + vc["redirect_tail"]).strip()
+            return out
+
+        if mod == "warm_firm":
+            parts = [self._ward_scrub(lead, known + ids, vc) if lead else "",
+                     vc["warm_firm"],
+                     self._ward_scrub(text, known + ids, vc)]
+            return " ".join(p for p in parts if p)
+
+        if mod == "redirect":
+            line = next((vc["redirect_by_refusal"][i] for i in ids
+                         if i in vc["redirect_by_refusal"]), vc["redirect_default"])
+            parts = [lead, line, pointer]
+        else:  # silence_boundary: no lead, no reason, nothing about the boundary
+            parts = [vc["silence_boundary"], pointer]
+        out = " ".join(p for p in parts if p)
+
+        # THE GUARANTEE for this path. Facts may only come from what the domain
+        # supplied; no refusal id may appear; the boundary line is the floor.
+        allowed = facts_in(f"{lead} {pointer}")
+        got = facts_in(out)
+        leaked_fact = any(got[k] > allowed.get(k, 0) for k in got)
+        low = out.lower().replace("_", " ")
+        leaked_id = any(i.lower().replace("_", " ") in low for i in known + ids)
+        if leaked_fact or leaked_id:
+            self.log("ward: surface discarded (fact or refusal id would leak) - "
+                     "returning the bare boundary line")
+            return vc["silence_boundary"]
+        return out
+
+    @staticmethod
+    def _ward_scrub(text, ids, vc):
+        """Strip register names, rule ids and citations from a sentence."""
+        if not text:
+            return text
+        rep = (vc or {}).get("scrub_replacement", "that")
+        out = text
+        for i in sorted({x for x in ids if x}, key=len, reverse=True):
+            for form in {i, i.replace("_", " ")}:
+                out = re.sub(re.escape(form), rep, out, flags=re.I)
+        for pat in (vc or {}).get("scrub_patterns", []):
+            out = re.sub(pat, rep, out, flags=re.I)
+        out = re.sub(r"(\b" + re.escape(rep) + r"\b)(\s+" + re.escape(rep) + r"\b)+", r"\1", out)
+        return re.sub(r"\s{2,}", " ", out).strip()
+
     @staticmethod
     def point_first(parts, rules):
         """The persona's "lead with what matters, then give the numbers".

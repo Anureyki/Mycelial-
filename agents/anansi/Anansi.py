@@ -31,6 +31,10 @@ EVIDENCE_KEYWORDS = ("why", "how do you know", "show your work", "evidence", "pr
 # citation survives the telling. If one does not, the telling is discarded and
 # the plain text ships. Anansi narrates a determination; he never makes one.
 from agents.anansi.voice import Voice
+# Ward - the relation axis - is scored in agents/anansi/ward.py and spoken by
+# Voice.ward_surface. It is Anansi's alone; see AgentBase.ward.
+from agents.anansi import ward as ward_axis
+from concurrent.futures import ThreadPoolExecutor
 
 class Anansi(AgentBase):
     def __init__(self):
@@ -55,7 +59,7 @@ class Anansi(AgentBase):
                           "inbound_mail", "ack_preview", "journal_email", "orientation", "organ_clock_event", "organ_clock_status", "lighting", "sector_briefing", "route_held_mail", "held_mail_digest",
                           "training_candidates", "training_quest_status",
                           "advance_campaign", "review_candidate", "voice",
-                          "operational_status"],
+                          "operational_status", "ward"],
             role="interface"
         )
         self.sessions = {}
@@ -104,6 +108,122 @@ class Anansi(AgentBase):
         if not hasattr(self, "_voice"):
             self._voice = Voice(log=self.log)
         return self._voice.tell(text)
+
+    # ------------------------------------------------------------------
+    # Ward - the relation axis. Pulse is the regime and Veto is the rule; this
+    # is the person. It scores how the incoming message is pressing on a
+    # boundary and hands the voice layer a MODULATION SIGNAL. It decides no
+    # action and blocks nothing: Veto decided whether the thing was refused,
+    # upstream, and Ward only decides what the refusal is allowed to sound like.
+    # Precedence: Pulse cold -> Ward irrelevant. Veto refuses -> Ward shapes the
+    # surface. Ward hard and no veto -> the voice modulates and redirects.
+    # ------------------------------------------------------------------
+    _WARD_POOL = ThreadPoolExecutor(max_workers=2, thread_name_prefix="ward")
+    WARD_WAIT_SECONDS = 2.0
+
+    def ward(self, message=None, turn_window=None, last_refusal_ids=None):
+        """Score the pressure on this message. Pure and side-effect free: it reads
+        only its three inputs, never the department's answer."""
+        try:
+            return ward_axis.score(message, turn_window, last_refusal_ids)
+        except Exception as e:
+            # Declared posture, not a fallback left behind: a scorer that cannot
+            # run says so and the reply is spoken as it was before Ward existed.
+            self.log(f"ward: scoring failed ({e}) - neutral, reply unmodulated")
+            out = ward_axis.neutral(f"ward_error: {type(e).__name__}")
+            out["implemented"] = False
+            return out
+
+    def _ward_begin(self, prompt, session_id):
+        """Start scoring alongside response generation, not after it. Ward reads
+        the message and a short window; it never waits for, or reads, the answer."""
+        sess = self.get_or_create_session(session_id)
+        window = sess["conversation"][-ward_axis.load()[0]["scoring"]["window_turns"]:]
+        last = sess["conversation"][-1].get("refusal_ids") if sess["conversation"] else None
+        return self._WARD_POOL.submit(self.ward, prompt, list(window), list(last or []))
+
+    @staticmethod
+    def _refusal_ids_in(obj, depth=0):
+        """The refusal ids a reply carries, in order, from its STRUCTURE: a
+        decision=refuse with its register or rule, an explicit refusal_ids list,
+        or the route policy's own veto (authorize_route). Prose is never parsed
+        for a refusal - a sentence that merely sounds like a no is not one."""
+        out = []
+        if depth > 4:
+            return out
+        if isinstance(obj, dict):
+            if obj.get("vetoed_by") == "boss_agent":
+                out.append("authorize_route")   # Boss's own route refusal
+            if str(obj.get("decision") or "").lower() == "refuse":
+                rid = obj.get("register") or obj.get("rule")
+                if isinstance(rid, str) and rid:
+                    out.append(rid)
+            if isinstance(obj.get("refusal_ids"), list):
+                out.extend(i for i in obj["refusal_ids"] if isinstance(i, str) and i)
+            for v in obj.values():
+                if isinstance(v, (dict, list)):
+                    out.extend(Anansi._refusal_ids_in(v, depth + 1))
+        elif isinstance(obj, list):
+            for v in obj:
+                out.extend(Anansi._refusal_ids_in(v, depth + 1))
+        return list(dict.fromkeys(out))
+
+    @staticmethod
+    def _find_key(obj, key, depth=0):
+        if depth > 4 or not isinstance(obj, dict):
+            return None
+        if key in obj:
+            return obj[key]
+        for v in obj.values():
+            r = Anansi._find_key(v, key, depth + 1)
+            if r is not None:
+                return r
+        return None
+
+    def _ward_apply(self, fut, response):
+        """-> (response as it should be spoken, refusal_ids, signal).
+
+        Waits for the score (bounded), applies pulse-cold precedence, and hands
+        the reply text to Voice.ward_surface. `known` and `pointer` are read from
+        the department's own reply (`ward_known`, `ward_pointer`) - the voice
+        composes neither, and absent keys degrade to content-free."""
+        refusal_ids = self._refusal_ids_in(response)
+        try:
+            sig = fut.result(timeout=self.WARD_WAIT_SECONDS)
+        except Exception as e:
+            self.log(f"ward: signal unavailable ({type(e).__name__}) - reply unmodulated")
+            return response, refusal_ids, ward_axis.neutral("ward_unavailable")
+        pulse = self._find_key(response, "pulse")
+        regime = pulse.get("regime") if isinstance(pulse, dict) else None
+        sig = ward_axis.resolve(sig, regime)
+        if sig.get("modulation") == "neutral" or not isinstance(response, dict) \
+                or not isinstance(response.get("result"), str):
+            return response, refusal_ids, sig
+        # NOTHING IN THE REPO PRODUCES THESE YET. They are an opt-in contract a
+        # department can honour later (a status line it already established,
+        # a pointer to where the matter is recorded); until one does, both are
+        # absent and the surface degrades to the content-free line - a redirect
+        # or a bare boundary, never a composed status. Namespaced and read from
+        # the TOP LEVEL only, because plain `known` already means something
+        # else in other agents' replies (a list of valid names).
+        lead = response.get("ward_known")
+        pointer = response.get("ward_pointer")
+        told = self._voice_for_ward().ward_surface(
+            response["result"], sig, refusal_ids,
+            lead=lead if isinstance(lead, str) else "",
+            pointer=pointer if isinstance(pointer, str) else "")
+        # A WHITELIST, not a strip-list: the structured refusal (register, rule,
+        # citation, vetoed_by) is the audit record and stays in the session and
+        # the logs; it is not part of what the asker is handed.
+        out = {k: response[k] for k in ("routed_to", "domains_considered", "answered")
+               if k in response}
+        out["result"] = told
+        return out, refusal_ids, sig
+
+    def _voice_for_ward(self):
+        if not hasattr(self, "_voice"):
+            self._voice = Voice(log=self.log)
+        return self._voice
 
     def narrate_contradiction(self, claim, observed, resolution=None):
         """The trickster's actual job: name a discrepancy plainly.
@@ -1875,6 +1995,9 @@ class Anansi(AgentBase):
                     self.log(f"Evidence request for session {session_id} - returning cached detail, not re-routing")
                     return {"result": last["evidence"]}
 
+            # Ward scores alongside generation: it reads the message and a short
+            # window, never the answer.
+            ward_fut = self._ward_begin(prompt, session_id)
             response = self.route_to_orchestrator(prompt, metadata)
 
             # Agents attach raw "evidence" alongside the narrated "result" so the
@@ -1887,11 +2010,15 @@ class Anansi(AgentBase):
                 if isinstance(inner, dict) and "evidence" in inner:
                     evidence = inner.get("evidence")
                     narrated = {"result": self.narrate(inner.get("result"), prompt)}
+            narrated, refusal_ids, ward_sig = self._ward_apply(ward_fut, narrated)
             self.append_to_session(session_id, {
                 "timestamp": datetime.now().isoformat(),
                 "prompt": prompt,
                 "response": narrated,
                 "evidence": evidence,
+                "refused": bool(refusal_ids),
+                "refusal_ids": refusal_ids,
+                "ward": {k: ward_sig.get(k) for k in ("pressure_class", "intensity", "modulation")},
             })
             return narrated
 

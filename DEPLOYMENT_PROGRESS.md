@@ -1650,6 +1650,27 @@ the finding, and it is worth more written down than discovered.
 
 ---
 
+## Ward - the relation axis (landed 2026-11-12)
+
+**A third inherited verb beside pulse and veto, answered by Anansi alone.** Pulse is the
+regime, Veto is the rule, Ward is the person: it scores the incoming message and a short turn
+window for persistence, reframe, affect, meta-probe, context injection and leak-test pressure
+(soft or hard) and returns `pressure_class`, `intensity` and `modulation` for the voice layer.
+It is not a block and not an execution verb (`computes` on the card). Veto decides the action;
+Ward decides the surface - so a refusal under pressure does not describe, name or confirm the
+boundary it holds. Code: `agents/anansi/ward.py`, `config/anansi_ward.json`,
+`Voice.ward_surface`, `AgentBase.ward` + dispatch exclusion. Gate: `tools/check_ward.py`.
+
+**Known edge, stated rather than hidden:** departments do not yet attach their refusals to
+their `answer` replies as structure (`decision: refuse` + `register`, or `refusal_ids`), so Ward
+shapes a refusal's surface only where the reply carries one - today the route policy's
+`vetoed_by`. Prose is never parsed for a refusal. Closing it is a per-domain change: have
+`answer` return the veto result it already computes, plus `ward_known` (a status line the
+department already established) and `ward_pointer` (where the matter is already recorded) at the top
+level of the reply. **Nothing produces those two yet**, so today a redirect is the bare line and a
+silence is "That request does not proceed." with no status or pointer - content-free by design, and
+asserted by `check_ward`. Voice never composes either one.
+
 ## Inherited pulse + veto (landed 2026-09-10)
 
 **Two verbs on `AgentBase`, not two new agents.** Every domain agent gets them

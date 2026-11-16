@@ -15,6 +15,11 @@ BASE = os.path.expanduser("~/mycelial")
 # They still INHERIT the methods - the exclusion is at dispatch, so an
 # internal caller gets a sane object and an external caller gets nothing.
 NO_DOMAIN_AGENTS = ("boss", "anansi", "hermes")
+# Ward is the relation axis (how the asker is pressing, not what the rule is or
+# what the regime permits). It belongs to the one agent that speaks to the person,
+# and to nobody else: every agent INHERITS the method so internal callers get a
+# sane object, but only this owner ANSWERS it at dispatch. See ward() below.
+WARD_OWNER = "anansi"
 CONFIG_DIR = os.path.join(BASE, "config", "agent_cards")
 LOG_FILE = os.path.join(BASE, "logs", "audit.log")
 REGISTRY_FILE = os.path.join(BASE, "state", "registry.json")
@@ -1185,6 +1190,16 @@ class AgentBase:
                     # so the matrix shows "." (absent), which is the correct
                     # reading: these three do not own this verb.
                     result = self.handle_task(task, args, sender)
+                elif task == "ward" and not self._owns_ward():
+                    # Ward is Anansi's alone. Every other agent - domain, Boss,
+                    # Hermes - inherits the method and does not answer it, so an
+                    # external caller gets "Unknown task" and the matrix shows
+                    # "." (absent), which is the correct reading.
+                    result = self.handle_task(task, args, sender)
+                elif task == "ward":
+                    a = args if isinstance(args, dict) else {}
+                    result = self.ward(a.get("message"), a.get("turn_window"),
+                                       a.get("last_refusal_ids"))
                 elif task == "pulse":
                     result = self.pulse((args or {}).get("finding")
                                         if isinstance(args, dict) else None)
@@ -1434,6 +1449,31 @@ class AgentBase:
         which is the single thing this exclusion exists to prevent."""
         aid = str(getattr(self, "agent_id", "")).lower()
         return any(k in aid for k in NO_DOMAIN_AGENTS)
+
+    def _owns_ward(self):
+        """True only for Anansi. Matched on a substring for the same reason
+        _practises_no_domain is: an exact id that misses a variant would silently
+        grant the relation axis to an agent that must not have it."""
+        return WARD_OWNER in str(getattr(self, "agent_id", "")).lower()
+
+    def ward(self, message=None, turn_window=None, last_refusal_ids=None):
+        """Relation axis: how hard is this message leaning on a boundary?
+
+        Orthogonal to pulse (the regime) and veto (the rule): Ward scores the
+        PERSON, and its output - pressure_class, intensity, modulation - is a
+        signal for the voice layer to shape the surface of a reply. It is not a
+        block and decides no action; veto does, upstream.
+
+        Inherited like pulse and veto, answered by ONE agent. The base returns
+        the neutral signal with `implemented: false`, which must be read as
+        "nothing was scored", not as "no pressure" - the same stub rule as pulse
+        and veto. Anansi overrides it (agents/anansi/ward.py); every other agent
+        is excluded at dispatch, so this body is reachable only by an internal
+        call and there it can only say neutral."""
+        return {"pressure_class": "none", "intensity": "soft",
+                "modulation": "neutral", "classes": {}, "implemented": False,
+                "reason": (f"{self.agent_id} inherits ward and does not own it. "
+                           "Nothing was scored.")}
 
     PULSE_HALT_BELOW = 0.3
 
