@@ -130,6 +130,43 @@ class MaintenanceAgent(AgentBase):
         except Exception as e:
             return {"stdout": "", "stderr": str(e), "returncode": 1}
 
+    # Fixed path of the root-owned reclaim wrapper. A constant, never a
+    # caller-supplied value, so there is no argument to inject - the one hole in
+    # the boundary is exactly this one command.
+    RECLAIM_WRAPPER = "/usr/local/sbin/mycelial-reclaim-disk"
+
+    def _reclaim_system_space(self):
+        """Reclaim journal/snap/apt-cache via the scoped root wrapper, or report why not.
+
+        The agent is unprivileged by design. This is the ONLY root actuation it can
+        reach, and only when the principal has installed the fixed-command wrapper
+        behind a scoped NOPASSWD grant. Probe the grant without acting; if absent,
+        return an honest unavailable state with the install - never a false success."""
+        try:
+            probe = subprocess.run(["sudo", "-n", "-l", self.RECLAIM_WRAPPER],
+                                   capture_output=True, text=True, timeout=15)
+        except Exception as e:
+            return {"available": False, "freed_mb": None, "reason": f"sudo probe failed: {str(e)[:120]}"}
+        if probe.returncode != 0:
+            return {
+                "available": False,
+                "freed_mb": None,
+                "reason": ("Journal + snap reclaim need root. This agent is unprivileged by "
+                           "design; it can run only the root-owned fixed wrapper, and the "
+                           "scoped NOPASSWD grant for it is not installed."),
+                "install": (f"copy tools/mycelial-reclaim-disk to {self.RECLAIM_WRAPPER} "
+                            "(root:root, 0755) and add a sudoers.d NOPASSWD line for exactly "
+                            "that path."),
+            }
+        try:
+            r = subprocess.run(["sudo", "-n", self.RECLAIM_WRAPPER],
+                               capture_output=True, text=True, timeout=300)
+            last = (r.stdout or "").strip().splitlines()[-1] if (r.stdout or "").strip() else "{}"
+            freed = json.loads(last).get("freed_mb")
+            return {"available": True, "freed_mb": freed, "returncode": r.returncode}
+        except Exception as e:
+            return {"available": True, "freed_mb": None, "reason": f"wrapper error: {str(e)[:160]}"}
+
     # ---------- Telemetry storage ----------
     def _unwrap_value(self, retrieval_result):
         if not isinstance(retrieval_result, dict):
@@ -1353,20 +1390,40 @@ class MaintenanceAgent(AgentBase):
                 self.log(f"Builder prune failed: {e}")
 
             needs_confirmation = scan.get("needs_confirmation", [])
+
+            # System-level reclaim (journal, snap, apt cache) is the two biggest
+            # wins and needs root - which this agent deliberately does NOT have.
+            # It is reachable ONLY through a root-owned, fixed-command wrapper the
+            # principal installs behind a scoped NOPASSWD grant for exactly that
+            # one path, so the privilege can do this and nothing else. Probe the
+            # grant WITHOUT acting (`sudo -n -l <path>` lists it, changes nothing);
+            # if it is not installed, say so and hand back the install - never a
+            # false success. The verb that cannot do a thing says WHY.
+            system_reclaim = self._reclaim_system_space()
+
+            reclaimed_mb = (system_reclaim or {}).get("freed_mb")
             self.log_to_audit(
-                "CLEANUP_ROUTINE", f"Auto-cleared {len(cleared)} unused image(s); {len(needs_confirmation)} held for confirmation",
-                metadata={"cleared": cleared}
+                "CLEANUP_ROUTINE",
+                f"Auto-cleared {len(cleared)} unused image(s); {len(needs_confirmation)} held; "
+                f"system reclaim freed {reclaimed_mb if reclaimed_mb is not None else 'n/a'} MB",
+                metadata={"cleared": cleared, "system_reclaim": system_reclaim}
             )
+            note = f"Cleared {len(cleared)} disposable Docker item(s)."
+            if reclaimed_mb:
+                note += f" Reclaimed ~{reclaimed_mb} MB of journal/snap/cache."
+            elif system_reclaim and not system_reclaim.get("available"):
+                note += " Journal + snap (the big wins) need the scoped-sudo wrapper installed first."
+            if needs_confirmation:
+                note += (f" {len(needs_confirmation)} Docker item(s) reference known project "
+                         "infrastructure - say the word to remove those too.")
             return {
                 "result": {
                     "cleared": cleared,
                     "requires_escalation": len(needs_confirmation) > 0,
                     "needs_confirmation": needs_confirmation,
-                    "note": (
-                        f"Cleared {len(cleared)} disposable item(s)." +
-                        (f" {len(needs_confirmation)} more reference known project infrastructure - let me know if you want those removed too."
-                         if needs_confirmation else "")
-                    ),
+                    "system_reclaim": system_reclaim,
+                    "reclaimed_mb": reclaimed_mb,
+                    "note": note,
                 }
             }
 

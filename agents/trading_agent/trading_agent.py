@@ -70,6 +70,7 @@ class TradingAgent(AgentBase):
                 "fee_viability", "concentration", "capability_surface",
                 "list_rejections", "rejection_stats", "score_predictions",
                 "book_opportunity", "recommend_size", "risk_check",
+                "detect_regimes",
                 # Inherited from the CAG loader, dispatched by AgentBase.
                 # Declared here because a capability that works and is not
                 # named is invisible to the registry, the router and the
@@ -895,6 +896,27 @@ class TradingAgent(AgentBase):
 
     # ---- dispatch -------------------------------------------------------
 
+    def detect_regimes(self, args):
+        """Cluster a return series into market regimes by the 2-Wasserstein
+        distance between return DISTRIBUTIONS (Horvath/Issa/Muguruza, SSRN
+        3947905). Analysis only - it labels regimes and opens no position; a
+        regime is a CLAIM, not a verdict, with a separation-based confidence.
+        `returns` is the series; n_regimes/window/step/n_quantiles/seed tune it.
+        Fail-closed on too little data."""
+        from core import regime_detection
+        a = args if isinstance(args, dict) else {}
+        returns = a.get("returns") or a.get("series")
+        if not isinstance(returns, (list, tuple)) or len(returns) < 2:
+            return {"ok": False, "reason": "detect_regimes needs `returns`: a list of at least 2 return values"}
+        return regime_detection.detect_regimes(
+            returns,
+            n_regimes=int(a.get("n_regimes", 3)),
+            window=int(a.get("window", 20)),
+            step=(int(a["step"]) if a.get("step") else None),
+            n_quantiles=int(a.get("n_quantiles", 16)),
+            seed=int(a.get("seed", 0)),
+        )
+
     def handle_task(self, task, args, sender):
         a = args if isinstance(args, dict) else {}
         if task == "scan_candidates":
@@ -913,6 +935,8 @@ class TradingAgent(AgentBase):
             return self.recommend_size(a)
         elif task == "risk_check":
             return self.risk_check(a)
+        elif task == "detect_regimes":
+            return self.detect_regimes(a)
         elif task == "capability_surface":
             return self.capability_surface(a)
         elif task == "list_rejections":

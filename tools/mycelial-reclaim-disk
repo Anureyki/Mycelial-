@@ -1,0 +1,37 @@
+#!/bin/bash
+# Scoped disk-reclaim wrapper for the MycOS Maintenance agent.
+#
+# It does ONLY safe, idempotent reclaims that require root, with NO arguments and
+# NO parameters - so a sudoers NOPASSWD grant for exactly this path cannot be
+# steered into doing anything else. This is the sandbox doctrine applied to sudo:
+# the privilege is scoped by what the command CAN do, not by trusting the caller.
+#
+# Install (root): copy to /usr/local/sbin/mycelial-reclaim-disk, chown root:root,
+# chmod 0755, then add a sudoers.d line granting NOPASSWD for exactly this path.
+# It MUST live in a root-only directory and MUST NOT be writable by the agent
+# user, or the scope collapses (the agent could rewrite it to run anything).
+set -u
+
+LOG=/var/log/mycelial-reclaim.log
+avail_kb() { df --output=avail -k / | tail -1 | tr -d ' '; }
+
+before=$(avail_kb)
+
+# 1. systemd journal: keep ~200MB of recent logs, drop the rest.
+journalctl --vacuum-size=200M >/dev/null 2>&1 || true
+
+# 2. snap: keep only the 2 latest revisions, then remove every disabled one.
+snap set system refresh.retain=2 >/dev/null 2>&1 || true
+snap list --all 2>/dev/null | awk '/disabled/{print $1" "$3}' | while read -r name rev; do
+    [ -n "$name" ] && [ -n "$rev" ] && snap remove "$name" --revision="$rev" >/dev/null 2>&1 || true
+done
+
+# 3. apt package cache.
+apt-get clean >/dev/null 2>&1 || true
+
+after=$(avail_kb)
+freed_mb=$(( (after - before) / 1024 ))
+[ "$freed_mb" -lt 0 ] && freed_mb=0
+echo "$(date -Is) reclaimed ${freed_mb}MB (by ${SUDO_USER:-root})" >> "$LOG" 2>/dev/null || true
+# Last line is machine-readable for the agent.
+echo "{\"freed_mb\": ${freed_mb}}"

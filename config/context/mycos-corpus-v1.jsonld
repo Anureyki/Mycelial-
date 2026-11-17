@@ -1,0 +1,128 @@
+{
+  "@context": {
+    "@version": 1.1,
+    "mycos": "urn:mycos:vocab:corpus:1#",
+    "xsd": "http://www.w3.org/2001/XMLSchema#",
+
+    "title":                       {"@id": "mycos:title"},
+    "source":                      {"@id": "mycos:source"},
+    "authority_class":             {"@id": "mycos:authorityClass", "@type": "@vocab"},
+    "authority_class_basis":       {"@id": "mycos:authorityClassBasis"},
+    "claim_layer":                 {"@id": "mycos:claimLayer", "@type": "@vocab"},
+    "claim_layer_meaning":         {"@id": "mycos:claimLayerMeaning"},
+    "claim_layer_basis":           {"@id": "mycos:claimLayerBasis"},
+    "authorities_cited":           {"@id": "mycos:authoritiesCited"},
+    "term_index":                  {"@id": "mycos:termIndex"},
+    "origin_pdf":                  {"@id": "mycos:originPdf"},
+    "pages":                       {"@id": "mycos:pages", "@type": "xsd:integer"},
+    "extraction":                  {"@id": "mycos:extraction"},
+    "sections":                    {"@id": "mycos:sections"},
+    "evidence_kind":               {"@id": "mycos:evidenceKind", "@type": "@vocab"},
+    "evidence_grade":              {"@id": "mycos:evidenceGrade"},
+    "stance":                      {"@id": "mycos:stance", "@type": "@vocab"},
+    "verified":                    {"@id": "mycos:verified", "@type": "xsd:boolean"},
+    "jurisdiction":                {"@id": "mycos:jurisdiction"},
+    "role":                        {"@id": "mycos:role"},
+    "binds":                       {"@id": "mycos:binds"},
+    "confers_rights":              {"@id": "mycos:confersRights"},
+    "resegmentations":             {"@id": "mycos:resegmentations"},
+    "principal_identified_source": {"@id": "mycos:principalIdentifiedSource"},
+    "integrity_backfill_basis":    {"@id": "mycos:integrityBackfillBasis"},
+
+    "citation":                    {"@id": "mycos:citation"},
+    "kind":                        {"@id": "mycos:kind", "@type": "@vocab"},
+    "page":                        {"@id": "mycos:page", "@type": "xsd:integer"},
+    "text":                        {"@id": "mycos:text"},
+    "integrity":                   {"@id": "mycos:integrity"},
+    "truncated":                   {"@id": "mycos:truncated", "@type": "xsd:boolean"},
+    "full_length":                 {"@id": "mycos:fullLength", "@type": "xsd:integer"},
+    "standing":                    {"@id": "mycos:standing"},
+    "authorities":                 {"@id": "mycos:authorities"},
+    "constrains":                  {"@id": "mycos:constrains"},
+    "does_not_establish":          {"@id": "mycos:doesNotEstablish"},
+    "clause_kinds":                {"@id": "mycos:clauseKinds"},
+    "resegmented_from":            {"@id": "mycos:resegmentedFrom"},
+    "see_also":                    {"@id": "mycos:seeAlso"},
+    "uniform_section":             {"@id": "mycos:uniformSection"},
+    "chapter":                     {"@id": "mycos:chapter"},
+    "heading":                     {"@id": "mycos:heading"},
+    "family":                      {"@id": "mycos:family"}
+  },
+
+  "mycos:about": {
+    "@id": "urn:mycos:vocab:corpus:1",
+    "version": "1",
+    "description": "The MycOS corpus trust vocabulary. It declares what each metadata field in a shelved work MEANS, so an external tool can read a MycOS corpus record WITHOUT the internal schema. It publishes MEANING ONLY - no record content, no principal data. It is the semantic sibling of the data boundary: differential privacy governs what NUMBERS leave, federated learning governs what MODEL UPDATES leave, and this governs what MEANING leaves. Published at the boundary; the internal store is unchanged.",
+    "boundary_rule": "Fail-closed. A metadata field that appears in >=3 corpus works, or a NEW value of an enum field, that is not declared here fails the build (tools/check_corpus_context.py). Nothing trust-bearing crosses the boundary undescribed.",
+    "not_a_credibility_score": "Like the claim pipeline it serves, this vocabulary records signals and declares their meaning; it computes no single credibility number. `asserted_by` is recorded and never scored; the default conclusion is `unsupported`. A consumer decides how much weight each signal earns."
+  },
+
+  "definitions": {
+    "title":  {"definition": "The work's title. For a statute or regulation the title IS the citation and fixes authority_class definitionally; for anything else the title is not evidence of class, stance or anything else - those are read from the content."},
+    "source": {"definition": "Provenance string: where the text came from and its licensing/public-domain status. Authored sources say so in this field; nothing is presented as authority without its provenance attached."},
+
+    "authority_class": {
+      "definition": "How much GOVERNING weight a work carries. Set from the content, never from a title, channel or filename; for a statute or regulation the title fixes it definitionally, anything else must be read or stay `unknown`.",
+      "values": ["federal_statute", "state_statute", "regulation", "court_rules", "case_law", "agency_guidance", "agency_instruction", "treatise", "doctrine_summary", "advocacy", "unknown"],
+      "ranking": "governing authority ranks above guidance ranks above commentary: federal/state statute & regulation & court_rules & case_law (governing) > agency_guidance/agency_instruction (directs personnel, confers no rights) > treatise/doctrine_summary (expounds the law) > advocacy (asks for a different law) > unknown (never read). advocacy ranks below every other read class; unknown ranks below advocacy.",
+      "determined_by": "authority_class_basis"
+    },
+    "authority_class_basis": {"definition": "HOW the authority_class was determined - e.g. 'title is a CFR part citation, which fixes the class definitionally', or '--authority-class not given; not derivable from the title'. The basis travels with the class so a reader can tell a definitional class from a read one from a guess."},
+
+    "claim_layer": {
+      "definition": "What KIND of claim a passage makes - orthogonal to authority_class. A statute can be authority_class=federal_statute and claim_layer=doctrinal; a treatise paragraph can be treatise and explanatory. Arrived after much of the corpus was built, so absent values were stamped, not left None, because None reads at lookup as a missing key rather than a caution.",
+      "values": ["doctrinal", "normative", "explanatory", "mixed", "unknown"],
+      "value_meanings": {
+        "doctrinal": "states or describes the rule; cite for what the law IS",
+        "normative": "argues what the rule OUGHT to be",
+        "explanatory": "explains or glosses a rule without being it",
+        "mixed": "more than one layer in the same passage",
+        "unknown": "not yet read; treat any citation from here as unclassified - NOTHING may cite it as governing until the layer is set"
+      },
+      "determined_by": "claim_layer_basis",
+      "explained_by": "claim_layer_meaning"
+    },
+    "claim_layer_meaning": {"definition": "A plain-language gloss of this work's claim_layer value, carried alongside the value so the meaning does not have to be looked up."},
+    "claim_layer_basis":   {"definition": "HOW the claim_layer was determined (declared at ingest, or definitional for a statute, or left unknown pending a read)."},
+
+    "authorities_cited": {"definition": "The authorities this work CITES. Cited is not relied-upon: a load-bearing authority is proven by a reliance passage, not by appearing in this list."},
+    "term_index":        {"definition": "Subject terms indexed for EXACT-headword lookup. Reference material is retrieved by exact headword or citation, never by bag-of-words similarity."},
+    "origin_pdf":        {"definition": "The source document (PDF/filename) the text was extracted from - provenance for re-ingestion and audit."},
+    "pages":             {"definition": "Page count of the source document."},
+    "extraction":        {"definition": "Extraction metadata: tool, and whether the operative text was isolated whole. Recorded where it is KNOWN (at extraction), never reconstructed later from string length."},
+
+    "evidence_kind":  {"definition": "The KIND of evidence a record is, filled by reading the thing - never from a title, channel or wrapper. If the content was not read, the honest value is `unknown`.", "values": ["unknown"], "note": "open vocabulary; `unknown` is the floor when unread."},
+    "evidence_grade": {"definition": "Graded strength of evidence for a claim, on this work's declared scale (evidence_grade_scale)."},
+    "stance":         {"definition": "The position a work takes toward its subject, read from the content. A standing field set from the wrapper is worse than blank: a blank is a known gap, a guessed one launders an assumption into trusted metadata.", "values": ["unknown"], "note": "open vocabulary; `unknown` when unread."},
+    "verified":       {"definition": "Whether a claim was verified by LOOKING (located_in_corpus true), not by the caller asserting it. A citation is not an authority until the text is in hand."},
+
+    "jurisdiction":    {"definition": "The governing jurisdiction of the work."},
+    "role":            {"definition": "The work's role in reasoning (e.g. a lived/live-column source vs a codified floor)."},
+    "binds":           {"definition": "Whom or what the work BINDS (e.g. agency personnel, member firms) - distinct from whom it confers rights on. Guidance can bind personnel while conferring no rights on the public."},
+    "confers_rights":  {"definition": "Whether the work CONFERS enforceable rights, and on whom. The IRM binds IRS personnel and confers no rights on taxpayers; filing it under authority would score it as governing."},
+    "resegmentations": {"definition": "Record of any re-segmentation of the work's sections - integrity provenance, so a later segmentation does not silently replace the original."},
+    "principal_identified_source":  {"definition": "That the PRINCIPAL supplied or identified this source. Recorded and NEVER scored - the principal's own claims run the identical gauntlet as a stranger's."},
+    "integrity_backfill_basis":     {"definition": "If a section's integrity was backfilled rather than recorded at extraction, HOW - because a missing state is `unknown`, and `unknown` is never silently `complete`."},
+
+    "citation": {"definition": "A section's pinpoint citation - how it is addressed and retrieved. A provision reaches a reader because the document cites it."},
+    "kind":     {"definition": "A section's structural type.", "values": ["section_sign", "subsection", "subdivision", "section", "code_section", "heading", "rule", "far_section", "irm", "committee_notes", "treatise", "doctrine"], "note": "open structural vocabulary; new document shapes add values."},
+    "page":     {"definition": "The source page a section was extracted from."},
+    "text":     {"definition": "The operative provision text of a section."},
+    "integrity":{"definition": "Whether a section's text was captured WHOLE or cut. The only code that can say this is the code holding the full body when it cuts; it is part of the payload and survives every hop, or the hop is a bug. A missing integrity is `unknown`, and `unknown` is never `complete`."},
+
+    "sections":          {"definition": "The work's citation-addressable sections - the unit of retrieval. A provision reaches a reader because the document cites it, not by bag-of-words similarity."},
+    "truncated":         {"definition": "Whether a section's text was CUT. Recorded by the code holding the full body at the moment it cuts, and travels with the text; a missing value is `unknown`, never silently `false` - *never recorded* and *dropped in transit* arrive looking identical and are opposite problems."},
+    "full_length":       {"definition": "The full character length of the source text, recorded where it is KNOWN so a later reader can tell a whole capture from a cut one, rather than guessing truncation from string length."},
+    "standing":          {"definition": "How much weight a record deserves, set from its CONTENT and never from a title, channel, filename or vendor. A standing field filled from the wrapper is worse than blank: a blank is a known gap, a guess launders an assumption into trusted metadata. If unread, the honest value is `unknown`."},
+    "authorities":       {"definition": "The authorities a single section cites. Section-level counterpart to authorities_cited. Cited is not relied-upon."},
+    "constrains":        {"definition": "What a provision CONSTRAINS - a rights-ontology relation kept distinct from ownership, possession, control, authority and what the provision establishes or confers."},
+    "does_not_establish":{"definition": "What a provision explicitly does NOT establish - a negative finding carried as payload. 'Insufficient evidence' is a real outcome; a named non-establishment is worth more than silence, because a tool that only records wins tells its principal they are ready when they are not."},
+    "clause_kinds":      {"definition": "The kinds of clauses present in a section - a structural analysis of the provision."},
+    "resegmented_from":  {"definition": "Provenance of a re-segmentation: the prior segmentation this section was derived from, so a later split does not silently replace the original."},
+    "see_also":          {"definition": "Cross-references from a section to related provisions or works."},
+    "uniform_section":   {"definition": "The corresponding section of a uniform act, where a state provision maps to one."},
+    "chapter":           {"definition": "The chapter a section belongs to within the work's structure."},
+    "heading":           {"definition": "A section's heading text (as a field; `heading` is also a structural `kind` value)."},
+    "family":            {"definition": "A grouping of related works or provisions, e.g. a doctrine family."}
+  }
+}

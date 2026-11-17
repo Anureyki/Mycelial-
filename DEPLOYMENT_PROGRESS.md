@@ -2734,3 +2734,81 @@ Remaining increments (each built whole, not in layers):
 - 4. ANANSI VISUALISATION: a read-only D3/Cytoscape view in the webapp reading each graph's view()
   across all three domains, with cross-domain verified relationships drawn, conflicts flagged.
 The governance SEMANTICS reuse Boss/ACL/contested/case_manager/phone-signed escalation already built.
+
+## Model posture and the independence ceiling (2026-11-16)
+
+Prompted by the question "does the system need an LLM / SLM / LRM / VLM to be more
+independent of Claude-in-the-chat." Answered against LIVE state (`ollama list`,
+`config/model_routing.json`, `datasets/distillation/`), not from memory.
+
+### The four model types are already present or deliberately substituted
+
+Verified local inventory, all fitting the host's ~4.3 GB free of 7.1 GB:
+- SLM: `qwen2.5:1.5b` (single-string classification) + `llama3.2:3b` (synthesis).
+- VLM: `moondream` (1.7 GB) - wired into the `vision` chain and referenced by grow_agent.
+- Code: `deepseek-coder:1.3b`.  Embed: `nomic-embed-text`.
+- LRM: none local, BY DESIGN - the claim pipeline / authority_graph / workflow_eval are
+  the "plan -> check -> correct" scaffold put in the AGENTS instead of bought as a model.
+- LLM: only the optional `claude-sonnet-5` API rung, skipped when ANTHROPIC_API_KEY is unset.
+
+`config/model_routing.json` IS the "route cheap-first, escalate only when the task needs it"
+router from the poster: capability-addressed ("ask for `vision`, not a vendor"), local-first,
+escalate-last. So the conclusion the infographic sells is already the architecture. Adding a
+model TYPE is not the lever.
+
+### What actually keeps the system tethered to Claude (three things, none a missing type)
+
+1. QUALITY CEILING, GATED BY RAM. Local models are 1.5-3B and the VLM is a 2B moondream; on
+   precise work (read a meter to the decimal, transcribe a deed, grade a leaf) they fall below
+   bar, so the chain's last rung is the API = Claude. `llava:7b` is in the config but needs
+   ~5 GB free against 4.3 GB available - it will not fit. RAM, not model choice, is the ceiling:
+   on 7 GB the system is capped at ~2-3B local, which is exactly why the hard calls escalate.
+   More RAM (or a second node) unlocks a 7B VLM/reasoner and ends most escalations - the single
+   biggest independence lever, and it is hardware, not software.
+
+2. THE SOVEREIGN MODEL IS AN EMPTY SOCKET. `mycos_core` in model_routing.json is wired but has
+   no promoted checkpoint ("STATUS: no promoted artifact exists"). That distilled student is the
+   poster's "Teacher -> distill -> Student SLM -> quantize" leg and the ONLY by-design path off
+   the API. It is correctly empty, not falsely full - but it is stalled.
+
+3. THE DISTILLATION CORPUS CANNOT YET TRAIN A CAPABLE STUDENT. Throughput audit 2026-11-16:
+   - VOLUME: 107 pairs over 56 days, 12 active days, 1.91/day (~13/week). At this rate ~15.6
+     months to 1,000. Bursty because recording only fires when `/reason` runs, not continuously.
+   - GRADED SIGNAL: 106 of 107 are `verdict_state: unjudged` (99%). The gate verdict - the third
+     element of the triple - is almost never filled, so the corpus is UNGRADED imitation, not
+     graded selection.
+   - TEACHER IDENTITY: the `model` field is the LOCAL small model (moondream 53, qwen2.5:1.5b 51,
+     llama3.2:3b 3). The docstring says "collect the teacher signal"; the data is the 1.5-3B tier
+     talking to ITSELF, unjudged. Distilling this would train a student to copy a small model's
+     mistakes, not inherit a strong teacher's competence. This is the false-success shape this
+     repo hunts ("productive/high confidence on a photo no model assessed"), one layer over: the
+     pipeline reports "teacher signal" and is recording same-tier self-copy.
+   - COVERAGE GAPS: 0 code pairs (deepseek-coder contributes nothing); `agent` is None on 101 of
+     107, so the set cannot be split by domain to train a domain student; a label bug splits
+     `reasoning`(41)/`reason`(1)/None(9). Redaction is intact (2 redacted, fail-safe working).
+
+### Roadmap (prioritized by independence-per-effort, NONE of it is "add a model type")
+
+1. RAM is the biggest lever - record the ceiling so a hardware upgrade is a deliberate decision,
+   not a surprise. Everything below is throttled by it.
+2. FIX THE CORPUS BEFORE SCALING IT. Order: (a) record a STRONG teacher's outputs as the teacher
+   pairs - route a sampled fraction of `/reason` through the `anthropic` provider (or capture
+   Claude's output when it acts as the model) and tag those as teacher; (b) fill the gate verdict
+   so unjudged imitation becomes judged selection; (c) stamp `agent`/domain and fix the
+   reason/reasoning label; (d) get code pairs flowing. A corpus of graded, strong-teacher,
+   domain-labelled pairs beats 10x more unjudged same-tier pairs. Build whole, not in layers.
+3. THE SOVEREIGN MODEL (mycelial-core, separate repo) is the only by-design independence path and
+   needs the fixed corpus above plus a checkpoint that clears its gate. Until then `mycos_core`
+   stays an empty socket, correctly.
+4. IMAGE-INTAKE WIRING GAP. A photo sent INTO the chat lands on Claude, not moondream - the
+   `vision` capability exists but is not on the intake path. Routing Anansi image intake ->
+   `vision` -> moondream (escalate only on low confidence) removes the daily image dependency,
+   bounded by moondream's own ceiling. This is routing, not a new model.
+
+### The honest nuance about "independent of this chat session"
+
+A perfect local stack replaces ROUTINE INFERENCE, not the architect loop - writing verbs,
+catching false success, doing novel reasoning. Independence for DELIVERY is reachable with the
+current models plus better students; independence for BUILDING NEW CAPABILITY is the teaching
+loop, by design (capability accrues in the agent so it survives a model swap). The models end
+the round-trips for routine work; they do not end the teaching.

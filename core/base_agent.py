@@ -1005,6 +1005,50 @@ class AgentBase:
             raise PermissionError(why)
         return True
 
+    # ---- HARD-GATE (block 4): send / transmit / file actions ----
+    # A send, transmission, or filing leaves the system and cannot be recalled.
+    # It is refused in CODE at the dispatch boundary - OUTSIDE the model, so no
+    # agent's prompt can argue past it - unless the request comes from the human
+    # channel AND carries the principal's explicit in-conversation approval. An
+    # agent-to-agent call for such an action is refused OUTRIGHT: that is what
+    # makes the gate non-overridable - another agent cannot trigger a send at
+    # all, with or without a forged approval flag. It is deliberately SEPARATE
+    # from check_guard (that fails OPEN when Security is down); this one is a
+    # local code refusal that no outage can relax.
+    HARD_GATE = "hard-gate"
+    HUMAN_CHANNEL_SENDERS = frozenset({"user", "principal"})
+    HARD_GATED_TASKS = frozenset({
+        "send_message", "send_email", "send_mail", "mail_letter", "send_notice",
+        "transmit", "dispatch", "fax", "efile", "submit_filing", "file_document",
+        "file_with_agency", "post_to_third_party", "serve_document",
+    })
+
+    def is_hard_gated(self, task):
+        """True if `task` sends/transmits/files to a third party (block-4 gate).
+
+        The explicit set is the runtime test. The build-time guarantee that it is
+        COMPLETE - that every verb the effects map marks `external` (reaches a
+        third party) is in this set - is enforced by tools/check_hard_gate.py, so
+        a new outbound verb cannot ship ungated."""
+        return task in self.HARD_GATED_TASKS
+
+    def hard_gate_allows(self, task, args, sender):
+        """(ok, reason) for the block-4 gate. A non-gated task passes. A gated
+        send/transmit/file passes ONLY from the human channel WITH explicit
+        in-conversation approval; any agent caller is refused outright, so no
+        agent prompt can reach past it. Pure function - no HTTP, no model - which
+        is exactly what tools/check_hard_gate.py exercises."""
+        if not self.is_hard_gated(task):
+            return True, None
+        human = sender in self.HUMAN_CHANNEL_SENDERS
+        approved = isinstance(args, dict) and args.get("user_approved") is True
+        if human and approved:
+            return True, None
+        why = ("an agent cannot trigger a send/transmit/file action" if not human
+               else "no explicit in-conversation approval from the principal")
+        return False, (f"HARD-GATE ({self.HARD_GATE}): {task} blocked - {why}. "
+                       "Enforced in code; not overridable by any agent prompt.")
+
     def check_guard(self, task, args, sender):
         """Ask the Security Agent whether this request may proceed.
 
@@ -1139,6 +1183,19 @@ class AgentBase:
                                       metadata={"task": task, "sender": sender,
                                                 "reason": reason})
                     return jsonify({"error": f"Denied: {reason}"}), 403
+
+                # HARD-GATE (block 4): no send/transmit/file without the
+                # principal's EXPLICIT in-conversation approval from the human
+                # channel. An agent-originated call is refused outright, so no
+                # other agent's prompt can trigger an outbound action.
+                ok_gate, gate_reason = self.hard_gate_allows(task, args, sender)
+                if not ok_gate:
+                    self.log(f"HARD-GATE denied {task} from {sender}")
+                    self.log_to_audit(task, gate_reason, level="warning",
+                                      event_type="HARD_GATE_DENY",
+                                      metadata={"task": task, "sender": sender})
+                    return jsonify({"error": gate_reason, "refused": True,
+                                    "gate": self.HARD_GATE, "overridable": False}), 403
 
                 # Answered by every agent, before its own dispatcher sees it,
                 # so declaring a vocabulary costs an agent nothing.

@@ -9,6 +9,7 @@
     "book_opportunity",
     "recommend_size",
     "risk_check",
+    "detect_regimes",
     "fee_viability",
     "concentration",
     "score_predictions",

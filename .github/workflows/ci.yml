@@ -222,6 +222,14 @@ jobs:
         run: python tools/check_authority_graph_suite.py
       - name: Native per-domain knowledge graph - schema, ownership, provenance, conflict->govern (check_knowledge_graph)
         run: python tools/check_knowledge_graph.py
+      - name: Scoped disk reclaim - fixed-command sudo wrapper, probe-before-act, honest-when-absent (check_reclaim_disk)
+        run: python tools/check_reclaim_disk.py
+      - name: Hard-gate - no send/transmit/file without explicit user approval; non-overridable by any agent (check_hard_gate)
+        run: python tools/check_hard_gate.py
+      - name: Self-describing corpus @context at the boundary - completeness, no dead vocab, enum accuracy (check_corpus_context)
+        run: python tools/check_corpus_context.py
+      - name: Wasserstein k-means market-regime detection - recovery, distributional, fail-closed, claim-not-verdict (check_regime_detection)
+        run: python tools/check_regime_detection.py
       - name: What Legal tells a model lives in legal.md, and file and code agree (check_legal_behavior)
         run: python tools/check_legal_behavior.py
       - name: Legal's governance lives in Hermes's register (check_governance)
