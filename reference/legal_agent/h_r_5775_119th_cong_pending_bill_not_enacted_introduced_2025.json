@@ -1,0 +1,65 @@
+{
+"title": "H.R. 5775 (119th Cong.) \u2014 PENDING BILL, NOT ENACTED (introduced 2025-10-17, Rep. Loudermilk; amends FCRA civil liability re class actions)",
+"source": "119th Congress H.R. 5775, introduced-in-House (BILLS-119hr5775ih), govinfo.gov \u2014 PROPOSED legislation, NOT enacted law, NOT authority",
+"authority_class": "unknown",
+"authority_class_basis": "Not derivable from the title, and --authority-class was not given. UNKNOWN is the honest value; a guess here launders an assumption into the field the reasoning layer trusts.",
+"claim_layer": "unknown",
+"claim_layer_meaning": "Not declared at ingest. Treat any citation from here as unclassified: it may be rationale rather than rule.",
+"authorities_cited": [],
+"term_index": {
+"zczbw prod": [
+0,
+1
+],
+"fair credit reporting act": [
+1
+]
+},
+"origin_pdf": "hr5775.pdf",
+"extraction": {
+"extractor": "pypdf",
+"pages": 5,
+"no_text_layer": [],
+"raised": [],
+"recovered": [],
+"lost": [],
+"complete": true
+},
+"pages": 5,
+"sections": [
+{
+"citation": "SECTION 1.",
+"kind": "section",
+"page": 1,
+"text": "SECTION 1. SHORT TITLE. 3 This Act may be cited as the \u2018\u2018FCRA Liability Har-4 monization Act\u2019\u2019. 5 VerDate Sep 11 2014 21:44 Oct 20, 2025 Jkt 069200 PO 00000 Frm 00001 Fmt 6652 Sfmt 6201 E:\\BILLS\\H5775.IH H5775kjohnson on DSK7ZCZBW3PROD with $$_JOB 2 \u2022HR 5775 IH",
+"integrity": {
+"state": "complete",
+"basis": "Full retrieved body of 261 characters stored; under the 60,000 cap, so nothing was cut.",
+"stamped_at": "2026-11-16T15:56:44",
+"stored_chars": 261,
+"source_chars": 261,
+"cap_applied": 60000
+},
+"authority_class": "unknown",
+"claim_layer": "unknown",
+"claim_layer_meaning": "Not declared at ingest. Treat any citation from here as unclassified: it may be rationale rather than rule."
+},
+{
+"citation": "SEC. 2.",
+"kind": "section",
+"page": 2,
+"text": "SEC. 2. MAINTAINING CONSISTENCY IN CIVIL LIABILITY 1 UNDER THE FAIR CREDIT REPORTING ACT 2 FOR CLASS ACTIONS. 3 (a) WILLFUL NONCOMPLIANCE.\u2014Section 616 of the 4 Fair Credit Reporting Act (15 U.S.C. 1681n) is amend-5 ed\u2014 6 (1) in subsection (a)\u2014 7 (A) in paragraph (1)(B), by inserting 8 \u2018\u2018and\u2019\u2019 after the semicolon; 9 (B) by striking paragraph (2); 10 (C) by redesignating paragraph (3) as 11 paragraph (2); and 12 (D) in paragraph (2), as redesignated by 13 subparagraph (C), by striking \u2018\u2018as determined 14 by the court.\u2019\u2019 and inserting \u2018\u2018as determined by 15 the court, in an amount that does not exceed 16 the lesser of\u2014 17 \u2018\u2018(A) $100,000; or 18 \u2018\u2018(B) the amount that is 40 percent of any 19 damages awarded under paragraph (1)(A).\u2019\u2019; 20 (2) by redesignating subsection (d) as sub-21 section (e); and 22 (3) by inserting after subsection (c) the fol-23 lowing new subsection: 24 \u2018\u2018(d) C LASS ACTION LAWSUITS.\u2014With respect to a 25 class action brought by a class made up of consumers 26 VerDate Sep 11 2014 21:44 Oct 20, 2025 Jkt 069200 PO 00000 Frm 00002 Fmt 6652 Sfmt 6201 E:\\BILLS\\H5775.IH H5775kjohnson on DSK7ZCZBW3PROD with $$_JOB 3 \u2022HR 5775 IH against a person who willfully fails to comply with a re-1 quirement imposed under this title, such person shall be 2 liable to such consumers in such an amount as a court 3 may determine, except that\u2014 4 \u2018\u2018(1) the court may not apply a minimum 5 amount of damages for each member of the class; 6 \u2018\u2018(2) the total recovery (excluding reasonable at-7 torney\u2019s fees as determined by the court) of the class 8 may not exceed the lesser of\u2014 9 \u2018\u2018(A) $500,000; or 10 \u2018\u2018(B) 1 percent of the net worth of such 11 person; and 12 \u2018\u2018(3) the costs of the action together with rea-13 sonable attorney\u2019s fees, as determined by the court, 14 may not exceed the lesser\u2014 15 \u2018\u2018(A) of $100,000; 16 \u2018\u2018(B) the amount that is 40 percent of any 17 damages awarded by a court under this sub-18 section; or 19 \u2018\u2018(C) the sum of the costs of the action and 20 reasonable attorney\u2019s fees, as determined by the 21 court, not to exceed the lower of $100,000 or 22 an amount equal to 40 percent of actual dam-23 ages.\u2019\u2019. 24 VerDate Sep 11 2014 21:44 Oct 20, 2025 Jkt 069200 PO 00000 Frm 00003 Fmt 6652 Sfmt 6201 E:\\BILLS\\H5775.IH H5775kjohnson on DSK7ZCZBW3PROD with $$_JOB 4 \u2022HR 5775 IH (b) N EGLIGENT NONCOMPLIANCE.\u2014Section 617 of 1 the Fair Credit Reporting Act (15 U.S.C. 1681o) is 2 amended\u2014 3 (1) in subsection (a)(2), by striking the period 4 at the end and inserting \u2018\u2018, not to exceed the lesser 5 of\u2014 6 \u2018\u2018(A) $100,000; or 7 \u2018\u2018(B) 40 percent of any actual damages de-8 termined by the court.\u2019\u2019; and 9 (2) by adding at the end the following new sub-10 section: 11 \u2018\u2018(c) C LASS ACTION LAWSUITS.\u2014With respect to a 12 class action brought by consumers against a person who 13 negligently fails to comply with any requirement imposed 14 under this title, such person is liable to such consumers 15 in an amount equal to the sum of any actual damages 16 sustained by the consumers as a result of the failure, ex-17 cept that the total recovery (excluding reasonable attor-18 ney\u2019s fees as determined by the court) of the class shall 19 not exceed the lesser of\u2014 20 \u2018\u2018(1) $500,000; 21 \u2018\u2018(2) 1 percent of the net worth of such person; 22 or 23 \u2018\u2018(3) the sum of the costs of the action and rea-24 sonable attorney\u2019s fees, as determined by the court, 25 VerDate Sep 11 2014 21:44 Oct 20, 2025 Jkt 069200 PO 00000 Frm 00004 Fmt 6652 Sfmt 6201 E:\\BILLS\\H5775.IH H5775kjohnson on DSK7ZCZBW3PROD with $$_JOB 5 \u2022HR 5775 IH not to exceed the lower of $100,000 or an amount 1 equal to 40 percent of actual damages.\u2019\u2019. 2 \u00c6 VerDate Sep 11 2014 21:44 Oct 20, 2025 Jkt 069200 PO 00000 Frm 00005 Fmt 6652 Sfmt 6301 E:\\BILLS\\H5775.IH H5775kjohnson on DSK7ZCZBW3PROD with $$_JOB",
+"integrity": {
+"state": "complete",
+"basis": "Full retrieved body of 3,780 characters stored; under the 60,000 cap, so nothing was cut.",
+"stamped_at": "2026-11-16T15:56:44",
+"stored_chars": 3780,
+"source_chars": 3780,
+"cap_applied": 60000
+},
+"authority_class": "unknown",
+"claim_layer": "unknown",
+"claim_layer_meaning": "Not declared at ingest. Treat any citation from here as unclassified: it may be rationale rather than rule."
+}
+]
+}

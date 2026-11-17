@@ -34,7 +34,7 @@
       "integrity": {
         "state": "complete",
         "basis": "Full retrieved body of 13,857 characters stored; under the 60,000 cap, so nothing was cut.",
-        "stamped_at": "2026-10-26T12:03:13",
+        "stamped_at": "2026-11-16T15:55:48",
         "stored_chars": 13857,
         "source_chars": 13857,
         "cap_applied": 60000

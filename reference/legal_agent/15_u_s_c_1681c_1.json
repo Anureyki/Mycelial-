@@ -7,22 +7,22 @@
   "claim_layer_meaning": "States or describes the rule. Cite for what the law IS.",
   "authorities_cited": [],
   "term_index": {
-    "credit report": [
-      0
-    ],
-    "consumer report": [
-      0
-    ],
-    "affiliate": [
-      0
-    ],
-    "reseller": [
+    "opt out": [
       0
     ],
     "consumer reporting agency": [
       0
     ],
-    "opt out": [
+    "credit report": [
+      0
+    ],
+    "reseller": [
+      0
+    ],
+    "affiliate": [
+      0
+    ],
+    "consumer report": [
       0
     ],
     "standing": [
@@ -55,7 +55,7 @@
       "integrity": {
         "state": "complete",
         "basis": "Full retrieved body of 28,115 characters stored; under the 60,000 cap, so nothing was cut.",
-        "stamped_at": "2026-09-21T21:28:24",
+        "stamped_at": "2026-11-16T15:55:47",
         "stored_chars": 28115,
         "source_chars": 28115,
         "cap_applied": 60000
