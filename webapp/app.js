@@ -10,6 +10,21 @@ const chatTabBtn = document.getElementById('chatTabBtn');
 const dashboardTabBtn = document.getElementById('dashboardTabBtn');
 const dashboard = document.getElementById('dashboard');
 const refreshDashboardBtn = document.getElementById('refreshDashboard');
+
+// Theme (Tier 0): dark is the default identity; a per-viewer light/dark choice
+// persists in localStorage and overrides the OS preference in both directions.
+(function initTheme() {
+  const root = document.documentElement;
+  try { const saved = localStorage.getItem('mycos-theme'); if (saved) root.setAttribute('data-theme', saved); } catch (e) {}
+  const tb = document.getElementById('themeBtn');
+  if (tb) tb.addEventListener('click', () => {
+    const cur = root.getAttribute('data-theme');
+    const isDark = cur ? cur === 'dark' : !matchMedia('(prefers-color-scheme: light)').matches;
+    const next = isDark ? 'light' : 'dark';
+    root.setAttribute('data-theme', next);
+    try { localStorage.setItem('mycos-theme', next); } catch (e) {}
+  });
+})();
 const imageInput = document.getElementById('imageInput');
 const attachBtn = document.getElementById('attachBtn');
 const attachPreview = document.getElementById('attachPreview');
@@ -204,6 +219,15 @@ function extractResult(payload) {
     if (node.result && typeof node.result === 'object') { node = node.result; continue; }
     break;
   }
+  // A structured response (e.g. operational_status) carries its own plain-language
+  // recap - narrate from that rather than dumping the raw object into the card.
+  // Anansi narrates and the card reads; a JSON blob in a card is the card failing
+  // to describe itself.
+  if (node && typeof node === 'object') {
+    for (const k of ['summary', 'text', 'message', 'narration', 'answer', 'response']) {
+      if (typeof node[k] === 'string' && node[k].trim()) return node[k];
+    }
+  }
   return JSON.stringify(payload);
 }
 
@@ -345,12 +369,28 @@ async function renderMoneyCard(body) {
   }
 }
 
+// Stage convention (Tier 0): green = vegetative, purple = flowering. The stage
+// comes from Anansi's own snapshot, so the chip tracks the real plant and is not
+// a hand-set label. An unrecognised stage is neutral, never guessed into a colour.
+function makeStageChip(stage) {
+  if (!stage) return null;
+  const s = String(stage).toLowerCase();
+  const kind = /flow|bloom/.test(s) ? 'flower'
+    : /veg|seedl|clone|sprout|germ/.test(s) ? 'veg' : 'other';
+  const span = document.createElement('span');
+  span.className = 'stage-chip ' + kind;
+  span.textContent = stage;
+  return span;
+}
+
 async function renderGrowCard(body) {
   appendReminders(body, 'grow_agent');
   const d = unwrap(await callTask('grow_snapshot', {}), 'last_reading');
   if (!d || d.error) { body.textContent = d && d.error ? d.error : 'No grow data.'; return; }
   const r = d.last_reading || {};
   const res = d.reservoir || {};
+  const stageChip = makeStageChip(d.stage);
+  if (stageChip) body.prepend(stageChip);
   const rows = [
     ['Plant', `${d.strain || 'unknown'} · ${d.stage || 'unknown'}${d.day != null ? ` · day ${d.day}` : ''}`],
     ['Last reading', r.at ? ago(r.at) : 'never'],
@@ -962,6 +1002,8 @@ async function renderGrow2Card(body) {
     h.textContent = `${pl.plant_id}${sys ? ` · ${sys}` : ''}`
       + ` · ${pl.stage || 'unknown'}${pl.day != null ? ` · day ${pl.day}` : ''}`;
     body.append(h);
+    const stageChip = makeStageChip(pl.stage);
+    if (stageChip) body.append(stageChip);
 
     const rows = document.createElement('dl');
     rows.className = 'rows';

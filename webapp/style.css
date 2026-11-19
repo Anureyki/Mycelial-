@@ -1,4 +1,5 @@
 :root {
+  /* Dark is the MYCOS identity; the light sibling is defined below. */
   color-scheme: dark;
   --bg: #0f1410;
   --panel: #171d18;
@@ -7,9 +8,57 @@
   --muted: #8fa392;
   --accent: #3fae4f;
   --accent-text: #06120a;
+  /* Stage conventions: green = vegetative, purple = flowering. */
+  --veg: #5fcf9a; --veg-bg: #12271d;
+  --flower: #c3a2f0; --flower-bg: #241a38;
+  /* Semantic status, separate from the accent. */
+  --ok: #5fcf9a; --warn: #e9b65f; --crit: #ec8370;
+}
+/* Light theme: the viewer's OS preference, unless an explicit dark choice wins. */
+@media (prefers-color-scheme: light) {
+  :root:not([data-theme="dark"]) {
+    color-scheme: light;
+    --bg: #eef3ee; --panel: #ffffff; --border: #d8e2da;
+    --text: #15201a; --muted: #566b5e; --accent: #1f9d5f; --accent-text: #ffffff;
+    --veg: #1f9d5f; --veg-bg: #dcf1e5; --flower: #7c3aed; --flower-bg: #ece6fb;
+    --ok: #1f9d5f; --warn: #a9771c; --crit: #c4432d;
+  }
+}
+/* Explicit toggle overrides the OS in both directions. */
+:root[data-theme="light"] {
+  color-scheme: light;
+  --bg: #eef3ee; --panel: #ffffff; --border: #d8e2da;
+  --text: #15201a; --muted: #566b5e; --accent: #1f9d5f; --accent-text: #ffffff;
+  --veg: #1f9d5f; --veg-bg: #dcf1e5; --flower: #7c3aed; --flower-bg: #ece6fb;
+  --ok: #1f9d5f; --warn: #a9771c; --crit: #c4432d;
+}
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --bg: #0f1410; --panel: #171d18; --border: #2a332b;
+  --text: #e7f0e8; --muted: #8fa392; --accent: #3fae4f; --accent-text: #06120a;
+  --veg: #5fcf9a; --veg-bg: #12271d; --flower: #c3a2f0; --flower-bg: #241a38;
+  --ok: #5fcf9a; --warn: #e9b65f; --crit: #ec8370;
 }
 
 * { box-sizing: border-box; }
+
+/* Tier 0 accessibility: a visible focus ring and comfortable touch targets. */
+:focus-visible { outline: 2.5px solid var(--accent); outline-offset: 2px; border-radius: 6px; }
+.tab, #settingsBtn, #themeBtn, #refreshDashboard, #sendBtn, #attachBtn,
+#micBtn, #speakBtn, #saveSettings, #sourceMoreBtn, #refreshTraining { min-height: 44px; }
+#settingsBtn, #themeBtn { min-width: 44px; display: inline-flex; align-items: center; justify-content: center; }
+
+/* Tier 0 stage chip: green vegetative, purple flowering (from live Anansi data). */
+.stage-chip {
+  display: inline-flex; align-items: center; gap: 5px;
+  font-size: 0.72rem; font-weight: 600; letter-spacing: 0.02em;
+  padding: 3px 10px; border-radius: 999px; margin: 0 0 8px;
+  text-transform: capitalize;
+}
+.stage-chip::before { content: ""; width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
+.stage-chip.veg { color: var(--veg); background: var(--veg-bg); }
+.stage-chip.flower { color: var(--flower); background: var(--flower-bg); }
+.stage-chip.other { color: var(--muted); background: var(--border); }
 
 .hidden { display: none !important; }
 
