@@ -47,7 +47,15 @@ mcp==1.28.1
 mcp-server-git==2026.7.10
 ml_dtypes==0.5.4
 narwhals==2.24.0
-numpy==2.5.1
+# numpy 2.x (2026-11-19): the venv had drifted back to 1.26.4 while this pin
+# already specified 2.x; upgraded to 2.5.5 so datasets/pyarrow/sentence-transformers
+# import, and verified the full ci_local.sh suite green on 2.5.5.
+# KNOWN DEPENDENCY CONFLICTS, left intentionally (both dormant):
+#   - pyctcdecode wants numpy<2.0 but is imported by NOTHING in agents/core/services - harmless.
+#   - flwr (federated learning, not currently running) wants packaging<26 and
+#     cryptography<47, which the versions below violate. Reconcile flwr's pins
+#     when reviving federated learning, not before.
+numpy==2.5.5
 onnxruntime==1.27.0
 opencv-python-headless==5.0.0.93
 openwakeword==0.4.0
