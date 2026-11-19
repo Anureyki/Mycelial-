@@ -8914,6 +8914,48 @@ class GrowAgent(AgentBase):
         m = re.search(r'(\d{1,3}(?:\.\d+)?)\s*(?:l\b|liters?|litres?)', t)
         if m: out["litres"] = _f(m)
 
+        # LABELED FIELDS ARE AUTHORITATIVE. The pass above reads natural language
+        # ("919 ppm, 22.4 C, 20 L"). When the grower writes explicit key=value or
+        # key: value pairs instead, the LABEL names the field and wins - guessing
+        # from adjacency is exactly how "temp_c=22.4 litres=20" recorded the
+        # temperature as the volume, and "ec_us=1830" was dropped (the _ broke
+        # \bec\b, and no digit preceded the us). A stated label is the field, not
+        # a hint to weigh against position, so it overrides.
+        _SEP = r'\s*[=:]\s*'
+
+        def _lbl(*keys):
+            for key in keys:
+                lm = re.search(key + _SEP + r'(\d{1,5}(?:\.\d+)?)', t)
+                if lm:
+                    try:
+                        return float(lm.group(1))
+                    except Exception:
+                        pass
+            return None
+
+        _v = _lbl(r'\bppm\b', r'\btds\b')
+        if _v is not None: out["ppm"] = _v
+        _v = _lbl(r'\bec_us\b')                       # microsiemens, as written
+        if _v is not None:
+            out["ec_us"] = _v
+        else:
+            _vm = _lbl(r'\bec_ms\b')                  # millisiemens -> us
+            if _vm is not None:
+                out["ec_us"] = _vm * 1000
+            else:
+                _v = _lbl(r'\bec\b')                  # bare ec: <=20 is mS
+                if _v is not None:
+                    out["ec_us"] = _v * 1000 if _v <= 20 else _v
+        _v = _lbl(r'\btemp_c\b', r'\bwater_?temp\b', r'\btemp\b')
+        if _v is not None: out["temp_c"] = _v
+        _v = _lbl(r'\btemp_f\b')
+        if _v is not None: out["temp_c"] = (_v - 32) * 5 / 9
+        _v = _lbl(r'\bph\b')
+        if _v is not None: out["ph"] = _v
+        _v = _lbl(r'\bvolume_liters\b', r'\bvolume\b', r'\blitres\b', r'\bliters\b',
+                  r'\blitre\b', r'\bliter\b', r'\bvol\b')
+        if _v is not None: out["litres"] = _v
+
         # EVERY QUANTITY IS GATED BY ITS OWN RANGE, and one that fails its gate
         # is recorded with the reason rather than silently blanked. A value
         # outside its range is usually a units mistake or a mis-parse, and both

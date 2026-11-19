@@ -66,6 +66,20 @@ def main():
        any(u["value"] == 6.27 for u in r.get("unassigned", [])))
     ck("target language is still not a reading", g.parse_reading("bring it up to 800 ppm") is None)
 
+    print("labeled key=value fields are authoritative, not guessed from adjacency")
+    # The live bug (2026-11-18): "temp_c=22.4 litres=20" recorded the temperature
+    # as the volume, and "ec_us=1830" was dropped. A stated label is the field.
+    r = g.parse_reading("GSC-1: ppm=919 ec_us=1830 ph=5.9 temp_c=22.4 litres=20")
+    ck("temp does NOT land in volume; EC is not dropped",
+       r.get("ppm") == 919.0 and r.get("ec") == 1830.0 and r.get("ph") == 5.9
+       and r.get("temp") == 22.4 and r.get("volume_liters") == 20.0, str(r))
+    r = g.parse_reading("ppm: 919, ec: 1.83 ms/cm, ph: 5.9, volume: 20 l, water temp: 22.4 c")
+    ck("labeled units with colons parse (ec mS->uS, volume, water temp)",
+       r.get("ec") == 1830.0 and r.get("volume_liters") == 20.0 and r.get("temp") == 22.4, str(r))
+    r = g.parse_reading("Correction for GSC-1: volume_liters=20. ec_us=1830.")
+    ck("a labeled correction takes (volume and EC)",
+       r.get("volume_liters") == 20.0 and r.get("ec") == 1830.0, str(r))
+
     print("a decimal is one number, and a name is not a measurement")
     for said, want, nothing_else in (
             ("Lwc 797 ppm 22.0c 1594 ec 6.5ph", {"ppm": 797.0, "ph": 6.5, "ec": 1594.0,
