@@ -49,10 +49,10 @@ class DomainRouter:
     def _domain_vocabulary(self):
         """Ask every registered agent what vocabulary claims a request for it.
 
-        Boss holds no domain words of its own. It asks. An agent that declares
-        nothing simply never matches, and a new domain agent becomes routable
-        by starting up - not by editing this file, which is what made the
-        orchestrator accumulate the vocabulary of every domain beneath it."""
+        The router holds no domain words of its own. It asks. An agent that
+        declares nothing simply never matches, and a new domain agent becomes
+        routable by starting up - not by editing this file, which is what made
+        the orchestrator accumulate the vocabulary of every domain beneath it."""
         c = self._domain_cache
         if c["map"] is not None and time.time() - c["at"] < c.get("ttl", 300):
             return c["map"]
@@ -235,8 +235,8 @@ class DomainRouter:
         wrong fact. See core/intent.py."""
         # AN OWNED TERM ENDS THE DECISION.
         #
-        # Boss holds no domain knowledge and cannot judge whether a request is
-        # really Grow's - but Grow can, and a plant it is actually tracking is
+        # The router holds no domain knowledge and cannot judge whether a request
+        # is really Grow's - but Grow can, and a plant it is actually tracking is
         # not a matter of opinion. So a department is allowed to say "this one
         # is definitively mine", and that is not a vote to be weighed against a
         # model's guess or another agent's keyword. It stops the routing.

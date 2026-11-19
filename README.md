@@ -33,13 +33,10 @@ The organising rule is one sentence: **the orchestrator practises no domain.** I
                                │  HTTPS + basic auth
                          nginx  :8443                 ← the only MycOS door on the LAN
                                │
-                         Anansi :8081                 storyteller — declares 0 terms
-                               │  process_request
-                               ▼
-                         Boss   :8000                 routes to a domain · holds no vocabulary
-                               │
+                         Anansi :8081                 interface: routes and narrates — declares 0 terms
+                               │  reads routing_terms — "who claims this request?"
+                               │  (Boss :8000 governs the route — authorize_route only, holds no vocabulary)
                     ┌──────────┴──────────┐
-                    │  routing_terms      │           "who claims this request?"
                     ▼                     ▼
         ┌───────────────────┐   ┌───────────────────┐
         │  grow_agent :9009 │   │  legal_agent :9011│   … and 7 more domain agents
@@ -57,7 +54,7 @@ The organising rule is one sentence: **the orchestrator practises no domain.** I
         Registry :8004  ── discovery: who exists, at what URL
 ```
 
-Boss never picks a capability. It asks who claims the request, hands the prompt over whole, and the domain agent chooses among its own tools.
+Anansi routes but never picks a capability: it reads each agent's live `routing_terms`, asks who claims the request, and hands the prompt over whole — the domain agent chooses among its own tools. Boss never carries the payload; it governs the route through `authorize_route` and nothing else.
 
 **Why it is shaped this way.** Boss once held ~600 lines choosing between one agent's capabilities and ~170 more composing prose for a domain it does not practise. Every gap had the same shape: a new ability was reachable from exactly one branch of the router, and the question got phrased another way. `"how long until it falls to 238"` reached a code model and came back as a physics free-fall problem; `DWC` came back as *"Direct Water Cooker"*.
 
@@ -81,7 +78,7 @@ Phase 0 in [`DEPLOYMENT_PROGRESS.md`](DEPLOYMENT_PROGRESS.md).
 | `describe` | I put my own result into words | 171 lines of Boss writing domain prose |
 | `refer_finding` / `receive_finding` | Hand another domain something I noticed but do not own | Nothing. The default records the finding and **says it only recorded it** |
 
-Boss distinguishes *claims nothing* from *did not answer*: a silent agent is retried in 30 s, a deliberate abstainer is not.
+The router (in Anansi, `core/routing.py`) distinguishes *claims nothing* from *did not answer*: a silent agent is retried in 30 s, a deliberate abstainer is not.
 
 ---
 
@@ -100,8 +97,8 @@ Term counts are what each agent declares for itself at runtime.
 | **Analyzer** | 9006 | 12 | Outcomes, patterns, recommendations |
 | **Trust** | 9013 | 10 | Trusts, beneficiaries, fiduciary roles |
 | **PQA** | 9007 | 8 | Public web search fallback |
-| **Boss** | 8000 | **0** | Orchestration only — routing, thresholds, escalation |
-| **Anansi** | 8081 | **0** | Narration, both directions. Names no agents, no tasks |
+| **Boss** | 8000 | **0** | Governance only — `authorize_route`, thresholds, escalation. Carries no payload, does not route |
+| **Anansi** | 8081 | **0** | Routing and narration, both directions. Reads live `routing_terms`; names no agents, no tasks |
 | **Hermes** | 8002 | **0** | Memory transport and policy. A broker; it does not interpret |
 
 The three zeros are deliberate. None of them owns a domain, so none should claim a request.
