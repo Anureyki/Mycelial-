@@ -1931,6 +1931,98 @@ Thresholds (distance, recency, severity, corroboration): below them, a daily dig
 only the imperative reaches him at once, by the voice registers. Routes and egress
 plans are drafted and recommended, never acted on. Starts in dry run.
 
+### Attention protection and personal relevance policy
+
+Part of the Phase 2 situational-awareness department above - NOT a new agent, NOT
+a new numbered phase, NOT an Anansi feature. It reuses the existing event
+envelope, the provenance service, the claim/verification pipeline, Boss event
+coordination, the policy boundaries, the sensitive-data firewall, and Anansi's
+notification registers; first map those primitives and fill genuine gaps, do not
+rebuild them. Nothing here is started - Phase 2 remains dry-run first and begins
+only on the principal's word, and updating this document is not permission to
+implement or to enable live notifications.
+
+Governing principle: **information must demonstrate personal relevance before it
+competes for the principal's attention.** Monitor configured lawful sources;
+interrupt selectively. The department watches so he does not have to - it does
+not pour the feed on him.
+
+**A. Personal relevance evaluation.** A candidate event is scored on: location
+(authorized current location, home, destination, configured geofences); route
+relationship (does it intersect the planned route or a relevant alternate); time
+horizon (immediate / approaching / future briefing); severity (consequence for
+safety or his plans); actionability (is there a useful action he can take);
+evidence quality (source authority, freshness, corroboration, confidence,
+verification status - from the claim/verification pipeline, whose default is
+`unsupported`); and user-defined scope (topics, locations, quiet hours,
+preparation windows, notification preferences, exclusions - held as standing
+facts in `user_context`). **High severity never promotes an unverified report to
+a confirmed event**: the claim pipeline decides status, severity decides urgency,
+and the two are separate axes.
+
+**B. Attention lanes.** Four categories, chosen from the voice registers already
+in place (a lane is a register threshold, not a second scale nobody maintains):
+1. Immediate alert - credible, time-sensitive, materially relevant.
+2. Preparation brief - upcoming conditions affecting travel, appointments, plans.
+3. Scheduled digest - lower-priority developments grouped for a chosen briefing time.
+4. Quiet record - relevant but non-interrupting; inspectable while retention permits.
+
+**C. MycOS attention governance.** MycOS governs quiet hours and briefing
+schedules; relevance radius and route scope; preparation horizon; severity and
+confidence thresholds; enabled source categories; notification preferences;
+monitoring pause and source disablement; and the principal's override and
+correction of any classification. **Default to no interruption** when relevance,
+freshness, or evidence is insufficient. Deduplicate an incident across sources;
+notify again only when new evidence materially changes severity, confidence,
+location, or recommended action.
+
+**D. Preparation workflow.** Before a planned departure or at a configured
+briefing time: evaluate authorized route and destination; check enabled official
+weather, emergency, road and transportation sources; identify material changes;
+present source references, timestamps, confidence and verification status; offer
+alternate-route or timing recommendations where useful. Keep scheduled,
+predicted, reported and confirmed events distinct. Recommendations are advisory -
+**no autonomous rerouting, schedule change, external contact or other
+consequential action without the principal's authorization** (the same actuation
+boundary hardware and outbound messages already sit behind).
+
+**E. Evidence and event provenance.** Every normalized event preserves: event id
+and type; source identity and source reference; source timestamp and ingestion
+timestamp; location and location uncertainty; verification status and confidence;
+corroborating references; the personal-relevance rationale; expiration/staleness;
+and the notification decision and its reason. Use the existing event envelope and
+provenance service - a radio transmission, scanner feed, social post or model
+inference is an observation, not an automatically confirmed fact (verifiable
+state over narrative, applied to the outside world).
+
+**F. Driving and wearable safety.** When driving, alerts are concise and
+audio-first when enabled; they require no reading, typing or device handling;
+detailed information and controls defer until safely stopped; nothing encourages
+visual interaction with glasses or phone while moving. Glasses, phone and vehicle
+interfaces are sensor and presentation endpoints, never independent monitoring
+authorities.
+
+**G. Lawful-source and privacy boundaries.** Use only publicly accessible or
+explicitly authorized sources; never bypass encryption, access controls or
+restricted communications; treat incomplete or delayed feeds as uncertain;
+minimize raw audio, location history and bystander information; preserve the
+existing sensitive-data firewall and the principal's retention/deletion control.
+**Technical accessibility does not establish legal authorization or collection
+necessity** - the same rule as "it can reach the service" is not "it is allowed
+to read it".
+
+**H. Dry-run acceptance criteria.** Before any live notification, demonstrate:
+(1) ingestion from a small, explicitly configured set of lawful sources;
+(2) provenance preservation and event normalization; (3) the distinction between
+confirmed, corroborated, alleged, predicted, unverified, stale and expired
+events; (4) location / route / destination / time-window relevance matching;
+(5) deduplication and expiration; (6) correct behavior across all four attention
+lanes; (7) an explanation of why each event was surfaced or suppressed;
+(8) quiet hours, pause, override, source disablement and retention controls;
+(9) handling of false positives, missing feeds, delayed feeds, conflicting
+reports and network loss; (10) advisory-only route recommendations and
+driving-safe notifications.
+
 **Phase 3 - social media through MCP.** Everything from it is untrusted data (posts can
 carry instructions aimed at agents) - through Tool Service and the sandbox, never as
 commands. Nothing flagged on social alone without a second source. Other people's
