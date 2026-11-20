@@ -2812,3 +2812,202 @@ catching false success, doing novel reasoning. Independence for DELIVERY is reac
 current models plus better students; independence for BUILDING NEW CAPABILITY is the teaching
 loop, by design (capability accrues in the agent so it survives a model swap). The models end
 the round-trips for routine work; they do not end the teaching.
+
+## Mandatory Execution Boundary: Channel Enforcement (2026-11-19) — SCOPED, NOT STARTED
+
+The finding that reordered the Agent Substrate question. `core/sandbox/Channel`
+is a backend-neutral execution boundary: one method, `backend.execute(agent_id,
+verb, payload)`, called AFTER `_authorise()` (closed verb set, host/binary
+allowlists, path-escape) and the veto, and recorded by `_record()` (provenance,
+payload hashed not stored). Authorization and provenance sit OUTSIDE the backend
+by construction - the backend is called last and sees only post-authorization
+calls - so a `SubstrateBackend` is a ~1-class adapter that cannot reach any
+authority. Proven read-only 2026-11-19.
+
+But the Channel is BUILT, CI-GATED, AND UNWIRED. Its only production call site is
+`tools/check_sandbox.py`; no agent or service imports it; every agent does direct
+in-process `subprocess`/`open`/`requests`. The security boundary exists as an
+implementation, not as an enforced system. So the runtime choice (Docker /
+Firecracker / Agent Substrate) is NOT the next milestone - making the Channel
+mandatory is, and that work is backend-independent.
+
+NOT Agent Substrate yet. On 7.1 GiB RAM with no k8s installed (docker +
+containerd only), Docker/Firecracker reach the same boundary without a control
+plane. Agent Substrate stays a candidate backend - proven compatible (one-method
+contract, authority stays in Mycelial) - to be A/B'd behind the UNCHANGED Channel
+once the boundary is mandatory, gated by a measured k3s-on-7GB spike. Do NOT
+rewrite Channel to accommodate Substrate; the contract already fits. (NB: the
+"substrate decision" at the knowledge-graph section above is the graph-DB layer,
+a different thing from Agent Substrate the runtime.)
+
+### Acceptance criteria (the milestone IS these five)
+1. A real agent performs its filesystem operations through Channel (process
+   operations proven SEPARATELY by a controlled test, not padded into Stage A).
+2. Direct execution paths outside the boundary are identified and either blocked
+   or EXPLICITLY exempted (memory -> Hermes over A2A is an exemption, not a leak).
+3. An unauthorized request never reaches the backend - Channel raises before
+   `backend.execute`, asserted against NullBackend as `check_sandbox` already does.
+4. Provenance is recorded OUTSIDE the execution environment (`Channel._record`,
+   payload hashed, written even on denial).
+5. The same acceptance suite passes against the Docker backend and, later, a
+   Substrate backend - one backend-parametrized suite.
+
+### Staging A-E
+- A. Make Channel mandatory for ONE low-risk agent (analyzer_agent - scoped below).
+- B. Complete that agent's `env.sandbox` contract field (`contracts.py:154`
+     reports it `required_but_missing` for every agent today).
+- C. Test Docker through Channel - the baseline.
+- D. Build the `SubstrateBackend` adapter - backend substitution, authority unmoved.
+- E. Measure resource requirements (k3s + one gVisor actor on the 7 GB box) -
+     decide this machine vs a separate node.
+
+### Two security requirements held open (architectural, not optional)
+- IDENTITY BINDING: SPIFFE authenticates the workload at transport, NOT its right
+  to act as a Mycelial principal. The `agent_id -> principal` mapping check and
+  the authorization decision stay Mycelial's, never inferred from a valid SVID.
+- RESTORATION AUTHORIZATION: a restored/resumed actor gets a FRESH Mycelial
+  authorization check, not authority-by-restored-state; provenance retained.
+  Carried as the mandatory `restore_requires_authz: true` sandbox contract field.
+
+### Security ownership (unchanged by any backend)
+Anansi routing, Boss `authorize_route`, resource-ACL decisions, MycOS lifecycle
+policy, principal approval, principal-release verification, financial authority,
+and provenance requirements remain Mycelial responsibilities. The backend is a
+dumb executor called last.
+
+### Stage A scope - analyzer_agent (VERIFIED against source 2026-11-19, read-only)
+Chosen because it is off the live request path (on-demand outcome analysis),
+small (245 lines), zero proc, zero direct egress - lowest blast radius. Its
+entire direct filesystem surface:
+
+| Op (current)                                  | Channel verb | Payload | Note |
+|-----------------------------------------------|--------------|---------|------|
+| `glob(KNOWLEDGE_DIR/*.json)` (`_load_outcomes`) | `fs.list`  | path="knowledge" | re-root: absolute -> sandbox-relative |
+| `open(filepath,"r")` per outcome file         | `fs.read`    | path="knowledge/<f>" | JSON/JSONL parse stays in-process |
+| `open(report_path,"w")`+`json.dump`           | `fs.write`   | path="reports/<name>", content=<json> | timestamped report |
+| `os.makedirs(KNOWLEDGE/REPORTS, exist_ok)`    | (none)       | - | mkdir is not a verb; becomes volume setup |
+
+Preserve the Python scan - NO `proc.exec` introduced (the principal's correction:
+prove the boundary, do not inflate the op count).
+
+Must remain OUTSIDE the sandbox (explicit exemptions):
+- `store_own_memory(...)` -> Hermes over A2A. Memory is an independent service,
+  not a sandbox fs op; keeps Hermes independently protected.
+- JSON parsing, outcome reasoning, report assembly - the agent loop runs outside;
+  the sandbox returns bytes.
+- Provenance - `Channel._record` writes it outside.
+
+OPEN DESIGN QUESTION the scope surfaced (a dependency, not a blocker): analyzer is
+an AGGREGATOR. `KNOWLEDGE_DIR` is host-shared outcome data; a strict per-agent
+volume ("nothing shared", DockerBackend) cannot see another producer's files, and
+`REPORTS_DIR` output is read by nothing in-repo. So Stage A must decide how
+cross-agent data crosses an isolation boundary: (a) a read-only shared INPUT mount
+for outcomes plus a shared OUTPUT for reports, or (b) outcomes/reports delivered
+via a service (Logging/Hermes) over A2A - in which case the KNOWLEDGE_DIR read is
+not a sandbox op at all and only the agent's own scratch I/O is sandboxed. For the
+PoC: seed analyzer's volume with a read-only copy of outcomes to prove
+fs.list+fs.read+fs.write against Docker; carry (a)/(b) as the production decision.
+Separately worth confirming: current source shows NO agent writing `KNOWLEDGE_DIR`
+and nothing reading `REPORTS_DIR` - analyzer's input source and output consumer
+are themselves unverified.
+
+### Input ownership - RESOLVED (whole-tree trace 2026-11-19, read-only)
+The `KNOWLEDGE_DIR` producer is GONE, not merely unlocated. A trace across all
+file types finds NO code that writes `~/mycelial/knowledge/`. The dir holds one
+stale `sample.json` (2026-07-27) and `archive/` with 40 `outcome_*.json` all
+dated 2026-06-16: a real producer ran in June, its output was archived on Jul 27,
+and nothing has written since. Outcome recording moved into memory -
+`core/differential.py:record_outcome` appends to the differential object (-> Hermes),
+not the filesystem. So Analyzer currently aggregates a DEAD input (one 4-month-old
+sample) - the finds-nothing-reports-health pattern, a latent defect in its own
+right, independent of the sandbox and worth fixing regardless.
+
+Delivery mechanism (production) = SERVICE-MEDIATED A2A, not a shared filesystem
+mount. Analyzer pulls outcomes from where they now live (Hermes / the differential
+pipeline / Logging) over authenticated A2A. Rationale (principal): producers retain
+ownership; Analyzer receives only authorized information; a shared mount does not
+quietly become a universal access path; provenance travels with the data; access
+is revocable independently of the Analyzer runtime. Principle: ISOLATION MUST NOT
+DESTROY COLLABORATION - separate execution boundaries without information silos.
+
+Consequence for Stage A: the `KNOWLEDGE_DIR` read is NOT a sandbox fs op - it is an
+A2A service call, exempted like `store_own_memory`. Analyzer's real sandbox surface
+shrinks to the report `fs.write` (whose consumer is also undefined - nothing in-repo
+reads `REPORTS_DIR`). The Docker PoC may still prove fs.list+fs.read+fs.write by
+seeding the volume with the ARCHIVED June outcomes, but that proves filesystem
+ENFORCEMENT, not production data integration (which is A2A). PREREQUISITE before
+authorizing migration: define Analyzer's A2A outcome source and its report consumer.
+
+### Analyzer A2A dependency audit - RESULT (read-only, 2026-11-19)
+A. LIVE OUTCOME SOURCE = the Logging/Auditing Service (8009), owner AND exposer.
+   `logs` table {agent_id, event_type, task, result, level, metadata, timestamp,
+   correlation_id, pinned}; produced live by `base_agent.log_to_audit` on every
+   TASK_COMPLETED (base_agent.py:1363), denials at level=warning; exposed via
+   `GET /logs` (filters agent_id/event_type/task/level/pinned/correlation_id +
+   limit/offset). SEPARATE from domain memory - so Analyzer gets operational
+   outcomes WITHOUT unrelated memory, by architecture. `differential.record_outcome`
+   is NOT the source (hypothesis outcomes in per-agent memory). Authz: `GET /logs`
+   is not read-gated (`ask_policy` governs pinning only) - localhost-mitigated,
+   same no-read-auth gap as the Memory service.
+B. REPORT CONSUMER = NONE. Whole-tree search (py/js/html/sh) finds no reader of
+   `REPORTS_DIR`/`analyzer_report`. The report is an orphan file; the
+   finding-publication machinery (`refer_finding`, `publish_event`/MQTT, Anansi
+   notify) is unused by Analyzer. Recommend a service-published finding ->
+   Maintenance/Security and/or Anansi, with provenance. Consumer UNASSIGNED
+   until decided.
+C. DECISION. Source confirmed (Logging 8009 / GET /logs); contract: query
+   TASK_COMPLETED (+ warning/error) rows and map {event_type, level, result} ->
+   {success, error}; replaces the fs glob, stays OUTSIDE the sandbox. Consumer
+   UNASSIGNED (recommend refer_finding/Anansi). BLOCKERS: (1) SEMANTIC mismatch -
+   Logging records completion+level, not the explicit success/error field Analyzer
+   aggregates on; close by mapping (lossy) or an explicit outcome flag in audit
+   metadata (a data-model decision, and the same work that fixes the stale-input
+   defect). (2) consumer unassigned. (3) once input=Logging-query and
+   output=service-published, Analyzer has ~NO filesystem surface left - it is no
+   longer a meaningful fs-enforcement proof.
+
+CONSEQUENCE: Analyzer is RETIRED as the Stage A candidate. Do not distort its
+responsibilities to preserve the earlier PoC choice (that would manufacture the
+debt this investigation prevents). Analyzer's repoint-to-Logging is a SEPARATE
+defect fix, not part of the sandbox milestone. Stage A candidate = UNDER
+RE-EVALUATION for an agent with genuine sandbox-LOCAL fs (own corpus/cache, not
+cross-agent data).
+
+Minimum permissions (NOT broadened because migration makes them easy to express):
+read `knowledge/` only; write `reports/` only; network none; proc none; no
+browser. `env.sandbox` = {backend: docker, profile: readonly-root + net-none, own
+volume only, allowed_verbs: [fs.read, fs.list, fs.write], restore_requires_authz:
+true}.
+
+Dependencies / failure / rollback:
+- Path re-rooting: Channel denies absolute paths and `..`; `KNOWLEDGE_DIR`/
+  `REPORTS_DIR` become sandbox-relative and `BASE=~/mycelial` drops out.
+- Failure preserved: a missing/malformed outcome file currently logs and skips
+  (`_load_outcomes` try/except); the Channel path keeps that, degrading to an
+  empty-outcomes analysis rather than a crash.
+- Rollback: Stage A is behind a per-agent switch; off = today's direct I/O,
+  reverting one agent, no swarm impact. No source changes until separately authorized.
+
+## Security finding: Logging Service GET /logs is unauthenticated (2026-11-19)
+
+Surfaced by the Analyzer A2A dependency audit, elevated to its own finding at the
+principal's instruction. `services/logging_auditing` exposes `GET /logs` (and
+`POST /log`) with NO read/write authorization - `ask_policy` decides only whether
+a log is PINNED, not who may read. Any process that can reach :8009 reads the
+entire operational audit trail of every agent.
+
+Localhost binding reduces NETWORK REACHABILITY; it does not establish
+AUTHORIZATION. "It can reach the service" is not "it is allowed to read all of
+it." Same defect class as the Memory service (no per-operation auth) and the
+unauthenticated `/execute` already recorded in this file.
+
+Least-privilege consequence for the Analyzer migration (and any future consumer):
+a caller must receive a SCOPED slice - the TASK_COMPLETED / outcome events it
+needs, filtered to the agents it is entitled to see - NOT broad read of the whole
+audit log merely because it can open the port. The fix is a read-authz gate on
+`/logs` (scoped by caller identity + event_type), not a wider default. This also
+means the Analyzer->Logging contract in the audit above must specify an
+authorized, scoped query, not `GET /logs?agent_id=*`.
+
+Status: FINDING RECORDED, NOT FIXED. Belongs with the Phase 0 defect register's
+unauthenticated-endpoint class.
